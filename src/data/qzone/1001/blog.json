@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "title": "My First Blog Post",
+    "content": "This is the content of my first blog post. I'm excited to start sharing my thoughts here.",
+    "time": "2023-10-25 14:00:00",
+    "encrypted": false
+  },
+  {
+    "id": 2,
+    "title": "Secret Thoughts",
+    "content": "This is a secret blog post. You need a password to see this.",
+    "time": "2023-10-24 20:00:00",
+    "encrypted": true
+  }
+]

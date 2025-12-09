@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useWindowManager } from '../context/WindowManagerContext';
+import QZone from './QZone';
 
 const Container = styled.div`
     width: 100%;
@@ -67,12 +69,17 @@ const Links = styled.div`
 
 const QQ = () => {
     const [status, setStatus] = useState('login'); // login, logging_in, logged_in
+    const { openWindow } = useWindowManager();
 
     const handleLogin = () => {
         setStatus('logging_in');
         setTimeout(() => {
             setStatus('logged_in');
         }, 1500);
+    };
+
+    const openQZone = (userId) => {
+        openWindow(`qzone-${userId}`, `QZone - ${userId}`, <QZone userId={userId} />, 'ie');
     };
 
     if (status === 'logged_in') {
@@ -87,13 +94,19 @@ const QQ = () => {
                 </div>
                 <div style={{width:'100%', borderTop:'1px solid #ccc', paddingTop:'10px'}}>
                      <div style={{padding:'5px', fontWeight:'bold'}}>好友</div>
-                     <div style={{padding:'5px', paddingLeft:'15px', display:'flex', alignItems:'center'}}>
-                        <div style={{width:'8px', height:'8px', background:'green', borderRadius:'50%', marginRight:'5px'}}></div>
-                        山月
+                     <div style={{padding:'5px', paddingLeft:'15px', display:'flex', alignItems:'center', justifyContent: 'space-between'}}>
+                        <div style={{display: 'flex', alignItems: 'center'}}>
+                            <div style={{width:'8px', height:'8px', background:'green', borderRadius:'50%', marginRight:'5px'}}></div>
+                            山月 (1001)
+                        </div>
+                        <button onClick={() => openQZone("1001")} style={{fontSize: '10px', padding: '2px', cursor: 'pointer'}}>⭐空间</button>
                      </div>
-                     <div style={{padding:'5px', paddingLeft:'15px', display:'flex', alignItems:'center'}}>
-                        <div style={{width:'8px', height:'8px', background:'gray', borderRadius:'50%', marginRight:'5px'}}></div>
-                        用户 A
+                     <div style={{padding:'5px', paddingLeft:'15px', display:'flex', alignItems:'center', justifyContent: 'space-between'}}>
+                        <div style={{display: 'flex', alignItems: 'center'}}>
+                            <div style={{width:'8px', height:'8px', background:'gray', borderRadius:'50%', marginRight:'5px'}}></div>
+                            用户 A (1002)
+                        </div>
+                        <button onClick={() => openQZone("1002")} style={{fontSize: '10px', padding: '2px', cursor: 'pointer'}}>⭐空间</button>
                      </div>
                 </div>
             </Container>
