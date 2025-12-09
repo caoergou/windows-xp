@@ -1,0 +1,94 @@
+{
+  "root": {
+    "type": "folder",
+    "name": "root",
+    "children": {
+      "My Computer": {
+        "type": "folder",
+        "name": "我的电脑",
+        "icon": "computer",
+        "children": {
+          "Local Disk (C:)": {
+            "type": "folder",
+            "name": "本地磁盘 (C:)",
+            "icon": "drive",
+            "children": {
+              "Windows": {
+                 "type": "folder",
+                 "name": "Windows",
+                 "locked": true,
+                 "password": "admin",
+                 "children": {}
+              },
+              "Program Files": {
+                 "type": "folder",
+                 "name": "Program Files",
+                 "children": {}
+              }
+            }
+          }
+        }
+      },
+      "My Documents": {
+        "type": "folder",
+        "name": "我的文档",
+        "icon": "documents",
+        "children": {
+           "Secret Plans.txt": {
+             "type": "file",
+             "name": "秘密计划.txt",
+             "app": "Notepad",
+             "content": "统治世界的计划..."
+           },
+           "Private": {
+             "type": "folder",
+             "name": "私人文件夹",
+             "locked": true,
+             "password": "123",
+             "children": {
+                "Diary.txt": {
+                    "type": "file",
+                    "name": "日记.txt",
+                    "app": "Notepad",
+                    "content": "亲爱的日记，今天我写了一些 React 代码。"
+                }
+             }
+           }
+        }
+      },
+      "Recycle Bin": {
+        "type": "folder",
+        "name": "回收站",
+        "icon": "recycle_bin",
+        "children": {}
+      },
+      "Internet Explorer": {
+        "type": "app_shortcut",
+        "name": "Internet Explorer",
+        "app": "InternetExplorer",
+        "icon": "ie"
+      },
+      "QQ": {
+        "type": "app_shortcut",
+        "name": "QQ",
+        "app": "QQ",
+        "icon": "qq"
+      },
+      "Google": {
+        "type": "file",
+        "name": "Google",
+        "app": "InternetExplorer",
+        "icon": "html",
+        "content": "https://www.google.com/webhp?igu=1"
+      },
+      "About.html": {
+        "type": "file",
+        "name": "About.html",
+        "app": "InternetExplorer",
+        "icon": "html",
+        "content": "<html><body><h1>Welcome to React XP</h1><p>This is a high-fidelity simulation.</p></body></html>",
+        "isHtmlContent": true
+      }
+    }
+  }
+}
