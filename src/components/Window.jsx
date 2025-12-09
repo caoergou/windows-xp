@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
 import { useWindowManager } from '../context/WindowManagerContext';
+import XPIcon from './XPIcon';
 
 const WindowContainer = styled.div`
     position: absolute;
@@ -36,10 +37,9 @@ const TitleText = styled.div`
     display: flex;
     align-items: center;
     
-    img {
-        width: 16px;
-        height: 16px;
+    .title-icon {
         margin-right: 5px;
+        filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.3));
     }
 `;
 
@@ -108,7 +108,7 @@ const Window = ({ windowState }) => {
             <WindowContainer ref={nodeRef} style={style} onClick={() => focusWindow(id)}>
                 <TitleBar className="title-bar">
                     <TitleText>
-                        <img src={icon} alt="" onError={(e) => {e.target.src='https://via.placeholder.com/16'}} />
+                        <XPIcon name={icon} size={16} className="title-icon" color="white" />
                         {title}
                     </TitleText>
                     <TitleControls>
