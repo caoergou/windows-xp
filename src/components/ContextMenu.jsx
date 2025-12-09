@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 const ContextMenuContainer = styled.div`
@@ -11,6 +11,8 @@ const ContextMenuContainer = styled.div`
     z-index: 99999;
     min-width: 150px;
     font-size: 12px;
+    left: ${props => props.x}px;
+    top: ${props => props.y}px;
 `;
 
 const MenuItem = styled.div`
@@ -46,73 +48,46 @@ const ContextMenu = ({ visible, x, y, onClose, menuItems }) => {
     const menuRef = useRef(null);
 
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
-                onClose();
-            }
-        };
-
-        const handleContextMenu = (event) => {
-            // Don't close the menu if contextmenu happens inside the menu
-            if (menuRef.current && menuRef.current.contains(event.target)) {
-                return;
-            }
-            event.preventDefault();
-            onClose();
-        };
-
         if (visible) {
-            // Use setTimeout to avoid immediate triggering
-            const timer = setTimeout(() => {
-                document.addEventListener('mousedown', handleClickOutside);
-                document.addEventListener('contextmenu', handleContextMenu);
-            }, 100);
+            const handleClickOutside = (event) => {
+                if (menuRef.current && !menuRef.current.contains(event.target)) {
+                    onClose();
+                }
+            };
+
+            const handleContextMenu = (event) => {
+                // Don't close the menu if contextmenu happens inside the menu
+                if (menuRef.current && menuRef.current.contains(event.target)) {
+                    return;
+                }
+                event.preventDefault();
+                onClose();
+            };
+
+            document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener('contextmenu', handleContextMenu);
 
             return () => {
-                clearTimeout(timer);
                 document.removeEventListener('mousedown', handleClickOutside);
                 document.removeEventListener('contextmenu', handleContextMenu);
             };
         }
     }, [visible, onClose]);
 
-    useEffect(() => {
-        if (visible && menuRef.current) {
-            const menu = menuRef.current;
-            const rect = menu.getBoundingClientRect();
-
-            let adjustedX = x;
-            let adjustedY = y;
-
-            // Adjust if menu goes off screen right
-            if (x + rect.width > window.innerWidth) {
-                adjustedX = window.innerWidth - rect.width - 5;
-            }
-
-            // Adjust if menu goes off screen bottom
-            if (y + rect.height > window.innerHeight) {
-                adjustedY = window.innerHeight - rect.height - 5;
-            }
-
-            // Adjust if menu goes off screen left
-            if (adjustedX < 0) {
-                adjustedX = 5;
-            }
-
-            // Adjust if menu goes off screen top
-            if (adjustedY < 0) {
-                adjustedY = 5;
-            }
-
-            menu.style.left = `${adjustedX}px`;
-            menu.style.top = `${adjustedY}px`;
-        }
-    }, [visible, x, y]);
-
+    // 只有当菜单可见时才计算位置和渲染
     if (!visible) return null;
 
+    // 计算菜单位置，避免超出屏幕边界
+    const calculatePosition = () => {
+        const adjustedX = Math.max(5, Math.min(x, window.innerWidth - 160));
+        const adjustedY = Math.max(5, Math.min(y, window.innerHeight - 200));
+        return { x: adjustedX, y: adjustedY };
+    };
+
+    const position = calculatePosition();
+
     return (
-        <ContextMenuContainer ref={menuRef}>
+        <ContextMenuContainer ref={menuRef} x={position.x} y={position.y}>
             {menuItems.map((item, index) => {
                 if (item.type === 'separator') {
                     return <MenuSeparator key={index} />;
