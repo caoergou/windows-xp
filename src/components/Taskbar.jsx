@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserSession } from '../context/UserSessionContext';
 import XPIcon from './XPIcon';
+import timeInfo from '../data/time_info.json';
 
 const TaskbarContainer = styled.div`
     position: absolute;
@@ -91,13 +92,16 @@ const TaskItem = styled.div`
 const SystemTray = styled.div`
     background: #0B96D5;
     height: 30px;
+    min-width: 120px;
     padding: 0 15px;
     display: flex;
     align-items: center;
+    justify-content: center;
     color: white;
     font-size: 12px;
     border-left: 1px solid #083E6E;
     box-shadow: inset 1px 1px 1px rgba(0,0,0,0.2);
+    white-space: nowrap;
 `;
 
 const StartMenu = styled.div`
@@ -211,15 +215,27 @@ const Taskbar = () => {
     const { windows, activeWindowId, focusWindow, minimizeWindow } = useWindowManager();
     const { logout } = useUserSession();
     const [startOpen, setStartOpen] = useState(false);
-    const [time, setTime] = useState('');
+    const [dateTime, setDateTime] = useState('');
 
     useEffect(() => {
-        const updateTime = () => {
+        const updateDateTime = () => {
             const now = new Date();
-            setTime(`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`);
+
+            // 格式化时间
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const formattedTime = `${hours}:${minutes}`;
+
+            // 使用配置文件中的自定义日期，如果存在的话
+            const formattedDate = timeInfo.custom_date ||
+                `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+
+            // 组合日期和时间
+            setDateTime(`${formattedDate}${timeInfo.separator || ' '}${formattedTime}`);
         };
-        updateTime();
-        const interval = setInterval(updateTime, 1000);
+
+        updateDateTime();
+        const interval = setInterval(updateDateTime, 1000);
         return () => clearInterval(interval);
     }, []);
 
@@ -300,7 +316,7 @@ const Taskbar = () => {
                     ))}
                 </TaskItems>
                 <SystemTray>
-                    {time}
+                    {dateTime}
                 </SystemTray>
             </TaskbarContainer>
         </>
