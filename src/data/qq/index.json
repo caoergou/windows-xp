@@ -1,0 +1,52 @@
+{
+  "login": {
+    "account": "10001",
+    "password": "password123",
+    "remember": true
+  },
+  "user": {
+    "id": "10001",
+    "nickname": "夏灯",
+    "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=Xiadeng",
+    "status": "online",
+    "signature": "天天好心情"
+  },
+  "friends": [
+    {
+      "id": "10002",
+      "nickname": "林晓宇",
+      "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=LinXiaoyu",
+      "status": "online",
+      "chatHistory": [
+        { "senderId": "10002", "content": "你好，夏灯！", "timestamp": "10:00" },
+        { "senderId": "10001", "content": "你好，晓宇！", "timestamp": "10:01" }
+      ]
+    },
+    {
+      "id": "10003",
+      "nickname": "陈默",
+      "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=ChenMo",
+      "status": "offline",
+      "chatHistory": [
+        { "senderId": "10001", "content": "上次的文件你收到了吗？", "timestamp": "09:30" },
+        { "senderId": "10003", "content": "收到了，谢谢。", "timestamp": "09:35" }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": "20001",
+      "name": "技术交流群",
+      "avatar": "https://api.dicebear.com/9.x/identicon/svg?seed=TechGroup",
+      "members": [
+          { "id": "10001", "nickname": "夏灯", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=Xiadeng" },
+          { "id": "10002", "nickname": "林晓宇", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=LinXiaoyu" },
+          { "id": "10003", "nickname": "陈默", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=ChenMo" }
+      ],
+      "chatHistory": [
+        { "senderId": "10002", "content": "大家晚上好！", "timestamp": "20:00" },
+        { "senderId": "10003", "content": "晚上好。", "timestamp": "20:05" }
+      ]
+    }
+  ]
+}
