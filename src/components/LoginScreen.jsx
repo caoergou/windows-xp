@@ -131,7 +131,7 @@ const ErrorMsg = styled.div`
 `;
 
 const LoginScreen = () => {
-    const { login } = useUserSession();
+    const { login, user } = useUserSession();
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
@@ -154,10 +154,14 @@ const LoginScreen = () => {
             <Content>
                 <UserRow>
                     <UserIcon>
-                        <XPIcon name="user" size={64} color="white" />
+                        {user.avatar ? (
+                            <img src={user.avatar} alt={user.name} />
+                        ) : (
+                            <XPIcon name="user" size={64} color="white" />
+                        )}
                     </UserIcon>
                     <InputArea>
-                        <UserName>Administrator</UserName>
+                        <UserName>{user.name}</UserName>
                         <PasswordBox>
                             <label>输入密码:</label>
                             <Input 
