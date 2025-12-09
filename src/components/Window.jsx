@@ -48,28 +48,103 @@ const TitleControls = styled.div`
     gap: 2px;
 `;
 
-const ControlBtn = styled.button`
+const BaseButton = styled.button`
     width: 21px;
     height: 21px;
-    border: 1px solid white;
-    background-color: #D6D6D6; /* Simplification */
+    border: 1px solid #fff;
     border-radius: 3px;
+    margin-left: 2px;
+    padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 10px;
-    padding: 0;
-    cursor: pointer;
+    outline: none;
+    cursor: default;
     
+    box-shadow: inset 0 -1px 2px rgba(0,0,0,0.1),
+              0 1px 2px rgba(0,0,0,0.1);
+
     &:hover {
         filter: brightness(1.1);
     }
+
+    &:active {
+        filter: brightness(0.9);
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+    }
 `;
 
-const CloseBtn = styled(ControlBtn)`
-    background-color: #E04D3C;
-    color: white;
-    font-weight: bold;
+const MinimizeBtn = styled(BaseButton)`
+    background: linear-gradient(180deg, #78ACF3 0%, #76ABF3 5%, #72A7F2 10%, #6EA3F1 15%, #6A9EEF 20%, #659AED 25%, #6195EB 30%, #5C90E9 35%, #578BE7 40%, #5286E5 45%, #4C81E3 50%, #3F75DD 50%, #396ED9 55%, #3267D4 60%, #2B60CF 65%, #2358CA 70%, #1B51C5 75%, #134AC0 80%, #0B43BB 85%, #023BB6 90%, #0036B3 95%, #0033B3 100%);
+
+    &::before {
+        content: "";
+        width: 8px;
+        height: 2px;
+        background-color: white;
+        align-self: flex-end;
+        margin-bottom: 4px;
+        box-shadow: 0 1px 0 rgba(0,0,0,0.3);
+    }
+`;
+
+const MaximizeBtn = styled(BaseButton)`
+    background: linear-gradient(180deg, #78ACF3 0%, #76ABF3 5%, #72A7F2 10%, #6EA3F1 15%, #6A9EEF 20%, #659AED 25%, #6195EB 30%, #5C90E9 35%, #578BE7 40%, #5286E5 45%, #4C81E3 50%, #3F75DD 50%, #396ED9 55%, #3267D4 60%, #2B60CF 65%, #2358CA 70%, #1B51C5 75%, #134AC0 80%, #0B43BB 85%, #023BB6 90%, #0036B3 95%, #0033B3 100%);
+
+    &::before {
+        content: "";
+        width: 10px;
+        height: 8px;
+        border: 1px solid white;
+        border-top-width: 2px;
+        box-shadow: 0 1px 0 rgba(0,0,0,0.3);
+    }
+`;
+
+const RestoreBtn = styled(BaseButton)`
+    background: linear-gradient(180deg, #78ACF3 0%, #76ABF3 5%, #72A7F2 10%, #6EA3F1 15%, #6A9EEF 20%, #659AED 25%, #6195EB 30%, #5C90E9 35%, #578BE7 40%, #5286E5 45%, #4C81E3 50%, #3F75DD 50%, #396ED9 55%, #3267D4 60%, #2B60CF 65%, #2358CA 70%, #1B51C5 75%, #134AC0 80%, #0B43BB 85%, #023BB6 90%, #0036B3 95%, #0033B3 100%);
+
+    position: relative;
+
+    &::before {
+        content: "";
+        position: absolute;
+        width: 8px;
+        height: 6px;
+        border: 1px solid white;
+        border-top-width: 2px;
+        box-shadow: 0 1px 0 rgba(0,0,0,0.3);
+        bottom: 4px;
+        left: 4px;
+        background-color: inherit; /* mask the behind square */
+        z-index: 1;
+    }
+
+    &::after {
+        content: "";
+        position: absolute;
+        width: 8px;
+        height: 6px;
+        border: 1px solid white;
+        border-top-width: 2px;
+        box-shadow: 0 1px 0 rgba(0,0,0,0.3);
+        top: 4px;
+        right: 4px;
+        z-index: 0;
+    }
+`;
+
+const CloseBtn = styled(BaseButton)`
+    background: linear-gradient(180deg, #E89178 0%, #E68E76 5%, #E58B74 10%, #E38872 15%, #E18570 20%, #E0826E 25%, #DE7F6C 30%, #DC7C6A 35%, #DA7967 40%, #D97565 45%, #D77263 50%, #CB5F4F 50%, #C85B4C 55%, #C55748 60%, #C25345 65%, #BF5041 70%, #BC4C3E 75%, #B9483B 80%, #B64437 85%, #B34134 90%, #B03D31 95%, #AD392E 100%);
+
+    &::before {
+        content: "✕";
+        color: white;
+        font-weight: bold;
+        font-size: 11px;
+        text-shadow: 0 1px 0 rgba(0,0,0,0.3);
+        font-family: sans-serif;
+    }
 `;
 
 const WindowBody = styled.div`
@@ -112,9 +187,13 @@ const Window = ({ windowState }) => {
                         {title}
                     </TitleText>
                     <TitleControls>
-                        <ControlBtn onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }}>_</ControlBtn>
-                        <ControlBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }}>□</ControlBtn>
-                        <CloseBtn onClick={(e) => { e.stopPropagation(); closeWindow(id); }}>X</CloseBtn>
+                        <MinimizeBtn onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} aria-label="Minimize" />
+                        {isMaximized ? (
+                            <RestoreBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Restore" />
+                        ) : (
+                            <MaximizeBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Maximize" />
+                        )}
+                        <CloseBtn onClick={(e) => { e.stopPropagation(); closeWindow(id); }} aria-label="Close" />
                     </TitleControls>
                 </TitleBar>
                 <WindowBody>
