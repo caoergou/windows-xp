@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useUserSession } from '../context/UserSessionContext';
+import XPIcon from './XPIcon';
 
 const Container = styled.div`
   background-color: #003399;
@@ -65,6 +66,9 @@ const UserIcon = styled.div`
     background: orange;
     margin-right: 20px;
     overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     
     img {
         width: 100%;
@@ -126,9 +130,6 @@ const ErrorMsg = styled.div`
     min-height: 20px;
 `;
 
-// Placeholder icon
-const USER_ICON_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/User_Circle.png/480px-User_Circle.png"; 
-
 const LoginScreen = () => {
     const { login } = useUserSession();
     const [password, setPassword] = useState('');
@@ -153,7 +154,7 @@ const LoginScreen = () => {
             <Content>
                 <UserRow>
                     <UserIcon>
-                        <img src={USER_ICON_URL} alt="User" />
+                        <XPIcon name="user" size={64} color="white" />
                     </UserIcon>
                     <InputArea>
                         <UserName>Administrator</UserName>

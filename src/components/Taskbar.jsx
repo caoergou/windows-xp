@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserSession } from '../context/UserSessionContext';
+import XPIcon from './XPIcon';
 import timeInfo from '../data/time_info.json';
 
 const TaskbarContainer = styled.div`
@@ -43,10 +44,9 @@ const StartButton = styled.button`
         box-shadow: inset 2px 2px 2px rgba(0,0,0,0.5);
     }
     
-    img {
-        width: 18px;
-        height: 18px;
+    .start-icon {
         margin-right: 4px;
+        filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.3));
     }
 `;
 
@@ -84,9 +84,7 @@ const TaskItem = styled.div`
         background: #5092F6;
     }
     
-    img {
-        width: 16px;
-        height: 16px;
+    .task-icon {
         margin-right: 5px;
     }
 `;
@@ -128,13 +126,18 @@ const StartHeader = styled.div`
     padding: 0 10px;
     border-radius: 5px 5px 0 0;
     
-    img {
-        width: 32px;
-        height: 32px;
+    .user-avatar {
+        margin-right: 10px;
         border: 2px solid white;
         border-radius: 3px;
-        margin-right: 10px;
+        background: #99CCFF;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 36px;
+        height: 36px;
     }
+
     span {
         color: white;
         font-weight: bold;
@@ -174,9 +177,7 @@ const MenuItem = styled.div`
         color: white;
     }
     
-    img {
-        width: 24px;
-        height: 24px;
+    .menu-icon {
         margin-right: 5px;
     }
 `;
@@ -201,6 +202,10 @@ const StartFooter = styled.div`
         
         &:hover {
             text-decoration: underline;
+        }
+
+        .footer-icon {
+            margin-right: 5px;
         }
     }
 `;
@@ -249,33 +254,52 @@ const Taskbar = () => {
             {startOpen && (
                 <StartMenu>
                     <StartHeader>
-                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/User_Circle.png/480px-User_Circle.png" alt="" />
+                         <div className="user-avatar">
+                             <XPIcon name="user" size={24} color="white" />
+                         </div>
                          <span>Administrator</span>
                     </StartHeader>
                     <StartBody>
                         <StartLeft>
                             <MenuItem>
+                                <XPIcon name="ie" size={24} className="menu-icon" />
                                 <span>Internet Explorer</span>
+                            </MenuItem>
+                            <MenuItem>
+                                <XPIcon name="qq" size={24} className="menu-icon" />
+                                <span>QQ</span>
                             </MenuItem>
                         </StartLeft>
                         <StartRight>
                             <MenuItem>
+                                <XPIcon name="documents" size={24} className="menu-icon" />
                                 <span>我的文档</span>
                             </MenuItem>
                             <MenuItem>
+                                <XPIcon name="computer" size={24} className="menu-icon" />
                                 <span>我的电脑</span>
+                            </MenuItem>
+                            <MenuItem>
+                                <XPIcon name="recycle_bin" size={24} className="menu-icon" />
+                                <span>回收站</span>
                             </MenuItem>
                         </StartRight>
                     </StartBody>
                     <StartFooter>
-                        <button onClick={logout}>注销</button>
-                        <button onClick={() => window.location.reload()}>关闭计算机</button>
+                        <button onClick={logout}>
+                            <XPIcon name="logout" size={16} className="footer-icon" color="white" />
+                            注销
+                        </button>
+                        <button onClick={() => window.location.reload()}>
+                            <XPIcon name="shutdown" size={16} className="footer-icon" color="white" />
+                            关闭计算机
+                        </button>
                     </StartFooter>
                 </StartMenu>
             )}
             <TaskbarContainer onClick={() => setStartOpen(false)}>
                 <StartButton onClick={(e) => { e.stopPropagation(); toggleStart(); }} className={startOpen ? 'active' : ''}>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Windows_logo_-_2012_%28multicolored%29.svg/2048px-Windows_logo_-_2012_%28multicolored%29.svg.png" alt="" />
+                    <XPIcon name="windows" size={20} className="start-icon" color="white" />
                     开始
                 </StartButton>
                 <Divider />
@@ -286,7 +310,7 @@ const Taskbar = () => {
                             active={activeWindowId === win.id && !win.isMinimized}
                             onClick={(e) => { e.stopPropagation(); handleTaskClick(win); }}
                         >
-                            <img src={win.icon} alt="" onError={(e) => {e.target.src='https://via.placeholder.com/16'}} />
+                            <XPIcon name={win.icon} size={16} className="task-icon" />
                             {win.title}
                         </TaskItem>
                     ))}
