@@ -1,8 +1,8 @@
 {
   "id": "sent_1",
-  "from": "User <user@xp-sim.com>",
-  "to": "Boss <boss@company.com>",
-  "subject": "Project Report",
+  "from": "用户 <user@xp-sim.com>",
+  "to": "老板 <boss@company.com>",
+  "subject": "项目周报",
   "date": "2005-04-03 16:00:00",
-  "content": "Here is the project report you requested.\n\nBest regards,\nUser"
+  "content": "老板您好，\n\n这是您要求的项目周报。\n\n本周进展顺利，主要完成了以下工作：\n1. 邮件客户端的界面开发\n2. 模拟数据的创建\n3. 系统集成测试\n\n下周计划：\n1. 优化用户体验\n2. 修复已知 bug\n\n此致，\n用户"
 }
