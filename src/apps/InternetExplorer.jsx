@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -36,14 +36,61 @@ const Content = styled.div`
 
 const HTMLContent = styled.div`
     padding: 20px;
+    height: 100%;
+    overflow: auto;
 `;
 
-const InternetExplorer = ({ url: initialUrl, html }) => {
+const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
     const [url, setUrl] = useState(initialUrl || 'about:blank');
     const [inputUrl, setInputUrl] = useState(initialUrl || '');
+    const [currentHtml, setCurrentHtml] = useState(initialHtml || null);
+
+    // Sync inputUrl if external url changes (e.g. if we want to support back/forward later, or initial prop changes)
+    useEffect(() => {
+        if (initialUrl && initialUrl !== 'about:blank') {
+            setUrl(initialUrl);
+            setInputUrl(initialUrl);
+        }
+    }, [initialUrl]);
+
+    // Handle internal link clicks in HTML mode
+    const handleHtmlClick = (e) => {
+        const anchor = e.target.closest('a');
+        if (anchor && anchor.href) {
+            e.preventDefault();
+            const href = anchor.href;
+
+            // Check if it's an external link or one we should handle
+            // For simplicity, we treat all links in About.html as navigation requests within IE
+            setUrl(href);
+            setInputUrl(href);
+            setCurrentHtml(null); // Switch to URL mode
+        }
+    };
 
     const handleGo = () => {
         setUrl(inputUrl);
+        setCurrentHtml(null);
+    };
+
+    const renderContent = () => {
+        if (currentHtml) {
+            return (
+                <HTMLContent
+                    dangerouslySetInnerHTML={{ __html: currentHtml }}
+                    onClick={handleHtmlClick}
+                />
+            );
+        }
+
+        // Try the plugin first if provided
+        if (plugin) {
+            const pluginContent = plugin(url);
+            if (pluginContent) return pluginContent;
+        }
+
+        // Fallback to iframe
+        return <iframe src={url} title="Browser" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation" />;
     };
 
     return (
@@ -58,11 +105,7 @@ const InternetExplorer = ({ url: initialUrl, html }) => {
                 <button onClick={handleGo}>转到</button>
             </Toolbar>
             <Content>
-                {html ? (
-                    <HTMLContent dangerouslySetInnerHTML={{ __html: html }} />
-                ) : (
-                    <iframe src={url} title="Browser" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation" />
-                )}
+                {renderContent()}
             </Content>
         </Container>
     );
