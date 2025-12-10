@@ -316,6 +316,9 @@ const Taskbar = () => {
                     ))}
                 </TaskItems>
                 <SystemTray>
+                    <div style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}>
+                         <XPIcon name="network" size={16} color="white" />
+                    </div>
                     {dateTime}
                 </SystemTray>
             </TaskbarContainer>
