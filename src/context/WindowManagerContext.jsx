@@ -68,6 +68,10 @@ export const WindowManagerProvider = ({ children }) => {
      setWindows(windows.map(w => w.id === id ? { ...w, isMaximized: !w.isMaximized } : w));
   };
 
+  const resizeWindow = (id, width, height) => {
+    setWindows(windows.map(w => w.id === id ? { ...w, width, height } : w));
+  };
+
   const focusWindow = (id) => {
       const win = windows.find(w => w.id === id);
       if (!win) return;
@@ -83,7 +87,7 @@ export const WindowManagerProvider = ({ children }) => {
   };
 
   return (
-    <WindowManagerContext.Provider value={{ windows, activeWindowId, openWindow, closeWindow, minimizeWindow, maximizeWindow, focusWindow }}>
+    <WindowManagerContext.Provider value={{ windows, activeWindowId, openWindow, closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow }}>
       {children}
     </WindowManagerContext.Provider>
   );

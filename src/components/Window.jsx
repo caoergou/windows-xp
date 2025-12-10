@@ -1,8 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
+import { ResizableBox } from 'react-resizable';
 import { useWindowManager } from '../context/WindowManagerContext';
 import XPIcon from './XPIcon';
+import 'react-resizable/css/styles.css';
 
 const WindowContainer = styled.div`
     position: absolute;
@@ -15,6 +17,12 @@ const WindowContainer = styled.div`
     box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
     padding: 3px;
     border: 1px solid #0055EA; /* XP Blue Border */
+
+    /* Ensure handle is visible */
+    .react-resizable-handle {
+        z-index: 1000;
+        cursor: se-resize;
+    }
 `;
 
 const TitleBar = styled.div`
@@ -157,21 +165,58 @@ const WindowBody = styled.div`
 `;
 
 const Window = ({ windowState }) => {
-    const { closeWindow, minimizeWindow, maximizeWindow, focusWindow } = useWindowManager();
+    const { closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow } = useWindowManager();
     const { id, title, component, icon, zIndex, isMinimized, isMaximized, width, height, left, top } = windowState;
 
     if (isMinimized) return null;
 
+    // Default dimensions if not set
+    const currentWidth = width || 600;
+    const currentHeight = height || 400;
+
     const style = {
         zIndex,
         display: isMinimized ? 'none' : 'flex',
-        width: isMaximized ? '100%' : (width ? `${width}px` : '600px'),
-        height: isMaximized ? 'calc(100% - 30px)' : (height ? `${height}px` : '400px'),
+        // If maximized, we rely on styled-components logic below for width/height (100%)
+        // If not maximized, ResizableBox handles width/height, but Draggable handles position
         top: isMaximized ? 0 : (top ? `${top}px` : '100px'),
         left: isMaximized ? 0 : (left ? `${left}px` : '100px'),
+        width: isMaximized ? '100%' : 'auto',
+        height: isMaximized ? 'calc(100% - 30px)' : 'auto',
     };
 
     const nodeRef = React.useRef(null);
+
+    const content = (
+        <WindowContainer ref={nodeRef} style={isMaximized ? style : { ...style, width: '100%', height: '100%' }} onClick={() => focusWindow(id)}>
+            <TitleBar className="title-bar">
+                <TitleText>
+                    <XPIcon name={icon} size={16} className="title-icon" color="white" />
+                    {title}
+                </TitleText>
+                <TitleControls>
+                    <MinimizeBtn onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} aria-label="Minimize" />
+                    {isMaximized ? (
+                        <RestoreBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Restore" />
+                    ) : (
+                        <MaximizeBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Maximize" />
+                    )}
+                    <CloseBtn onClick={(e) => { e.stopPropagation(); closeWindow(id); }} aria-label="Close" />
+                </TitleControls>
+            </TitleBar>
+            <WindowBody>
+                {component}
+            </WindowBody>
+        </WindowContainer>
+    );
+
+    if (isMaximized) {
+        return (
+             <div style={style}>
+                 {content}
+             </div>
+        );
+    }
 
     return (
         <Draggable 
@@ -179,27 +224,40 @@ const Window = ({ windowState }) => {
             nodeRef={nodeRef} 
             disabled={isMaximized}
             onMouseDown={() => focusWindow(id)}
+            // Since we are using ResizableBox inside Draggable, we need to ensure Draggable doesn't interfere
+            // with resizing handles. But Draggable is applied to the wrapper.
+            // ResizableBox should be the child of Draggable? No, ResizableBox wraps the content.
         >
-            <WindowContainer ref={nodeRef} style={style} onClick={() => focusWindow(id)}>
-                <TitleBar className="title-bar">
-                    <TitleText>
-                        <XPIcon name={icon} size={16} className="title-icon" color="white" />
-                        {title}
-                    </TitleText>
-                    <TitleControls>
-                        <MinimizeBtn onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} aria-label="Minimize" />
-                        {isMaximized ? (
-                            <RestoreBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Restore" />
-                        ) : (
-                            <MaximizeBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Maximize" />
-                        )}
-                        <CloseBtn onClick={(e) => { e.stopPropagation(); closeWindow(id); }} aria-label="Close" />
-                    </TitleControls>
-                </TitleBar>
-                <WindowBody>
-                    {component}
-                </WindowBody>
-            </WindowContainer>
+            <div style={{ position: 'absolute', left: style.left, top: style.top, zIndex: style.zIndex, width: currentWidth, height: currentHeight }}>
+                <ResizableBox
+                    width={currentWidth}
+                    height={currentHeight}
+                    minConstraints={[300, 200]}
+                    maxConstraints={[2000, 2000]}
+                    onResizeStop={(e, { size }) => {
+                        resizeWindow(id, size.width, size.height);
+                    }}
+                    handleSize={[20, 20]} // Larger handle area
+                >
+                   {/* Remove left/top/zIndex from WindowContainer style since the wrapper div handles it */}
+                   <WindowContainer style={{ width: '100%', height: '100%' }} onClick={() => focusWindow(id)}>
+                        <TitleBar className="title-bar">
+                            <TitleText>
+                                <XPIcon name={icon} size={16} className="title-icon" color="white" />
+                                {title}
+                            </TitleText>
+                            <TitleControls>
+                                <MinimizeBtn onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} aria-label="Minimize" />
+                                <MaximizeBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Maximize" />
+                                <CloseBtn onClick={(e) => { e.stopPropagation(); closeWindow(id); }} aria-label="Close" />
+                            </TitleControls>
+                        </TitleBar>
+                        <WindowBody>
+                            {component}
+                        </WindowBody>
+                    </WindowContainer>
+                </ResizableBox>
+            </div>
         </Draggable>
     );
 };
