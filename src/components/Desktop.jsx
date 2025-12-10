@@ -69,6 +69,7 @@ const Desktop = () => {
     const { windows, openWindow, focusWindow } = useWindowManager();
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
     const [refreshKey, setRefreshKey] = useState(0); // For forcing refresh
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     const handleIconDoubleClick = (key, item) => {
         if (item.type === 'folder' || item.type === 'root') { // Root shouldn't technically be on desktop directly unless mapped
@@ -117,7 +118,11 @@ const Desktop = () => {
 
     const handleRefresh = () => {
         // Blink effect to simulate refresh
-        setRefreshKey(prev => prev + 1);
+        setIsRefreshing(true);
+        setTimeout(() => {
+            setIsRefreshing(false);
+            setRefreshKey(prev => prev + 1);
+        }, 100);
     };
 
     // 桌面右键菜单项
@@ -157,7 +162,7 @@ const Desktop = () => {
 
     return (
         <DesktopContainer onContextMenu={handleContextMenu}>
-            <IconGrid key={refreshKey}>
+            <IconGrid key={refreshKey} style={{ opacity: isRefreshing ? 0 : 1 }}>
                 {Object.entries(desktopItems).map(([key, item]) => (
                     <DesktopIcon key={key} onDoubleClick={() => handleIconDoubleClick(key, item)}>
                         <div className="icon-wrapper">
