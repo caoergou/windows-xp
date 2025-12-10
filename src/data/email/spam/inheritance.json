@@ -1,0 +1,8 @@
+{
+  "id": "spam_1",
+  "from": "Prince <prince@rich.com>",
+  "to": "User <user@xp-sim.com>",
+  "subject": "Inheritance Notification",
+  "date": "2005-04-01 02:00:00",
+  "content": "Dear Sir/Madam,\n\nYou have inherited $10,000,000. Please reply with your bank details."
+}

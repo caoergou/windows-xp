@@ -1,0 +1,8 @@
+{
+  "id": "welcome_1",
+  "from": "Admin <admin@xp-sim.com>",
+  "to": "User <user@xp-sim.com>",
+  "subject": "Welcome to Windows XP Simulator",
+  "date": "2005-04-01 09:00:00",
+  "content": "Welcome to the Windows XP Simulator!\n\nWe hope you enjoy your stay. Feel free to explore the desktop and available applications."
+}
