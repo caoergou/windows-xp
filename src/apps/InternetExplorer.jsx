@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import Tieba from './Tieba';
 
 const Container = styled.div`
     width: 100%;
@@ -46,6 +47,26 @@ const InternetExplorer = ({ url: initialUrl, html }) => {
         setUrl(inputUrl);
     };
 
+    const isTiebaUrl = (u) => {
+        return u.includes('tieba.com') || u.includes('tieba.baidu.com');
+    };
+
+    const renderContent = () => {
+        if (html) {
+            return <HTMLContent dangerouslySetInnerHTML={{ __html: html }} />;
+        }
+
+        if (isTiebaUrl(url)) {
+            // Extract tieba name/id from url
+            // Format: http://tieba.com/[tieba_name]
+            const parts = url.split('/');
+            const tiebaId = parts[parts.length - 1];
+            return <Tieba tiebaId={tiebaId} />;
+        }
+
+        return <iframe src={url} title="Browser" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation" />;
+    };
+
     return (
         <Container>
             <Toolbar>
@@ -58,11 +79,7 @@ const InternetExplorer = ({ url: initialUrl, html }) => {
                 <button onClick={handleGo}>转到</button>
             </Toolbar>
             <Content>
-                {html ? (
-                    <HTMLContent dangerouslySetInnerHTML={{ __html: html }} />
-                ) : (
-                    <iframe src={url} title="Browser" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation" />
-                )}
+                {renderContent()}
             </Content>
         </Container>
     );
