@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useWindowManager } from '../context/WindowManagerContext';
 import qqData from '../data/qq/index.json';
+import QZone from './QZone';
 
 const Container = styled.div`
     width: 100%;
@@ -46,11 +48,11 @@ const Button = styled.button`
     cursor: pointer;
     font-weight: bold;
     font-size: 12px;
-    
+
     &:hover {
         background: #33ADFF;
     }
-    
+
     &:active {
         background: #007ACC;
     }
@@ -63,7 +65,7 @@ const Links = styled.div`
     display: flex;
     gap: 10px;
     cursor: pointer;
-    
+
     span:hover {
         text-decoration: underline;
     }
@@ -226,6 +228,8 @@ const SendButton = styled.button`
 
 const QQ = () => {
     const [status, setStatus] = useState('login'); // login, logging_in, logged_in
+    const { openWindow } = useWindowManager();
+
     const [account, setAccount] = useState('');
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
@@ -254,7 +258,11 @@ const QQ = () => {
         setActiveChat({ target, type });
     };
 
-    if (status === 'login' || status === 'logging_in') {
+    const openQZone = (userId) => {
+        openWindow(`qzone-${userId}`, `QZone - ${userId}`, <QZone userId={userId} />, 'ie');
+    };
+
+    if (status === 'login') {
         return (
             <Container>
                 <LoginHeader />
@@ -310,7 +318,6 @@ const QQ = () => {
                             <ChatMessage key={idx}>
                                 <div className={`header ${msg.senderId === user.id ? 'me' : ''}`}>
                                     {msg.senderId === user.id ? user.nickname : (
-                                        // Find nickname in group members or friends list
                                         activeChat.type === 'group'
                                             ? activeChat.target.members.find(m => m.id === msg.senderId)?.nickname || msg.senderId
                                             : activeChat.target.nickname
@@ -322,7 +329,6 @@ const QQ = () => {
                         ))}
                     </ChatBody>
                     <ChatFooter>
-                         {/* Toolbar placeholder */}
                          <div style={{height: '20px', background:'#eee', marginBottom:'2px'}}></div>
                          <ChatInput />
                          <SendButton>发送(S)</SendButton>
@@ -364,7 +370,6 @@ const QQ = () => {
                 ))}
             </div>
 
-            {/* XP Style bottom bar */}
             <div style={{height:'30px', background: 'linear-gradient(to bottom, #dbecf9 0%, #a3d0ef 100%)', borderTop:'1px solid #7f9db9', display:'flex', alignItems:'center', padding:'0 5px'}}>
                  <div style={{width:'20px', height:'20px', background:'url(https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tencent_QQ_logo_2016.svg/1024px-Tencent_QQ_logo_2016.svg.png) no-repeat center', backgroundSize:'contain'}}></div>
                  <div style={{marginLeft: 'auto', fontSize:'11px', color:'#333'}}>查找</div>
