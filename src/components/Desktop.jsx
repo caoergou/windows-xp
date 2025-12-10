@@ -74,7 +74,7 @@ const Desktop = () => {
              openWindow(key, item.name, <Explorer initialPath={[key]} />, item.icon || 'folder');
         } else if (item.type === 'app_shortcut') {
              if (item.app === 'InternetExplorer') {
-                 openWindow(key, item.name, <InternetExplorer url="https://www.bing.com" />, item.icon);
+                 openWindow(key, item.name, <InternetExplorer url="https://www.bing.com" plugin={tiebaPlugin} />, item.icon);
              } else if (item.app === 'QQ') {
                  openWindow(key, item.name, <QQ />, item.icon, { width: 300, height: 400 });
              } else if (item.app === 'TiebaApp') {

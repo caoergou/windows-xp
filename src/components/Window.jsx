@@ -228,7 +228,7 @@ const Window = ({ windowState }) => {
             // with resizing handles. But Draggable is applied to the wrapper.
             // ResizableBox should be the child of Draggable? No, ResizableBox wraps the content.
         >
-            <div style={{ position: 'absolute', left: style.left, top: style.top, zIndex: style.zIndex, width: currentWidth, height: currentHeight }}>
+            <div ref={nodeRef} style={{ position: 'absolute', left: style.left, top: style.top, zIndex: style.zIndex, width: currentWidth, height: currentHeight }}>
                 <ResizableBox
                     width={currentWidth}
                     height={currentHeight}

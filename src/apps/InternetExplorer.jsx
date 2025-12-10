@@ -163,7 +163,7 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
 
         // Try the plugin first if provided
         if (plugin) {
-            const pluginContent = plugin(currentEntry.url);
+            const pluginContent = plugin(currentEntry.url, navigateTo);
             if (pluginContent) return pluginContent;
         }
 
