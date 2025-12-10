@@ -61,21 +61,20 @@ const FileItem = styled.div`
 const Explorer = ({ initialPath }) => {
     const { getFile, checkAccess } = useFileSystem();
     const { openWindow } = useWindowManager();
-    const { showModal } = useModal();
+    const { showModal, showInput } = useModal();
     const [currentPath, setCurrentPath] = useState(initialPath);
     
     const currentFolder = getFile(currentPath);
 
-    const handleNavigate = (name) => {
+    const handleNavigate = async (name) => {
         const newPath = [...currentPath, name];
         const target = getFile(newPath);
         
         if (target.locked) {
-            // Since prompt is also a popup, technically we should replace it too, but prompt expects input.
-            // For now, replacing alert is the priority.
-            // However, to avoid blocking UI with native prompt, ideally we would use a custom input modal.
-            // But let's stick to replacing the alert for "Access Denied" first.
-            const pwd = prompt("文件夹已锁定。请输入密码：");
+            const pwd = await showInput("输入密码", "文件夹已锁定。请输入密码：");
+            // If pwd is null, user cancelled
+            if (pwd === null) return;
+
             if (!checkAccess(target, pwd)) {
                 showModal('Error', "访问被拒绝", 'error');
                 return;

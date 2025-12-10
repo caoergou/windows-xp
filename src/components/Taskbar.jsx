@@ -316,7 +316,10 @@ const Taskbar = () => {
                     ))}
                 </TaskItems>
                 <SystemTray>
-                    <div style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}>
+                    <div
+                        style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}
+                        title="网络已连接"
+                    >
                          <XPIcon name="network" size={16} color="white" />
                     </div>
                     {dateTime}

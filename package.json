@@ -10,6 +10,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@playwright/test": "^1.57.0",
     "framer-motion": "^10.16.4",
     "lucide-react": "^0.556.0",
     "react": "^18.2.0",

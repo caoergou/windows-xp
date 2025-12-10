@@ -4,8 +4,10 @@
 
 [33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
 
-  VITE v5.4.21  ready in 280 ms
+  VITE v5.4.21  ready in 305 ms
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
-1:25:45 AM [vite] hmr update /src/index.css
+1:49:16 AM [vite] hmr update /src/components/XPIcon.jsx
+1:49:16 AM [vite] hmr update /src/components/XPIcon.jsx
+1:49:20 AM [vite] hmr update /src/components/Taskbar.jsx

@@ -26,6 +26,31 @@ import {
     XCircle
 } from 'lucide-react';
 
+const XPNetwork = ({ size, color = "currentColor", className }) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+    >
+        {/* Left Monitor */}
+        <rect x="2" y="6" width="9" height="7" rx="1" />
+        <path d="M6.5 13v2" />
+        <path d="M3.5 15h6" />
+
+        {/* Right Monitor */}
+        <rect x="13" y="6" width="9" height="7" rx="1" />
+        <path d="M17.5 13v2" />
+        <path d="M14.5 15h6" />
+    </svg>
+);
+
 const IconMap = {
     "computer": Monitor,
     "documents": Files,
@@ -47,7 +72,7 @@ const IconMap = {
     "logout": LogOut,
     "shutdown": Power,
     "app_window": AppWindow,
-    "network": Wifi,
+    "network": XPNetwork, // Replaced Wifi with custom XPNetwork icon
     "alert_error": XCircle,
     "alert_info": Info,
     "alert_warning": AlertCircle
