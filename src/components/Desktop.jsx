@@ -65,7 +65,7 @@ const DesktopIcon = styled.div`
 
 const Desktop = () => {
     const { fs } = useFileSystem();
-    const { windows, openWindow } = useWindowManager();
+    const { windows, openWindow, focusWindow } = useWindowManager();
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
     const [refreshKey, setRefreshKey] = useState(0); // For forcing refresh
 
@@ -76,7 +76,12 @@ const Desktop = () => {
              if (item.app === 'InternetExplorer') {
                  openWindow(key, item.name, <InternetExplorer url="https://www.bing.com" plugin={tiebaPlugin} />, item.icon);
              } else if (item.app === 'QQ') {
-                 openWindow(key, item.name, <QQ />, item.icon, { width: 300, height: 400 });
+                 const existingQQ = windows.find(w => w.appId === key);
+                 if (existingQQ) {
+                     focusWindow(existingQQ.id);
+                 } else {
+                     openWindow(key, item.name, <QQ />, item.icon, { width: 280, height: 600, resizable: false });
+                 }
              } else if (item.app === 'TiebaApp') {
                  openWindow(key, item.name, <TiebaApp initialUrl={item.content} />, item.icon);
              }
