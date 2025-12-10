@@ -74,7 +74,7 @@ const Links = styled.div`
 const UserHeader = styled.div`
     display: flex;
     align-items: center;
-    width: 100%;
+    /* width: 100%; removed to prevent overflow with padding */
     padding: 10px;
     background: linear-gradient(to bottom, #dbecf9 0%, #a3d0ef 100%);
     border-bottom: 1px solid #7f9db9;
