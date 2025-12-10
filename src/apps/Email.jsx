@@ -218,11 +218,11 @@ const Email = () => {
   return (
     <Container>
       <Toolbar>
-         <ToolbarButton onClick={() => alert('新建邮件功能尚未实现')}>
+         <ToolbarButton>
             <XPIcon name="file" size={24} />
             <span>新建邮件</span>
          </ToolbarButton>
-         <ToolbarButton onClick={() => alert('回复功能尚未实现')}>
+         <ToolbarButton>
             <XPIcon name="paste" size={24} />
             <span>回复</span>
          </ToolbarButton>
