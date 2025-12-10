@@ -166,9 +166,11 @@ const WindowBody = styled.div`
 
 const Window = ({ windowState }) => {
     const { closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow } = useWindowManager();
-    const { id, title, component, icon, zIndex, isMinimized, isMaximized, width, height, left, top } = windowState;
+    const { id, title, component, icon, zIndex, isMinimized, isMaximized, width, height, left, top, props: windowProps } = windowState;
 
     if (isMinimized) return null;
+
+    const isResizable = windowProps?.resizable !== false;
 
     // Default dimensions if not set
     const currentWidth = width || 600;
@@ -196,11 +198,11 @@ const Window = ({ windowState }) => {
                 </TitleText>
                 <TitleControls>
                     <MinimizeBtn onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} aria-label="Minimize" />
-                    {isMaximized ? (
+                    {isResizable && (isMaximized ? (
                         <RestoreBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Restore" />
                     ) : (
                         <MaximizeBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Maximize" />
-                    )}
+                    ))}
                     <CloseBtn onClick={(e) => { e.stopPropagation(); closeWindow(id); }} aria-label="Close" />
                 </TitleControls>
             </TitleBar>
@@ -248,7 +250,9 @@ const Window = ({ windowState }) => {
                             </TitleText>
                             <TitleControls>
                                 <MinimizeBtn onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} aria-label="Minimize" />
-                                <MaximizeBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Maximize" />
+                                {isResizable && (
+                                    <MaximizeBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Maximize" />
+                                )}
                                 <CloseBtn onClick={(e) => { e.stopPropagation(); closeWindow(id); }} aria-label="Close" />
                             </TitleControls>
                         </TitleBar>
