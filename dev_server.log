@@ -8,3 +8,11 @@
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
+1:43:22 AM [vite] hmr update /src/apps/InternetExplorer.jsx
+1:43:22 AM [vite] hmr update /src/apps/InternetExplorer.jsx
+1:43:26 AM [vite] hmr update /src/context/FileSystemContext.jsx
+1:43:31 AM [vite] hmr update /src/components/Desktop.jsx
+1:44:55 AM [vite] hmr update /src/context/FileSystemContext.jsx
+1:45:23 AM [vite] hmr update /src/apps/TiebaApp.jsx
+1:45:28 AM [vite] hmr update /src/components/Desktop.jsx
+1:45:36 AM [vite] hmr update /src/apps/InternetExplorer.jsx

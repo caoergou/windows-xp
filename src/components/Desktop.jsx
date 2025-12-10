@@ -9,6 +9,7 @@ import Explorer from '../apps/Explorer';
 import InternetExplorer from '../apps/InternetExplorer';
 import Notepad from '../apps/Notepad';
 import QQ from '../apps/QQ';
+import TiebaApp, { tiebaPlugin } from '../apps/TiebaApp';
 import XPIcon from './XPIcon';
 
 // Background Image
@@ -75,6 +76,8 @@ const Desktop = () => {
                  openWindow(key, item.name, <InternetExplorer url="https://www.bing.com" />, item.icon);
              } else if (item.app === 'QQ') {
                  openWindow(key, item.name, <QQ />, item.icon, { width: 300, height: 400 });
+             } else if (item.app === 'TiebaApp') {
+                 openWindow(key, item.name, <TiebaApp initialUrl={item.content} />, item.icon);
              }
         } else if (item.type === 'file') {
              if (item.app === 'Notepad') {
@@ -82,9 +85,9 @@ const Desktop = () => {
              } else if (item.app === 'InternetExplorer') {
                  if (item.isHtmlContent) {
                      // Pass HTML directly
-                     openWindow(key, item.name, <InternetExplorer html={item.content} />, 'html');
+                     openWindow(key, item.name, <InternetExplorer html={item.content} plugin={tiebaPlugin} />, 'html');
                  } else {
-                     openWindow(key, item.name, <InternetExplorer url={item.content} />, 'html');
+                     openWindow(key, item.name, <InternetExplorer url={item.content} plugin={tiebaPlugin} />, 'html');
                  }
              }
         }
