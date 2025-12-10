@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import qqData from '../data/qq/index.json';
 import QZone from './QZone';
+import QQChat from './QQChat';
 
 const Container = styled.div`
     width: 100%;
@@ -146,86 +147,6 @@ const StatusDot = styled.div`
     box-shadow: 0 0 1px rgba(0,0,0,0.5);
 `;
 
-const ChatOverlay = styled.div`
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #EBF2F9;
-    display: flex;
-    flex-direction: column;
-    z-index: 10;
-`;
-
-const ChatHeader = styled.div`
-    height: 30px;
-    background: linear-gradient(to bottom, #dbecf9 0%, #a3d0ef 100%);
-    border-bottom: 1px solid #7f9db9;
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    justify-content: space-between;
-`;
-
-const ChatBody = styled.div`
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-    background: white;
-`;
-
-const ChatFooter = styled.div`
-    height: 100px;
-    border-top: 1px solid #7f9db9;
-    background: #f5f5f5;
-    padding: 5px;
-    display: flex;
-    flex-direction: column;
-`;
-
-const ChatInput = styled.textarea`
-    flex: 1;
-    border: none;
-    background: transparent;
-    resize: none;
-    font-family: 'Tahoma', sans-serif;
-    font-size: 12px;
-    &:focus { outline: none; }
-`;
-
-const ChatMessage = styled.div`
-    margin-bottom: 10px;
-    font-size: 12px;
-
-    .header {
-        color: #008000;
-        margin-bottom: 2px;
-        font-size: 11px;
-    }
-    .header.me {
-        color: #0000FF;
-    }
-    .content {
-        padding-left: 5px;
-    }
-`;
-
-const CloseButton = styled.button`
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    color: #555;
-    &:hover { color: red; }
-`;
-
-const SendButton = styled.button`
-    align-self: flex-end;
-    padding: 2px 10px;
-    font-size: 11px;
-`;
-
 const QQ = () => {
     const [status, setStatus] = useState('login'); // login, logging_in, logged_in
     const { openWindow } = useWindowManager();
@@ -233,8 +154,6 @@ const QQ = () => {
     const [account, setAccount] = useState('');
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
-
-    const [activeChat, setActiveChat] = useState(null); // { type, target }
 
     useEffect(() => {
         // Initialize from JSON data
@@ -254,8 +173,17 @@ const QQ = () => {
         }, 1000);
     };
 
+    const { user, friends, groups } = qqData;
+
     const openChat = (target, type) => {
-        setActiveChat({ target, type });
+        // Open a new window for chat
+        openWindow(
+            `qq-chat-${target.id}`,
+            `${target.nickname || target.name}`,
+            <QQChat user={user} target={target} type={type} />,
+            'qq',
+            { width: 500, height: 450 }
+        );
     };
 
     const openQZone = (userId) => {
@@ -300,42 +228,8 @@ const QQ = () => {
         );
     }
 
-    const { user, friends, groups } = qqData;
-
     return (
         <Container style={{justifyContent: 'flex-start', alignItems: 'stretch', background: '#fff'}}>
-            {activeChat && (
-                <ChatOverlay>
-                    <ChatHeader>
-                        <div style={{display:'flex', alignItems:'center'}}>
-                            <img src={activeChat.target.avatar} style={{width:'20px', height:'20px', marginRight:'5px'}} />
-                            <span style={{fontWeight:'bold', fontSize:'12px'}}>{activeChat.target.nickname || activeChat.target.name}</span>
-                        </div>
-                        <CloseButton onClick={() => setActiveChat(null)}>X</CloseButton>
-                    </ChatHeader>
-                    <ChatBody>
-                        {activeChat.target.chatHistory && activeChat.target.chatHistory.map((msg, idx) => (
-                            <ChatMessage key={idx}>
-                                <div className={`header ${msg.senderId === user.id ? 'me' : ''}`}>
-                                    {msg.senderId === user.id ? user.nickname : (
-                                        activeChat.type === 'group'
-                                            ? activeChat.target.members.find(m => m.id === msg.senderId)?.nickname || msg.senderId
-                                            : activeChat.target.nickname
-                                    )} &nbsp;
-                                    {msg.timestamp}
-                                </div>
-                                <div className="content">{msg.content}</div>
-                            </ChatMessage>
-                        ))}
-                    </ChatBody>
-                    <ChatFooter>
-                         <div style={{height: '20px', background:'#eee', marginBottom:'2px'}}></div>
-                         <ChatInput />
-                         <SendButton>发送(S)</SendButton>
-                    </ChatFooter>
-                </ChatOverlay>
-            )}
-
             <UserHeader>
                 <Avatar src={user.avatar} />
                 <UserInfo>
@@ -351,7 +245,11 @@ const QQ = () => {
                 <SectionHeader>我的好友</SectionHeader>
                 {friends.map(friend => (
                     <ContactItem key={friend.id} onDoubleClick={() => openChat(friend, 'friend')}>
-                        <img src={friend.avatar} style={{width:'30px', height:'30px', marginRight:'8px', borderRadius:'2px'}} />
+                        <img
+                            src={friend.avatar}
+                            style={{width:'30px', height:'30px', marginRight:'8px', borderRadius:'2px'}}
+                            onClick={(e) => { e.stopPropagation(); openChat(friend, 'friend'); }}
+                        />
                         <div style={{flex:1}}>
                             <div style={{fontSize:'12px'}}>{friend.nickname}</div>
                         </div>
@@ -362,7 +260,11 @@ const QQ = () => {
                 <SectionHeader>我的群组</SectionHeader>
                 {groups.map(group => (
                     <ContactItem key={group.id} onDoubleClick={() => openChat(group, 'group')}>
-                        <img src={group.avatar} style={{width:'30px', height:'30px', marginRight:'8px', borderRadius:'2px'}} />
+                        <img
+                            src={group.avatar}
+                            style={{width:'30px', height:'30px', marginRight:'8px', borderRadius:'2px'}}
+                            onClick={(e) => { e.stopPropagation(); openChat(group, 'group'); }}
+                        />
                         <div style={{flex:1}}>
                             <div style={{fontSize:'12px'}}>{group.name}</div>
                         </div>
