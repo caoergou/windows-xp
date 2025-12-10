@@ -19,7 +19,11 @@ import {
     LogOut,
     Power,
     AppWindow,
-    LayoutGrid
+    LayoutGrid,
+    Wifi,
+    AlertCircle,
+    Info,
+    XCircle
 } from 'lucide-react';
 
 const IconMap = {
@@ -42,7 +46,11 @@ const IconMap = {
     "windows": LayoutGrid, // For start menu/windows logo
     "logout": LogOut,
     "shutdown": Power,
-    "app_window": AppWindow
+    "app_window": AppWindow,
+    "network": Wifi,
+    "alert_error": XCircle,
+    "alert_info": Info,
+    "alert_warning": AlertCircle
 };
 
 // Color mapping to make them look a bit more colorful/XP-like (optional)
@@ -58,6 +66,9 @@ const IconColors = {
     "drive": "#808080",
     "qq": "#D52B2B",
     "windows": "#00CCFF",
+    "alert_error": "#D32F2F",
+    "alert_info": "#1976D2",
+    "alert_warning": "#FBC02D"
 };
 
 const XPIcon = ({ name, size = 32, className, color }) => {
