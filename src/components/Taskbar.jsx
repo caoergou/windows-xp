@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserSession } from '../context/UserSessionContext';
 import XPIcon from './XPIcon';
 import timeInfo from '../data/time_info.json';
+import Explorer from '../apps/Explorer';
+import InternetExplorer from '../apps/InternetExplorer';
+import QQ from '../apps/QQ';
+import { tiebaPlugin } from '../apps/TiebaApp';
 
 const TaskbarContainer = styled.div`
     position: absolute;
@@ -212,10 +216,12 @@ const StartFooter = styled.div`
 
 
 const Taskbar = () => {
-    const { windows, activeWindowId, focusWindow, minimizeWindow } = useWindowManager();
+    const { windows, activeWindowId, focusWindow, minimizeWindow, openWindow } = useWindowManager();
     const { logout } = useUserSession();
     const [startOpen, setStartOpen] = useState(false);
     const [dateTime, setDateTime] = useState('');
+    const startMenuRef = useRef(null);
+    const startButtonRef = useRef(null);
 
     useEffect(() => {
         const updateDateTime = () => {
@@ -239,6 +245,23 @@ const Taskbar = () => {
         return () => clearInterval(interval);
     }, []);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (startOpen &&
+                startMenuRef.current &&
+                !startMenuRef.current.contains(event.target) &&
+                startButtonRef.current &&
+                !startButtonRef.current.contains(event.target)) {
+                setStartOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [startOpen]);
+
     const toggleStart = () => setStartOpen(!startOpen);
 
     const handleTaskClick = (win) => {
@@ -249,10 +272,29 @@ const Taskbar = () => {
         }
     };
 
+    const handleLaunch = (appName, pathOrKey) => {
+        setStartOpen(false);
+        if (appName === 'Internet Explorer') {
+             openWindow('Internet Explorer', 'Internet Explorer', <InternetExplorer url="https://www.bing.com" plugin={tiebaPlugin} />, 'ie');
+        } else if (appName === 'QQ') {
+             const existingQQ = windows.find(w => w.appId === 'QQ');
+             if (existingQQ) {
+                 focusWindow(existingQQ.id);
+             } else {
+                 openWindow('QQ', 'QQ', <QQ />, 'qq', { width: 280, height: 600, resizable: false });
+             }
+        } else if (appName === 'Explorer') {
+             // For folders
+             openWindow(pathOrKey, pathOrKey, <Explorer initialPath={[pathOrKey]} />, 'folder');
+        } else if (appName === 'Recycle Bin') {
+             openWindow(pathOrKey, pathOrKey, <Explorer initialPath={[pathOrKey]} />, 'recycle_bin');
+        }
+    };
+
     return (
         <>
             {startOpen && (
-                <StartMenu>
+                <StartMenu ref={startMenuRef}>
                     <StartHeader>
                          <div className="user-avatar">
                              <XPIcon name="user" size={24} color="white" />
@@ -261,25 +303,25 @@ const Taskbar = () => {
                     </StartHeader>
                     <StartBody>
                         <StartLeft>
-                            <MenuItem>
+                            <MenuItem onClick={() => handleLaunch('Internet Explorer')}>
                                 <XPIcon name="ie" size={24} className="menu-icon" />
                                 <span>Internet Explorer</span>
                             </MenuItem>
-                            <MenuItem>
+                            <MenuItem onClick={() => handleLaunch('QQ')}>
                                 <XPIcon name="qq" size={24} className="menu-icon" />
                                 <span>QQ</span>
                             </MenuItem>
                         </StartLeft>
                         <StartRight>
-                            <MenuItem>
+                            <MenuItem onClick={() => handleLaunch('Explorer', 'My Documents')}>
                                 <XPIcon name="documents" size={24} className="menu-icon" />
                                 <span>我的文档</span>
                             </MenuItem>
-                            <MenuItem>
+                            <MenuItem onClick={() => handleLaunch('Explorer', 'My Computer')}>
                                 <XPIcon name="computer" size={24} className="menu-icon" />
                                 <span>我的电脑</span>
                             </MenuItem>
-                            <MenuItem>
+                            <MenuItem onClick={() => handleLaunch('Recycle Bin', 'Recycle Bin')}>
                                 <XPIcon name="recycle_bin" size={24} className="menu-icon" />
                                 <span>回收站</span>
                             </MenuItem>
@@ -298,7 +340,11 @@ const Taskbar = () => {
                 </StartMenu>
             )}
             <TaskbarContainer onClick={() => setStartOpen(false)}>
-                <StartButton onClick={(e) => { e.stopPropagation(); toggleStart(); }} className={startOpen ? 'active' : ''}>
+                <StartButton
+                    ref={startButtonRef}
+                    onClick={(e) => { e.stopPropagation(); toggleStart(); }}
+                    className={startOpen ? 'active' : ''}
+                >
                     <XPIcon name="windows" size={20} className="start-icon" color="white" />
                     开始
                 </StartButton>
