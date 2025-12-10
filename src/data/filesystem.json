@@ -74,6 +74,20 @@
         "app": "QQ",
         "icon": "qq"
       },
+      "Tieba - Yunshan No.1": {
+        "type": "app_shortcut",
+        "name": "云山一中吧",
+        "app": "TiebaApp",
+        "icon": "ie",
+        "content": "http://tieba.com/yunshan_no1_middle_school"
+      },
+      "Tieba - Yunshan County": {
+        "type": "app_shortcut",
+        "name": "云山县吧",
+        "app": "TiebaApp",
+        "icon": "ie",
+        "content": "http://tieba.com/yunshan_county"
+      },
       "Google": {
         "type": "file",
         "name": "Google",
@@ -86,7 +100,7 @@
         "name": "About.html",
         "app": "InternetExplorer",
         "icon": "html",
-        "content": "<html><body><h1>Welcome to React XP</h1><p>This is a high-fidelity simulation.</p></body></html>",
+        "content": "<html><head><style>body { font-family: 'Tahoma', sans-serif; background-color: #fff; padding: 20px; } h1 { color: #333; } ul { list-style-type: none; padding: 0; } li { margin: 10px 0; } a { color: #0000CC; text-decoration: underline; font-size: 14px; cursor: pointer; } a:hover { color: #FF6600; }</style></head><body><h1>黄页 (Yellow Pages)</h1><p>常用网址导航：</p><ul><li><a href='http://tieba.com/yunshan_no1_middle_school'>云山一中吧</a></li><li><a href='http://tieba.com/yunshan_county'>云山县吧</a></li><li><a href='https://www.bing.com'>Bing Search</a></li><li><a href='https://www.google.com/webhp?igu=1'>Google</a></li></ul></body></html>",
         "isHtmlContent": true
       }
     }
