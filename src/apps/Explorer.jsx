@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useWindowManager } from '../context/WindowManagerContext';
+import { useModal } from '../context/ModalContext';
 import InternetExplorer from './InternetExplorer';
 import Notepad from './Notepad';
 import XPIcon from '../components/XPIcon';
@@ -60,6 +61,7 @@ const FileItem = styled.div`
 const Explorer = ({ initialPath }) => {
     const { getFile, checkAccess } = useFileSystem();
     const { openWindow } = useWindowManager();
+    const { showModal } = useModal();
     const [currentPath, setCurrentPath] = useState(initialPath);
     
     const currentFolder = getFile(currentPath);
@@ -69,9 +71,13 @@ const Explorer = ({ initialPath }) => {
         const target = getFile(newPath);
         
         if (target.locked) {
+            // Since prompt is also a popup, technically we should replace it too, but prompt expects input.
+            // For now, replacing alert is the priority.
+            // However, to avoid blocking UI with native prompt, ideally we would use a custom input modal.
+            // But let's stick to replacing the alert for "Access Denied" first.
             const pwd = prompt("文件夹已锁定。请输入密码：");
             if (!checkAccess(target, pwd)) {
-                alert("访问被拒绝");
+                showModal('Error', "访问被拒绝", 'error');
                 return;
             }
         }

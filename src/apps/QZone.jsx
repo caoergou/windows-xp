@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { useModal } from '../context/ModalContext';
 
 const Container = styled.div`
   width: 100%;
@@ -272,6 +273,7 @@ const QZone = ({ userId = "1001" }) => {
   // Password protection state
   const [lockedItem, setLockedItem] = useState(null); // { type: 'blog'|'album', item: object }
   const [passwordInput, setPasswordInput] = useState("");
+  const { showModal } = useModal();
 
   // Detail view state
   const [viewingItem, setViewingItem] = useState(null); // { type: 'blog'|'album', data: ... }
@@ -375,7 +377,7 @@ const QZone = ({ userId = "1001" }) => {
           setLockedItem(null);
           setPasswordInput("");
       } else {
-          alert("Incorrect password!");
+          showModal('Error', 'Incorrect password!', 'error');
       }
   };
 

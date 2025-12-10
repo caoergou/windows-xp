@@ -2,7 +2,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  font-family: "Tahoma", "Segoe UI", sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   user-select: none;
   -webkit-font-smoothing: antialiased;
 }
