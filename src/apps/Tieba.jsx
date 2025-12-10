@@ -186,7 +186,7 @@ const Breadcrumb = styled.div`
     }
 `;
 
-const Tieba = ({ tiebaId }) => {
+const Tieba = ({ tiebaId, threadId, navigateTo, currentUrl }) => {
     const [info, setInfo] = useState(null);
     const [threads, setThreads] = useState([]);
     const [activeThread, setActiveThread] = useState(null);
@@ -237,6 +237,20 @@ const Tieba = ({ tiebaId }) => {
                     }
                 }
                 setThreads(loadedThreads);
+
+                if (threadId) {
+                    const found = loadedThreads.find(t => t.id === threadId);
+                    if (found) {
+                        setActiveThread(found);
+                    } else {
+                        // Fallback if thread not found in loaded list?
+                        // Or maybe it's out of range.
+                        setActiveThread(null);
+                    }
+                } else {
+                    setActiveThread(null);
+                }
+
                 setLoading(false);
             } catch (err) {
                 console.error(err);
@@ -246,14 +260,29 @@ const Tieba = ({ tiebaId }) => {
         };
 
         loadData();
-    }, [tiebaFolder]);
+    }, [tiebaFolder, threadId]);
 
     const handleThreadClick = (thread) => {
-        setActiveThread(thread);
+        // Use navigateTo instead of local state
+        if (navigateTo) {
+            // Construct new URL
+            // Current URL might have query params or be just base.
+            // We assume base is http://tieba.com/tiebaId
+            const baseUrl = `http://tieba.com/${tiebaId}`;
+            navigateTo(`${baseUrl}/p/${thread.id}`);
+        } else {
+            // Fallback for standalone usage if any
+            setActiveThread(thread);
+        }
     };
 
     const handleBack = () => {
-        setActiveThread(null);
+        if (navigateTo) {
+            const baseUrl = `http://tieba.com/${tiebaId}`;
+            navigateTo(baseUrl);
+        } else {
+            setActiveThread(null);
+        }
     };
 
     const getDefaultAvatar = () => 'https://img.icons8.com/color/48/user-group-man-man.png';
