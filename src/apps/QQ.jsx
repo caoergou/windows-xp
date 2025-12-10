@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
-import QZone from './QZone';
 import qqData from '../data/qq/index.json';
+import QZone from './QZone';
 
 const Container = styled.div`
     width: 100%;
@@ -48,11 +48,11 @@ const Button = styled.button`
     cursor: pointer;
     font-weight: bold;
     font-size: 12px;
-    
+
     &:hover {
         background: #33ADFF;
     }
-    
+
     &:active {
         background: #007ACC;
     }
@@ -65,7 +65,7 @@ const Links = styled.div`
     display: flex;
     gap: 10px;
     cursor: pointer;
-    
+
     span:hover {
         text-decoration: underline;
     }
@@ -262,34 +262,6 @@ const QQ = () => {
         openWindow(`qzone-${userId}`, `QZone - ${userId}`, <QZone userId={userId} />, 'ie');
     };
 
-    if (status === 'logged_in') {
-        return (
-            <Container style={{justifyContent: 'flex-start', padding: '10px'}}>
-                <div style={{display:'flex', alignItems:'center', width:'100%', marginBottom:'10px'}}>
-                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/User_Circle.png/480px-User_Circle.png" style={{width:'40px', marginRight:'10px'}}/>
-                     <div>
-                         <div style={{fontWeight:'bold'}}>我的 QQ</div>
-                         <div style={{fontSize:'12px', color:'gray'}}>在线</div>
-                     </div>
-                </div>
-                <div style={{width:'100%', borderTop:'1px solid #ccc', paddingTop:'10px'}}>
-                     <div style={{padding:'5px', fontWeight:'bold'}}>好友</div>
-                     <div style={{padding:'5px', paddingLeft:'15px', display:'flex', alignItems:'center', justifyContent: 'space-between'}}>
-                        <div style={{display: 'flex', alignItems: 'center'}}>
-                            <div style={{width:'8px', height:'8px', background:'green', borderRadius:'50%', marginRight:'5px'}}></div>
-                            山月 (1001)
-                        </div>
-                        <button onClick={() => openQZone("1001")} style={{fontSize: '10px', padding: '2px', cursor: 'pointer'}}>⭐空间</button>
-                     </div>
-                     <div style={{padding:'5px', paddingLeft:'15px', display:'flex', alignItems:'center', justifyContent: 'space-between'}}>
-                        <div style={{display: 'flex', alignItems: 'center'}}>
-                            <div style={{width:'8px', height:'8px', background:'gray', borderRadius:'50%', marginRight:'5px'}}></div>
-                            用户 A (1002)
-                        </div>
-                        <button onClick={() => openQZone("1002")} style={{fontSize: '10px', padding: '2px', cursor: 'pointer'}}>⭐空间</button>
-                     </div>
-                </div>
-
     if (status === 'login') {
         return (
             <Container>
@@ -346,7 +318,6 @@ const QQ = () => {
                             <ChatMessage key={idx}>
                                 <div className={`header ${msg.senderId === user.id ? 'me' : ''}`}>
                                     {msg.senderId === user.id ? user.nickname : (
-                                        // Find nickname in group members or friends list
                                         activeChat.type === 'group'
                                             ? activeChat.target.members.find(m => m.id === msg.senderId)?.nickname || msg.senderId
                                             : activeChat.target.nickname
@@ -358,7 +329,6 @@ const QQ = () => {
                         ))}
                     </ChatBody>
                     <ChatFooter>
-                         {/* Toolbar placeholder */}
                          <div style={{height: '20px', background:'#eee', marginBottom:'2px'}}></div>
                          <ChatInput />
                          <SendButton>发送(S)</SendButton>
@@ -400,7 +370,6 @@ const QQ = () => {
                 ))}
             </div>
 
-            {/* XP Style bottom bar */}
             <div style={{height:'30px', background: 'linear-gradient(to bottom, #dbecf9 0%, #a3d0ef 100%)', borderTop:'1px solid #7f9db9', display:'flex', alignItems:'center', padding:'0 5px'}}>
                  <div style={{width:'20px', height:'20px', background:'url(https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tencent_QQ_logo_2016.svg/1024px-Tencent_QQ_logo_2016.svg.png) no-repeat center', backgroundSize:'contain'}}></div>
                  <div style={{marginLeft: 'auto', fontSize:'11px', color:'#333'}}>查找</div>
