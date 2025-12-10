@@ -23,7 +23,8 @@ import {
     Wifi,
     AlertCircle,
     Info,
-    XCircle
+    XCircle,
+    Mail
 } from 'lucide-react';
 
 const XPNetwork = ({ size, color = "currentColor", className }) => (
@@ -75,7 +76,8 @@ const IconMap = {
     "network": XPNetwork, // Replaced Wifi with custom XPNetwork icon
     "alert_error": XCircle,
     "alert_info": Info,
-    "alert_warning": AlertCircle
+    "alert_warning": AlertCircle,
+    "email": Mail
 };
 
 // Color mapping to make them look a bit more colorful/XP-like (optional)

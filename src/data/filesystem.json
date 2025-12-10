@@ -74,6 +74,12 @@
         "app": "QQ",
         "icon": "qq"
       },
+      "Outlook Express": {
+        "type": "app_shortcut",
+        "name": "Outlook Express",
+        "app": "Email",
+        "icon": "email"
+      },
       "Tieba - Yunshan No.1": {
         "type": "app_shortcut",
         "name": "云山一中吧",

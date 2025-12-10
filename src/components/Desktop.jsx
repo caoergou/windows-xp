@@ -9,6 +9,7 @@ import Explorer from '../apps/Explorer';
 import InternetExplorer from '../apps/InternetExplorer';
 import Notepad from '../apps/Notepad';
 import QQ from '../apps/QQ';
+import Email from '../apps/Email';
 import TiebaApp, { tiebaPlugin } from '../apps/TiebaApp';
 import XPIcon from './XPIcon';
 
@@ -82,6 +83,8 @@ const Desktop = () => {
                  } else {
                      openWindow(key, item.name, <QQ />, item.icon, { width: 280, height: 600, resizable: false });
                  }
+             } else if (item.app === 'Email') {
+                 openWindow(key, item.name, <Email />, item.icon, { width: 800, height: 600 });
              } else if (item.app === 'TiebaApp') {
                  openWindow(key, item.name, <TiebaApp initialUrl={item.content} />, item.icon);
              }

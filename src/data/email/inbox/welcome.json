@@ -1,0 +1,8 @@
+{
+  "id": "welcome_1",
+  "from": "管理员 <admin@xp-sim.com>",
+  "to": "用户 <user@xp-sim.com>",
+  "subject": "欢迎来到 Windows XP 模拟器",
+  "date": "2005-04-01 09:00:00",
+  "content": "欢迎使用 Windows XP 模拟器！\n\n我们希望您能享受这次体验。请随意探索桌面和可用的应用程序。\n\n这是一封测试邮件，用于展示邮件系统的基本功能。\n\n祝好，\n开发团队"
+}
