@@ -147,8 +147,7 @@ const PreviewPane = styled.div`
   flex: 1;
   background-color: white;
   border: 1px solid ${BORDER_COLOR};
-  padding: 10px;
-  overflow-y: auto; /* Enable scrolling for long content */
+  overflow: hidden;
   font-family: 'Times New Roman', 'SimSun', serif;
   font-size: 14px;
   display: flex;
@@ -157,8 +156,7 @@ const PreviewPane = styled.div`
 
 const PreviewHeader = styled.div`
   background-color: #e0e0e0;
-  padding: 5px;
-  margin-bottom: 10px;
+  padding: 10px;
   border-bottom: 1px solid #ccc;
   font-family: 'Tahoma', 'SimSun', sans-serif;
   font-size: 12px;
@@ -179,6 +177,8 @@ const PreviewContent = styled.div`
     white-space: pre-wrap;
     word-break: break-word;
     flex: 1;
+    overflow-y: auto;
+    padding: 10px;
 `;
 
 const Email = () => {
