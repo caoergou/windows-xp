@@ -126,6 +126,11 @@ const Explorer = ({ initialPath = [] }) => {
         const newPath = [...currentPath, name];
         const target = getFile(newPath);
         
+        if (target.broken) {
+            showModal('Error', "因为磁盘文件损坏无法打开", 'error');
+            return;
+        }
+
         if (target.locked) {
             const pwd = await showInput("输入密码", "文件夹已锁定。请输入密码：");
             if (pwd === null) return;
