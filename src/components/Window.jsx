@@ -7,6 +7,7 @@ import XPIcon from './XPIcon';
 import 'react-resizable/css/styles.css';
 
 const WindowContainer = styled.div`
+    box-sizing: border-box;
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -124,7 +125,7 @@ const RestoreBtn = styled(BaseButton)`
         box-shadow: 0 1px 0 rgba(0,0,0,0.3);
         bottom: 4px;
         left: 4px;
-        background-color: inherit; /* mask the behind square */
+        background: inherit; /* mask the behind square */
         z-index: 1;
     }
 

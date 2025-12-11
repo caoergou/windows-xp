@@ -18,7 +18,7 @@ const TaskbarContainer = styled.div`
     background: linear-gradient(to bottom, #245EDC 0%, #3E87EB 10%, #245EDC 100%);
     display: flex;
     align-items: center;
-    z-index: 9999;
+    z-index: 2147483647;
     border-top: 1px solid #4886EA;
 `;
 
@@ -371,7 +371,7 @@ const Taskbar = () => {
     const handleLaunch = (appName, pathOrKey) => {
         setStartOpen(false);
         if (appName === 'Internet Explorer') {
-             openWindow('Internet Explorer', 'Internet Explorer', <InternetExplorer plugin={tiebaPlugin} />, 'ie');
+             openWindow('Internet Explorer', 'Internet Explorer', <InternetExplorer plugin={tiebaPlugin} />, 'ie', { isMaximized: true });
         } else if (appName === 'QQ') {
              const existingQQ = windows.find(w => w.appId === 'QQ');
              if (existingQQ) {

@@ -76,7 +76,7 @@ const Desktop = () => {
              openWindow(key, item.name, <Explorer initialPath={[key]} />, item.icon || 'folder');
         } else if (item.type === 'app_shortcut') {
              if (item.app === 'InternetExplorer') {
-                 openWindow(key, item.name, <InternetExplorer plugin={tiebaPlugin} />, item.icon);
+                 openWindow(key, item.name, <InternetExplorer plugin={tiebaPlugin} />, item.icon, { isMaximized: true });
              } else if (item.app === 'QQ') {
                  const existingQQ = windows.find(w => w.appId === key);
                  if (existingQQ) {
@@ -95,9 +95,9 @@ const Desktop = () => {
              } else if (item.app === 'InternetExplorer') {
                  if (item.isHtmlContent) {
                      // Pass HTML directly
-                     openWindow(key, item.name, <InternetExplorer html={item.content} plugin={tiebaPlugin} />, 'html');
+                     openWindow(key, item.name, <InternetExplorer html={item.content} plugin={tiebaPlugin} />, 'html', { isMaximized: true });
                  } else {
-                     openWindow(key, item.name, <InternetExplorer url={item.content} plugin={tiebaPlugin} />, 'html');
+                     openWindow(key, item.name, <InternetExplorer url={item.content} plugin={tiebaPlugin} />, 'html', { isMaximized: true });
                  }
              }
         }
