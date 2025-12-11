@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useUserSession } from './context/UserSessionContext';
 import { ModalProvider } from './context/ModalContext';
 import LoginScreen from './components/LoginScreen';
 import Desktop from './components/Desktop';
+import BootScreen from './components/BootScreen';
 
 const Container = styled.div`
   width: 100%;
@@ -12,6 +13,7 @@ const Container = styled.div`
 
 function App() {
   const { isLoggedIn } = useUserSession();
+  const [bootPhase, setBootPhase] = useState('CHECKING'); // CHECKING, BOOTING, RUNNING
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -61,16 +63,43 @@ function App() {
 
     showEasterEgg();
 
+    // Check boot status
+    const checkBoot = () => {
+        const firstBootDone = localStorage.getItem('xp_first_boot_done');
+        const powerState = localStorage.getItem('xp_power_state');
+
+        if (!firstBootDone) {
+            setBootPhase('BOOTING');
+        } else if (powerState === 'shutdown' || powerState === 'restart') {
+            setBootPhase('BOOTING');
+        } else {
+            setBootPhase('RUNNING');
+        }
+    };
+    checkBoot();
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('contextmenu', handleContextMenu);
     };
   }, []);
 
+  const handleBootComplete = () => {
+      localStorage.setItem('xp_first_boot_done', 'true');
+      localStorage.setItem('xp_power_state', 'running');
+      setBootPhase('RUNNING');
+  };
+
+  if (bootPhase === 'CHECKING') return null; // Or a black screen
+
   return (
     <ModalProvider>
       <Container>
-        {isLoggedIn ? <Desktop /> : <LoginScreen />}
+        {bootPhase === 'BOOTING' ? (
+            <BootScreen onComplete={handleBootComplete} />
+        ) : (
+            isLoggedIn ? <Desktop /> : <LoginScreen />
+        )}
       </Container>
     </ModalProvider>
   );
