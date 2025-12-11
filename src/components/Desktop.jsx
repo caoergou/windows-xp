@@ -12,9 +12,10 @@ import QQ from '../apps/QQ';
 import Email from '../apps/Email';
 import TiebaApp, { tiebaPlugin } from '../apps/TiebaApp';
 import XPIcon from './XPIcon';
+import desktopBg from '../assets/images/desktop_bg.jpg';
 
 // Background Image
-const BG_URL = "https://upload.wikimedia.org/wikipedia/en/2/27/Bliss_%28Windows_XP%29.png";
+const BG_URL = desktopBg;
 
 const DesktopContainer = styled.div`
   width: 100%;
