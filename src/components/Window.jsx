@@ -199,11 +199,9 @@ const Window = ({ windowState }) => {
                 </TitleText>
                 <TitleControls>
                     <MinimizeBtn onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} aria-label="Minimize" />
-                    {isResizable && (isMaximized ? (
-                        <RestoreBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Restore" />
-                    ) : (
+                    {isResizable && (
                         <MaximizeBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Maximize" />
-                    ))}
+                    )}
                     <CloseBtn onClick={(e) => { e.stopPropagation(); closeWindow(id); }} aria-label="Close" />
                 </TitleControls>
             </TitleBar>
