@@ -7,6 +7,7 @@ import XPIcon from './XPIcon';
 import 'react-resizable/css/styles.css';
 
 const WindowContainer = styled.div`
+    box-sizing: border-box;
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -124,7 +125,7 @@ const RestoreBtn = styled(BaseButton)`
         box-shadow: 0 1px 0 rgba(0,0,0,0.3);
         bottom: 4px;
         left: 4px;
-        background-color: inherit; /* mask the behind square */
+        background: inherit; /* mask the behind square */
         z-index: 1;
     }
 
@@ -198,11 +199,9 @@ const Window = ({ windowState }) => {
                 </TitleText>
                 <TitleControls>
                     <MinimizeBtn onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} aria-label="Minimize" />
-                    {isResizable && (isMaximized ? (
-                        <RestoreBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Restore" />
-                    ) : (
+                    {isResizable && (
                         <MaximizeBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Maximize" />
-                    ))}
+                    )}
                     <CloseBtn onClick={(e) => { e.stopPropagation(); closeWindow(id); }} aria-label="Close" />
                 </TitleControls>
             </TitleBar>

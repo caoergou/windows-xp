@@ -54,7 +54,7 @@ export const WindowManagerProvider = ({ children }) => {
       icon,
       props,
       isMinimized: false,
-      isMaximized: false,
+      isMaximized: props.isMaximized || false,
       zIndex: zIndexCounter + 1,
       width: props.width,
       height: props.height,
