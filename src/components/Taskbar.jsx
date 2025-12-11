@@ -214,12 +214,108 @@ const StartFooter = styled.div`
     }
 `;
 
+// Simple Turn Off Dialog styled components (inline for now as it's part of Taskbar logic)
+const TurnOffOverlay = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 20000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const TurnOffDialog = styled.div`
+    width: 300px;
+    background: #003399; /* XP Blue header color as base */
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+`;
+
+const DialogHeader = styled.div`
+    padding: 5px 10px;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const DialogBody = styled.div`
+    background: linear-gradient(to bottom, #f0f0f0 0%, #dcdcdc 100%);
+    padding: 20px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+`;
+
+const ActionButton = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+
+    &:hover .icon-circle {
+        transform: scale(1.1);
+        box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+
+    .icon-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 5px;
+        transition: transform 0.1s;
+        border: 1px solid rgba(0,0,0,0.2);
+    }
+
+    .shutdown { background: #E04646; } /* Red */
+    .restart { background: #45B050; } /* Green */
+    .standby { background: #EBC644; } /* Yellow */
+
+    span {
+        font-size: 11px;
+        color: #333;
+    }
+`;
+
+const DialogFooter = styled.div`
+    background: #003399;
+    padding: 5px 10px;
+    display: flex;
+    justify-content: flex-end;
+`;
+
+const CancelButton = styled.button`
+    padding: 3px 10px;
+    background: #f0f0f0;
+    border: 1px solid #999;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 11px;
+
+    &:hover {
+        background: #e0e0e0;
+    }
+`;
+
 
 const Taskbar = () => {
     const { windows, activeWindowId, focusWindow, minimizeWindow, openWindow } = useWindowManager();
     const { logout } = useUserSession();
     const [startOpen, setStartOpen] = useState(false);
     const [dateTime, setDateTime] = useState('');
+    const [showTurnOff, setShowTurnOff] = useState(false);
     const startMenuRef = useRef(null);
     const startButtonRef = useRef(null);
 
@@ -291,8 +387,57 @@ const Taskbar = () => {
         }
     };
 
+    const handleTurnOffRequest = () => {
+        setStartOpen(false);
+        setShowTurnOff(true);
+    };
+
+    const performShutdown = () => {
+        localStorage.setItem('xp_power_state', 'shutdown');
+        window.location.reload();
+    };
+
+    const performRestart = () => {
+        localStorage.setItem('xp_power_state', 'restart');
+        window.location.reload();
+    };
+
     return (
         <>
+            {showTurnOff && (
+                <TurnOffOverlay>
+                    <TurnOffDialog>
+                        <DialogHeader>
+                            <span>关闭计算机</span>
+                            <XPIcon name="close" size={16} color="white" style={{cursor:'pointer'}} onClick={() => setShowTurnOff(false)}/>
+                        </DialogHeader>
+                        <DialogBody>
+                            <ActionButton className="disabled" style={{ opacity: 0.5 }}>
+                                <div className="icon-circle standby">
+                                    <XPIcon name="clock" size={16} color="white" />
+                                </div>
+                                <span>待机</span>
+                            </ActionButton>
+                            <ActionButton onClick={performShutdown}>
+                                <div className="icon-circle shutdown">
+                                    <XPIcon name="shutdown" size={16} color="white" />
+                                </div>
+                                <span>关闭</span>
+                            </ActionButton>
+                            <ActionButton onClick={performRestart}>
+                                <div className="icon-circle restart">
+                                    <XPIcon name="refresh" size={16} color="white" />
+                                </div>
+                                <span>重新启动</span>
+                            </ActionButton>
+                        </DialogBody>
+                        <DialogFooter>
+                            <CancelButton onClick={() => setShowTurnOff(false)}>取消</CancelButton>
+                        </DialogFooter>
+                    </TurnOffDialog>
+                </TurnOffOverlay>
+            )}
+
             {startOpen && (
                 <StartMenu ref={startMenuRef}>
                     <StartHeader>
@@ -332,7 +477,7 @@ const Taskbar = () => {
                             <XPIcon name="logout" size={16} className="footer-icon" color="white" />
                             注销
                         </button>
-                        <button onClick={() => window.location.reload()}>
+                        <button onClick={handleTurnOffRequest}>
                             <XPIcon name="shutdown" size={16} className="footer-icon" color="white" />
                             关闭计算机
                         </button>

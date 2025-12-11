@@ -8,7 +8,6 @@ import 'xp.css/dist/XP.css';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
     <UserSessionProvider>
       <FileSystemProvider>
         <WindowManagerProvider>
@@ -16,5 +15,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </WindowManagerProvider>
       </FileSystemProvider>
     </UserSessionProvider>
-  </React.StrictMode>,
 );
