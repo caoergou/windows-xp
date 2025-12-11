@@ -35,7 +35,8 @@ import {
     Star,
     History,
     Printer,
-    X
+    X,
+    Image
 } from 'lucide-react';
 
 const XPNetwork = ({ size, color = "currentColor", className }) => (
@@ -99,7 +100,8 @@ const IconMap = {
     "favorites": Star,
     "history": History,
     "print": Printer,
-    "stop": X
+    "stop": X,
+    "image": Image
 };
 
 // Color mapping to make them look a bit more colorful/XP-like (optional)

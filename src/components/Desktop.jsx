@@ -8,6 +8,7 @@ import ContextMenu from './ContextMenu';
 import Explorer from '../apps/Explorer';
 import InternetExplorer from '../apps/InternetExplorer';
 import Notepad from '../apps/Notepad';
+import PhotoViewer from '../apps/PhotoViewer';
 import QQ from '../apps/QQ';
 import Email from '../apps/Email';
 import TiebaApp, { tiebaPlugin } from '../apps/TiebaApp';
@@ -100,6 +101,8 @@ const Desktop = () => {
                  } else {
                      openWindow(key, item.name, <InternetExplorer url={item.content} plugin={tiebaPlugin} />, 'html', { isMaximized: true });
                  }
+             } else if (item.app === 'PhotoViewer') {
+                 openWindow(key, item.name, <PhotoViewer src={item.content} />, 'image', { width: 600, height: 500 });
              }
         }
     };
@@ -165,7 +168,7 @@ const Desktop = () => {
         <DesktopContainer onContextMenu={handleContextMenu}>
             <IconGrid key={refreshKey} style={{ opacity: isRefreshing ? 0 : 1 }}>
                 {Object.entries(desktopItems).map(([key, item]) => (
-                    <DesktopIcon key={key} onDoubleClick={() => handleIconDoubleClick(key, item)}>
+                    <DesktopIcon key={key} data-testid={`desktop-icon-${key}`} onDoubleClick={() => handleIconDoubleClick(key, item)}>
                         <div className="icon-wrapper">
                             <XPIcon name={item.icon} size={32} />
                         </div>

@@ -3,6 +3,7 @@ import Explorer from '../apps/Explorer';
 import InternetExplorer from '../apps/InternetExplorer';
 import QQ from '../apps/QQ';
 import Notepad from '../apps/Notepad';
+import PhotoViewer from '../apps/PhotoViewer';
 import Email from '../apps/Email';
 import TiebaApp, { tiebaPlugin } from '../apps/TiebaApp';
 
@@ -29,6 +30,11 @@ export const restoreComponent = (appId, componentProps = {}) => {
   // Notepad
   if (componentProps.content !== undefined && !componentProps.url && !componentProps.html) {
       return <Notepad {...componentProps} />;
+  }
+
+  // Photo Viewer
+  if (appId === 'PhotoViewer' || (componentProps.src && appId !== 'Internet Explorer')) {
+      return <PhotoViewer {...componentProps} />;
   }
 
   // QQ
