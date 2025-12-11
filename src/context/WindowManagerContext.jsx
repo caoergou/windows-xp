@@ -1,17 +1,39 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { restoreComponent } from '../utils/WindowFactory';
 
 const WindowManagerContext = createContext();
 
 export const useWindowManager = () => useContext(WindowManagerContext);
 
 export const WindowManagerProvider = ({ children }) => {
-  const [windows, setWindows] = useState([]);
+  const [windows, setWindows] = useState(() => {
+    try {
+      const saved = localStorage.getItem('xp_open_windows');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Restore components using the factory
+        return parsed.map(w => ({
+          ...w,
+          component: restoreComponent(w.appId, w.componentProps || w.props)
+        }));
+      }
+    } catch (e) {
+      console.error("Failed to restore windows:", e);
+    }
+    return [];
+  });
+
   const [activeWindowId, setActiveWindowId] = useState(null);
   const [zIndexCounter, setZIndexCounter] = useState(10000);
 
+  // Persistence effect
+  useEffect(() => {
+    // We don't save the 'component' field directly as it's a React element and circular/complex.
+    const windowsToSave = windows.map(({ component, ...rest }) => rest);
+    localStorage.setItem('xp_open_windows', JSON.stringify(windowsToSave));
+  }, [windows]);
+
   const openWindow = (appId, title, component, icon, props = {}) => {
-    // Check if already open (if we want single instance per app, or just always new)
-    // For simplicity, always new instance unless specific logic
     const id = Date.now().toString();
 
     // Calculate center position, accounting for taskbar height (30px)
@@ -28,6 +50,7 @@ export const WindowManagerProvider = ({ children }) => {
       appId,
       title,
       component,
+      componentProps: component.props, // Capture component props for persistence
       icon,
       props,
       isMinimized: false,
