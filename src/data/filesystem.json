@@ -53,6 +53,13 @@
                     "content": "亲爱的日记，今天我写了一些 React 代码。"
                 }
              }
+           },
+           "Bliss.jpg": {
+             "type": "file",
+             "name": "Bliss.jpg",
+             "app": "PhotoViewer",
+             "icon": "image",
+             "content": "/images/desktop_bg.jpg"
            }
         }
       },

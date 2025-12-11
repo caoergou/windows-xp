@@ -5,6 +5,7 @@ import { useWindowManager } from '../context/WindowManagerContext';
 import { useModal } from '../context/ModalContext';
 import InternetExplorer from './InternetExplorer';
 import Notepad from './Notepad';
+import PhotoViewer from './PhotoViewer';
 import XPIcon from '../components/XPIcon';
 import ExplorerSidebar from '../components/Explorer/ExplorerSidebar';
 import ExplorerToolbar from '../components/Explorer/ExplorerToolbar';
@@ -147,6 +148,8 @@ const Explorer = ({ initialPath = [] }) => {
                  openWindow(name, target.name, <Notepad content={target.content} />, 'file');
              } else if (target.app === 'InternetExplorer') {
                  openWindow(name, target.name, <InternetExplorer url={target.content} />, 'html');
+             } else if (target.app === 'PhotoViewer') {
+                 openWindow(name, target.name, <PhotoViewer src={target.content} />, 'image', { width: 600, height: 500 });
              }
         }
     };
@@ -249,6 +252,7 @@ const Explorer = ({ initialPath = [] }) => {
     const renderFileItem = (key, item) => (
         <FileItem
             key={key}
+            data-testid={`file-item-${key}`}
             onDoubleClick={() => handleNavigate(key)}
             onClick={() => setSelectedItem({ name: item.name, type: item.type })}
             selected={selectedItem && selectedItem.name === item.name}
