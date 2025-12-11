@@ -24,7 +24,14 @@ import {
     AlertCircle,
     Info,
     XCircle,
-    Mail
+    Mail,
+    ArrowLeft,
+    ArrowRight,
+    ArrowUp,
+    Search,
+    ChevronDown,
+    Home,
+    LayoutList
 } from 'lucide-react';
 
 const XPNetwork = ({ size, color = "currentColor", className }) => (
@@ -77,7 +84,14 @@ const IconMap = {
     "alert_error": XCircle,
     "alert_info": Info,
     "alert_warning": AlertCircle,
-    "email": Mail
+    "email": Mail,
+    "back": ArrowLeft,
+    "forward": ArrowRight,
+    "up": ArrowUp,
+    "search": Search,
+    "chevron_down": ChevronDown,
+    "home": Home,
+    "views": LayoutList
 };
 
 // Color mapping to make them look a bit more colorful/XP-like (optional)
@@ -95,7 +109,9 @@ const IconColors = {
     "windows": "#00CCFF",
     "alert_error": "#D32F2F",
     "alert_info": "#1976D2",
-    "alert_warning": "#FBC02D"
+    "alert_warning": "#FBC02D",
+    "back": "#4CAF50", // Just a distinct color for nav
+    "forward": "#4CAF50"
 };
 
 const XPIcon = ({ name, size = 32, className, color }) => {
