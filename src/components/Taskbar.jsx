@@ -319,6 +319,11 @@ const Taskbar = () => {
     const startMenuRef = useRef(null);
     const startButtonRef = useRef(null);
 
+    const handleLogout = () => {
+        localStorage.removeItem('xp_open_windows');
+        logout();
+    };
+
     useEffect(() => {
         const updateDateTime = () => {
             const now = new Date();
@@ -393,11 +398,13 @@ const Taskbar = () => {
     };
 
     const performShutdown = () => {
+        localStorage.removeItem('xp_open_windows');
         localStorage.setItem('xp_power_state', 'shutdown');
         window.location.reload();
     };
 
     const performRestart = () => {
+        localStorage.removeItem('xp_open_windows');
         localStorage.setItem('xp_power_state', 'restart');
         window.location.reload();
     };
@@ -473,7 +480,7 @@ const Taskbar = () => {
                         </StartRight>
                     </StartBody>
                     <StartFooter>
-                        <button onClick={logout}>
+                        <button onClick={handleLogout}>
                             <XPIcon name="logout" size={16} className="footer-icon" color="white" />
                             注销
                         </button>
