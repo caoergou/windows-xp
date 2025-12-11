@@ -4,7 +4,10 @@ body {
   overflow: hidden;
   font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   user-select: none;
-  -webkit-font-smoothing: antialiased;
+  /* Disable font smoothing to simulate Windows XP aliasing */
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+  font-smooth: never;
 }
 
 #root {
