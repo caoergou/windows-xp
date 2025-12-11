@@ -104,7 +104,7 @@ const ExplorerSidebar = ({ currentPath, currentItem, onNavigate }) => {
                     <XPIcon name={sections.otherPlaces ? "chevron_down" : "up"} size={12} color="#215dc6" />
                 </Header>
                 <Content collapsed={sections.otherPlaces}>
-                    <SidebarLink onClick={() => onNavigate && onNavigate([])}>
+                    <SidebarLink onClick={() => onNavigate && onNavigate(['My Computer'])}>
                         <XPIcon name="computer" size={16} />
                         我的电脑
                     </SidebarLink>
