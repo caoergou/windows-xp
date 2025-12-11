@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { ArrowLeft, ArrowRight, RotateCw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCw, History, X } from 'lucide-react';
 import XPIcon from '../components/XPIcon';
 
 const Container = styled.div`
@@ -9,6 +9,66 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     background: #f0f0f0;
+`;
+
+const MainArea = styled.div`
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+`;
+
+const Sidebar = styled.div`
+    width: 250px;
+    background: #fff;
+    border-right: 1px solid #999;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+`;
+
+const SidebarHeader = styled.div`
+    background: linear-gradient(to right, #6ba3e5, #3f78bd);
+    color: white;
+    padding: 5px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+`;
+
+const HistoryList = styled.div`
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    background: white;
+`;
+
+const HistoryItem = styled.div`
+    padding: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid #eee;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+        background: #f0f0f0;
+    }
+
+    .url {
+        color: #0066cc;
+    }
+
+    .time {
+        color: #888;
+        font-size: 10px;
+        margin-top: 2px;
+    }
 `;
 
 const Toolbar = styled.div`
@@ -58,6 +118,7 @@ const Content = styled.div`
     flex: 1;
     background: white;
     position: relative;
+    overflow: hidden;
     
     iframe {
         width: 100%;
@@ -73,8 +134,42 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
     ]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [inputUrl, setInputUrl] = useState(initialUrl || '');
+    const [showHistory, setShowHistory] = useState(false);
+    const [browsingHistory, setBrowsingHistory] = useState([]);
 
     const currentEntry = history[currentIndex];
+
+    const addToHistory = (url) => {
+        if (!url || url === 'about:blank') return;
+
+        try {
+            const saved = JSON.parse(localStorage.getItem('xp_ie_history') || '[]');
+            const newItem = { url, timestamp: Date.now() };
+            // Newest first, limit to 100
+            const newHistory = [newItem, ...saved].slice(0, 100);
+
+            localStorage.setItem('xp_ie_history', JSON.stringify(newHistory));
+            setBrowsingHistory(newHistory);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    // Load history from localStorage on mount
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem('xp_ie_history');
+            if (saved) {
+                setBrowsingHistory(JSON.parse(saved));
+            }
+        } catch (e) {
+            console.error("Failed to load history", e);
+        }
+
+        if (initialUrl && initialUrl !== 'about:blank') {
+             addToHistory(initialUrl);
+        }
+    }, []);
 
     // Sync inputUrl when currentEntry changes
     useEffect(() => {
@@ -92,6 +187,7 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
 
         setHistory(newHistory);
         setCurrentIndex(newHistory.length - 1);
+        addToHistory(newUrl);
     };
 
     const handleGo = () => {
@@ -190,6 +286,9 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
                 <ToolbarButton onClick={handleRefresh} title="Refresh">
                     <RotateCw size={16} />
                 </ToolbarButton>
+                <ToolbarButton onClick={() => setShowHistory(!showHistory)} title="History" style={{backgroundColor: showHistory ? '#dcdcdc' : 'transparent'}}>
+                    <History size={16} />
+                </ToolbarButton>
 
                 <span style={{ marginLeft: '5px' }}>地址:</span>
                 <AddressBar 
@@ -199,9 +298,30 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
                 />
                 <button onClick={handleGo}>转到</button>
             </Toolbar>
-            <Content>
-                {renderContent()}
-            </Content>
+            <MainArea>
+                {showHistory && (
+                    <Sidebar>
+                        <SidebarHeader>
+                            <span>History</span>
+                            <X size={14} style={{cursor: 'pointer'}} onClick={() => setShowHistory(false)} />
+                        </SidebarHeader>
+                        <HistoryList>
+                            {browsingHistory.map((item, index) => (
+                                <HistoryItem key={index} onClick={() => navigateTo(item.url)}>
+                                    <div className="url">{item.url}</div>
+                                    <div className="time">{new Date(item.timestamp).toLocaleString()}</div>
+                                </HistoryItem>
+                            ))}
+                            {browsingHistory.length === 0 && (
+                                <div style={{padding: 10, color: '#888', fontSize: 12}}>No history</div>
+                            )}
+                        </HistoryList>
+                    </Sidebar>
+                )}
+                <Content>
+                    {renderContent()}
+                </Content>
+            </MainArea>
         </Container>
     );
 };
