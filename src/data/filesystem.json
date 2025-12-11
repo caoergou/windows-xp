@@ -40,6 +40,19 @@
              "app": "Notepad",
              "content": "统治世界的计划..."
            },
+           "Corrupted Folder": {
+             "type": "folder",
+             "name": "损坏的文件夹",
+             "broken": true,
+             "children": {}
+           },
+           "Corrupted File.txt": {
+             "type": "file",
+             "name": "损坏的文件.txt",
+             "broken": true,
+             "app": "Notepad",
+             "content": "..."
+           },
            "Private": {
              "type": "folder",
              "name": "私人文件夹",
