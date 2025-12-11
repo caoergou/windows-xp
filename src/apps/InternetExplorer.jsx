@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import { X } from 'lucide-react';
 import IEToolbar from '../components/Explorer/IEToolbar';
 import IEAddressBar from '../components/Explorer/IEAddressBar';
+import { useWindowManager } from '../context/WindowManagerContext';
+import Email from './Email';
+import { useFileSystem } from '../context/FileSystemContext';
 
 const Container = styled.div`
     width: 100%;
@@ -87,6 +90,9 @@ const Content = styled.div`
 `;
 
 const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
+    const { openWindow } = useWindowManager();
+    const { getFile } = useFileSystem();
+
     // History is an array of objects: { url: string, html: string|null }
     const [history, setHistory] = useState([
         { url: initialUrl || 'about:blank', html: initialHtml || null }
@@ -127,6 +133,14 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
 
         if (initialUrl && initialUrl !== 'about:blank') {
              addToHistory(initialUrl);
+        } else if (!initialUrl) {
+            // Default to About.html if no URL provided
+            const aboutFile = getFile(['About.html']);
+            if (aboutFile && aboutFile.content) {
+                const newEntry = { url: 'About.html', html: aboutFile.content };
+                setHistory([newEntry]);
+                setInputUrl('About.html');
+            }
         }
     }, []);
 
@@ -175,6 +189,19 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
         if (iframe) {
             iframe.contentWindow.location.reload();
         }
+    };
+
+    const handleHome = () => {
+        const aboutFile = getFile(['About.html']);
+        if (aboutFile && aboutFile.content) {
+            navigateTo('About.html', aboutFile.content);
+        } else {
+            navigateTo('About.html');
+        }
+    };
+
+    const handleMail = () => {
+         openWindow('outlook_express', 'Outlook Express', <Email />, 'email', { width: 800, height: 600 });
     };
 
     // Handle messages from iframe (for HTML content navigation)
@@ -240,11 +267,11 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
                 onForward={goForward}
                 onRefresh={handleRefresh}
                 onStop={() => {}}
-                onHome={() => navigateTo('https://www.google.com')}
-                onSearch={() => alert("Search functionality is limited in this demo.")}
-                onFavorites={() => alert("Favorites are not implemented.")}
+                onHome={handleHome}
+                onSearch={() => {}}
+                onFavorites={() => {}}
                 onHistory={() => setShowHistory(!showHistory)}
-                onMail={() => alert("Mail client not integrated.")}
+                onMail={handleMail}
                 onPrint={() => window.print()}
                 canBack={currentIndex > 0}
                 canForward={currentIndex < history.length - 1}

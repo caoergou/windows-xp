@@ -76,7 +76,7 @@ const Desktop = () => {
              openWindow(key, item.name, <Explorer initialPath={[key]} />, item.icon || 'folder');
         } else if (item.type === 'app_shortcut') {
              if (item.app === 'InternetExplorer') {
-                 openWindow(key, item.name, <InternetExplorer url="https://www.bing.com" plugin={tiebaPlugin} />, item.icon);
+                 openWindow(key, item.name, <InternetExplorer plugin={tiebaPlugin} />, item.icon);
              } else if (item.app === 'QQ') {
                  const existingQQ = windows.find(w => w.appId === key);
                  if (existingQQ) {
