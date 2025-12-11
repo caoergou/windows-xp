@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { ArrowLeft, ArrowRight, RotateCw, History, X } from 'lucide-react';
-import XPIcon from '../components/XPIcon';
+import { X } from 'lucide-react';
+import IEToolbar from '../components/Explorer/IEToolbar';
+import IEAddressBar from '../components/Explorer/IEAddressBar';
 
 const Container = styled.div`
     width: 100%;
@@ -9,6 +10,7 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     background: #f0f0f0;
+    font-family: Tahoma, "Microsoft YaHei", sans-serif;
 `;
 
 const MainArea = styled.div`
@@ -69,49 +71,6 @@ const HistoryItem = styled.div`
         font-size: 10px;
         margin-top: 2px;
     }
-`;
-
-const Toolbar = styled.div`
-    padding: 5px;
-    background: #ECE9D8;
-    border-bottom: 1px solid #999;
-    display: flex;
-    gap: 5px;
-    align-items: center;
-`;
-
-const ToolbarButton = styled.button`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px 5px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    border: 1px solid transparent;
-    border-radius: 3px;
-
-    &:hover {
-        border: 1px solid #999;
-        background-color: #f5f5f5;
-        box-shadow: inset 0 0 2px rgba(0,0,0,0.1);
-    }
-
-    &:active {
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-    }
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: default;
-        border: 1px solid transparent;
-        background: transparent;
-    }
-`;
-
-const AddressBar = styled.input`
-    flex: 1;
-    padding: 2px;
 `;
 
 const Content = styled.div`
@@ -276,28 +235,26 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
 
     return (
         <Container>
-            <Toolbar>
-                <ToolbarButton onClick={goBack} disabled={currentIndex === 0} title="Back">
-                    <ArrowLeft size={16} />
-                </ToolbarButton>
-                <ToolbarButton onClick={goForward} disabled={currentIndex === history.length - 1} title="Forward">
-                    <ArrowRight size={16} />
-                </ToolbarButton>
-                <ToolbarButton onClick={handleRefresh} title="Refresh">
-                    <RotateCw size={16} />
-                </ToolbarButton>
-                <ToolbarButton onClick={() => setShowHistory(!showHistory)} title="History" style={{backgroundColor: showHistory ? '#dcdcdc' : 'transparent'}}>
-                    <History size={16} />
-                </ToolbarButton>
-
-                <span style={{ marginLeft: '5px' }}>地址:</span>
-                <AddressBar 
-                    value={inputUrl} 
-                    onChange={(e) => setInputUrl(e.target.value)} 
-                    onKeyPress={(e) => e.key === 'Enter' && handleGo()}
-                />
-                <button onClick={handleGo}>转到</button>
-            </Toolbar>
+            <IEToolbar
+                onBack={goBack}
+                onForward={goForward}
+                onRefresh={handleRefresh}
+                onStop={() => {}}
+                onHome={() => navigateTo('https://www.google.com')}
+                onSearch={() => alert("Search functionality is limited in this demo.")}
+                onFavorites={() => alert("Favorites are not implemented.")}
+                onHistory={() => setShowHistory(!showHistory)}
+                onMail={() => alert("Mail client not integrated.")}
+                onPrint={() => window.print()}
+                canBack={currentIndex > 0}
+                canForward={currentIndex < history.length - 1}
+                showHistory={showHistory}
+            />
+            <IEAddressBar
+                value={inputUrl}
+                onChange={(e) => setInputUrl(e.target.value)}
+                onGo={handleGo}
+            />
             <MainArea>
                 {showHistory && (
                     <Sidebar>

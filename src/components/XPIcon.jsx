@@ -31,7 +31,11 @@ import {
     Search,
     ChevronDown,
     Home,
-    LayoutList
+    LayoutList,
+    Star,
+    History,
+    Printer,
+    X
 } from 'lucide-react';
 
 const XPNetwork = ({ size, color = "currentColor", className }) => (
@@ -91,7 +95,11 @@ const IconMap = {
     "search": Search,
     "chevron_down": ChevronDown,
     "home": Home,
-    "views": LayoutList
+    "views": LayoutList,
+    "favorites": Star,
+    "history": History,
+    "print": Printer,
+    "stop": X
 };
 
 // Color mapping to make them look a bit more colorful/XP-like (optional)
