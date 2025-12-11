@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { ArrowLeft, ArrowRight, RotateCw, History, X } from 'lucide-react';
-import XPIcon from '../components/XPIcon';
+import { X } from 'lucide-react';
+import IEToolbar from '../components/Explorer/IEToolbar';
+import IEAddressBar from '../components/Explorer/IEAddressBar';
+import { useWindowManager } from '../context/WindowManagerContext';
+import Email from './Email';
+import { useFileSystem } from '../context/FileSystemContext';
 
 const Container = styled.div`
     width: 100%;
@@ -9,6 +13,7 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     background: #f0f0f0;
+    font-family: Tahoma, "Microsoft YaHei", sans-serif;
 `;
 
 const MainArea = styled.div`
@@ -71,49 +76,6 @@ const HistoryItem = styled.div`
     }
 `;
 
-const Toolbar = styled.div`
-    padding: 5px;
-    background: #ECE9D8;
-    border-bottom: 1px solid #999;
-    display: flex;
-    gap: 5px;
-    align-items: center;
-`;
-
-const ToolbarButton = styled.button`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px 5px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    border: 1px solid transparent;
-    border-radius: 3px;
-
-    &:hover {
-        border: 1px solid #999;
-        background-color: #f5f5f5;
-        box-shadow: inset 0 0 2px rgba(0,0,0,0.1);
-    }
-
-    &:active {
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-    }
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: default;
-        border: 1px solid transparent;
-        background: transparent;
-    }
-`;
-
-const AddressBar = styled.input`
-    flex: 1;
-    padding: 2px;
-`;
-
 const Content = styled.div`
     flex: 1;
     background: white;
@@ -128,6 +90,9 @@ const Content = styled.div`
 `;
 
 const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
+    const { openWindow } = useWindowManager();
+    const { getFile } = useFileSystem();
+
     // History is an array of objects: { url: string, html: string|null }
     const [history, setHistory] = useState([
         { url: initialUrl || 'about:blank', html: initialHtml || null }
@@ -168,6 +133,14 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
 
         if (initialUrl && initialUrl !== 'about:blank') {
              addToHistory(initialUrl);
+        } else if (!initialUrl) {
+            // Default to About.html if no URL provided
+            const aboutFile = getFile(['About.html']);
+            if (aboutFile && aboutFile.content) {
+                const newEntry = { url: 'About.html', html: aboutFile.content };
+                setHistory([newEntry]);
+                setInputUrl('About.html');
+            }
         }
     }, []);
 
@@ -216,6 +189,19 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
         if (iframe) {
             iframe.contentWindow.location.reload();
         }
+    };
+
+    const handleHome = () => {
+        const aboutFile = getFile(['About.html']);
+        if (aboutFile && aboutFile.content) {
+            navigateTo('About.html', aboutFile.content);
+        } else {
+            navigateTo('About.html');
+        }
+    };
+
+    const handleMail = () => {
+         openWindow('outlook_express', 'Outlook Express', <Email />, 'email', { width: 800, height: 600 });
     };
 
     // Handle messages from iframe (for HTML content navigation)
@@ -276,28 +262,26 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
 
     return (
         <Container>
-            <Toolbar>
-                <ToolbarButton onClick={goBack} disabled={currentIndex === 0} title="Back">
-                    <ArrowLeft size={16} />
-                </ToolbarButton>
-                <ToolbarButton onClick={goForward} disabled={currentIndex === history.length - 1} title="Forward">
-                    <ArrowRight size={16} />
-                </ToolbarButton>
-                <ToolbarButton onClick={handleRefresh} title="Refresh">
-                    <RotateCw size={16} />
-                </ToolbarButton>
-                <ToolbarButton onClick={() => setShowHistory(!showHistory)} title="History" style={{backgroundColor: showHistory ? '#dcdcdc' : 'transparent'}}>
-                    <History size={16} />
-                </ToolbarButton>
-
-                <span style={{ marginLeft: '5px' }}>地址:</span>
-                <AddressBar 
-                    value={inputUrl} 
-                    onChange={(e) => setInputUrl(e.target.value)} 
-                    onKeyPress={(e) => e.key === 'Enter' && handleGo()}
-                />
-                <button onClick={handleGo}>转到</button>
-            </Toolbar>
+            <IEToolbar
+                onBack={goBack}
+                onForward={goForward}
+                onRefresh={handleRefresh}
+                onStop={() => {}}
+                onHome={handleHome}
+                onSearch={() => {}}
+                onFavorites={() => {}}
+                onHistory={() => setShowHistory(!showHistory)}
+                onMail={handleMail}
+                onPrint={() => window.print()}
+                canBack={currentIndex > 0}
+                canForward={currentIndex < history.length - 1}
+                showHistory={showHistory}
+            />
+            <IEAddressBar
+                value={inputUrl}
+                onChange={(e) => setInputUrl(e.target.value)}
+                onGo={handleGo}
+            />
             <MainArea>
                 {showHistory && (
                     <Sidebar>

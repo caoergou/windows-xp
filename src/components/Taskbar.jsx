@@ -371,7 +371,7 @@ const Taskbar = () => {
     const handleLaunch = (appName, pathOrKey) => {
         setStartOpen(false);
         if (appName === 'Internet Explorer') {
-             openWindow('Internet Explorer', 'Internet Explorer', <InternetExplorer url="https://www.bing.com" plugin={tiebaPlugin} />, 'ie');
+             openWindow('Internet Explorer', 'Internet Explorer', <InternetExplorer plugin={tiebaPlugin} />, 'ie');
         } else if (appName === 'QQ') {
              const existingQQ = windows.find(w => w.appId === 'QQ');
              if (existingQQ) {
