@@ -240,6 +240,8 @@ const Window = ({ windowState }) => {
                         resizeWindow(id, size.width, size.height);
                     }}
                     handleSize={[20, 20]} // Larger handle area
+                    axis={isResizable ? 'both' : 'none'}
+                    resizeHandles={isResizable ? ['se'] : []}
                 >
                    {/* Remove left/top/zIndex from WindowContainer style since the wrapper div handles it */}
                    <WindowContainer style={{ width: '100%', height: '100%' }} onClick={() => focusWindow(id)}>
