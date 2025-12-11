@@ -5,13 +5,38 @@ const FileSystemContext = createContext();
 
 export const useFileSystem = () => useContext(FileSystemContext);
 
+// Load all JSON files from src/data/recycle_bin
+const recycleBinFiles = import.meta.glob('../data/recycle_bin/*.json', { eager: true });
+
+// Merge all recycle bin items
+const recycleBinItems = {};
+for (const path in recycleBinFiles) {
+  const module = recycleBinFiles[path];
+  // Standard JSON import in Vite gives the JSON object as default export
+  const content = module.default || module;
+  Object.assign(recycleBinItems, content);
+}
+
+// Deep clone initialFileSystem to avoid mutating the original import
+const fileSystemWithRecycleBin = JSON.parse(JSON.stringify(initialFileSystem));
+
+// Inject items into Recycle Bin
+if (fileSystemWithRecycleBin.root &&
+    fileSystemWithRecycleBin.root.children &&
+    fileSystemWithRecycleBin.root.children['Recycle Bin']) {
+
+    fileSystemWithRecycleBin.root.children['Recycle Bin'].children = {
+        ...fileSystemWithRecycleBin.root.children['Recycle Bin'].children,
+        ...recycleBinItems
+    };
+}
+
 export const FileSystemProvider = ({ children }) => {
-  const [fs, setFs] = useState(initialFileSystem);
+  const [fs, setFs] = useState(fileSystemWithRecycleBin);
 
   const getFile = (path) => {
     // Path is an array of keys, e.g. ["root", "children", "My Documents", "children", "file.txt"]
     // Or simpler: ["My Documents", "file.txt"] if we assume root children.
-    // Let's implement a simple traversal.
     
     // For simplicity, let's assume path starts from root's children
     let current = fs.root;
