@@ -31,6 +31,20 @@
             "type": "folder",
             "name": "本地磁盘 (D:)",
             "children": {
+              "System Recovery": {
+                "type": "folder",
+                "name": "System Recovery",
+                "children": {},
+                "broken": true
+              }
+            },
+            "icon": "drive"
+          },
+          "Removable Disk (F:)": {
+            "type": "folder",
+            "name": "U盘 (F:)",
+            "icon": "drive",
+            "children": {
               "夏建国_工作日志": {
                 "type": "folder",
                 "name": "夏建国_工作日志",
@@ -194,15 +208,8 @@
                 },
                 "locked": true,
                 "password": "19990315"
-              },
-              "System Recovery": {
-                "type": "folder",
-                "name": "System Recovery",
-                "children": {},
-                "broken": true
               }
-            },
-            "icon": "drive"
+            }
           }
         }
       },
