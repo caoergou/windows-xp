@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import QQHistory from './QQHistory';
+import QZone from './QZone';
 
 const Container = styled.div`
     width: 100%;
@@ -137,6 +138,15 @@ const QQChat = ({ user, target, type }) => {
         );
     };
 
+    const openQZone = () => {
+        openWindow(
+            `qzone-${target.id}`,
+            `QZone - ${target.id}`,
+            <QZone userId={target.id} />,
+            'ie'
+        );
+    };
+
     const handleSend = () => {
         if (!inputValue.trim()) return;
 
@@ -164,6 +174,11 @@ const QQChat = ({ user, target, type }) => {
                 <ToolButton onClick={openHistory}>
                     聊天记录
                 </ToolButton>
+                {type !== 'group' && (
+                    <ToolButton onClick={openQZone}>
+                        QQ空间
+                    </ToolButton>
+                )}
             </Toolbar>
             <ChatBody>
                 {history.map((msg, idx) => (

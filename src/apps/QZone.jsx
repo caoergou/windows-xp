@@ -289,7 +289,12 @@ const QZone = ({ userId = "1001" }) => {
 
         let indexData, shuoshuoData, blogData, albumsData = [];
 
-        if (userId === "1001") {
+        // Map newer IDs to old mock data
+        let effectiveId = userId;
+        if (userId === "10001") effectiveId = "1001";
+        if (userId === "10002") effectiveId = "1002";
+
+        if (effectiveId === "1001") {
             indexData = (await import('../data/qzone/1001/index.json')).default;
             shuoshuoData = (await import('../data/qzone/1001/shuoshuo.json')).default;
             blogData = (await import('../data/qzone/1001/blog.json')).default;
@@ -316,27 +321,20 @@ const QZone = ({ userId = "1001" }) => {
                 }
             ];
 
-        } else if (userId === "1002") {
+        } else if (effectiveId === "1002") {
             indexData = (await import('../data/qzone/1002/index.json')).default;
             shuoshuoData = (await import('../data/qzone/1002/shuoshuo.json')).default;
             blogData = (await import('../data/qzone/1002/blog.json')).default;
 
             const travelMeta = (await import('../data/qzone/1002/pictures/travel/index.json')).default;
-            // Assuming we might have a picture for 1002 or just use a placeholder if file doesn't exist
-            // I created paris.jpg in my mind but I didn't actually check if I created the file on disk in previous steps?
-            // Wait, I only checked 1001. Let me check 1002 files.
-            // If they don't exist, the import will fail.
-            // Safe bet: try catch the image import or just use a generic placeholder for 1002 if I am not sure.
-            // I'll check file existence in thought trace.
-            // The list_files showed 1002 folder.
 
-            // For safety in this "Edit", I will assume if I didn't verify 1002 images, I shouldn't break the code.
-            // I'll mock the image for 1002 if import fails or just use a color.
             let travelPic;
             try {
-                 travelPic = (await import('../data/qzone/1002/pictures/travel/paris.jpg')).default;
+                 // Use a try-catch for the image import to avoid crashing if file missing
+                 const mod = await import('../data/qzone/1002/pictures/travel/paris.jpg');
+                 travelPic = mod.default;
             } catch (e) {
-                 travelPic = null; // Fallback
+                 travelPic = null;
             }
 
             albumsData = [
@@ -348,7 +346,8 @@ const QZone = ({ userId = "1001" }) => {
                 }
             ];
         } else {
-            throw new Error("User not found");
+            // Fallback empty state or error
+             throw new Error("User not found");
         }
 
         setUserInfo(indexData);
@@ -358,8 +357,8 @@ const QZone = ({ userId = "1001" }) => {
 
         setLoading(false);
       } catch (err) {
-        console.error(err);
-        setError("Failed to load QZone data");
+        console.error("QZone Data Load Error:", err);
+        setError(`Failed to load QZone data: ${err.message}`);
         setLoading(false);
       }
     };
