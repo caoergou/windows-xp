@@ -190,6 +190,10 @@ const QQ = () => {
         openWindow(`qzone-${userId}`, `QZone - ${userId}`, <QZone userId={userId} />, 'ie');
     };
 
+    const handleOpenMyQZone = () => {
+        openQZone(user.id);
+    };
+
     if (status === 'login') {
         return (
             <Container>
@@ -231,11 +235,20 @@ const QQ = () => {
     return (
         <Container style={{justifyContent: 'flex-start', alignItems: 'stretch', background: '#fff'}}>
             <UserHeader>
-                <Avatar src={user.avatar} />
+                <Avatar src={user.avatar} onClick={handleOpenMyQZone} style={{cursor: 'pointer'}} title="访问我的QQ空间" />
                 <UserInfo>
                     <div style={{display:'flex', justifyContent:'space-between'}}>
                         <Nickname>{user.nickname}</Nickname>
-                        <StatusDot status={user.status} title={user.status} />
+                        <div style={{display: 'flex', gap: '5px'}}>
+                            <div
+                                style={{cursor: 'pointer', fontSize: '10px', color: '#0066CC'}}
+                                onClick={handleOpenMyQZone}
+                                title="QQ空间"
+                            >
+                                [空间]
+                            </div>
+                            <StatusDot status={user.status} title={user.status} />
+                        </div>
                     </div>
                     <Signature title={user.signature}>{user.signature}</Signature>
                 </UserInfo>

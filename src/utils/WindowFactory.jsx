@@ -6,6 +6,7 @@ import Notepad from '../apps/Notepad';
 import PhotoViewer from '../apps/PhotoViewer';
 import Email from '../apps/Email';
 import TiebaApp, { tiebaPlugin } from '../apps/TiebaApp';
+import QZone from '../apps/QZone';
 
 export const restoreComponent = (appId, componentProps = {}) => {
   // Heuristics based on componentProps if appId is generic or file-based
@@ -50,6 +51,11 @@ export const restoreComponent = (appId, componentProps = {}) => {
   // Tieba App explicitly
   if (appId.includes('Tieba') && componentProps.initialUrl) {
       return <TiebaApp {...componentProps} />;
+  }
+
+  // QZone
+  if (appId.startsWith('qzone-')) {
+      return <QZone {...componentProps} />;
   }
 
   // Fallback for specific IDs if props are missing (e.g. empty Explorer)
