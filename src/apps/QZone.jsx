@@ -261,6 +261,24 @@ const PhotoGrid = styled.div`
     }
 `;
 
+const NotOpenedContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #666;
+  font-size: 16px;
+  background-color: #f0f0f0;
+  padding: 20px;
+  text-align: center;
+
+  h2 {
+    color: #333;
+    margin-bottom: 10px;
+  }
+`;
+
 const QZone = ({ userId = "1001" }) => {
   const [activeTab, setActiveTab] = useState('home');
   const [userInfo, setUserInfo] = useState(null);
@@ -269,6 +287,7 @@ const QZone = ({ userId = "1001" }) => {
   const [albums, setAlbums] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notOpened, setNotOpened] = useState(false);
 
   // Password protection state
   const [lockedItem, setLockedItem] = useState(null); // { type: 'blog'|'album', item: object }
@@ -283,6 +302,7 @@ const QZone = ({ userId = "1001" }) => {
       try {
         setLoading(true);
         setError(null);
+        setNotOpened(false);
         setViewingItem(null);
         setLockedItem(null);
         setActiveTab('home');
@@ -346,8 +366,9 @@ const QZone = ({ userId = "1001" }) => {
                 }
             ];
         } else {
-            // Fallback empty state or error
-             throw new Error("User not found");
+            setNotOpened(true);
+            setLoading(false);
+            return;
         }
 
         setUserInfo(indexData);
@@ -397,6 +418,21 @@ const QZone = ({ userId = "1001" }) => {
   };
 
   if (loading) return <Container>Loading...</Container>;
+
+  if (notOpened) {
+      return (
+          <Container>
+              <Header>
+                  <Title>QZone</Title>
+              </Header>
+              <NotOpenedContainer>
+                  <h2>该用户尚未开通QQ空间</h2>
+                  <p>User has not activated QZone.</p>
+              </NotOpenedContainer>
+          </Container>
+      );
+  }
+
   if (error) return <Container>{error}</Container>;
 
   return (
