@@ -186,6 +186,10 @@ const Breadcrumb = styled.div`
     }
 `;
 
+// Define glob patterns at the top level
+const tiebaContentGlob = import.meta.glob('../data/tieba/*/tiezi/*.json');
+const tiebaIndexGlob = import.meta.glob('../data/tieba/*/index.json');
+
 const Tieba = ({ tiebaId, threadId, navigateTo, currentUrl }) => {
     const [info, setInfo] = useState(null);
     const [threads, setThreads] = useState([]);
@@ -210,41 +214,52 @@ const Tieba = ({ tiebaId, threadId, navigateTo, currentUrl }) => {
                 setLoading(true);
                 setError(null);
 
-                // Load index info
-                const indexData = (await import(`../data/tieba/${tiebaFolder}/index.json`)).default;
+                // Load index info using glob to ensure it's bundled
+                const indexKey = Object.keys(tiebaIndexGlob).find(k => k.includes(`/${tiebaFolder}/index.json`));
+                if (!indexKey) throw new Error("Index file not found");
+
+                const indexData = (await tiebaIndexGlob[indexKey]()).default;
                 setInfo(indexData);
 
-                // Check for threads (mock logic: check 1.json, 2.json...)
-                // In a real app we would have a manifest of threads.
-                // Here we will try to load 1, 2, 3... until fail.
+                // Load threads from glob manifest
                 const loadedThreads = [];
-                let i = 1;
-                while (true) {
+                // Filter keys that belong to this tieba's 'tiezi' folder
+                const relevantKeys = Object.keys(tiebaContentGlob).filter(k => k.includes(`/${tiebaFolder}/tiezi/`));
+
+                for (const key of relevantKeys) {
                     try {
-                        const threadData = (await import(`../data/tieba/${tiebaFolder}/tiezi/${i}.json`)).default;
-                        if (threadData && threadData.length > 0) {
-                            loadedThreads.push({
-                                id: i,
-                                title: threadData[0].content.substring(0, 30) + (threadData[0].content.length > 30 ? '...' : ''),
-                                author: threadData[0].username,
-                                replyCount: threadData.length - 1,
-                                posts: threadData
-                            });
+                        // Extract ID from filename
+                        const match = key.match(/\/(\d+)\.json$/);
+                        if (match) {
+                            const id = parseInt(match[1], 10);
+                            const threadModule = await tiebaContentGlob[key]();
+                            const threadData = threadModule.default;
+
+                            if (threadData && threadData.length > 0) {
+                                loadedThreads.push({
+                                    id: id,
+                                    title: threadData[0].content.substring(0, 30) + (threadData[0].content.length > 30 ? '...' : ''),
+                                    author: threadData[0].username,
+                                    replyCount: threadData.length - 1,
+                                    posts: threadData
+                                });
+                            }
                         }
-                        i++;
                     } catch (e) {
-                        break; // No more threads
+                        console.error(`Failed to load thread ${key}`, e);
                     }
                 }
+
+                // Sort threads by ID
+                loadedThreads.sort((a, b) => a.id - b.id);
                 setThreads(loadedThreads);
 
                 if (threadId) {
-                    const found = loadedThreads.find(t => t.id === threadId);
+                    const found = loadedThreads.find(t => t.id === parseInt(threadId));
                     if (found) {
                         setActiveThread(found);
                     } else {
-                        // Fallback if thread not found in loaded list?
-                        // Or maybe it's out of range.
+                        // Fallback if thread not found in loaded list
                         setActiveThread(null);
                     }
                 } else {
