@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useModal } from '../context/ModalContext';
 
+const PLACEHOLDER_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23e0e0e0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='16' fill='%23666'%3EImage Not Found%3C/text%3E%3C/svg%3E";
+
+// Dynamically import all travel pictures to avoid build errors if a specific file is missing
+const travelPics = import.meta.glob('../data/qzone/1002/pictures/travel/*.jpg');
+
 const Container = styled.div`
   width: 100%;
   height: 100%;
@@ -279,7 +284,7 @@ const NotOpenedContainer = styled.div`
   }
 `;
 
-const QZone = ({ userId = "1001" }) => {
+const QZone = ({ userId = "1002" }) => {
   const [activeTab, setActiveTab] = useState('home');
   const [userInfo, setUserInfo] = useState(null);
   const [shuoshuos, setShuoshuos] = useState([]);
@@ -348,13 +353,17 @@ const QZone = ({ userId = "1001" }) => {
 
             const travelMeta = (await import('../data/qzone/1002/pictures/travel/index.json')).default;
 
-            let travelPic;
-            try {
-                 // Use a try-catch for the image import to avoid crashing if file missing
-                 const mod = await import('../data/qzone/1002/pictures/travel/paris.jpg');
-                 travelPic = mod.default;
-            } catch (e) {
-                 travelPic = null;
+            let travelPic = PLACEHOLDER_IMAGE;
+            const parisPicPath = '../data/qzone/1002/pictures/travel/paris.jpg';
+
+            if (travelPics[parisPicPath]) {
+                 try {
+                     const mod = await travelPics[parisPicPath]();
+                     travelPic = mod.default;
+                 } catch (e) {
+                     console.warn("Failed to load existing image:", e);
+                     travelPic = PLACEHOLDER_IMAGE;
+                 }
             }
 
             albumsData = [

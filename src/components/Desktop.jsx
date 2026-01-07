@@ -12,6 +12,7 @@ import PhotoViewer from '../apps/PhotoViewer';
 import QQ from '../apps/QQ';
 import Email from '../apps/Email';
 import TiebaApp, { tiebaPlugin } from '../apps/TiebaApp';
+import QZone from '../apps/QZone';
 import XPIcon from './XPIcon';
 import desktopBg from '../assets/images/desktop_bg.jpg';
 
@@ -69,6 +70,7 @@ const DesktopIcon = styled.div`
 const Desktop = () => {
     const { fs } = useFileSystem();
     const { windows, openWindow, focusWindow } = useWindowManager();
+
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
     const [refreshKey, setRefreshKey] = useState(0); // For forcing refresh
     const [isRefreshing, setIsRefreshing] = useState(false);

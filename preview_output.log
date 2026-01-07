@@ -1,10 +1,8 @@
 
-> react-xp@1.0.0 dev
-> vite
+> react-xp@1.0.0 preview
+> vite preview
 
 [33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
-
-  VITE v5.4.21  ready in 380 ms
-
-  ➜  Local:   http://localhost:5173/
+Port 4173 is in use, trying another one...
+  ➜  Local:   http://localhost:4174/
   ➜  Network: use --host to expose
