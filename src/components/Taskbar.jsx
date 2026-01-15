@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserSession } from '../context/UserSessionContext';
 import XPIcon from './XPIcon';
-import timeInfo from '../data/time_info.json';
+import SystemClock from './SystemClock';
 import Explorer from '../apps/Explorer';
 import InternetExplorer from '../apps/InternetExplorer';
 import QQ from '../apps/QQ';
@@ -314,7 +314,6 @@ const Taskbar = () => {
     const { windows, activeWindowId, focusWindow, minimizeWindow, openWindow } = useWindowManager();
     const { logout } = useUserSession();
     const [startOpen, setStartOpen] = useState(false);
-    const [dateTime, setDateTime] = useState('');
     const [showTurnOff, setShowTurnOff] = useState(false);
     const startMenuRef = useRef(null);
     const startButtonRef = useRef(null);
@@ -323,28 +322,6 @@ const Taskbar = () => {
         localStorage.removeItem('xp_open_windows');
         logout();
     };
-
-    useEffect(() => {
-        const updateDateTime = () => {
-            const now = new Date();
-
-            // 格式化时间
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const formattedTime = `${hours}:${minutes}`;
-
-            // 使用配置文件中的自定义日期，如果存在的话
-            const formattedDate = timeInfo.custom_date ||
-                `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
-
-            // 组合日期和时间
-            setDateTime(`${formattedDate}${timeInfo.separator || ' '}${formattedTime}`);
-        };
-
-        updateDateTime();
-        const interval = setInterval(updateDateTime, 1000);
-        return () => clearInterval(interval);
-    }, []);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -520,7 +497,7 @@ const Taskbar = () => {
                     >
                          <XPIcon name="network" size={16} color="white" />
                     </div>
-                    {dateTime}
+                    <SystemClock />
                 </SystemTray>
             </TaskbarContainer>
         </>
