@@ -35,6 +35,18 @@
   ],
   "groups": [
     {
+      "id": "mountain_office",
+      "name": "山顶事务所",
+      "avatar": "https://api.dicebear.com/9.x/identicon/svg?seed=MountainOffice",
+      "description": "我们的秘密基地",
+      "members": [
+          { "id": "10001", "nickname": "夏灯", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=Xiadeng" },
+          { "id": "10002", "nickname": "林晓宇", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=LinXiaoyu" },
+          { "id": "10003", "nickname": "陈默", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=ChenMo" }
+      ],
+      "chatHistory": []
+    },
+    {
       "id": "20001",
       "name": "技术交流群",
       "avatar": "https://api.dicebear.com/9.x/identicon/svg?seed=TechGroup",

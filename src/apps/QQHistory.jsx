@@ -2,6 +2,9 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import historyData from '../data/qq/history.json';
 
+// 动态导入群聊数据
+const groupHistoryFiles = import.meta.glob('../data/qq/groups/*.json', { eager: true });
+
 const Container = styled.div`
     width: 100%;
     height: 100%;
@@ -368,7 +371,23 @@ const QQHistory = ({ user, target, type }) => {
             fullTimestamp: `2023-10-27T${m.timestamp}`
         }));
 
-        const archived = historyData[target.id] || [];
+        // 加载历史记录
+        let archived = [];
+
+        // 如果是群聊，尝试从群聊数据文件加载
+        if (type === 'group' && target.id === 'mountain_office') {
+            // 合并所有群聊数据文件
+            Object.values(groupHistoryFiles).forEach(module => {
+                const data = module.default || module;
+                if (Array.isArray(data)) {
+                    archived = [...archived, ...data];
+                }
+            });
+        } else {
+            // 从 history.json 加载
+            archived = historyData[target.id] || [];
+        }
+
         const normalizedArchived = archived.map(m => ({
             ...m,
             fullTimestamp: m.fullTimestamp || `${m.date}T${m.timestamp}`
@@ -377,7 +396,7 @@ const QQHistory = ({ user, target, type }) => {
         return [...recentMessages, ...normalizedArchived].sort((a, b) => {
             return a.fullTimestamp.localeCompare(b.fullTimestamp);
         });
-    }, [target.chatHistory, target.id]);
+    }, [target.chatHistory, target.id, type]);
 
     const availableData = useMemo(() => {
         const years = new Set();

@@ -114,7 +114,7 @@ const StatusBar = styled.div`
 const Explorer = ({ initialPath = [] }) => {
     const { getFile, checkAccess } = useFileSystem();
     const { openWindow } = useWindowManager();
-    const { showModal, showInput } = useModal();
+    const { showModal, showPasswordDialog } = useModal();
     
     const [history, setHistory] = useState([initialPath]);
     const [historyIndex, setHistoryIndex] = useState(0);
@@ -133,11 +133,14 @@ const Explorer = ({ initialPath = [] }) => {
         }
 
         if (target.locked) {
-            const pwd = await showInput("输入密码", "文件夹已锁定。请输入密码：");
-            if (pwd === null) return;
+            const success = await showPasswordDialog({
+                title: "输入密码",
+                message: "此文件夹已加密，请输入密码访问",
+                hint: target.hint || "提示：请输入正确的密码",
+                correctPassword: target.password
+            });
 
-            if (!checkAccess(target, pwd)) {
-                showModal('Error', "访问被拒绝", 'error');
+            if (!success) {
                 return;
             }
         }
@@ -266,7 +269,10 @@ const Explorer = ({ initialPath = [] }) => {
                 <XPIcon name={item.icon || (item.type === 'folder' ? 'folder' : 'file')} size={32} />
             </IconWrapper>
             <FileInfo>
-                <FileName isDrive={isRoot && (item.type === 'drive' || item.icon === 'drive')}>{item.name}</FileName>
+                <FileName isDrive={isRoot && (item.type === 'drive' || item.icon === 'drive')}>
+                    {item.name}
+                    {item.locked && <span style={{ marginLeft: '5px', fontSize: '10px' }}>🔒</span>}
+                </FileName>
                 {isRoot && (item.type === 'drive' || item.icon === 'drive') && <FileType selected={selectedItem && selectedItem.name === item.name}>本地磁盘</FileType>}
             </FileInfo>
         </FileItem>
