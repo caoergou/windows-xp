@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import qqData from '../data/qq/index.json';
-import QZone from './QZone';
 import QQChat from './QQChat';
+import InternetExplorer from './InternetExplorer';
+import { defaultPlugin } from './BrowserPlugins';
 
 const Container = styled.div`
     width: 100%;
@@ -187,7 +188,15 @@ const QQ = () => {
     };
 
     const openQZone = (userId) => {
-        openWindow(`qzone-${userId}`, `QZone - ${userId}`, <QZone userId={userId} />, 'ie');
+        // Now opens InternetExplorer with QZone URL
+        const url = `http://qzone.qq.com/${userId}`;
+        openWindow(
+            `qzone-${userId}`,
+            `QZone - ${userId}`,
+            <InternetExplorer url={url} plugin={defaultPlugin} />,
+            'ie',
+            { width: 800, height: 600 }
+        );
     };
 
     const handleOpenMyQZone = () => {

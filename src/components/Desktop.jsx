@@ -11,10 +11,11 @@ import Notepad from '../apps/Notepad';
 import PhotoViewer from '../apps/PhotoViewer';
 import QQ from '../apps/QQ';
 import Email from '../apps/Email';
-import TiebaApp, { tiebaPlugin } from '../apps/TiebaApp';
+import TiebaApp from '../apps/TiebaApp';
 import QZone from '../apps/QZone';
 import XPIcon from './XPIcon';
 import desktopBg from '../assets/images/desktop_bg.jpg';
+import { defaultPlugin } from '../apps/BrowserPlugins';
 
 // Background Image
 const BG_URL = desktopBg;
@@ -80,7 +81,7 @@ const Desktop = () => {
              openWindow(key, item.name, <Explorer initialPath={[key]} />, item.icon || 'folder');
         } else if (item.type === 'app_shortcut') {
              if (item.app === 'InternetExplorer') {
-                 openWindow(key, item.name, <InternetExplorer plugin={tiebaPlugin} />, item.icon, { isMaximized: true });
+                 openWindow(key, item.name, <InternetExplorer plugin={defaultPlugin} />, item.icon, { isMaximized: true });
              } else if (item.app === 'QQ') {
                  const existingQQ = windows.find(w => w.appId === key);
                  if (existingQQ) {
@@ -99,9 +100,9 @@ const Desktop = () => {
              } else if (item.app === 'InternetExplorer') {
                  if (item.isHtmlContent) {
                      // Pass HTML directly
-                     openWindow(key, item.name, <InternetExplorer html={item.content} plugin={tiebaPlugin} />, 'html', { isMaximized: true });
+                     openWindow(key, item.name, <InternetExplorer html={item.content} plugin={defaultPlugin} />, 'html', { isMaximized: true });
                  } else {
-                     openWindow(key, item.name, <InternetExplorer url={item.content} plugin={tiebaPlugin} />, 'html', { isMaximized: true });
+                     openWindow(key, item.name, <InternetExplorer url={item.content} plugin={defaultPlugin} />, 'html', { isMaximized: true });
                  }
              } else if (item.app === 'PhotoViewer') {
                  openWindow(key, item.name, <PhotoViewer src={item.content} />, 'image', { width: 600, height: 500 });
