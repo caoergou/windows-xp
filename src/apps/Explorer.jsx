@@ -157,7 +157,7 @@ const Explorer = ({ initialPath = [] }) => {
              } else if (target.app === 'InternetExplorer') {
                  openWindow(name, target.name, <InternetExplorer url={target.content} />, 'html');
              } else if (target.app === 'PhotoViewer') {
-                 openWindow(name, target.name, <PhotoViewer src={target.content} />, 'image', { width: 600, height: 500 });
+                 openWindow(name, target.name, <PhotoViewer src={target.content} fileItem={target} />, 'image', { width: 600, height: 500 });
              }
         }
     };

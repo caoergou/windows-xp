@@ -257,6 +257,14 @@
             "app": "PhotoViewer",
             "icon": "image",
             "content": "/images/desktop_bg.jpg"
+          },
+          "Evidence.jpg": {
+            "type": "file",
+            "name": "Evidence.jpg",
+            "app": "PhotoViewer",
+            "icon": "image",
+            "content": "/images/desktop_bg.jpg",
+            "exifPath": "src/data/photos/evidence/photo_001_exif.json"
           }
         }
       },

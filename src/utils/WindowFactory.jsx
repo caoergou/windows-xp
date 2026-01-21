@@ -7,6 +7,7 @@ import PhotoViewer from '../apps/PhotoViewer';
 import Email from '../apps/Email';
 import TiebaApp, { tiebaPlugin } from '../apps/TiebaApp';
 import QZone from '../apps/QZone';
+import FileProperties from '../components/FileProperties';
 
 export const restoreComponent = (appId, componentProps = {}) => {
   // Heuristics based on componentProps if appId is generic or file-based
@@ -56,6 +57,11 @@ export const restoreComponent = (appId, componentProps = {}) => {
   // QZone
   if (appId.startsWith('qzone-')) {
       return <QZone {...componentProps} />;
+  }
+
+  // File Properties
+  if (appId.startsWith('properties-')) {
+      return <FileProperties {...componentProps} />;
   }
 
   // Fallback for specific IDs if props are missing (e.g. empty Explorer)
