@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useWindowManager } from '../context/WindowManagerContext';
+import FileProperties from '../components/FileProperties';
 
 const Container = styled.div`
   display: flex;
@@ -45,12 +47,55 @@ const InfoBar = styled.div`
   color: #333;
 `;
 
-const PhotoViewer = ({ src }) => {
+const ToolbarButton = styled.button`
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  padding: 2px 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-family: Tahoma, sans-serif;
+
+  &:hover {
+    border: 1px solid #A0B2C8;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
+  }
+
+  &:active {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const PhotoViewer = ({ src, fileItem }) => {
+  const { openWindow } = useWindowManager();
+
+  const handleProperties = () => {
+      if (fileItem) {
+          openWindow(
+              `properties-${fileItem.name}-${Date.now()}`,
+              `${fileItem.name} 属性`,
+              <FileProperties fileItem={fileItem} />,
+              'properties',
+              { width: 350, height: 450, resizable: false }
+          );
+      }
+  };
+
   return (
     <Container>
       <Toolbar>
-         {/* Placeholder for toolbar buttons like Zoom, Next, Prev, Print, etc. */}
-         <span style={{ fontSize: '11px' }}>Windows 图片和传真查看器</span>
+         <span style={{ fontSize: '11px', marginRight: 'auto', fontWeight: 'bold', color: '#333' }}>
+             Windows 图片和传真查看器
+         </span>
+         {fileItem && (
+             <ToolbarButton onClick={handleProperties} title="查看属性">
+                 <span style={{ fontSize: '14px' }}>ℹ️</span>
+                 属性
+             </ToolbarButton>
+         )}
       </Toolbar>
       <Content>
         {src ? (

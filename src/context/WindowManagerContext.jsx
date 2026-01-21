@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { restoreComponent } from '../utils/WindowFactory';
 
-const WindowManagerContext = createContext();
+export const WindowManagerContext = createContext();
 
 export const useWindowManager = () => useContext(WindowManagerContext);
 
