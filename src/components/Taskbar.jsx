@@ -468,7 +468,7 @@ const Taskbar = () => {
                     </StartFooter>
                 </StartMenu>
             )}
-            <TaskbarContainer onClick={() => setStartOpen(false)}>
+            <TaskbarContainer data-testid="taskbar" onClick={() => setStartOpen(false)}>
                 <StartButton
                     ref={startButtonRef}
                     onClick={(e) => { e.stopPropagation(); toggleStart(); }}

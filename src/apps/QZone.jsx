@@ -197,21 +197,6 @@ const AlbumCard = styled.div`
   }
 `;
 
-const PasswordPrompt = styled.div`
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    border: 2px solid #2B578F;
-    padding: 20px;
-    z-index: 100;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
-
-    h3 { margin-top: 0; }
-    input { padding: 5px; margin-right: 5px; }
-    button { padding: 5px 10px; background: #2B578F; color: white; border: none; cursor: pointer; }
-`;
 
 const DetailView = styled.div`
   position: absolute;
@@ -294,10 +279,7 @@ const QZone = ({ userId = "1002" }) => {
   const [error, setError] = useState(null);
   const [notOpened, setNotOpened] = useState(false);
 
-  // Password protection state
-  const [lockedItem, setLockedItem] = useState(null); // { type: 'blog'|'album', item: object }
-  const [passwordInput, setPasswordInput] = useState("");
-  const { showModal } = useModal();
+  const { showModal, showPasswordDialog } = useModal();
 
   // Detail view state
   const [viewingItem, setViewingItem] = useState(null); // { type: 'blog'|'album', data: ... }
@@ -309,7 +291,6 @@ const QZone = ({ userId = "1002" }) => {
         setError(null);
         setNotOpened(false);
         setViewingItem(null);
-        setLockedItem(null);
         setActiveTab('home');
 
         let indexData, shuoshuoData, blogData, albumsData = [];
@@ -400,19 +381,24 @@ const QZone = ({ userId = "1002" }) => {
       setViewingItem({ type, data: item });
   };
 
-  const handleUnlock = () => {
-      if (passwordInput === "123") {
-          openItem(lockedItem.type, lockedItem.item);
-          setLockedItem(null);
-          setPasswordInput("");
-      } else {
-          showModal('Error', 'Incorrect password!', 'error');
+  const handleUnlock = async (type, item) => {
+      // If password is in the item, use it. Otherwise default to "123" for backward compatibility/testing
+      const correctPassword = item.password || "123";
+
+      const success = await showPasswordDialog({
+          title: "加密内容",
+          message: "此内容已加密，请输入密码访问",
+          correctPassword: correctPassword
+      });
+
+      if (success) {
+          openItem(type, item);
       }
   };
 
   const handleBlogClick = (blog) => {
       if (blog.encrypted) {
-          setLockedItem({ type: 'blog', item: blog });
+          handleUnlock('blog', blog);
       } else {
           openItem('blog', blog);
       }
@@ -420,7 +406,7 @@ const QZone = ({ userId = "1002" }) => {
 
   const handleAlbumClick = (album) => {
       if (album.encrypted) {
-          setLockedItem({ type: 'album', item: album });
+          handleUnlock('album', album);
       } else {
           openItem('album', album);
       }
@@ -552,20 +538,6 @@ const QZone = ({ userId = "1002" }) => {
           </>
       )}
 
-      {lockedItem && (
-          <PasswordPrompt>
-              <h3>Encrypted Content</h3>
-              <p>Please enter password to view this {lockedItem.type}.</p>
-              <input
-                type="password"
-                value={passwordInput}
-                onChange={e => setPasswordInput(e.target.value)}
-                placeholder="Mock: 123"
-              />
-              <button onClick={handleUnlock}>Unlock</button>
-              <button onClick={() => { setLockedItem(null); setPasswordInput(""); }} style={{marginLeft: '10px', background: '#ccc'}}>Cancel</button>
-          </PasswordPrompt>
-      )}
     </Container>
   );
 };
