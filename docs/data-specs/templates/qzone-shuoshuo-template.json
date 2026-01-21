@@ -1,0 +1,19 @@
+[
+  {
+    "id": 1,
+    "content": "说说内容",
+    "time": "YYYY-MM-DD HH:mm:ss",
+    "photos": [],
+    "location": "",
+    "device": "",
+    "comments": [
+      {
+        "user": "评论者昵称",
+        "userId": "评论者ID",
+        "content": "评论内容",
+        "time": "YYYY-MM-DD HH:mm:ss"
+      }
+    ],
+    "likes": []
+  }
+]

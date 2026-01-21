@@ -1,0 +1,10 @@
+{
+  "userId": "user_id_here",
+  "username": "用户昵称",
+  "avatar": "/avatars/user_avatar.jpg",
+  "description": "个性签名",
+  "title": "用户的空间",
+  "background": "/backgrounds/user_background.jpg",
+  "friendCount": 0,
+  "visitCount": 0
+}
