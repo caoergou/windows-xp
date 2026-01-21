@@ -101,17 +101,18 @@ test.describe('Decryption System', () => {
     await page.waitForSelector('text=[空间]');
 
     // Click on [空间] to open QZone
+    // NOTE: In the current data structure, the logged in user is 10001 (Xia Deng).
+    // The previous test assumed a user with encrypted albums (User 1001 or similar).
+
     await page.click('text=[空间]');
 
     // Wait for QZone window
-    // Window title should be "QZone - 1001" (since user id is 1001 or similar)
-    // The QZone component renders "Welcome, Guest" or "QZone" title.
     await page.waitForSelector('text=QZone');
 
     // Click on "相册 (Album)" tab
     await page.click('text=相册 (Album)');
 
-    // Find "Secret" album
+    // Find "Secret" album (we will add this to Xia Deng's data)
     const secretAlbum = page.locator('text=Secret');
     await expect(secretAlbum).toBeVisible();
 
@@ -135,11 +136,6 @@ test.describe('Decryption System', () => {
     await page.click('button:has-text("确定")');
 
     // Expect Album content
-    // Based on QZone.jsx logic:
-    // If unlocked, viewingItem is set.
-    // DetailView shows title (album name).
-    // And "Back" button.
-
     await expect(dialog).not.toBeVisible();
     await expect(page.locator('text=← Back')).toBeVisible();
     await expect(page.locator('h2:has-text("Secret")')).toBeVisible();

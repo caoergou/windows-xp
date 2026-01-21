@@ -1,0 +1,17 @@
+[
+  {
+    "id": "daily",
+    "name": "日常",
+    "coverImg": "",
+    "encrypted": false,
+    "images": []
+  },
+  {
+    "id": "evidence",
+    "name": "加密",
+    "coverImg": "",
+    "encrypted": true,
+    "password": "28125400",
+    "images": []
+  }
+]
