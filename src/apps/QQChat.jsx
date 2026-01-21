@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import QQHistory from './QQHistory';
-import QZone from './QZone';
+import InternetExplorer from './InternetExplorer';
+import { defaultPlugin } from './BrowserPlugins';
 
 const Container = styled.div`
     width: 100%;
@@ -139,11 +140,13 @@ const QQChat = ({ user, target, type }) => {
     };
 
     const openQZone = () => {
+        const url = `http://qzone.qq.com/${target.id}`;
         openWindow(
             `qzone-${target.id}`,
             `QZone - ${target.id}`,
-            <QZone userId={target.id} />,
-            'ie'
+            <InternetExplorer url={url} plugin={defaultPlugin} />,
+            'ie',
+            { width: 800, height: 600 }
         );
     };
 

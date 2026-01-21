@@ -5,9 +5,10 @@ import QQ from '../apps/QQ';
 import Notepad from '../apps/Notepad';
 import PhotoViewer from '../apps/PhotoViewer';
 import Email from '../apps/Email';
-import TiebaApp, { tiebaPlugin } from '../apps/TiebaApp';
+import TiebaApp from '../apps/TiebaApp';
 import QZone from '../apps/QZone';
 import FileProperties from '../components/FileProperties';
+import { defaultPlugin } from '../apps/BrowserPlugins';
 
 export const restoreComponent = (appId, componentProps = {}) => {
   // Heuristics based on componentProps if appId is generic or file-based
@@ -24,9 +25,9 @@ export const restoreComponent = (appId, componentProps = {}) => {
        // Wait, TiebaApp uses initialUrl
        if (componentProps.initialUrl) return <TiebaApp {...componentProps} />;
        // Fallback to IE with plugin
-       return <InternetExplorer {...componentProps} plugin={tiebaPlugin} />;
+       return <InternetExplorer {...componentProps} plugin={defaultPlugin} />;
     }
-    return <InternetExplorer {...componentProps} plugin={tiebaPlugin} />;
+    return <InternetExplorer {...componentProps} plugin={defaultPlugin} />;
   }
 
   // Notepad
@@ -54,9 +55,12 @@ export const restoreComponent = (appId, componentProps = {}) => {
       return <TiebaApp {...componentProps} />;
   }
 
-  // QZone
+  // QZone - Restoring logic
   if (appId.startsWith('qzone-')) {
-      return <QZone {...componentProps} />;
+      // If we are here, it might be restoring a window that was previously opened.
+      // We now want to restore it as an IE window containing QZone, not the raw QZone component.
+      const userId = appId.split('-')[1];
+      return <InternetExplorer url={`http://qzone.qq.com/${userId}`} plugin={defaultPlugin} />;
   }
 
   // File Properties

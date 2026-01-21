@@ -7,7 +7,7 @@ import SystemClock from './SystemClock';
 import Explorer from '../apps/Explorer';
 import InternetExplorer from '../apps/InternetExplorer';
 import QQ from '../apps/QQ';
-import { tiebaPlugin } from '../apps/TiebaApp';
+import { defaultPlugin } from '../apps/BrowserPlugins';
 
 const TaskbarContainer = styled.div`
     position: absolute;
@@ -353,7 +353,7 @@ const Taskbar = () => {
     const handleLaunch = (appName, pathOrKey) => {
         setStartOpen(false);
         if (appName === 'Internet Explorer') {
-             openWindow('Internet Explorer', 'Internet Explorer', <InternetExplorer plugin={tiebaPlugin} />, 'ie', { isMaximized: true });
+             openWindow('Internet Explorer', 'Internet Explorer', <InternetExplorer plugin={defaultPlugin} />, 'ie', { isMaximized: true });
         } else if (appName === 'QQ') {
              const existingQQ = windows.find(w => w.appId === 'QQ');
              if (existingQQ) {
