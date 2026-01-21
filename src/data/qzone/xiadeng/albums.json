@@ -1,0 +1,10 @@
+[
+  {
+    "id": "secret",
+    "name": "Secret",
+    "coverImg": "",
+    "encrypted": true,
+    "password": "123",
+    "images": []
+  }
+]

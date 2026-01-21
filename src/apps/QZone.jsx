@@ -317,7 +317,11 @@ const QZone = ({ userId = "1002" }) => {
                 indexData = (await import('../data/qzone/xiadeng/index.json')).default;
                 shuoshuoData = (await import('../data/qzone/xiadeng/shuoshuo.json')).default;
                 blogData = (await import('../data/qzone/xiadeng/blog.json')).default;
-                // Add albums loading if/when they exist
+                try {
+                    albumsData = (await import('../data/qzone/xiadeng/albums.json')).default;
+                } catch (e) {
+                    console.log("No albums for xiadeng");
+                }
             } else if (userDir === "linxiaoyu") {
                 indexData = (await import('../data/qzone/linxiaoyu/index.json')).default;
                 shuoshuoData = (await import('../data/qzone/linxiaoyu/shuoshuo.json')).default;
