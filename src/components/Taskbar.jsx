@@ -8,7 +8,7 @@ import SystemClock from './SystemClock';
 import Explorer from '../apps/Explorer';
 import InternetExplorer from '../apps/InternetExplorer';
 import QQ from '../apps/QQ';
-import Email from '../apps/Email';
+import QQMail from '../apps/QQMail';
 import { defaultPlugin } from '../apps/BrowserPlugins';
 
 const TaskbarContainer = styled.div`
@@ -74,7 +74,7 @@ const TaskItems = styled.div`
 const TaskItem = styled.div`
     width: 150px;
     height: 25px;
-    background: ${props => props.active ? '#1E52B7' : '#3980F4'};
+    background: ${props => props.$active ? '#1E52B7' : '#3980F4'};
     color: white;
     border: 1px solid #1646A1;
     border-radius: 3px;
@@ -84,12 +84,12 @@ const TaskItem = styled.div`
     font-size: 11px;
     cursor: pointer;
     margin-top: 2px;
-    box-shadow: ${props => props.active ? 'inset 1px 1px 2px black' : 'none'};
-    
+    box-shadow: ${props => props.$active ? 'inset 1px 1px 2px black' : 'none'};
+
     &:hover {
         background: #5092F6;
     }
-    
+
     .task-icon {
         margin-right: 5px;
     }
@@ -322,10 +322,24 @@ const Taskbar = () => {
     const startButtonRef = useRef(null);
 
     // Calculate unread emails
+    const [chenMoCorrespondence, setChenMoCorrespondence] = useState(null);
+
+    useEffect(() => {
+        import('../data/email/chenmo_correspondence.json')
+            .then(module => {
+                setChenMoCorrespondence(module.default);
+            })
+            .catch(e => {
+                console.error('Failed to load Chen Mo correspondence:', e);
+                setChenMoCorrespondence({ correspondence: [] });
+            });
+    }, []);
+
     const unreadEmailCount = useMemo(() => {
+        if (!chenMoCorrespondence) return 0;
+
         try {
-            const correspondence = require('../data/email/chenmo_correspondence.json');
-            const emails = correspondence.correspondence || [];
+            const emails = chenMoCorrespondence.correspondence || [];
 
             // Check email trigger conditions
             const checkEmailTrigger = (trigger, progress) => {
@@ -352,7 +366,7 @@ const Taskbar = () => {
             console.error('Failed to calculate unread emails:', e);
             return 0;
         }
-    }, [progress]);
+    }, [progress, chenMoCorrespondence]);
 
     const handleLogout = () => {
         localStorage.removeItem('xp_open_windows');
@@ -397,12 +411,12 @@ const Taskbar = () => {
              } else {
                  openWindow('QQ', 'QQ', <QQ />, 'qq', { width: 280, height: 600, resizable: false });
              }
-        } else if (appName === 'Email') {
-             const existingEmail = windows.find(w => w.appId === 'Email');
+        } else if (appName === 'QQMail') {
+             const existingEmail = windows.find(w => w.appId === 'QQMail');
              if (existingEmail) {
                  focusWindow(existingEmail.id);
              } else {
-                 openWindow('Email', 'Outlook Express', <Email />, 'email', { width: 800, height: 600 });
+                 openWindow('QQMail', 'QQ邮箱', <QQMail />, 'email', { width: 900, height: 650 });
              }
         } else if (appName === 'Explorer') {
              // For folders
@@ -523,9 +537,9 @@ const Taskbar = () => {
                 <Divider />
                 <TaskItems>
                     {windows.map(win => (
-                        <TaskItem 
-                            key={win.id} 
-                            active={activeWindowId === win.id && !win.isMinimized}
+                        <TaskItem
+                            key={win.id}
+                            $active={activeWindowId === win.id && !win.isMinimized}
                             onClick={(e) => { e.stopPropagation(); handleTaskClick(win); }}
                         >
                             <XPIcon name={win.icon} size={16} className="task-icon" />
@@ -534,6 +548,20 @@ const Taskbar = () => {
                     ))}
                 </TaskItems>
                 <SystemTray>
+                    {progress.qqLoggedIn && (
+                        <div
+                            style={{
+                                marginRight: '10px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                cursor: 'pointer'
+                            }}
+                            title="QQ"
+                            onClick={(e) => { e.stopPropagation(); handleLaunch('QQ'); }}
+                        >
+                            <XPIcon name="qq" size={16} color="white" />
+                        </div>
+                    )}
                     <div
                         style={{
                             marginRight: '10px',
@@ -542,8 +570,8 @@ const Taskbar = () => {
                             cursor: 'pointer',
                             position: 'relative'
                         }}
-                        title={unreadEmailCount > 0 ? `${unreadEmailCount} 封未读邮件` : '邮件'}
-                        onClick={(e) => { e.stopPropagation(); handleLaunch('Email'); }}
+                        title={unreadEmailCount > 0 ? `${unreadEmailCount} 封未读邮件` : 'QQ邮箱'}
+                        onClick={(e) => { e.stopPropagation(); handleLaunch('QQMail'); }}
                     >
                         <XPIcon name="email" size={16} color="white" />
                         {unreadEmailCount > 0 && (

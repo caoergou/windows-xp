@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import IEToolbar from '../components/Explorer/IEToolbar';
 import IEAddressBar from '../components/Explorer/IEAddressBar';
 import { useWindowManager } from '../context/WindowManagerContext';
-import Email from './Email';
+import QQMail from './QQMail';
 import { useFileSystem } from '../context/FileSystemContext';
 
 const Container = styled.div`
@@ -201,7 +201,7 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
     };
 
     const handleMail = () => {
-         openWindow('outlook_express', 'Outlook Express', <Email />, 'email', { width: 800, height: 600 });
+         openWindow('QQMail', 'QQ邮箱', <QQMail />, 'email', { width: 900, height: 650 });
     };
 
     // Handle messages from iframe (for HTML content navigation)

@@ -11,23 +11,21 @@ import InternetExplorer from '../apps/InternetExplorer';
 import Notepad from '../apps/Notepad';
 import PhotoViewer from '../apps/PhotoViewer';
 import QQ from '../apps/QQ';
-import Email from '../apps/Email';
+import QQMail from '../apps/QQMail';
 import TiebaApp from '../apps/TiebaApp';
 import QZone from '../apps/QZone';
+import DiaryViewer from '../apps/Journal';
 import XPIcon from './XPIcon';
 import StickyNote from './StickyNote';
 import FirstLoginGuide from './FirstLoginGuide';
 import desktopBg from '../assets/images/desktop_bg.jpg';
 import { defaultPlugin } from '../apps/BrowserPlugins';
 
-// Background Image
-const BG_URL = desktopBg;
-
 const DesktopContainer = styled.div`
   width: 100%;
   height: 100%;
   background-color: #3A6EA5;
-  background-image: url(${BG_URL});
+  background-image: url(${props => props.$bgUrl});
   background-size: cover;
   background-position: center;
   position: relative;
@@ -95,14 +93,16 @@ const Desktop = () => {
                  } else {
                      openWindow(key, item.name, <QQ />, item.icon, { width: 280, height: 600, resizable: false });
                  }
-             } else if (item.app === 'Email') {
-                 openWindow(key, item.name, <Email />, item.icon, { width: 800, height: 600 });
+             } else if (item.app === 'QQMail') {
+                 openWindow(key, item.name, <QQMail />, item.icon, { width: 900, height: 650 });
+             } else if (item.app === 'Journal') {
+                 openWindow(key, item.name, <DiaryViewer fileSystem={fs} />, item.icon, { width: 900, height: 650 });
              } else if (item.app === 'TiebaApp') {
                  openWindow(key, item.name, <TiebaApp initialUrl={item.content} />, item.icon);
              }
         } else if (item.type === 'file') {
              if (item.app === 'Notepad') {
-                 openWindow(key, item.name, <Notepad content={item.content} />, 'file');
+                 openWindow(key, item.name, <Notepad content={item.content} readOnly={item.readOnly} />, 'file');
              } else if (item.app === 'InternetExplorer') {
                  if (item.isHtmlContent) {
                      // Pass HTML directly
@@ -174,7 +174,7 @@ const Desktop = () => {
     const desktopItems = fs.root.children;
 
     return (
-        <DesktopContainer onContextMenu={handleContextMenu}>
+        <DesktopContainer $bgUrl={desktopBg} onContextMenu={handleContextMenu}>
             <IconGrid key={refreshKey} style={{ opacity: isRefreshing ? 0 : 1 }}>
                 {Object.entries(desktopItems).map(([key, item]) => (
                     <DesktopIcon key={key} data-testid={`desktop-icon-${key}`} onDoubleClick={() => handleIconDoubleClick(key, item)}>

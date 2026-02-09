@@ -64,14 +64,24 @@
                         "name": "贴吧诽谤帖.png",
                         "app": "PhotoViewer",
                         "icon": "image",
-                        "content": "/images/desktop_bg.jpg"
+                        "content": "/images/desktop_bg.jpg",
+                        "description": "贴吧上的诽谤帖截图"
+                      },
+                      "学籍修改记录.jpg": {
+                        "type": "file",
+                        "name": "学籍修改记录.jpg",
+                        "app": "PhotoViewer",
+                        "icon": "image",
+                        "content": "/images/学籍修改_20150315.jpg",
+                        "description": "2015年3月15日的学籍修改记录截图"
                       },
                       "学校公告.png": {
                         "type": "file",
                         "name": "学校公告.png",
                         "app": "PhotoViewer",
                         "icon": "image",
-                        "content": "/images/desktop_bg.jpg"
+                        "content": "/images/desktop_bg.jpg",
+                        "description": "学校官网公告截图"
                       }
                     }
                   },
@@ -310,15 +320,17 @@
             "name": "Bliss.jpg",
             "app": "PhotoViewer",
             "icon": "image",
-            "content": "/images/desktop_bg.jpg"
+            "content": "/images/desktop_bg.jpg",
+            "description": "Windows XP 经典壁纸"
           },
           "Evidence.jpg": {
             "type": "file",
             "name": "Evidence.jpg",
             "app": "PhotoViewer",
             "icon": "image",
-            "content": "/images/desktop_bg.jpg",
-            "exifPath": "src/data/photos/evidence/photo_001_exif.json"
+            "content": "/images/学籍修改_20150315.jpg",
+            "exifPath": "src/data/photos/evidence/photo_001_exif.json",
+            "description": "证据照片 - 包含 EXIF 元数据"
           }
         }
       },
@@ -340,11 +352,17 @@
         "app": "QQ",
         "icon": "qq"
       },
-      "Outlook Express": {
+      "QQ Mail": {
         "type": "app_shortcut",
-        "name": "Outlook Express",
-        "app": "Email",
+        "name": "QQ邮箱",
+        "app": "QQMail",
         "icon": "email"
+      },
+      "Diary Viewer": {
+        "type": "app_shortcut",
+        "name": "Windows 日记本",
+        "app": "Journal",
+        "icon": "file"
       },
       "Tieba - Yunshan No.1": {
         "type": "app_shortcut",

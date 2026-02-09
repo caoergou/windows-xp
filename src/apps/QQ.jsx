@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
+import { useUserProgress } from '../context/UserProgressContext';
 import qqData from '../data/qq/index.json';
 import QQChat from './QQChat';
 import InternetExplorer from './InternetExplorer';
+import QQMail from './QQMail';
 import { defaultPlugin } from './BrowserPlugins';
 
 const Container = styled.div`
@@ -143,14 +145,17 @@ const StatusDot = styled.div`
     height: 8px;
     border-radius: 50%;
     margin-right: 5px;
-    background-color: ${props => props.status === 'online' ? '#4CAF50' : props.status === 'busy' ? '#F44336' : '#9E9E9E'};
+    background-color: ${props => props.$status === 'online' ? '#4CAF50' : props.$status === 'busy' ? '#F44336' : '#9E9E9E'};
     border: 1px solid white;
     box-shadow: 0 0 1px rgba(0,0,0,0.5);
 `;
 
 const QQ = () => {
-    const [status, setStatus] = useState('login'); // login, logging_in, logged_in
-    const { openWindow } = useWindowManager();
+    const { openWindow, windows, focusWindow } = useWindowManager();
+    const { progress, markQqLoggedIn } = useUserProgress();
+
+    // 如果已经登录过，直接显示登录后的界面
+    const [status, setStatus] = useState(progress.qqLoggedIn ? 'logged_in' : 'login');
 
     const [account, setAccount] = useState('');
     const [password, setPassword] = useState('');
@@ -171,6 +176,7 @@ const QQ = () => {
         setStatus('logging_in');
         setTimeout(() => {
             setStatus('logged_in');
+            markQqLoggedIn();
         }, 1000);
     };
 
@@ -195,8 +201,24 @@ const QQ = () => {
             `QZone - ${userId}`,
             <InternetExplorer url={url} plugin={defaultPlugin} />,
             'ie',
-            { width: 800, height: 600 }
+            { width: 1000, height: 700 }
         );
+    };
+
+    const openQQMail = () => {
+        // Check if QQ Mail is already open
+        const existingMail = windows.find(w => w.appId === 'QQMail');
+        if (existingMail) {
+            focusWindow(existingMail.id);
+        } else {
+            openWindow(
+                'QQMail',
+                'QQ邮箱',
+                <QQMail />,
+                'email',
+                { width: 900, height: 650 }
+            );
+        }
     };
 
     const handleOpenMyQZone = () => {
@@ -251,12 +273,19 @@ const QQ = () => {
                         <div style={{display: 'flex', gap: '5px'}}>
                             <div
                                 style={{cursor: 'pointer', fontSize: '10px', color: '#0066CC'}}
+                                onClick={openQQMail}
+                                title="QQ邮箱"
+                            >
+                                [邮箱]
+                            </div>
+                            <div
+                                style={{cursor: 'pointer', fontSize: '10px', color: '#0066CC'}}
                                 onClick={handleOpenMyQZone}
                                 title="QQ空间"
                             >
                                 [空间]
                             </div>
-                            <StatusDot status={user.status} title={user.status} />
+                            <StatusDot $status={user.status} title={user.status} />
                         </div>
                     </div>
                     <Signature title={user.signature}>{user.signature}</Signature>
@@ -275,7 +304,7 @@ const QQ = () => {
                         <div style={{flex:1}}>
                             <div style={{fontSize:'12px'}}>{friend.nickname}</div>
                         </div>
-                        <StatusDot status={friend.status} />
+                        <StatusDot $status={friend.status} />
                     </ContactItem>
                 ))}
 
@@ -294,8 +323,15 @@ const QQ = () => {
                 ))}
             </div>
 
-            <div style={{height:'30px', background: 'linear-gradient(to bottom, #dbecf9 0%, #a3d0ef 100%)', borderTop:'1px solid #7f9db9', display:'flex', alignItems:'center', padding:'0 5px'}}>
+            <div style={{height:'30px', background: 'linear-gradient(to bottom, #dbecf9 0%, #a3d0ef 100%)', borderTop:'1px solid #7f9db9', display:'flex', alignItems:'center', padding:'0 5px', gap: '10px'}}>
                  <div style={{width:'20px', height:'20px', background:'url(https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tencent_QQ_logo_2016.svg/1024px-Tencent_QQ_logo_2016.svg.png) no-repeat center', backgroundSize:'contain'}}></div>
+                 <div
+                     style={{cursor: 'pointer', fontSize:'11px', color:'#0066CC'}}
+                     onClick={openQQMail}
+                     title="打开QQ邮箱"
+                 >
+                     📧 邮箱
+                 </div>
                  <div style={{marginLeft: 'auto', fontSize:'11px', color:'#333'}}>查找</div>
             </div>
         </Container>

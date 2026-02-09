@@ -5,9 +5,10 @@ import QQ from '../apps/QQ';
 import Notepad from '../apps/Notepad';
 import AutoTypingNotepad from '../apps/AutoTypingNotepad';
 import PhotoViewer from '../apps/PhotoViewer';
-import Email from '../apps/Email';
+import QQMail from '../apps/QQMail';
 import TiebaApp from '../apps/TiebaApp';
 import QZone from '../apps/QZone';
+import DiaryViewer from '../apps/Journal';
 import FileProperties from '../components/FileProperties';
 import { defaultPlugin } from '../apps/BrowserPlugins';
 
@@ -51,9 +52,15 @@ export const restoreComponent = (appId, componentProps = {}) => {
       return <QQ {...componentProps} />;
   }
 
-  // Outlook / Email
-  if (appId === 'Outlook Express' || appId === 'Email') {
-      return <Email {...componentProps} />;
+  // QQ Mail
+  if (appId === 'QQMail' || appId === 'Outlook Express' || appId === 'Email') {
+      // Redirect old Email/Outlook Express windows to QQMail
+      return <QQMail {...componentProps} />;
+  }
+
+  // Diary Viewer / Journal
+  if (appId === 'DiaryViewer' || appId === 'Diary Viewer' || appId === 'Journal') {
+      return <DiaryViewer {...componentProps} />;
   }
 
   // Tieba App explicitly
