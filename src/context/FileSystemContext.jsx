@@ -8,6 +8,13 @@ export const useFileSystem = () => useContext(FileSystemContext);
 // Load all JSON files from src/data/recycle_bin
 const recycleBinFiles = import.meta.glob('../data/recycle_bin/*.json', { eager: true });
 
+// Load all text content files from src/data/filesystem_content
+const contentFiles = import.meta.glob('../data/filesystem_content/**/*.txt', {
+  query: '?raw',
+  import: 'default',
+  eager: true
+});
+
 // Merge all recycle bin items
 const recycleBinItems = {};
 for (const path in recycleBinFiles) {
@@ -19,6 +26,34 @@ for (const path in recycleBinFiles) {
 
 // Deep clone initialFileSystem to avoid mutating the original import
 const fileSystemWithRecycleBin = JSON.parse(JSON.stringify(initialFileSystem));
+
+// Function to recursively resolve contentPath in filesystem
+const resolveContentPaths = (node) => {
+  if (!node) return node;
+
+  // If this node has contentPath, load the content
+  if (node.contentPath) {
+    const fullPath = `../data/${node.contentPath}`;
+    if (contentFiles[fullPath]) {
+      node.content = contentFiles[fullPath];
+    } else {
+      console.warn(`Content file not found: ${fullPath}`);
+    }
+    // Keep contentPath for reference but content takes precedence
+  }
+
+  // Recursively process children
+  if (node.children) {
+    for (const key in node.children) {
+      resolveContentPaths(node.children[key]);
+    }
+  }
+
+  return node;
+};
+
+// Resolve all contentPath references
+resolveContentPaths(fileSystemWithRecycleBin);
 
 // Inject items into Recycle Bin
 if (fileSystemWithRecycleBin.root &&
