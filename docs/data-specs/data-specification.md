@@ -15,6 +15,10 @@
 - [QQ空间数据结构设计](./qzone-structure.md)
 - [聊天记录数据结构设计](./chat-history-structure.md)
 - [EXIF元数据格式设计](./exif-metadata-structure.md)
+- [邮件数据结构设计](./email-structure.md)
+- [文档数据结构设计](./document-structure.md)
+- [贴吧数据结构设计](./tieba-structure.md)
+- [调查笔记数据结构设计](./investigation-notes-structure.md)
 
 ---
 
@@ -35,7 +39,7 @@ src/data/
 │
 ├── qq/                        # QQ聊天记录
 │   ├── groups/                # 群聊
-│   │   └── shanbangongshi.json
+│   │   └── shanding_shiwusuo.json
 │   └── private/               # 私聊
 │       └── linxiaoyu_chenmuo.json
 │
@@ -80,7 +84,7 @@ public/
 
 **示例**：
 - ✅ `linxiaoyu_chenmuo.json`
-- ✅ `shanbangongshi.json`
+- ✅ `shanding_shiwusuo.json`
 - ❌ `林晓宇_陈默.json`
 - ❌ `chat1.json`
 
@@ -221,8 +225,8 @@ export const formatDisplayTime = (timeStr) => {
 **规则**：光圈 + 快门 + ISO，去掉所有符号
 
 **示例**：
-- 光圈 `f/2.8` + 快门 `1/250` + ISO `400` → `28125400`
-- 光圈 `f/5.6` + 快门 `1/125` + ISO `800` → `5612580`
+- 光圈 `f/2.8` + 快门 `1/125` + ISO `400` → `28125400`
+- 光圈 `f/5.6` + 快门 `1/125` + ISO `800` → `56125800`
 
 **提示文本**：
 - "提示：曝光三角（光圈-快门-ISO）"
@@ -240,17 +244,52 @@ export const formatDisplayTime = (timeStr) => {
 - "提示：相机的第三只眼（英文小写，无空格）"
 - "提示：柯南的名言（英文）"
 
-#### 3. 日期密码
+#### 3. 现代诗藏头密码
 
-**规则**：YYYYMMDD格式
+**诗歌**：《第三只眼》（林晓宇加密日志中）
 
-**示例**：
-- 林晓宇生日 1999-03-15 → `19990315`
-- 事件发生日期 2016-02-14 → `20160214`
+**规则**：每行第3个字连起来读
+
+**隐藏信息**：我会被王虎杀死他在操作高考移民
+
+**解密流程**：
+1. 阅读诗歌《第三只眼》
+2. 回忆群聊中林晓宇的提示："我试了一下，每行第三个字连起来读"
+3. 提取每行第3字组合成完整信息
 
 **提示文本**：
-- "提示：林晓宇的生日（8位数字）"
-- "提示：那一天的日期"
+- 群聊中林晓宇提到："每行第三个字连起来读"
+- 日志中提示："看看诗歌里藏了什么"
+
+#### 4. 隐写文字密码
+
+**规则**：与背景同色的文字，需要选中才能看到
+
+**实现方式**：
+- QQ空间预览区域使用白色文字（与白色背景同色）
+- 玩家需要选中文字（Ctrl+A或鼠标拖选）才能看到隐藏内容
+- 这是2000年代QQ空间常见的"私密分享"方式
+
+**HTML实现示例**：
+```html
+<div style="color: #000;">前两只眼看世界，</div>
+<div style="color: #fff;">Camera is the 3rd eye</div>
+<div style="color: #000;">第三只看真相</div>
+```
+
+**JSON数据结构**：
+```json
+{
+  "preview": {
+    "visible": "前两只眼看世界，第三只看真相",
+    "hidden": "Camera is the 3rd eye"  // 白色文字，默认看不见
+  }
+}
+```
+
+**提示文本**：
+- "密码在我的QQ个人说明里，需要'用心看'"
+- "选中文字试试看"
 
 ---
 
@@ -640,6 +679,10 @@ export const validateTimeFormat = (timeStr, type = 'standard') => {
 - [QQ空间数据结构设计](./qzone-structure.md)
 - [聊天记录数据结构设计](./chat-history-structure.md)
 - [EXIF元数据格式设计](./exif-metadata-structure.md)
+- [邮件数据结构设计](./email-structure.md)
+- [文档数据结构设计](./document-structure.md)
+- [贴吧数据结构设计](./tieba-structure.md)
+- [调查笔记数据结构设计](./investigation-notes-structure.md)
 - [游戏设计文档](../设计.md)
 - [故事大纲](../大纲.md)
 
@@ -653,6 +696,17 @@ export const validateTimeFormat = (timeStr, type = 'standard') => {
 - 定义了所有数据类型的规范
 - 建立了命名规范和最佳实践
 - 创建了验证清单和工具函数
+
+### v1.1 (2026-01-31)
+
+- 修正相机型号：Canon EOS 600D → Canon EOS 550D
+- 修正快门速度：1/250 → 1/125（密码28125400）
+- 修正群聊名称：山办 → 山顶事务所
+- 新增邮件数据结构规范
+- 新增文档数据结构规范（父亲文件夹、调查报道）
+- 新增贴吧数据结构规范
+- 新增调查笔记数据结构规范
+- 完善密码设计规范（现代诗藏头）
 
 ---
 

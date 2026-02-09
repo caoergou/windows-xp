@@ -8,6 +8,7 @@
 ## 一、用户信息结构
 
 ### 文件位置
+
 `src/data/qzone/{user_id}/index.json`
 
 ### 数据结构
@@ -43,6 +44,7 @@
 ## 二、说说（动态）结构
 
 ### 文件位置
+
 `src/data/qzone/{user_id}/shuoshuo.json`
 
 ### 数据结构
@@ -55,7 +57,7 @@
     "time": "2014-09-20 18:30:00",
     "photos": ["/photos/daily_001.jpg"],
     "location": "云山县",
-    "device": "Canon EOS 600D",
+    "device": "Canon EOS 550D",
     "comments": [
       {
         "user": "陈默",
@@ -96,6 +98,7 @@
 ## 三、日志（博客）结构
 
 ### 文件位置
+
 `src/data/qzone/{user_id}/blog.json`
 
 ### 数据结构
@@ -145,6 +148,7 @@
 ## 四、相册结构
 
 ### 文件位置
+
 `src/data/qzone/{user_id}/albums.json`
 
 ### 数据结构
@@ -222,6 +226,7 @@
 ## 五、EXIF元数据结构
 
 ### 文件位置
+
 `/photos/{album_name}/{filename}_exif.json`
 
 ### 数据结构
@@ -229,10 +234,10 @@
 ```json
 {
   "fileName": "photo_001.jpg",
-  "camera": "Canon EOS 600D",
+  "camera": "Canon EOS 550D",
   "lens": "EF-S 18-55mm f/3.5-5.6 IS II",
   "aperture": "f/2.8",
-  "shutterSpeed": "1/250",
+  "shutterSpeed": "1/125",
   "iso": "400",
   "focalLength": "35mm",
   "dateTime": "2015:11:23 14:30:15",
@@ -297,7 +302,7 @@
     "time": "2014-09-20 18:30:00",
     "photos": ["/photos/daily/photo_001.jpg"],
     "location": "云山县",
-    "device": "Canon EOS 600D",
+    "device": "Canon EOS 550D",
     "comments": [
       {
         "user": "陈默",
@@ -399,7 +404,7 @@
     "cover": "/photos/encrypted/cover.jpg",
     "locked": true,
     "password": "28125400",
-    "hint": "提示：曝光三角（光圈f/2.8 - 快门1/250 - ISO400，连起来）",
+    "hint": "提示：曝光三角（光圈f/2.8 - 快门1/125 - ISO400，连起来）",
     "photoCount": 12,
     "createTime": "2015-11-20 18:00:00",
     "photos": [
@@ -429,10 +434,10 @@
 ```json
 {
   "fileName": "evidence_001.jpg",
-  "camera": "Canon EOS 600D",
+  "camera": "Canon EOS 550D",
   "lens": "EF-S 18-55mm f/3.5-5.6 IS II",
   "aperture": "f/2.8",
-  "shutterSpeed": "1/250",
+  "shutterSpeed": "1/125",
   "iso": "400",
   "focalLength": "35mm",
   "dateTime": "2015:11:23 14:30:15",
@@ -657,8 +662,8 @@ const loadUserData = async (userId) => {
 
 ### 曝光三角密码示例
 
-- **光圈 f/2.8 + 快门 1/250 + ISO 400** → 密码: `28125400`
-- **光圈 f/5.6 + 快门 1/125 + ISO 800** → 密码: `5612580`
+- **光圈 f/2.8 + 快门 1/125 + ISO 400** → 密码: `28125400`
+- **光圈 f/5.6 + 快门 1/125 + ISO 800** → 密码: `56125800`
 
 ### 文字密码示例
 

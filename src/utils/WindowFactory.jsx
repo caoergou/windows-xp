@@ -3,6 +3,7 @@ import Explorer from '../apps/Explorer';
 import InternetExplorer from '../apps/InternetExplorer';
 import QQ from '../apps/QQ';
 import Notepad from '../apps/Notepad';
+import AutoTypingNotepad from '../apps/AutoTypingNotepad';
 import PhotoViewer from '../apps/PhotoViewer';
 import Email from '../apps/Email';
 import TiebaApp from '../apps/TiebaApp';
@@ -30,7 +31,12 @@ export const restoreComponent = (appId, componentProps = {}) => {
     return <InternetExplorer {...componentProps} plugin={defaultPlugin} />;
   }
 
-  // Notepad
+  // Notepad (including AutoTypingNotepad)
+  if (appId.startsWith('investigation-note-')) {
+      // This is an investigation note, restore as regular Notepad (typing already done)
+      return <Notepad {...componentProps} />;
+  }
+
   if (componentProps.content !== undefined && !componentProps.url && !componentProps.html) {
       return <Notepad {...componentProps} />;
   }

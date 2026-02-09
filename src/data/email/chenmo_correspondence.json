@@ -1,0 +1,97 @@
+{
+  "drafts": [
+    {
+      "id": "draft_xiadeng_001",
+      "from": "xiadeng@163.com",
+      "fromName": "夏灯",
+      "to": "chenmo.dev@gmail.com",
+      "toName": "陈默",
+      "subject": "Re: 惊闻噩耗",
+      "trigger": "player_view_qzone",
+      "replyTo": "email_chenmo_001",
+      "triggerResponse": "email_chenmo_002",
+      "responseDelay": 3000,
+      "contentPath": "/src/data/email/content/draft_xiadeng_001.txt"
+    }
+  ],
+  "correspondence": [
+    {
+      "id": "email_chenmo_001",
+      "from": "chenmo.dev@gmail.com",
+      "fromName": "陈默",
+      "to": "xiadeng@163.com",
+      "toName": "夏灯",
+      "subject": "惊闻噩耗",
+      "time": "2026-01-05 10:30:00",
+      "trigger": "game_start",
+      "status": "unread",
+      "attachments": [],
+      "contentPath": "/src/data/email/content/email_chenmo_001.txt"
+    },
+    {
+      "id": "email_chenmo_002",
+      "from": "chenmo.dev@gmail.com",
+      "fromName": "陈默",
+      "to": "xiadeng@163.com",
+      "toName": "夏灯",
+      "subject": "Re: 你知道些什么？",
+      "time": "2026-01-10 22:15:00",
+      "trigger": "player_view_qzone",
+      "status": "unread",
+      "attachments": [],
+      "contentPath": "/src/data/email/content/email_chenmo_002.txt"
+    },
+    {
+      "id": "email_chenmo_003",
+      "from": "chenmo.dev@gmail.com",
+      "fromName": "陈默",
+      "to": "xiadeng@163.com",
+      "toName": "夏灯",
+      "subject": "Re: 那些照片",
+      "time": "2026-01-15 03:17:00",
+      "trigger": "player_unlock_album",
+      "status": "unread",
+      "attachments": [],
+      "contentPath": "/src/data/email/content/email_chenmo_003.txt"
+    },
+    {
+      "id": "email_chenmo_004",
+      "from": "chenmo.dev@gmail.com",
+      "fromName": "陈默",
+      "to": "xiadeng@163.com",
+      "toName": "夏灯",
+      "subject": "Re: 那副眼镜",
+      "time": "2026-01-18 04:10:00",
+      "trigger": "player_read_father_diary_layer1",
+      "status": "unread",
+      "attachments": [],
+      "contentPath": "/src/data/email/content/email_chenmo_004.txt"
+    },
+    {
+      "id": "email_chenmo_005",
+      "from": "chenmo.dev@gmail.com",
+      "fromName": "陈默",
+      "to": "xiadeng@163.com",
+      "toName": "夏灯",
+      "subject": "Re: 我看到晓宇的日志了",
+      "time": "2026-01-22 23:30:00",
+      "trigger": "player_read_linxiaoyu_diary",
+      "status": "unread",
+      "attachments": [],
+      "contentPath": "/src/data/email/content/email_chenmo_005.txt"
+    },
+    {
+      "id": "email_chenmo_006",
+      "from": "chenmo.dev@gmail.com",
+      "fromName": "陈默",
+      "to": "xiadeng@163.com",
+      "toName": "夏灯",
+      "subject": "告别",
+      "time": "2026-01-25 05:20:00",
+      "trigger": "player_read_father_diary_layer2",
+      "status": "unread",
+      "attachments": [],
+      "contentPath": "/src/data/email/content/email_chenmo_006.txt"
+    }
+  ]
+}

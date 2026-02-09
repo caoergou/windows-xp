@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserSession } from '../context/UserSessionContext';
+import { useUserProgress } from '../context/UserProgressContext';
 import XPIcon from './XPIcon';
 import SystemClock from './SystemClock';
 import Explorer from '../apps/Explorer';
 import InternetExplorer from '../apps/InternetExplorer';
 import QQ from '../apps/QQ';
+import Email from '../apps/Email';
 import { defaultPlugin } from '../apps/BrowserPlugins';
 
 const TaskbarContainer = styled.div`
@@ -313,10 +315,44 @@ const CancelButton = styled.button`
 const Taskbar = () => {
     const { windows, activeWindowId, focusWindow, minimizeWindow, openWindow } = useWindowManager();
     const { logout } = useUserSession();
+    const { progress } = useUserProgress();
     const [startOpen, setStartOpen] = useState(false);
     const [showTurnOff, setShowTurnOff] = useState(false);
     const startMenuRef = useRef(null);
     const startButtonRef = useRef(null);
+
+    // Calculate unread emails
+    const unreadEmailCount = useMemo(() => {
+        try {
+            const correspondence = require('../data/email/chenmo_correspondence.json');
+            const emails = correspondence.correspondence || [];
+
+            // Check email trigger conditions
+            const checkEmailTrigger = (trigger, progress) => {
+                const triggerMap = {
+                    'game_start': true,
+                    'player_view_qzone': progress.qqLoggedIn,
+                    'player_unlock_album': progress.albumUnlocked,
+                    'player_read_father_diary_layer1': progress.fatherLogLayer1Unlocked,
+                    'player_read_linxiaoyu_diary': progress.encryptedDiaryUnlocked,
+                    'player_read_father_diary_layer2': progress.fatherLogLayer2Unlocked
+                };
+                return triggerMap[trigger] || false;
+            };
+
+            // Filter visible emails that haven't been read
+            const unreadEmails = emails.filter(email => {
+                const isVisible = checkEmailTrigger(email.trigger, progress);
+                const isUnread = !progress.emailRead?.includes(email.id);
+                return isVisible && isUnread;
+            });
+
+            return unreadEmails.length;
+        } catch (e) {
+            console.error('Failed to calculate unread emails:', e);
+            return 0;
+        }
+    }, [progress]);
 
     const handleLogout = () => {
         localStorage.removeItem('xp_open_windows');
@@ -360,6 +396,13 @@ const Taskbar = () => {
                  focusWindow(existingQQ.id);
              } else {
                  openWindow('QQ', 'QQ', <QQ />, 'qq', { width: 280, height: 600, resizable: false });
+             }
+        } else if (appName === 'Email') {
+             const existingEmail = windows.find(w => w.appId === 'Email');
+             if (existingEmail) {
+                 focusWindow(existingEmail.id);
+             } else {
+                 openWindow('Email', 'Outlook Express', <Email />, 'email', { width: 800, height: 600 });
              }
         } else if (appName === 'Explorer') {
              // For folders
@@ -491,6 +534,41 @@ const Taskbar = () => {
                     ))}
                 </TaskItems>
                 <SystemTray>
+                    <div
+                        style={{
+                            marginRight: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            position: 'relative'
+                        }}
+                        title={unreadEmailCount > 0 ? `${unreadEmailCount} 封未读邮件` : '邮件'}
+                        onClick={(e) => { e.stopPropagation(); handleLaunch('Email'); }}
+                    >
+                        <XPIcon name="email" size={16} color="white" />
+                        {unreadEmailCount > 0 && (
+                            <span
+                                style={{
+                                    position: 'absolute',
+                                    top: '-4px',
+                                    right: '-8px',
+                                    background: '#ff0000',
+                                    color: 'white',
+                                    borderRadius: '50%',
+                                    width: '14px',
+                                    height: '14px',
+                                    fontSize: '9px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: 'bold',
+                                    border: '1px solid white'
+                                }}
+                            >
+                                {unreadEmailCount > 9 ? '9+' : unreadEmailCount}
+                            </span>
+                        )}
+                    </div>
                     <div
                         style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}
                         title="网络已连接"

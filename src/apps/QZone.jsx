@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useModal } from '../context/ModalContext';
+import { getPuzzleIdFromAlbum, getPuzzleIdFromBlog, isAuxiliaryPuzzle } from '../utils/puzzleMapping';
 
 const PLACEHOLDER_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23e0e0e0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='16' fill='%23666'%3EImage Not Found%3C/text%3E%3C/svg%3E";
 
@@ -410,10 +411,22 @@ const QZone = ({ userId = "1002" }) => {
       // If password is in the item, use it. Otherwise default to "123" for backward compatibility/testing
       const correctPassword = item.password || "123";
 
+      // 确定 puzzleId
+      let puzzleId = null;
+      if (type === 'album') {
+          puzzleId = getPuzzleIdFromAlbum(item.name, userId);
+      } else if (type === 'blog') {
+          puzzleId = getPuzzleIdFromBlog(item.title, userId);
+      }
+
+      const allowSkip = puzzleId ? isAuxiliaryPuzzle(puzzleId) : false;
+
       const success = await showPasswordDialog({
           title: "加密内容",
           message: "此内容已加密，请输入密码访问",
-          correctPassword: correctPassword
+          correctPassword: correctPassword,
+          puzzleId: puzzleId,
+          allowSkip: allowSkip
       });
 
       if (success) {

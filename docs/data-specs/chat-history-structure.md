@@ -25,9 +25,9 @@ QQ聊天记录包含两种类型：
 
 ```json
 {
-  "groupId": "shanbangongshi",
-  "groupName": "山办",
-  "groupAvatar": "/avatars/group_shanbangongshi.jpg",
+  "groupId": "shanding_shiwusuo",
+  "groupName": "山顶事务所",
+  "groupAvatar": "/avatars/group_shanding_shiwusuo.jpg",
   "memberCount": 8,
   "members": [
     {
@@ -258,15 +258,15 @@ QQ聊天记录包含两种类型：
 
 ## 五、完整示例
 
-### 示例1："山办"工作群聊天记录
+### 示例1："山顶事务所"群聊天记录
 
-文件：`src/data/qq/groups/shanbangongshi.json`
+文件：`src/data/qq/groups/shanding_shiwusuo.json`
 
 ```json
 {
-  "groupId": "shanbangongshi",
-  "groupName": "山办",
-  "groupAvatar": "/avatars/group_shanbangongshi.jpg",
+  "groupId": "shanding_shiwusuo",
+  "groupName": "山顶事务所",
+  "groupAvatar": "/avatars/group_shanding_shiwusuo.jpg",
   "memberCount": 8,
   "members": [
     {
@@ -316,7 +316,7 @@ QQ聊天记录包含两种类型：
       "senderId": "xiadeng",
       "senderName": "夏灯",
       "type": "text",
-      "content": "欢迎大家加入山办工作群！这里是我们日常工作交流的地方。",
+      "content": "欢迎大家加入山顶事务所！这里是我们日常工作交流的地方。",
       "time": "2015-09-01 10:00:00"
     },
     {
@@ -324,7 +324,7 @@ QQ聊天记录包含两种类型：
       "senderId": "linxiaoyu",
       "senderName": "林晓宇",
       "type": "text",
-      "content": "谢谢学长！很高兴能加入山办。",
+      "content": "谢谢学长！很高兴能加入山顶事务所。",
       "time": "2015-09-01 10:05:00"
     },
     {
@@ -584,7 +584,7 @@ const loadAllChats = async () => {
 
 根据游戏设计，聊天记录应该包含以下关键信息：
 
-### 群聊"山办"关键对话
+### 群聊"山顶事务所"关键对话
 
 1. **日常工作交流**（2015年9月-10月）
    - 工作安排、会议通知

@@ -111,6 +111,8 @@ const StatusBar = styled.div`
     color: #000;
 `;
 
+import { getPuzzleIdFromPath, isAuxiliaryPuzzle } from '../utils/puzzleMapping';
+
 const Explorer = ({ initialPath = [] }) => {
     const { getFile, checkAccess } = useFileSystem();
     const { openWindow } = useWindowManager();
@@ -133,11 +135,16 @@ const Explorer = ({ initialPath = [] }) => {
         }
 
         if (target.locked) {
+            const puzzleId = getPuzzleIdFromPath(newPath);
+            const allowSkip = puzzleId ? isAuxiliaryPuzzle(puzzleId) : false;
+
             const success = await showPasswordDialog({
                 title: "输入密码",
                 message: "此文件夹已加密，请输入密码访问",
                 hint: target.hint || "提示：请输入正确的密码",
-                correctPassword: target.password
+                correctPassword: target.password,
+                puzzleId: puzzleId,
+                allowSkip: allowSkip
             });
 
             if (!success) {

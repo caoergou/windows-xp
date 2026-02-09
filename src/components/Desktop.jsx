@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useWindowManager } from '../context/WindowManagerContext';
+import { useInvestigationNotes } from '../hooks/useInvestigationNotes.jsx';
 import Taskbar from './Taskbar';
 import Window from './Window';
 import ContextMenu from './ContextMenu';
@@ -14,6 +15,8 @@ import Email from '../apps/Email';
 import TiebaApp from '../apps/TiebaApp';
 import QZone from '../apps/QZone';
 import XPIcon from './XPIcon';
+import StickyNote from './StickyNote';
+import FirstLoginGuide from './FirstLoginGuide';
 import desktopBg from '../assets/images/desktop_bg.jpg';
 import { defaultPlugin } from '../apps/BrowserPlugins';
 
@@ -71,6 +74,9 @@ const DesktopIcon = styled.div`
 const Desktop = () => {
     const { fs } = useFileSystem();
     const { windows, openWindow, focusWindow } = useWindowManager();
+
+    // Initialize investigation notes hook
+    useInvestigationNotes();
 
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
     const [refreshKey, setRefreshKey] = useState(0); // For forcing refresh
@@ -193,6 +199,10 @@ const Desktop = () => {
                 onClose={closeContextMenu}
                 menuItems={desktopMenuItems}
             />
+
+            <StickyNote />
+
+            <FirstLoginGuide />
         </DesktopContainer>
     );
 };

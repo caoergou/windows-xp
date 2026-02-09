@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import XPIcon from './XPIcon';
+import { useUserProgress } from '../context/UserProgressContext';
+import puzzleHints from '../data/puzzle_hints.json';
 
 const Overlay = styled.div`
   position: fixed;
@@ -153,6 +155,59 @@ const Button = styled.button`
     outline: 1px dotted black;
     outline-offset: -4px;
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const HintButton = styled(Button)`
+  background: #FFF4CC;
+  border-color: #FFB900;
+
+  &:hover:not(:disabled) {
+    background: #FFEB99;
+  }
+`;
+
+const SkipButton = styled(Button)`
+  background: #FFE0E0;
+  border-color: #D32F2F;
+
+  &:hover:not(:disabled) {
+    background: #FFCCCC;
+  }
+`;
+
+const HintBox = styled.div`
+  background: #FFFEF0;
+  border: 1px solid #FFB900;
+  border-radius: 3px;
+  padding: 12px;
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+`;
+
+const HintTitle = styled.div`
+  font-weight: bold;
+  color: #D68000;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const HintContent = styled.div`
+  color: #333;
+`;
+
+const AttemptCounter = styled.div`
+  font-size: 11px;
+  color: #999;
+  text-align: right;
+  margin-top: 5px;
 `;
 
 const PasswordDialog = ({
@@ -161,17 +216,43 @@ const PasswordDialog = ({
   hint = "",
   correctPassword,
   onSuccess,
-  onCancel
+  onCancel,
+  puzzleId = null, // 谜题ID，用于追踪尝试次数
+  allowSkip = false // 是否允许跳过（辅助谜题）
 }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [currentHint, setCurrentHint] = useState(null);
   const inputRef = useRef(null);
+  const { recordPuzzleAttempt, getPuzzleAttempts } = useUserProgress();
+
+  const attempts = puzzleId ? getPuzzleAttempts(puzzleId) : 0;
+  const puzzleConfig = puzzleId ? puzzleHints[puzzleId] : null;
 
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, []);
+
+  // 获取当前可用的提示
+  const getAvailableHint = () => {
+    if (!puzzleConfig) return null;
+
+    // 找到最高可用的提示（尝试次数已达到阈值）
+    const availableHints = puzzleConfig.hints.filter(h => attempts >= h.threshold);
+    if (availableHints.length === 0) return null;
+
+    return availableHints[availableHints.length - 1];
+  };
+
+  // 获取下一个提示的阈值
+  const getNextHintThreshold = () => {
+    if (!puzzleConfig) return null;
+
+    const nextHint = puzzleConfig.hints.find(h => attempts < h.threshold);
+    return nextHint ? nextHint.threshold : null;
+  };
 
   const handleSubmit = () => {
     if (!password) {
@@ -182,6 +263,11 @@ const PasswordDialog = ({
     if (password === correctPassword) {
       onSuccess();
     } else {
+      // 记录失败尝试
+      if (puzzleId) {
+        recordPuzzleAttempt(puzzleId);
+      }
+
       setError('密码错误，请重试');
       setPassword('');
       if (inputRef.current) {
@@ -190,13 +276,30 @@ const PasswordDialog = ({
     }
   };
 
-  const handleKeyPress = (e) => {
+  const handleShowHint = () => {
+    const hint = getAvailableHint();
+    if (hint) {
+      setCurrentHint(hint);
+    }
+  };
+
+  const handleSkip = () => {
+    if (allowSkip && attempts >= 10) {
+      onSuccess();
+    }
+  };
+
+  const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleSubmit();
     } else if (e.key === 'Escape') {
       onCancel();
     }
   };
+
+  const availableHint = getAvailableHint();
+  const nextHintThreshold = getNextHintThreshold();
+  const canSkip = allowSkip && attempts >= 10;
 
   return (
     <Overlay onClick={(e) => { if(e.target === e.currentTarget) { /* Do nothing */ } }}>
@@ -222,13 +325,51 @@ const PasswordDialog = ({
                 setPassword(e.target.value);
                 setError('');
               }}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               placeholder="输入密码..."
             />
             <ErrorText>{error}</ErrorText>
+            {puzzleId && (
+              <AttemptCounter>
+                已尝试 {attempts} 次
+                {nextHintThreshold && ` · 再尝试 ${nextHintThreshold - attempts} 次解锁提示`}
+              </AttemptCounter>
+            )}
           </InputWrapper>
+
+          {/* 提示显示区域 */}
+          {currentHint && (
+            <HintBox>
+              <HintTitle>
+                💡 {currentHint.title}
+              </HintTitle>
+              <HintContent>{currentHint.content}</HintContent>
+            </HintBox>
+          )}
         </ContentArea>
         <ButtonArea>
+          {/* 提示按钮 */}
+          {puzzleId && (
+            <HintButton
+              onClick={handleShowHint}
+              disabled={!availableHint}
+              title={availableHint ? '查看提示' : nextHintThreshold ? `再尝试 ${nextHintThreshold - attempts} 次解锁提示` : '暂无提示'}
+            >
+              💡 提示
+            </HintButton>
+          )}
+
+          {/* 跳过按钮（仅辅助谜题） */}
+          {allowSkip && (
+            <SkipButton
+              onClick={handleSkip}
+              disabled={!canSkip}
+              title={canSkip ? '跳过此谜题' : '尝试10次后可跳过'}
+            >
+              跳过
+            </SkipButton>
+          )}
+
           <Button onClick={onCancel}>取消</Button>
           <Button onClick={handleSubmit}>确定</Button>
         </ButtonArea>
