@@ -50,8 +50,8 @@ export const restoreComponent = (appId, componentProps = {}) => {
       return <QQ {...componentProps} />;
   }
 
-  // QQ Mail - restore as IE with mail.qq.com
-  if (appId === 'QQMail' || appId === 'Outlook Express' || appId === 'Email') {
+  // QQ Mail - redirect to browser
+  if (appId === 'QQMail' || appId === 'Outlook Express' || appId === 'Email' || appId === 'qqmail-browser') {
       return <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />;
   }
 

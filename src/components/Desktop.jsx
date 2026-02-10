@@ -102,12 +102,7 @@ const Desktop = () => {
              } else if (item.app === 'DummyApp') {
                  showModal(item.name, 'Windows 无法打开此程序。请确认程序已正确安装。', 'error');
              } else if (item.app === 'QQMail') {
-                 const existingEmail = windows.find(w => w.appId === 'QQMail');
-                 if (existingEmail) {
-                     focusWindow(existingEmail.id);
-                 } else {
-                     openWindow('QQMail', 'QQ邮箱', <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />, 'email', { width: 900, height: 650 });
-                 }
+                 openWindow('qqmail-browser', 'QQ邮箱', <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />, 'ie', { width: 1000, height: 700 });
              }
         } else if (item.type === 'file') {
              if (item.app === 'Notepad') {

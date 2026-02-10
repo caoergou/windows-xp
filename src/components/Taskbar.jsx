@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserSession } from '../context/UserSessionContext';
@@ -419,12 +419,13 @@ const Taskbar = () => {
                  openWindow('QQ', 'QQ', <QQ />, 'qq', { width: 280, height: 600, resizable: false });
              }
         } else if (appName === 'QQMail') {
-             const existingEmail = windows.find(w => w.appId === 'QQMail');
-             if (existingEmail) {
-                 focusWindow(existingEmail.id);
-             } else {
-                 openWindow('QQMail', 'QQ邮箱', <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />, 'ie', { width: 900, height: 650 });
-             }
+             openWindow(
+                 'qqmail-browser',
+                 'QQ邮箱',
+                 <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />,
+                 'ie',
+                 { width: 1000, height: 700 }
+             );
         } else if (appName === 'Explorer') {
              // For folders
              openWindow(pathOrKey, pathOrKey, <Explorer initialPath={[pathOrKey]} />, 'folder');

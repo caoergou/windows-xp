@@ -4,7 +4,6 @@ import { X } from 'lucide-react';
 import IEToolbar from '../components/Explorer/IEToolbar';
 import IEAddressBar from '../components/Explorer/IEAddressBar';
 import { useWindowManager } from '../context/WindowManagerContext';
-import QQMail from './QQMail';
 import { useFileSystem } from '../context/FileSystemContext';
 
 const Container = styled.div`

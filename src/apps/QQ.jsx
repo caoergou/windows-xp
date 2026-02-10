@@ -241,19 +241,13 @@ const QQ = () => {
     };
 
     const openQQMail = () => {
-        // Check if QQ Mail is already open
-        const existingMail = windows.find(w => w.appId === 'QQMail');
-        if (existingMail) {
-            focusWindow(existingMail.id);
-        } else {
-            openWindow(
-                'QQMail',
-                'QQ邮箱',
-                <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />,
-                'ie',
-                { width: 900, height: 650, isMaximized: true }
-            );
-        }
+        openWindow(
+            'qqmail-browser',
+            'QQ邮箱',
+            <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />,
+            'ie',
+            { width: 1000, height: 700 }
+        );
     };
 
     const handleOpenMyQZone = () => {

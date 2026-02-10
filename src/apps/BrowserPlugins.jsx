@@ -60,7 +60,7 @@ export const qzonePlugin = (url, navigateTo) => {
 export const qqmailPlugin = (url, navigateTo) => {
     if (!url) return null;
 
-    // Match http://mail.qq.com
+    // Match http://mail.qq.com or https://mail.qq.com
     if (url.includes('mail.qq.com')) {
         return <QQMail />;
     }
