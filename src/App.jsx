@@ -55,9 +55,32 @@ const ScreenSaverHint = styled.div`
   font-family: 'Courier New', monospace;
 `;
 
+const getInitialBootPhase = () => {
+  const hasVisited = localStorage.getItem('shanyue_has_visited') === 'true';
+
+  // 首次访问：展示完整 Landing Page
+  if (!hasVisited) return 'LANDING';
+
+  const firstBootDone = localStorage.getItem('xp_first_boot_done');
+  const powerState = localStorage.getItem('xp_power_state');
+
+  // 未完成首次启动 / 关机 / 重启 / 注销 -> 开机画面
+  if (!firstBootDone || powerState === 'shutdown' || powerState === 'restart' || powerState === 'logout') {
+    return 'BOOTING';
+  }
+
+  // 已登录且运行中 -> 屏保过渡
+  if (localStorage.getItem('xp_logged_in') === 'true') {
+    return 'SCREENSAVER';
+  }
+
+  // 其他情况 -> 登录界面
+  return 'RUNNING';
+};
+
 function App() {
   const { isLoggedIn } = useUserSession();
-  const [bootPhase, setBootPhase] = useState('LANDING'); // LANDING, CHECKING, BOOTING, SCREENSAVER, RUNNING
+  const [bootPhase, setBootPhase] = useState(getInitialBootPhase);
   const [screenSaverFading, setScreenSaverFading] = useState(false);
 
   useEffect(() => {
@@ -109,9 +132,6 @@ function App() {
     window.addEventListener('contextmenu', handleContextMenu);
 
     showEasterEgg();
-
-    // Always start at LANDING phase - the landing page handles its own state
-    setBootPhase('LANDING');
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);

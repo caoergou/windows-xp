@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+import { useState, useEffect } from 'react';
+import styled, { keyframes } from 'styled-components';
 
 const LANDING_STORAGE_KEY = 'shanyue_has_visited';
 const GAME_STARTED_KEY = 'xp_first_boot_done';
@@ -165,6 +165,39 @@ const ButtonGroup = styled.div`
   animation: ${fadeInUp} 1.2s ease-out 1.2s both;
 `;
 
+const GameTips = styled.div`
+  font-family: 'Tahoma', 'Microsoft YaHei', sans-serif;
+  font-size: 13px;
+  line-height: 1.8;
+  margin-top: 40px;
+  animation: ${fadeInUp} 1.2s ease-out 1.5s both;
+  max-width: 420px;
+
+  @media (max-height: 700px) {
+    display: none;
+  }
+`;
+
+const TipItem = styled.div`
+  margin-bottom: 8px;
+  color: ${props => props.atmosphere ? '#6a7a8a' : '#8899aa'};
+  font-style: ${props => props.atmosphere ? 'italic' : 'normal'};
+`;
+
+const Disclaimer = styled.div`
+  position: absolute;
+  bottom: 50px;
+  font-family: 'Tahoma', sans-serif;
+  font-size: 10px;
+  color: #5a6a7a;
+  letter-spacing: 0.5px;
+  z-index: 2;
+  animation: ${fadeIn} 1s ease-out 2.2s both;
+  text-align: center;
+  max-width: 600px;
+  padding: 0 20px;
+`;
+
 const StartButton = styled.button`
   font-family: 'Tahoma', 'Microsoft YaHei', sans-serif;
   font-size: 14px;
@@ -218,7 +251,7 @@ const ContinueHint = styled.div`
 
 const BottomInfo = styled.div`
   position: absolute;
-  bottom: 30px;
+  bottom: 20px;
   font-family: 'Tahoma', sans-serif;
   font-size: 11px;
   color: #6a7a8a;
@@ -297,7 +330,16 @@ const LandingPage = ({ onEnter }) => {
             <ContinueHint>检测到未完成的调查记录</ContinueHint>
           )}
         </ButtonGroup>
+        <GameTips>
+          <TipItem>推荐使用 Chrome / Edge 浏览器，全屏体验更佳</TipItem>
+          <TipItem>准备好纸笔 -- 记录你发现的每一条线索</TipItem>
+          <TipItem atmosphere>留意时间、细节与矛盾之处</TipItem>
+          <TipItem atmosphere>不要轻信任何单一来源的信息</TipItem>
+        </GameTips>
       </Content>
+      <Disclaimer>
+        本作品纯属虚构，所有人物、事件、地点均为艺术创作。如有雷同，纯属巧合。
+      </Disclaimer>
       <BottomInfo>
         <TypewriterText
           text="一款社会派悬疑解谜游戏 / 预计游戏时长 3-4 小时"
