@@ -134,7 +134,7 @@ const UserSide = styled.div`
       height: 80px;
       border: 1px solid #ccc;
       padding: 1px;
-      background: #fff;
+      background: #e8e8e8;
   }
 
   .username {
@@ -150,11 +150,13 @@ const ContentSide = styled.div`
   padding: 15px 20px;
   position: relative;
   min-height: 150px;
+  user-select: text;
 
   .content {
       font-size: 14px;
       line-height: 1.6;
       color: #333;
+      cursor: text;
   }
 
   .footer {
@@ -186,6 +188,42 @@ const Breadcrumb = styled.div`
     }
 `;
 
+const Pagination = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 0;
+    gap: 4px;
+
+    button {
+        min-width: 32px;
+        height: 28px;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #333;
+        font-size: 12px;
+        cursor: pointer;
+        padding: 0 8px;
+
+        &:hover:not(:disabled) {
+            background: #f0f0f0;
+            border-color: #2d64b3;
+            color: #2d64b3;
+        }
+
+        &.active {
+            background: #2d64b3;
+            color: #fff;
+            border-color: #2d64b3;
+        }
+
+        &:disabled {
+            color: #ccc;
+            cursor: default;
+        }
+    }
+`;
+
 // Define glob patterns at the top level
 const tiebaContentGlob = import.meta.glob('../data/tieba/*/tiezi/*.json');
 const tiebaIndexGlob = import.meta.glob('../data/tieba/*/index.json');
@@ -196,6 +234,8 @@ const Tieba = ({ tiebaId, threadId, navigateTo, currentUrl }) => {
     const [activeThread, setActiveThread] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const POSTS_PER_PAGE = 10;
 
     // Map tiebaId to folder name
     // Mock mapping logic. In a real scenario, this might be dynamic.
@@ -240,6 +280,7 @@ const Tieba = ({ tiebaId, threadId, navigateTo, currentUrl }) => {
                                     id: id,
                                     title: threadData[0].content.substring(0, 30) + (threadData[0].content.length > 30 ? '...' : ''),
                                     author: threadData[0].username,
+                                    time: threadData[0].time,
                                     replyCount: threadData.length - 1,
                                     posts: threadData
                                 });
@@ -250,8 +291,12 @@ const Tieba = ({ tiebaId, threadId, navigateTo, currentUrl }) => {
                     }
                 }
 
-                // Sort threads by ID
-                loadedThreads.sort((a, b) => a.id - b.id);
+                // Sort threads by last reply time (newest first)
+                loadedThreads.sort((a, b) => {
+                    const aLastTime = a.posts[a.posts.length - 1]?.time || a.time;
+                    const bLastTime = b.posts[b.posts.length - 1]?.time || b.time;
+                    return bLastTime.localeCompare(aLastTime);
+                });
                 setThreads(loadedThreads);
 
                 if (threadId) {
@@ -300,7 +345,24 @@ const Tieba = ({ tiebaId, threadId, navigateTo, currentUrl }) => {
         }
     };
 
-    const getDefaultAvatar = () => 'https://img.icons8.com/color/48/user-group-man-man.png';
+    const getAvatarForUser = (name) => {
+        const bgs = ['#4a90d9','#e6794a','#67b168','#d94a7a','#9b59b6','#e6a23c','#3498db','#1abc9c','#e74c3c','#2ecc71','#f39c12','#8e44ad'];
+        const fgs = ['#fff3','#fff4','#fff2'];
+        let h = 0;
+        for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+        const bg = bgs[Math.abs(h) % bgs.length];
+        const fg = fgs[Math.abs(h >> 4) % fgs.length];
+        const p = Math.abs(h);
+        // Generate a simple geometric pattern based on hash
+        const shapes = [
+            `<circle cx="${12 + (p % 24)}" cy="${12 + ((p >> 3) % 24)}" r="${8 + (p % 6)}" fill="${fg}"/>`,
+            `<rect x="${(p >> 1) % 20}" y="${(p >> 2) % 20}" width="${14 + (p % 10)}" height="${14 + ((p >> 1) % 10)}" rx="3" fill="${fg}"/>`,
+            `<circle cx="${30 - (p % 16)}" cy="${30 - ((p >> 2) % 16)}" r="${6 + ((p >> 3) % 8)}" fill="${fg}"/>`
+        ];
+        const s1 = shapes[p % 3];
+        const s2 = shapes[(p >> 4) % 3];
+        return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect width="48" height="48" fill="${bg}"/>${s1}${s2}</svg>`)}`;
+    };
     const getDefaultName = () => `Tieba User ${Math.floor(Math.random() * 1000)}`;
 
     if (loading) return <Container>Loading...</Container>;
@@ -331,7 +393,7 @@ const Tieba = ({ tiebaId, threadId, navigateTo, currentUrl }) => {
                                 <h2 style={{padding: '15px', margin: 0, fontSize: '16px', borderBottom: '1px solid #e5e5e5'}}>{activeThread.title}</h2>
                                 {activeThread.posts.map((post, idx) => {
                                     const username = post.username || `Tieba User_${Math.random().toString(36).substr(2, 5)}`;
-                                    const avatar = post.avatar || getDefaultAvatar();
+                                    const avatar = post.avatar || getAvatarForUser(username);
 
                                     return (
                                         <PostFloor key={post.id || idx}>
@@ -349,16 +411,29 @@ const Tieba = ({ tiebaId, threadId, navigateTo, currentUrl }) => {
                             </ThreadView>
                         </>
                     ) : (
+                        <>
                         <PostList>
-                            {threads.map(thread => (
+                            {threads
+                                .slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE)
+                                .map(thread => (
                                 <PostItem key={thread.id} onClick={() => handleThreadClick(thread)}>
                                     <div className="reply-count">{thread.replyCount}</div>
                                     <div className="title">{thread.title}</div>
-                                    <div className="author">{thread.author || 'Anonymous'}</div>
+                                    <div className="author">{thread.time?.split(' ')[0]} {thread.author || 'Anonymous'}</div>
                                 </PostItem>
                             ))}
                             {threads.length === 0 && <div style={{padding: '20px', textAlign: 'center'}}>暂无帖子</div>}
                         </PostList>
+                        {threads.length > POSTS_PER_PAGE && (
+                            <Pagination>
+                                <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>上一页</button>
+                                {Array.from({length: Math.ceil(threads.length / POSTS_PER_PAGE)}, (_, i) => i + 1).map(page => (
+                                    <button key={page} className={page === currentPage ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+                                ))}
+                                <button disabled={currentPage === Math.ceil(threads.length / POSTS_PER_PAGE)} onClick={() => setCurrentPage(p => p + 1)}>下一页</button>
+                            </Pagination>
+                        )}
+                        </>
                     )}
                 </LeftColumn>
 
