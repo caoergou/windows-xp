@@ -1,12 +1,12 @@
 {
-  "10002": [
-    { "senderId": "10002", "content": "Ancient history.", "timestamp": "09:05", "date": "2023-10-25" },
-    { "senderId": "10001", "content": "Old message.", "timestamp": "09:00", "date": "2023-10-25" },
-    { "senderId": "10002", "content": "Mock history from yesterday...", "timestamp": "14:20", "date": "2023-10-26" },
-    { "senderId": "10001", "content": "Oh I see.", "timestamp": "14:22", "date": "2023-10-26" }
+  "1031678254": [
+    { "senderId": "1031678254", "content": "Ancient history.", "timestamp": "09:05", "date": "2023-10-25" },
+    { "senderId": "1847592036", "content": "Old message.", "timestamp": "09:00", "date": "2023-10-25" },
+    { "senderId": "1031678254", "content": "Mock history from yesterday...", "timestamp": "14:20", "date": "2023-10-26" },
+    { "senderId": "1847592036", "content": "Oh I see.", "timestamp": "14:22", "date": "2023-10-26" }
   ],
-  "20001": [
-      { "senderId": "10002", "content": "Start of group chat.", "timestamp": "10:00", "date": "2023-10-25" },
-      { "senderId": "10003", "content": "Welcome everyone!", "timestamp": "10:05", "date": "2023-10-25" }
+  "738429156": [
+      { "senderId": "1031678254", "content": "Start of group chat.", "timestamp": "10:00", "date": "2023-10-25" },
+      { "senderId": "1562340897", "content": "Welcome everyone!", "timestamp": "10:05", "date": "2023-10-25" }
   ]
 }

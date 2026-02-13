@@ -43,7 +43,7 @@ export const qzonePlugin = (url, navigateTo) => {
         if (url.startsWith('qzone://')) {
             userId = url.replace('qzone://', '').split('/')[0];
         } else {
-            // http://qzone.qq.com/10001
+            // http://qzone.qq.com/1847592036
             const parts = url.replace(/^https?:\/\//, '').split('/');
             // parts[0] is domain, parts[1] is id
             if (parts[1]) userId = parts[1];

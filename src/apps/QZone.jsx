@@ -295,9 +295,9 @@ const QZone = ({ userId = "1002" }) => {
 
         // Define directory name based on userId
         let userDir = null;
-        if (userId === "10001") userDir = "xiadeng";
-        else if (userId === "10002") userDir = "linxiaoyu";
-        else if (userId === "10003") userDir = "chenmo";
+        if (userId === "1847592036") userDir = "xiadeng";
+        else if (userId === "1031678254") userDir = "linxiaoyu";
+        else if (userId === "1562340897") userDir = "chenmo";
         else if (userId === "1001") userDir = "1001"; // Keep legacy
         else if (userId === "1002") userDir = "1002"; // Keep legacy
 
