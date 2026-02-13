@@ -51,7 +51,7 @@ export const qzonePlugin = (url, navigateTo) => {
         }
 
         if (userId) {
-            return <QZone userId={userId} />;
+            return <QZone userId={userId} navigateTo={navigateTo} />;
         }
     }
     return null;
