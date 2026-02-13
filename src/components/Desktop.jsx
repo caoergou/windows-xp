@@ -17,8 +17,10 @@ import DiaryViewer from '../apps/Journal';
 import XPIcon from './XPIcon';
 import StickyNote from './StickyNote';
 import FirstLoginGuide from './FirstLoginGuide';
+import AdwarePopups from './AdwarePopups';
 import desktopBg from '../assets/images/desktop_bg.jpg';
 import { defaultPlugin } from '../apps/BrowserPlugins';
+import { useModal } from '../context/ModalContext';
 
 const DesktopContainer = styled.div`
   width: 100%;
@@ -71,6 +73,7 @@ const DesktopIcon = styled.div`
 const Desktop = () => {
     const { fs } = useFileSystem();
     const { windows, openWindow, focusWindow } = useWindowManager();
+    const { showModal } = useModal();
 
     // Initialize investigation notes hook
     useInvestigationNotes();
@@ -96,6 +99,15 @@ const Desktop = () => {
                  openWindow(key, item.name, <DiaryViewer />, item.icon, { width: 900, height: 650 });
              } else if (item.app === 'TiebaApp') {
                  openWindow(key, item.name, <TiebaApp initialUrl={item.content} />, item.icon, { isMaximized: true });
+             } else if (item.app === 'DummyApp') {
+                 showModal(item.name, 'Windows 无法打开此程序。请确认程序已正确安装。', 'error');
+             } else if (item.app === 'QQMail') {
+                 const existingEmail = windows.find(w => w.appId === 'QQMail');
+                 if (existingEmail) {
+                     focusWindow(existingEmail.id);
+                 } else {
+                     openWindow('QQMail', 'QQ邮箱', <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />, 'email', { width: 900, height: 650 });
+                 }
              }
         } else if (item.type === 'file') {
              if (item.app === 'Notepad') {
@@ -206,6 +218,7 @@ const Desktop = () => {
             <StickyNote />
 
             <FirstLoginGuide />
+            <AdwarePopups />
         </DesktopContainer>
     );
 };

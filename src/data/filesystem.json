@@ -411,43 +411,43 @@
         "type": "app_shortcut",
         "name": "360安全卫士",
         "app": "DummyApp",
-        "icon": "app_window"
+        "icon": "360safe"
       },
       "Baofeng Player": {
         "type": "app_shortcut",
         "name": "暴风影音",
         "app": "DummyApp",
-        "icon": "app_window"
+        "icon": "baofeng"
       },
       "Thunder": {
         "type": "app_shortcut",
         "name": "迅雷",
         "app": "DummyApp",
-        "icon": "app_window"
+        "icon": "thunder"
       },
       "WPS Office": {
         "type": "app_shortcut",
         "name": "WPS Office",
         "app": "DummyApp",
-        "icon": "app_window"
+        "icon": "wps"
       },
       "Kugou Music": {
         "type": "app_shortcut",
         "name": "酷狗音乐",
         "app": "DummyApp",
-        "icon": "app_window"
+        "icon": "kugou"
       },
       "Paint": {
         "type": "app_shortcut",
         "name": "画图",
         "app": "DummyApp",
-        "icon": "image"
+        "icon": "paint"
       },
       "Calculator": {
         "type": "app_shortcut",
         "name": "计算器",
         "app": "DummyApp",
-        "icon": "app_window"
+        "icon": "calculator"
       },
       "My Music": {
         "type": "folder",
@@ -457,26 +457,31 @@
           "刘德华-忘情水.mp3": {
             "type": "file",
             "name": "刘德华-忘情水.mp3",
+            "icon": "music_library",
             "broken": true
           },
           "周杰伦-稻香.mp3": {
             "type": "file",
             "name": "周杰伦-稻香.mp3",
+            "icon": "music_library",
             "broken": true
           },
           "凤凰传奇-最炫民族风.mp3": {
             "type": "file",
             "name": "凤凰传奇-最炫民族风.mp3",
+            "icon": "music_library",
             "broken": true
           },
           "许嵩-清明雨上.mp3": {
             "type": "file",
             "name": "许嵩-清明雨上.mp3",
+            "icon": "music_library",
             "broken": true
           },
           "筷子兄弟-小苹果.mp3": {
             "type": "file",
             "name": "筷子兄弟-小苹果.mp3",
+            "icon": "music_library",
             "broken": true
           }
         }

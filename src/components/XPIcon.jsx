@@ -25,6 +25,13 @@ import propertiesIcon from '../assets/icons/xp/properties.webp';
 import appWindowIcon from '../assets/icons/xp/app_window.webp';
 import journalIcon from '../assets/icons/xp/journal.webp';
 import recycleBinFullIcon from '../assets/icons/xp/recycle_bin_full.webp';
+import calculatorIcon from '../assets/icons/xp/WindowsXPCalculator.webp';
+import paintIcon from '../assets/icons/xp/WindowsXPPaint.webp';
+import soundIcon from '../assets/icons/xp/WindowsXPSound.webp';
+import controlPanelIcon from '../assets/icons/xp/WindowsXPControlPanel.webp';
+import printerIcon from '../assets/icons/xp/WindowsXPPrinter.webp';
+import mediaPlayerIcon from '../assets/icons/xp/WindowsMediaPlayer.webp';
+import musicLibraryIcon from '../assets/icons/xp/WindowsMusicLibrary.webp';
 
 // Icons without react-old-icons equivalents (keep original)
 import qqIcon from '../assets/icons/qq.png';
@@ -33,6 +40,11 @@ import alertInfoIcon from '../assets/icons/alert_info.png';
 import alertWarningIcon from '../assets/icons/alert_warning.png';
 import qzoneIcon from '../assets/icons/qzone.png';
 import tiebaIcon from '../assets/icons/tieba.svg';
+import thunderIcon from '../assets/icons/thunder.svg';
+import kugouIcon from '../assets/icons/kugou.svg';
+import baofengIcon from '../assets/icons/baofeng.svg';
+import safe360Icon from '../assets/icons/360safe.svg';
+import wpsIcon from '../assets/icons/wps.svg';
 
 // SVG toolbar/UI icons (small UI elements, no XP equivalents)
 import refreshIcon from '../assets/icons/refresh.svg';
@@ -91,6 +103,18 @@ const IconMap = {
     "stop": stopIcon,
     "image": imageIcon,
     "clock": clockIcon,
+    "calculator": calculatorIcon,
+    "paint": paintIcon,
+    "sound": soundIcon,
+    "control_panel": controlPanelIcon,
+    "printer": printerIcon,
+    "media_player": mediaPlayerIcon,
+    "music_library": musicLibraryIcon,
+    "thunder": thunderIcon,
+    "kugou": kugouIcon,
+    "baofeng": baofengIcon,
+    "360safe": safe360Icon,
+    "wps": wpsIcon,
 };
 
 const XPIcon = ({ name, size = 32, className, color, style, ...rest }) => {

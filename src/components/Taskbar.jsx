@@ -9,6 +9,7 @@ import Explorer from '../apps/Explorer';
 import InternetExplorer from '../apps/InternetExplorer';
 import QQ from '../apps/QQ';
 import { defaultPlugin } from '../apps/BrowserPlugins';
+import { useModal } from '../context/ModalContext';
 
 const TaskbarContainer = styled.div`
     position: absolute;
@@ -152,7 +153,7 @@ const StartHeader = styled.div`
 
 const StartBody = styled.div`
     display: flex;
-    height: 300px;
+    height: 400px;
     border-top: 1px solid #F5C684;
 `;
 
@@ -160,6 +161,7 @@ const StartLeft = styled.div`
     width: 50%;
     background: white;
     padding: 5px;
+    overflow-y: auto;
 `;
 
 const StartRight = styled.div`
@@ -167,6 +169,7 @@ const StartRight = styled.div`
     background: #D3E5FA;
     padding: 5px;
     border-left: 1px solid #95BDEE;
+    overflow-y: auto;
 `;
 
 const MenuItem = styled.div`
@@ -176,15 +179,21 @@ const MenuItem = styled.div`
     cursor: pointer;
     font-size: 11px;
     color: #333;
-    
+
     &:hover {
         background: #316AC5;
         color: white;
     }
-    
+
     .menu-icon {
         margin-right: 5px;
     }
+`;
+
+const MenuSeparator = styled.div`
+    height: 1px;
+    background: #C0C0C0;
+    margin: 3px 5px;
 `;
 
 const StartFooter = styled.div`
@@ -315,6 +324,7 @@ const Taskbar = () => {
     const { windows, activeWindowId, focusWindow, minimizeWindow, openWindow, closeWindow } = useWindowManager();
     const { logout } = useUserSession();
     const { progress } = useUserProgress();
+    const { showModal } = useModal();
     const [startOpen, setStartOpen] = useState(false);
     const [showTurnOff, setShowTurnOff] = useState(false);
     const [qqContextMenu, setQqContextMenu] = useState(null);
@@ -420,6 +430,8 @@ const Taskbar = () => {
              openWindow(pathOrKey, pathOrKey, <Explorer initialPath={[pathOrKey]} />, 'folder');
         } else if (appName === 'Recycle Bin') {
              openWindow(pathOrKey, pathOrKey, <Explorer initialPath={[pathOrKey]} />, 'recycle_bin');
+        } else if (appName === 'DummyApp') {
+             showModal(pathOrKey || '程序', 'Windows 无法打开此程序。请确认程序已正确安装。', 'error');
         }
     };
 
@@ -494,6 +506,31 @@ const Taskbar = () => {
                                 <XPIcon name="qq" size={24} className="menu-icon" />
                                 <span>QQ</span>
                             </MenuItem>
+                            <MenuSeparator />
+                            <MenuItem onClick={() => handleLaunch('QQMail')}>
+                                <XPIcon name="email" size={24} className="menu-icon" />
+                                <span>Outlook Express</span>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', 'WPS Office')}>
+                                <XPIcon name="wps" size={24} className="menu-icon" />
+                                <span>WPS Office</span>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', '暴风影音')}>
+                                <XPIcon name="baofeng" size={24} className="menu-icon" />
+                                <span>暴风影音</span>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', '迅雷')}>
+                                <XPIcon name="thunder" size={24} className="menu-icon" />
+                                <span>迅雷</span>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', '360安全卫士')}>
+                                <XPIcon name="360safe" size={24} className="menu-icon" />
+                                <span>360安全卫士</span>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', '酷狗音乐')}>
+                                <XPIcon name="kugou" size={24} className="menu-icon" />
+                                <span>酷狗音乐</span>
+                            </MenuItem>
                         </StartLeft>
                         <StartRight>
                             <MenuItem onClick={() => handleLaunch('Explorer', 'My Documents')}>
@@ -504,6 +541,20 @@ const Taskbar = () => {
                                 <XPIcon name="computer" size={24} className="menu-icon" />
                                 <span>我的电脑</span>
                             </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('Explorer', 'My Music')}>
+                                <XPIcon name="folder" size={24} className="menu-icon" />
+                                <span>我的音乐</span>
+                            </MenuItem>
+                            <MenuSeparator />
+                            <MenuItem onClick={() => handleLaunch('DummyApp', '控制面板')}>
+                                <XPIcon name="control_panel" size={24} className="menu-icon" />
+                                <span>控制面板</span>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', '打印机和传真')}>
+                                <XPIcon name="printer" size={24} className="menu-icon" />
+                                <span>打印机和传真</span>
+                            </MenuItem>
+                            <MenuSeparator />
                             <MenuItem onClick={() => handleLaunch('Recycle Bin', 'Recycle Bin')}>
                                 <XPIcon name="recycle_bin" size={24} className="menu-icon" />
                                 <span>回收站</span>
@@ -545,6 +596,18 @@ const Taskbar = () => {
                     ))}
                 </TaskItems>
                 <SystemTray>
+                    <div
+                        style={{ marginRight: '8px', display: 'flex', alignItems: 'center' }}
+                        title="音量"
+                    >
+                        <XPIcon name="sound" size={16} color="white" />
+                    </div>
+                    <div
+                        style={{ marginRight: '8px', display: 'flex', alignItems: 'center' }}
+                        title="360安全卫士 - 电脑安全"
+                    >
+                        <XPIcon name="360safe" size={16} color="white" />
+                    </div>
                     {progress.qqLoggedIn && (
                         <div
                             style={{
