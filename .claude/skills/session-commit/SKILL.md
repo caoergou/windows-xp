@@ -84,15 +84,12 @@ chore: 更新多个文件
 
 - 使用项目的 commit 规范（如果在 CLAUDE.md 或 AGENTS.md 中有说明）
 - 简洁描述修改内容
-- 添加 Co-Authored-By 标记
 
 ### 5. 创建提交
 
 ```bash
 git commit -m "$(cat <<'EOF'
 <commit message>
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 EOF
 )"
 ```
@@ -124,8 +121,6 @@ git add AGENTS.md
 # 3. 提交
 git commit -m "$(cat <<'EOF'
 docs: 将 AGENTS.md 翻译成中文
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 EOF
 )"
 
@@ -147,8 +142,6 @@ git add -p AGENTS.md
 # 3. 提交
 git commit -m "$(cat <<'EOF'
 docs: 将 AGENTS.md 翻译成中文
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 EOF
 )"
 
