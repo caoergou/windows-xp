@@ -283,7 +283,30 @@ const QZone = ({ userId = "1002" }) => {
   const [viewingItem, setViewingItem] = useState(null); // { type: 'blog'|'album', data: ... }
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadLegacyAlbums = async (userDir) => {
+      let albumsData = [];
+
+      if (userDir === "1001") {
+        const lifeMeta = (await import('../data/qzone/1001/pictures/life/index.json')).default;
+        const lifePic1 = (await import('../data/qzone/1001/pictures/life/pic1.jpg')).default;
+        const secretMeta = (await import('../data/qzone/1001/pictures/secret/index.json')).default;
+        const secretPic = (await import('../data/qzone/1001/pictures/secret/secret.jpg')).default;
+
+        albumsData = [
+          { ...lifeMeta, id: 'life', coverImg: lifePic1, images: [lifePic1] },
+          { ...secretMeta, id: 'secret', coverImg: secretPic, images: [secretPic] }
+        ];
+      } else if (userDir === "1002") {
+        const travelMeta = (await import('../data/qzone/1002/pictures/travel/index.json')).default;
+        albumsData = [
+          { ...travelMeta, id: 'travel', coverImg: PLACEHOLDER_IMAGE, images: [] }
+        ];
+      }
+
+      return albumsData;
+    };
+
+    const loadUserData = async () => {
       try {
         setLoading(true);
         setError(null);
@@ -291,116 +314,72 @@ const QZone = ({ userId = "1002" }) => {
         setViewingItem(null);
         setActiveTab('home');
 
-        let indexData, shuoshuoData, blogData, albumsData = [];
+        const userMap = {
+          "1847592036": "xiadeng",
+          "1031678254": "linxiaoyu",
+          "1562340897": "chenmo",
+          "1001": "1001",
+          "1002": "1002"
+        };
 
-        // Define directory name based on userId
-        let userDir = null;
-        if (userId === "1847592036") userDir = "xiadeng";
-        else if (userId === "1031678254") userDir = "linxiaoyu";
-        else if (userId === "1562340897") userDir = "chenmo";
-        else if (userId === "1001") userDir = "1001"; // Keep legacy
-        else if (userId === "1002") userDir = "1002"; // Keep legacy
-
+        const userDir = userMap[userId];
         if (!userDir) {
-             setNotOpened(true);
-             setLoading(false);
-             return;
+          setNotOpened(true);
+          return;
         }
 
-        // Dynamic imports based on userDir
-        // Note: Vite's import.meta.glob or dynamic import(variable) has limitations.
-        // It's often safer to use a switch or mapping if the number of users is small,
-        // or ensure the variable part is part of a path string that Vite can statically analyze to some extent.
-        // However, for this environment, we might need to be explicit.
+        // 使用 Promise.all 并行加载数据
+        const [indexData, shuoshuoData, blogData] = await Promise.all([
+          import(`../data/qzone/${userDir}/index.json`),
+          import(`../data/qzone/${userDir}/shuoshuo.json`),
+          import(`../data/qzone/${userDir}/blog.json`)
+        ]);
 
-        try {
-            if (userDir === "xiadeng") {
-                indexData = (await import('../data/qzone/xiadeng/index.json')).default;
-                shuoshuoData = (await import('../data/qzone/xiadeng/shuoshuo.json')).default;
-                blogData = (await import('../data/qzone/xiadeng/blog.json')).default;
-                try {
-                    albumsData = (await import('../data/qzone/xiadeng/albums.json')).default;
-                } catch (e) {
-                    console.log("No albums for xiadeng");
-                }
-            } else if (userDir === "linxiaoyu") {
-                indexData = (await import('../data/qzone/linxiaoyu/index.json')).default;
-                shuoshuoData = (await import('../data/qzone/linxiaoyu/shuoshuo.json')).default;
-                blogData = (await import('../data/qzone/linxiaoyu/blog.json')).default;
-
-                // Load encrypted diary as a blog entry
-                try {
-                    const encryptedDiary = (await import('../data/qzone/linxiaoyu/encrypted_diary.json')).default;
-                    blogData.push({
-                        id: "encrypted_diary",
-                        title: encryptedDiary.title,
-                        time: "2016-02-15", // Hypothetical date
-                        content: encryptedDiary.content,
-                        encrypted: true,
-                        password: encryptedDiary.password
-                    });
-                } catch (e) {
-                    console.log("No encrypted diary found or error loading it");
-                }
-
-            } else if (userDir === "chenmo") {
-                indexData = (await import('../data/qzone/chenmo/index.json')).default;
-                shuoshuoData = (await import('../data/qzone/chenmo/shuoshuo.json')).default;
-                blogData = (await import('../data/qzone/chenmo/blog.json')).default;
-            } else if (userDir === "1001") {
-                indexData = (await import('../data/qzone/1001/index.json')).default;
-                shuoshuoData = (await import('../data/qzone/1001/shuoshuo.json')).default;
-                blogData = (await import('../data/qzone/1001/blog.json')).default;
-
-                // Legacy album loading for 1001
-                 const lifeMeta = (await import('../data/qzone/1001/pictures/life/index.json')).default;
-                 const lifePic1 = (await import('../data/qzone/1001/pictures/life/pic1.jpg')).default;
-                 const secretMeta = (await import('../data/qzone/1001/pictures/secret/index.json')).default;
-                 const secretPic = (await import('../data/qzone/1001/pictures/secret/secret.jpg')).default;
-
-                 albumsData = [
-                     { ...lifeMeta, id: 'life', coverImg: lifePic1, images: [lifePic1] },
-                     { ...secretMeta, id: 'secret', coverImg: secretPic, images: [secretPic] }
-                 ];
-
-            } else if (userDir === "1002") {
-                indexData = (await import('../data/qzone/1002/index.json')).default;
-                shuoshuoData = (await import('../data/qzone/1002/shuoshuo.json')).default;
-                blogData = (await import('../data/qzone/1002/blog.json')).default;
-
-                // Legacy album loading for 1002
-                const travelMeta = (await import('../data/qzone/1002/pictures/travel/index.json')).default;
-                // Note: We can't easily reuse the import.meta.glob from outside efficiently here without refactoring.
-                // For now, we will skip the complex glob logic for legacy 1002 or try a direct import if possible,
-                // or just leave it empty if file missing.
-                // To keep it simple and working as before, we'd need to re-implement the glob logic or use static imports.
-                // Since this is legacy/demo data, we can just load the meta.
-
-                albumsData = [
-                    { ...travelMeta, id: 'travel', coverImg: PLACEHOLDER_IMAGE, images: [] }
-                ];
-            }
-        } catch (e) {
-            console.warn(`Failed to load data for ${userDir}`, e);
-            setNotOpened(true);
-            setLoading(false);
-            return;
+        // 处理加密日记
+        let processedBlogs = blogData.default;
+        if (userDir === "linxiaoyu") {
+          try {
+            const encryptedDiary = await import(`../data/qzone/${userDir}/encrypted_diary.json`);
+            processedBlogs.push({
+              id: "encrypted_diary",
+              title: encryptedDiary.default.title,
+              time: "2016-02-15",
+              content: encryptedDiary.default.content,
+              encrypted: true,
+              password: encryptedDiary.default.password
+            });
+          } catch (e) {
+            console.log("No encrypted diary found");
+          }
         }
 
-        setUserInfo(indexData);
-        setShuoshuos(shuoshuoData);
-        setBlogs(blogData);
-        setAlbums(albumsData);
+        setUserInfo(indexData.default);
+        setShuoshuos(shuoshuoData.default);
+        setBlogs(processedBlogs);
 
-        setLoading(false);
+        // 加载相册数据
+        if (userDir === "1001" || userDir === "1002") {
+          const albumsData = await loadLegacyAlbums(userDir);
+          setAlbums(albumsData);
+        } else {
+          try {
+            const albumsData = await import(`../data/qzone/${userDir}/albums.json`);
+            setAlbums(albumsData.default);
+          } catch (e) {
+            console.log(`No albums for ${userDir}`);
+            setAlbums([]);
+          }
+        }
+
       } catch (err) {
         console.error("QZone Data Load Error:", err);
         setError(`Failed to load QZone data: ${err.message}`);
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    loadUserData();
   }, [userId]);
 
   const openItem = (type, item) => {
