@@ -1,4 +1,15 @@
 {
   "participants": ["1031678254", "1847592036"],
-  "messages": []
+  "messages": [
+    {"senderId":"1031678254","content":"夏灯，最近怎么很少在群里说话？","timestamp":"20:15","date":"2015-11-30","fullTimestamp":"2015-11-30T20:15:00"},
+    {"senderId":"1847592036","content":"最近学习太忙了，爸爸让我专注于学业。","timestamp":"20:16","date":"2015-11-30","fullTimestamp":"2015-11-30T20:16:00"},
+    {"senderId":"1031678254","content":"你爸爸知道我在调查的事吗？","timestamp":"20:17","date":"2015-11-30","fullTimestamp":"2015-11-30T20:17:00"},
+    {"senderId":"1847592036","content":"他提醒过我，让我不要和你走太近。","timestamp":"20:18","date":"2015-11-30","fullTimestamp":"2015-11-30T20:18:00"},
+    {"senderId":"1031678254","content":"为什么？难道他也知道些什么？","timestamp":"20:19","date":"2015-11-30","fullTimestamp":"2015-11-30T20:19:00"},
+    {"senderId":"1847592036","content":"晓宇，听我一句劝，别查了。这件事很复杂。","timestamp":"20:20","date":"2015-11-30","fullTimestamp":"2015-11-30T20:20:00"},
+    {"senderId":"1031678254","content":"夏灯，你还记得山顶事务所的约定吗？","timestamp":"21:45","date":"2016-02-14","fullTimestamp":"2016-02-14T21:45:00"},
+    {"senderId":"1031678254","content":"我们说过要记录真相，守护正义。","timestamp":"21:46","date":"2016-02-14","fullTimestamp":"2016-02-14T21:46:00"},
+    {"senderId":"1031678254","content":"夏灯，我可能会出事。","timestamp":"21:47","date":"2016-02-14","fullTimestamp":"2016-02-14T21:47:00"},
+    {"senderId":"1031678254","content":"如果我真的出事了，希望你能记住我的话：相机是第三只眼。","timestamp":"21:48","date":"2016-02-14","fullTimestamp":"2016-02-14T21:48:00"}
+  ]
 }
