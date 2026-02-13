@@ -59,7 +59,7 @@ const DesktopIcon = styled.div`
 
   .icon-wrapper {
       margin-bottom: 5px;
-      filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.5));
+      filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.7));
   }
   
   span {
@@ -81,7 +81,7 @@ const Desktop = () => {
 
     const handleIconDoubleClick = (key, item) => {
         if (item.type === 'folder' || item.type === 'root') { // Root shouldn't technically be on desktop directly unless mapped
-             openWindow(key, item.name, <Explorer initialPath={[key]} />, item.icon || 'folder');
+             openWindow(key, item.name, <Explorer initialPath={[key]} />, item.icon || 'folder', { width: 800, height: 550 });
         } else if (item.type === 'app_shortcut') {
              if (item.app === 'InternetExplorer') {
                  openWindow(key, item.name, <InternetExplorer plugin={defaultPlugin} />, item.icon, { isMaximized: true });
@@ -173,14 +173,20 @@ const Desktop = () => {
     return (
         <DesktopContainer $bgUrl={desktopBg} onContextMenu={handleContextMenu}>
             <IconGrid key={refreshKey} style={{ opacity: isRefreshing ? 0 : 1 }}>
-                {Object.entries(desktopItems).map(([key, item]) => (
+                {Object.entries(desktopItems).map(([key, item]) => {
+                    // Recycle bin: show full icon when it has content
+                    const iconName = (key === 'Recycle Bin' && item.children && Object.keys(item.children).length > 0)
+                        ? 'recycle_bin_full'
+                        : item.icon;
+                    return (
                     <DesktopIcon key={key} data-testid={`desktop-icon-${key}`} onDoubleClick={() => handleIconDoubleClick(key, item)}>
                         <div className="icon-wrapper">
-                            <XPIcon name={item.icon} size={32} />
+                            <XPIcon name={iconName} size={32} />
                         </div>
                         <span>{item.name}</span>
                     </DesktopIcon>
-                ))}
+                    );
+                })}
             </IconGrid>
 
             {windows.map(win => (

@@ -235,7 +235,7 @@ const QQ = () => {
             `qzone-${userId}`,
             `QZone - ${userId}`,
             <InternetExplorer url={url} plugin={defaultPlugin} />,
-            'ie',
+            'qzone',
             { width: 1000, height: 700, isMaximized: true }
         );
     };

@@ -373,7 +373,7 @@ const Taskbar = () => {
             } else {
                 openWindow('qzone-1847592036', 'QZone - 1847592036',
                     <InternetExplorer url="http://qzone.qq.com/1847592036" plugin={defaultPlugin} />,
-                    'ie', { width: 1000, height: 700, isMaximized: true });
+                    'qzone', { width: 1000, height: 700, isMaximized: true });
             }
         } else if (action === 'mail') {
             handleLaunch('QQMail');

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Up arrow -->
+  <circle cx="24" cy="24" r="18" fill="#4CAF50"/>
+  <linearGradient id="upGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#66BB6A"/>
+    <stop offset="100%" stop-color="#2E7D32"/>
+  </linearGradient>
+  <circle cx="24" cy="24" r="18" fill="url(#upGrad)"/>
+  <path d="M14 28 L24 16 L34 28" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

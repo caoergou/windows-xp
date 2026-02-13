@@ -40,8 +40,8 @@ const ScreenSaverContainer = styled.div`
 `;
 
 const FloatingLogo = styled.img`
-  width: 64px;
-  height: 64px;
+  width: 128px;
+  height: 128px;
   filter: drop-shadow(0 0 15px rgba(0, 120, 215, 0.6));
   animation: ${floatAnimation} 12s ease-in-out infinite;
   user-select: none;

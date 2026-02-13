@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Arrow body -->
+  <path d="M10 18 L28 18 L28 10 L42 24 L28 38 L28 30 L10 30 Z" fill="#4CAF50"/>
+  <linearGradient id="logoutGrad" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#66BB6A"/>
+    <stop offset="100%" stop-color="#2E7D32"/>
+  </linearGradient>
+  <path d="M10 18 L28 18 L28 10 L42 24 L28 38 L28 30 L10 30 Z" fill="url(#logoutGrad)"/>
+  <!-- Door frame -->
+  <rect x="4" y="6" width="20" height="36" rx="1" fill="none" stroke="#795548" stroke-width="2.5"/>
+  <rect x="4" y="6" width="20" height="36" rx="1" fill="rgba(121,85,72,0.15)"/>
+  <!-- Door handle -->
+  <circle cx="20" cy="24" r="2" fill="#795548"/>
+</svg>

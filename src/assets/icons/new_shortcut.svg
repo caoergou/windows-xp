@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Arrow shortcut -->
+  <path d="M10 4 L32 4 L38 10 L38 44 L10 44 Z" fill="white" stroke="#888" stroke-width="1.5"/>
+  <path d="M32 4 L32 10 L38 10 Z" fill="#DDD" stroke="#888" stroke-width="1"/>
+  <!-- Shortcut arrow overlay -->
+  <path d="M8 34 L8 44 L18 44 L18 38 L12 38 L20 28 L14 28 L22 18 L10 30 L16 30 L8 34 Z" fill="#1565C0"/>
+</svg>

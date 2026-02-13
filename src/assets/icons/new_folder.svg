@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Folder with plus -->
+  <path d="M4 10 L4 40 L44 40 L44 14 L22 14 L18 10 Z" fill="#E8A619"/>
+  <path d="M4 10 L18 10 L22 14 L4 14 Z" fill="#F2C94C"/>
+  <linearGradient id="newFolderGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#FFE082"/>
+    <stop offset="100%" stop-color="#F9A825"/>
+  </linearGradient>
+  <path d="M4 16 L44 16 L44 40 L4 40 Z" fill="url(#newFolderGrad)"/>
+  <!-- Plus sign -->
+  <rect x="20" y="22" width="12" height="4" rx="1" fill="#4CAF50"/>
+  <rect x="24" y="18" width="4" height="12" rx="1" fill="#4CAF50"/>
+</svg>

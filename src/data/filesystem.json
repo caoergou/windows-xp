@@ -356,20 +356,19 @@
         "type": "app_shortcut",
         "name": "Windows 日记本",
         "app": "Journal",
-        "icon": "file"
-      },
+        "icon": "journal"      },
       "Tieba - Yunshan No.1": {
         "type": "app_shortcut",
         "name": "云山一中吧",
         "app": "TiebaApp",
-        "icon": "ie",
+        "icon": "tieba",
         "content": "http://tieba.com/yunshan_no1_middle_school"
       },
       "Tieba - Yunshan County": {
         "type": "app_shortcut",
         "name": "云山县吧",
         "app": "TiebaApp",
-        "icon": "ie",
+        "icon": "tieba",
         "content": "http://tieba.com/yunshan_county"
       }
     }

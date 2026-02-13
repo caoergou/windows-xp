@@ -1,134 +1,116 @@
 import React from 'react';
-import {
-    Monitor,
-    Files,
-    Trash2,
-    Globe,
-    FileText,
-    Folder,
-    FolderOpen,
-    HardDrive,
-    MessageCircle,
-    FileCode,
-    RefreshCw,
-    Scissors,
-    Plus,
-    Link,
-    Settings,
-    User,
-    LogOut,
-    Power,
-    AppWindow,
-    LayoutGrid,
-    Wifi,
-    AlertCircle,
-    Info,
-    XCircle,
-    Mail,
-    ArrowLeft,
-    ArrowRight,
-    ArrowUp,
-    Search,
-    ChevronDown,
-    Home,
-    LayoutList,
-    Star,
-    History,
-    Printer,
-    X,
-    Image
-} from 'lucide-react';
 
-const XPNetwork = ({ size, color = "currentColor", className }) => (
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={className}
-    >
-        {/* Left Monitor */}
-        <rect x="2" y="6" width="9" height="7" rx="1" />
-        <path d="M6.5 13v2" />
-        <path d="M3.5 15h6" />
+// Windows XP authentic icons from react-old-icons (downloaded as local .webp)
+import computerIcon from '../assets/icons/xp/computer.webp';
+import documentsIcon from '../assets/icons/xp/documents.webp';
+import recycleBinIcon from '../assets/icons/xp/recycle_bin.webp';
+import ieIcon from '../assets/icons/xp/ie.webp';
+import folderIcon from '../assets/icons/xp/folder.webp';
+import folderOpenIcon from '../assets/icons/xp/folder_open.webp';
+import fileIcon from '../assets/icons/xp/file.webp';
+import driveIcon from '../assets/icons/xp/drive.webp';
+import userIcon from '../assets/icons/xp/user.webp';
+import shutdownIcon from '../assets/icons/xp/shutdown.webp';
+import networkIcon from '../assets/icons/xp/network.webp';
+import emailIcon from '../assets/icons/xp/email.webp';
+import searchIcon from '../assets/icons/xp/search.webp';
+import homeIcon from '../assets/icons/xp/home.webp';
+import favoritesIcon from '../assets/icons/xp/favorites.webp';
+import historyIcon from '../assets/icons/xp/history.webp';
+import printIcon from '../assets/icons/xp/print.webp';
+import clockIcon from '../assets/icons/xp/clock.webp';
+import imageIcon from '../assets/icons/xp/image.webp';
+import htmlIcon from '../assets/icons/xp/html.webp';
+import propertiesIcon from '../assets/icons/xp/properties.webp';
+import appWindowIcon from '../assets/icons/xp/app_window.webp';
+import journalIcon from '../assets/icons/xp/journal.webp';
+import recycleBinFullIcon from '../assets/icons/xp/recycle_bin_full.webp';
 
-        {/* Right Monitor */}
-        <rect x="13" y="6" width="9" height="7" rx="1" />
-        <path d="M17.5 13v2" />
-        <path d="M14.5 15h6" />
-    </svg>
-);
+// Icons without react-old-icons equivalents (keep original)
+import qqIcon from '../assets/icons/qq.png';
+import alertErrorIcon from '../assets/icons/alert_error.png';
+import alertInfoIcon from '../assets/icons/alert_info.png';
+import alertWarningIcon from '../assets/icons/alert_warning.png';
+import qzoneIcon from '../assets/icons/qzone.png';
+import tiebaIcon from '../assets/icons/tieba.svg';
+
+// SVG toolbar/UI icons (small UI elements, no XP equivalents)
+import refreshIcon from '../assets/icons/refresh.svg';
+import pasteIcon from '../assets/icons/paste.svg';
+import newFolderIcon from '../assets/icons/new_folder.svg';
+import newShortcutIcon from '../assets/icons/new_shortcut.svg';
+import windowsIcon from '../assets/icons/windows.svg';
+import logoutIcon from '../assets/icons/logout.svg';
+import backIcon from '../assets/icons/back.svg';
+import forwardIcon from '../assets/icons/forward.svg';
+import upIcon from '../assets/icons/up.svg';
+import chevronDownIcon from '../assets/icons/chevron_down.svg';
+import viewsIcon from '../assets/icons/views.svg';
+import stopIcon from '../assets/icons/stop.svg';
 
 const IconMap = {
-    "computer": Monitor,
-    "documents": Files,
-    "recycle_bin": Trash2,
-    "ie": Globe,
-    "html": FileCode,
-    "folder": Folder,
-    "folder_open": FolderOpen,
-    "file": FileText,
-    "drive": HardDrive,
-    "qq": MessageCircle, // Using MessageCircle as a generic chat icon for QQ
-    "refresh": RefreshCw,
-    "paste": Scissors, // Not exactly paste but close enough for now, or use generic
-    "new_folder": Folder,
-    "new_shortcut": Link,
-    "properties": Settings,
-    "user": User,
-    "windows": LayoutGrid, // For start menu/windows logo
-    "logout": LogOut,
-    "shutdown": Power,
-    "app_window": AppWindow,
-    "network": XPNetwork, // Replaced Wifi with custom XPNetwork icon
-    "alert_error": XCircle,
-    "alert_info": Info,
-    "alert_warning": AlertCircle,
-    "email": Mail,
-    "back": ArrowLeft,
-    "forward": ArrowRight,
-    "up": ArrowUp,
-    "search": Search,
-    "chevron_down": ChevronDown,
-    "home": Home,
-    "views": LayoutList,
-    "favorites": Star,
-    "history": History,
-    "print": Printer,
-    "stop": X,
-    "image": Image
+    "computer": computerIcon,
+    "documents": documentsIcon,
+    "recycle_bin": recycleBinIcon,
+    "ie": ieIcon,
+    "html": htmlIcon,
+    "folder": folderIcon,
+    "folder_open": folderOpenIcon,
+    "file": fileIcon,
+    "drive": driveIcon,
+    "qq": qqIcon,
+    "refresh": refreshIcon,
+    "paste": pasteIcon,
+    "new_folder": newFolderIcon,
+    "new_shortcut": newShortcutIcon,
+    "properties": propertiesIcon,
+    "user": userIcon,
+    "windows": windowsIcon,
+    "logout": logoutIcon,
+    "shutdown": shutdownIcon,
+    "app_window": appWindowIcon,
+    "network": networkIcon,
+    "alert_error": alertErrorIcon,
+    "alert_info": alertInfoIcon,
+    "alert_warning": alertWarningIcon,
+    "qzone": qzoneIcon,
+    "journal": journalIcon,
+    "recycle_bin_full": recycleBinFullIcon,
+    "tieba": tiebaIcon,
+    "email": emailIcon,
+    "back": backIcon,
+    "forward": forwardIcon,
+    "up": upIcon,
+    "search": searchIcon,
+    "chevron_down": chevronDownIcon,
+    "home": homeIcon,
+    "views": viewsIcon,
+    "favorites": favoritesIcon,
+    "history": historyIcon,
+    "print": printIcon,
+    "stop": stopIcon,
+    "image": imageIcon,
+    "clock": clockIcon,
 };
 
-// Color mapping to make them look a bit more colorful/XP-like (optional)
-const IconColors = {
-    "computer": "#2c72c2",
-    "documents": "#fbbd08",
-    "recycle_bin": "#767676",
-    "ie": "#1E90FF",
-    "html": "#E34C26",
-    "folder": "#fbbd08",
-    "folder_open": "#fbbd08",
-    "file": "#A0A0A0",
-    "drive": "#808080",
-    "qq": "#D52B2B",
-    "windows": "#00CCFF",
-    "alert_error": "#D32F2F",
-    "alert_info": "#1976D2",
-    "alert_warning": "#FBC02D",
-    "back": "#4CAF50", // Just a distinct color for nav
-    "forward": "#4CAF50"
-};
+const XPIcon = ({ name, size = 32, className, color, style, ...rest }) => {
+    const iconSrc = IconMap[name] || fileIcon;
 
-const XPIcon = ({ name, size = 32, className, color }) => {
-    const IconComponent = IconMap[name] || FileText; // Default to FileText
-    const defaultColor = IconColors[name] || color || "currentColor";
-
-    return <IconComponent size={size} className={className} color={defaultColor} />;
+    return (
+        <img
+            src={iconSrc}
+            alt={name}
+            width={size}
+            height={size}
+            className={className}
+            draggable={false}
+            style={{
+                imageRendering: size <= 16 ? 'auto' : undefined,
+                ...style,
+            }}
+            {...rest}
+        />
+    );
 };
 
 export default XPIcon;

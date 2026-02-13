@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Circular arrows -->
+  <path d="M24 8 A16 16 0 0 1 40 24" fill="none" stroke="#4CAF50" stroke-width="4" stroke-linecap="round"/>
+  <path d="M24 40 A16 16 0 0 1 8 24" fill="none" stroke="#4CAF50" stroke-width="4" stroke-linecap="round"/>
+  <!-- Arrow heads -->
+  <path d="M38 16 L40 24 L32 22 Z" fill="#4CAF50"/>
+  <path d="M10 32 L8 24 L16 26 Z" fill="#4CAF50"/>
+</svg>

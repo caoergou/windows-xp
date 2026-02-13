@@ -174,7 +174,7 @@ const QQChat = ({ user, target, type }) => {
             `qzone-${target.id}`,
             `QZone - ${target.id}`,
             <InternetExplorer url={url} plugin={defaultPlugin} />,
-            'ie',
+            'qzone',
             { width: 800, height: 600, isMaximized: true }
         );
     };
