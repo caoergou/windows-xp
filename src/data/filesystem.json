@@ -95,7 +95,7 @@
                         "type": "file",
                         "name": "给夏灯.txt",
                         "app": "Notepad",
-                        "contentPath": "assets/documents/给夏灯-完整版.txt"
+                        "contentPath": "documents/给夏灯-完整版.txt"
                       }
                     }
                   }
