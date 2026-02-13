@@ -10,12 +10,12 @@ import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <UserSessionProvider>
-      <UserProgressProvider>
-        <FileSystemProvider>
-          <WindowManagerProvider>
+      <FileSystemProvider>
+        <WindowManagerProvider>
+          <UserProgressProvider>
             <App />
-          </WindowManagerProvider>
-        </FileSystemProvider>
-      </UserProgressProvider>
+          </UserProgressProvider>
+        </WindowManagerProvider>
+      </FileSystemProvider>
     </UserSessionProvider>
 );
