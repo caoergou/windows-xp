@@ -1,305 +1,305 @@
 # AGENTS.md
 
-This file provides guidance for AI coding agents working on the 山月无声 (Silent Mountain Moon) project.
+本文件为参与《山月无声》项目的 AI 编程助手提供指导。
 
-## Project Overview
+## 项目概述
 
-Interactive mystery game built with React 18 + Vite 5. Players investigate a 2015-2016 tragedy through a simulated Windows XP desktop environment.
+这是一款使用 React 18 + Vite 5 构建的互动解谜游戏。玩家通过模拟的 Windows XP 桌面环境调查 2015-2016 年的悲剧真相。
 
-**Current phase**: Content creation (story framework complete, filling game assets)
+**当前阶段**：内容创作（故事框架已完成，正在填充游戏素材）
 
-## Quick Start
+## 快速开始
 
 ```bash
 npm install
-npm run dev          # Start dev server at http://localhost:5173
-npm run build        # Production build
-npm test             # Run tests
+npm run dev          # 启动开发服务器 http://localhost:5173
+npm run build        # 生产构建
+npm test             # 运行测试
 ```
 
-## Essential Reading Before Creating Content
+## 创作内容前必读
 
-**You MUST read these files before creating any game content:**
+**创作任何游戏内容前必须阅读以下文件：**
 
-1. **`docs/人物.md`** - Character personalities, voice, QQ numbers, relationships
-   - Read this to understand how each character speaks and behaves
-   - Contains character backgrounds and psychological profiles
+1. **`docs/人物.md`** - 人物性格、语气、QQ 号、关系
+   - 阅读此文件以了解每个角色的说话方式和行为特征
+   - 包含人物背景和心理画像
 
-2. **`docs/data-specs/data-specification.md`** - Complete JSON format specifications
-   - Authoritative reference for all data structures
-   - Includes QQ Space, Tieba, Email, Chat log formats
-   - Contains validation rules and required fields
+2. **`docs/data-specs/data-specification.md`** - 完整的 JSON 格式规范
+   - 所有数据结构的权威参考
+   - 包括 QQ 空间、贴吧、邮件、聊天记录格式
+   - 包含验证规则和必填字段
 
-3. **`docs/大纲.md`** - Story outline and 4-stage spoiler management
-   - Critical for understanding what to reveal/hide at each stage
-   - Contains the complete narrative structure
-   - Explains the "red herring" system
+3. **`docs/大纲.md`** - 故事大纲和四阶段剧透管理
+   - 理解每个阶段应该揭示/隐藏什么信息的关键文档
+   - 包含完整的叙事结构
+   - 解释"红鲱鱼"系统
 
-4. **`docs/设计.md`** - Content design specifications and player perspective control
-   - Guidelines for creating content that fits each investigation stage
-   - Material design principles
+4. **`docs/设计.md`** - 内容设计规范和玩家视角控制
+   - 创作符合各调查阶段的内容指南
+   - 素材设计原则
 
-5. **`docs/时间线.md`** - Detailed event timeline (2014-2026)
-   - Use this to ensure timestamp accuracy
-   - Contains all key events and their dates
+5. **`docs/时间线.md`** - 详细事件时间线（2014-2026）
+   - 用于确保时间戳准确性
+   - 包含所有关键事件及其日期
 
-6. **`docs/解密.md`** - Puzzle and decryption mechanism design
-   - Password systems (photography parameters, birthdays)
-   - Cross-platform evidence synthesis
+6. **`docs/解密.md`** - 谜题和解密机制设计
+   - 密码系统（摄影参数、生日）
+   - 跨平台证据综合
 
-## Project Structure
+## 项目结构
 
 ```
-src/data/            # Game data (JSON) - PRIMARY WORK AREA
-  ├── qzone/         # QQ Space content by user ID
-  ├── tieba/         # Forum posts by forum name
-  ├── email/         # Email messages (inbox/sent/spam)
-  └── qq/            # QQ chat logs
+src/data/            # 游戏数据（JSON）- 主要工作区域
+  ├── qzone/         # QQ 空间内容（按用户 ID 组织）
+  ├── tieba/         # 贴吧帖子（按贴吧名称组织）
+  ├── email/         # 邮件消息（收件箱/已发送/垃圾邮件）
+  └── qq/            # QQ 聊天记录
 
-docs/                # Design documents - READ THESE FIRST
-  ├── 大纲.md         # Story outline ⭐⭐⭐
-  ├── 人物.md         # Character profiles ⭐⭐⭐
-  ├── 设计.md         # Design specs ⭐⭐
-  ├── 时间线.md       # Timeline ⭐⭐
-  ├── 解密.md         # Puzzle design ⭐
-  └── data-specs/    # JSON format specs ⭐⭐⭐
+docs/                # 设计文档 - 首先阅读这些
+  ├── 大纲.md         # 故事大纲 ⭐⭐⭐
+  ├── 人物.md         # 人物设定 ⭐⭐⭐
+  ├── 设计.md         # 设计规范 ⭐⭐
+  ├── 时间线.md       # 时间线 ⭐⭐
+  ├── 解密.md         # 谜题设计 ⭐
+  └── data-specs/    # JSON 格式规范 ⭐⭐⭐
       ├── data-specification.md
       └── exif-metadata-structure.md
 
-assets/              # Content drafts (markdown, not used in game)
-  └── 清单.md         # Content checklist
+assets/              # 内容草稿（markdown，不在游戏中使用）
+  └── 清单.md         # 内容清单
 
-CLAUDE.md            # Detailed architecture documentation
+CLAUDE.md            # 详细架构文档
 ```
 
-## Content Creation Workflow
+## 内容创作工作流程
 
-### Step 1: Read Core Design Documents (ALWAYS)
+### 步骤 1：阅读核心设计文档（必须）
 
-**You MUST read these 3 files before creating ANY content:**
+**创作任何内容前必须阅读以下 3 个文件：**
 
 ```bash
-1. docs/大纲.md    # Story structure, 4-stage spoiler management, narrative framework
-2. docs/设计.md    # Design principles, player perspective control, content guidelines
-3. docs/解密.md    # Puzzle mechanics, password systems, evidence synthesis
+1. docs/大纲.md    # 故事结构、四阶段剧透管理、叙事框架
+2. docs/设计.md    # 设计原则、玩家视角控制、内容指南
+3. docs/解密.md    # 谜题机制、密码系统、证据综合
 ```
 
-These documents contain the fundamental design principles that govern ALL content creation.
+这些文档包含了指导所有内容创作的基本设计原则。
 
-### Step 2: Read Task-Specific Documents (AS NEEDED)
+### 步骤 2：根据需要阅读特定任务文档
 
-Based on what you're creating, read:
+根据你要创作的内容，阅读：
 
 ```bash
-# Creating character content (QQ Space, chat logs)?
-→ docs/人物.md              # Character voice, personality, relationships
+# 创作角色内容（QQ 空间、聊天记录）？
+→ docs/人物.md              # 角色语气、性格、关系
 
-# Need specific dates/timestamps?
-→ docs/时间线.md            # Detailed event timeline
+# 需要具体日期/时间戳？
+→ docs/时间线.md            # 详细事件时间线
 
-# Creating JSON data files?
-→ docs/data-specs/data-specification.md  # Complete format specifications
+# 创作 JSON 数据文件？
+→ docs/data-specs/data-specification.md  # 完整格式规范
 ```
 
-### Step 3: Create Content
+### 步骤 3：创作内容
 
-- Respect spoiler boundaries from `docs/大纲.md`
-- Follow design principles from `docs/设计.md`
-- Consider puzzle integration from `docs/解密.md`
-- Match character voice from `docs/人物.md` (if applicable)
-- Use accurate timestamps from `docs/时间线.md` (if applicable)
-- Follow JSON format from `docs/data-specs/data-specification.md` (if applicable)
+- 遵守 `docs/大纲.md` 中的剧透边界
+- 遵循 `docs/设计.md` 中的设计原则
+- 考虑 `docs/解密.md` 中的谜题整合
+- 匹配 `docs/人物.md` 中的角色语气（如适用）
+- 使用 `docs/时间线.md` 中的准确时间戳（如适用）
+- 遵循 `docs/data-specs/data-specification.md` 中的 JSON 格式（如适用）
 
-### Step 4: Place Files
+### 步骤 4：放置文件
 
 ```bash
-# QQ Space content
+# QQ 空间内容
 src/data/qzone/{user_id}/
-  ├── index.json       # User profile
-  ├── shuoshuo.json    # Posts array
-  ├── blog.json        # Blogs array
-  └── pictures/        # Photo albums
+  ├── index.json       # 用户资料
+  ├── shuoshuo.json    # 说说数组
+  ├── blog.json        # 日志数组
+  └── pictures/        # 相册
 
-# Forum content
+# 贴吧内容
 src/data/tieba/{forum_name}/
-  ├── index.json       # Forum info
-  └── tiezi/{id}.json  # Individual threads
+  ├── index.json       # 贴吧信息
+  └── tiezi/{id}.json  # 单个帖子
 
-# Email
+# 邮件
 src/data/email/{inbox|sent|spam}/{id}.json
 
-# Chat logs
+# 聊天记录
 src/data/qq/{conversation_id}.json
 ```
 
-### Step 5: Validate
+### 步骤 5：验证
 
-- ✅ JSON syntax valid
-- ✅ Timestamp within valid range (see `docs/时间线.md`)
-- ✅ Character voice matches `docs/人物.md`
-- ✅ No premature spoilers (check `docs/大纲.md` stage boundaries)
-- ✅ Era-appropriate language (2015-2016, see `docs/设计.md`)
+- ✅ JSON 语法有效
+- ✅ 时间戳在有效范围内（参见 `docs/时间线.md`）
+- ✅ 角色语气符合 `docs/人物.md`
+- ✅ 无过早剧透（检查 `docs/大纲.md` 阶段边界）
+- ✅ 符合时代语言（2015-2016，参见 `docs/设计.md`）
 
-## Quick Reference
+## 快速参考
 
-### Character QQ Numbers
+### 角色 QQ 号
 
-See `docs/人物.md` for complete profiles.
+完整设定参见 `docs/人物.md`。
 
-- Lin Xiaoyu (林晓宇): 809261392
-- Chen Mo (陈默): TBD
-- Xia Deng (夏灯): TBD
+- 林晓宇：809261392
+- 陈默：待定
+- 夏灯：待定
 
-### Timeline Boundaries
+### 时间线边界
 
-See `docs/时间线.md` for detailed events.
+详细事件参见 `docs/时间线.md`。
 
 ```
-2014.09 - High school starts
-2015.09 - Sophomore year begins
-2016.04 - Lin Xiaoyu's death
-2016.06 - Gaokao
-2026.XX - Investigation timeline
+2014.09 - 高中开学
+2015.09 - 高二开学
+2016.04 - 林晓宇去世
+2016.06 - 高考
+2026.XX - 调查时间线
 ```
 
-### Spoiler Management
+### 剧透管理
 
-See `docs/大纲.md` for complete stage breakdown.
+完整阶段划分参见 `docs/大纲.md`。
 
-| Stage | Duration | Read Section in 大纲.md |
+| 阶段 | 时长 | 阅读大纲.md中的章节 |
 |-------|----------|------------------------|
-| Stage 1 | 60min | 阶段一：个体悬疑 |
-| Stage 2 | 70min | 阶段二：证据指向 |
-| Stage 3 | 50min | 阶段三：真相反转 |
-| Stage 4 | 40min | 阶段四：系统揭露 |
+| 阶段一 | 60分钟 | 阶段一：个体悬疑 |
+| 阶段二 | 70分钟 | 阶段二：证据指向 |
+| 阶段三 | 50分钟 | 阶段三：真相反转 |
+| 阶段四 | 40分钟 | 阶段四：系统揭露 |
 
-**Critical**: Always check which stage your content belongs to and what information should be hidden.
+**关键**：始终检查你的内容属于哪个阶段，以及应该隐藏哪些信息。
 
-## Data Format Reference
+## 数据格式参考
 
-**Do NOT duplicate format specs here.** Always refer to:
+**不要在此处重复格式规范。** 始终参考：
 
-- **`docs/data-specs/data-specification.md`** - Complete JSON schemas
-- **`docs/data-specs/exif-metadata-structure.md`** - Photo metadata format
+- **`docs/data-specs/data-specification.md`** - 完整的 JSON 模式
+- **`docs/data-specs/exif-metadata-structure.md`** - 照片元数据格式
 
-Quick links to common formats:
+常用格式快速链接：
 
-- QQ Space posts: See `data-specification.md` § QQ空间说说
-- QQ Space blogs: See `data-specification.md` § QQ空间日志
-- Forum posts: See `data-specification.md` § 贴吧帖子
-- Emails: See `data-specification.md` § 邮件
-- Chat logs: See `data-specification.md` § QQ聊天记录
+- QQ 空间说说：参见 `data-specification.md` § QQ空间说说
+- QQ 空间日志：参见 `data-specification.md` § QQ空间日志
+- 贴吧帖子：参见 `data-specification.md` § 贴吧帖子
+- 邮件：参见 `data-specification.md` § 邮件
+- 聊天记录：参见 `data-specification.md` § QQ聊天记录
 
-## Code Style
+## 代码风格
 
-- **React**: Functional components with hooks
-- **Styling**: styled-components (XP theme via xp.css)
-- **State**: React Context (no Redux)
-- **File naming**: PascalCase for components, camelCase for utilities
+- **React**：函数式组件 + Hooks
+- **样式**：styled-components + xp.css（Windows XP 主题）
+- **状态管理**：React Context（不使用 Redux）
+- **文件命名**：组件使用 PascalCase，工具函数使用 camelCase
 
-## Testing
+## 测试
 
 ```bash
-npm test              # Unit tests (Vitest)
-npm run test:e2e      # E2E tests (Playwright)
+npm test              # 单元测试（Vitest）
+npm run test:e2e      # E2E 测试（Playwright）
 ```
 
-## Git Conventions
+## Git 规范
 
 ```bash
-# Commit message format
+# 提交信息格式
 feat(qzone): add Lin Xiaoyu posts for Dec 2015
 fix(tieba): correct timestamp in thread 12345
 content(email): add investigation emails for stage 2
 docs: update character profile for Chen Mo
 ```
 
-## Common Tasks
+## 常见任务
 
-**Prerequisites for ALL tasks**: Read the 3 core docs (`docs/大纲.md`, `docs/设计.md`, `docs/解密.md`) first.
+**所有任务的前提**：首先阅读 3 个核心文档（`docs/大纲.md`、`docs/设计.md`、`docs/解密.md`）。
 
-### Add QQ Space Content
+### 添加 QQ 空间内容
 
-1. Read `docs/人物.md` for character voice
-2. Verify timestamp in `docs/时间线.md`
-3. Follow format in `docs/data-specs/data-specification.md`
-4. Edit `src/data/qzone/{user_id}/shuoshuo.json` or `blog.json`
+1. 阅读 `docs/人物.md` 了解角色语气
+2. 在 `docs/时间线.md` 中验证时间戳
+3. 遵循 `docs/data-specs/data-specification.md` 中的格式
+4. 编辑 `src/data/qzone/{user_id}/shuoshuo.json` 或 `blog.json`
 
-### Add Forum Post
+### 添加贴吧帖子
 
-1. Follow format in `docs/data-specs/data-specification.md`
-2. Create `src/data/tieba/{forum}/tiezi/{id}.json`
-3. Update `src/data/tieba/{forum}/index.json` thread list
+1. 遵循 `docs/data-specs/data-specification.md` 中的格式
+2. 创建 `src/data/tieba/{forum}/tiezi/{id}.json`
+3. 更新 `src/data/tieba/{forum}/index.json` 中的帖子列表
 
-### Add Email
+### 添加邮件
 
-1. Verify sender/recipient in `docs/人物.md`
-2. Check timeline in `docs/时间线.md`
-3. Follow format in `docs/data-specs/data-specification.md`
-4. Create JSON in `src/data/email/{folder}/`
+1. 在 `docs/人物.md` 中验证发件人/收件人
+2. 在 `docs/时间线.md` 中检查时间线
+3. 遵循 `docs/data-specs/data-specification.md` 中的格式
+4. 在 `src/data/email/{folder}/` 中创建 JSON
 
-## Critical Rules
+## 关键规则
 
-### Communication
+### 沟通
 
-- ✅ **ALWAYS** respond in Chinese (中文) when working on this project
-- ✅ **ALWAYS** use Chinese for explanations, summaries, and documentation
-- ✅ Code comments can be in English, but all communication with the user must be in Chinese
+- ✅ **始终**使用中文回复
+- ✅ **始终**使用中文进行解释、总结和文档编写
+- ✅ 代码注释可以使用英文，但与用户的所有沟通必须使用中文
 
-### Content Creation
+### 内容创作
 
-- ❌ **NEVER** create content without reading the 3 core docs first (`docs/大纲.md`, `docs/设计.md`, `docs/解密.md`)
-- ❌ **NEVER** reveal information early (stage boundaries are in `docs/大纲.md`)
-- ❌ **NEVER** violate design principles (all principles are in `docs/设计.md`)
-- ❌ **NEVER** use timestamps outside valid ranges (see `docs/时间线.md`)
-- ❌ **NEVER** guess JSON format (always check `docs/data-specs/`)
-- ❌ **NEVER** use post-2016 language/culture (era requirements in `docs/设计.md`)
+- ❌ **绝不**在未阅读 3 个核心文档（`docs/大纲.md`、`docs/设计.md`、`docs/解密.md`）的情况下创作内容
+- ❌ **绝不**提前透露信息（阶段边界在 `docs/大纲.md` 中）
+- ❌ **绝不**违反设计原则（所有原则在 `docs/设计.md` 中）
+- ❌ **绝不**使用有效范围外的时间戳（参见 `docs/时间线.md`）
+- ❌ **绝不**猜测 JSON 格式（始终检查 `docs/data-specs/`）
+- ❌ **绝不**使用 2016 年后的语言/文化（时代要求在 `docs/设计.md` 中）
 
-### Code Modification
+### 代码修改
 
-- ❌ **NEVER** modify `src/context/*` without understanding the architecture
-- ❌ **NEVER** change window management system without reading `CLAUDE.md`
-- ❌ **NEVER** break component restoration logic in `WindowFactory.jsx`
+- ❌ **绝不**在不理解架构的情况下修改 `src/context/*`
+- ❌ **绝不**在未阅读 `CLAUDE.md` 的情况下更改窗口管理系统
+- ❌ **绝不**破坏 `WindowFactory.jsx` 中的组件恢复逻辑
 
-## Architecture Notes
+## 架构说明
 
-For detailed technical architecture, see `CLAUDE.md`.
+详细技术架构参见 `CLAUDE.md`。
 
-Key systems:
+关键系统：
 
-- **Window persistence**: localStorage + WindowFactory
-- **Dynamic loading**: `import.meta.glob` for content files
-- **Context hierarchy**: UserSession → FileSystem → WindowManager → Modal
+- **窗口持久化**：localStorage + WindowFactory
+- **动态加载**：使用 `import.meta.glob` 加载内容文件
+- **Context 层级**：UserSession → FileSystem → WindowManager → Modal
 
-## When in Doubt
+## 遇到疑问时
 
-1. **Character voice?** → Read `docs/人物.md`
-2. **What to reveal?** → Read `docs/大纲.md`
-3. **When did this happen?** → Read `docs/时间线.md`
-4. **JSON format?** → Read `docs/data-specs/data-specification.md`
-5. **Design principles?** → Read `docs/设计.md`
-6. **Technical architecture?** → Read `CLAUDE.md`
+1. **角色语气？** → 阅读 `docs/人物.md`
+2. **应该透露什么？** → 阅读 `docs/大纲.md`
+3. **这件事什么时候发生？** → 阅读 `docs/时间线.md`
+4. **JSON 格式？** → 阅读 `docs/data-specs/data-specification.md`
+5. **设计原则？** → 阅读 `docs/设计.md`
+6. **技术架构？** → 阅读 `CLAUDE.md`
 
-## Content Checklist
+## 内容检查清单
 
-Before submitting any content, verify:
+提交任何内容前，请验证：
 
-**Core Documents (MANDATORY)**:
+**核心文档（必须）**：
 
-- [ ] Read `docs/大纲.md` - Understand story structure and stage boundaries
-- [ ] Read `docs/设计.md` - Follow design principles and era requirements
-- [ ] Read `docs/解密.md` - Consider puzzle integration
+- [ ] 已阅读 `docs/大纲.md` - 理解故事结构和阶段边界
+- [ ] 已阅读 `docs/设计.md` - 遵循设计原则和时代要求
+- [ ] 已阅读 `docs/解密.md` - 考虑谜题整合
 
-**Task-Specific Documents (AS NEEDED)**:
+**特定任务文档（按需）**：
 
-- [ ] Read `docs/人物.md` - Match character voice (if character content)
-- [ ] Read `docs/时间线.md` - Verify timestamp accuracy (if dated content)
-- [ ] Read `docs/data-specs/data-specification.md` - Follow JSON format (if creating data files)
+- [ ] 已阅读 `docs/人物.md` - 匹配角色语气（如果是角色内容）
+- [ ] 已阅读 `docs/时间线.md` - 验证时间戳准确性（如果是有日期的内容）
+- [ ] 已阅读 `docs/data-specs/data-specification.md` - 遵循 JSON 格式（如果创建数据文件）
 
-**Validation**:
+**验证**：
 
-- [ ] JSON syntax is valid
-- [ ] No premature spoilers (stage boundaries respected)
-- [ ] Character voice is consistent
-- [ ] No anachronisms (2015-2016 era only)
-- [ ] Design principles followed
+- [ ] JSON 语法有效
+- [ ] 无过早剧透（遵守阶段边界）
+- [ ] 角色语气一致
+- [ ] 无时代错误（仅限 2015-2016 年）
+- [ ] 遵循设计原则
