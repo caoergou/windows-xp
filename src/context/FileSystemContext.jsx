@@ -53,7 +53,7 @@ const resolveContentPaths = (node) => {
 };
 
 // Resolve all contentPath references
-resolveContentPaths(fileSystemWithRecycleBin);
+resolveContentPaths(fileSystemWithRecycleBin.root);
 
 // Inject items into Recycle Bin
 if (fileSystemWithRecycleBin.root &&

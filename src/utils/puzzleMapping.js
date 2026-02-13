@@ -6,8 +6,8 @@
 export const getPuzzleIdFromPath = (path) => {
   const pathStr = Array.isArray(path) ? path.join('/') : path;
 
-  // 父亲日志文件夹 - 第一层
-  if (pathStr.includes('夏建国_工作日志')) {
+  // 父亲日志文件夹 - 第一层（D:\给小灯）
+  if (pathStr.includes('给小灯')) {
     return 'father_log_layer1';
   }
 

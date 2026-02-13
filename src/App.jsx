@@ -82,7 +82,9 @@ function App() {
     };
 
     const handleContextMenu = (e) => {
-      e.preventDefault();
+      if (!e.defaultPrevented) {
+        e.preventDefault();
+      }
     };
 
     const showEasterEgg = () => {

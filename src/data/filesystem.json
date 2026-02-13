@@ -49,11 +49,173 @@
                     "app": "Notepad",
                     "contentPath": "filesystem_content/README.txt"
                   },
-                  "工作日志2015-2025.txt": {
-                    "type": "file",
-                    "name": "工作日志2015-2025.txt",
-                    "app": "Notepad",
-                    "contentPath": "filesystem_content/工作日志2015-2025.txt"
+                  "工作日志": {
+                    "type": "folder",
+                    "name": "工作日志",
+                    "children": {
+                      "2014": {
+                        "type": "folder",
+                        "name": "2014",
+                        "children": {},
+                        "broken": true
+                      },
+                      "2015": {
+                        "type": "folder",
+                        "name": "2015",
+                        "children": {
+                          "11": {
+                            "type": "folder",
+                            "name": "11",
+                            "children": {},
+                            "broken": true
+                          },
+                          "12": {
+                            "type": "folder",
+                            "name": "12",
+                            "children": {
+                              "2015.12.07 周一.txt": {
+                                "type": "file",
+                                "name": "2015.12.07 周一.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2015_12_07_周一.txt"
+                              },
+                              "2015.12.12 周六.txt": {
+                                "type": "file",
+                                "name": "2015.12.12 周六.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2015_12_12_周六.txt"
+                              },
+                              "2015.12.18 周五.txt": {
+                                "type": "file",
+                                "name": "2015.12.18 周五.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2015_12_18_周五.txt"
+                              },
+                              "2015.12.22 周二.txt": {
+                                "type": "file",
+                                "name": "2015.12.22 周二.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2015_12_22_周二.txt"
+                              },
+                              "2015.12.25 周五.txt": {
+                                "type": "file",
+                                "name": "2015.12.25 周五.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2015_12_25_周五.txt"
+                              },
+                              "2015.12.30 周三.txt": {
+                                "type": "file",
+                                "name": "2015.12.30 周三.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2015_12_30_周三.txt"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "2016": {
+                        "type": "folder",
+                        "name": "2016",
+                        "children": {
+                          "1": {
+                            "type": "folder",
+                            "name": "1",
+                            "children": {
+                              "2016.01.05 周二.txt": {
+                                "type": "file",
+                                "name": "2016.01.05 周二.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2016_01_05_周二.txt"
+                              },
+                              "2016.01.10 周日.txt": {
+                                "type": "file",
+                                "name": "2016.01.10 周日.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2016_01_10_周日.txt"
+                              },
+                              "2016.01.15 周五.txt": {
+                                "type": "file",
+                                "name": "2016.01.15 周五.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2016_01_15_周五.txt"
+                              },
+                              "2016.01.20 周三.txt": {
+                                "type": "file",
+                                "name": "2016.01.20 周三.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2016_01_20_周三.txt"
+                              },
+                              "2016.01.25 周一.txt": {
+                                "type": "file",
+                                "name": "2016.01.25 周一.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2016_01_25_周一.txt"
+                              },
+                              "2016.01.30 周六.txt": {
+                                "type": "file",
+                                "name": "2016.01.30 周六.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2016_01_30_周六.txt"
+                              }
+                            }
+                          },
+                          "2": {
+                            "type": "folder",
+                            "name": "2",
+                            "children": {
+                              "2016.02.03 周三.txt": {
+                                "type": "file",
+                                "name": "2016.02.03 周三.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2016_02_03_周三.txt"
+                              },
+                              "2016.02.08 周一.txt": {
+                                "type": "file",
+                                "name": "2016.02.08 周一.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2016_02_08_周一.txt"
+                              },
+                              "2016.02.12 周五.txt": {
+                                "type": "file",
+                                "name": "2016.02.12 周五.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2016_02_12_周五.txt"
+                              },
+                              "2016.02.14 周日.txt": {
+                                "type": "file",
+                                "name": "2016.02.14 周日.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2016_02_14_周日.txt"
+                              },
+                              "2016.02.15 周一.txt": {
+                                "type": "file",
+                                "name": "2016.02.15 周一.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2016_02_15_周一.txt"
+                              },
+                              "2016.02.16 周二.txt": {
+                                "type": "file",
+                                "name": "2016.02.16 周二.txt",
+                                "app": "Notepad",
+                                "contentPath": "filesystem_content/2016_02_16_周二.txt"
+                              }
+                            }
+                          },
+                          "3": {
+                            "type": "folder",
+                            "name": "3",
+                            "children": {},
+                            "broken": true
+                          }
+                        }
+                      },
+                      "工作日志2015-2025.txt": {
+                        "type": "file",
+                        "name": "工作日志2015-2025.txt",
+                        "app": "Notepad",
+                        "contentPath": "filesystem_content/工作日志2015-2025.txt"
+                      }
+                    }
                   },
                   "网页截图": {
                     "type": "folder",
@@ -103,177 +265,6 @@
               }
             },
             "icon": "drive"
-          },
-          "Removable Disk (F:)": {
-            "type": "folder",
-            "name": "U盘 (F:)",
-            "icon": "drive",
-            "children": {
-              "夏建国_工作日志": {
-                "type": "folder",
-                "name": "夏建国_工作日志",
-                "children": {
-                  "2014": {
-                    "type": "folder",
-                    "name": "2014",
-                    "children": {},
-                    "broken": true
-                  },
-                  "2015": {
-                    "type": "folder",
-                    "name": "2015",
-                    "children": {
-                      "11": {
-                        "type": "folder",
-                        "name": "11",
-                        "children": {},
-                        "broken": true
-                      },
-                      "12": {
-                        "type": "folder",
-                        "name": "12",
-                        "children": {
-                          "2015.12.07 周一.txt": {
-                            "type": "file",
-                            "name": "2015.12.07 周一.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2015_12_07_周一.txt"
-                          },
-                          "2015.12.12 周六.txt": {
-                            "type": "file",
-                            "name": "2015.12.12 周六.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2015_12_12_周六.txt"
-                          },
-                          "2015.12.18 周五.txt": {
-                            "type": "file",
-                            "name": "2015.12.18 周五.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2015_12_18_周五.txt"
-                          },
-                          "2015.12.22 周二.txt": {
-                            "type": "file",
-                            "name": "2015.12.22 周二.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2015_12_22_周二.txt"
-                          },
-                          "2015.12.25 周五.txt": {
-                            "type": "file",
-                            "name": "2015.12.25 周五.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2015_12_25_周五.txt"
-                          },
-                          "2015.12.30 周三.txt": {
-                            "type": "file",
-                            "name": "2015.12.30 周三.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2015_12_30_周三.txt"
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "2016": {
-                    "type": "folder",
-                    "name": "2016",
-                    "children": {
-                      "1": {
-                        "type": "folder",
-                        "name": "1",
-                        "children": {
-                          "2016.01.05 周二.txt": {
-                            "type": "file",
-                            "name": "2016.01.05 周二.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2016_01_05_周二.txt"
-                          },
-                          "2016.01.10 周日.txt": {
-                            "type": "file",
-                            "name": "2016.01.10 周日.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2016_01_10_周日.txt"
-                          },
-                          "2016.01.15 周五.txt": {
-                            "type": "file",
-                            "name": "2016.01.15 周五.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2016_01_15_周五.txt"
-                          },
-                          "2016.01.20 周三.txt": {
-                            "type": "file",
-                            "name": "2016.01.20 周三.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2016_01_20_周三.txt"
-                          },
-                          "2016.01.25 周一.txt": {
-                            "type": "file",
-                            "name": "2016.01.25 周一.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2016_01_25_周一.txt"
-                          },
-                          "2016.01.30 周六.txt": {
-                            "type": "file",
-                            "name": "2016.01.30 周六.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2016_01_30_周六.txt"
-                          }
-                        }
-                      },
-                      "2": {
-                        "type": "folder",
-                        "name": "2",
-                        "children": {
-                          "2016.02.03 周三.txt": {
-                            "type": "file",
-                            "name": "2016.02.03 周三.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2016_02_03_周三.txt"
-                          },
-                          "2016.02.08 周一.txt": {
-                            "type": "file",
-                            "name": "2016.02.08 周一.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2016_02_08_周一.txt"
-                          },
-                          "2016.02.12 周五.txt": {
-                            "type": "file",
-                            "name": "2016.02.12 周五.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2016_02_12_周五.txt"
-                          },
-                          "2016.02.14 周日.txt": {
-                            "type": "file",
-                            "name": "2016.02.14 周日.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2016_02_14_周日.txt"
-                          },
-                          "2016.02.15 周一.txt": {
-                            "type": "file",
-                            "name": "2016.02.15 周一.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2016_02_15_周一.txt"
-                          },
-                          "2016.02.16 周二.txt": {
-                            "type": "file",
-                            "name": "2016.02.16 周二.txt",
-                            "app": "Notepad",
-                            "contentPath": "filesystem_content/2016_02_16_周二.txt"
-                          }
-                        }
-                      },
-                      "3": {
-                        "type": "folder",
-                        "name": "3",
-                        "children": {},
-                        "broken": true
-                      }
-                    }
-                  }
-                },
-                "locked": true,
-                "password": "19990315"
-              }
-            }
           }
         }
       },
@@ -282,36 +273,75 @@
         "name": "我的文档",
         "icon": "documents",
         "children": {
-          "Secret Plans.txt": {
-            "type": "file",
-            "name": "秘密计划.txt",
-            "app": "Notepad",
-            "content": "统治世界的计划..."
-          },
-          "Corrupted Folder": {
+          "学校工作": {
             "type": "folder",
-            "name": "损坏的文件夹",
-            "broken": true,
-            "children": {}
-          },
-          "Corrupted File.txt": {
-            "type": "file",
-            "name": "损坏的文件.txt",
-            "broken": true,
-            "app": "Notepad",
-            "content": "..."
-          },
-          "Private": {
-            "type": "folder",
-            "name": "私人文件夹",
-            "locked": true,
-            "password": "123",
+            "name": "学校工作",
             "children": {
-              "Diary.txt": {
+              "2015秋季学期工作计划.doc": {
                 "type": "file",
-                "name": "日记.txt",
+                "name": "2015秋季学期工作计划.doc",
+                "broken": true,
+                "app": "Notepad"
+              },
+              "教师值班表2015.xls": {
+                "type": "file",
+                "name": "教师值班表2015.xls",
+                "broken": true,
+                "app": "Notepad"
+              },
+              "学生处分通报模板.txt": {
+                "type": "file",
+                "name": "学生处分通报模板.txt",
                 "app": "Notepad",
-                "content": "亲爱的日记，今天我写了一些 React 代码。"
+                "contentPath": "filesystem_content/学生处分通报模板.txt"
+              },
+              "期末考试安排.doc": {
+                "type": "file",
+                "name": "期末考试安排.doc",
+                "broken": true,
+                "app": "Notepad"
+              }
+            }
+          },
+          "小灯的作文": {
+            "type": "folder",
+            "name": "小灯的作文",
+            "children": {
+              "我的理想.txt": {
+                "type": "file",
+                "name": "我的理想.txt",
+                "app": "Notepad",
+                "contentPath": "filesystem_content/我的理想.txt"
+              },
+              "读后感-活着.txt": {
+                "type": "file",
+                "name": "读后感-活着.txt",
+                "app": "Notepad",
+                "contentPath": "filesystem_content/读后感-活着.txt"
+              }
+            }
+          },
+          "下载": {
+            "type": "folder",
+            "name": "下载",
+            "children": {
+              "hao123桌面版.exe": {
+                "type": "file",
+                "name": "hao123桌面版.exe",
+                "broken": true,
+                "app": "Notepad"
+              },
+              "百度工具栏安装包.exe": {
+                "type": "file",
+                "name": "百度工具栏安装包.exe",
+                "broken": true,
+                "app": "Notepad"
+              },
+              "迅雷看看播放器.exe": {
+                "type": "file",
+                "name": "迅雷看看播放器.exe",
+                "broken": true,
+                "app": "Notepad"
               }
             }
           },
@@ -370,6 +400,86 @@
         "app": "TiebaApp",
         "icon": "tieba",
         "content": "http://tieba.com/yunshan_county"
+      },
+      "Outlook Express": {
+        "type": "app_shortcut",
+        "name": "Outlook Express",
+        "app": "QQMail",
+        "icon": "email"
+      },
+      "360 Safe": {
+        "type": "app_shortcut",
+        "name": "360安全卫士",
+        "app": "DummyApp",
+        "icon": "app_window"
+      },
+      "Baofeng Player": {
+        "type": "app_shortcut",
+        "name": "暴风影音",
+        "app": "DummyApp",
+        "icon": "app_window"
+      },
+      "Thunder": {
+        "type": "app_shortcut",
+        "name": "迅雷",
+        "app": "DummyApp",
+        "icon": "app_window"
+      },
+      "WPS Office": {
+        "type": "app_shortcut",
+        "name": "WPS Office",
+        "app": "DummyApp",
+        "icon": "app_window"
+      },
+      "Kugou Music": {
+        "type": "app_shortcut",
+        "name": "酷狗音乐",
+        "app": "DummyApp",
+        "icon": "app_window"
+      },
+      "Paint": {
+        "type": "app_shortcut",
+        "name": "画图",
+        "app": "DummyApp",
+        "icon": "image"
+      },
+      "Calculator": {
+        "type": "app_shortcut",
+        "name": "计算器",
+        "app": "DummyApp",
+        "icon": "app_window"
+      },
+      "My Music": {
+        "type": "folder",
+        "name": "我的音乐",
+        "icon": "folder",
+        "children": {
+          "刘德华-忘情水.mp3": {
+            "type": "file",
+            "name": "刘德华-忘情水.mp3",
+            "broken": true
+          },
+          "周杰伦-稻香.mp3": {
+            "type": "file",
+            "name": "周杰伦-稻香.mp3",
+            "broken": true
+          },
+          "凤凰传奇-最炫民族风.mp3": {
+            "type": "file",
+            "name": "凤凰传奇-最炫民族风.mp3",
+            "broken": true
+          },
+          "许嵩-清明雨上.mp3": {
+            "type": "file",
+            "name": "许嵩-清明雨上.mp3",
+            "broken": true
+          },
+          "筷子兄弟-小苹果.mp3": {
+            "type": "file",
+            "name": "筷子兄弟-小苹果.mp3",
+            "broken": true
+          }
+        }
       }
     }
   }

@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { useModal } from '../context/ModalContext';
 import { useFileSystem } from '../context/FileSystemContext';
+import ContextMenu from '../components/ContextMenu';
 
 const Container = styled.div`
     width: 100%;
@@ -241,6 +243,41 @@ const DiaryViewer = () => {
     const [expandedYears, setExpandedYears] = useState(new Set(['2015', '2016']));
     const [expandedMonths, setExpandedMonths] = useState(new Set(['2015-12', '2016-01', '2016-02']));
     const { showPasswordDialog } = useModal();
+    const contentBodyRef = useRef(null);
+    const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
+
+    const handleContentContextMenu = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setContextMenu({ visible: true, x: e.clientX, y: e.clientY });
+    };
+
+    const closeContextMenu = () => {
+        setContextMenu({ visible: false, x: 0, y: 0 });
+    };
+
+    const handleCopy = () => {
+        const selected = window.getSelection().toString();
+        if (selected) {
+            navigator.clipboard.writeText(selected);
+        }
+    };
+
+    const handleSelectAll = () => {
+        if (contentBodyRef.current) {
+            const range = document.createRange();
+            range.selectNodeContents(contentBodyRef.current);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+    };
+
+    const contentMenuItems = [
+        { label: '复制(C)', action: handleCopy },
+        { type: 'separator' },
+        { label: '全选(A)', action: handleSelectAll },
+    ];
 
     useEffect(() => {
         const loadLogs = async () => {
@@ -435,7 +472,7 @@ const DiaryViewer = () => {
                             下一篇 →
                         </NavButton>
                     </NavigationBar>
-                    <ContentBody>
+                    <ContentBody ref={contentBodyRef} onContextMenu={handleContentContextMenu}>
                         {selectedLog ? (
                             <>
                                 <ContentTitle>
@@ -457,6 +494,16 @@ const DiaryViewer = () => {
                             <ContentText>请从左侧选择日志条目</ContentText>
                         )}
                     </ContentBody>
+                    {createPortal(
+                        <ContextMenu
+                            visible={contextMenu.visible}
+                            x={contextMenu.x}
+                            y={contextMenu.y}
+                            onClose={closeContextMenu}
+                            menuItems={contentMenuItems}
+                        />,
+                        document.body
+                    )}
                 </ContentArea>
             </MainContent>
         </Container>
