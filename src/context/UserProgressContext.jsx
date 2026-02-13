@@ -1,10 +1,13 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useWindowManager } from './WindowManagerContext';
+import AutoTypingNotepad from '../apps/AutoTypingNotepad';
 
 export const UserProgressContext = createContext();
 
 export const useUserProgress = () => useContext(UserProgressContext);
 
 export const UserProgressProvider = ({ children }) => {
+  const { openWindow } = useWindowManager();
   const [progress, setProgress] = useState(() => {
     try {
       const saved = localStorage.getItem('xp_game_progress');
@@ -70,10 +73,26 @@ export const UserProgressProvider = ({ children }) => {
   };
 
   const addInvestigationNote = (noteId, content) => {
+    // 检查是否已存在相同ID的笔记，避免重复添加
+    if (progress.investigationNotes.some(note => note.id === noteId)) {
+      return;
+    }
+
     setProgress(prev => ({
       ...prev,
       investigationNotes: [...prev.investigationNotes, { id: noteId, content, time: new Date().toISOString() }]
     }));
+
+    // 自动打开调查笔记窗口，使用自动打字效果
+    setTimeout(() => {
+      openWindow(
+        `investigation-note-${noteId}`,
+        '调查笔记',
+        <AutoTypingNotepad content={content} />,
+        'notepad',
+        { width: 500, height: 400 }
+      );
+    }, 1000);
   };
 
   const hasShownNote = (noteId) => {
