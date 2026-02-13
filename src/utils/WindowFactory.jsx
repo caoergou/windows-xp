@@ -50,6 +50,21 @@ export const restoreComponent = (appId, componentProps = {}) => {
       return <QQ {...componentProps} />;
   }
 
+  // QQ Chat windows
+  if (appId.startsWith('qq-chat-')) {
+      // QQ chat windows need user, target, and type props
+      // Since we can't fully restore these from localStorage, skip restoration
+      console.warn('QQ chat windows cannot be restored from localStorage');
+      return null;
+  }
+
+  // QQ History windows
+  if (appId.startsWith('qq-history-')) {
+      // QQ history windows also need complex props
+      console.warn('QQ history windows cannot be restored from localStorage');
+      return null;
+  }
+
   // QQ Mail - redirect to browser
   if (appId === 'QQMail' || appId === 'Outlook Express' || appId === 'Email' || appId === 'qqmail-browser') {
       return <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />;

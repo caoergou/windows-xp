@@ -12,10 +12,14 @@ export const WindowManagerProvider = ({ children }) => {
       if (saved) {
         const parsed = JSON.parse(saved);
         // Restore components using the factory
-        return parsed.map(w => ({
-          ...w,
-          component: restoreComponent(w.appId, w.componentProps || w.props)
-        }));
+        const restored = parsed.map(w => {
+          const component = restoreComponent(w.appId, w.componentProps || w.props);
+          return component ? {
+            ...w,
+            component
+          } : null;
+        }).filter(Boolean); // Remove null entries
+        return restored;
       }
     } catch (e) {
       console.error("Failed to restore windows:", e);

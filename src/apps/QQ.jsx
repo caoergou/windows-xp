@@ -152,7 +152,6 @@ const Links = styled.div`
 const UserHeader = styled.div`
     display: flex;
     align-items: center;
-    /* width: 100%; removed to prevent overflow with padding */
     padding: 10px;
     background: linear-gradient(to bottom, #dbecf9 0%, #a3d0ef 100%);
     border-bottom: 1px solid #7f9db9;
@@ -185,6 +184,27 @@ const Signature = styled.div`
     max-width: 150px;
 `;
 
+const TabBar = styled.div`
+    display: flex;
+    background: #f0f0f0;
+    border-bottom: 1px solid #ccc;
+`;
+
+const Tab = styled.div`
+    flex: 1;
+    padding: 8px;
+    text-align: center;
+    font-size: 12px;
+    cursor: pointer;
+    background: ${props => props.$active ? '#fff' : '#f0f0f0'};
+    border-bottom: ${props => props.$active ? '2px solid #0066CC' : 'none'};
+    font-weight: ${props => props.$active ? 'bold' : 'normal'};
+
+    &:hover {
+        background: ${props => props.$active ? '#fff' : '#e5e5e5'};
+    }
+`;
+
 const SectionHeader = styled.div`
     padding: 5px;
     padding-left: 10px;
@@ -195,10 +215,17 @@ const SectionHeader = styled.div`
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: space-between;
 
     &:hover {
         background: #e5e5e5;
     }
+`;
+
+const GroupName = styled.span`
+    display: flex;
+    align-items: center;
+    gap: 5px;
 `;
 
 const ContactItem = styled.div`
@@ -210,7 +237,7 @@ const ContactItem = styled.div`
     &:hover {
         background: #ffe48d;
         border: 1px solid #e5c365;
-        padding: 4px 9px; /* adjust for border */
+        padding: 4px 9px;
     }
 `;
 
@@ -267,17 +294,16 @@ const QQ = () => {
     const { progress, markQqLoggedIn } = useUserProgress();
     const { showAlert } = useModal();
 
-    // 如果已经登录过，直接显示登录后的界面
     const [status, setStatus] = useState(progress.qqLoggedIn ? 'logged_in' : 'login');
-
     const [selectedAccount, setSelectedAccount] = useState(null);
     const [showAccountDropdown, setShowAccountDropdown] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const [account, setAccount] = useState('');
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
+    const [activeTab, setActiveTab] = useState('contacts'); // 'contacts' or 'groups'
+    const [collapsedGroups, setCollapsedGroups] = useState({});
 
-    // Unread email count
     const [chenMoCorrespondence, setChenMoCorrespondence] = useState(null);
 
     useEffect(() => {
@@ -314,10 +340,7 @@ const QQ = () => {
     }, [progress, chenMoCorrespondence]);
 
     useEffect(() => {
-        // Initialize from JSON data
         const accounts = qqData.accounts || [];
-
-        // 查找有记住密码的账号
         const rememberedAccount = accounts.find(acc => acc.remember);
 
         if (rememberedAccount) {
@@ -326,14 +349,12 @@ const QQ = () => {
             setPassword(rememberedAccount.password);
             setRemember(true);
         } else if (accounts.length > 0) {
-            // 默认选择第一个账号
             setSelectedAccount(accounts[0]);
             setAccount(accounts[0].account);
         }
     }, []);
 
     const handleLogin = () => {
-        // 验证账号密码
         const accounts = qqData.accounts || [];
         const matchedAccount = accounts.find(
             acc => acc.account === account && acc.password === password
@@ -369,10 +390,16 @@ const QQ = () => {
         setShowMenu(false);
     };
 
-    const { user, friends, groups } = qqData;
+    const toggleGroup = (groupId) => {
+        setCollapsedGroups(prev => ({
+            ...prev,
+            [groupId]: !prev[groupId]
+        }));
+    };
+
+    const { user, friends, groups, friendGroups } = qqData;
 
     const openChat = (target, type) => {
-        // Open a new window for chat
         openWindow(
             `qq-chat-${target.id}`,
             `${target.nickname || target.name}`,
@@ -383,7 +410,6 @@ const QQ = () => {
     };
 
     const openQZone = (userId) => {
-        // Now opens InternetExplorer with QZone URL
         const url = `http://qzone.qq.com/${userId}`;
         openWindow(
             `qzone-${userId}`,
@@ -418,7 +444,6 @@ const QQ = () => {
                     <QQSlogan>我寻找，我发现</QQSlogan>
                 </LoginHeader>
                 <InputGroup>
-                    {/* 账号选择器 */}
                     <AccountSelector>
                         <SelectedAccount onClick={() => setShowAccountDropdown(!showAccountDropdown)}>
                             {selectedAccount ? (
@@ -534,35 +559,67 @@ const QQ = () => {
                 </UserInfo>
             </UserHeader>
 
-            <div style={{flex: 1, overflowY: 'auto'}}>
-                <SectionHeader>我的好友</SectionHeader>
-                {friends.map(friend => (
-                    <ContactItem key={friend.id} onDoubleClick={() => openChat(friend, 'friend')}>
-                        <img
-                            src={friend.avatar}
-                            style={{width:'30px', height:'30px', marginRight:'8px', borderRadius:'2px'}}
-                            onClick={(e) => { e.stopPropagation(); openChat(friend, 'friend'); }}
-                        />
-                        <div style={{flex:1}}>
-                            <div style={{fontSize:'12px'}}>{friend.nickname}</div>
-                        </div>
-                        <StatusDot $status={friend.status} />
-                    </ContactItem>
-                ))}
+            <TabBar>
+                <Tab $active={activeTab === 'contacts'} onClick={() => setActiveTab('contacts')}>
+                    联系人
+                </Tab>
+                <Tab $active={activeTab === 'groups'} onClick={() => setActiveTab('groups')}>
+                    群/讨论组
+                </Tab>
+            </TabBar>
 
-                <SectionHeader>我的群组</SectionHeader>
-                {groups.map(group => (
-                    <ContactItem key={group.id} onDoubleClick={() => openChat(group, 'group')}>
-                        <img
-                            src={group.avatar}
-                            style={{width:'30px', height:'30px', marginRight:'8px', borderRadius:'2px'}}
-                            onClick={(e) => { e.stopPropagation(); openChat(group, 'group'); }}
-                        />
-                        <div style={{flex:1}}>
-                            <div style={{fontSize:'12px'}}>{group.name}</div>
-                        </div>
-                    </ContactItem>
-                ))}
+            <div style={{flex: 1, overflowY: 'auto'}}>
+                {activeTab === 'contacts' && (
+                    <>
+                        {friendGroups.map(group => {
+                            const groupFriends = friends.filter(f => group.friends.includes(f.id));
+                            const onlineCount = groupFriends.filter(f => f.status === 'online').length;
+                            const isCollapsed = collapsedGroups[group.id];
+
+                            return (
+                                <div key={group.id}>
+                                    <SectionHeader onClick={() => toggleGroup(group.id)}>
+                                        <GroupName>
+                                            <span>{isCollapsed ? '▶' : '▼'}</span>
+                                            {group.name} ({onlineCount}/{groupFriends.length})
+                                        </GroupName>
+                                    </SectionHeader>
+                                    {!isCollapsed && groupFriends.map(friend => (
+                                        <ContactItem key={friend.id} onDoubleClick={() => openChat(friend, 'friend')}>
+                                            <img
+                                                src={friend.avatar}
+                                                style={{width:'30px', height:'30px', marginRight:'8px', borderRadius:'2px'}}
+                                                onClick={(e) => { e.stopPropagation(); openChat(friend, 'friend'); }}
+                                            />
+                                            <div style={{flex:1}}>
+                                                <div style={{fontSize:'12px'}}>{friend.nickname}</div>
+                                            </div>
+                                            <StatusDot $status={friend.status} />
+                                        </ContactItem>
+                                    ))}
+                                </div>
+                            );
+                        })}
+                    </>
+                )}
+
+                {activeTab === 'groups' && (
+                    <>
+                        {groups.map(group => (
+                            <ContactItem key={group.id} onDoubleClick={() => openChat(group, 'group')}>
+                                <img
+                                    src={group.avatar}
+                                    style={{width:'30px', height:'30px', marginRight:'8px', borderRadius:'2px'}}
+                                    onClick={(e) => { e.stopPropagation(); openChat(group, 'group'); }}
+                                />
+                                <div style={{flex:1}}>
+                                    <div style={{fontSize:'12px'}}>{group.name}</div>
+                                    <div style={{fontSize:'10px', color:'#999'}}>{group.members?.length || 0}人</div>
+                                </div>
+                            </ContactItem>
+                        ))}
+                    </>
+                )}
             </div>
 
             <div style={{height:'30px', background: 'linear-gradient(to bottom, #dbecf9 0%, #a3d0ef 100%)', borderTop:'1px solid #7f9db9', display:'flex', alignItems:'center', padding:'0 5px', gap: '10px'}}>
