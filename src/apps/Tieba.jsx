@@ -237,10 +237,8 @@ const Tieba = ({ tiebaId, threadId, navigateTo, currentUrl }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const POSTS_PER_PAGE = 10;
 
-    // Map tiebaId to folder name
-    // Mock mapping logic. In a real scenario, this might be dynamic.
-    const tiebaFolder = tiebaId === 'yunshan_no1_middle_school' ? 'yunshan_no1_middle_school' :
-                        tiebaId === 'yunshan_county' ? 'yunshan_county' : null;
+    // Map tiebaId to folder name - directly use tiebaId as folder name
+    const tiebaFolder = tiebaId;
 
     useEffect(() => {
         if (!tiebaFolder) {
