@@ -1,6 +1,7 @@
 import React from 'react';
 import Tieba from './Tieba';
 import QZone from './QZone';
+import QQMail from './QQMail';
 
 export const tiebaPlugin = (url, navigateTo) => {
     if (!url) return null;
@@ -56,10 +57,22 @@ export const qzonePlugin = (url, navigateTo) => {
     return null;
 };
 
+export const qqmailPlugin = (url, navigateTo) => {
+    if (!url) return null;
+
+    // Match http://mail.qq.com
+    if (url.includes('mail.qq.com')) {
+        return <QQMail />;
+    }
+    return null;
+};
+
 export const defaultPlugin = (url, navigateTo) => {
     const t = tiebaPlugin(url, navigateTo);
     if (t) return t;
     const q = qzonePlugin(url, navigateTo);
     if (q) return q;
+    const m = qqmailPlugin(url, navigateTo);
+    if (m) return m;
     return null;
 };

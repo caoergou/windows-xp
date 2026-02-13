@@ -133,14 +133,6 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
 
         if (initialUrl && initialUrl !== 'about:blank') {
              addToHistory(initialUrl);
-        } else if (!initialUrl) {
-            // Default to About.html if no URL provided
-            const aboutFile = getFile(['About.html']);
-            if (aboutFile && aboutFile.content) {
-                const newEntry = { url: 'About.html', html: aboutFile.content };
-                setHistory([newEntry]);
-                setInputUrl('About.html');
-            }
         }
     }, []);
 
@@ -152,6 +144,16 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
     }, [currentEntry]);
 
     const navigateTo = (newUrl, newHtml = null) => {
+        // Block Google access
+        if (newUrl && newUrl.includes('google.com')) {
+            const blockedEntry = { url: newUrl, html: '<div style="padding:40px;text-align:center;font-family:sans-serif;"><h2>无法访问此网站</h2><p>无法连接到 www.google.com</p><p style="color:#666;">ERR_CONNECTION_TIMED_OUT</p></div>' };
+            const newHistory = history.slice(0, currentIndex + 1);
+            newHistory.push(blockedEntry);
+            setHistory(newHistory);
+            setCurrentIndex(newHistory.length - 1);
+            return;
+        }
+
         const newEntry = { url: newUrl, html: newHtml };
 
         // Truncate history if we are in the middle

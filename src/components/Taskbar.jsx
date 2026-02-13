@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserSession } from '../context/UserSessionContext';
@@ -8,7 +8,6 @@ import SystemClock from './SystemClock';
 import Explorer from '../apps/Explorer';
 import InternetExplorer from '../apps/InternetExplorer';
 import QQ from '../apps/QQ';
-import QQMail from '../apps/QQMail';
 import { defaultPlugin } from '../apps/BrowserPlugins';
 
 const TaskbarContainer = styled.div`
@@ -313,60 +312,15 @@ const CancelButton = styled.button`
 
 
 const Taskbar = () => {
-    const { windows, activeWindowId, focusWindow, minimizeWindow, openWindow } = useWindowManager();
+    const { windows, activeWindowId, focusWindow, minimizeWindow, openWindow, closeWindow } = useWindowManager();
     const { logout } = useUserSession();
     const { progress } = useUserProgress();
     const [startOpen, setStartOpen] = useState(false);
     const [showTurnOff, setShowTurnOff] = useState(false);
+    const [qqContextMenu, setQqContextMenu] = useState(null);
     const startMenuRef = useRef(null);
     const startButtonRef = useRef(null);
-
-    // Calculate unread emails
-    const [chenMoCorrespondence, setChenMoCorrespondence] = useState(null);
-
-    useEffect(() => {
-        import('../data/email/chenmo_correspondence.json')
-            .then(module => {
-                setChenMoCorrespondence(module.default);
-            })
-            .catch(e => {
-                console.error('Failed to load Chen Mo correspondence:', e);
-                setChenMoCorrespondence({ correspondence: [] });
-            });
-    }, []);
-
-    const unreadEmailCount = useMemo(() => {
-        if (!chenMoCorrespondence) return 0;
-
-        try {
-            const emails = chenMoCorrespondence.correspondence || [];
-
-            // Check email trigger conditions
-            const checkEmailTrigger = (trigger, progress) => {
-                const triggerMap = {
-                    'game_start': true,
-                    'player_view_qzone': progress.qqLoggedIn,
-                    'player_unlock_album': progress.albumUnlocked,
-                    'player_read_father_diary_layer1': progress.fatherLogLayer1Unlocked,
-                    'player_read_linxiaoyu_diary': progress.encryptedDiaryUnlocked,
-                    'player_read_father_diary_layer2': progress.fatherLogLayer2Unlocked
-                };
-                return triggerMap[trigger] || false;
-            };
-
-            // Filter visible emails that haven't been read
-            const unreadEmails = emails.filter(email => {
-                const isVisible = checkEmailTrigger(email.trigger, progress);
-                const isUnread = !progress.emailRead?.includes(email.id);
-                return isVisible && isUnread;
-            });
-
-            return unreadEmails.length;
-        } catch (e) {
-            console.error('Failed to calculate unread emails:', e);
-            return 0;
-        }
-    }, [progress, chenMoCorrespondence]);
+    const qqContextMenuRef = useRef(null);
 
     const handleLogout = () => {
         localStorage.removeItem('xp_open_windows');
@@ -389,6 +343,49 @@ const Taskbar = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [startOpen]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (qqContextMenu &&
+                qqContextMenuRef.current &&
+                !qqContextMenuRef.current.contains(event.target)) {
+                setQqContextMenu(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [qqContextMenu]);
+
+    const handleQqContextMenu = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setQqContextMenu({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleQqMenuAction = (action) => {
+        setQqContextMenu(null);
+        if (action === 'open') {
+            handleLaunch('QQ');
+        } else if (action === 'space') {
+            const existingQZone = windows.find(w => w.appId?.startsWith('qzone-'));
+            if (existingQZone) {
+                focusWindow(existingQZone.id);
+            } else {
+                openWindow('qzone-1847592036', 'QZone - 1847592036',
+                    <InternetExplorer url="http://qzone.qq.com/1847592036" plugin={defaultPlugin} />,
+                    'ie', { width: 1000, height: 700, isMaximized: true });
+            }
+        } else if (action === 'mail') {
+            handleLaunch('QQMail');
+        } else if (action === 'exit') {
+            // Close all QQ-related windows
+            windows.forEach(w => {
+                if (w.appId === 'QQ' || w.appId?.startsWith('qq-chat-') || w.appId === 'QQMail' || w.appId?.startsWith('qzone-')) {
+                    closeWindow(w.id);
+                }
+            });
+        }
+    };
 
     const toggleStart = () => setStartOpen(!startOpen);
 
@@ -416,7 +413,7 @@ const Taskbar = () => {
              if (existingEmail) {
                  focusWindow(existingEmail.id);
              } else {
-                 openWindow('QQMail', 'QQ邮箱', <QQMail />, 'email', { width: 900, height: 650 });
+                 openWindow('QQMail', 'QQ邮箱', <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />, 'ie', { width: 900, height: 650 });
              }
         } else if (appName === 'Explorer') {
              // For folders
@@ -558,45 +555,48 @@ const Taskbar = () => {
                             }}
                             title="QQ"
                             onClick={(e) => { e.stopPropagation(); handleLaunch('QQ'); }}
+                            onContextMenu={handleQqContextMenu}
                         >
                             <XPIcon name="qq" size={16} color="white" />
                         </div>
                     )}
-                    <div
-                        style={{
-                            marginRight: '10px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            cursor: 'pointer',
-                            position: 'relative'
-                        }}
-                        title={unreadEmailCount > 0 ? `${unreadEmailCount} 封未读邮件` : 'QQ邮箱'}
-                        onClick={(e) => { e.stopPropagation(); handleLaunch('QQMail'); }}
-                    >
-                        <XPIcon name="email" size={16} color="white" />
-                        {unreadEmailCount > 0 && (
-                            <span
-                                style={{
-                                    position: 'absolute',
-                                    top: '-4px',
-                                    right: '-8px',
-                                    background: '#ff0000',
-                                    color: 'white',
-                                    borderRadius: '50%',
-                                    width: '14px',
-                                    height: '14px',
-                                    fontSize: '9px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontWeight: 'bold',
-                                    border: '1px solid white'
-                                }}
-                            >
-                                {unreadEmailCount > 9 ? '9+' : unreadEmailCount}
-                            </span>
-                        )}
-                    </div>
+                    {qqContextMenu && (
+                        <div
+                            ref={qqContextMenuRef}
+                            style={{
+                                position: 'fixed',
+                                left: qqContextMenu.x,
+                                bottom: 32,
+                                background: '#f5f5f5',
+                                border: '1px solid #999',
+                                boxShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+                                zIndex: 2147483647,
+                                minWidth: '120px',
+                                padding: '2px 0',
+                                fontSize: '12px'
+                            }}
+                        >
+                            {[
+                                { label: '打开QQ', action: 'open' },
+                                { label: '打开QQ空间', action: 'space' },
+                                { label: '打开QQ邮箱', action: 'mail' },
+                                { label: null },
+                                { label: '退出QQ', action: 'exit' }
+                            ].map((item, i) => item.label === null ? (
+                                <div key={i} style={{ height: '1px', background: '#ccc', margin: '2px 0' }} />
+                            ) : (
+                                <div
+                                    key={i}
+                                    style={{ padding: '4px 16px', cursor: 'pointer', color: '#000' }}
+                                    onMouseEnter={(e) => { e.target.style.background = '#0078d7'; e.target.style.color = '#fff'; }}
+                                    onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#000'; }}
+                                    onClick={() => handleQqMenuAction(item.action)}
+                                >
+                                    {item.label}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                     <div
                         style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}
                         title="网络已连接"

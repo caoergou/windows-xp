@@ -3,9 +3,7 @@ import Explorer from '../apps/Explorer';
 import InternetExplorer from '../apps/InternetExplorer';
 import QQ from '../apps/QQ';
 import Notepad from '../apps/Notepad';
-import AutoTypingNotepad from '../apps/AutoTypingNotepad';
 import PhotoViewer from '../apps/PhotoViewer';
-import QQMail from '../apps/QQMail';
 import TiebaApp from '../apps/TiebaApp';
 import QZone from '../apps/QZone';
 import DiaryViewer from '../apps/Journal';
@@ -52,10 +50,9 @@ export const restoreComponent = (appId, componentProps = {}) => {
       return <QQ {...componentProps} />;
   }
 
-  // QQ Mail
+  // QQ Mail - restore as IE with mail.qq.com
   if (appId === 'QQMail' || appId === 'Outlook Express' || appId === 'Email') {
-      // Redirect old Email/Outlook Express windows to QQMail
-      return <QQMail {...componentProps} />;
+      return <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />;
   }
 
   // Diary Viewer / Journal

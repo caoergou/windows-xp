@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserProgress } from '../context/UserProgressContext';
 import qqData from '../data/qq/index.json';
 import QQChat from './QQChat';
 import InternetExplorer from './InternetExplorer';
-import QQMail from './QQMail';
 import { defaultPlugin } from './BrowserPlugins';
 
 const Container = styled.div`
@@ -161,6 +160,42 @@ const QQ = () => {
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
 
+    // Unread email count
+    const [chenMoCorrespondence, setChenMoCorrespondence] = useState(null);
+
+    useEffect(() => {
+        import('../data/email/chenmo_correspondence.json')
+            .then(module => {
+                setChenMoCorrespondence(module.default);
+            })
+            .catch(() => {
+                setChenMoCorrespondence({ correspondence: [] });
+            });
+    }, []);
+
+    const unreadEmailCount = useMemo(() => {
+        if (!chenMoCorrespondence) return 0;
+        try {
+            const emails = chenMoCorrespondence.correspondence || [];
+            const checkTrigger = (trigger) => {
+                const triggerMap = {
+                    'game_start': true,
+                    'player_view_qzone': progress.qqLoggedIn,
+                    'player_unlock_album': progress.albumUnlocked,
+                    'player_read_father_diary_layer1': progress.fatherLogLayer1Unlocked,
+                    'player_read_linxiaoyu_diary': progress.encryptedDiaryUnlocked,
+                    'player_read_father_diary_layer2': progress.fatherLogLayer2Unlocked
+                };
+                return triggerMap[trigger] || false;
+            };
+            return emails.filter(email =>
+                checkTrigger(email.trigger) && !progress.emailRead?.includes(email.id)
+            ).length;
+        } catch {
+            return 0;
+        }
+    }, [progress, chenMoCorrespondence]);
+
     useEffect(() => {
         // Initialize from JSON data
         if (qqData.login) {
@@ -201,7 +236,7 @@ const QQ = () => {
             `QZone - ${userId}`,
             <InternetExplorer url={url} plugin={defaultPlugin} />,
             'ie',
-            { width: 1000, height: 700 }
+            { width: 1000, height: 700, isMaximized: true }
         );
     };
 
@@ -214,9 +249,9 @@ const QQ = () => {
             openWindow(
                 'QQMail',
                 'QQ邮箱',
-                <QQMail />,
-                'email',
-                { width: 900, height: 650 }
+                <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />,
+                'ie',
+                { width: 900, height: 650, isMaximized: true }
             );
         }
     };
@@ -270,20 +305,44 @@ const QQ = () => {
                 <UserInfo>
                     <div style={{display:'flex', justifyContent:'space-between'}}>
                         <Nickname>{user.nickname}</Nickname>
-                        <div style={{display: 'flex', gap: '5px'}}>
+                        <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
                             <div
-                                style={{cursor: 'pointer', fontSize: '10px', color: '#0066CC'}}
+                                style={{cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center'}}
                                 onClick={openQQMail}
                                 title="QQ邮箱"
                             >
-                                [邮箱]
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0066CC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,7 12,13 2,7"/>
+                                </svg>
+                                {unreadEmailCount > 0 && (
+                                    <span style={{
+                                        position: 'absolute',
+                                        top: '-6px',
+                                        right: '-10px',
+                                        background: '#ff0000',
+                                        color: 'white',
+                                        borderRadius: '50%',
+                                        width: '14px',
+                                        height: '14px',
+                                        fontSize: '9px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontWeight: 'bold',
+                                        lineHeight: 1
+                                    }}>
+                                        {unreadEmailCount > 9 ? '9+' : unreadEmailCount}
+                                    </span>
+                                )}
                             </div>
                             <div
-                                style={{cursor: 'pointer', fontSize: '10px', color: '#0066CC'}}
+                                style={{cursor: 'pointer', display: 'flex', alignItems: 'center'}}
                                 onClick={handleOpenMyQZone}
                                 title="QQ空间"
                             >
-                                [空间]
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F5A623" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
                             </div>
                             <StatusDot $status={user.status} title={user.status} />
                         </div>
@@ -326,11 +385,31 @@ const QQ = () => {
             <div style={{height:'30px', background: 'linear-gradient(to bottom, #dbecf9 0%, #a3d0ef 100%)', borderTop:'1px solid #7f9db9', display:'flex', alignItems:'center', padding:'0 5px', gap: '10px'}}>
                  <div style={{width:'20px', height:'20px', background:'url(https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tencent_QQ_logo_2016.svg/1024px-Tencent_QQ_logo_2016.svg.png) no-repeat center', backgroundSize:'contain'}}></div>
                  <div
-                     style={{cursor: 'pointer', fontSize:'11px', color:'#0066CC'}}
+                     style={{cursor: 'pointer', fontSize:'11px', color:'#0066CC', position: 'relative'}}
                      onClick={openQQMail}
                      title="打开QQ邮箱"
                  >
-                     📧 邮箱
+                     邮箱
+                     {unreadEmailCount > 0 && (
+                         <span style={{
+                             position: 'absolute',
+                             top: '-6px',
+                             right: '-12px',
+                             background: '#ff0000',
+                             color: 'white',
+                             borderRadius: '50%',
+                             width: '14px',
+                             height: '14px',
+                             fontSize: '9px',
+                             display: 'flex',
+                             alignItems: 'center',
+                             justifyContent: 'center',
+                             fontWeight: 'bold',
+                             lineHeight: 1
+                         }}>
+                             {unreadEmailCount > 9 ? '9+' : unreadEmailCount}
+                         </span>
+                     )}
                  </div>
                  <div style={{marginLeft: 'auto', fontSize:'11px', color:'#333'}}>查找</div>
             </div>

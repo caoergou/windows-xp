@@ -352,12 +352,6 @@
         "app": "QQ",
         "icon": "qq"
       },
-      "QQ Mail": {
-        "type": "app_shortcut",
-        "name": "QQ邮箱",
-        "app": "QQMail",
-        "icon": "email"
-      },
       "Diary Viewer": {
         "type": "app_shortcut",
         "name": "Windows 日记本",
@@ -377,21 +371,6 @@
         "app": "TiebaApp",
         "icon": "ie",
         "content": "http://tieba.com/yunshan_county"
-      },
-      "Google": {
-        "type": "file",
-        "name": "Google",
-        "app": "InternetExplorer",
-        "icon": "html",
-        "content": "https://www.google.com/webhp?igu=1"
-      },
-      "About.html": {
-        "type": "file",
-        "name": "About.html",
-        "app": "InternetExplorer",
-        "icon": "html",
-        "isHtmlContent": true,
-        "contentPath": "filesystem_content/About.html"
       }
     }
   }

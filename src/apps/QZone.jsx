@@ -11,12 +11,13 @@ const Container = styled.div`
   background-color: #F8F8F8;
   font-family: Arial, sans-serif;
   overflow-y: auto;
+  overflow-x: hidden;
   color: #333;
   position: relative;
+  box-sizing: border-box;
 `;
 
 const Header = styled.div`
-  width: 100%;
   background-color: #5F97D3;
   color: white;
   padding: 10px 20px;
@@ -24,6 +25,7 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   border-bottom: 2px solid #2B578F;
+  box-sizing: border-box;
 `;
 
 const Title = styled.h1`
@@ -38,6 +40,7 @@ const Nav = styled.div`
   display: flex;
   gap: 20px;
   font-size: 14px;
+  box-sizing: border-box;
 `;
 
 const NavItem = styled.span`
@@ -53,7 +56,7 @@ const NavItem = styled.span`
 
 const Content = styled.div`
   padding: 20px;
-  max-width: 900px;
+  max-width: 800px;
   margin: 0 auto;
 `;
 
