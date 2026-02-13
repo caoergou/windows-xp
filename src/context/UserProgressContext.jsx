@@ -48,6 +48,10 @@ export const UserProgressProvider = ({ children }) => {
     setProgress(prev => ({ ...prev, qqLoggedIn: true }));
   };
 
+  const resetQqLogin = () => {
+    setProgress(prev => ({ ...prev, qqLoggedIn: false }));
+  };
+
   const markAlbumUnlocked = () => {
     setProgress(prev => ({ ...prev, albumUnlocked: true }));
   };
@@ -175,6 +179,7 @@ export const UserProgressProvider = ({ children }) => {
       progress,
       markStickyNoteRead,
       markQqLoggedIn,
+      resetQqLogin,
       markAlbumUnlocked,
       markFatherLogLayer1Unlocked,
       markEncryptedDiaryUnlocked,

@@ -1,9 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import historyData from '../data/qq/history.json';
-
-// 动态导入群聊数据
-const groupHistoryFiles = import.meta.glob('../data/qq/groups/*.json', { eager: true });
+import { useQQChatHistory } from '../hooks/useQQChatHistory';
+import { renderEmojiHTML } from '../utils/emojiRenderer';
 
 const Container = styled.div`
     width: 100%;
@@ -37,6 +35,18 @@ const Button = styled.button`
     }
 `;
 
+const SearchInput = styled.input`
+    border: 1px solid #7F9DB9;
+    padding: 2px 5px;
+    font-size: 11px;
+    width: 150px;
+    font-family: 'Tahoma', sans-serif;
+
+    &:focus {
+        outline: 1px solid #316ac5;
+    }
+`;
+
 const MessageList = styled.div`
     flex: 1;
     overflow-y: auto;
@@ -47,6 +57,15 @@ const MessageList = styled.div`
 const Message = styled.div`
     margin-bottom: 12px;
     line-height: 1.4;
+    padding: 5px;
+    border-radius: 2px;
+
+    .emoji {
+        font-size: 16px;
+        line-height: 1;
+        display: inline-block;
+        margin: 0 2px;
+    }
 `;
 
 const MessageHeader = styled.div`
@@ -348,6 +367,7 @@ const CalendarPicker = ({ selectedDate, onSelect, availableData, onClose }) => {
 
 const QQHistory = ({ user, target, type }) => {
     const [filterDate, setFilterDate] = useState('');
+    const [searchKeyword, setSearchKeyword] = useState('');
     const [showCalendar, setShowCalendar] = useState(false);
     const calendarRef = useRef(null);
 
@@ -364,39 +384,8 @@ const QQHistory = ({ user, target, type }) => {
         };
     }, []);
 
-    const allMessages = useMemo(() => {
-        const recentMessages = (target.chatHistory || []).map(m => ({
-            ...m,
-            date: '2023-10-27',
-            fullTimestamp: `2023-10-27T${m.timestamp}`
-        }));
-
-        // 加载历史记录
-        let archived = [];
-
-        // 如果是群聊，尝试从群聊数据文件加载
-        if (type === 'group' && target.id === 'mountain_office') {
-            // 合并所有群聊数据文件
-            Object.values(groupHistoryFiles).forEach(module => {
-                const data = module.default || module;
-                if (Array.isArray(data)) {
-                    archived = [...archived, ...data];
-                }
-            });
-        } else {
-            // 从 history.json 加载
-            archived = historyData[target.id] || [];
-        }
-
-        const normalizedArchived = archived.map(m => ({
-            ...m,
-            fullTimestamp: m.fullTimestamp || `${m.date}T${m.timestamp}`
-        }));
-
-        return [...recentMessages, ...normalizedArchived].sort((a, b) => {
-            return a.fullTimestamp.localeCompare(b.fullTimestamp);
-        });
-    }, [target.chatHistory, target.id, type]);
+    // 使用统一的历史记录加载 hook
+    const allMessages = useQQChatHistory(target, type);
 
     const availableData = useMemo(() => {
         const years = new Set();
@@ -417,9 +406,24 @@ const QQHistory = ({ user, target, type }) => {
     }, [allMessages]);
 
     const displayMessages = useMemo(() => {
-        if (!filterDate) return allMessages;
-        return allMessages.filter(m => m.date === filterDate);
-    }, [allMessages, filterDate]);
+        let filtered = allMessages;
+
+        // 按日期过滤
+        if (filterDate) {
+            filtered = filtered.filter(m => m.date === filterDate);
+        }
+
+        // 按关键词搜索
+        if (searchKeyword.trim()) {
+            const keyword = searchKeyword.toLowerCase();
+            filtered = filtered.filter(m =>
+                m.content.toLowerCase().includes(keyword) ||
+                (m.senderId && m.senderId.toLowerCase().includes(keyword))
+            );
+        }
+
+        return filtered;
+    }, [allMessages, filterDate, searchKeyword]);
 
     const getSenderName = (id) => {
         if (id === user.id) return user.nickname;
@@ -433,7 +437,14 @@ const QQHistory = ({ user, target, type }) => {
     return (
         <Container>
             <Toolbar ref={calendarRef}>
-                <span>日期:</span>
+                <span>搜索:</span>
+                <SearchInput
+                    type="text"
+                    placeholder="输入关键词..."
+                    value={searchKeyword}
+                    onChange={(e) => setSearchKeyword(e.target.value)}
+                />
+                <span style={{marginLeft: '10px'}}>日期:</span>
                 <div style={{position: 'relative', display: 'inline-block'}}>
                     <div
                         onClick={() => setShowCalendar(!showCalendar)}
@@ -461,7 +472,7 @@ const QQHistory = ({ user, target, type }) => {
                     )}
                 </div>
 
-                <Button onClick={() => setFilterDate('')}>显示全部</Button>
+                <Button onClick={() => { setFilterDate(''); setSearchKeyword(''); }}>显示全部</Button>
             </Toolbar>
             <MessageList>
                 {displayMessages.length === 0 ? (
@@ -469,6 +480,10 @@ const QQHistory = ({ user, target, type }) => {
                 ) : (
                     displayMessages.map((msg, i) => {
                         const showDateHeader = i === 0 || msg.date !== displayMessages[i-1].date;
+
+                        // 渲染表情
+                        const content = renderEmojiHTML(msg.content);
+
                         return (
                             <div key={i}>
                                 {showDateHeader && !filterDate && (
@@ -478,7 +493,7 @@ const QQHistory = ({ user, target, type }) => {
                                     <MessageHeader $isMe={msg.senderId === user.id}>
                                         {getSenderName(msg.senderId)} {msg.timestamp}
                                     </MessageHeader>
-                                    <Text>{msg.content}</Text>
+                                    <Text dangerouslySetInnerHTML={{ __html: content }} />
                                 </Message>
                             </div>
                         );

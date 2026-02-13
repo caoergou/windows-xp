@@ -323,7 +323,7 @@ const CancelButton = styled.button`
 const Taskbar = () => {
     const { windows, activeWindowId, focusWindow, minimizeWindow, openWindow, closeWindow } = useWindowManager();
     const { logout } = useUserSession();
-    const { progress } = useUserProgress();
+    const { progress, resetQqLogin } = useUserProgress();
     const { showModal } = useModal();
     const [startOpen, setStartOpen] = useState(false);
     const [showTurnOff, setShowTurnOff] = useState(false);
@@ -394,6 +394,8 @@ const Taskbar = () => {
                     closeWindow(w.id);
                 }
             });
+            // Reset QQ login status
+            resetQqLogin();
         }
     };
 

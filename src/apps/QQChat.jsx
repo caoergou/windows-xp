@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
+import { useModal } from '../context/ModalContext';
+import { useQQChatHistory } from '../hooks/useQQChatHistory';
+import { renderEmojiHTML } from '../utils/emojiRenderer';
 import QQHistory from './QQHistory';
 import InternetExplorer from './InternetExplorer';
 import { defaultPlugin } from './BrowserPlugins';
-
-// 动态导入群聊数据
-const groupHistoryFiles = import.meta.glob('../data/qq/groups/*.json', { eager: true });
 
 const Container = styled.div`
     width: 100%;
@@ -94,6 +94,8 @@ const ChatInput = styled.textarea`
 const ChatMessage = styled.div`
     margin-bottom: 10px;
     font-size: 12px;
+    padding: 5px;
+    border-radius: 2px;
 
     .header {
         color: #008000;
@@ -105,6 +107,13 @@ const ChatMessage = styled.div`
     }
     .content {
         padding-left: 5px;
+    }
+
+    .emoji {
+        font-size: 16px;
+        line-height: 1;
+        display: inline-block;
+        margin: 0 2px;
     }
 `;
 
@@ -127,36 +136,11 @@ const HistoryButton = styled.button`
 
 const QQChat = ({ user, target, type }) => {
     const { openWindow } = useWindowManager();
-
-    // 状态管理新发送的消息
-    const [newMessages, setNewMessages] = useState([]);
+    const { showAlert } = useModal();
     const [inputValue, setInputValue] = useState('');
 
-    // 加载聊天记录，包括历史记录文件和新发送的消息
-    const history = useMemo(() => {
-        // 首先获取 target.chatHistory 中的记录
-        const recentMessages = target.chatHistory || [];
-
-        // 如果是群聊，加载对应的历史记录文件
-        let archivedMessages = [];
-        if (type === 'group' && target.id === 'mountain_office') {
-            Object.values(groupHistoryFiles).forEach(module => {
-                const data = module.default || module;
-                if (Array.isArray(data)) {
-                    archivedMessages.push(...data);
-                }
-            });
-        }
-
-        // 合并所有消息并按时间排序
-        const allMessages = [...recentMessages, ...archivedMessages, ...newMessages];
-        return allMessages.sort((a, b) => {
-            // 尝试解析时间戳进行排序
-            const timeA = a.timestamp || '00:00';
-            const timeB = b.timestamp || '00:00';
-            return timeA.localeCompare(timeB);
-        });
-    }, [target.chatHistory, target.id, type, newMessages]);
+    // 使用统一的历史记录加载 hook
+    const history = useQQChatHistory(target, type);
 
     const openHistory = () => {
         openWindow(
@@ -180,20 +164,8 @@ const QQChat = ({ user, target, type }) => {
     };
 
     const handleSend = () => {
-        if (!inputValue.trim()) return;
-
-        const newMsg = {
-            senderId: user.id,
-            content: inputValue,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        };
-
-        setNewMessages([...newMessages, newMsg]);
-        setInputValue('');
-
-        // Update the target object as well so history persists if window is closed (in memory)
-        if (!target.chatHistory) target.chatHistory = [];
-        target.chatHistory.push(newMsg);
+        // 这是历史记录存档,不允许发送新消息
+        showAlert('无法发送消息', '这是2015-2016年的聊天记录存档，无法发送新消息。');
     };
 
     return (
@@ -213,19 +185,24 @@ const QQChat = ({ user, target, type }) => {
                 )}
             </Toolbar>
             <ChatBody>
-                {history.map((msg, idx) => (
-                    <ChatMessage key={idx}>
-                        <div className={`header ${msg.senderId === user.id ? 'me' : ''}`}>
-                            {msg.senderId === user.id ? user.nickname : (
-                                type === 'group'
-                                    ? target.members?.find(m => m.id === msg.senderId)?.nickname || msg.senderId
-                                    : target.nickname
-                            )} &nbsp;
-                            {msg.timestamp}
-                        </div>
-                        <div className="content">{msg.content}</div>
-                    </ChatMessage>
-                ))}
+                {history.map((msg, idx) => {
+                    // 渲染表情
+                    const content = renderEmojiHTML(msg.content);
+
+                    return (
+                        <ChatMessage key={idx}>
+                            <div className={`header ${msg.senderId === user.id ? 'me' : ''}`}>
+                                {msg.senderId === user.id ? user.nickname : (
+                                    type === 'group'
+                                        ? target.members?.find(m => m.id === msg.senderId)?.nickname || msg.senderId
+                                        : target.nickname
+                                )} &nbsp;
+                                {msg.timestamp}
+                            </div>
+                            <div className="content" dangerouslySetInnerHTML={{ __html: content }} />
+                        </ChatMessage>
+                    );
+                })}
             </ChatBody>
             <ChatFooter>
                  <div style={{height: '24px', background:'#eee', marginBottom:'2px', display: 'flex', alignItems: 'center'}}>

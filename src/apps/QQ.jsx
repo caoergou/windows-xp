@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserProgress } from '../context/UserProgressContext';
+import { useModal } from '../context/ModalContext';
 import qqData from '../data/qq/index.json';
 import QQChat from './QQChat';
 import InternetExplorer from './InternetExplorer';
@@ -20,11 +21,85 @@ const Container = styled.div`
 
 const LoginHeader = styled.div`
     width: 100%;
-    height: 100px;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+`;
+
+const QQLogo = styled.div`
+    width: 80px;
+    height: 80px;
     background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tencent_QQ_logo_2016.svg/1024px-Tencent_QQ_logo_2016.svg.png') no-repeat center;
     background-size: contain;
-    margin-top: 30px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+`;
+
+const QQSlogan = styled.div`
+    font-size: 14px;
+    color: #0066CC;
+    font-weight: bold;
+    text-align: center;
+`;
+
+const AccountSelector = styled.div`
+    width: 200px;
+    margin-bottom: 10px;
+    border: 1px solid #7F9DB9;
+    border-radius: 2px;
+    background: white;
+    cursor: pointer;
+    position: relative;
+`;
+
+const SelectedAccount = styled.div`
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    gap: 8px;
+
+    &:hover {
+        background: #f0f0f0;
+    }
+`;
+
+const AccountAvatar = styled.img`
+    width: 30px;
+    height: 30px;
+    border-radius: 2px;
+`;
+
+const AccountInfo = styled.div`
+    flex: 1;
+    font-size: 12px;
+`;
+
+const AccountDropdown = styled.div`
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #7F9DB9;
+    border-top: none;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+`;
+
+const AccountOption = styled.div`
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    gap: 8px;
+    cursor: pointer;
+
+    &:hover {
+        background: #e1f0ff;
+    }
 `;
 
 const InputGroup = styled.div`
@@ -149,13 +224,55 @@ const StatusDot = styled.div`
     box-shadow: 0 0 1px rgba(0,0,0,0.5);
 `;
 
+const MenuButton = styled.div`
+    cursor: pointer;
+    font-size: 11px;
+    color: #333;
+    position: relative;
+    padding: 2px 5px;
+
+    &:hover {
+        background: rgba(0,0,0,0.05);
+    }
+`;
+
+const MenuDropdown = styled.div`
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #7F9DB9;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    min-width: 100px;
+    z-index: 100;
+`;
+
+const MenuItem = styled.div`
+    padding: 8px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #e0e0e0;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background: #e1f0ff;
+    }
+`;
+
 const QQ = () => {
-    const { openWindow, windows, focusWindow } = useWindowManager();
+    const { openWindow } = useWindowManager();
     const { progress, markQqLoggedIn } = useUserProgress();
+    const { showAlert } = useModal();
 
     // 如果已经登录过，直接显示登录后的界面
     const [status, setStatus] = useState(progress.qqLoggedIn ? 'logged_in' : 'login');
 
+    const [selectedAccount, setSelectedAccount] = useState(null);
+    const [showAccountDropdown, setShowAccountDropdown] = useState(false);
+    const [showMenu, setShowMenu] = useState(false);
     const [account, setAccount] = useState('');
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
@@ -198,21 +315,58 @@ const QQ = () => {
 
     useEffect(() => {
         // Initialize from JSON data
-        if (qqData.login) {
-            if (qqData.login.remember) {
-                setAccount(qqData.login.account);
-                setPassword(qqData.login.password);
-                setRemember(true);
-            }
+        const accounts = qqData.accounts || [];
+
+        // 查找有记住密码的账号
+        const rememberedAccount = accounts.find(acc => acc.remember);
+
+        if (rememberedAccount) {
+            setSelectedAccount(rememberedAccount);
+            setAccount(rememberedAccount.account);
+            setPassword(rememberedAccount.password);
+            setRemember(true);
+        } else if (accounts.length > 0) {
+            // 默认选择第一个账号
+            setSelectedAccount(accounts[0]);
+            setAccount(accounts[0].account);
         }
     }, []);
 
     const handleLogin = () => {
-        setStatus('logging_in');
-        setTimeout(() => {
-            setStatus('logged_in');
-            markQqLoggedIn();
-        }, 1000);
+        // 验证账号密码
+        const accounts = qqData.accounts || [];
+        const matchedAccount = accounts.find(
+            acc => acc.account === account && acc.password === password
+        );
+
+        if (matchedAccount) {
+            setStatus('logging_in');
+            setTimeout(() => {
+                setStatus('logged_in');
+                markQqLoggedIn();
+            }, 1000);
+        } else {
+            showAlert('登录失败', '账号或密码错误，请重试。');
+        }
+    };
+
+    const handleAccountSelect = (acc) => {
+        setSelectedAccount(acc);
+        setAccount(acc.account);
+        if (acc.remember) {
+            setPassword(acc.password);
+            setRemember(true);
+        } else {
+            setPassword('');
+            setRemember(false);
+        }
+        setShowAccountDropdown(false);
+    };
+
+    const handleLogout = () => {
+        setStatus('login');
+        setPassword('');
+        setShowMenu(false);
     };
 
     const { user, friends, groups } = qqData;
@@ -255,21 +409,56 @@ const QQ = () => {
     };
 
     if (status === 'login') {
+        const accounts = qqData.accounts || [];
+
         return (
             <Container>
-                <LoginHeader />
+                <LoginHeader>
+                    <QQLogo />
+                    <QQSlogan>我寻找，我发现</QQSlogan>
+                </LoginHeader>
                 <InputGroup>
-                    <Input
-                        type="text"
-                        placeholder="QQ号码/手机/邮箱"
-                        value={account}
-                        onChange={(e) => setAccount(e.target.value)}
-                    />
+                    {/* 账号选择器 */}
+                    <AccountSelector>
+                        <SelectedAccount onClick={() => setShowAccountDropdown(!showAccountDropdown)}>
+                            {selectedAccount ? (
+                                <>
+                                    <AccountAvatar src={selectedAccount.avatar} />
+                                    <AccountInfo>
+                                        <div style={{fontWeight: 'bold'}}>{selectedAccount.nickname}</div>
+                                        <div style={{fontSize: '10px', color: '#666'}}>{selectedAccount.account}</div>
+                                    </AccountInfo>
+                                    <span style={{fontSize: '10px'}}>▼</span>
+                                </>
+                            ) : (
+                                <div style={{padding: '5px'}}>选择账号...</div>
+                            )}
+                        </SelectedAccount>
+                        {showAccountDropdown && (
+                            <AccountDropdown>
+                                {accounts.map(acc => (
+                                    <AccountOption key={acc.id} onClick={() => handleAccountSelect(acc)}>
+                                        <AccountAvatar src={acc.avatar} />
+                                        <AccountInfo>
+                                            <div style={{fontWeight: 'bold'}}>{acc.nickname}</div>
+                                            <div style={{fontSize: '10px', color: '#666'}}>{acc.account}</div>
+                                        </AccountInfo>
+                                    </AccountOption>
+                                ))}
+                            </AccountDropdown>
+                        )}
+                    </AccountSelector>
+
                     <Input
                         type="password"
                         placeholder="密码"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                handleLogin();
+                            }
+                        }}
                     />
                     <div style={{display:'flex', fontSize:'12px', alignItems:'center'}}>
                         <input
@@ -406,6 +595,14 @@ const QQ = () => {
                      )}
                  </div>
                  <div style={{marginLeft: 'auto', fontSize:'11px', color:'#333'}}>查找</div>
+                 <MenuButton onClick={() => setShowMenu(!showMenu)}>
+                     菜单 ▼
+                     {showMenu && (
+                         <MenuDropdown>
+                             <MenuItem onClick={handleLogout}>退出登录</MenuItem>
+                         </MenuDropdown>
+                     )}
+                 </MenuButton>
             </div>
         </Container>
     );

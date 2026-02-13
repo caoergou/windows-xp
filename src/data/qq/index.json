@@ -1,4 +1,22 @@
 {
+  "accounts": [
+    {
+      "id": "1847592036",
+      "nickname": "夏灯",
+      "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=Xiadeng",
+      "account": "1847592036",
+      "password": "password123",
+      "remember": true
+    },
+    {
+      "id": "2156789034",
+      "nickname": "夏建国",
+      "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=XiaJianguo",
+      "account": "2156789034",
+      "password": "xjg1975",
+      "remember": false
+    }
+  ],
   "login": {
     "account": "1847592036",
     "password": "password123",
