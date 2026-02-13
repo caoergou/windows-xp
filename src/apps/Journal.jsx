@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useModal } from '../context/ModalContext';
+import { useFileSystem } from '../context/FileSystemContext';
 
 const Container = styled.div`
     width: 100%;
@@ -232,7 +233,8 @@ const UnlockButton = styled.button`
     }
 `;
 
-const DiaryViewer = ({ fileSystem }) => {
+const DiaryViewer = () => {
+    const { fs: fileSystem } = useFileSystem();
     const [logs, setLogs] = useState([]);
     const [selectedLog, setSelectedLog] = useState(null);
     const [unlockedLogs, setUnlockedLogs] = useState(new Set());

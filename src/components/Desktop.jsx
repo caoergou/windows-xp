@@ -11,7 +11,6 @@ import InternetExplorer from '../apps/InternetExplorer';
 import Notepad from '../apps/Notepad';
 import PhotoViewer from '../apps/PhotoViewer';
 import QQ from '../apps/QQ';
-import QQMail from '../apps/QQMail';
 import TiebaApp from '../apps/TiebaApp';
 import QZone from '../apps/QZone';
 import DiaryViewer from '../apps/Journal';
@@ -93,12 +92,10 @@ const Desktop = () => {
                  } else {
                      openWindow(key, item.name, <QQ />, item.icon, { width: 280, height: 600, resizable: false });
                  }
-             } else if (item.app === 'QQMail') {
-                 openWindow(key, item.name, <QQMail />, item.icon, { width: 900, height: 650 });
              } else if (item.app === 'Journal') {
-                 openWindow(key, item.name, <DiaryViewer fileSystem={fs} />, item.icon, { width: 900, height: 650 });
+                 openWindow(key, item.name, <DiaryViewer />, item.icon, { width: 900, height: 650 });
              } else if (item.app === 'TiebaApp') {
-                 openWindow(key, item.name, <TiebaApp initialUrl={item.content} />, item.icon);
+                 openWindow(key, item.name, <TiebaApp initialUrl={item.content} />, item.icon, { isMaximized: true });
              }
         } else if (item.type === 'file') {
              if (item.app === 'Notepad') {
