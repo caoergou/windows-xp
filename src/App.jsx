@@ -5,6 +5,7 @@ import { ModalProvider } from './context/ModalContext';
 import LoginScreen from './components/LoginScreen';
 import Desktop from './components/Desktop';
 import BootScreen from './components/BootScreen';
+import LandingPage from './components/LandingPage';
 
 const Container = styled.div`
   width: 100%;
@@ -13,7 +14,7 @@ const Container = styled.div`
 
 function App() {
   const { isLoggedIn } = useUserSession();
-  const [bootPhase, setBootPhase] = useState('CHECKING'); // CHECKING, BOOTING, RUNNING
+  const [bootPhase, setBootPhase] = useState('LANDING'); // LANDING, CHECKING, BOOTING, RUNNING
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -63,20 +64,8 @@ function App() {
 
     showEasterEgg();
 
-    // Check boot status
-    const checkBoot = () => {
-        const firstBootDone = localStorage.getItem('xp_first_boot_done');
-        const powerState = localStorage.getItem('xp_power_state');
-
-        if (!firstBootDone) {
-            setBootPhase('BOOTING');
-        } else if (powerState === 'shutdown' || powerState === 'restart') {
-            setBootPhase('BOOTING');
-        } else {
-            setBootPhase('RUNNING');
-        }
-    };
-    checkBoot();
+    // Always start at LANDING phase - the landing page handles its own state
+    setBootPhase('LANDING');
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
@@ -84,13 +73,28 @@ function App() {
     };
   }, []);
 
+  const handleLandingEnter = () => {
+    const firstBootDone = localStorage.getItem('xp_first_boot_done');
+    const powerState = localStorage.getItem('xp_power_state');
+
+    if (!firstBootDone) {
+      setBootPhase('BOOTING');
+    } else if (powerState === 'shutdown' || powerState === 'restart') {
+      setBootPhase('BOOTING');
+    } else {
+      setBootPhase('RUNNING');
+    }
+  };
+
   const handleBootComplete = () => {
       localStorage.setItem('xp_first_boot_done', 'true');
       localStorage.setItem('xp_power_state', 'running');
       setBootPhase('RUNNING');
   };
 
-  if (bootPhase === 'CHECKING') return null; // Or a black screen
+  if (bootPhase === 'LANDING') {
+    return <LandingPage onEnter={handleLandingEnter} />;
+  }
 
   return (
     <ModalProvider>
