@@ -1,23 +1,44 @@
 [
   {
     "id": 1,
-    "username": "篮球火",
-    "avatar": "https://img.icons8.com/color/48/basketball.png",
-    "time": "2008-05-13 12:30",
-    "content": "下午放学篮球场约起，缺个中锋！"
+    "username": "匿名用户",
+    "avatar": "",
+    "time": "2015-11-20 22:00",
+    "content": "听说最近学校有很多高考移民的学生？是真的吗？"
   },
   {
     "id": 2,
-    "username": "三分王",
+    "username": "知情人士",
     "avatar": "",
-    "time": "2008-05-13 12:35",
-    "content": "来了来了，占个场子先。"
+    "time": "2015-11-20 22:15",
+    "content": "好像是真的。我们班就转来了几个外省学生，听说是花钱进来的。"
   },
   {
     "id": 3,
-    "username": "教导主任",
+    "username": "高三狗一枚",
+    "avatar": "https://img.icons8.com/color/48/student-male.png",
+    "time": "2015-11-20 22:30",
+    "content": "这对我们本地学生太不公平了！本来高考竞争就激烈，还要和外省的学生竞争。"
+  },
+  {
+    "id": 4,
+    "username": "陈默",
+    "avatar": "https://img.icons8.com/color/48/user-male.png",
+    "time": "2015-11-21 08:00",
+    "content": "这种事情学校不管吗？"
+  },
+  {
+    "id": 5,
+    "username": "老师来了",
     "avatar": "",
-    "time": "2008-05-13 13:00",
-    "content": "高三的都给我回教室自习！"
+    "time": "2015-11-21 09:00",
+    "content": "不要传播谣言，影响学校声誉！"
+  },
+  {
+    "id": 6,
+    "username": "匿名用户",
+    "avatar": "",
+    "time": "2015-11-21 10:00",
+    "content": "这不是谣言！我亲眼看到校长和那些学生家长吃饭。"
   }
 ]
