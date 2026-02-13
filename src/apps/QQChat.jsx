@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import QQHistory from './QQHistory';
 import InternetExplorer from './InternetExplorer';
 import { defaultPlugin } from './BrowserPlugins';
+
+// 动态导入群聊数据
+const groupHistoryFiles = import.meta.glob('../data/qq/groups/*.json', { eager: true });
 
 const Container = styled.div`
     width: 100%;
@@ -124,10 +127,36 @@ const HistoryButton = styled.button`
 
 const QQChat = ({ user, target, type }) => {
     const { openWindow } = useWindowManager();
-    // Use local state for history so new messages appear immediately in this window
-    // In a real app, this would probably sync with a global store.
-    const [history, setHistory] = useState(target.chatHistory || []);
+
+    // 状态管理新发送的消息
+    const [newMessages, setNewMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
+
+    // 加载聊天记录，包括历史记录文件和新发送的消息
+    const history = useMemo(() => {
+        // 首先获取 target.chatHistory 中的记录
+        const recentMessages = target.chatHistory || [];
+
+        // 如果是群聊，加载对应的历史记录文件
+        let archivedMessages = [];
+        if (type === 'group' && target.id === 'mountain_office') {
+            Object.values(groupHistoryFiles).forEach(module => {
+                const data = module.default || module;
+                if (Array.isArray(data)) {
+                    archivedMessages.push(...data);
+                }
+            });
+        }
+
+        // 合并所有消息并按时间排序
+        const allMessages = [...recentMessages, ...archivedMessages, ...newMessages];
+        return allMessages.sort((a, b) => {
+            // 尝试解析时间戳进行排序
+            const timeA = a.timestamp || '00:00';
+            const timeB = b.timestamp || '00:00';
+            return timeA.localeCompare(timeB);
+        });
+    }, [target.chatHistory, target.id, type, newMessages]);
 
     const openHistory = () => {
         openWindow(
@@ -159,7 +188,7 @@ const QQChat = ({ user, target, type }) => {
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
 
-        setHistory([...history, newMsg]);
+        setNewMessages([...newMessages, newMsg]);
         setInputValue('');
 
         // Update the target object as well so history persists if window is closed (in memory)
