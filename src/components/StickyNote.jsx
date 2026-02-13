@@ -6,7 +6,7 @@ import Explorer from '../apps/Explorer';
 
 const NoteContainer = styled.div`
   position: absolute;
-  bottom: 50px;
+  top: 80px;
   right: 20px;
   width: 220px;
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);

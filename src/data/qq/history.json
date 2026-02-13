@@ -1,12 +1,6 @@
 {
-  "1031678254": [
-    { "senderId": "1031678254", "content": "Ancient history.", "timestamp": "09:05", "date": "2023-10-25" },
-    { "senderId": "1847592036", "content": "Old message.", "timestamp": "09:00", "date": "2023-10-25" },
-    { "senderId": "1031678254", "content": "Mock history from yesterday...", "timestamp": "14:20", "date": "2023-10-26" },
-    { "senderId": "1847592036", "content": "Oh I see.", "timestamp": "14:22", "date": "2023-10-26" }
-  ],
-  "738429156": [
-      { "senderId": "1031678254", "content": "Start of group chat.", "timestamp": "10:00", "date": "2023-10-25" },
-      { "senderId": "1562340897", "content": "Welcome everyone!", "timestamp": "10:05", "date": "2023-10-25" }
-  ]
+  "2156789034": [],
+  "3156789045": [],
+  "2934567812": [],
+  "2847593021": []
 }

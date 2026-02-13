@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>hao123网址之家 - 我的上网主页</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", SimSun, sans-serif;
+      font-size: 12px;
+      background: #f5f5f5;
+    }
+
+    /* 顶部广告横幅 */
+    .top-banner {
+      background: linear-gradient(to bottom, #ff6b6b, #ee5a6f);
+      color: white;
+      text-align: center;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      animation: banner-pulse 2s infinite;
+    }
+
+    @keyframes banner-pulse {
+      0%, 100% { background: linear-gradient(to bottom, #ff6b6b, #ee5a6f); }
+      50% { background: linear-gradient(to bottom, #ff8787, #ff6b6b); }
+    }
+
+    .top-banner::before {
+      content: '🔥';
+      margin-right: 8px;
+      animation: fire 1s infinite;
+    }
+
+    @keyframes fire {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    .top-banner .blink {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0.5; }
+    }
+
+    /* 头部 */
+    .header {
+      background: white;
+      padding: 15px 20px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .logo {
+      font-size: 32px;
+      font-weight: bold;
+      color: #2196F3;
+      display: inline-block;
+      margin-right: 30px;
+    }
+
+    .search-box {
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .search-box input {
+      width: 400px;
+      height: 32px;
+      padding: 0 10px;
+      border: 2px solid #2196F3;
+      font-size: 14px;
+    }
+
+    .search-box button {
+      height: 32px;
+      padding: 0 25px;
+      background: #2196F3;
+      color: white;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* 主容器 */
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 10px;
+    }
+
+    /* 侧边广告 */
+    .sidebar-ad {
+      position: fixed;
+      right: 10px;
+      top: 150px;
+      width: 200px;
+      background: white;
+      border: 3px solid #ff6b6b;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      animation: shake 3s infinite;
+      z-index: 1000;
+    }
+
+    @keyframes shake {
+      0%, 90%, 100% { transform: translateX(0); }
+      91%, 93%, 95%, 97%, 99% { transform: translateX(-5px); }
+      92%, 94%, 96%, 98% { transform: translateX(5px); }
+    }
+
+    .sidebar-ad img {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-ad .ad-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ff0000;
+      margin-bottom: 5px;
+      animation: color-change 1s infinite;
+    }
+
+    @keyframes color-change {
+      0%, 100% { color: #ff0000; }
+      50% { color: #ff6b00; }
+    }
+
+    .sidebar-ad .ad-text {
+      font-size: 12px;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    /* 导航分类 */
+    .nav-section {
+      background: white;
+      margin-bottom: 15px;
+      padding: 15px;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .nav-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #2196F3;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .nav-links a {
+      display: inline-block;
+      padding: 5px 12px;
+      background: #f0f0f0;
+      color: #333;
+      text-decoration: none;
+      border-radius: 3px;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover {
+      background: #2196F3;
+      color: white;
+    }
+
+    .nav-links a.hot {
+      background: #ff6b6b;
+      color: white;
+      position: relative;
+    }
+
+    .nav-links a.hot::after {
+      content: 'HOT';
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ff0000;
+      color: white;
+      font-size: 9px;
+      padding: 2px 4px;
+      border-radius: 2px;
+    }
+
+    /* 中间大广告 */
+    .mid-ad {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      margin: 20px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mid-ad::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .mid-ad h2 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mid-ad p {
+      font-size: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 底部小广告 */
+    .bottom-ads {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .small-ad {
+      background: white;
+      padding: 15px;
+      text-align: center;
+      border: 2px solid #e0e0e0;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .small-ad:hover {
+      border-color: #2196F3;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .small-ad .ad-icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .small-ad .ad-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .small-ad .ad-desc {
+      font-size: 12px;
+      color: #666;
+    }
+
+    /* 页脚 */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #999;
+      font-size: 12px;
+      background: white;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部广告横幅 -->
+  <div class="top-banner">
+    <span class="blink">⚔️ 是兄弟就来砍我！</span> 贪玩蓝月 - 装备回收 一刀999级 点击即玩！<span class="blink">⚔️</span>
+  </div>
+
+  <!-- 头部 -->
+  <div class="header">
+    <div class="logo">hao123</div>
+    <div class="search-box">
+      <input type="text" placeholder="请输入搜索内容">
+      <button>百度一下</button>
+    </div>
+  </div>
+
+  <!-- 侧边广告 -->
+  <div class="sidebar-ad">
+    <div style="background: linear-gradient(135deg, #ff6b6b, #ffd93d); padding: 10px; margin: -10px -10px 10px -10px;">
+      <div style="font-size: 24px; font-weight: bold; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+        💰 急用钱？
+      </div>
+    </div>
+    <div class="ad-title">无抵押贷款</div>
+    <div class="ad-text">
+      ✓ 3分钟到账<br>
+      ✓ 无需担保<br>
+      ✓ 当天放款<br>
+      <div style="background: #ff0000; color: white; padding: 8px; margin-top: 8px; font-weight: bold; font-size: 14px;">
+        最高可贷50万
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- 常用网站 -->
+    <div class="nav-section">
+      <div class="nav-title">🌟 常用网站</div>
+      <div class="nav-links">
+        <a href="#" class="hot">百度</a>
+        <a href="#">淘宝</a>
+        <a href="#">腾讯QQ</a>
+        <a href="#">新浪</a>
+        <a href="#">网易</a>
+        <a href="#">搜狐</a>
+        <a href="#">优酷</a>
+        <a href="#">爱奇艺</a>
+        <a href="#">京东</a>
+        <a href="#">天猫</a>
+        <a href="#">12306</a>
+        <a href="#">58同城</a>
+      </div>
+    </div>
+
+    <!-- 中间大广告 -->
+    <div class="mid-ad">
+      <h2>🎮 传奇霸业 - 古天乐代言</h2>
+      <p>一刀满级！装备全爆！兄弟们，冲啊！</p>
+    </div>
+
+    <!-- 新闻门户 -->
+    <div class="nav-section">
+      <div class="nav-title">📰 新闻门户</div>
+      <div class="nav-links">
+        <a href="#">新浪新闻</a>
+        <a href="#">腾讯新闻</a>
+        <a href="#">网易新闻</a>
+        <a href="#">搜狐新闻</a>
+        <a href="#">凤凰网</a>
+        <a href="#">人民网</a>
+        <a href="#">新华网</a>
+        <a href="#">央视网</a>
+      </div>
+    </div>
+
+    <!-- 视频音乐 -->
+    <div class="nav-section">
+      <div class="nav-title">🎬 视频音乐</div>
+      <div class="nav-links">
+        <a href="#">优酷</a>
+        <a href="#">爱奇艺</a>
+        <a href="#">腾讯视频</a>
+        <a href="#">搜狐视频</a>
+        <a href="#">乐视</a>
+        <a href="#">土豆</a>
+        <a href="#">酷狗音乐</a>
+        <a href="#">QQ音乐</a>
+        <a href="#">网易云音乐</a>
+      </div>
+    </div>
+
+    <!-- 底部小广告 -->
+    <div class="bottom-ads">
+      <div class="small-ad">
+        <div class="ad-icon">📱</div>
+        <div class="ad-title">iPhone 6s Plus</div>
+        <div class="ad-desc">全网最低价！仅需998元！</div>
+      </div>
+      <div class="small-ad">
+        <div class="ad-icon">🎓</div>
+        <div class="ad-title">学历提升</div>
+        <div class="ad-desc">正规学历 国家承认 快速拿证</div>
+      </div>
+      <div class="small-ad">
+        <div class="ad-icon">💊</div>
+        <div class="ad-title">男性保健</div>
+        <div class="ad-desc">重振雄风 效果显著 货到付款</div>
+      </div>
+    </div>
+
+    <!-- 购物网站 -->
+    <div class="nav-section">
+      <div class="nav-title">🛒 购物网站</div>
+      <div class="nav-links">
+        <a href="#" class="hot">淘宝</a>
+        <a href="#">天猫</a>
+        <a href="#">京东</a>
+        <a href="#">苏宁易购</a>
+        <a href="#">国美在线</a>
+        <a href="#">当当网</a>
+        <a href="#">亚马逊中国</a>
+        <a href="#">唯品会</a>
+        <a href="#">聚美优品</a>
+      </div>
+    </div>
+
+    <!-- 社交网络 -->
+    <div class="nav-section">
+      <div class="nav-title">💬 社交网络</div>
+      <div class="nav-links">
+        <a href="#">QQ空间</a>
+        <a href="#">新浪微博</a>
+        <a href="#">人人网</a>
+        <a href="#">开心网</a>
+        <a href="#">豆瓣</a>
+        <a href="#">知乎</a>
+        <a href="#">贴吧</a>
+        <a href="#">天涯</a>
+      </div>
+    </div>
+
+    <!-- 游戏娱乐 -->
+    <div class="nav-section">
+      <div class="nav-title">🎮 游戏娱乐</div>
+      <div class="nav-links">
+        <a href="#" class="hot">4399小游戏</a>
+        <a href="#">7k7k</a>
+        <a href="#">17173</a>
+        <a href="#">多玩游戏</a>
+        <a href="#">游民星空</a>
+        <a href="#">3DM</a>
+        <a href="#">斗鱼</a>
+        <a href="#">虎牙直播</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <div class="footer">
+    <p>hao123网址之家 - 您的上网主页</p>
+    <p>Copyright © 2015 hao123.com All Rights Reserved</p>
+  </div>
+</body>
+</html>

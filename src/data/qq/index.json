@@ -29,12 +29,29 @@
     "status": "online",
     "signature": "天天好心情"
   },
+  "friendGroups": [
+    {
+      "id": "close_friends",
+      "name": "好友",
+      "friends": ["1031678254", "1562340897"]
+    },
+    {
+      "id": "family",
+      "name": "家人",
+      "friends": ["2156789034"]
+    },
+    {
+      "id": "classmates",
+      "name": "同学",
+      "friends": ["3156789045", "2934567812", "2847593021"]
+    }
+  ],
   "friends": [
     {
       "id": "1031678254",
       "nickname": "林晓宇",
       "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=LinXiaoyu",
-      "status": "online",
+      "status": "offline",
       "chatHistory": [
         { "senderId": "1031678254", "content": "你好，夏灯！", "timestamp": "10:00" },
         { "senderId": "1847592036", "content": "你好，晓宇！", "timestamp": "10:01" }
@@ -44,11 +61,39 @@
       "id": "1562340897",
       "nickname": "陈默",
       "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=ChenMo",
-      "status": "offline",
+      "status": "online",
       "chatHistory": [
         { "senderId": "1847592036", "content": "上次的文件你收到了吗？", "timestamp": "09:30" },
         { "senderId": "1562340897", "content": "收到了，谢谢。", "timestamp": "09:35" }
       ]
+    },
+    {
+      "id": "2156789034",
+      "nickname": "夏建国",
+      "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=XiaJianguo",
+      "status": "offline",
+      "chatHistory": []
+    },
+    {
+      "id": "3156789045",
+      "nickname": "李娜",
+      "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=LiNa",
+      "status": "online",
+      "chatHistory": []
+    },
+    {
+      "id": "2934567812",
+      "nickname": "王芳",
+      "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=WangFang",
+      "status": "online",
+      "chatHistory": []
+    },
+    {
+      "id": "2847593021",
+      "nickname": "张明",
+      "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=ZhangMing",
+      "status": "online",
+      "chatHistory": []
     }
   ],
   "groups": [
@@ -77,6 +122,30 @@
         { "senderId": "1031678254", "content": "大家晚上好！", "timestamp": "20:00" },
         { "senderId": "1562340897", "content": "晚上好。", "timestamp": "20:05" }
       ]
+    },
+    {
+      "id": "university_class_2016",
+      "name": "2016级计算机科学1班",
+      "avatar": "https://api.dicebear.com/9.x/identicon/svg?seed=UniClass2016",
+      "description": "2016级计算机科学1班",
+      "members": [
+          { "id": "1847592036", "nickname": "夏灯", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=Xiadeng" },
+          { "id": "2847593021", "nickname": "张明", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=ZhangMing" },
+          { "id": "3156789045", "nickname": "李娜", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=LiNa" }
+      ],
+      "chatHistory": []
+    },
+    {
+      "id": "university_dorm_403",
+      "name": "403宿舍",
+      "avatar": "https://api.dicebear.com/9.x/identicon/svg?seed=Dorm403",
+      "description": "403宿舍的姐妹们",
+      "members": [
+          { "id": "1847592036", "nickname": "夏灯", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=Xiadeng" },
+          { "id": "3156789045", "nickname": "李娜", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=LiNa" },
+          { "id": "2934567812", "nickname": "王芳", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=WangFang" }
+      ],
+      "chatHistory": []
     }
   ]
 }

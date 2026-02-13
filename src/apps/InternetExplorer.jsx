@@ -94,10 +94,10 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
 
     // History is an array of objects: { url: string, html: string|null }
     const [history, setHistory] = useState([
-        { url: initialUrl || 'about:blank', html: initialHtml || null }
+        { url: initialUrl || '/src/data/web/hao123.html', html: initialHtml || null }
     ]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [inputUrl, setInputUrl] = useState(initialUrl || '');
+    const [inputUrl, setInputUrl] = useState(initialUrl || '/src/data/web/hao123.html');
     const [showHistory, setShowHistory] = useState(false);
     const [browsingHistory, setBrowsingHistory] = useState([]);
 

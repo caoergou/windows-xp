@@ -132,6 +132,20 @@ const ADS = [
         button: '一键加速',
         primary: true,
     },
+    {
+        title: '360安全卫士 - 开机提醒',
+        icon: '⚡',
+        message: '开机时间：2.3秒，击败全国98%的电脑！\n您的电脑运行状态良好。',
+        button: '我知道了',
+        primary: false,
+    },
+    {
+        title: '360安全卫士',
+        icon: '🔍',
+        message: '检测到您的浏览器主页可能被篡改！\n是否恢复为360导航？',
+        button: '立即恢复',
+        primary: true,
+    },
 ];
 
 const AdwarePopups = () => {
@@ -145,22 +159,15 @@ const AdwarePopups = () => {
         const hasLoggedInBefore = localStorage.getItem('xp_has_logged_in');
         if (!hasLoggedInBefore) return;
 
-        const delay1 = 5000 + Math.random() * 3000; // 5-8s
-        const delay2 = 15000 + Math.random() * 5000; // 15-20s
-
-        const timer1 = setTimeout(() => {
-            setVisibleAds(prev => [...prev, 0]);
-        }, delay1);
-
-        const timer2 = setTimeout(() => {
-            setVisibleAds(prev => [...prev, 1]);
-        }, delay2);
+        // Show boot notification after login
+        const timerBoot = setTimeout(() => {
+            setVisibleAds([2]); // Boot notification only
+        }, 2000);
 
         sessionStorage.setItem('xp_adware_shown', 'true');
 
         return () => {
-            clearTimeout(timer1);
-            clearTimeout(timer2);
+            clearTimeout(timerBoot);
         };
     }, []);
 
