@@ -87,7 +87,7 @@ const Desktop = () => {
              openWindow(key, item.name, <Explorer initialPath={[key]} />, item.icon || 'folder', { width: 800, height: 550 });
         } else if (item.type === 'app_shortcut') {
              if (item.app === 'InternetExplorer') {
-                 openWindow(key, item.name, <InternetExplorer plugin={defaultPlugin} />, item.icon, { isMaximized: true });
+                 openWindow(key, item.name, <InternetExplorer url="http://www.hao123.com" plugin={defaultPlugin} />, item.icon, { isMaximized: true });
              } else if (item.app === 'QQ') {
                  const existingQQ = windows.find(w => w.appId === key);
                  if (existingQQ) {

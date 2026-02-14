@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import IEToolbar from '../components/Explorer/IEToolbar';
 import IEAddressBar from '../components/Explorer/IEAddressBar';
 import { useWindowManager } from '../context/WindowManagerContext';
-import { useFileSystem } from '../context/FileSystemContext';
+
 
 const Container = styled.div`
     width: 100%;
@@ -90,14 +90,13 @@ const Content = styled.div`
 
 const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
     const { openWindow } = useWindowManager();
-    const { getFile } = useFileSystem();
 
     // History is an array of objects: { url: string, html: string|null }
     const [history, setHistory] = useState([
-        { url: initialUrl || '/src/data/web/hao123.html', html: initialHtml || null }
+        { url: initialUrl || 'http://www.hao123.com', html: initialHtml || null }
     ]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [inputUrl, setInputUrl] = useState(initialUrl || '/src/data/web/hao123.html');
+    const [inputUrl, setInputUrl] = useState(initialUrl || 'http://www.hao123.com');
     const [showHistory, setShowHistory] = useState(false);
     const [browsingHistory, setBrowsingHistory] = useState([]);
 
@@ -193,12 +192,7 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
     };
 
     const handleHome = () => {
-        const aboutFile = getFile(['About.html']);
-        if (aboutFile && aboutFile.content) {
-            navigateTo('About.html', aboutFile.content);
-        } else {
-            navigateTo('About.html');
-        }
+        navigateTo('http://www.hao123.com');
     };
 
 

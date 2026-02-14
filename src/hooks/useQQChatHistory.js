@@ -42,6 +42,8 @@ export const useQQChatHistory = (target, type, userId) => {
                     const data = module.default || module;
                     if (Array.isArray(data)) {
                         archivedMessages = [...archivedMessages, ...data];
+                    } else if (data && Array.isArray(data.messages)) {
+                        archivedMessages = [...archivedMessages, ...data.messages];
                     }
                 }
             });

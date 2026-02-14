@@ -412,7 +412,7 @@ const Taskbar = () => {
     const handleLaunch = (appName, pathOrKey) => {
         setStartOpen(false);
         if (appName === 'Internet Explorer') {
-             openWindow('Internet Explorer', 'Internet Explorer', <InternetExplorer url="/src/data/web/hao123.html" plugin={defaultPlugin} />, 'ie', { isMaximized: true });
+             openWindow('Internet Explorer', 'Internet Explorer', <InternetExplorer url="http://www.hao123.com" plugin={defaultPlugin} />, 'ie', { isMaximized: true });
         } else if (appName === 'QQ') {
              const existingQQ = windows.find(w => w.appId === 'QQ');
              if (existingQQ) {

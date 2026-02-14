@@ -52,20 +52,14 @@
       "nickname": "林晓宇",
       "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=LinXiaoyu",
       "status": "offline",
-      "chatHistory": [
-        { "senderId": "1031678254", "content": "你好，夏灯！", "timestamp": "10:00" },
-        { "senderId": "1847592036", "content": "你好，晓宇！", "timestamp": "10:01" }
-      ]
+      "chatHistory": []
     },
     {
       "id": "1562340897",
       "nickname": "陈默",
       "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=ChenMo",
       "status": "online",
-      "chatHistory": [
-        { "senderId": "1847592036", "content": "上次的文件你收到了吗？", "timestamp": "09:30" },
-        { "senderId": "1562340897", "content": "收到了，谢谢。", "timestamp": "09:35" }
-      ]
+      "chatHistory": []
     },
     {
       "id": "2156789034",
@@ -108,20 +102,6 @@
           { "id": "1562340897", "nickname": "陈默", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=ChenMo" }
       ],
       "chatHistory": []
-    },
-    {
-      "id": "738429156",
-      "name": "技术交流群",
-      "avatar": "https://api.dicebear.com/9.x/identicon/svg?seed=TechGroup",
-      "members": [
-          { "id": "1847592036", "nickname": "夏灯", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=Xiadeng" },
-          { "id": "1031678254", "nickname": "林晓宇", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=LinXiaoyu" },
-          { "id": "1562340897", "nickname": "陈默", "avatar": "https://api.dicebear.com/9.x/avataaars/svg?seed=ChenMo" }
-      ],
-      "chatHistory": [
-        { "senderId": "1031678254", "content": "大家晚上好！", "timestamp": "20:00" },
-        { "senderId": "1562340897", "content": "晚上好。", "timestamp": "20:05" }
-      ]
     },
     {
       "id": "university_class_2016",

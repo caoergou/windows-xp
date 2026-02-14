@@ -67,6 +67,21 @@ export const qqmailPlugin = (url, navigateTo) => {
     return null;
 };
 
+export const hao123Plugin = (url, navigateTo) => {
+    if (!url) return null;
+
+    if (url.includes('hao123.com')) {
+        return (
+            <iframe
+                src="/src/data/web/hao123.html"
+                title="hao123"
+                style={{ width: '100%', height: '100%', border: 'none' }}
+            />
+        );
+    }
+    return null;
+};
+
 export const defaultPlugin = (url, navigateTo) => {
     const t = tiebaPlugin(url, navigateTo);
     if (t) return t;
@@ -74,5 +89,7 @@ export const defaultPlugin = (url, navigateTo) => {
     if (q) return q;
     const m = qqmailPlugin(url, navigateTo);
     if (m) return m;
+    const h = hao123Plugin(url, navigateTo);
+    if (h) return h;
     return null;
 };
