@@ -338,9 +338,6 @@ const QQChat = ({ user, target, type }) => {
                      <InputToolButton onClick={() => handleDisabledFeature('字体')}>
                          A
                      </InputToolButton>
-                     <InputToolButton onClick={() => handleDisabledFeature('图片')}>
-                         🖼️
-                     </InputToolButton>
                      <InputToolButton onClick={() => handleDisabledFeature('截图')}>
                          ✂️
                      </InputToolButton>
