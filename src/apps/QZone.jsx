@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import { useUserProgress } from '../context/UserProgressContext';
 import { getPuzzleIdFromAlbum, getPuzzleIdFromBlog, isAuxiliaryPuzzle } from '../utils/puzzleMapping';
 import puzzleHints from '../data/puzzle_hints.json';
+import qzoneUserMap from '../data/qzone/userMap.json';
 
-const PLACEHOLDER_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23e0e0e0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='16' fill='%23666'%3EImage Not Found%3C/text%3E%3C/svg%3E";
+const blogContentModules = import.meta.glob('../data/qzone/**/blogs/*.txt', { query: '?raw' });
 
 /* ========== QQ空间 2014-2015 风格 ========== */
 
@@ -81,19 +82,15 @@ const THEMES = {
 };
 
 // 用户名 -> QQ号 的反向映射（用于点击跳转）
-const NAME_TO_QQ = {
-  '夏灯': '1847592036',
-  '林晓宇': '1031678254',
-  '陈默': '1562340897',
-};
+const NAME_TO_QQ = Object.fromEntries(
+  Object.entries(qzoneUserMap).map(([qqId, dir]) => {
+    const nameMap = { xiadeng: '夏灯', linxiaoyu: '林晓宇', chenmo: '陈默' };
+    return [nameMap[dir], qqId];
+  })
+);
 
 const getTheme = (userId) => {
-  const userMap = {
-    "1847592036": "xiadeng",
-    "1031678254": "linxiaoyu",
-    "1562340897": "chenmo",
-  };
-  return THEMES[userMap[userId]] || THEMES.default;
+  return THEMES[qzoneUserMap[userId]] || THEMES.default;
 };
 
 const Container = styled.div`
@@ -879,7 +876,7 @@ const QZonePasswordDialog = styled.div`
 
 /* ========== 组件逻辑 ========== */
 
-const QZone = ({ userId = "1002", navigateTo }) => {
+const QZone = ({ userId, navigateTo }) => {
   const [activeTab, setActiveTab] = useState('home');
   const [userInfo, setUserInfo] = useState(null);
   const [shuoshuos, setShuoshuos] = useState([]);
@@ -915,26 +912,6 @@ const QZone = ({ userId = "1002", navigateTo }) => {
   };
 
   useEffect(() => {
-    const loadLegacyAlbums = async (userDir) => {
-      let albumsData = [];
-      if (userDir === "1001") {
-        const lifeMeta = (await import('../data/qzone/1001/pictures/life/index.json')).default;
-        const lifePic1 = (await import('../data/qzone/1001/pictures/life/pic1.jpg')).default;
-        const secretMeta = (await import('../data/qzone/1001/pictures/secret/index.json')).default;
-        const secretPic = (await import('../data/qzone/1001/pictures/secret/secret.jpg')).default;
-        albumsData = [
-          { ...lifeMeta, id: 'life', coverImg: lifePic1, images: [lifePic1] },
-          { ...secretMeta, id: 'secret', coverImg: secretPic, images: [secretPic] }
-        ];
-      } else if (userDir === "1002") {
-        const travelMeta = (await import('../data/qzone/1002/pictures/travel/index.json')).default;
-        albumsData = [
-          { ...travelMeta, id: 'travel', coverImg: PLACEHOLDER_IMAGE, images: [] }
-        ];
-      }
-      return albumsData;
-    };
-
     const loadUserData = async () => {
       try {
         setLoading(true);
@@ -945,15 +922,7 @@ const QZone = ({ userId = "1002", navigateTo }) => {
         setCurrentPage(1);
         setShuoshuoPage(1);
 
-        const userMap = {
-          "1847592036": "xiadeng",
-          "1031678254": "linxiaoyu",
-          "1562340897": "chenmo",
-          "1001": "1001",
-          "1002": "1002"
-        };
-
-        const userDir = userMap[userId];
+        const userDir = qzoneUserMap[userId];
         if (!userDir) {
           setNotOpened(true);
           return;
@@ -965,7 +934,16 @@ const QZone = ({ userId = "1002", navigateTo }) => {
           import(`../data/qzone/${userDir}/blog.json`)
         ]);
 
-        let processedBlogs = blogData.default;
+        let processedBlogs = await Promise.all(blogData.default.map(async (blog) => {
+          if (blog.contentPath) {
+            const key = `../data/qzone/${userDir}/blogs/${blog.contentPath}`;
+            if (blogContentModules[key]) {
+              const mod = await blogContentModules[key]();
+              return { ...blog, content: typeof mod === 'string' ? mod : mod.default };
+            }
+          }
+          return blog;
+        }));
         if (userDir === "linxiaoyu") {
           try {
             const encryptedDiary = await import(`../data/qzone/${userDir}/encrypted_diary.json`);
@@ -986,17 +964,12 @@ const QZone = ({ userId = "1002", navigateTo }) => {
         setShuoshuos(shuoshuoData.default);
         setBlogs(processedBlogs);
 
-        if (userDir === "1001" || userDir === "1002") {
-          const albumsData = await loadLegacyAlbums(userDir);
-          setAlbums(albumsData);
-        } else {
-          try {
-            const albumsData = await import(`../data/qzone/${userDir}/albums.json`);
-            setAlbums(albumsData.default);
-          } catch (e) {
-            console.log(`No albums for ${userDir}`);
-            setAlbums([]);
-          }
+        try {
+          const albumsData = await import(`../data/qzone/${userDir}/albums.json`);
+          setAlbums(albumsData.default);
+        } catch (e) {
+          console.log(`No albums for ${userDir}`);
+          setAlbums([]);
         }
       } catch (err) {
         console.error("QZone Data Load Error:", err);
