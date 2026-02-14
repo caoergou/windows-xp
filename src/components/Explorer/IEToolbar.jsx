@@ -91,7 +91,6 @@ const IEToolbar = ({
     onSearch,
     onFavorites,
     onHistory,
-    onMail,
     onPrint,
     canBack,
     canForward,
@@ -144,9 +143,6 @@ const IEToolbar = ({
 
                 <Separator />
 
-                <ToolButton onClick={onMail}>
-                    <XPIcon name="email" size={20} color="#000" />
-                </ToolButton>
                 <ToolButton onClick={onPrint}>
                     <XPIcon name="print" size={20} color="#000" />
                 </ToolButton>

@@ -201,9 +201,6 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
         }
     };
 
-    const handleMail = () => {
-         openWindow('QQMail', 'QQ邮箱', <QQMail />, 'email', { width: 900, height: 650 });
-    };
 
     // Handle messages from iframe (for HTML content navigation)
     useEffect(() => {
@@ -272,7 +269,6 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
                 onSearch={() => {}}
                 onFavorites={() => {}}
                 onHistory={() => setShowHistory(!showHistory)}
-                onMail={handleMail}
                 onPrint={() => window.print()}
                 canBack={currentIndex > 0}
                 canForward={currentIndex < history.length - 1}

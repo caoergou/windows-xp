@@ -401,12 +401,6 @@
         "icon": "tieba",
         "content": "http://tieba.com/yunshan_county"
       },
-      "Outlook Express": {
-        "type": "app_shortcut",
-        "name": "Outlook Express",
-        "app": "QQMail",
-        "icon": "email"
-      },
       "360 Safe": {
         "type": "app_shortcut",
         "name": "360安全卫士",
