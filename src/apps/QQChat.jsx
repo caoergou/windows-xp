@@ -200,6 +200,31 @@ const HistoryButton = styled.button`
     cursor: pointer;
 `;
 
+const DateSeparator = styled.div`
+    text-align: center;
+    margin: 12px 0 8px 0;
+    color: #888;
+    font-size: 11px;
+    position: relative;
+
+    &:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        border-top: 1px solid #ddd;
+        z-index: 0;
+    }
+
+    span {
+        background: white;
+        padding: 0 10px;
+        position: relative;
+        z-index: 1;
+    }
+`;
+
 const QQChat = ({ user, target, type }) => {
     const { openWindow } = useWindowManager();
     const { showAlert } = useModal();
@@ -208,7 +233,7 @@ const QQChat = ({ user, target, type }) => {
     const isFirstLoad = useRef(true);
 
     // 使用统一的历史记录加载 hook（支持分页）
-    const { messages, loadMore, hasMore, isLoading } = useQQChatHistory(target, type);
+    const { messages, loadMore, hasMore, isLoading } = useQQChatHistory(target, type, user?.id);
 
     // 首次加载时滚动到底部
     useEffect(() => {
@@ -233,6 +258,13 @@ const QQChat = ({ user, target, type }) => {
                 }
             }, 50);
         }
+    };
+
+    // 格式化日期显示（用于日期分隔线）
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '';
+        const [year, month, day] = dateStr.split('-');
+        return `${year}年${month}月${day}日`;
     };
 
     // 格式化日期时间显示
@@ -314,19 +346,27 @@ const QQChat = ({ user, target, type }) => {
                 {messages.map((msg, idx) => {
                     // 渲染表情
                     const content = renderEmojiHTML(msg.content);
+                    const showDateSeparator = idx === 0 || msg.date !== messages[idx - 1].date;
 
                     return (
-                        <ChatMessage key={idx}>
-                            <div className={`header ${msg.senderId === user.id ? 'me' : ''}`}>
-                                {msg.senderId === user.id ? user.nickname : (
-                                    type === 'group'
-                                        ? target.members?.find(m => m.id === msg.senderId)?.nickname || msg.senderId
-                                        : target.nickname
-                                )} &nbsp;
-                                {formatDateTime(msg)}
-                            </div>
-                            <div className="content" dangerouslySetInnerHTML={{ __html: content }} />
-                        </ChatMessage>
+                        <React.Fragment key={idx}>
+                            {showDateSeparator && (
+                                <DateSeparator>
+                                    <span>{formatDate(msg.date)}</span>
+                                </DateSeparator>
+                            )}
+                            <ChatMessage>
+                                <div className={`header ${msg.senderId === user.id ? 'me' : ''}`}>
+                                    {msg.senderId === user.id ? user.nickname : (
+                                        type === 'group'
+                                            ? target.members?.find(m => m.id === msg.senderId)?.nickname || msg.senderId
+                                            : target.nickname
+                                    )} &nbsp;
+                                    {formatDateTime(msg)}
+                                </div>
+                                <div className="content" dangerouslySetInnerHTML={{ __html: content }} />
+                            </ChatMessage>
+                        </React.Fragment>
                     );
                 })}
             </ChatBody>

@@ -4,15 +4,19 @@ import historyData from '../data/qq/history.json';
 // 动态导入群聊数据
 const groupHistoryFiles = import.meta.glob('../data/qq/groups/*.json', { eager: true });
 
-const PAGE_SIZE = 20; // 每页加载20条消息
+// 动态导入好友私聊数据
+const chatHistoryFiles = import.meta.glob('../data/qq/chats/*.json', { eager: true });
+
+const PAGE_SIZE = 50; // 每页加载50条消息
 
 /**
  * 统一的 QQ 聊天记录加载 hook（支持分页）
  * @param {Object} target - 聊天对象 (好友或群组)
  * @param {string} type - 类型 ('friend' 或 'group')
+ * @param {string} [userId] - 当前登录用户ID（好友聊天时用于精确匹配私聊文件）
  * @returns {Object} { messages, loadMore, hasMore, isLoading }
  */
-export const useQQChatHistory = (target, type) => {
+export const useQQChatHistory = (target, type, userId) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -43,7 +47,20 @@ export const useQQChatHistory = (target, type) => {
             });
         } else {
             // 好友：从 history.json 加载
-            archivedMessages = historyData[target.id] || [];
+            archivedMessages = [...(historyData[target.id] || [])];
+
+            // 同时从 chats/ 目录的独立文件中加载
+            // 精确匹配：participants 必须同时包含当前用户ID和目标好友ID
+            Object.entries(chatHistoryFiles).forEach(([, module]) => {
+                const data = module.default || module;
+                if (data.participants && Array.isArray(data.messages)) {
+                    const hasTarget = data.participants.includes(target.id);
+                    const hasUser = !userId || data.participants.includes(userId);
+                    if (hasTarget && hasUser) {
+                        archivedMessages = [...archivedMessages, ...data.messages];
+                    }
+                }
+            });
         }
 
         // 3. 标准化存档消息的时间戳格式
@@ -57,7 +74,7 @@ export const useQQChatHistory = (target, type) => {
         return allMessages.sort((a, b) => {
             return b.fullTimestamp.localeCompare(a.fullTimestamp);
         });
-    }, [target.chatHistory, target.id, type]);
+    }, [target.chatHistory, target.id, type, userId]);
 
     // 当前显示的消息（分页后）
     const displayedMessages = useMemo(() => {

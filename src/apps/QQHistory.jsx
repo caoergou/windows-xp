@@ -35,6 +35,7 @@ const Select = styled.select`
     font-family: 'Tahoma', sans-serif;
     background: white;
     cursor: pointer;
+    min-width: 80px;
 
     &:focus {
         outline: 1px solid #316ac5;
@@ -45,7 +46,8 @@ const SearchInput = styled.input`
     border: 1px solid #7F9DB9;
     padding: 3px 5px;
     font-size: 11px;
-    width: 150px;
+    width: 120px;
+    min-width: 80px;
     font-family: 'Tahoma', sans-serif;
 
     &:focus {
@@ -164,7 +166,7 @@ const QQHistory = ({ user, target, type }) => {
     const [searchKeyword, setSearchKeyword] = useState('');
 
     // 使用统一的历史记录加载 hook
-    const { messages: allMessages } = useQQChatHistory(target, type);
+    const { messages: allMessages } = useQQChatHistory(target, type, user?.id);
 
     // 提取可用的年份、月份、日期
     const { availableYears, availableMonths, availableDays } = useMemo(() => {
@@ -246,6 +248,12 @@ const QQHistory = ({ user, target, type }) => {
 
         const [year, month, day] = date.split('-');
         return `${year}年${month}月${day}日 ${time}`;
+    };
+
+    const formatDateLabel = (dateStr) => {
+        if (!dateStr) return '';
+        const [year, month, day] = dateStr.split('-');
+        return `${year}年${month}月${day}日`;
     };
 
     const handleReset = () => {
@@ -332,7 +340,7 @@ const QQHistory = ({ user, target, type }) => {
                             <div key={i}>
                                 {showDateHeader && (
                                     <DateHeader>
-                                        <span>{msg.date}</span>
+                                        <span>{formatDateLabel(msg.date)}</span>
                                     </DateHeader>
                                 )}
                                 <Message>
