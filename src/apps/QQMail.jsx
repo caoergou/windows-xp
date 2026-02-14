@@ -1,10 +1,12 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { useUserProgress } from '../context/UserProgressContext';
 import { EmailNotification } from '../components/EmailNotification';
 import { EmailSendingAnimation, EmailReceivedAnimation } from '../components/EmailSendingAnimation';
 import { playSendSound, playReceiveSound, playNotificationSound } from '../utils/emailSoundManager';
 import { loadTextContent } from '../utils/contentLoader';
+import ContextMenu from '../components/ContextMenu';
 
 // QQ Mail Colors
 const QQ_BLUE = '#12B7F5';
@@ -123,11 +125,12 @@ const ContentArea = styled.div`
 `;
 
 const EmailList = styled.div`
-  flex: 1;
+  flex: ${props => props.$hasPreview ? '0 0 45%' : '1'};
   background-color: white;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  border-bottom: ${props => props.$hasPreview ? '1px solid #E0E0E0' : 'none'};
 `;
 
 const EmailListHeader = styled.div`
@@ -146,6 +149,7 @@ const EmailListHeader = styled.div`
   }
 
   .checkbox { width: 30px; }
+  .star { width: 30px; cursor: pointer; }
   .from { width: 20%; }
   .subject { flex: 1; }
   .date { width: 150px; text-align: right; }
@@ -171,6 +175,13 @@ const EmailRow = styled.div`
   }
 
   .checkbox { width: 30px; }
+  .star {
+    width: 30px;
+    cursor: pointer;
+    color: ${props => props.$starred ? '#FF9800' : '#CCC'};
+    font-size: 14px;
+    &:hover { color: #FF9800; }
+  }
   .from {
     width: 20%;
     font-weight: ${props => props.$unread ? 'bold' : 'normal'};
@@ -187,76 +198,84 @@ const EmailRow = styled.div`
   }
 `;
 
-const PreviewPane = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80%;
-  max-width: 800px;
-  height: 80%;
-  background-color: white;
-  border: 1px solid #E0E0E0;
-  border-radius: 5px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  overflow: hidden;
+const ThreadBadge = styled.span`
+  display: inline-block;
+  background: #E0E0E0;
+  color: #666;
+  padding: 1px 5px;
+  border-radius: 8px;
+  font-size: 10px;
+  margin-left: 6px;
+  font-weight: normal;
+`;
+
+const ThreadChildRow = styled(EmailRow)`
+  background-color: ${props => props.$selected ? '#FFF8E1' : '#F5F9FF'};
+  padding-left: 35px;
+  border-left: 3px solid ${QQ_BLUE};
+
+  &:hover {
+    background-color: ${props => props.$selected ? '#FFF8E1' : '#EBF3FE'};
+  }
+`;
+
+const InlinePreview = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
-  z-index: 1000;
+  overflow: hidden;
+  background-color: white;
 `;
 
-const PreviewOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.5);
-  z-index: 999;
-`;
-
-const PreviewHeader = styled.div`
+const InlinePreviewHeader = styled.div`
   background-color: #FAFAFA;
-  padding: 15px 20px;
+  padding: 12px 16px;
   border-bottom: 1px solid #E0E0E0;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  flex-shrink: 0;
 
   .close-btn {
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 16px;
     cursor: pointer;
     color: #999;
-    padding: 0;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 2px 6px;
 
     &:hover {
       color: #333;
+      background-color: #E0E0E0;
+      border-radius: 3px;
     }
   }
 `;
 
-const PreviewInfo = styled.div`
+const InlinePreviewInfo = styled.div`
   flex: 1;
 
   .subject {
     font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 10px;
+    font-size: 14px;
+    margin-bottom: 6px;
     color: #333;
   }
 
   .meta {
-    font-size: 12px;
+    font-size: 11px;
     color: #666;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
   }
+`;
+
+const EmptyPreview = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #BBB;
+  font-size: 13px;
 `;
 
 const PreviewContent = styled.div`
@@ -266,6 +285,8 @@ const PreviewContent = styled.div`
   overflow-y: auto;
   padding: 20px;
   line-height: 1.6;
+  user-select: text;
+  cursor: text;
 `;
 
 const SendButton = styled.button`
@@ -295,6 +316,27 @@ const SendButton = styled.button`
   }
 `;
 
+const DraftFooter = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-top: 1px solid #E0E0E0;
+  background-color: #FAFAFA;
+`;
+
+const DraftTextArea = styled.textarea`
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  line-height: 1.6;
+  border: none;
+  resize: none;
+  font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
+  font-size: 12px;
+  outline: none;
+`;
+
 // 检查邮件触发条件
 const checkEmailTrigger = (trigger, progress) => {
   const triggerMap = {
@@ -310,7 +352,7 @@ const checkEmailTrigger = (trigger, progress) => {
 };
 
 const QQMail = () => {
-  const { progress, markEmailSent, markEmailRead, recordEmailTrigger, addInvestigationNote, hasShownNote } = useUserProgress();
+  const { progress, markEmailSent, markEmailRead, markEmailUnread, toggleEmailStar, recordEmailTrigger, addInvestigationNote, hasShownNote } = useUserProgress();
   const [pendingResponse, setPendingResponse] = useState(null);
   const [notification, setNotification] = useState(null);
   const [isSending, setIsSending] = useState(false);
@@ -319,6 +361,9 @@ const QQMail = () => {
   const [receivedFromName, setReceivedFromName] = useState('');
   const [loadingContent, setLoadingContent] = useState(false);
   const [contentCache, setContentCache] = useState(new Map());
+  const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, menuItems: [] });
+  const previewContentRef = useRef(null);
+  const [draftContent, setDraftContent] = useState('');
 
   // Load email investigation mapping
   const [emailInvestigationMapping, setEmailInvestigationMapping] = useState([]);
@@ -469,31 +514,127 @@ const QQMail = () => {
     'inbox': '收件箱',
     'sent': '已发送',
     'spam': '垃圾邮件',
-    'drafts': '草稿箱'
+    'drafts': '草稿箱',
+    'starred': '已标星'
   };
 
   const folderIcons = {
     'inbox': '📥',
     'sent': '📤',
     'spam': '🗑️',
-    'drafts': '📝'
+    'drafts': '📝',
+    'starred': '★'
   };
 
-  const folders = Object.keys(allData);
+  // Build starred virtual folder
+  const allDataWithStarred = useMemo(() => {
+    const starred = progress.emailStarred || [];
+    if (starred.length === 0) return allData;
+    const starredEmails = [];
+    Object.values(allData).forEach(emails => {
+      emails.forEach(email => {
+        if (email.id && starred.includes(email.id)) {
+          starredEmails.push(email);
+        }
+      });
+    });
+    return { ...allData, starred: starredEmails };
+  }, [allData, progress.emailStarred]);
+
+  const folders = Object.keys(allDataWithStarred);
   const [currentFolder, setCurrentFolder] = useState(folders[0] || 'inbox');
   const [selectedEmail, setSelectedEmail] = useState(null);
+  const [expandedThreads, setExpandedThreads] = useState(new Set());
 
-  const currentEmails = allData[currentFolder] || [];
+  const currentEmails = allDataWithStarred[currentFolder] || [];
+
+  // Thread grouping: merge sent emails into inbox threads
+  const threadedEmails = useMemo(() => {
+    // Only apply thread grouping to inbox folder
+    if (currentFolder !== 'inbox') return currentEmails.map(e => ({ email: e, threadEmails: null }));
+
+    const sentEmails = allDataWithStarred['sent'] || [];
+    const allEmails = [...currentEmails, ...sentEmails];
+
+    // Group by threadId
+    const threadMap = new Map();
+    const standalone = [];
+
+    allEmails.forEach(email => {
+      if (email.threadId) {
+        if (!threadMap.has(email.threadId)) {
+          threadMap.set(email.threadId, []);
+        }
+        threadMap.get(email.threadId).push(email);
+      } else {
+        standalone.push({ email, threadEmails: null });
+      }
+    });
+
+    // Sort each thread by date (oldest first)
+    const threaded = [];
+    const processedThreads = new Set();
+
+    // Walk through currentEmails in order, replacing thread members with grouped entries
+    currentEmails.forEach(email => {
+      if (!email.threadId) {
+        threaded.push({ email, threadEmails: null });
+        return;
+      }
+      if (processedThreads.has(email.threadId)) return;
+      processedThreads.add(email.threadId);
+
+      const threadEmails = threadMap.get(email.threadId) || [email];
+      threadEmails.sort((a, b) => new Date(a.date) - new Date(b.date));
+      const latest = threadEmails[threadEmails.length - 1];
+
+      if (threadEmails.length > 1) {
+        threaded.push({ email: latest, threadEmails });
+      } else {
+        threaded.push({ email: latest, threadEmails: null });
+      }
+    });
+
+    return threaded;
+  }, [currentEmails, currentFolder, allDataWithStarred]);
+
+  const toggleThread = (threadId) => {
+    setExpandedThreads(prev => {
+      const next = new Set(prev);
+      if (next.has(threadId)) {
+        next.delete(threadId);
+      } else {
+        next.add(threadId);
+      }
+      return next;
+    });
+  };
+
+  const isStarred = (email) => {
+    return email.id && (progress.emailStarred || []).includes(email.id);
+  };
+
+  const handleStarClick = (e, email) => {
+    e.stopPropagation();
+    if (email.id) {
+      toggleEmailStar(email.id);
+    }
+  };
 
   // Calculate unread count for each folder
   const getUnreadCount = (folder) => {
-    const emails = allData[folder] || [];
-    return emails.filter(email => !email.isDraft && email.id && !progress.emailRead?.includes(email.id)).length;
+    const emails = allDataWithStarred[folder] || [];
+    return emails.filter(email => isUnread(email)).length;
   };
 
   // Handle email selection
   const handleEmailSelect = async (email) => {
     setSelectedEmail(email);
+
+    // Initialize draft content for editing
+    if (email.isDraft) {
+      setDraftContent(email.content || '');
+    }
 
     if (email.contentPath && !email.content) {
       if (contentCache.has(email.contentPath)) {
@@ -528,7 +669,100 @@ const QQMail = () => {
   };
 
   const isUnread = (email) => {
-    return !email.isDraft && email.id && !progress.emailRead?.includes(email.id);
+    if (email.isDraft || !email.id) return false;
+    // JSON中标记为read的邮件（历史邮件）直接视为已读
+    if (email.status === 'read') return false;
+    // 其余邮件通过progress.emailRead判断
+    return !progress.emailRead?.includes(email.id);
+  };
+
+  const closeContextMenu = () => {
+    setContextMenu({ visible: false, x: 0, y: 0, menuItems: [] });
+  };
+
+  // Right-click on email list row
+  const handleEmailContextMenu = (e, email) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const unread = isUnread(email);
+    const items = [];
+
+    items.push({
+      label: '打开',
+      action: () => handleEmailSelect(email),
+    });
+    items.push({ type: 'separator' });
+
+    if (!email.isDraft && email.id) {
+      items.push({
+        label: unread ? '标记为已读' : '标记为未读',
+        action: () => {
+          if (unread) {
+            markEmailRead(email.id);
+          } else {
+            markEmailUnread(email.id);
+          }
+        },
+      });
+      const starred = isStarred(email);
+      items.push({
+        label: starred ? '取消标星' : '标记星标',
+        action: () => {
+          toggleEmailStar(email.id);
+        },
+      });
+      items.push({ type: 'separator' });
+    }
+
+    items.push({
+      label: '复制主题',
+      action: () => {
+        navigator.clipboard.writeText(email.subject || '');
+      },
+    });
+    items.push({
+      label: '复制发件人',
+      action: () => {
+        navigator.clipboard.writeText(email.from || '');
+      },
+    });
+
+    setContextMenu({ visible: true, x: e.clientX, y: e.clientY, menuItems: items });
+  };
+
+  // Right-click on email preview content
+  const handlePreviewContextMenu = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const selection = window.getSelection();
+    const hasSelection = selection && selection.toString().length > 0;
+
+    const items = [
+      {
+        label: '复制(C)',
+        disabled: !hasSelection,
+        action: () => {
+          if (hasSelection) {
+            navigator.clipboard.writeText(selection.toString());
+          }
+        },
+      },
+      { type: 'separator' },
+      {
+        label: '全选(A)',
+        action: () => {
+          if (previewContentRef.current) {
+            const range = document.createRange();
+            range.selectNodeContents(previewContentRef.current);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }
+        },
+      },
+    ];
+
+    setContextMenu({ visible: true, x: e.clientX, y: e.clientY, menuItems: items });
   };
 
   return (
@@ -566,64 +800,110 @@ const QQMail = () => {
         </Sidebar>
 
         <ContentArea>
-          <EmailList>
+          <EmailList $hasPreview={!!selectedEmail}>
             <EmailListHeader>
               <div className="checkbox">☐</div>
+              <div className="star"></div>
               <div className="from">发件人</div>
               <div className="subject">主题</div>
               <div className="date">时间</div>
             </EmailListHeader>
-            {currentEmails.map((email, idx) => (
-              <EmailRow
-                key={email.id || idx}
-                $selected={selectedEmail === email}
-                $unread={isUnread(email)}
-                onClick={() => handleEmailSelect(email)}
-              >
-                <div className="checkbox">☐</div>
-                <div className="from">{email.from}</div>
-                <div className="subject">{email.subject}</div>
-                <div className="date">{email.date}</div>
-              </EmailRow>
-            ))}
+            {threadedEmails.map(({ email, threadEmails }, idx) => {
+              const hasThread = threadEmails && threadEmails.length > 1;
+              const isExpanded = hasThread && expandedThreads.has(email.threadId);
+
+              return (
+                <React.Fragment key={email.id || idx}>
+                  <EmailRow
+                    $selected={selectedEmail === email}
+                    $unread={isUnread(email)}
+                    $starred={isStarred(email)}
+                    onClick={() => {
+                      if (hasThread) {
+                        toggleThread(email.threadId);
+                      } else {
+                        handleEmailSelect(email);
+                      }
+                    }}
+                    onContextMenu={(e) => handleEmailContextMenu(e, email)}
+                  >
+                    <div className="checkbox">☐</div>
+                    <div className="star" onClick={(e) => handleStarClick(e, email)}>
+                      {isStarred(email) ? '★' : '☆'}
+                    </div>
+                    <div className="from">{email.from}</div>
+                    <div className="subject">
+                      {email.subject}
+                      {hasThread && <ThreadBadge>{threadEmails.length}</ThreadBadge>}
+                    </div>
+                    <div className="date">{email.date}</div>
+                  </EmailRow>
+                  {isExpanded && threadEmails.map((threadEmail, tIdx) => (
+                    <ThreadChildRow
+                      key={threadEmail.id || tIdx}
+                      $selected={selectedEmail === threadEmail}
+                      $unread={isUnread(threadEmail)}
+                      $starred={isStarred(threadEmail)}
+                      onClick={() => handleEmailSelect(threadEmail)}
+                      onContextMenu={(e) => handleEmailContextMenu(e, threadEmail)}
+                    >
+                      <div className="checkbox">☐</div>
+                      <div className="star" onClick={(e) => handleStarClick(e, threadEmail)}>
+                        {isStarred(threadEmail) ? '★' : '☆'}
+                      </div>
+                      <div className="from">{threadEmail.from}</div>
+                      <div className="subject">{threadEmail.subject}</div>
+                      <div className="date">{threadEmail.date}</div>
+                    </ThreadChildRow>
+                  ))}
+                </React.Fragment>
+              );
+            })}
           </EmailList>
+
+          {selectedEmail ? (
+            <InlinePreview>
+              <InlinePreviewHeader>
+                <InlinePreviewInfo>
+                  <div className="subject">{selectedEmail.subject}</div>
+                  <div className="meta"><b>发件人:</b> {selectedEmail.from}</div>
+                  <div className="meta"><b>收件人:</b> {selectedEmail.to}</div>
+                  <div className="meta"><b>时间:</b> {selectedEmail.date}</div>
+                </InlinePreviewInfo>
+                <button className="close-btn" onClick={() => setSelectedEmail(null)}>x</button>
+              </InlinePreviewHeader>
+              {selectedEmail.isDraft ? (
+                <DraftTextArea
+                  value={draftContent}
+                  onChange={(e) => setDraftContent(e.target.value)}
+                  placeholder="编辑邮件内容..."
+                />
+              ) : (
+                <PreviewContent ref={previewContentRef} onContextMenu={handlePreviewContextMenu}>
+                  {loadingContent ? (
+                    <div style={{color: '#888', padding: '20px', textAlign: 'center'}}>
+                      正在加载内容...
+                    </div>
+                  ) : (
+                    selectedEmail.content
+                  )}
+                </PreviewContent>
+              )}
+              {selectedEmail.isDraft && (
+                <DraftFooter>
+                  <SendButton disabled>
+                    发送邮件
+                  </SendButton>
+                </DraftFooter>
+              )}
+            </InlinePreview>
+          ) : (
+            <EmptyPreview>
+              选择一封邮件以查看内容
+            </EmptyPreview>
+          )}
         </ContentArea>
       </MainArea>
-
-      {/* Email preview modal */}
-      {selectedEmail && (
-        <>
-          <PreviewOverlay onClick={() => setSelectedEmail(null)} />
-          <PreviewPane>
-            <PreviewHeader>
-              <PreviewInfo>
-                <div className="subject">{selectedEmail.subject}</div>
-                <div className="meta"><b>发件人:</b> {selectedEmail.from}</div>
-                <div className="meta"><b>收件人:</b> {selectedEmail.to}</div>
-                <div className="meta"><b>时间:</b> {selectedEmail.date}</div>
-              </PreviewInfo>
-              <button className="close-btn" onClick={() => setSelectedEmail(null)}>×</button>
-            </PreviewHeader>
-            <PreviewContent>
-              {loadingContent ? (
-                <div style={{color: '#888', padding: '20px', textAlign: 'center'}}>
-                  正在加载内容...
-                </div>
-              ) : (
-                selectedEmail.content
-              )}
-            </PreviewContent>
-            {selectedEmail.isDraft && (
-              <SendButton
-                onClick={() => sendDraft(selectedEmail.draftData)}
-                disabled={isSending}
-              >
-                {isSending ? '发送中...' : '发送邮件'}
-              </SendButton>
-            )}
-          </PreviewPane>
-        </>
-      )}
 
       {/* Email notification */}
       {notification && (
@@ -641,6 +921,18 @@ const QQMail = () => {
 
       {/* Received animation */}
       <EmailReceivedAnimation show={showReceivedAnimation} fromName={receivedFromName} duration={1500} />
+
+      {/* Context menu */}
+      {createPortal(
+        <ContextMenu
+          visible={contextMenu.visible}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={closeContextMenu}
+          menuItems={contextMenu.menuItems}
+        />,
+        document.body
+      )}
     </Container>
   );
 };

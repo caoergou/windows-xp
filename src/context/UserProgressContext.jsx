@@ -31,7 +31,8 @@ export const UserProgressProvider = ({ children }) => {
       puzzleAttempts: {}, // 记录每个谜题的尝试次数 { puzzleId: count }
       emailTimestamps: {}, // 记录每个邮件触发的时间 { emailId: timestamp }
       emailSent: [], // 记录已发送的邮件ID
-      emailRead: [] // 记录已读的邮件ID
+      emailRead: [], // 记录已读的邮件ID
+      emailStarred: [] // 记录已标星的邮件ID
     };
   });
 
@@ -154,6 +155,26 @@ export const UserProgressProvider = ({ children }) => {
     }));
   };
 
+  // 标记邮件未读
+  const markEmailUnread = (emailId) => {
+    setProgress(prev => ({
+      ...prev,
+      emailRead: prev.emailRead.filter(id => id !== emailId)
+    }));
+  };
+
+  // 切换邮件标星
+  const toggleEmailStar = (emailId) => {
+    setProgress(prev => {
+      const starred = prev.emailStarred || [];
+      const isStarred = starred.includes(emailId);
+      return {
+        ...prev,
+        emailStarred: isStarred ? starred.filter(id => id !== emailId) : [...starred, emailId]
+      };
+    });
+  };
+
   const resetProgress = () => {
     localStorage.removeItem('xp_game_progress');
     setProgress({
@@ -194,6 +215,8 @@ export const UserProgressProvider = ({ children }) => {
       recordEmailTrigger,
       markEmailSent,
       markEmailRead,
+      markEmailUnread,
+      toggleEmailStar,
       resetProgress
     }}>
       {children}
