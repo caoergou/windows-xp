@@ -255,6 +255,32 @@ docs: update character profile for Chen Mo
 - ❌ **绝不**猜测 JSON 格式（始终检查 `docs/data-specs/`）
 - ❌ **绝不**使用 2016 年后的语言/文化（时代要求在 `docs/设计.md` 中）
 
+### 长文本文件写入
+
+写入大型文件时（超过200行），**绝不**尝试一次性写入完整内容，否则会触发32000 token输出上限导致失败。
+
+**正确做法：分段写入 + bash合并**
+
+```bash
+# 步骤1：将内容拆分为多个小文件（每个不超过150行）
+Write → 提议:xxx_part1.md   # 第一部分
+Write → 提议:xxx_part2.md   # 第二部分
+Write → 提议:xxx_part3.md   # 第三部分
+
+# 步骤2：用bash合并为最终文件
+cat 提议:xxx_part1.md 提议:xxx_part2.md 提议:xxx_part3.md > /tmp/combined.md
+\cp /tmp/combined.md 提议:xxx.md
+
+# 步骤3：删除中间文件
+rm -f 提议:xxx_part1.md 提议:xxx_part2.md 提议:xxx_part3.md
+```
+
+**关键要点：**
+- 每次Write/Edit调用的内容不超过150行
+- 合并时用 `\cp`（加反斜杠）避免交互式确认提示
+- 删除中间文件时用 `rm -f` 避免交互式确认提示
+- 宁可多分几个part，也不要超限
+
 ### 代码修改
 
 - ❌ **绝不**在不理解架构的情况下修改 `src/context/*`
