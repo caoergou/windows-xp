@@ -660,51 +660,7 @@ const Taskbar = () => {
                     >
                         <XPIcon name="sound" size={16} color="white" />
                     </div>
-                    <div
-                        style={{ marginRight: '10px', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                        title="QQ — 右键更多选项"
-                        onClick={(e) => { e.stopPropagation(); handleLaunch('QQ'); }}
-                        onContextMenu={handleQqContextMenu}
-                    >
-                        <XPIcon name="qq" size={16} color="white" />
-                    </div>
-                    {qqContextMenu && (
-                        <div
-                            ref={qqContextMenuRef}
-                            style={{
-                                position: 'fixed',
-                                left: qqContextMenu.x,
-                                bottom: 32,
-                                background: '#f5f5f5',
-                                border: '1px solid #999',
-                                boxShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-                                zIndex: 2147483647,
-                                minWidth: '120px',
-                                padding: '2px 0',
-                                fontSize: '12px'
-                            }}
-                        >
-                            {[
-                                { label: '打开QQ', action: 'open' },
-                                { label: '打开QQ空间', action: 'space' },
-                                { label: '打开QQ邮箱', action: 'mail' },
-                                { label: null },
-                                { label: '退出QQ', action: 'exit' }
-                            ].map((item, i) => item.label === null ? (
-                                <div key={i} style={{ height: '1px', background: '#ccc', margin: '2px 0' }} />
-                            ) : (
-                                <div
-                                    key={i}
-                                    style={{ padding: '4px 16px', cursor: 'pointer', color: '#000' }}
-                                    onMouseEnter={(e) => { e.target.style.background = '#0078d7'; e.target.style.color = '#fff'; }}
-                                    onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#000'; }}
-                                    onClick={() => handleQqMenuAction(item.action)}
-                                >
-                                    {item.label}
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    {/* QQ tray icon is now dynamically registered by QQLogin component */}
                     <div
                         style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}
                         title="网络已连接"
