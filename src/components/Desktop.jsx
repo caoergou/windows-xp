@@ -83,7 +83,7 @@ const Desktop = () => {
       } else if (item.app === 'Notepad') {
         openWindow(key, item.name, <Notepad content={item.content || ''} />, 'file', { width: 600, height: 400 });
       } else if (item.app === 'DummyApp') {
-        showModal(item.name, 'Windows cannot open this file. Please ensure the application is installed correctly.', 'error');
+        showModal(item.name, 'Windows 无法打开此文件。请确认程序已正确安装。', 'error');
       }
     } else if (item.type === 'file') {
       if (item.app === 'Notepad') {
