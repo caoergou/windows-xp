@@ -1,39 +1,35 @@
 import React from 'react';
-import Explorer from '../apps/Explorer';
-import InternetExplorer from '../apps/InternetExplorer';
-import Notepad from '../apps/Notepad';
-import PhotoViewer from '../apps/PhotoViewer';
-import FileProperties from '../components/FileProperties';
+import { APP_REGISTRY } from '../registry/apps.jsx';
 
+/**
+ * 从 localStorage 恢复窗口组件。
+ *
+ * 优先使用注册表（appId 精确匹配），对旧格式数据回退到 prop 启发式识别。
+ */
 export const restoreComponent = (appId, componentProps = {}) => {
-  // Explorer
+  // 1. 注册表精确匹配（新格式）
+  const def = APP_REGISTRY[appId];
+  if (def?.restore) {
+    return def.restore(componentProps);
+  }
+
+  // 2. FileProperties 动态 appId（形如 'properties-xxx'）
+  if (appId?.startsWith('properties-')) {
+    return APP_REGISTRY.FileProperties.restore(componentProps);
+  }
+
+  // 3. 旧格式兼容：按 prop 启发式识别
   if (componentProps.initialPath) {
-    return <Explorer {...componentProps} />;
+    return APP_REGISTRY.Explorer.restore(componentProps);
   }
-
-  // Internet Explorer
   if (appId === 'Internet Explorer' || componentProps.url || componentProps.html) {
-    return <InternetExplorer {...componentProps} />;
+    return APP_REGISTRY.InternetExplorer.restore(componentProps);
   }
-
-  // Notepad
   if (componentProps.content !== undefined && !componentProps.url && !componentProps.html) {
-    return <Notepad {...componentProps} />;
+    return APP_REGISTRY.Notepad.restore(componentProps);
   }
-
-  // Photo Viewer
-  if (appId === 'PhotoViewer' || (componentProps.src && appId !== 'Internet Explorer')) {
-    return <PhotoViewer {...componentProps} />;
-  }
-
-  // File Properties
-  if (appId.startsWith('properties-')) {
-    return <FileProperties {...componentProps} />;
-  }
-
-  // Common folders
-  if (['My Computer', '我的电脑', 'Recycle Bin', '回收站', 'My Documents', '我的文档'].includes(appId)) {
-    return <Explorer initialPath={[appId]} />;
+  if (componentProps.src) {
+    return APP_REGISTRY.PhotoViewer.restore(componentProps);
   }
 
   console.warn(`Unknown appId for restoration: ${appId}`, componentProps);

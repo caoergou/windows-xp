@@ -6,11 +6,8 @@ import { useWindowManager } from '../context/WindowManagerContext';
 import Taskbar from './Taskbar';
 import Window from './Window';
 import ContextMenu from './ContextMenu';
-import Explorer from '../apps/Explorer';
-import InternetExplorer from '../apps/InternetExplorer';
-import Notepad from '../apps/Notepad';
-import PhotoViewer from '../apps/PhotoViewer';
 import XPIcon from './XPIcon';
+import { resolveFileOpen } from '../registry/apps.jsx';
 import StickyNote from './StickyNote';
 import AntivirusPopup from './AntivirusPopup';
 import { useModal } from '../context/ModalContext';
@@ -75,29 +72,12 @@ const Desktop = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleIconDoubleClick = (key, item) => {
-    if (item.type === 'folder' || item.type === 'root') {
-      openWindow(key, item.name, <Explorer initialPath={[key]} />, item.icon || 'folder', { width: 800, height: 550 });
-    } else if (item.type === 'app_shortcut') {
-      if (item.app === 'InternetExplorer') {
-        openWindow(key, item.name, <InternetExplorer url={item.url || 'about:blank'} />, item.icon, { isMaximized: true });
-      } else if (item.app === 'Notepad') {
-        openWindow(key, item.name, <Notepad content={item.content || ''} />, 'file', { width: 600, height: 400 });
-      } else if (item.app === 'DummyApp') {
-        showModal(item.name, 'Windows 无法打开此文件。请确认程序已正确安装。', 'error');
-      }
-    } else if (item.type === 'file') {
-      if (item.app === 'Notepad') {
-        openWindow(key, item.name, <Notepad content={item.content} readOnly={item.readOnly} />, 'file');
-      } else if (item.app === 'InternetExplorer') {
-        if (item.isHtmlContent) {
-          openWindow(key, item.name, <InternetExplorer html={item.content} />, 'html', { isMaximized: true });
-        } else {
-          openWindow(key, item.name, <InternetExplorer url={item.content} />, 'html', { isMaximized: true });
-        }
-      } else if (item.app === 'PhotoViewer') {
-        openWindow(key, item.name, <PhotoViewer src={item.content} />, 'image', { width: 600, height: 500 });
-      }
+    const resolved = resolveFileOpen(key, item);
+    if (!resolved) {
+      showModal(item.name, 'Windows 无法打开此文件。请确认程序已正确安装。', 'error');
+      return;
     }
+    openWindow(resolved.appId, item.name, resolved.component, resolved.icon, resolved.windowProps);
   };
 
   const handleContextMenu = (e) => {

@@ -4,8 +4,7 @@ import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserSession } from '../context/UserSessionContext';
 import XPIcon from './XPIcon';
 import SystemClock from './SystemClock';
-import Explorer from '../apps/Explorer';
-import InternetExplorer from '../apps/InternetExplorer';
+import { APP_REGISTRY } from '../registry/apps.jsx';
 import { defaultPlugin } from '../apps/BrowserPlugins';
 import { useModal } from '../context/ModalContext';
 
@@ -371,18 +370,19 @@ const Taskbar = () => {
 
     const handleQqMenuAction = (action) => {
         setQqContextMenu(null);
+        const ie = APP_REGISTRY.InternetExplorer;
         if (action === 'open') {
             openWindow('qq-browser', 'QQ',
-                <InternetExplorer url="http://im.qq.com" plugin={defaultPlugin} />,
+                ie.restore({ url: 'http://im.qq.com', plugin: defaultPlugin }),
                 'qq', { width: 350, height: 560 });
         } else if (action === 'space') {
             openWindow('qzone-browser', 'QQ空间',
-                <InternetExplorer url="http://qzone.qq.com" plugin={defaultPlugin} />,
+                ie.restore({ url: 'http://qzone.qq.com', plugin: defaultPlugin }),
                 'qzone', { width: 1000, height: 700, isMaximized: true });
         } else if (action === 'mail') {
             openWindow('qqmail-browser', 'QQ邮箱',
-                <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />,
-                'ie', { width: 1000, height: 700 });
+                ie.restore({ url: 'http://mail.qq.com', plugin: defaultPlugin }),
+                ie.icon, { width: 1000, height: 700 });
         } else if (action === 'exit') {
             windows.forEach(w => {
                 if (['qq-browser', 'qzone-browser', 'qqmail-browser'].includes(w.appId)) {
@@ -404,27 +404,34 @@ const Taskbar = () => {
 
     const handleLaunch = (appName, pathOrKey) => {
         setStartOpen(false);
+        const ie = APP_REGISTRY.InternetExplorer;
+        const explorer = APP_REGISTRY.Explorer;
+
         if (appName === 'Internet Explorer') {
-            openWindow('Internet Explorer', 'Internet Explorer',
-                <InternetExplorer url="http://www.hao123.com" plugin={defaultPlugin} />,
-                'ie', { isMaximized: true });
+            openWindow('InternetExplorer', 'Internet Explorer',
+                ie.restore({ url: 'http://www.hao123.com', plugin: defaultPlugin }),
+                ie.icon, { isMaximized: true });
         } else if (appName === 'QQ') {
             const existing = windows.find(w => w.appId === 'qq-browser');
             if (existing) {
                 focusWindow(existing.id);
             } else {
                 openWindow('qq-browser', 'QQ',
-                    <InternetExplorer url="http://im.qq.com" plugin={defaultPlugin} />,
+                    ie.restore({ url: 'http://im.qq.com', plugin: defaultPlugin }),
                     'qq', { width: 350, height: 560 });
             }
         } else if (appName === 'QQMail') {
             openWindow('qqmail-browser', 'QQ邮箱',
-                <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />,
-                'ie', { width: 1000, height: 700 });
+                ie.restore({ url: 'http://mail.qq.com', plugin: defaultPlugin }),
+                ie.icon, { width: 1000, height: 700 });
         } else if (appName === 'Explorer') {
-            openWindow(pathOrKey, pathOrKey, <Explorer initialPath={[pathOrKey]} />, 'folder');
+            openWindow('Explorer', pathOrKey,
+                explorer.restore({ initialPath: [pathOrKey] }),
+                'folder', explorer.defaultWindowProps);
         } else if (appName === 'Recycle Bin') {
-            openWindow(pathOrKey, pathOrKey, <Explorer initialPath={[pathOrKey]} />, 'recycle_bin');
+            openWindow('Explorer', pathOrKey,
+                explorer.restore({ initialPath: [pathOrKey] }),
+                'recycle_bin', explorer.defaultWindowProps);
         } else if (appName === 'DummyApp') {
             showModal(pathOrKey || '程序', 'Windows 无法打开此程序。请确认程序已正确安装。', 'error');
         }
