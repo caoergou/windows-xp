@@ -5,6 +5,7 @@ import IEToolbar from '../components/Explorer/IEToolbar';
 import IEAddressBar from '../components/Explorer/IEAddressBar';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useTranslation } from 'react-i18next';
+import { BROWSER_BLACKLIST } from './BrowserPlugins';
 
 
 const Container = styled.div`
@@ -154,14 +155,24 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
     }, [currentEntry]);
 
     const navigateTo = (newUrl, newHtml = null) => {
-        // Block Google access
-        if (newUrl && newUrl.includes('google.com')) {
-            const blockedEntry = { url: newUrl, html: '<div style="padding:40px;text-align:center;font-family:sans-serif;"><h2>无法访问此网站</h2><p>无法连接到 www.google.com</p><p style="color:#666;">ERR_CONNECTION_TIMED_OUT</p></div>' };
-            const newHistory = history.slice(0, currentIndex + 1);
-            newHistory.push(blockedEntry);
-            setHistory(newHistory);
-            setCurrentIndex(newHistory.length - 1);
-            return;
+        // 黑名单检查（配置见 BrowserPlugins.jsx 的 BROWSER_BLACKLIST）
+        if (newUrl) {
+            const blocked = BROWSER_BLACKLIST.find(entry => entry.match(newUrl));
+            if (blocked) {
+                const blockedEntry = {
+                    url: newUrl,
+                    html: `<div style="padding:40px;text-align:center;font-family:sans-serif;">
+                        <h2>无法访问此网站</h2>
+                        <p>无法连接到 ${blocked.label}</p>
+                        <p style="color:#666;">ERR_CONNECTION_TIMED_OUT</p>
+                    </div>`,
+                };
+                const newHistory = history.slice(0, currentIndex + 1);
+                newHistory.push(blockedEntry);
+                setHistory(newHistory);
+                setCurrentIndex(newHistory.length - 1);
+                return;
+            }
         }
 
         const newEntry = { url: newUrl, html: newHtml };

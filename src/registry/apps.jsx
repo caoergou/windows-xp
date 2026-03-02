@@ -4,6 +4,8 @@ import InternetExplorer from '../apps/InternetExplorer';
 import Notepad from '../apps/Notepad';
 import PhotoViewer from '../apps/PhotoViewer';
 import FileProperties from '../components/FileProperties';
+import QQLogin from '../apps/QQLogin';
+import Calculator from '../apps/Calculator';
 
 /**
  * APP_REGISTRY — 所有可打开应用的唯一注册中心。
@@ -90,6 +92,27 @@ export const APP_REGISTRY = {
     window: { width: 380, height: 420, resizable: false },
     lifecycle: {},
     restore: (props) => <FileProperties {...props} />,
+  },
+
+  QQLogin: {
+    id:     'QQLogin',
+    name:   'QQ',
+    icon:   'qq',
+    window: { width: 320, height: 380, resizable: false, singleton: true },
+    lifecycle: {},
+    restore: (props) => <QQLogin {...props} />,
+  },
+
+  Calculator: {
+    id:     'Calculator',
+    name:   '计算器',
+    icon:   'calculator',
+    window: { width: 240, height: 300, resizable: false, singleton: true },
+    lifecycle: {},
+    associations: [
+      { appField: 'Calculator', getProps: () => ({}) },
+    ],
+    restore: (props) => <Calculator {...props} />,
   },
 };
 

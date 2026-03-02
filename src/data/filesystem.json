@@ -204,16 +204,10 @@
         "app": "DummyApp",
         "icon": "kugou"
       },
-      "Paint": {
-        "type": "app_shortcut",
-        "name": "Paint",
-        "app": "DummyApp",
-        "icon": "paint"
-      },
       "Calculator": {
         "type": "app_shortcut",
         "name": "Calculator",
-        "app": "DummyApp",
+        "app": "Calculator",
         "icon": "calculator"
       }
     }

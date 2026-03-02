@@ -414,10 +414,9 @@ const Taskbar = () => {
     const handleQqMenuAction = (action) => {
         setQqContextMenu(null);
         const ie = APP_REGISTRY.InternetExplorer;
+        const qq = APP_REGISTRY.QQLogin;
         if (action === 'open') {
-            openWindow('qq-browser', 'QQ',
-                ie.restore({ url: 'http://im.qq.com', plugin: defaultPlugin }),
-                'qq', { width: 350, height: 560 });
+            openWindow('QQLogin', 'QQ', qq.restore({}), 'qq', qq.window);
         } else if (action === 'space') {
             openWindow('qzone-browser', 'QQ空间',
                 ie.restore({ url: 'http://qzone.qq.com', plugin: defaultPlugin }),
@@ -428,7 +427,7 @@ const Taskbar = () => {
                 ie.icon, { width: 1000, height: 700 });
         } else if (action === 'exit') {
             windows.forEach(w => {
-                if (['qq-browser', 'qzone-browser', 'qqmail-browser'].includes(w.appId)) {
+                if (['QQLogin', 'qzone-browser', 'qqmail-browser'].includes(w.appId)) {
                     closeWindow(w.id);
                 }
             });
@@ -455,13 +454,12 @@ const Taskbar = () => {
                 ie.restore({ url: 'http://www.hao123.com', plugin: defaultPlugin }),
                 ie.icon, { isMaximized: true });
         } else if (appName === 'QQ') {
-            const existing = windows.find(w => w.appId === 'qq-browser');
+            const qq = APP_REGISTRY.QQLogin;
+            const existing = windows.find(w => w.appId === 'QQLogin');
             if (existing) {
                 focusWindow(existing.id);
             } else {
-                openWindow('qq-browser', 'QQ',
-                    ie.restore({ url: 'http://im.qq.com', plugin: defaultPlugin }),
-                    'qq', { width: 350, height: 560 });
+                openWindow('QQLogin', 'QQ', qq.restore({}), 'qq', qq.window);
             }
         } else if (appName === 'QQMail') {
             openWindow('qqmail-browser', 'QQ邮箱',
@@ -476,7 +474,7 @@ const Taskbar = () => {
                 explorer.restore({ initialPath: [pathOrKey] }),
                 'recycle_bin', explorer.defaultWindowProps);
         } else if (appName === 'DummyApp') {
-            showModal(pathOrKey || '程序', 'Windows 无法打开此程序。请确认程序已正确安装。', 'error');
+            showModal(pathOrKey || '程序', `找不到文件 "${pathOrKey}"。\n请确认文件名是否正确，然后再试一次。`, 'error');
         }
     };
 

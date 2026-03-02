@@ -1,0 +1,81 @@
+[    2077ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5174/windows-xp/favicon.ico:0
+[  656355ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ http://localhost:5174/windows-xp/node_modules/.vite/deps/chunk-PJEEZAML.js?v=aea89947:8445
+[ 1019955ms] [WARNING] styled-components: it looks like an unknown prop "collapsed" is being sent through to the DOM, which will likely trigger a React console error. If you would like automatic filtering of unknown props, you can opt-into that behavior via `<StyleSheetManager shouldForwardProp={...}>` (connect an API like `@emotion/is-prop-valid`) or consider using transient props (`$` prefix for automatic filtering.) @ http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1202
+[ 1019966ms] [ERROR] Warning: Received `%s` for a non-boolean attribute `%s`.
+
+If you want to write it to the DOM, pass a string instead: %s="%s" or %s={value.toString()}.
+
+If you used to conditionally omit it with %s={condition && value}, pass %s={condition ? value : undefined} instead.%s false collapsed collapsed false collapsed collapsed collapsed 
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at ExplorerSidebar (http://localhost:5174/windows-xp/src/components/Explorer/ExplorerSidebar.jsx:83:28)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at Explorer (http://localhost:5174/windows-xp/src/apps/Explorer.jsx:127:21)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at div
+    at Resizable2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/react-resizable.js?v=39c184e7:338:39)
+    at ResizableBox2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/react-resizable.js?v=39c184e7:618:39)
+    at div
+    at DraggableCore (http://localhost:5174/windows-xp/node_modules/.vite/deps/chunk-TB2M7LUS.js?v=aea89947:1311:9)
+    at Draggable (http://localhost:5174/windows-xp/node_modules/.vite/deps/chunk-TB2M7LUS.js?v=aea89947:1718:9)
+    at Window (http://localhost:5174/windows-xp/src/components/Window.jsx:183:19)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at Desktop (http://localhost:5174/windows-xp/src/components/Desktop.jsx:81:17)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at ModalProvider (http://localhost:5174/windows-xp/src/context/ModalContext.jsx:29:33)
+    at App (http://localhost:5174/windows-xp/src/App.jsx:84:26)
+    at TrayProvider (http://localhost:5174/windows-xp/src/context/TrayContext.jsx:25:32)
+    at WindowManagerProvider (http://localhost:5174/windows-xp/src/context/WindowManagerContext.jsx:26:41)
+    at FileSystemProvider (http://localhost:5174/windows-xp/src/context/FileSystemContext.jsx:40:38)
+    at UserSessionProvider (http://localhost:5174/windows-xp/src/context/UserSessionContext.jsx:34:39) @ http://localhost:5174/windows-xp/node_modules/.vite/deps/chunk-PJEEZAML.js?v=aea89947:520
+[ 1019975ms] [WARNING] styled-components: it looks like an unknown prop "isDrive" is being sent through to the DOM, which will likely trigger a React console error. If you would like automatic filtering of unknown props, you can opt-into that behavior via `<StyleSheetManager shouldForwardProp={...}>` (connect an API like `@emotion/is-prop-valid`) or consider using transient props (`$` prefix for automatic filtering.) @ http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1202
+[ 1019977ms] [ERROR] Warning: React does not recognize the `%s` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `%s` instead. If you accidentally passed it from a parent component, remove it from the DOM element.%s isDrive isdrive 
+    at span
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at Explorer (http://localhost:5174/windows-xp/src/apps/Explorer.jsx:127:21)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at div
+    at Resizable2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/react-resizable.js?v=39c184e7:338:39)
+    at ResizableBox2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/react-resizable.js?v=39c184e7:618:39)
+    at div
+    at DraggableCore (http://localhost:5174/windows-xp/node_modules/.vite/deps/chunk-TB2M7LUS.js?v=aea89947:1311:9)
+    at Draggable (http://localhost:5174/windows-xp/node_modules/.vite/deps/chunk-TB2M7LUS.js?v=aea89947:1718:9)
+    at Window (http://localhost:5174/windows-xp/src/components/Window.jsx:183:19)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at Desktop (http://localhost:5174/windows-xp/src/components/Desktop.jsx:81:17)
+    at div
+    at O2 (http://localhost:5174/windows-xp/node_modules/.vite/deps/styled-components.js?v=c0db1e43:1211:6)
+    at ModalProvider (http://localhost:5174/windows-xp/src/context/ModalContext.jsx:29:33)
+    at App (http://localhost:5174/windows-xp/src/App.jsx:84:26)
+    at TrayProvider (http://localhost:5174/windows-xp/src/context/TrayContext.jsx:25:32)
+    at WindowManagerProvider (http://localhost:5174/windows-xp/src/context/WindowManagerContext.jsx:26:41)
+    at FileSystemProvider (http://localhost:5174/windows-xp/src/context/FileSystemContext.jsx:40:38)
+    at UserSessionProvider (http://localhost:5174/windows-xp/src/context/UserSessionContext.jsx:34:39) @ http://localhost:5174/windows-xp/node_modules/.vite/deps/chunk-PJEEZAML.js?v=aea89947:520

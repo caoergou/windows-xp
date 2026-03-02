@@ -283,14 +283,34 @@ function Hao123Page({ onNavigate }) {
   );
 }
 
+// ─── 白名单 ───────────────────────────────────────────────────────────────────
+// 白名单内的 URL 使用自定义渲染，不走 Wayback Machine。
+// 暂时清空；需要恢复时取消下方注释即可。
+export const BROWSER_WHITELIST = [
+  // {
+  //   match: (url) => {
+  //     const u = url.toLowerCase().replace(/\/$/, '');
+  //     return u === 'http://www.hao123.com' || u === 'http://hao123.com';
+  //   },
+  //   render: (navigateTo) => <Hao123Page onNavigate={navigateTo} />,
+  // },
+];
+
+// ─── 黑名单 ───────────────────────────────────────────────────────────────────
+// 黑名单内的域名将被拦截，显示连接失败错误页。
+export const BROWSER_BLACKLIST = [
+  { match: (url) => url.includes('google.com'), label: 'www.google.com' },
+];
+
 // ─── Plugin entry point ───────────────────────────────────────────────────────
 
 export const defaultPlugin = (url, navigateTo) => {
   if (!url) return null;
 
-  const u = url.toLowerCase().replace(/\/$/, '');
-  if (u === 'http://www.hao123.com' || u === 'http://hao123.com') {
-    return <Hao123Page onNavigate={navigateTo} />;
+  for (const entry of BROWSER_WHITELIST) {
+    if (entry.match(url)) {
+      return entry.render(navigateTo);
+    }
   }
 
   return null;

@@ -73,7 +73,7 @@ const Desktop = () => {
   const handleIconDoubleClick = (key, item) => {
     const resolved = resolveFileOpen(key, item);
     if (!resolved) {
-      showModal(item.name, 'Windows 无法打开此文件。请确认程序已正确安装。', 'error');
+      showModal(item.name, `找不到文件 "${item.name}"。\n请确认文件名是否正确，然后再试一次。`, 'error');
       return;
     }
     openWindow(resolved.appId, item.name, resolved.component, resolved.icon, resolved.windowProps);
