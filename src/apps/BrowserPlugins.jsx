@@ -212,13 +212,14 @@ const CATEGORIES = [
   },
 ];
 
-function Hao123Page({ onNavigate }) {
+function Hao123Page({ onNavigate, onOpenNew }) {
+  const handleLink = onOpenNew || onNavigate;
   const [activeTab, setActiveTab] = useState(0);
   const [query, setQuery] = useState('');
 
   const handleSearch = () => {
     if (query.trim()) {
-      onNavigate(`http://www.baidu.com/s?wd=${encodeURIComponent(query)}`);
+      handleLink(`http://www.baidu.com/s?wd=${encodeURIComponent(query)}`);
     }
   };
 
@@ -267,7 +268,7 @@ function Hao123Page({ onNavigate }) {
             <CatLinks>
               {cat.links.map(([name, url], i) => (
                 <span key={name}>
-                  <LinkItem href={url} onNav={onNavigate}>{name}</LinkItem>
+                  <LinkItem href={url} onNav={handleLink}>{name}</LinkItem>
                   {i < cat.links.length - 1 && <Dot>·</Dot>}
                 </span>
               ))}
@@ -292,7 +293,7 @@ export const BROWSER_WHITELIST = [
   //     const u = url.toLowerCase().replace(/\/$/, '');
   //     return u === 'http://www.hao123.com' || u === 'http://hao123.com';
   //   },
-  //   render: (navigateTo) => <Hao123Page onNavigate={navigateTo} />,
+  //   render: (navigateTo, openNewWindow) => <Hao123Page onNavigate={navigateTo} onOpenNew={openNewWindow} />,
   // },
 ];
 
@@ -304,12 +305,12 @@ export const BROWSER_BLACKLIST = [
 
 // ─── Plugin entry point ───────────────────────────────────────────────────────
 
-export const defaultPlugin = (url, navigateTo) => {
+export const defaultPlugin = (url, navigateTo, openNewWindow) => {
   if (!url) return null;
 
   for (const entry of BROWSER_WHITELIST) {
     if (entry.match(url)) {
-      return entry.render(navigateTo);
+      return entry.render(navigateTo, openNewWindow);
     }
   }
 

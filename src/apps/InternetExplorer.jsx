@@ -102,6 +102,17 @@ const toWaybackUrl = (url) => {
 
 const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
     const { openWindow } = useWindowManager();
+
+    // 在新 IE 窗口中打开 URL（供 plugin 链接点击使用）
+    const openNewIE = (newUrl) => {
+        openWindow(
+            'InternetExplorer',
+            newUrl,
+            React.createElement(InternetExplorer, { url: newUrl, plugin }),
+            'ie',
+            { isMaximized: true },
+        );
+    };
     const { t } = useTranslation();
 
     // History is an array of objects: { url: string, html: string|null }
@@ -260,17 +271,19 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
 
         // Try the plugin first if provided
         if (plugin) {
-            const pluginContent = plugin(currentEntry.url, navigateTo);
+            const pluginContent = plugin(currentEntry.url, navigateTo, openNewIE);
             if (pluginContent) return pluginContent;
         }
 
-        // 通过 Wayback Machine 加载存档版本，还原 2006 年真实网页
+        // 通过 Wayback Machine 加载存档版本，还原 2006 年真实网页。
+        // 去除 allow-top-navigation（防止 iframe 导航真实浏览器）
+        // 去除 allow-popups（防止链接在真实浏览器新标签打开）
         return (
             <iframe
                 id="ie-frame"
                 src={toWaybackUrl(currentEntry.url)}
                 title="Browser"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+                sandbox="allow-scripts allow-same-origin allow-forms"
             />
         );
     };
