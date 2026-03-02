@@ -2,12 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserSession } from '../context/UserSessionContext';
-import { useUserProgress } from '../context/UserProgressContext';
 import XPIcon from './XPIcon';
 import SystemClock from './SystemClock';
 import Explorer from '../apps/Explorer';
 import InternetExplorer from '../apps/InternetExplorer';
-import QQ from '../apps/QQ';
 import { defaultPlugin } from '../apps/BrowserPlugins';
 import { useModal } from '../context/ModalContext';
 
@@ -323,7 +321,6 @@ const CancelButton = styled.button`
 const Taskbar = () => {
     const { windows, activeWindowId, focusWindow, minimizeWindow, openWindow, closeWindow } = useWindowManager();
     const { logout } = useUserSession();
-    const { progress, resetQqLogin } = useUserProgress();
     const { showModal } = useModal();
     const [startOpen, setStartOpen] = useState(false);
     const [showTurnOff, setShowTurnOff] = useState(false);
@@ -375,27 +372,23 @@ const Taskbar = () => {
     const handleQqMenuAction = (action) => {
         setQqContextMenu(null);
         if (action === 'open') {
-            handleLaunch('QQ');
+            openWindow('qq-browser', 'QQ',
+                <InternetExplorer url="http://im.qq.com" plugin={defaultPlugin} />,
+                'qq', { width: 350, height: 560 });
         } else if (action === 'space') {
-            const existingQZone = windows.find(w => w.appId?.startsWith('qzone-'));
-            if (existingQZone) {
-                focusWindow(existingQZone.id);
-            } else {
-                openWindow('qzone-1847592036', 'QZone - 1847592036',
-                    <InternetExplorer url="http://qzone.qq.com/1847592036" plugin={defaultPlugin} />,
-                    'qzone', { width: 1000, height: 700, isMaximized: true });
-            }
+            openWindow('qzone-browser', 'QQ空间',
+                <InternetExplorer url="http://qzone.qq.com" plugin={defaultPlugin} />,
+                'qzone', { width: 1000, height: 700, isMaximized: true });
         } else if (action === 'mail') {
-            handleLaunch('QQMail');
+            openWindow('qqmail-browser', 'QQ邮箱',
+                <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />,
+                'ie', { width: 1000, height: 700 });
         } else if (action === 'exit') {
-            // Close all QQ-related windows
             windows.forEach(w => {
-                if (w.appId === 'QQ' || w.appId?.startsWith('qq-chat-') || w.appId === 'QQMail' || w.appId?.startsWith('qzone-')) {
+                if (['qq-browser', 'qzone-browser', 'qqmail-browser'].includes(w.appId)) {
                     closeWindow(w.id);
                 }
             });
-            // Reset QQ login status
-            resetQqLogin();
         }
     };
 
@@ -412,29 +405,28 @@ const Taskbar = () => {
     const handleLaunch = (appName, pathOrKey) => {
         setStartOpen(false);
         if (appName === 'Internet Explorer') {
-             openWindow('Internet Explorer', 'Internet Explorer', <InternetExplorer url="http://www.hao123.com" plugin={defaultPlugin} />, 'ie', { isMaximized: true });
+            openWindow('Internet Explorer', 'Internet Explorer',
+                <InternetExplorer url="http://www.hao123.com" plugin={defaultPlugin} />,
+                'ie', { isMaximized: true });
         } else if (appName === 'QQ') {
-             const existingQQ = windows.find(w => w.appId === 'QQ');
-             if (existingQQ) {
-                 focusWindow(existingQQ.id);
-             } else {
-                 openWindow('QQ', 'QQ', <QQ />, 'qq', { width: 280, height: 600, resizable: false });
-             }
+            const existing = windows.find(w => w.appId === 'qq-browser');
+            if (existing) {
+                focusWindow(existing.id);
+            } else {
+                openWindow('qq-browser', 'QQ',
+                    <InternetExplorer url="http://im.qq.com" plugin={defaultPlugin} />,
+                    'qq', { width: 350, height: 560 });
+            }
         } else if (appName === 'QQMail') {
-             openWindow(
-                 'qqmail-browser',
-                 'QQ邮箱',
-                 <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />,
-                 'ie',
-                 { width: 1000, height: 700 }
-             );
+            openWindow('qqmail-browser', 'QQ邮箱',
+                <InternetExplorer url="http://mail.qq.com" plugin={defaultPlugin} />,
+                'ie', { width: 1000, height: 700 });
         } else if (appName === 'Explorer') {
-             // For folders
-             openWindow(pathOrKey, pathOrKey, <Explorer initialPath={[pathOrKey]} />, 'folder');
+            openWindow(pathOrKey, pathOrKey, <Explorer initialPath={[pathOrKey]} />, 'folder');
         } else if (appName === 'Recycle Bin') {
-             openWindow(pathOrKey, pathOrKey, <Explorer initialPath={[pathOrKey]} />, 'recycle_bin');
+            openWindow(pathOrKey, pathOrKey, <Explorer initialPath={[pathOrKey]} />, 'recycle_bin');
         } else if (appName === 'DummyApp') {
-             showModal(pathOrKey || '程序', 'Windows 无法打开此程序。请确认程序已正确安装。', 'error');
+            showModal(pathOrKey || '程序', 'Windows 无法打开此程序。请确认程序已正确安装。', 'error');
         }
     };
 
@@ -512,7 +504,7 @@ const Taskbar = () => {
                             <MenuSeparator />
                             <MenuItem onClick={() => handleLaunch('QQMail')}>
                                 <XPIcon name="email" size={24} className="menu-icon" />
-                                <span>Outlook Express</span>
+                                <span>QQ邮箱</span>
                             </MenuItem>
                             <MenuItem onClick={() => handleLaunch('DummyApp', 'WPS Office')}>
                                 <XPIcon name="wps" size={24} className="menu-icon" />
@@ -611,21 +603,14 @@ const Taskbar = () => {
                     >
                         <XPIcon name="360safe" size={16} color="white" />
                     </div>
-                    {progress.qqLoggedIn && (
-                        <div
-                            style={{
-                                marginRight: '10px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                cursor: 'pointer'
-                            }}
-                            title="QQ"
-                            onClick={(e) => { e.stopPropagation(); handleLaunch('QQ'); }}
-                            onContextMenu={handleQqContextMenu}
-                        >
-                            <XPIcon name="qq" size={16} color="white" />
-                        </div>
-                    )}
+                    <div
+                        style={{ marginRight: '10px', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                        title="QQ — 右键更多选项"
+                        onClick={(e) => { e.stopPropagation(); handleLaunch('QQ'); }}
+                        onContextMenu={handleQqContextMenu}
+                    >
+                        <XPIcon name="qq" size={16} color="white" />
+                    </div>
                     {qqContextMenu && (
                         <div
                             ref={qqContextMenuRef}

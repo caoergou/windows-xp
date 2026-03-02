@@ -11,6 +11,7 @@ import Notepad from '../apps/Notepad';
 import PhotoViewer from '../apps/PhotoViewer';
 import XPIcon from './XPIcon';
 import StickyNote from './StickyNote';
+import AntivirusPopup from './AntivirusPopup';
 import { useModal } from '../context/ModalContext';
 import desktopBg from '../assets/images/desktop_bg.jpg';
 
@@ -160,6 +161,7 @@ const Desktop = () => {
       />
 
       <StickyNote />
+      <AntivirusPopup />
     </DesktopContainer>
   );
 };

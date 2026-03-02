@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useUserSession } from '../context/UserSessionContext';
 import XPIcon from './XPIcon';
+import { sounds } from '../utils/soundManager';
 
 const Container = styled.div`
   background-color: #003399;
@@ -138,7 +139,9 @@ const LoginScreen = () => {
     const handleLogin = () => {
         if (login(password)) {
             setError('');
+            sounds.logon();
         } else {
+            sounds.error();
             setError('密码错误，请重试。');
             setPassword('');
         }
