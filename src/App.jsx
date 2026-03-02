@@ -5,7 +5,6 @@ import { ModalProvider } from './context/ModalContext';
 import LoginScreen from './components/LoginScreen';
 import Desktop from './components/Desktop';
 import BootScreen from './components/BootScreen';
-import LandingPage from './components/LandingPage';
 import windowsIcon from './assets/icons/windows.svg';
 
 const Container = styled.div`
@@ -56,25 +55,17 @@ const ScreenSaverHint = styled.div`
 `;
 
 const getInitialBootPhase = () => {
-  const hasVisited = localStorage.getItem('shanyue_has_visited') === 'true';
-
-  // 首次访问：展示完整 Landing Page
-  if (!hasVisited) return 'LANDING';
-
   const firstBootDone = localStorage.getItem('xp_first_boot_done');
   const powerState = localStorage.getItem('xp_power_state');
 
-  // 未完成首次启动 / 关机 / 重启 / 注销 -> 开机画面
   if (!firstBootDone || powerState === 'shutdown' || powerState === 'restart' || powerState === 'logout') {
     return 'BOOTING';
   }
 
-  // 已登录且运行中 -> 屏保过渡
   if (localStorage.getItem('xp_logged_in') === 'true') {
     return 'SCREENSAVER';
   }
 
-  // 其他情况 -> 登录界面
   return 'RUNNING';
 };
 
@@ -85,19 +76,14 @@ function App() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // F12
       if (e.key === 'F12' || e.code === 'F12') {
         e.preventDefault();
         e.stopPropagation();
       }
-
-      // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C (DevTools)
       if (e.ctrlKey && e.shiftKey && ['KeyI', 'KeyJ', 'KeyC'].includes(e.code)) {
         e.preventDefault();
         e.stopPropagation();
       }
-
-      // Ctrl+U (View Source)
       if (e.ctrlKey && e.code === 'KeyU') {
         e.preventDefault();
         e.stopPropagation();
@@ -122,15 +108,14 @@ function App() {
 
       console.log(`%c${art}`, 'color: #0080ff; font-weight: bold; font-family: monospace;');
       console.log(
-        '%c windows 安全防护中心发现入侵请求',
+        '%c Windows Security Center detected an intrusion attempt',
         'color: red; font-size: 24px; font-weight: bold; background: #ffff00; padding: 10px; border: 2px solid red; border-radius: 5px;'
       );
-      console.log('%c 警告：系统正在监控您的操作。', 'font-size: 16px; color: #333;');
+      console.log('%c Warning: System is monitoring your activities.', 'font-size: 16px; color: #333;');
     };
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('contextmenu', handleContextMenu);
-
     showEasterEgg();
 
     return () => {
@@ -149,31 +134,11 @@ function App() {
     }
   }, [bootPhase, screenSaverFading]);
 
-  const handleLandingEnter = () => {
-    const firstBootDone = localStorage.getItem('xp_first_boot_done');
-    const powerState = localStorage.getItem('xp_power_state');
-
-    if (!firstBootDone) {
-      setBootPhase('BOOTING');
-    } else if (powerState === 'shutdown' || powerState === 'restart' || powerState === 'logout') {
-      setBootPhase('BOOTING');
-    } else if (isLoggedIn) {
-      // 免密码进入，显示屏保过渡
-      setBootPhase('SCREENSAVER');
-    } else {
-      setBootPhase('RUNNING');
-    }
-  };
-
   const handleBootComplete = () => {
-      localStorage.setItem('xp_first_boot_done', 'true');
-      localStorage.setItem('xp_power_state', 'running');
-      setBootPhase('RUNNING');
+    localStorage.setItem('xp_first_boot_done', 'true');
+    localStorage.setItem('xp_power_state', 'running');
+    setBootPhase('RUNNING');
   };
-
-  if (bootPhase === 'LANDING') {
-    return <LandingPage onEnter={handleLandingEnter} />;
-  }
 
   if (bootPhase === 'SCREENSAVER') {
     return (
@@ -185,7 +150,7 @@ function App() {
         autoFocus
       >
         <FloatingLogo src={windowsIcon} alt="Windows XP" draggable={false} />
-        <ScreenSaverHint>点击或按任意键继续...</ScreenSaverHint>
+        <ScreenSaverHint>Click or press any key to continue...</ScreenSaverHint>
       </ScreenSaverContainer>
     );
   }
@@ -194,9 +159,9 @@ function App() {
     <ModalProvider>
       <Container>
         {bootPhase === 'BOOTING' ? (
-            <BootScreen onComplete={handleBootComplete} />
+          <BootScreen onComplete={handleBootComplete} />
         ) : (
-            isLoggedIn ? <Desktop /> : <LoginScreen />
+          isLoggedIn ? <Desktop /> : <LoginScreen />
         )}
       </Container>
     </ModalProvider>

@@ -8,18 +8,10 @@ export const useFileSystem = () => useContext(FileSystemContext);
 // Load all JSON files from src/data/recycle_bin
 const recycleBinFiles = import.meta.glob('../data/recycle_bin/*.json', { eager: true });
 
-// Load all text content files from src/data/filesystem_content
-const contentFiles = import.meta.glob('../data/filesystem_content/**/*.txt', {
-  query: '?raw',
-  import: 'default',
-  eager: true
-});
-
 // Merge all recycle bin items
 const recycleBinItems = {};
 for (const path in recycleBinFiles) {
   const module = recycleBinFiles[path];
-  // Standard JSON import in Vite gives the JSON object as default export
   const content = module.default || module;
   Object.assign(recycleBinItems, content);
 }
@@ -27,67 +19,36 @@ for (const path in recycleBinFiles) {
 // Deep clone initialFileSystem to avoid mutating the original import
 const fileSystemWithRecycleBin = JSON.parse(JSON.stringify(initialFileSystem));
 
-// Function to recursively resolve contentPath in filesystem
-const resolveContentPaths = (node) => {
-  if (!node) return node;
-
-  // If this node has contentPath, load the content
-  if (node.contentPath) {
-    const fullPath = `../data/${node.contentPath}`;
-    if (contentFiles[fullPath]) {
-      node.content = contentFiles[fullPath];
-    } else {
-      console.warn(`Content file not found: ${fullPath}`);
-    }
-    // Keep contentPath for reference but content takes precedence
-  }
-
-  // Recursively process children
-  if (node.children) {
-    for (const key in node.children) {
-      resolveContentPaths(node.children[key]);
-    }
-  }
-
-  return node;
-};
-
-// Resolve all contentPath references
-resolveContentPaths(fileSystemWithRecycleBin.root);
-
 // Inject items into Recycle Bin
-if (fileSystemWithRecycleBin.root &&
-    fileSystemWithRecycleBin.root.children &&
-    fileSystemWithRecycleBin.root.children['Recycle Bin']) {
-
-    fileSystemWithRecycleBin.root.children['Recycle Bin'].children = {
-        ...fileSystemWithRecycleBin.root.children['Recycle Bin'].children,
-        ...recycleBinItems
-    };
+if (
+  fileSystemWithRecycleBin.root &&
+  fileSystemWithRecycleBin.root.children &&
+  fileSystemWithRecycleBin.root.children['Recycle Bin']
+) {
+  fileSystemWithRecycleBin.root.children['Recycle Bin'].children = {
+    ...fileSystemWithRecycleBin.root.children['Recycle Bin'].children,
+    ...recycleBinItems
+  };
 }
 
 export const FileSystemProvider = ({ children }) => {
   const [fs, setFs] = useState(fileSystemWithRecycleBin);
 
   const getFile = (path) => {
-    // Path is an array of keys, e.g. ["root", "children", "My Documents", "children", "file.txt"]
-    // Or simpler: ["My Documents", "file.txt"] if we assume root children.
-    
-    // For simplicity, let's assume path starts from root's children
     let current = fs.root;
     for (let part of path) {
-       if (current.children && current.children[part]) {
-           current = current.children[part];
-       } else {
-           return null;
-       }
+      if (current.children && current.children[part]) {
+        current = current.children[part];
+      } else {
+        return null;
+      }
     }
     return current;
   };
 
   const checkAccess = (node, passwordInput) => {
-      if (!node.locked) return true;
-      return node.password === passwordInput;
+    if (!node.locked) return true;
+    return node.password === passwordInput;
   };
 
   return (

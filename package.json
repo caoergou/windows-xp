@@ -1,7 +1,7 @@
 {
-  "name": "shanyue-silent",
+  "name": "windows-xp",
   "version": "1.0.0",
-  "description": "山月无声 - 社会派悬疑互动解谜游戏",
+  "description": "A simulated Windows XP desktop environment built with React",
   "main": "src/main.jsx",
   "scripts": {
     "dev": "vite",
