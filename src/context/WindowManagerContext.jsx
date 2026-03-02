@@ -11,18 +11,14 @@ export const WindowManagerProvider = ({ children }) => {
       const saved = localStorage.getItem('xp_open_windows');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Restore components using the factory
         const restored = parsed.map(w => {
           const component = restoreComponent(w.appId, w.componentProps || w.props);
-          return component ? {
-            ...w,
-            component
-          } : null;
-        }).filter(Boolean); // Remove null entries
+          return component ? { ...w, component } : null;
+        }).filter(Boolean);
         return restored;
       }
     } catch (e) {
-      console.error("Failed to restore windows:", e);
+      console.error('Failed to restore windows:', e);
     }
     return [];
   });
@@ -30,91 +26,129 @@ export const WindowManagerProvider = ({ children }) => {
   const [activeWindowId, setActiveWindowId] = useState(null);
   const [zIndexCounter, setZIndexCounter] = useState(10000);
 
-  // Persistence effect
+  // ── 持久化（去除不可序列化字段）──────────────────────────────────────────
   useEffect(() => {
-    // We don't save the 'component' field directly as it's a React element and circular/complex.
-    const windowsToSave = windows.map(({ component, ...rest }) => rest);
+    const windowsToSave = windows.map(
+      ({ component, onOpen, onClose, onFocus, ...rest }) => rest
+    );
     localStorage.setItem('xp_open_windows', JSON.stringify(windowsToSave));
   }, [windows]);
 
+  // ── openWindow ────────────────────────────────────────────────────────────
   const openWindow = (appId, title, component, icon, props = {}) => {
+    // Singleton 检查：同一 appId 已有窗口时直接聚焦
+    if (props.singleton) {
+      const existing = windows.find(w => w.appId === appId);
+      if (existing) {
+        focusWindow(existing.id);
+        return existing.id;
+      }
+    }
+
     const id = Date.now().toString();
 
-    // Calculate center position, accounting for taskbar height (30px)
-    const windowWidth = props.width || 600;
+    const windowWidth  = props.width  || 600;
     const windowHeight = props.height || 400;
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight - 30; // Subtract taskbar height
+    const screenWidth  = window.innerWidth;
+    const screenHeight = window.innerHeight - 30;
 
-    const defaultLeft = Math.max(0, (screenWidth - windowWidth) / 2);
-    const defaultTop = Math.max(0, (screenHeight - windowHeight) / 2);
+    const defaultLeft = Math.max(0, (screenWidth  - windowWidth)  / 2);
+    const defaultTop  = Math.max(0, (screenHeight - windowHeight) / 2);
 
     const newWindow = {
       id,
       appId,
       title,
       component,
-      componentProps: component.props, // Capture component props for persistence
+      componentProps: component?.props,
       icon,
       props,
       isMinimized: false,
       isMaximized: props.isMaximized || false,
       zIndex: zIndexCounter + 1,
-      width: props.width,
+      width:  props.width,
       height: props.height,
-      left: props.left || defaultLeft,
-      top: props.top || defaultTop
+      left:   props.left || defaultLeft,
+      top:    props.top  || defaultTop,
+      // lifecycle callbacks（不会被序列化进 localStorage）
+      onClose: props.onClose || null,
+      onFocus: props.onFocus || null,
     };
-    
+
     setZIndexCounter(prev => prev + 1);
-    setWindows([...windows, newWindow]);
+    setWindows(prev => [...prev, newWindow]);
     setActiveWindowId(id);
+
+    // onOpen callback
+    props.onOpen?.(id);
+
+    return id;
   };
 
+  // ── closeWindow ───────────────────────────────────────────────────────────
   const closeWindow = (id) => {
-    setWindows(windows.filter(w => w.id !== id));
+    const win = windows.find(w => w.id === id);
+    win?.onClose?.(id);
+
+    setWindows(prev => prev.filter(w => w.id !== id));
     if (activeWindowId === id) {
-        // Activate next top window
-        const remaining = windows.filter(w => w.id !== id);
-        if (remaining.length > 0) {
-            // Find max zIndex
-            const max = remaining.reduce((prev, current) => (prev.zIndex > current.zIndex) ? prev : current);
-            setActiveWindowId(max.id);
-        } else {
-            setActiveWindowId(null);
-        }
+      const remaining = windows.filter(w => w.id !== id);
+      if (remaining.length > 0) {
+        const top = remaining.reduce((a, b) => (a.zIndex > b.zIndex ? a : b));
+        setActiveWindowId(top.id);
+      } else {
+        setActiveWindowId(null);
+      }
     }
   };
 
+  // ── minimizeWindow ────────────────────────────────────────────────────────
   const minimizeWindow = (id) => {
-     setWindows(windows.map(w => w.id === id ? { ...w, isMinimized: true } : w));
-     setActiveWindowId(null); // Deselect
+    setWindows(prev => prev.map(w => w.id === id ? { ...w, isMinimized: true } : w));
+    setActiveWindowId(null);
   };
 
+  // ── maximizeWindow ────────────────────────────────────────────────────────
   const maximizeWindow = (id) => {
-     setWindows(windows.map(w => w.id === id ? { ...w, isMaximized: !w.isMaximized } : w));
+    setWindows(prev => prev.map(w => w.id === id ? { ...w, isMaximized: !w.isMaximized } : w));
   };
 
+  // ── resizeWindow ──────────────────────────────────────────────────────────
   const resizeWindow = (id, width, height) => {
-    setWindows(windows.map(w => w.id === id ? { ...w, width, height } : w));
+    setWindows(prev => prev.map(w => w.id === id ? { ...w, width, height } : w));
   };
 
+  // ── focusWindow ───────────────────────────────────────────────────────────
   const focusWindow = (id) => {
-      const win = windows.find(w => w.id === id);
-      if (!win) return;
-      
-      if (activeWindowId !== id) {
-          setZIndexCounter(prev => prev + 1);
-          setWindows(windows.map(w => w.id === id ? { ...w, zIndex: zIndexCounter + 1, isMinimized: false } : w));
-          setActiveWindowId(id);
-      } else if (win.isMinimized) {
-           // Restore if clicking taskbar item
-           setWindows(windows.map(w => w.id === id ? { ...w, isMinimized: false } : w));
-      }
+    const win = windows.find(w => w.id === id);
+    if (!win) return;
+
+    if (activeWindowId !== id) {
+      win.onFocus?.(id);
+      setZIndexCounter(prev => prev + 1);
+      setWindows(prev =>
+        prev.map(w => w.id === id
+          ? { ...w, zIndex: zIndexCounter + 1, isMinimized: false }
+          : w
+        )
+      );
+      setActiveWindowId(id);
+    } else if (win.isMinimized) {
+      setWindows(prev => prev.map(w => w.id === id ? { ...w, isMinimized: false } : w));
+    }
+  };
+
+  // ── setWindowTitle ────────────────────────────────────────────────────────
+  const setWindowTitle = (id, title) => {
+    setWindows(prev => prev.map(w => w.id === id ? { ...w, title } : w));
   };
 
   return (
-    <WindowManagerContext.Provider value={{ windows, activeWindowId, openWindow, closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow }}>
+    <WindowManagerContext.Provider value={{
+      windows, activeWindowId,
+      openWindow, closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow,
+      setWindowTitle,
+    }}>
       {children}
     </WindowManagerContext.Provider>
   );

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useWindowManager } from '../context/WindowManagerContext';
-import FileProperties from '../components/FileProperties';
+import { useApp } from '../hooks/useApp';
+import { APP_REGISTRY } from '../registry/apps.jsx';
 import { useTranslation } from 'react-i18next';
 
 const Container = styled.div`
@@ -70,20 +70,22 @@ const ToolbarButton = styled.button`
   }
 `;
 
-const PhotoViewer = ({ src, fileItem }) => {
-  const { openWindow } = useWindowManager();
+// windowId 由 Window.jsx 通过 cloneElement 自动注入
+const PhotoViewer = ({ src, fileItem, windowId }) => {
+  const api = useApp(windowId);
   const { t } = useTranslation();
 
   const handleProperties = () => {
-      if (fileItem) {
-          openWindow(
-              `properties-${fileItem.name}-${Date.now()}`,
-              `${fileItem.name} 属性`,
-              <FileProperties fileItem={fileItem} />,
-              'properties',
-              { width: 350, height: 450, resizable: false }
-          );
-      }
+    if (fileItem) {
+      const def = APP_REGISTRY.FileProperties;
+      api.openWindow(
+        `properties-${fileItem.name}-${Date.now()}`,
+        `${fileItem.name} 属性`,
+        def.restore({ fileItem }),
+        def.icon,
+        def.window,
+      );
+    }
   };
 
   return (

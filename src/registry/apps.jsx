@@ -8,84 +8,141 @@ import FileProperties from '../components/FileProperties';
 /**
  * APP_REGISTRY — 所有可打开应用的唯一注册中心。
  *
- * 每条记录包含：
- *   component       — 组件类（便于外部引用）
- *   icon            — 默认窗口图标名
- *   defaultWindowProps — 默认窗口尺寸/状态
- *   getProps(item)  — 将文件系统节点转为组件 props（文件关联时使用）
- *   restore(props)  — 从已保存的 componentProps 重建 JSX（localStorage 恢复时使用）
+ * 每条记录字段说明：
+ *   id                  — 应用唯一标识（与 registry key 相同）
+ *   name                — 显示名称
+ *   icon                — 默认窗口图标（XPIcon key 或 data: URL）
+ *   window              — 窗口默认配置
+ *     .width / .height  — 初始尺寸
+ *     .singleton        — true 时全局只允许一个实例，再次打开会聚焦已有窗口
+ *   lifecycle           — 生命周期回调，接收 (windowId)
+ *     .onOpen(id)       — 窗口创建后
+ *     .onClose(id)      — 窗口关闭前
+ *     .onFocus(id)      — 窗口获得焦点时
+ *   associations        — 文件关联（filesystem.json 中 node.app 匹配时自动使用）
+ *     .appField         — 匹配 node.app 字段值
+ *     .getProps(item)   — 将文件系统节点转为组件 props
+ *   restore(props)      — 从已保存的 componentProps 重建 JSX（localStorage 恢复时）
  */
 export const APP_REGISTRY = {
+
   Explorer: {
-    component: Explorer,
+    id:   'Explorer',
+    name: '文件资源管理器',
     icon: 'folder',
-    defaultWindowProps: { width: 800, height: 550 },
+    window: { width: 800, height: 550 },
+    lifecycle: {},
     restore: (props) => <Explorer {...props} />,
   },
 
   InternetExplorer: {
-    component: InternetExplorer,
+    id:   'InternetExplorer',
+    name: 'Internet Explorer',
     icon: 'ie',
-    defaultWindowProps: { isMaximized: true },
-    getProps: (item) =>
-      item.isHtmlContent
-        ? { html: item.content }
-        : { url: item.content || item.url || 'about:blank' },
+    window: { isMaximized: true },
+    lifecycle: {},
+    associations: [
+      {
+        appField: 'InternetExplorer',
+        getProps: (item) =>
+          item.isHtmlContent
+            ? { html: item.content }
+            : { url: item.content || item.url || 'about:blank' },
+      },
+    ],
     restore: (props) => <InternetExplorer {...props} />,
   },
 
   Notepad: {
-    component: Notepad,
+    id:   'Notepad',
+    name: '记事本',
     icon: 'file',
-    defaultWindowProps: { width: 600, height: 400 },
-    getProps: (item) => ({ content: item.content ?? '', readOnly: item.readOnly }),
+    window: { width: 600, height: 400 },
+    lifecycle: {},
+    associations: [
+      {
+        appField: 'Notepad',
+        getProps: (item) => ({ content: item.content ?? '', readOnly: item.readOnly }),
+      },
+    ],
     restore: (props) => <Notepad {...props} />,
   },
 
   PhotoViewer: {
-    component: PhotoViewer,
+    id:   'PhotoViewer',
+    name: '图片查看器',
     icon: 'image',
-    defaultWindowProps: { width: 600, height: 500 },
-    getProps: (item) => ({ src: item.content }),
+    window: { width: 600, height: 500 },
+    lifecycle: {},
+    associations: [
+      {
+        appField: 'PhotoViewer',
+        getProps: (item) => ({ src: item.content, fileItem: item }),
+      },
+    ],
     restore: (props) => <PhotoViewer {...props} />,
   },
 
   FileProperties: {
-    component: FileProperties,
+    id:   'FileProperties',
+    name: '属性',
     icon: 'properties',
-    defaultWindowProps: { width: 400, height: 450 },
+    window: { width: 400, height: 450, resizable: false },
+    lifecycle: {},
     restore: (props) => <FileProperties {...props} />,
   },
 };
 
+// ── 按 appField 建立快速查找表（避免遍历）──────────────────────────────────
+const _assocByField = Object.values(APP_REGISTRY).reduce((acc, def) => {
+  for (const assoc of (def.associations || [])) {
+    if (assoc.appField) acc[assoc.appField] = { def, assoc };
+  }
+  return acc;
+}, {});
+
 /**
- * 将文件系统节点解析为可直接传给 openWindow() 的参数对象。
+ * resolveFileOpen — 将文件系统节点解析为可直接传给 openWindow() 的参数对象。
  *
- * @param {string} key   - 该节点在父 children 中的 key（同时用作 Explorer 的 initialPath）
- * @param {object} item  - filesystem.json 中的节点
+ * @param {string} key   节点在父 children 中的 key（用作 Explorer 的 initialPath）
+ * @param {object} item  filesystem.json 中的节点
  * @returns {{ appId, component, icon, windowProps } | null}
- *   返回 null 表示无法打开（DummyApp 或未知 app），由调用方决定如何提示。
+ *   返回 null 表示无法打开（DummyApp 或未注册），调用方负责给出提示。
  */
 export const resolveFileOpen = (key, item) => {
   // 文件夹 / 根目录 → 用 Explorer 打开
   if (item.type === 'folder' || item.type === 'root') {
     const def = APP_REGISTRY.Explorer;
     return {
-      appId: 'Explorer',
-      component: def.restore({ initialPath: [key] }),
-      icon: item.icon || def.icon,
-      windowProps: def.defaultWindowProps,
+      appId:       'Explorer',
+      component:   def.restore({ initialPath: [key] }),
+      icon:        item.icon || def.icon,
+      windowProps: _buildWindowProps(def),
     };
   }
 
-  // app_shortcut / file → 查注册表
-  const def = APP_REGISTRY[item.app];
-  if (!def?.getProps) return null; // DummyApp 或未注册应用
+  // app_shortcut / file → 按 appField 查注册表
+  const entry = _assocByField[item.app];
+  if (!entry) return null;
+
+  const { def, assoc } = entry;
+  const componentProps = assoc.getProps(item);
 
   return {
-    appId: item.app,
-    component: def.restore(def.getProps(item)),
-    icon: item.icon || def.icon,
-    windowProps: def.defaultWindowProps,
+    appId:       def.id,
+    component:   def.restore(componentProps),
+    icon:        item.icon || def.icon,
+    windowProps: _buildWindowProps(def),
   };
 };
+
+/** 将 manifest.window 映射为 openWindow 的 props 参数格式 */
+function _buildWindowProps(def) {
+  return {
+    ...(def.window || {}),
+    // 传递 lifecycle 回调，供 WindowManagerContext 在适当时机调用
+    onOpen:  def.lifecycle?.onOpen  || null,
+    onClose: def.lifecycle?.onClose || null,
+    onFocus: def.lifecycle?.onFocus || null,
+  };
+}

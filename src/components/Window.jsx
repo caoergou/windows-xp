@@ -192,6 +192,9 @@ const Window = ({ windowState }) => {
 
     const nodeRef = React.useRef(null);
 
+    // 将 windowId 注入到 App 组件，使其可通过 useApp(windowId) 访问系统 API
+    const injectedComponent = React.cloneElement(component, { windowId: id });
+
     const content = (
         <WindowContainer ref={nodeRef} style={isMaximized ? style : { ...style, width: '100%', height: '100%' }} onClick={() => focusWindow(id)}>
             <TitleBar className="title-bar">
@@ -208,7 +211,7 @@ const Window = ({ windowState }) => {
                 </TitleControls>
             </TitleBar>
             <WindowBody>
-                {component}
+                {injectedComponent}
             </WindowBody>
         </WindowContainer>
     );
@@ -260,7 +263,7 @@ const Window = ({ windowState }) => {
                             </TitleControls>
                         </TitleBar>
                         <WindowBody>
-                            {component}
+                            {injectedComponent}
                         </WindowBody>
                     </WindowContainer>
                 </ResizableBox>

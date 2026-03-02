@@ -20,7 +20,8 @@ const TextArea = styled.textarea`
     outline: none;
 `;
 
-const Notepad = ({ content }) => {
+// windowId 由 Window.jsx 通过 cloneElement 自动注入，可传给 useApp(windowId)
+const Notepad = ({ content, windowId }) => {
     const textareaRef = useRef(null);
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
 

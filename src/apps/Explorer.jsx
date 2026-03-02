@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useFileSystem } from '../context/FileSystemContext';
-import { useWindowManager } from '../context/WindowManagerContext';
-import { useModal } from '../context/ModalContext';
-import InternetExplorer from './InternetExplorer';
-import Notepad from './Notepad';
-import PhotoViewer from './PhotoViewer';
+import { useApp } from '../hooks/useApp';
+import { resolveFileOpen } from '../registry/apps.jsx';
 import XPIcon from '../components/XPIcon';
 import ExplorerSidebar from '../components/Explorer/ExplorerSidebar';
 import ExplorerToolbar from '../components/Explorer/ExplorerToolbar';
@@ -111,10 +108,10 @@ const StatusBar = styled.div`
     color: #000;
 `;
 
-const Explorer = ({ initialPath = [] }) => {
+// windowId 由 Window.jsx 通过 cloneElement 自动注入
+const Explorer = ({ initialPath = [], windowId }) => {
     const { getFile, checkAccess } = useFileSystem();
-    const { openWindow } = useWindowManager();
-    const { showModal, showPasswordDialog } = useModal();
+    const api = useApp(windowId);
     
     const [history, setHistory] = useState([initialPath]);
     const [historyIndex, setHistoryIndex] = useState(0);
@@ -128,37 +125,31 @@ const Explorer = ({ initialPath = [] }) => {
         const target = getFile(newPath);
         
         if (target.broken) {
-            showModal('Error', "因为磁盘文件损坏无法打开", 'error');
+            await api.dialog.alert({ title: '错误', message: '因为磁盘文件损坏无法打开', type: 'error' });
             return;
         }
 
         if (target.locked) {
-            const success = await showPasswordDialog({
+            const success = await api.dialog.password({
                 title: '输入密码',
                 message: '此文件夹已加密，请输入密码访问。',
                 hint: target.hint || '',
                 correctPassword: target.password,
             });
-
-            if (!success) {
-                return;
-            }
+            if (!success) return;
         }
-        
+
         if (target.type === 'folder' || target.type === 'root') {
             const newHistory = history.slice(0, historyIndex + 1);
             newHistory.push(newPath);
             setHistory(newHistory);
             setHistoryIndex(newHistory.length - 1);
             setSelectedItem(null);
-        } else if (target.type === 'file') {
-             if (target.app === 'Notepad') {
-                 openWindow(name, target.name, <Notepad content={target.content} />, 'file');
-             } else if (target.app === 'InternetExplorer') {
-                 openWindow(name, target.name, <InternetExplorer url={target.content} />, 'html');
-             } else if (target.app === 'PhotoViewer') {
-                 openWindow(name, target.name, <PhotoViewer src={target.content} fileItem={target} />, 'image', { width: 600, height: 500 });
-             }
+        } else if (target.type === 'file' || target.type === 'app_shortcut') {
+            const resolved = resolveFileOpen(name, target);
+            if (resolved) {
+                api.openWindow(resolved.appId, target.name, resolved.component, resolved.icon, resolved.windowProps);
+            }
         }
     };
 
