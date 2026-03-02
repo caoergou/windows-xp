@@ -2,6 +2,7 @@ import { useWindowManager } from '../context/WindowManagerContext';
 import { useModal } from '../context/ModalContext';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useUserSession } from '../context/UserSessionContext';
+import { useTray } from '../context/TrayContext';
 import { sounds } from '../utils/soundManager';
 
 /**
@@ -19,20 +20,28 @@ import { sounds } from '../utils/soundManager';
 export function useApp(windowId) {
   const {
     openWindow, closeWindow, minimizeWindow, maximizeWindow, setWindowTitle,
+    setWindowBadge, setWindowProgress, flashWindow,
   } = useWindowManager();
 
   const { dialog } = useModal();
   const { getFile, checkAccess } = useFileSystem();
   const { user, logout } = useUserSession();
+  const { register, unregister, update } = useTray();
+
+  const trayId = `app-tray-${windowId}`;
 
   return {
     // ── 当前窗口控制 ────────────────────────────────────────────────────────
     window: {
-      id:       windowId,
-      setTitle: (title) => setWindowTitle(windowId, title),
-      close:    ()      => closeWindow(windowId),
-      minimize: ()      => minimizeWindow(windowId),
-      maximize: ()      => maximizeWindow(windowId),
+      id:          windowId,
+      setTitle:    (title)  => setWindowTitle(windowId, title),
+      close:       ()       => closeWindow(windowId),
+      minimize:    ()       => minimizeWindow(windowId),
+      maximize:    ()       => maximizeWindow(windowId),
+      // 任务栏指示器
+      setBadge:    (value)  => setWindowBadge(windowId, value),
+      setProgress: (pct)    => setWindowProgress(windowId, pct),
+      flash:       ()       => flashWindow(windowId),
     },
 
     // ── 打开新窗口（与 WindowManagerContext.openWindow 签名相同）────────────
@@ -64,6 +73,16 @@ export function useApp(windowId) {
     session: {
       user:   user?.name,
       logout,
+    },
+
+    // ── 系统托盘 ─────────────────────────────────────────────────────────
+    // api.tray.register({ icon, tooltip, order?, onClick? }) — 注册托盘图标
+    // api.tray.unregister()                                  — 注销托盘图标
+    // api.tray.update({ tooltip?, icon? })                   — 更新托盘图标
+    tray: {
+      register:   (config)  => register(trayId, config),
+      unregister: ()        => unregister(trayId),
+      update:     (updates) => update(trayId, updates),
     },
   };
 }

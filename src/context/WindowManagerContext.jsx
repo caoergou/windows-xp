@@ -26,10 +26,10 @@ export const WindowManagerProvider = ({ children }) => {
   const [activeWindowId, setActiveWindowId] = useState(null);
   const [zIndexCounter, setZIndexCounter] = useState(10000);
 
-  // ── 持久化（去除不可序列化字段）──────────────────────────────────────────
+  // ── 持久化（去除不可序列化字段及运行时状态）──────────────────────────────
   useEffect(() => {
     const windowsToSave = windows.map(
-      ({ component, onOpen, onClose, onFocus, ...rest }) => rest
+      ({ component, onOpen, onClose, onFocus, badge, progress, isFlashing, ...rest }) => rest
     );
     localStorage.setItem('xp_open_windows', JSON.stringify(windowsToSave));
   }, [windows]);
@@ -73,6 +73,10 @@ export const WindowManagerProvider = ({ children }) => {
       // lifecycle callbacks（不会被序列化进 localStorage）
       onClose: props.onClose || null,
       onFocus: props.onFocus || null,
+      // 运行时状态（不会被序列化进 localStorage）
+      badge:      null,
+      progress:   null,
+      isFlashing: false,
     };
 
     setZIndexCounter(prev => prev + 1);
@@ -128,13 +132,13 @@ export const WindowManagerProvider = ({ children }) => {
       setZIndexCounter(prev => prev + 1);
       setWindows(prev =>
         prev.map(w => w.id === id
-          ? { ...w, zIndex: zIndexCounter + 1, isMinimized: false }
+          ? { ...w, zIndex: zIndexCounter + 1, isMinimized: false, isFlashing: false }
           : w
         )
       );
       setActiveWindowId(id);
     } else if (win.isMinimized) {
-      setWindows(prev => prev.map(w => w.id === id ? { ...w, isMinimized: false } : w));
+      setWindows(prev => prev.map(w => w.id === id ? { ...w, isMinimized: false, isFlashing: false } : w));
     }
   };
 
@@ -143,11 +147,32 @@ export const WindowManagerProvider = ({ children }) => {
     setWindows(prev => prev.map(w => w.id === id ? { ...w, title } : w));
   };
 
+  // ── setWindowBadge ────────────────────────────────────────────────────────
+  // badge: 数字或字符串显示在任务栏按钮角落，传 null 清除
+  const setWindowBadge = (id, badge) => {
+    setWindows(prev => prev.map(w => w.id === id ? { ...w, badge } : w));
+  };
+
+  // ── setWindowProgress ─────────────────────────────────────────────────────
+  // progress: 0-100 的数字显示在任务栏按钮底部，传 null 清除
+  const setWindowProgress = (id, progress) => {
+    setWindows(prev => prev.map(w => w.id === id ? { ...w, progress } : w));
+  };
+
+  // ── flashWindow ───────────────────────────────────────────────────────────
+  // 触发任务栏按钮闪烁以引起用户注意，3 秒后自动停止
+  const flashWindow = (id) => {
+    setWindows(prev => prev.map(w => w.id === id ? { ...w, isFlashing: true } : w));
+    setTimeout(() => {
+      setWindows(prev => prev.map(w => w.id === id ? { ...w, isFlashing: false } : w));
+    }, 3000);
+  };
+
   return (
     <WindowManagerContext.Provider value={{
       windows, activeWindowId,
       openWindow, closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow,
-      setWindowTitle,
+      setWindowTitle, setWindowBadge, setWindowProgress, flashWindow,
     }}>
       {children}
     </WindowManagerContext.Provider>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useTray } from '../context/TrayContext';
 import { sounds } from '../utils/soundManager';
 
 const slideIn = keyframes`
@@ -190,8 +191,19 @@ const MIN_INTERVAL = 90_000;
 const MAX_INTERVAL = 150_000;
 
 const AntivirusPopup = () => {
+  const { register, unregister } = useTray();
   const [popup, setPopup] = useState(null);
   const [msgIdx, setMsgIdx] = useState(0);
+
+  // 在系统托盘注册 360 安全卫士图标
+  useEffect(() => {
+    register('360safe', {
+      icon: '360safe',
+      tooltip: '360安全卫士 - 电脑安全',
+      order: 20,
+    });
+    return () => unregister('360safe');
+  }, [register, unregister]);
 
   const dismiss = useCallback(() => setPopup(null), []);
 

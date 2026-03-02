@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserSession } from '../context/UserSessionContext';
+import { useTray } from '../context/TrayContext';
 import XPIcon from './XPIcon';
 import SystemClock from './SystemClock';
 import { APP_REGISTRY } from '../registry/apps.jsx';
@@ -68,6 +69,11 @@ const TaskItems = styled.div`
     overflow: hidden;
 `;
 
+const taskFlash = keyframes`
+    0%, 100% { background: #3980F4; }
+    50%       { background: #FF8C00; }
+`;
+
 const TaskItem = styled.div`
     width: 150px;
     height: 25px;
@@ -82,6 +88,12 @@ const TaskItem = styled.div`
     cursor: pointer;
     margin-top: 2px;
     box-shadow: ${props => props.$active ? 'inset 1px 1px 2px black' : 'none'};
+    position: relative;
+    overflow: hidden;
+
+    ${props => props.$flashing && css`
+        animation: ${taskFlash} 0.5s ease-in-out 6;
+    `}
 
     &:hover {
         background: #5092F6;
@@ -90,6 +102,36 @@ const TaskItem = styled.div`
     .task-icon {
         margin-right: 5px;
     }
+`;
+
+const TaskBadge = styled.div`
+    position: absolute;
+    top: 1px;
+    right: 3px;
+    background: #E81224;
+    color: white;
+    border-radius: 50%;
+    min-width: 13px;
+    height: 13px;
+    font-size: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px;
+    font-weight: bold;
+    line-height: 1;
+    pointer-events: none;
+`;
+
+const TaskProgress = styled.div`
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: ${props => props.$pct}%;
+    background: linear-gradient(to right, #00C6FF, #0072FF);
+    transition: width 0.3s ease;
+    pointer-events: none;
 `;
 
 const SystemTray = styled.div`
@@ -321,6 +363,7 @@ const Taskbar = () => {
     const { windows, activeWindowId, focusWindow, minimizeWindow, openWindow, closeWindow } = useWindowManager();
     const { logout } = useUserSession();
     const { showModal } = useModal();
+    const { items: trayItems } = useTray();
     const [startOpen, setStartOpen] = useState(false);
     const [showTurnOff, setShowTurnOff] = useState(false);
     const [qqContextMenu, setQqContextMenu] = useState(null);
@@ -590,25 +633,34 @@ const Taskbar = () => {
                         <TaskItem
                             key={win.id}
                             $active={activeWindowId === win.id && !win.isMinimized}
+                            $flashing={win.isFlashing}
                             onClick={(e) => { e.stopPropagation(); handleTaskClick(win); }}
                         >
                             <XPIcon name={win.icon} size={16} className="task-icon" />
                             {win.title}
+                            {win.badge != null && <TaskBadge>{win.badge}</TaskBadge>}
+                            {win.progress != null && <TaskProgress $pct={win.progress} />}
                         </TaskItem>
                     ))}
                 </TaskItems>
                 <SystemTray>
+                    {/* 动态托盘图标（由各应用通过 TrayContext 注册）*/}
+                    {trayItems.map(item => (
+                        <div
+                            key={item.id}
+                            style={{ marginRight: '8px', display: 'flex', alignItems: 'center', cursor: item.onClick ? 'pointer' : 'default' }}
+                            title={item.tooltip || ''}
+                            onClick={item.onClick ? (e) => { e.stopPropagation(); item.onClick(); } : undefined}
+                        >
+                            <XPIcon name={item.icon} size={16} color="white" />
+                        </div>
+                    ))}
+                    {/* 固定系统托盘图标 */}
                     <div
                         style={{ marginRight: '8px', display: 'flex', alignItems: 'center' }}
                         title="音量"
                     >
                         <XPIcon name="sound" size={16} color="white" />
-                    </div>
-                    <div
-                        style={{ marginRight: '8px', display: 'flex', alignItems: 'center' }}
-                        title="360安全卫士 - 电脑安全"
-                    >
-                        <XPIcon name="360safe" size={16} color="white" />
                     </div>
                     <div
                         style={{ marginRight: '10px', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
