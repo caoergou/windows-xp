@@ -20,14 +20,14 @@ const MenuItem = styled.div`
     cursor: default;
     display: flex;
     align-items: center;
-    color: ${props => props.$disabled ? '#888' : '#000'};
+    color: ${props => props.$disabled ? '#777' : '#000'};
     position: relative;
     border: 1px solid transparent;
-    cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
+    cursor: default;
 
     &:hover {
         background-color: ${props => props.$disabled ? 'transparent' : '#316AC5'};
-        color: ${props => props.$disabled ? '#888' : 'white'};
+        color: ${props => props.$disabled ? '#777' : 'white'};
         border: 1px solid ${props => props.$disabled ? 'transparent' : '#316AC5'};
     }
 
