@@ -3,14 +3,14 @@
     "type": "folder",
     "name": "root",
     "children": {
-      "My Computer": {
+      "我的电脑": {
         "type": "folder",
-        "name": "My Computer",
+        "name": "我的电脑",
         "icon": "computer",
         "children": {
-          "Local Disk (C:)": {
+          "本地磁盘 (C:)": {
             "type": "folder",
-            "name": "Local Disk (C:)",
+            "name": "本地磁盘 (C:)",
             "icon": "drive",
             "children": {
               "Windows": {
@@ -50,52 +50,52 @@
               }
             }
           },
-          "Local Disk (D:)": {
+          "本地磁盘 (D:)": {
             "type": "folder",
-            "name": "Local Disk (D:)",
+            "name": "本地磁盘 (D:)",
             "icon": "drive",
             "children": {
-              "Backup": {
+              "备份": {
                 "type": "folder",
-                "name": "Backup",
+                "name": "备份",
                 "children": {
-                  "Documents Backup.zip": {
+                  "文档备份.zip": {
                     "type": "file",
-                    "name": "Documents Backup.zip",
+                    "name": "文档备份.zip",
                     "broken": true,
                     "app": "Notepad"
                   }
                 }
               },
-              "Games": {
+              "游戏": {
                 "type": "folder",
-                "name": "Games",
+                "name": "游戏",
                 "children": {}
               }
             }
           },
-          "DVD/CD-RW Drive (E:)": {
+          "DVD/CD-RW 驱动器 (E:)": {
             "type": "folder",
-            "name": "DVD/CD-RW Drive (E:)",
+            "name": "DVD/CD-RW 驱动器 (E:)",
             "icon": "drive",
             "broken": true,
             "children": {}
           }
         }
       },
-      "My Documents": {
+      "我的文档": {
         "type": "folder",
-        "name": "My Documents",
+        "name": "我的文档",
         "icon": "documents",
         "children": {
-          "My Music": {
+          "我的音乐": {
             "type": "folder",
-            "name": "My Music",
+            "name": "我的音乐",
             "icon": "folder",
             "children": {
-              "Sample Music": {
+              "示例音乐": {
                 "type": "folder",
-                "name": "Sample Music",
+                "name": "示例音乐",
                 "children": {
                   "Beethoven's Symphony No. 9.mp3": {
                     "type": "file",
@@ -156,9 +156,9 @@
           }
         }
       },
-      "Recycle Bin": {
+      "回收站": {
         "type": "folder",
-        "name": "Recycle Bin",
+        "name": "回收站",
         "icon": "recycle_bin",
         "children": {}
       },

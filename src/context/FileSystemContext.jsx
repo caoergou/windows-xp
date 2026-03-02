@@ -23,10 +23,10 @@ const fileSystemWithRecycleBin = JSON.parse(JSON.stringify(initialFileSystem));
 if (
   fileSystemWithRecycleBin.root &&
   fileSystemWithRecycleBin.root.children &&
-  fileSystemWithRecycleBin.root.children['Recycle Bin']
+  fileSystemWithRecycleBin.root.children['回收站']
 ) {
-  fileSystemWithRecycleBin.root.children['Recycle Bin'].children = {
-    ...fileSystemWithRecycleBin.root.children['Recycle Bin'].children,
+  fileSystemWithRecycleBin.root.children['回收站'].children = {
+    ...fileSystemWithRecycleBin.root.children['回收站'].children,
     ...recycleBinItems
   };
 }

@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import IEToolbar from '../components/Explorer/IEToolbar';
 import IEAddressBar from '../components/Explorer/IEAddressBar';
 import { useWindowManager } from '../context/WindowManagerContext';
+import { useTranslation } from 'react-i18next';
 
 
 const Container = styled.div`
@@ -90,6 +91,7 @@ const Content = styled.div`
 
 const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
     const { openWindow } = useWindowManager();
+    const { t } = useTranslation();
 
     // History is an array of objects: { url: string, html: string|null }
     const [history, setHistory] = useState([
@@ -277,7 +279,7 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
                 {showHistory && (
                     <Sidebar>
                         <SidebarHeader>
-                            <span>History</span>
+                            <span>{t('internetExplorer.history')}</span>
                             <X size={14} style={{cursor: 'pointer'}} onClick={() => setShowHistory(false)} />
                         </SidebarHeader>
                         <HistoryList>
@@ -288,7 +290,7 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
                                 </HistoryItem>
                             ))}
                             {browsingHistory.length === 0 && (
-                                <div style={{padding: 10, color: '#888', fontSize: 12}}>No history</div>
+                                <div style={{padding: 10, color: '#888', fontSize: 12}}>{t('internetExplorer.noHistory')}</div>
                             )}
                         </HistoryList>
                     </Sidebar>

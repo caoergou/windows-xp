@@ -45,7 +45,7 @@ Relive the nostalgia of the millennium era! This project captures the essence of
 
 ### Prerequisites
 
-- Node.js 16+ and npm
+- Node.js 18+ and npm
 
 ### Installation
 

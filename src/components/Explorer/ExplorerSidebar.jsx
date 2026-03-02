@@ -104,11 +104,11 @@ const ExplorerSidebar = ({ currentPath, currentItem, onNavigate }) => {
                     <XPIcon name={sections.otherPlaces ? "chevron_down" : "up"} size={12} color="#215dc6" />
                 </Header>
                 <Content collapsed={sections.otherPlaces}>
-                    <SidebarLink onClick={() => onNavigate && onNavigate(['My Computer'])}>
+                    <SidebarLink onClick={() => onNavigate && onNavigate(['我的电脑'])}>
                         <XPIcon name="computer" size={16} />
                         我的电脑
                     </SidebarLink>
-                    <SidebarLink onClick={() => onNavigate && onNavigate(['My Documents'])}>
+                    <SidebarLink onClick={() => onNavigate && onNavigate(['我的文档'])}>
                         <XPIcon name="documents" size={16} />
                         我的文档
                     </SidebarLink>
@@ -116,7 +116,7 @@ const ExplorerSidebar = ({ currentPath, currentItem, onNavigate }) => {
                         <XPIcon name="network" size={16} />
                         网上邻居
                     </SidebarLink>
-                    <SidebarLink onClick={() => onNavigate && onNavigate(['Recycle Bin'])}>
+                    <SidebarLink onClick={() => onNavigate && onNavigate(['回收站'])}>
                         <XPIcon name="recycle_bin" size={16} />
                         回收站
                     </SidebarLink>

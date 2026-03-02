@@ -199,7 +199,7 @@ const Explorer = ({ initialPath = [] }) => {
     if (!currentFolder) return <div>找不到路径</div>;
 
     // Grouping Logic for "My Computer" (Root or Explicit 'My Computer' path)
-    const isRoot = currentPath.length === 0 || (currentPath.length === 1 && currentPath[0] === 'My Computer');
+    const isRoot = currentPath.length === 0 || (currentPath.length === 1 && currentPath[0] === '我的电脑');
 
     const renderContent = () => {
         if (!currentFolder.children) return null;

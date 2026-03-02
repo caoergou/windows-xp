@@ -45,7 +45,7 @@
 
 ### 前置要求
 
-- Node.js 16+ 和 npm
+- Node.js 18+ 和 npm
 
 ### 安装
 

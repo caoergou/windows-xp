@@ -120,9 +120,9 @@ const Desktop = () => {
   // Translate desktop icon names
   const translateIconName = (key, name) => {
     const nameMap = {
-      'My Computer': 'desktop.myComputer',
-      'My Documents': 'desktop.myDocuments',
-      'Recycle Bin': 'desktop.recycleBin',
+      '我的电脑': 'desktop.myComputer',
+      '我的文档': 'desktop.myDocuments',
+      '回收站': 'desktop.recycleBin',
       'Internet Explorer': 'desktop.internetExplorer'
     };
     return nameMap[key] ? t(nameMap[key]) : name;
@@ -144,7 +144,7 @@ const Desktop = () => {
     <DesktopContainer $bgUrl={desktopBg} onContextMenu={handleContextMenu}>
       <IconGrid key={refreshKey} style={{ opacity: isRefreshing ? 0 : 1 }}>
         {Object.entries(desktopItems).map(([key, item]) => {
-          const iconName = (key === 'Recycle Bin' && item.children && Object.keys(item.children).length > 0)
+          const iconName = (key === '回收站' && item.children && Object.keys(item.children).length > 0)
             ? 'recycle_bin_full'
             : item.icon;
           return (

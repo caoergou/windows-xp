@@ -79,8 +79,8 @@ const StickyNote = () => {
       <NoteContent
         style={{ cursor: 'pointer' }}
         onDoubleClick={() =>
-          openWindow('My Documents', 'My Documents',
-            <Explorer initialPath={['My Documents']} />, 'documents',
+          openWindow('我的文档', '我的文档',
+            <Explorer initialPath={['我的文档']} />, 'documents',
             { width: 700, height: 500 })
         }
       >{`📁 双击打开我的文档

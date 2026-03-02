@@ -5,6 +5,7 @@ import { ResizableBox } from 'react-resizable';
 import { useWindowManager } from '../context/WindowManagerContext';
 import XPIcon from './XPIcon';
 import 'react-resizable/css/styles.css';
+import { useTranslation } from 'react-i18next';
 
 const WindowContainer = styled.div`
     box-sizing: border-box;
@@ -167,6 +168,7 @@ const WindowBody = styled.div`
 
 const Window = ({ windowState }) => {
     const { closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow } = useWindowManager();
+    const { t } = useTranslation();
     const { id, title, component, icon, zIndex, isMinimized, isMaximized, width, height, left, top, props: windowProps } = windowState;
 
     if (isMinimized) return null;
@@ -198,11 +200,11 @@ const Window = ({ windowState }) => {
                     {title}
                 </TitleText>
                 <TitleControls>
-                    <MinimizeBtn onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} aria-label="Minimize" />
+                    <MinimizeBtn onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} aria-label={t('window.minimize')} />
                     {isResizable && (
-                        <MaximizeBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Maximize" />
+                        <MaximizeBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label={t('window.maximize')} />
                     )}
-                    <CloseBtn onClick={(e) => { e.stopPropagation(); closeWindow(id); }} aria-label="Close" />
+                    <CloseBtn onClick={(e) => { e.stopPropagation(); closeWindow(id); }} aria-label={t('window.close')} />
                 </TitleControls>
             </TitleBar>
             <WindowBody>
@@ -250,11 +252,11 @@ const Window = ({ windowState }) => {
                                 {title}
                             </TitleText>
                             <TitleControls>
-                                <MinimizeBtn onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} aria-label="Minimize" />
+                                <MinimizeBtn onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }} aria-label={t('window.minimize')} />
                                 {isResizable && (
-                                    <MaximizeBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label="Maximize" />
+                                    <MaximizeBtn onClick={(e) => { e.stopPropagation(); maximizeWindow(id); }} aria-label={t('window.maximize')} />
                                 )}
-                                <CloseBtn onClick={(e) => { e.stopPropagation(); closeWindow(id); }} aria-label="Close" />
+                                <CloseBtn onClick={(e) => { e.stopPropagation(); closeWindow(id); }} aria-label={t('window.close')} />
                             </TitleControls>
                         </TitleBar>
                         <WindowBody>

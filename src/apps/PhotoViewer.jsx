@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import FileProperties from '../components/FileProperties';
+import { useTranslation } from 'react-i18next';
 
 const Container = styled.div`
   display: flex;
@@ -71,6 +72,7 @@ const ToolbarButton = styled.button`
 
 const PhotoViewer = ({ src, fileItem }) => {
   const { openWindow } = useWindowManager();
+  const { t } = useTranslation();
 
   const handleProperties = () => {
       if (fileItem) {
@@ -99,9 +101,9 @@ const PhotoViewer = ({ src, fileItem }) => {
       </Toolbar>
       <Content>
         {src ? (
-            <StyledImage src={src} alt="View" draggable={false} />
+            <StyledImage src={src} alt={t('photoViewer.view')} draggable={false} />
         ) : (
-            <div>No image selected</div>
+            <div>{t('photoViewer.noImageSelected')}</div>
         )}
       </Content>
       <InfoBar>

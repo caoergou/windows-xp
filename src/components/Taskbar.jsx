@@ -528,15 +528,15 @@ const Taskbar = () => {
                             </MenuItem>
                         </StartLeft>
                         <StartRight>
-                            <MenuItem onClick={() => handleLaunch('Explorer', 'My Documents')}>
+                            <MenuItem onClick={() => handleLaunch('Explorer', '我的文档')}>
                                 <XPIcon name="documents" size={24} className="menu-icon" />
                                 <span>我的文档</span>
                             </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('Explorer', 'My Computer')}>
+                            <MenuItem onClick={() => handleLaunch('Explorer', '我的电脑')}>
                                 <XPIcon name="computer" size={24} className="menu-icon" />
                                 <span>我的电脑</span>
                             </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('Explorer', 'My Music')}>
+                            <MenuItem onClick={() => handleLaunch('Explorer', '我的音乐')}>
                                 <XPIcon name="folder" size={24} className="menu-icon" />
                                 <span>我的音乐</span>
                             </MenuItem>
@@ -550,7 +550,7 @@ const Taskbar = () => {
                                 <span>打印机和传真</span>
                             </MenuItem>
                             <MenuSeparator />
-                            <MenuItem onClick={() => handleLaunch('Recycle Bin', 'Recycle Bin')}>
+                            <MenuItem onClick={() => handleLaunch('Recycle Bin', '回收站')}>
                                 <XPIcon name="recycle_bin" size={24} className="menu-icon" />
                                 <span>回收站</span>
                             </MenuItem>

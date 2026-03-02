@@ -32,7 +32,7 @@ export const restoreComponent = (appId, componentProps = {}) => {
   }
 
   // Common folders
-  if (appId === 'My Computer' || appId === 'Recycle Bin' || appId === 'My Documents') {
+  if (['My Computer', '我的电脑', 'Recycle Bin', '回收站', 'My Documents', '我的文档'].includes(appId)) {
     return <Explorer initialPath={[appId]} />;
   }
 
