@@ -30,7 +30,7 @@ export const APP_REGISTRY = {
     id:   'Explorer',
     name: '文件资源管理器',
     icon: 'folder',
-    window: { width: 800, height: 550 },
+    window: { width: 720, height: 500 },
     lifecycle: {},
     restore: (props) => <Explorer {...props} />,
   },
@@ -57,7 +57,7 @@ export const APP_REGISTRY = {
     id:   'Notepad',
     name: '记事本',
     icon: 'file',
-    window: { width: 600, height: 400 },
+    window: { width: 480, height: 300 },
     lifecycle: {},
     associations: [
       {
@@ -72,7 +72,7 @@ export const APP_REGISTRY = {
     id:   'PhotoViewer',
     name: '图片查看器',
     icon: 'image',
-    window: { width: 600, height: 500 },
+    window: { width: 660, height: 520 },
     lifecycle: {},
     associations: [
       {
@@ -87,7 +87,7 @@ export const APP_REGISTRY = {
     id:   'FileProperties',
     name: '属性',
     icon: 'properties',
-    window: { width: 400, height: 450, resizable: false },
+    window: { width: 380, height: 420, resizable: false },
     lifecycle: {},
     restore: (props) => <FileProperties {...props} />,
   },

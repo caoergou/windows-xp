@@ -8,7 +8,6 @@ import Window from './Window';
 import ContextMenu from './ContextMenu';
 import XPIcon from './XPIcon';
 import { resolveFileOpen } from '../registry/apps.jsx';
-import StickyNote from './StickyNote';
 import AntivirusPopup from './AntivirusPopup';
 import { useModal } from '../context/ModalContext';
 import desktopBg from '../assets/images/desktop_bg.jpg';
@@ -152,7 +151,6 @@ const Desktop = () => {
         menuItems={desktopMenuItems}
       />
 
-      <StickyNote />
       <AntivirusPopup />
     </DesktopContainer>
   );

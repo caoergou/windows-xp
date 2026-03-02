@@ -89,6 +89,16 @@ const Content = styled.div`
     }
 `;
 
+// 将普通 URL 转为互联网档案馆（Wayback Machine）存档链接，
+// 呈现 2006 年 Windows XP 全盛期的真实网页样貌。
+// if_ 后缀使存档页面以内嵌模式呈现，不显示 Wayback 顶部工具条。
+const WAYBACK_TS = '20060615120000';
+const toWaybackUrl = (url) => {
+    if (!url || url === 'about:blank') return url;
+    if (url.includes('web.archive.org')) return url;
+    return `https://web.archive.org/web/${WAYBACK_TS}if_/${url}`;
+};
+
 const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
     const { openWindow } = useWindowManager();
     const { t } = useTranslation();
@@ -243,11 +253,11 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
             if (pluginContent) return pluginContent;
         }
 
-        // Fallback to iframe
+        // 通过 Wayback Machine 加载存档版本，还原 2006 年真实网页
         return (
             <iframe
                 id="ie-frame"
-                src={currentEntry.url}
+                src={toWaybackUrl(currentEntry.url)}
                 title="Browser"
                 sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
             />
