@@ -108,13 +108,13 @@ const Desktop = () => {
   };
 
   const desktopMenuItems = [
-    { label: t('contextMenu.refresh'), icon: 'refresh', action: handleRefresh },
+    { label: t('contextMenu.refresh'), action: handleRefresh },
     { type: 'separator' },
-    { label: t('contextMenu.paste'), icon: 'paste', action: () => {} },
+    { label: t('contextMenu.paste'), action: () => {} },
     { type: 'separator' },
-    { label: t('contextMenu.new'), icon: 'new_folder', action: () => {} },
+    { label: t('contextMenu.new'), action: () => {} },
     { type: 'separator' },
-    { label: t('contextMenu.properties'), icon: 'properties', action: () => {} }
+    { label: t('contextMenu.properties'), action: () => {} }
   ];
 
   const desktopItems = fs.root.children;

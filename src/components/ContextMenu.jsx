@@ -16,7 +16,7 @@ const ContextMenuContainer = styled.div`
 `;
 
 const MenuItem = styled.div`
-    padding: 4px 20px 4px 30px;
+    padding: 4px 20px 4px 20px;
     cursor: default;
     display: flex;
     align-items: center;
