@@ -69,6 +69,7 @@ const Desktop = () => {
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
   const [refreshKey, setRefreshKey] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [pasteDisabled, setPasteDisabled] = useState(true);
 
   const handleIconDoubleClick = (key, item) => {
     const resolved = resolveFileOpen(key, item);
@@ -79,8 +80,14 @@ const Desktop = () => {
     openWindow(resolved.appId, item.name, resolved.component, resolved.icon, resolved.windowProps);
   };
 
-  const handleContextMenu = (e) => {
+  const handleContextMenu = async (e) => {
     e.preventDefault();
+    try {
+      const clipboardText = await navigator.clipboard.readText();
+      setPasteDisabled(clipboardText.trim() === '');
+    } catch (err) {
+      setPasteDisabled(true);
+    }
     setContextMenu({ visible: true, x: e.clientX, y: e.clientY });
   };
 
@@ -110,7 +117,7 @@ const Desktop = () => {
   const desktopMenuItems = [
     { label: t('contextMenu.refresh'), action: handleRefresh },
     { type: 'separator' },
-    { label: t('contextMenu.paste'), action: () => {} },
+    { label: t('contextMenu.paste'), action: () => {}, disabled: pasteDisabled },
     { type: 'separator' },
     { label: t('contextMenu.new'), action: () => {} },
     { type: 'separator' },

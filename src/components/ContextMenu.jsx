@@ -20,14 +20,15 @@ const MenuItem = styled.div`
     cursor: default;
     display: flex;
     align-items: center;
-    color: #000;
+    color: ${props => props.$disabled ? '#888' : '#000'};
     position: relative;
     border: 1px solid transparent;
+    cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
 
     &:hover {
-        background-color: #316AC5;
-        color: white;
-        border: 1px solid #316AC5;
+        background-color: ${props => props.$disabled ? 'transparent' : '#316AC5'};
+        color: ${props => props.$disabled ? '#888' : 'white'};
+        border: 1px solid ${props => props.$disabled ? 'transparent' : '#316AC5'};
     }
 
     .icon-wrapper {
@@ -130,7 +131,7 @@ const ContextMenu = ({ visible, x, y, onClose, menuItems }) => {
                             }
                             onClose();
                         }}
-                        disabled={item.disabled}
+                        $disabled={item.disabled}
                     >
                          {item.icon && (
                             <div className="icon-wrapper">

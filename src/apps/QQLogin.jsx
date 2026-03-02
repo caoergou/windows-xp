@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useApp } from '../hooks/useApp';
 import { useWindowManager } from '../context/WindowManagerContext';
+import { useTray } from '../context/TrayContext';
 
 // ─── 样式 ─────────────────────────────────────────────────────────────────────
 
@@ -198,12 +199,62 @@ const Footer = styled.div`
 const QQLogin = ({ windowId }) => {
   const api = useApp(windowId);
   const { closeWindow } = useWindowManager();
+  const { register, unregister } = useTray();
   const [qqNum, setQqNum] = useState('');
   const [password, setPassword] = useState('');
   const [rememberPwd, setRememberPwd] = useState(true);
   const [autoLogin, setAutoLogin] = useState(false);
+  const [captcha, setCaptcha] = useState('');
+  const [captchaImg, setCaptchaImg] = useState('');
+
+  // Generate a simple captcha
+  const generateCaptcha = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let newCaptcha = '';
+    for (let i = 0; i < 4; i++) {
+      newCaptcha += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setCaptchaImg(newCaptcha);
+  };
+
+  useEffect(() => {
+    // Register QQ tray icon
+    register('qq', {
+      icon: 'qq',
+      tooltip: 'QQ — 右键更多选项',
+      order: 40,
+      onClick: () => {
+        // Left click opens QQLogin window (if not already open)
+        // Since we're already in QQLogin, this could focus the window
+      },
+    });
+    generateCaptcha();
+
+    return () => {
+      // Unregister QQ tray icon when component unmounts
+      unregister('qq');
+    };
+  }, [register, unregister]);
 
   const handleLogin = async () => {
+    if (!captcha) {
+      await api.dialog.alert({
+        title: 'QQ',
+        message: '请输入验证码',
+        type: 'error',
+      });
+      return;
+    }
+    if (captcha.toUpperCase() !== captchaImg) {
+      await api.dialog.alert({
+        title: 'QQ',
+        message: '验证码错误，请重新输入',
+        type: 'error',
+      });
+      generateCaptcha();
+      setCaptcha('');
+      return;
+    }
     // 不管输什么都提示版本过旧
     await api.dialog.alert({
       title: 'QQ',
@@ -251,6 +302,22 @@ const QQLogin = ({ windowId }) => {
             placeholder="请输入密码"
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
           />
+        </FieldRow>
+
+        <FieldRow>
+          <label>验证码：</label>
+          <input
+            type="text"
+            value={captcha}
+            onChange={e => setCaptcha(e.target.value.toUpperCase())}
+            placeholder="请输入验证码"
+            maxLength={4}
+            onKeyDown={e => e.key === 'Enter' && handleLogin()}
+          />
+          <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#3a7bd5', cursor: 'pointer', marginLeft: '8px' }}
+               onClick={generateCaptcha}>
+            {captchaImg}
+          </div>
         </FieldRow>
 
         <CheckRow>
