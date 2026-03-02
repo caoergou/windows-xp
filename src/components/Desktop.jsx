@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useWindowManager } from '../context/WindowManagerContext';
 import Taskbar from './Taskbar';
@@ -64,6 +65,7 @@ const DesktopIcon = styled.div`
 `;
 
 const Desktop = () => {
+  const { t } = useTranslation();
   const { fs } = useFileSystem();
   const { windows, openWindow, focusWindow } = useWindowManager();
   const { showModal } = useModal();
@@ -115,15 +117,25 @@ const Desktop = () => {
     }, 100);
   };
 
+  // Translate desktop icon names
+  const translateIconName = (key, name) => {
+    const nameMap = {
+      'My Computer': 'desktop.myComputer',
+      'My Documents': 'desktop.myDocuments',
+      'Recycle Bin': 'desktop.recycleBin',
+      'Internet Explorer': 'desktop.internetExplorer'
+    };
+    return nameMap[key] ? t(nameMap[key]) : name;
+  };
+
   const desktopMenuItems = [
-    { label: 'Refresh', icon: 'refresh', action: handleRefresh },
+    { label: t('contextMenu.refresh'), icon: 'refresh', action: handleRefresh },
     { type: 'separator' },
-    { label: 'Paste', icon: 'paste', action: () => {} },
+    { label: t('contextMenu.paste'), icon: 'paste', action: () => {} },
     { type: 'separator' },
-    { label: 'New Folder', icon: 'new_folder', action: () => {} },
-    { label: 'New Shortcut', icon: 'new_shortcut', action: () => {} },
+    { label: t('contextMenu.new'), icon: 'new_folder', action: () => {} },
     { type: 'separator' },
-    { label: 'Properties', icon: 'properties', action: () => {} }
+    { label: t('contextMenu.properties'), icon: 'properties', action: () => {} }
   ];
 
   const desktopItems = fs.root.children;
@@ -140,7 +152,7 @@ const Desktop = () => {
               <div className="icon-wrapper">
                 <XPIcon name={iconName} size={32} />
               </div>
-              <span>{item.name}</span>
+              <span>{translateIconName(key, item.name)}</span>
             </DesktopIcon>
           );
         })}

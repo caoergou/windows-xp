@@ -50,9 +50,7 @@
     "rename": "Rename",
     "properties": "Properties",
     "refresh": "Refresh",
-    "new": "New",
-    "folder": "Folder",
-    "shortcut": "Shortcut"
+    "new": "New"
   },
   "login": {
     "welcome": "Welcome",
