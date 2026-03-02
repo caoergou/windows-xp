@@ -1,32 +1,77 @@
 {
-  "name": "windows-xp",
+  "name": "@caoergou/windows-xp",
   "version": "1.0.0",
-  "description": "A simulated Windows XP desktop environment built with React",
-  "main": "src/main.jsx",
+  "description": "A faithful recreation of Windows XP desktop in React - Relive the millennium era with authentic Y2K aesthetics",
+  "main": "dist/windows-xp.umd.js",
+  "module": "dist/windows-xp.es.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/windows-xp.es.js",
+      "require": "./dist/windows-xp.umd.js"
+    },
+    "./style.css": "./dist/style.css"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:lib": "vite build --config vite.config.lib.js",
     "preview": "vite preview",
     "test": "vitest"
   },
+  "keywords": [
+    "windows-xp",
+    "react",
+    "nostalgia",
+    "retro",
+    "y2k",
+    "millennium",
+    "desktop-simulator",
+    "ui-recreation",
+    "xp-theme",
+    "vintage",
+    "component"
+  ],
+  "author": "caoergou",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caoergou/windows-xp.git"
+  },
+  "homepage": "http://eric.run.place/windows-xp/",
+  "bugs": {
+    "url": "https://github.com/caoergou/windows-xp/issues"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
   "dependencies": {
-    "@playwright/test": "^1.57.0",
     "framer-motion": "^10.16.4",
-    "happy": "^1.0.2",
+    "i18next": "^25.8.13",
+    "i18next-browser-languagedetector": "^8.2.1",
     "lucide-react": "^0.556.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "react-draggable": "^4.4.6",
+    "react-i18next": "^16.5.4",
     "react-old-icons": "^1.0.2",
     "react-resizable": "^3.0.5",
     "styled-components": "^6.1.1",
     "xp.css": "^0.2.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@vitejs/plugin-react": "^4.2.0",
+    "happy": "^1.0.2",
     "jsdom": "^27.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "vite": "^5.4.21",
     "vitest": "^1.6.1"
   }

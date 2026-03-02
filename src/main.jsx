@@ -4,6 +4,7 @@ import App from './App.jsx';
 import { FileSystemProvider } from './context/FileSystemContext';
 import { WindowManagerProvider } from './context/WindowManagerContext';
 import { UserSessionProvider } from './context/UserSessionContext';
+import './i18n';
 import 'xp.css/dist/XP.css';
 import './index.css';
 

@@ -1,0 +1,100 @@
+{
+  "desktop": {
+    "myComputer": "My Computer",
+    "myDocuments": "My Documents",
+    "recycleBin": "Recycle Bin",
+    "internetExplorer": "Internet Explorer"
+  },
+  "startMenu": {
+    "allPrograms": "All Programs",
+    "myDocuments": "My Documents",
+    "myComputer": "My Computer",
+    "controlPanel": "Control Panel",
+    "search": "Search",
+    "help": "Help and Support",
+    "run": "Run...",
+    "logOff": "Log Off",
+    "turnOff": "Turn Off Computer"
+  },
+  "taskbar": {
+    "start": "Start"
+  },
+  "window": {
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "restore": "Restore",
+    "close": "Close"
+  },
+  "explorer": {
+    "file": "File",
+    "edit": "Edit",
+    "view": "View",
+    "favorites": "Favorites",
+    "tools": "Tools",
+    "help": "Help",
+    "back": "Back",
+    "forward": "Forward",
+    "up": "Up",
+    "search": "Search",
+    "folders": "Folders",
+    "address": "Address"
+  },
+  "contextMenu": {
+    "open": "Open",
+    "explore": "Explore",
+    "search": "Search",
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
+    "delete": "Delete",
+    "rename": "Rename",
+    "properties": "Properties",
+    "refresh": "Refresh",
+    "new": "New",
+    "folder": "Folder",
+    "shortcut": "Shortcut"
+  },
+  "login": {
+    "welcome": "Welcome",
+    "toLogOn": "To begin, click your user name",
+    "username": "User",
+    "password": "Password",
+    "login": "Log In",
+    "turnOff": "Turn off computer",
+    "incorrectPassword": "Incorrect password"
+  },
+  "shutdown": {
+    "title": "Turn off computer",
+    "standBy": "Stand by",
+    "turnOff": "Turn off",
+    "restart": "Restart",
+    "cancel": "Cancel"
+  },
+  "apps": {
+    "notepad": "Notepad",
+    "paint": "Paint",
+    "calculator": "Calculator",
+    "wordpad": "WordPad",
+    "mediaPlayer": "Windows Media Player",
+    "messenger": "MSN Messenger",
+    "outlook": "Outlook Express"
+  },
+  "fileSystem": {
+    "name": "Name",
+    "size": "Size",
+    "type": "Type",
+    "dateModified": "Date Modified",
+    "folder": "Folder",
+    "file": "File"
+  },
+  "errors": {
+    "fileNotFound": "File not found",
+    "accessDenied": "Access denied",
+    "invalidOperation": "Invalid operation"
+  },
+  "settings": {
+    "language": "Language",
+    "english": "English",
+    "chinese": "简体中文"
+  }
+}

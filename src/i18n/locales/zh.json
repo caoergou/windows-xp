@@ -1,0 +1,100 @@
+{
+  "desktop": {
+    "myComputer": "我的电脑",
+    "myDocuments": "我的文档",
+    "recycleBin": "回收站",
+    "internetExplorer": "Internet Explorer"
+  },
+  "startMenu": {
+    "allPrograms": "所有程序",
+    "myDocuments": "我的文档",
+    "myComputer": "我的电脑",
+    "controlPanel": "控制面板",
+    "search": "搜索",
+    "help": "帮助和支持",
+    "run": "运行...",
+    "logOff": "注销",
+    "turnOff": "关闭计算机"
+  },
+  "taskbar": {
+    "start": "开始"
+  },
+  "window": {
+    "minimize": "最小化",
+    "maximize": "最大化",
+    "restore": "还原",
+    "close": "关闭"
+  },
+  "explorer": {
+    "file": "文件",
+    "edit": "编辑",
+    "view": "查看",
+    "favorites": "收藏",
+    "tools": "工具",
+    "help": "帮助",
+    "back": "后退",
+    "forward": "前进",
+    "up": "向上",
+    "search": "搜索",
+    "folders": "文件夹",
+    "address": "地址"
+  },
+  "contextMenu": {
+    "open": "打开",
+    "explore": "资源管理器",
+    "search": "搜索",
+    "cut": "剪切",
+    "copy": "复制",
+    "paste": "粘贴",
+    "delete": "删除",
+    "rename": "重命名",
+    "properties": "属性",
+    "refresh": "刷新",
+    "new": "新建",
+    "folder": "文件夹",
+    "shortcut": "快捷方式"
+  },
+  "login": {
+    "welcome": "欢迎使用",
+    "toLogOn": "要开始，请单击您的用户名",
+    "username": "用户",
+    "password": "密码",
+    "login": "登录",
+    "turnOff": "关闭计算机",
+    "incorrectPassword": "密码不正确"
+  },
+  "shutdown": {
+    "title": "关闭计算机",
+    "standBy": "待机",
+    "turnOff": "关闭",
+    "restart": "重新启动",
+    "cancel": "取消"
+  },
+  "apps": {
+    "notepad": "记事本",
+    "paint": "画图",
+    "calculator": "计算器",
+    "wordpad": "写字板",
+    "mediaPlayer": "Windows Media Player",
+    "messenger": "MSN Messenger",
+    "outlook": "Outlook Express"
+  },
+  "fileSystem": {
+    "name": "名称",
+    "size": "大小",
+    "type": "类型",
+    "dateModified": "修改日期",
+    "folder": "文件夹",
+    "file": "文件"
+  },
+  "errors": {
+    "fileNotFound": "找不到文件",
+    "accessDenied": "拒绝访问",
+    "invalidOperation": "无效操作"
+  },
+  "settings": {
+    "language": "语言",
+    "english": "English",
+    "chinese": "简体中文"
+  }
+}

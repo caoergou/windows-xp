@@ -1,0 +1,33 @@
+# Development files
+.dev/
+.vscode/
+.github/
+.claude/
+
+# Source files (only dist is needed)
+src/
+public/
+test-results/
+
+# Config files
+vite.config.js
+vitest.config.js
+playwright.config.js
+CLAUDE.md
+
+# Git
+.git/
+.gitignore
+
+# Build artifacts
+node_modules/
+*.log
+.DS_Store
+
+# Keep these
+!dist/
+!README.md
+!README.zh-CN.md
+!LICENSE
+!USAGE.md
+!package.json
