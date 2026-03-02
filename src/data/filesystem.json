@@ -209,6 +209,12 @@
         "name": "Calculator",
         "app": "Calculator",
         "icon": "calculator"
+      },
+      "QQ": {
+        "type": "app_shortcut",
+        "name": "QQ",
+        "app": "QQLogin",
+        "icon": "qq"
       }
     }
   }
