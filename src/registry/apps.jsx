@@ -107,7 +107,7 @@ export const APP_REGISTRY = {
     id:     'Calculator',
     name:   '计算器',
     icon:   'calculator',
-    window: { width: 240, height: 300, resizable: false, singleton: true },
+    window: { width: 280, height: 340, resizable: false, singleton: true },
     lifecycle: {},
     associations: [
       { appField: 'Calculator', getProps: () => ({}) },
