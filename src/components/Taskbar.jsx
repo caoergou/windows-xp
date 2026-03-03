@@ -8,6 +8,7 @@ import SystemClock from './SystemClock';
 import { APP_REGISTRY } from '../registry/apps.jsx';
 import { defaultPlugin } from '../apps/BrowserPlugins';
 import { useModal } from '../context/ModalContext';
+import ContextMenu from './ContextMenu';
 
 const TaskbarContainer = styled.div`
     position: absolute;
@@ -360,16 +361,19 @@ const CancelButton = styled.button`
 
 
 const Taskbar = () => {
-    const { windows, activeWindowId, focusWindow, minimizeWindow, openWindow, closeWindow } = useWindowManager();
+    const { windows, activeWindowId, focusWindow, minimizeWindow, maximizeWindow, openWindow, closeWindow } = useWindowManager();
     const { logout } = useUserSession();
     const { showModal } = useModal();
     const { items: trayItems } = useTray();
     const [startOpen, setStartOpen] = useState(false);
     const [showTurnOff, setShowTurnOff] = useState(false);
     const [qqContextMenu, setQqContextMenu] = useState(null);
+    const [taskContextMenu, setTaskContextMenu] = useState(null);
+    const [selectedWindow, setSelectedWindow] = useState(null);
     const startMenuRef = useRef(null);
     const startButtonRef = useRef(null);
     const qqContextMenuRef = useRef(null);
+    const taskContextMenuRef = useRef(null);
 
     const handleLogout = () => {
         localStorage.removeItem('xp_open_windows');
@@ -400,10 +404,44 @@ const Taskbar = () => {
                 !qqContextMenuRef.current.contains(event.target)) {
                 setQqContextMenu(null);
             }
+            if (taskContextMenu &&
+                taskContextMenuRef.current &&
+                !taskContextMenuRef.current.contains(event.target)) {
+                setTaskContextMenu(null);
+                setSelectedWindow(null);
+            }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [qqContextMenu]);
+    }, [qqContextMenu, taskContextMenu]);
+
+    const handleTaskContextMenu = (e, win) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setSelectedWindow(win);
+        setTaskContextMenu({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleTaskMenuAction = (action) => {
+        if (!selectedWindow) return;
+        setTaskContextMenu(null);
+        setSelectedWindow(null);
+
+        switch (action) {
+            case 'close':
+                closeWindow(selectedWindow.id);
+                break;
+            case 'minimize':
+                minimizeWindow(selectedWindow.id);
+                break;
+            case 'maximize':
+                maximizeWindow(selectedWindow.id);
+                break;
+            case 'restore':
+                maximizeWindow(selectedWindow.id); // 切换最大化/恢复状态
+                break;
+        }
+    };
 
     const handleQqContextMenu = (e) => {
         e.preventDefault();
@@ -633,6 +671,7 @@ const Taskbar = () => {
                             $active={activeWindowId === win.id && !win.isMinimized}
                             $flashing={win.isFlashing}
                             onClick={(e) => { e.stopPropagation(); handleTaskClick(win); }}
+                            onContextMenu={(e) => handleTaskContextMenu(e, win)}
                         >
                             <XPIcon name={win.icon} size={16} className="task-icon" />
                             {win.title}
@@ -670,6 +709,23 @@ const Taskbar = () => {
                     <SystemClock />
                 </SystemTray>
             </TaskbarContainer>
+
+            {/* 任务栏窗口右键菜单 */}
+            {taskContextMenu && (
+                <ContextMenu
+                    ref={taskContextMenuRef}
+                    x={taskContextMenu.x}
+                    y={taskContextMenu.y}
+                    visible={true}
+                    onClose={() => { setTaskContextMenu(null); setSelectedWindow(null); }}
+                    menuItems={[
+                        { label: selectedWindow?.isMaximized ? '恢复' : '最大化', action: () => handleTaskMenuAction('maximize') },
+                        { label: '最小化', action: () => handleTaskMenuAction('minimize') },
+                        { type: 'separator' },
+                        { label: '关闭', action: () => handleTaskMenuAction('close') }
+                    ]}
+                />
+            )}
         </>
     );
 };

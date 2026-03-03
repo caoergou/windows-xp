@@ -13,9 +13,7 @@ import VolumeControl from '../apps/VolumeControl';
 import NetworkConnections from '../apps/NetworkConnections';
 import ControlPanel from '../apps/ControlPanel';
 import MicrosoftPaint from '../apps/MicrosoftPaint';
-import WindowsMediaPlayer from '../apps/WindowsMediaPlayer';
 import Minesweeper from '../apps/Minesweeper';
-import Solitaire from '../apps/Solitaire';
 
 /**
  * APP_REGISTRY — 所有可打开应用的唯一注册中心。
@@ -120,7 +118,7 @@ export const APP_REGISTRY = {
     id:     'Calculator',
     name:   '计算器',
     icon:   'calculator',
-    window: { width: 280, height: 340, resizable: false, singleton: true },
+    window: { width: 350, height: 450, resizable: false, singleton: true },
     lifecycle: {},
     associations: [
       { appField: 'Calculator', getProps: () => ({}) },
@@ -197,18 +195,6 @@ export const APP_REGISTRY = {
     restore: (props) => <MicrosoftPaint {...props} />,
   },
 
-  WindowsMediaPlayer: {
-    id:     'WindowsMediaPlayer',
-    name:   'Windows Media Player',
-    icon:   'media',
-    window: { width: 600, height: 450 },
-    lifecycle: {},
-    associations: [
-      { appField: 'WindowsMediaPlayer', getProps: () => ({}) },
-    ],
-    restore: (props) => <WindowsMediaPlayer {...props} />,
-  },
-
   Minesweeper: {
     id:     'Minesweeper',
     name:   '扫雷',
@@ -219,18 +205,6 @@ export const APP_REGISTRY = {
       { appField: 'Minesweeper', getProps: () => ({}) },
     ],
     restore: (props) => <Minesweeper {...props} />,
-  },
-
-  Solitaire: {
-    id:     'Solitaire',
-    name:   '纸牌',
-    icon:   'solitaire',
-    window: { width: 650, height: 500, resizable: false, singleton: true },
-    lifecycle: {},
-    associations: [
-      { appField: 'Solitaire', getProps: () => ({}) },
-    ],
-    restore: (props) => <Solitaire {...props} />,
   },
 };
 

@@ -222,22 +222,10 @@
         "app": "MicrosoftPaint",
         "icon": "paint"
       },
-      "Windows Media Player": {
-        "type": "app_shortcut",
-        "name": "Windows Media Player",
-        "app": "WindowsMediaPlayer",
-        "icon": "media_player"
-      },
       "Minesweeper": {
         "type": "app_shortcut",
         "name": "Minesweeper",
         "app": "Minesweeper",
-        "icon": "app_window"
-      },
-      "Solitaire": {
-        "type": "app_shortcut",
-        "name": "Solitaire",
-        "app": "Solitaire",
         "icon": "app_window"
       }
     }

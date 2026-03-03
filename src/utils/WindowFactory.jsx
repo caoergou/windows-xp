@@ -52,14 +52,8 @@ export const restoreComponent = (appId, componentProps = {}) => {
   if (appId === 'MicrosoftPaint' || appId === 'paint' || appId === '画图') {
     return APP_REGISTRY.MicrosoftPaint.restore(componentProps);
   }
-  if (appId === 'WindowsMediaPlayer' || appId === 'media' || appId === 'Windows Media Player') {
-    return APP_REGISTRY.WindowsMediaPlayer.restore(componentProps);
-  }
   if (appId === 'Minesweeper' || appId === 'minesweeper' || appId === '扫雷') {
     return APP_REGISTRY.Minesweeper.restore(componentProps);
-  }
-  if (appId === 'Solitaire' || appId === 'solitaire' || appId === '纸牌') {
-    return APP_REGISTRY.Solitaire.restore(componentProps);
   }
 
   console.warn(`Unknown appId for restoration: ${appId}`, componentProps);

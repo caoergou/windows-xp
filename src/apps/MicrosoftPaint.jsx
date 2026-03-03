@@ -141,32 +141,38 @@ const MicrosoftPaint = ({ windowId }) => {
       ctx.lineTo(x, y);
       ctx.stroke();
     } else if (currentTool === 'line') {
-      const tempCanvas = canvas.cloneNode(true);
-      const tempCtx = tempCanvas.getContext('2d');
-      tempCtx.drawImage(canvas, 0, 0);
-      tempCtx.beginPath();
-      tempCtx.moveTo(startPos.x, startPos.y);
-      tempCtx.lineTo(x, y);
-      tempCtx.stroke();
+      // 保存当前画布状态
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      // 清除画布
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(tempCanvas, 0, 0);
+      // 恢复之前的画布状态
+      ctx.putImageData(imageData, 0, 0);
+      // 绘制临时线条
+      ctx.beginPath();
+      ctx.moveTo(startPos.x, startPos.y);
+      ctx.lineTo(x, y);
+      ctx.stroke();
     } else if (currentTool === 'rectangle') {
-      const tempCanvas = canvas.cloneNode(true);
-      const tempCtx = tempCanvas.getContext('2d');
-      tempCtx.drawImage(canvas, 0, 0);
-      tempCtx.strokeRect(startPos.x, startPos.y, x - startPos.x, y - startPos.y);
+      // 保存当前画布状态
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      // 清除画布
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(tempCanvas, 0, 0);
+      // 恢复之前的画布状态
+      ctx.putImageData(imageData, 0, 0);
+      // 绘制临时矩形
+      ctx.strokeRect(startPos.x, startPos.y, x - startPos.x, y - startPos.y);
     } else if (currentTool === 'circle') {
-      const tempCanvas = canvas.cloneNode(true);
-      const tempCtx = tempCanvas.getContext('2d');
-      tempCtx.drawImage(canvas, 0, 0);
-      const radius = Math.sqrt(Math.pow(x - startPos.x, 2) + Math.pow(y - startPos.y, 2));
-      tempCtx.beginPath();
-      tempCtx.arc(startPos.x, startPos.y, radius, 0, 2 * Math.PI);
-      tempCtx.stroke();
+      // 保存当前画布状态
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      // 清除画布
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(tempCanvas, 0, 0);
+      // 恢复之前的画布状态
+      ctx.putImageData(imageData, 0, 0);
+      // 绘制临时圆形
+      const radius = Math.sqrt(Math.pow(x - startPos.x, 2) + Math.pow(y - startPos.y, 2));
+      ctx.beginPath();
+      ctx.arc(startPos.x, startPos.y, radius, 0, 2 * Math.PI);
+      ctx.stroke();
     }
   };
 

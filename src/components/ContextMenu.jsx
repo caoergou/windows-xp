@@ -4,10 +4,10 @@ import XPIcon from './XPIcon';
 
 const ContextMenuContainer = styled.div`
     position: fixed;
-    background: white;
-    border: 1px solid #ACA899;
-    box-shadow: 4px 4px 2px rgba(0,0,0,0.5);
-    padding: 2px;
+    background: #F0F0F0;
+    border: 1px solid #000000;
+    box-shadow: 2px 2px 0px #808080;
+    padding: 1px;
     z-index: 99999;
     min-width: 150px;
     font-size: 12px;
@@ -16,7 +16,7 @@ const ContextMenuContainer = styled.div`
 `;
 
 const MenuItem = styled.div`
-    padding: 4px 20px 4px 20px;
+    padding: 3px 20px 3px 20px;
     cursor: default;
     display: flex;
     align-items: center;
@@ -24,11 +24,12 @@ const MenuItem = styled.div`
     position: relative;
     border: 1px solid transparent;
     cursor: default;
+    background-color: #F0F0F0;
 
     &:hover {
-        background-color: ${props => props.$disabled ? 'transparent' : '#316AC5'};
+        background-color: ${props => props.$disabled ? '#F0F0F0' : '#316AC5'};
         color: ${props => props.$disabled ? '#777' : 'white'};
-        border: 1px solid ${props => props.$disabled ? 'transparent' : '#316AC5'};
+        border: 1px solid #103A7A;
     }
 
     .icon-wrapper {
@@ -53,7 +54,7 @@ const MenuItem = styled.div`
 
 const MenuSeparator = styled.div`
     height: 1px;
-    background: #ACA899;
+    background: #808080;
     margin: 4px 2px;
 `;
 
@@ -69,6 +70,10 @@ const ContextMenu = ({ visible, x, y, onClose, menuItems }) => {
 
     useLayoutEffect(() => {
         if (visible && menuRef.current) {
+            // 首先设置到指定位置，以便获取正确的尺寸
+            menuRef.current.style.left = `${x}px`;
+            menuRef.current.style.top = `${y}px`;
+
             const rect = menuRef.current.getBoundingClientRect();
             let finalX = x;
             let finalY = y;
@@ -87,6 +92,7 @@ const ContextMenu = ({ visible, x, y, onClose, menuItems }) => {
             // Safety clamp for top edge
             if (finalY < 0) finalY = 0;
 
+            // 应用最终计算出的位置
             menuRef.current.style.left = `${finalX}px`;
             menuRef.current.style.top = `${finalY}px`;
         }

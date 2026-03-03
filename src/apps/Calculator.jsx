@@ -275,7 +275,6 @@ const Calculator = ({ windowId }) => {
         <Btn $wide onClick={() => inputDigit(0)}>0</Btn>
         <Btn onClick={inputDot}>.</Btn>
         <Btn $op $blue onClick={() => pressOperator('+')}>+</Btn>
-        <Btn $eq onClick={pressEquals}>=</Btn>
       </Row>
     </Wrap>
   );

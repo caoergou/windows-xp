@@ -167,7 +167,7 @@ const WindowBody = styled.div`
 `;
 
 const Window = ({ windowState }) => {
-    const { closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow } = useWindowManager();
+    const { closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow, moveWindow } = useWindowManager();
     const { t } = useTranslation();
     const { id, title, component, icon, zIndex, isMinimized, isMaximized, width, height, left, top, props: windowProps } = windowState;
 
@@ -225,14 +225,14 @@ const Window = ({ windowState }) => {
     }
 
     return (
-        <Draggable 
-            handle=".title-bar" 
-            nodeRef={nodeRef} 
+        <Draggable
+            handle=".title-bar"
+            nodeRef={nodeRef}
             disabled={isMaximized}
             onMouseDown={() => focusWindow(id)}
-            // Since we are using ResizableBox inside Draggable, we need to ensure Draggable doesn't interfere
-            // with resizing handles. But Draggable is applied to the wrapper.
-            // ResizableBox should be the child of Draggable? No, ResizableBox wraps the content.
+            onStop={(e, data) => {
+                moveWindow(id, data.x, data.y);
+            }}
         >
             <div ref={nodeRef} style={{ position: 'absolute', left: style.left, top: style.top, zIndex: style.zIndex, width: currentWidth, height: currentHeight }}>
                 <ResizableBox

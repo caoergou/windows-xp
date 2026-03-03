@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import XPIcon from './XPIcon';
+import Draggable from 'react-draggable';
 
 const Overlay = styled.div`
   position: fixed;
@@ -128,21 +129,25 @@ const XPAlert = ({ title, message, type = 'info', onClose }) => {
     const iconName = type === 'error' ? 'alert_error' :
                      type === 'warning' ? 'alert_warning' : 'alert_info';
 
+    const nodeRef = useRef(null);
+
     return (
         <Overlay onClick={(e) => { if(e.target === e.currentTarget) { /* Do nothing, must click ok or close */ } }}>
-            <AlertWindow>
-                <TitleBar>
-                    <span>{title}</span>
-                    <CloseButton onClick={onClose}>×</CloseButton>
-                </TitleBar>
-                <ContentArea>
-                    <XPIcon name={iconName} size={32} />
-                    <Message>{message}</Message>
-                </ContentArea>
-                <ButtonArea>
-                    <OkButton ref={okButtonRef} onClick={onClose}>确定</OkButton>
-                </ButtonArea>
-            </AlertWindow>
+            <Draggable nodeRef={nodeRef} handle=".title-bar">
+                <AlertWindow ref={nodeRef}>
+                    <TitleBar className="title-bar">
+                        <span>{title}</span>
+                        <CloseButton onClick={onClose}>×</CloseButton>
+                    </TitleBar>
+                    <ContentArea>
+                        <XPIcon name={iconName} size={32} />
+                        <Message>{message}</Message>
+                    </ContentArea>
+                    <ButtonArea>
+                        <OkButton ref={okButtonRef} onClick={onClose}>确定</OkButton>
+                    </ButtonArea>
+                </AlertWindow>
+            </Draggable>
         </Overlay>
     );
 };

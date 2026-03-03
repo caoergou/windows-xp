@@ -253,8 +253,8 @@ const Explorer = ({ initialPath = [], windowId }) => {
     const handleContextMenu = (e, key, item) => {
         e.preventDefault();
         e.stopPropagation();
-        setSelectedItem({ name: item.name, type: item.type });
-        setContextMenu({ visible: true, x: e.clientX, y: e.clientY, targetItem: { key, item } });
+        setSelectedItem({ name: item?.name, type: item?.type });
+        setContextMenu({ visible: true, x: e.clientX, y: e.clientY, targetItem: item ? { key, item } : null });
     };
 
     const closeContextMenu = () => {
@@ -334,17 +334,17 @@ const Explorer = ({ initialPath = [], windowId }) => {
     };
 
     const menuItems = [
-        { label: '新建', action: () => handleCreateFile('folder'), icon: 'folder' },
-        { label: '新建文件', action: () => handleCreateFile('file'), icon: 'file' },
+        { label: '新建文件夹', action: () => handleCreateFile('folder') },
+        { label: '新建文本文档', action: () => handleCreateFile('file') },
         { type: 'separator' },
-        { label: '复制', action: handleCopy, icon: 'copy', disabled: !contextMenu.targetItem },
-        { label: '剪切', action: handleCut, icon: 'cut', disabled: !contextMenu.targetItem },
-        { label: '粘贴', action: handlePaste, icon: 'paste', disabled: false },
+        { label: '复制', action: handleCopy, disabled: !contextMenu.targetItem },
+        { label: '剪切', action: handleCut, disabled: !contextMenu.targetItem },
+        { label: '粘贴', action: handlePaste, disabled: false },
         { type: 'separator' },
         { label: '重命名', action: handleRename, disabled: !contextMenu.targetItem },
-        { label: '删除', action: handleDelete, icon: 'delete', disabled: !contextMenu.targetItem },
+        { label: '删除', action: handleDelete, disabled: !contextMenu.targetItem },
         { type: 'separator' },
-        { label: '属性', action: handleProperties, icon: 'properties', disabled: !contextMenu.targetItem }
+        { label: '属性', action: handleProperties, disabled: !contextMenu.targetItem }
     ];
 
     const renderFileItem = (key, item) => (
@@ -370,7 +370,12 @@ const Explorer = ({ initialPath = [], windowId }) => {
     );
 
     return (
-        <Container onContextMenu={closeContextMenu}>
+        <Container onContextMenu={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setSelectedItem(null);
+            setContextMenu({ visible: true, x: e.clientX, y: e.clientY, targetItem: null });
+        }}>
             <ExplorerToolbar
                 onBack={handleBack}
                 onForward={handleForward}

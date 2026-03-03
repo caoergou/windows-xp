@@ -122,6 +122,11 @@ export const WindowManagerProvider = ({ children }) => {
     setWindows(prev => prev.map(w => w.id === id ? { ...w, width, height } : w));
   };
 
+  // ── moveWindow ────────────────────────────────────────────────────────────
+  const moveWindow = (id, left, top) => {
+    setWindows(prev => prev.map(w => w.id === id ? { ...w, left, top } : w));
+  };
+
   // ── focusWindow ───────────────────────────────────────────────────────────
   const focusWindow = (id) => {
     const win = windows.find(w => w.id === id);
@@ -171,7 +176,7 @@ export const WindowManagerProvider = ({ children }) => {
   return (
     <WindowManagerContext.Provider value={{
       windows, activeWindowId,
-      openWindow, closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow,
+      openWindow, closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow, moveWindow,
       setWindowTitle, setWindowBadge, setWindowProgress, flashWindow,
     }}>
       {children}
