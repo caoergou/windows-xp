@@ -60,9 +60,21 @@ const DesktopIcon = styled.div`
   }
 `;
 
+const DragOverlay = styled.div`
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  text-shadow: 1px 1px 2px black;
+`;
+
 const Desktop = () => {
   const { t } = useTranslation();
-  const { fs } = useFileSystem();
+  const { fs, moveFile } = useFileSystem();
   const { windows, openWindow, focusWindow } = useWindowManager();
   const { showModal } = useModal();
 
@@ -70,6 +82,8 @@ const Desktop = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pasteDisabled, setPasteDisabled] = useState(true);
+  const [draggedItem, setDraggedItem] = useState(null);
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
 
   const handleIconDoubleClick = (key, item) => {
     const resolved = resolveFileOpen(key, item);
@@ -78,6 +92,27 @@ const Desktop = () => {
       return;
     }
     openWindow(resolved.appId, item.name, resolved.component, resolved.icon, resolved.windowProps);
+  };
+
+  const handleDragStart = (e, key, item) => {
+    setDraggedItem({ key, item });
+    setDragPosition({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleDrag = (e) => {
+    setDragPosition({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleDragEnd = (e, targetKey) => {
+    // 如果拖拽到了另一个文件夹上
+    if (targetKey && targetKey !== draggedItem?.key) {
+      const targetItem = fs.root.children[targetKey];
+      if (targetItem && targetItem.type === 'folder') {
+        // 将文件移动到目标文件夹
+        moveFile([], draggedItem.key, [targetKey]);
+      }
+    }
+    setDraggedItem(null);
   };
 
   const handleContextMenu = async (e) => {
@@ -134,7 +169,17 @@ const Desktop = () => {
             ? 'recycle_bin_full'
             : item.icon;
           return (
-            <DesktopIcon key={key} data-testid={`desktop-icon-${key}`} onDoubleClick={() => handleIconDoubleClick(key, item)}>
+            <DesktopIcon
+              key={key}
+              data-testid={`desktop-icon-${key}`}
+              onDoubleClick={() => handleIconDoubleClick(key, item)}
+              draggable
+              onDragStart={(e) => handleDragStart(e, key, item)}
+              onDrag={(e) => handleDrag(e)}
+              onDragEnd={(e) => handleDragEnd(e, null)}
+              onDragOver={(e) => e.preventDefault()} // 允许放置
+              onDrop={(e) => handleDragEnd(e, key)}
+            >
               <div className="icon-wrapper">
                 <XPIcon name={iconName} size={32} />
               </div>

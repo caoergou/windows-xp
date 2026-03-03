@@ -142,6 +142,45 @@ export const FileSystemProvider = ({ children }) => {
     });
   };
 
+  const moveFile = (sourcePath, fileName, destinationPath, newName = fileName) => {
+    setFs(prevFs => {
+      const newFs = JSON.parse(JSON.stringify(prevFs));
+
+      let sourceParent = newFs.root;
+      for (let part of sourcePath) {
+        if (sourceParent.children && sourceParent.children[part]) {
+          sourceParent = sourceParent.children[part];
+        } else {
+          return prevFs;
+        }
+      }
+
+      if (!sourceParent.children || !sourceParent.children[fileName]) {
+        return prevFs;
+      }
+
+      let destinationParent = newFs.root;
+      for (let part of destinationPath) {
+        if (destinationParent.children && destinationParent.children[part]) {
+          destinationParent = destinationParent.children[part];
+        } else {
+          return prevFs;
+        }
+      }
+
+      if (!destinationParent.children) {
+        destinationParent.children = {};
+      }
+
+      // 移动文件
+      destinationParent.children[newName] = JSON.parse(JSON.stringify(sourceParent.children[fileName]));
+      destinationParent.children[newName].name = newName;
+      delete sourceParent.children[fileName];
+
+      return newFs;
+    });
+  };
+
   const copyFile = (sourcePath, fileName, destinationPath, newName = fileName) => {
     setFs(prevFs => {
       const newFs = JSON.parse(JSON.stringify(prevFs));
@@ -300,7 +339,8 @@ export const FileSystemProvider = ({ children }) => {
         pasteFile,
         searchFiles,
         getFileProperties,
-        clipboard
+        clipboard,
+        moveFile
       }}
     >
       {children}
