@@ -3,3 +3,8 @@ dist/
 .env
 .DS_Store
 .dev/
+*.log
+page_snapshot*
+taskbar_context_menu*
+taskbar_screenshot*
+.playwright-mcp/

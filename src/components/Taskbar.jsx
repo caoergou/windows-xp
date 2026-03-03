@@ -420,6 +420,7 @@ const Taskbar = () => {
         e.stopPropagation();
         setSelectedWindow(win);
         setTaskContextMenu({ x: e.clientX, y: e.clientY });
+        focusWindow(win.id); // 右键点击时将窗口前置
     };
 
     const handleTaskMenuAction = (action) => {
