@@ -154,5 +154,5 @@ For the live demo at [https://eric.run.place/windows-xp/](https://eric.run.place
 ---
 
 <div align="center">
-Made with ❤️ and nostalgia for the millennium era
+Made with &#10084;&#65039; and nostalgia for the millennium era
 </div>
