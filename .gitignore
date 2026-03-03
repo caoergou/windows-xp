@@ -11,5 +11,6 @@ taskbar_screenshot*
 .playwright-cli/
 tmp/
 *.png
+!src/**/*.png
 *.yml
 !.github/**/*.yml

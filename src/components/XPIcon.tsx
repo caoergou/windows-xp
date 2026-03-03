@@ -93,7 +93,7 @@ const IconMap: Record<string, string> = {
     "file": fileIcon,
     "drive": driveIcon,
     "qq": qqIcon,
-    "refresh": refreshIcon,
+    "refresh_svg": refreshIcon,
     "paste": pasteIcon,
     "copy": copyIcon,
     "cut": cutIcon,
