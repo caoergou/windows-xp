@@ -92,9 +92,11 @@ const IEToolbar = ({
     onFavorites,
     onHistory,
     onPrint,
+    onHelp,
     canBack,
     canForward,
-    showHistory
+    showHistory,
+    showFavorites
 }) => {
     return (
         <Container>
@@ -132,7 +134,7 @@ const IEToolbar = ({
                     <XPIcon name="search" size={20} color="#2c72c2" />
                     <IconLabel>搜索</IconLabel>
                 </ToolButton>
-                <ToolButton onClick={onFavorites}>
+                <ToolButton onClick={onFavorites} $active={showFavorites}>
                     <XPIcon name="favorites" size={20} color="#fbbd08" />
                     <IconLabel>收藏夹</IconLabel>
                 </ToolButton>
