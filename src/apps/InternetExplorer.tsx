@@ -13,7 +13,6 @@ const Container = styled.div`
     height: 100%;
     display: flex;
     flex-direction: column;
-    background: #f0f0f0;
     font-family: Tahoma, "Microsoft YaHei", sans-serif;
 `;
 
@@ -215,6 +214,71 @@ const Content = styled.div`
         height: 100%;
         border: none;
     }
+`;
+
+const Footer = styled.footer`
+    height: 20px;
+    border-top: 1px solid transparent;
+    box-shadow: inset 0 1px 3px rgba(50, 50, 50, 0.8);
+    background-color: rgb(236, 233, 216);
+    display: flex;
+    align-items: center;
+    padding-top: 2px;
+    flex-shrink: 0;
+`;
+
+const FooterStatus = styled.div`
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 2px;
+    font-size: 11px;
+    gap: 3px;
+
+    img {
+        height: 14px;
+        width: 14px;
+    }
+`;
+
+const FooterBlock = styled.div`
+    height: 85%;
+    width: 22px;
+    border-left: 1px solid rgba(0, 0, 0, 0.15);
+    box-shadow: inset 1px 0 rgba(255, 255, 255, 0.7);
+`;
+
+const FooterRight = styled.div`
+    display: flex;
+    align-items: center;
+    width: 150px;
+    height: 80%;
+    border-left: 1px solid rgba(0, 0, 0, 0.11);
+    box-shadow: inset 1px 0 rgba(255, 255, 255, 0.7);
+    padding-left: 5px;
+    position: relative;
+    font-size: 11px;
+    gap: 3px;
+
+    img {
+        height: 14px;
+        width: 14px;
+    }
+`;
+
+const FooterDots = styled.div`
+    position: absolute;
+    right: 11px;
+    bottom: -1px;
+    width: 2px;
+    height: 2px;
+    box-shadow: 2px 0px rgba(0, 0, 0, 0.25), 5.5px 0px rgba(0, 0, 0, 0.25),
+        9px 0px rgba(0, 0, 0, 0.25), 5.5px -3.5px rgba(0, 0, 0, 0.25),
+        9px -3.5px rgba(0, 0, 0, 0.25), 9px -7px rgba(0, 0, 0, 0.25),
+        3px 1px rgba(255, 255, 255, 1), 6.5px 1px rgba(255, 255, 255, 1),
+        10px 1px rgba(255, 255, 255, 1), 10px -2.5px rgba(255, 255, 255, 1),
+        10px -6px rgba(255, 255, 255, 1);
 `;
 
 // 将普通 URL 转为互联网档案馆（Wayback Machine）存档链接，
@@ -590,6 +654,21 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
                     {renderContent()}
                 </Content>
             </MainArea>
+            <Footer>
+                <FooterStatus>
+                    <img src="/icons/ie.png" alt="" />
+                    <span>完成</span>
+                </FooterStatus>
+                <FooterBlock />
+                <FooterBlock />
+                <FooterBlock />
+                <FooterBlock />
+                <FooterRight>
+                    <img src="/icons/earth.png" alt="" />
+                    <span>Internet</span>
+                    <FooterDots />
+                </FooterRight>
+            </Footer>
             {showAddFavorite && (
                 <AddFavoriteModal>
                     <ModalTitle>添加到收藏夹</ModalTitle>

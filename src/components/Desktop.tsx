@@ -31,12 +31,13 @@ const IconGrid = styled.div`
   flex-wrap: wrap;
   height: calc(100% - 30px);
   padding: 10px;
-  gap: 10px;
+  gap: 5px;
   align-content: flex-start;
 `;
 
 const DesktopIcon = styled.div<{ $selected?: boolean }>`
   width: 80px;
+  height: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -90,18 +91,6 @@ const ShortcutArrow = styled.div`
   justify-content: center;
 `;
 
-const DragOverlay = styled.div`
-  position: fixed;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.8;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: white;
-  text-shadow: 1px 1px 2px black;
-`;
-
 // System icons that are not shortcuts (no shortcut arrow in XP)
 const SYSTEM_ICONS = new Set(['我的电脑', '我的文档', '回收站', '网上邻居']);
 
@@ -116,8 +105,7 @@ const Desktop: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pasteDisabled, setPasteDisabled] = useState(true);
-  const [draggedItem, setDraggedItem] = useState<{ key: string; item: FileItem } | null>(null);
-  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const [dragOver, setDragOver] = useState<string | null>(null);
 
   const handleIconDoubleClick = (key: string, item: FileItem) => {
     const resolved = resolveFileOpen(key, item);
@@ -128,28 +116,23 @@ const Desktop: React.FC = () => {
     openWindow(resolved.appId, item.name, resolved.component, resolved.icon, resolved.windowProps);
   };
 
-  const handleDragStart = (e: React.DragEvent, key: string, item: FileItem) => {
-    setDraggedItem({ key, item });
-    setDragPosition({ x: e.clientX, y: e.clientY });
+  const handleDragStart = (e: React.DragEvent, key: string) => {
+    e.dataTransfer.setData('text/plain', key);
+    e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDrag = (e: React.DragEvent) => {
-    if (e.clientX !== 0 || e.clientY !== 0) {
-      setDragPosition({ x: e.clientX, y: e.clientY });
-    }
-  };
+  const handleDropOnFolder = (e: React.DragEvent, targetKey: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(null);
 
-  const handleDragEnd = (e: React.DragEvent, targetKey: string | null) => {
-    // 如果拖拽到了另一个文件夹上
-    if (targetKey && targetKey !== draggedItem?.key) {
-      const targetItem = fs.root.children[targetKey];
-      if (targetItem && targetItem.type === 'folder') {
-        // 将文件移动到目标文件夹
-        moveFile([], draggedItem.key, [targetKey]);
-      }
-    }
-    setDraggedItem(null);
-    setDragPosition({ x: 0, y: 0 });
+    const targetItem = fs.root.children[targetKey];
+    if (!targetItem || targetItem.type !== 'folder') return;
+
+    const srcKey = e.dataTransfer.getData('text/plain');
+    if (!srcKey || srcKey === targetKey) return;
+
+    moveFile([], srcKey, [targetKey]);
   };
 
   const handleContextMenu = async (e: React.MouseEvent) => {
@@ -283,38 +266,30 @@ const Desktop: React.FC = () => {
               onDoubleClick={() => handleIconDoubleClick(key, item)}
               onContextMenu={(e) => handleIconContextMenu(e, key)}
               draggable
-              onDragStart={(e) => handleDragStart(e, key, item)}
-              onDrag={(e) => handleDrag(e)}
-              onDragEnd={(e) => handleDragEnd(e, null)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => handleDragEnd(e, key)}
+              onDragStart={(e) => handleDragStart(e, key)}
+              onDragOver={(e) => {
+                if (item.type === 'folder') {
+                  e.preventDefault();
+                  setDragOver(key);
+                }
+              }}
+              onDragLeave={() => setDragOver(null)}
+              onDrop={(e) => handleDropOnFolder(e, key)}
+              style={dragOver === key && item.type === 'folder' ? {
+                background: 'rgba(193, 210, 238, 0.5)',
+                border: '1px dashed #316AC5',
+                borderRadius: '4px'
+              } : undefined}
             >
               <div className="icon-wrapper">
                 <XPIcon name={iconName} size={32} />
-                {isShortcut && (
-                  <ShortcutArrow>
-                    <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" width="10" height="10">
-                      {/* XP 经典快捷方式箭头：从左下向右上弯曲的箭头 */}
-                      <path
-                        d="M2,10 L2,7 C2,5 3.5,3.5 5.5,3.5 L5.5,2 L9,5 L5.5,8 L5.5,5.5 C4,5.5 3,6.5 3,8 L3,10 Z"
-                        fill="black"
-                      />
-                    </svg>
-                  </ShortcutArrow>
-                )}
+                {/* 快捷方式箭头已移除 */}
               </div>
               <span>{translateIconName(key, item.name)}</span>
             </DesktopIcon>
           );
         })}
       </IconGrid>
-
-      {draggedItem && (
-        <DragOverlay style={{ left: dragPosition.x + 12, top: dragPosition.y + 12 }}>
-          <XPIcon name={draggedItem.item.icon || 'file'} size={32} />
-          <span style={{ fontSize: '11px', marginTop: '3px' }}>{draggedItem.item.name}</span>
-        </DragOverlay>
-      )}
 
       {windows.map(win => (
         <Window key={win.id} windowState={win} />

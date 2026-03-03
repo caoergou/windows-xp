@@ -8,3 +8,7 @@ page_snapshot*
 taskbar_context_menu*
 taskbar_screenshot*
 .playwright-mcp/
+.playwright-cli/
+tmp/
+*.png
+*.yml

@@ -5,17 +5,17 @@ import XPIcon from '../XPIcon';
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    background: #ECE9D8;
+    background: linear-gradient(to right, #edede5 0%, #ede8cd 100%);
 `;
 
 const MenuBar = styled.div`
     height: 20px;
-    background: #ECE9D8;
+    background: transparent;
     display: flex;
     align-items: center;
     padding: 0 2px;
     font-size: 11px;
-    border-bottom: 1px solid #d4d0c8;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 `;
 
 const MenuItem = styled.div`
@@ -29,64 +29,78 @@ const MenuItem = styled.div`
 `;
 
 const ToolbarContainer = styled.div`
-    height: 32px;
-    background: #ECE9D8;
-    border-bottom: 1px solid #d4d0c8;
+    height: 36px;
+    background: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
-    padding: 0 8px;
-    gap: 2px;
+    padding: 1px 3px 0;
+    gap: 0;
 `;
 
 const NavButton = styled.button<{ $disabled?: boolean }>`
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 3px;
-    cursor: ${p => p.$disabled ? 'not-allowed' : 'pointer'};
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: ${p => p.$disabled ? 0.5 : 1};
+    height: 100%;
+    width: auto;
+    padding: 0 4px;
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0);
+    border-radius: 3px;
+    cursor: ${p => p.$disabled ? 'default' : 'pointer'};
+    opacity: ${p => p.$disabled ? 0.7 : 1};
+    filter: ${p => p.$disabled ? 'grayscale(1)' : 'none'};
 
-    &:hover:not(:disabled) {
-        background: #C1D2EE;
-        border-color: #7DA2CE;
+    &:hover {
+        border: ${p => p.$disabled ? '1px solid rgba(0, 0, 0, 0)' : '1px solid rgba(0, 0, 0, 0.1)'};
+        box-shadow: ${p => p.$disabled ? 'none' : 'inset 0 -1px 1px rgba(0, 0, 0, 0.1)'};
     }
 
-    &:active:not(:disabled) {
-        background: #A8C0E8;
+    &:active {
+        border: ${p => p.$disabled ? '1px solid rgba(0, 0, 0, 0)' : '1px solid rgb(185, 185, 185)'};
+        background-color: ${p => p.$disabled ? 'transparent' : '#dedede'};
+        box-shadow: ${p => p.$disabled ? 'none' : 'inset 0 -1px 1px rgba(255, 255, 255, 0.7)'};
+
+        & > * {
+            transform: ${p => p.$disabled ? 'none' : 'translate(1px, 1px)'};
+        }
     }
 `;
 
 const ToolbarButton = styled.button`
-    height: 24px;
-    padding: 0 8px;
-    font-size: 11px;
-    font-family: inherit;
-    background: transparent;
-    border: 1px solid transparent;
-    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
+    height: 100%;
+    padding: 0 6px;
+    font-size: 11px;
+    font-family: Tahoma, sans-serif;
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0);
+    border-radius: 3px;
+    cursor: pointer;
 
     &:hover {
-        border: 1px solid #0a246a;
-        background: linear-gradient(to bottom, #ffffff 0%, #d8e9f8 100%);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.1);
     }
 
     &:active {
-        background: linear-gradient(to bottom, #c1d2ee 0%, #b0c4de 100%);
+        border: 1px solid rgb(185, 185, 185);
+        background-color: #dedede;
+        box-shadow: inset 0 -1px 1px rgba(255, 255, 255, 0.7);
+
+        & > * {
+            transform: translate(1px, 1px);
+        }
     }
 `;
 
 const Separator = styled.div`
     width: 1px;
-    height: 20px;
-    background: #d4d0c8;
+    height: 90%;
+    background-color: rgba(0, 0, 0, 0.2);
     margin: 0 2px;
 `;
 

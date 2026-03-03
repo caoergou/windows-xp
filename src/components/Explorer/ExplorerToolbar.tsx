@@ -28,13 +28,13 @@ const MenuBarItem = styled.div`
 
 /* ── 工具栏 ── */
 const ToolbarContainer = styled.div`
-    height: 38px;
-    background: #ECE9D8;
-    border-bottom: 1px solid #ACA899;
+    height: 36px;
+    background: linear-gradient(to right, #edede5 0%, #ede8cd 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
-    padding: 0 4px;
-    gap: 1px;
+    padding: 1px 3px 0;
+    gap: 0;
 `;
 
 /* 后退/前进按钮（直接显示绿色图标） */
@@ -42,22 +42,29 @@ const NavBtn = styled.button<{ $disabled?: boolean }>`
     display: flex;
     align-items: center;
     gap: 2px;
-    height: 30px;
+    height: 100%;
     padding: 0 4px 0 2px;
     font-size: 11px;
     font-family: Tahoma, sans-serif;
     background: transparent;
-    border: 1px solid transparent;
-    cursor: ${p => p.$disabled ? 'default' : 'pointer'};
-    opacity: ${p => p.$disabled ? 0.5 : 1};
+    border: 1px solid rgba(0, 0, 0, 0);
     border-radius: 3px;
+    cursor: ${p => p.$disabled ? 'default' : 'pointer'};
+    opacity: ${p => p.$disabled ? 0.7 : 1};
+    filter: ${p => p.$disabled ? 'grayscale(1)' : 'none'};
 
     &:hover {
-        background: ${p => p.$disabled ? 'transparent' : '#C1D2EE'};
-        border-color: ${p => p.$disabled ? 'transparent' : '#7DA2CE'};
+        border: ${p => p.$disabled ? '1px solid rgba(0, 0, 0, 0)' : '1px solid rgba(0, 0, 0, 0.1)'};
+        box-shadow: ${p => p.$disabled ? 'none' : 'inset 0 -1px 1px rgba(0, 0, 0, 0.1)'};
     }
     &:active {
-        background: ${p => p.$disabled ? 'transparent' : '#A8C0E8'};
+        border: ${p => p.$disabled ? '1px solid rgba(0, 0, 0, 0)' : '1px solid rgb(185, 185, 185)'};
+        background-color: ${p => p.$disabled ? 'transparent' : '#dedede'};
+        box-shadow: ${p => p.$disabled ? 'none' : 'inset 0 -1px 1px rgba(255, 255, 255, 0.7)'};
+
+        & > * {
+            transform: ${p => p.$disabled ? 'none' : 'translate(1px, 1px)'};
+        }
     }
 `;
 
@@ -82,32 +89,39 @@ const ToolBtn = styled.button<{ $disabled?: boolean }>`
     flex-direction: row;
     align-items: center;
     gap: 3px;
-    height: 28px;
+    height: 100%;
     padding: 0 6px;
     font-size: 11px;
     font-family: Tahoma, sans-serif;
     background: transparent;
-    border: 1px solid transparent;
+    border: 1px solid rgba(0, 0, 0, 0);
+    border-radius: 3px;
     cursor: ${p => p.$disabled ? 'default' : 'pointer'};
-    opacity: ${p => p.$disabled ? 0.4 : 1};
+    opacity: ${p => p.$disabled ? 0.7 : 1};
+    filter: ${p => p.$disabled ? 'grayscale(1)' : 'none'};
     color: #000;
-    border-radius: 2px;
     white-space: nowrap;
 
     &:hover {
-        background: ${p => p.$disabled ? 'transparent' : '#C1D2EE'};
-        border-color: ${p => p.$disabled ? 'transparent' : '#7DA2CE'};
+        border: ${p => p.$disabled ? '1px solid rgba(0, 0, 0, 0)' : '1px solid rgba(0, 0, 0, 0.1)'};
+        box-shadow: ${p => p.$disabled ? 'none' : 'inset 0 -1px 1px rgba(0, 0, 0, 0.1)'};
     }
     &:active {
-        background: ${p => p.$disabled ? 'transparent' : '#A8C0E8'};
+        border: ${p => p.$disabled ? '1px solid rgba(0, 0, 0, 0)' : '1px solid rgb(185, 185, 185)'};
+        background-color: ${p => p.$disabled ? 'transparent' : '#dedede'};
+        box-shadow: ${p => p.$disabled ? 'none' : 'inset 0 -1px 1px rgba(255, 255, 255, 0.7)'};
+
+        & > * {
+            transform: ${p => p.$disabled ? 'none' : 'translate(1px, 1px)'};
+        }
     }
 `;
 
 const Separator = styled.div`
     width: 1px;
-    height: 22px;
-    background: linear-gradient(to bottom, #ACA899 0%, #ECE9D8 100%);
-    margin: 0 3px;
+    height: 90%;
+    background-color: rgba(0, 0, 0, 0.2);
+    margin: 0 2px;
 `;
 
 const MENU_ITEMS = ['文件(F)', '编辑(E)', '查看(V)', '收藏(A)', '工具(T)', '帮助(H)'];
@@ -162,7 +176,7 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
 
                 {/* 文件夹 */}
                 <ToolBtn title="文件夹">
-                    <XPIcon name="folder" size={16} />
+                    <XPIcon name="folder_open_toolbar" size={22} />
                     文件夹
                 </ToolBtn>
 

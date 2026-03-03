@@ -3,39 +3,42 @@ import styled from 'styled-components';
 import XPIcon from '../XPIcon';
 
 const Bar = styled.div`
-    height: 26px;
-    background: #ECE9D8;
-    border-bottom: 1px solid #ACA899;
+    border-top: 1px solid rgba(255, 255, 255, 0.7);
+    height: 22px;
+    font-size: 11px;
     display: flex;
     align-items: center;
-    padding: 0 6px;
-    gap: 4px;
+    padding: 0 2px 2px;
+    box-shadow: inset 0 -2px 3px -1px #2d2d2d;
+    background: linear-gradient(to right, #edede5 0%, #ede8cd 100%);
 `;
 
 const Label = styled.span`
+    line-height: 100%;
+    color: rgba(0, 0, 0, 0.5);
+    padding: 5px;
     font-size: 11px;
     font-family: Tahoma, sans-serif;
-    color: #000;
     white-space: nowrap;
 `;
 
 const InputWrapper = styled.div`
-    flex: 1;
-    height: 20px;
+    border: rgba(122, 122, 255, 0.6) 1px solid;
+    height: 100%;
     display: flex;
+    flex: 1;
     align-items: center;
-    background: white;
-    border-top: 1px solid #7F9DB9;
-    border-left: 1px solid #7F9DB9;
-    border-bottom: 1px solid #DFDFDF;
-    border-right: 1px solid #DFDFDF;
-    padding: 0 2px;
-    gap: 2px;
+    background-color: white;
+    position: relative;
 `;
 
 const Input = styled.input`
-    flex: 1;
-    height: 16px;
+    position: absolute;
+    white-space: nowrap;
+    left: 16px;
+    right: 17px;
+    overflow: hidden;
+    height: 100%;
     padding: 0 2px;
     font-size: 11px;
     font-family: Tahoma, "Microsoft YaHei", sans-serif;
@@ -44,50 +47,51 @@ const Input = styled.input`
     outline: none;
 `;
 
+const IconWrapper = styled.div`
+    width: 14px;
+    height: 14px;
+    margin-left: 2px;
+`;
+
 const DropArrow = styled.div`
-    width: 16px;
-    height: 18px;
+    width: 15px;
+    height: 15px;
+    right: 1px;
+    position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-left: 1px solid #ACA899;
-    font-size: 8px;
-    color: #333;
-    cursor: default;
-    flex-shrink: 0;
+    cursor: pointer;
+
+    &:hover {
+        filter: brightness(1.1);
+    }
 `;
 
 const GoButton = styled.button`
-    height: 22px;
-    padding: 0 6px;
     display: flex;
     align-items: center;
-    gap: 3px;
+    padding: 0 18px 0 5px;
+    height: 95%;
+    position: relative;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
     font-size: 11px;
     font-family: Tahoma, sans-serif;
-    background: #ECE9D8;
-    border-top: 1px solid #FFF;
-    border-left: 1px solid #FFF;
-    border-bottom: 1px solid #7F7F7F;
-    border-right: 1px solid #7F7F7F;
-    cursor: pointer;
-    white-space: nowrap;
+    gap: 3px;
 
-    .go-arrow {
-        color: #2A7A2A;
-        font-size: 14px;
-        font-weight: bold;
+    img {
+        height: 95%;
+        margin-right: 3px;
     }
 
     &:hover {
-        background: #C1D2EE;
+        filter: brightness(1.1);
     }
 
     &:active {
-        border-top: 1px solid #7F7F7F;
-        border-left: 1px solid #7F7F7F;
-        border-bottom: 1px solid #FFF;
-        border-right: 1px solid #FFF;
+        filter: brightness(0.9);
     }
 `;
 
@@ -100,21 +104,24 @@ interface IEAddressBarProps {
 const IEAddressBar: React.FC<IEAddressBarProps> = ({ address, onAddressChange, onGo }) => {
     return (
         <Bar>
-            <Label>地址(D)</Label>
+            <Label>地址</Label>
             <InputWrapper>
-                <XPIcon name="ie" size={14} />
+                <IconWrapper>
+                    <XPIcon name="ie" size={14} />
+                </IconWrapper>
                 <Input
                     type="text"
                     value={address}
                     onChange={(e) => onAddressChange?.(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && onGo?.()}
-                    placeholder="输入网址..."
                 />
-                <DropArrow>▾</DropArrow>
+                <DropArrow>
+                    <XPIcon name="dropdown" size={15} />
+                </DropArrow>
             </InputWrapper>
             <GoButton onClick={onGo}>
-                <span className="go-arrow">→</span>
-                转到
+                <XPIcon name="go" size={16} />
+                <span>转到</span>
             </GoButton>
         </Bar>
     );

@@ -56,12 +56,31 @@ import newFolderIcon from '../assets/icons/new_folder.svg';
 import newShortcutIcon from '../assets/icons/new_shortcut.svg';
 import windowsIcon from '../assets/icons/windows.svg';
 import logoutIcon from '../assets/icons/logout.svg';
-import backIcon from '../assets/icons/back.svg';
-import forwardIcon from '../assets/icons/forward.svg';
-import upIcon from '../assets/icons/up.svg';
 import chevronDownIcon from '../assets/icons/chevron_down.svg';
-import viewsIcon from '../assets/icons/views.svg';
 import stopIcon from '../assets/icons/stop.svg';
+
+// Windows XP authentic toolbar icons from winXP reference project
+import backIconXP from '../assets/windowsIcons/back.png';
+import forwardIconXP from '../assets/windowsIcons/forward.png';
+import upIconXP from '../assets/windowsIcons/up.png';
+import searchIconXP from '../assets/windowsIcons/299(32x32).png';
+import homeIconXP from '../assets/windowsIcons/home.png';
+import refreshIconXP from '../assets/windowsIcons/refresh.png';
+import stopIconXP from '../assets/windowsIcons/stop.png';
+import folderOpenIconXP from '../assets/windowsIcons/337(32x32).png';
+import viewsIconXP from '../assets/windowsIcons/358(32x32).png';
+import historyIconXP from '../assets/windowsIcons/history.png';
+import favoritesIconXP from '../assets/windowsIcons/744(32x32).png';
+import mailIconXP from '../assets/windowsIcons/mail.png';
+import printerIconXP from '../assets/windowsIcons/17(32x32).png';
+import editIconXP from '../assets/windowsIcons/edit.png';
+import windowsLogoXP from '../assets/windowsIcons/windows.png';
+import dropdownIconXP from '../assets/windowsIcons/dropdown.png';
+import goIconXP from '../assets/windowsIcons/290.png';
+import earthIconXP from '../assets/windowsIcons/earth.png';
+import viewInfoIconXP from '../assets/windowsIcons/view-info.ico';
+import removeIconXP from '../assets/windowsIcons/302(16x16).png';
+import controlIconXP from '../assets/windowsIcons/300(16x16).png';
 
 const IconMap: Record<string, string> = {
     "computer": computerIcon,
@@ -96,17 +115,28 @@ const IconMap: Record<string, string> = {
     "recycle_bin_full": recycleBinFullIcon,
     "tieba": tiebaIcon,
     "email": emailIcon,
-    "back": backIcon,
-    "forward": forwardIcon,
-    "up": upIcon,
-    "search": searchIcon,
+    "back": backIconXP,
+    "forward": forwardIconXP,
+    "up": upIconXP,
+    "search": searchIconXP,
     "chevron_down": chevronDownIcon,
-    "home": homeIcon,
-    "views": viewsIcon,
-    "favorites": favoritesIcon,
-    "history": historyIcon,
-    "print": printIcon,
-    "stop": stopIcon,
+    "home": homeIconXP,
+    "views": viewsIconXP,
+    "favorites": favoritesIconXP,
+    "history": historyIconXP,
+    "print": printerIconXP,
+    "stop": stopIconXP,
+    "refresh": refreshIconXP,
+    "folder_open_toolbar": folderOpenIconXP,
+    "mail": mailIconXP,
+    "edit": editIconXP,
+    "windows_logo": windowsLogoXP,
+    "dropdown": dropdownIconXP,
+    "go": goIconXP,
+    "earth": earthIconXP,
+    "view_info": viewInfoIconXP,
+    "remove": removeIconXP,
+    "control": controlIconXP,
     "image": imageIcon,
     "clock": clockIcon,
     "calculator": calculatorIcon,

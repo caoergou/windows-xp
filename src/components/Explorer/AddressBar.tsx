@@ -3,98 +3,91 @@ import styled from 'styled-components';
 import XPIcon from '../XPIcon';
 
 const Bar = styled.div`
-    height: 26px;
-    background: #ECE9D8;
-    border-bottom: 1px solid #ACA899;
+    flex-shrink: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.7);
+    height: 20px;
+    font-size: 11px;
     display: flex;
     align-items: center;
-    padding: 0 4px;
-    gap: 3px;
+    padding: 0 2px;
+    box-shadow: inset 0 -2px 3px -1px #b0b0b0;
+    background: linear-gradient(to right, #edede5 0%, #ede8cd 100%);
 `;
 
 const Label = styled.span`
+    line-height: 100%;
+    color: rgba(0, 0, 0, 0.5);
+    padding: 5px;
     font-size: 11px;
     font-family: Tahoma, sans-serif;
-    color: #000;
     white-space: nowrap;
     flex-shrink: 0;
 `;
 
 const InputWrapper = styled.div`
-    flex: 1;
-    height: 20px;
+    border: rgba(122, 122, 255, 0.6) 1px solid;
+    height: 100%;
     display: flex;
+    flex: 1;
     align-items: center;
-    background: white;
-    border-top: 1px solid #7F9DB9;
-    border-left: 1px solid #7F9DB9;
-    border-bottom: 1px solid #DFDFDF;
-    border-right: 1px solid #DFDFDF;
-    padding: 0 2px;
-    gap: 2px;
+    background-color: white;
+    position: relative;
 `;
 
 const Input = styled.input`
-    flex: 1;
-    height: 16px;
+    white-space: nowrap;
+    position: absolute;
+    white-space: nowrap;
+    left: 16px;
+    right: 17px;
+    height: 100%;
     padding: 0 2px;
     font-size: 11px;
     font-family: Tahoma, "Microsoft YaHei", sans-serif;
     background: white;
     border: none;
     outline: none;
+    overflow: hidden;
+`;
+
+const IconWrapper = styled.div`
+    width: 14px;
+    height: 14px;
+    margin-left: 2px;
 `;
 
 const DropArrow = styled.div`
-    width: 16px;
-    height: 18px;
+    width: 15px;
+    height: 15px;
+    right: 1px;
+    position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-left: 1px solid #ACA899;
-    cursor: default;
-    font-size: 8px;
-    color: #333;
-    flex-shrink: 0;
+    cursor: pointer;
 
     &:hover {
-        background: #C1D2EE;
+        filter: brightness(1.1);
     }
 `;
 
-/* 绿色转到按钮 */
 const GoButton = styled.button`
-    height: 22px;
-    padding: 0 6px;
     display: flex;
     align-items: center;
-    gap: 3px;
+    padding: 0 18px 0 5px;
+    height: 100%;
+    position: relative;
+    background: transparent;
+    border: none;
+    cursor: pointer;
     font-size: 11px;
     font-family: Tahoma, sans-serif;
-    background: #ECE9D8;
-    border-top: 1px solid #FFF;
-    border-left: 1px solid #FFF;
-    border-bottom: 1px solid #7F7F7F;
-    border-right: 1px solid #7F7F7F;
-    cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0;
+    gap: 3px;
 
-    .go-arrow {
-        color: #2A7A2A;
-        font-size: 14px;
-        font-weight: bold;
-    }
-
-    &:hover {
-        background: #C1D2EE;
-    }
-
-    &:active {
-        border-top: 1px solid #7F7F7F;
-        border-left: 1px solid #7F7F7F;
-        border-bottom: 1px solid #FFF;
-        border-right: 1px solid #FFF;
+    img {
+        height: 95%;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        margin-right: 3px;
     }
 `;
 
@@ -107,21 +100,24 @@ interface AddressBarProps {
 const AddressBar: React.FC<AddressBarProps> = ({ address, onAddressChange, onGo }) => {
     return (
         <Bar>
-            <Label>地址(D)</Label>
+            <Label>地址</Label>
             <InputWrapper>
-                <XPIcon name="folder" size={14} />
+                <IconWrapper>
+                    <XPIcon name="folder" size={14} />
+                </IconWrapper>
                 <Input
                     type="text"
                     value={address}
                     onChange={(e) => onAddressChange?.(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && onGo?.()}
-                    placeholder="输入路径..."
                 />
-                <DropArrow>▾</DropArrow>
+                <DropArrow>
+                    <XPIcon name="dropdown" size={15} />
+                </DropArrow>
             </InputWrapper>
             <GoButton onClick={onGo}>
-                <span className="go-arrow">→</span>
-                转到
+                <XPIcon name="go" size={16} />
+                <span>转到</span>
             </GoButton>
         </Bar>
     );
