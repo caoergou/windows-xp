@@ -144,6 +144,15 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
+## 🔑 Default Login Credentials
+
+For the live demo at [http://eric.run.place/windows-xp/](http://eric.run.place/windows-xp/):
+
+- **Username:** `User`
+- **Password:** `forthe2000s`
+
+---
+
 <div align="center">
 Made with ❤️ and nostalgia for the millennium era
 </div>

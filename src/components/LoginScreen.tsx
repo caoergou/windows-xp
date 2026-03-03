@@ -131,6 +131,18 @@ const ErrorMsg = styled.div`
     min-height: 20px;
 `;
 
+const HelpLink = styled.a`
+    color: #FFD700;
+    font-size: 11px;
+    text-decoration: none;
+    margin-top: 3px;
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
+`;
+
 const BottomBar = styled.div`
     display: flex;
     align-items: center;
@@ -202,9 +214,9 @@ const LoginScreen = () => {
                         <UserName>{user.name}</UserName>
                         <PasswordBox>
                             <label>输入密码:</label>
-                            <Input 
-                                type="password" 
-                                value={password} 
+                            <Input
+                                type="password"
+                                value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 onKeyPress={handleKeyPress}
                                 autoFocus
@@ -212,6 +224,9 @@ const LoginScreen = () => {
                             <GoButton onClick={handleLogin}>→</GoButton>
                         </PasswordBox>
                         <ErrorMsg>{error}</ErrorMsg>
+                        <HelpLink href="https://github.com/caoergou/windows-xp#readme" target="_blank" rel="noopener noreferrer">
+                            忘记密码？查看 README
+                        </HelpLink>
                     </InputArea>
                 </UserRow>
             </Content>

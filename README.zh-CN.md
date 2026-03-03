@@ -144,6 +144,15 @@ MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
 
 ---
 
+## 🔑 默认登录凭据
+
+在线演示 [http://eric.run.place/windows-xp/](http://eric.run.place/windows-xp/) 的登录信息：
+
+- **用户名：** `User`
+- **密码：** `forthe2000s`
+
+---
+
 <div align="center">
 用 ❤️ 和对千禧年代的怀念制作
 </div>
