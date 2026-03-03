@@ -2,7 +2,7 @@
 
 <div align="center">
 
-**将经典的 Windows XP 桌面体验封装为 React 组件**
+**写给 2000 年代互联网的一封情书 —— 封装为 React 组件**
 
 [![npm version](https://img.shields.io/npm/v/@caoergou/windows-xp.svg)](https://www.npmjs.com/package/@caoergou/windows-xp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -14,6 +14,16 @@
 [English](README.md) | 简体中文
 
 </div>
+
+---
+
+## 🕰️ 致 2000 年代的互联网
+
+还记得拨号上网的连接声吗？打开 QQ 看到好友上线的那份雀跃，桌面上那张经典的绿色草坡壁纸，还有那些消磨在扫雷和纸牌上的午后时光……
+
+这个项目是献给那个年代的怀旧之作——2000 年代初的互联网，那时的网络还带着一份新鲜感，个人主页遍地开花，Windows XP 的开机声是无数人每天的记忆序章。无论你是亲历者还是想一探那个时代的人，这个组件都能在浏览器里重现那份感觉。
+
+> **免责声明：** 本项目是一个独立的、由爱好者制作的复刻作品，仅供怀旧与学习交流之用，与微软公司（Microsoft Corporation）及 Windows 操作系统无任何关联，亦未获得其授权或认可。所有相关商标归其各自所有者所有。
 
 ---
 

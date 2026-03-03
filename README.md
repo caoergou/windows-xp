@@ -2,7 +2,7 @@
 
 <div align="center">
 
-**A faithful recreation of the classic Windows XP desktop experience as a React component**
+**A love letter to the 2000s internet — recreated as a React component**
 
 [![npm version](https://img.shields.io/npm/v/@caoergou/windows-xp.svg)](https://www.npmjs.com/package/@caoergou/windows-xp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -14,6 +14,16 @@
 English | [简体中文](README.zh-CN.md)
 
 </div>
+
+---
+
+## 🕰️ A Tribute to the 2000s Internet
+
+Remember the sound of a dial-up modem connecting? The thrill of opening MSN Messenger, the bliss of a clean Luna desktop wallpaper, the hours lost to Minesweeper and Solitaire?
+
+This project is a nostalgic tribute to that era — the early 2000s internet, when the web felt new, personal homepages were everywhere, and Windows XP was the backdrop to countless memories. Whether you grew up with it or just want to experience what it felt like, this component brings that world back to life in the browser.
+
+> **Disclaimer:** This project is an independent, fan-made recreation built purely for nostalgic and educational purposes. It is not affiliated with, endorsed by, or in any way connected to Microsoft Corporation or the Windows operating system. All trademarks belong to their respective owners.
 
 ---
 
