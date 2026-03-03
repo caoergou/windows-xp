@@ -329,10 +329,10 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
 
     // History is an array of objects: { url: string, html: string|null }
     const [history, setHistory] = useState<HistoryEntry[]>([
-        { url: initialUrl || 'http://www.hao123.com', html: initialHtml || null }
+        { url: initialUrl || 'https://web.archive.org/web/20060615000000/http://www.hao123.com/', html: initialHtml || null }
     ]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [inputUrl, setInputUrl] = useState<string>(initialUrl || 'http://www.hao123.com');
+    const [inputUrl, setInputUrl] = useState<string>(initialUrl || 'https://web.archive.org/web/20060615000000/http://www.hao123.com/');
     const [showHistory, setShowHistory] = useState(false);
     const [showFavorites, setShowFavorites] = useState(false);
     const [browsingHistory, setBrowsingHistory] = useState<BrowsingHistoryItem[]>([]);
@@ -458,7 +458,7 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
     };
 
     const handleHome = () => {
-        navigateTo('http://www.hao123.com');
+        navigateTo('https://web.archive.org/web/20060615000000/http://www.hao123.com/');
     };
 
     const handleHelp = () => {
@@ -510,9 +510,9 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
         // 清除临时数据
         localStorage.removeItem('xp_ie_cache');
         // 重置会话
-        setHistory([{ url: 'http://www.hao123.com', html: null }]);
+        setHistory([{ url: 'https://web.archive.org/web/20060615000000/http://www.hao123.com/', html: null }]);
         setCurrentIndex(0);
-        setInputUrl('http://www.hao123.com');
+        setInputUrl('https://web.archive.org/web/20060615000000/http://www.hao123.com/');
     };
 
 
@@ -527,7 +527,37 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
 
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
-    }, [currentIndex, history]); // Re-bind if history changes? No, just once or dep on navigateTo logic
+    }, [currentIndex, history]);
+
+    // 监听 iframe 导航
+    useEffect(() => {
+        const iframe = document.getElementById('ie-frame') as HTMLIFrameElement | null;
+        if (!iframe || currentEntry.html) return;
+
+        let lastUrl = toWaybackUrl(currentEntry.url);
+
+        const checkUrl = setInterval(() => {
+            try {
+                const currentIframeUrl = iframe.contentWindow?.location.href;
+                if (currentIframeUrl && currentIframeUrl !== lastUrl && currentIframeUrl !== 'about:blank') {
+                    lastUrl = currentIframeUrl;
+
+                    // 提取原始 URL
+                    const match = currentIframeUrl.match(/web\.archive\.org\/web\/\d+[a-z_]*\/(https?:\/\/.+)/);
+                    if (match) {
+                        const originalUrl = match[1];
+                        // 阻止 iframe 导航，改为在我们的历史中导航
+                        iframe.contentWindow?.stop();
+                        navigateTo(originalUrl);
+                    }
+                }
+            } catch (e) {
+                // 跨域错误，忽略
+            }
+        }, 100);
+
+        return () => clearInterval(checkUrl);
+    }, [currentEntry]);
 
     const renderContent = () => {
         if (currentEntry.html) {
@@ -561,15 +591,12 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
             if (pluginContent) return pluginContent;
         }
 
-        // 通过 Wayback Machine 加载存档版本，还原 2006 年真实网页。
-        // 去除 allow-top-navigation（防止 iframe 导航真实浏览器）
-        // 去除 allow-popups（防止链接在真实浏览器新标签打开）
         return (
             <iframe
                 id="ie-frame"
                 src={toWaybackUrl(currentEntry.url)}
                 title="Browser"
-                sandbox="allow-scripts allow-same-origin allow-forms"
+                key={currentEntry.url}
             />
         );
     };

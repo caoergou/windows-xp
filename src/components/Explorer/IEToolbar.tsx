@@ -111,8 +111,14 @@ interface IEToolbarProps {
     onRefresh?: () => void;
     onHome?: () => void;
     onSearch?: () => void;
-    canGoBack?: boolean;
-    canGoForward?: boolean;
+    onFavorites?: () => void;
+    onHistory?: () => void;
+    onPrint?: () => void;
+    onHelp?: () => void;
+    canBack?: boolean;
+    canForward?: boolean;
+    showFavorites?: boolean;
+    showHistory?: boolean;
     isLoading?: boolean;
 }
 
@@ -123,8 +129,14 @@ const IEToolbar: React.FC<IEToolbarProps> = ({
     onRefresh,
     onHome,
     onSearch,
-    canGoBack = false,
-    canGoForward = false,
+    onFavorites,
+    onHistory,
+    onPrint,
+    onHelp,
+    canBack = false,
+    canForward = false,
+    showFavorites = false,
+    showHistory = false,
     isLoading = false
 }) => {
     return (
@@ -133,15 +145,15 @@ const IEToolbar: React.FC<IEToolbarProps> = ({
                 <MenuItem>文件(F)</MenuItem>
                 <MenuItem>编辑(E)</MenuItem>
                 <MenuItem>查看(V)</MenuItem>
-                <MenuItem>收藏(A)</MenuItem>
+                <MenuItem onClick={onFavorites}>收藏(A)</MenuItem>
                 <MenuItem>工具(T)</MenuItem>
-                <MenuItem>帮助(H)</MenuItem>
+                <MenuItem onClick={onHelp}>帮助(H)</MenuItem>
             </MenuBar>
             <ToolbarContainer>
-                <NavButton onClick={onBack} disabled={!canGoBack} $disabled={!canGoBack} title="后退">
+                <NavButton onClick={onBack} disabled={!canBack} $disabled={!canBack} title="后退">
                     <XPIcon name="back" size={24} />
                 </NavButton>
-                <NavButton onClick={onForward} disabled={!canGoForward} $disabled={!canGoForward} title="前进">
+                <NavButton onClick={onForward} disabled={!canForward} $disabled={!canForward} title="前进">
                     <XPIcon name="forward" size={24} />
                 </NavButton>
                 <Separator />
@@ -157,6 +169,14 @@ const IEToolbar: React.FC<IEToolbarProps> = ({
                 <ToolbarButton onClick={onSearch} title="搜索">
                     <XPIcon name="search" size={16} />
                     搜索
+                </ToolbarButton>
+                <ToolbarButton onClick={onFavorites} title="收藏夹">
+                    <XPIcon name="favorites" size={16} />
+                    收藏夹
+                </ToolbarButton>
+                <ToolbarButton onClick={onHistory} title="历史记录">
+                    <XPIcon name="history" size={16} />
+                    历史
                 </ToolbarButton>
             </ToolbarContainer>
         </Container>
