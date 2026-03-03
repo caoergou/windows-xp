@@ -108,5 +108,17 @@
     "maximize": "Maximize",
     "restore": "Restore",
     "close": "Close"
+  },
+  "helpAndSupport": {
+    "title": "Help and Support Center",
+    "topics": {
+      "welcome": "Welcome",
+      "getting-started": "Getting Started",
+      "desktop": "Desktop Introduction",
+      "explorer": "File Explorer",
+      "internet": "Internet Explorer",
+      "applications": "Applications",
+      "settings": "System Settings"
+    }
   }
 }

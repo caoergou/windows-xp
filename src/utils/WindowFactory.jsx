@@ -31,6 +31,36 @@ export const restoreComponent = (appId, componentProps = {}) => {
   if (componentProps.src) {
     return APP_REGISTRY.PhotoViewer.restore(componentProps);
   }
+  if (appId === 'HelpAndSupport') {
+    return APP_REGISTRY.HelpAndSupport.restore(componentProps);
+  }
+  if (appId === 'RunDialog' || appId === 'run') {
+    return APP_REGISTRY.RunDialog.restore(componentProps);
+  }
+  if (appId === 'CommandPrompt' || appId === 'cmd' || appId === 'Command Prompt') {
+    return APP_REGISTRY.CommandPrompt.restore(componentProps);
+  }
+  if (appId === 'VolumeControl' || appId === 'volume') {
+    return APP_REGISTRY.VolumeControl.restore(componentProps);
+  }
+  if (appId === 'NetworkConnections' || appId === 'network') {
+    return APP_REGISTRY.NetworkConnections.restore(componentProps);
+  }
+  if (appId === 'ControlPanel' || appId === 'controlpanel') {
+    return APP_REGISTRY.ControlPanel.restore(componentProps);
+  }
+  if (appId === 'MicrosoftPaint' || appId === 'paint' || appId === '画图') {
+    return APP_REGISTRY.MicrosoftPaint.restore(componentProps);
+  }
+  if (appId === 'WindowsMediaPlayer' || appId === 'media' || appId === 'Windows Media Player') {
+    return APP_REGISTRY.WindowsMediaPlayer.restore(componentProps);
+  }
+  if (appId === 'Minesweeper' || appId === 'minesweeper' || appId === '扫雷') {
+    return APP_REGISTRY.Minesweeper.restore(componentProps);
+  }
+  if (appId === 'Solitaire' || appId === 'solitaire' || appId === '纸牌') {
+    return APP_REGISTRY.Solitaire.restore(componentProps);
+  }
 
   console.warn(`Unknown appId for restoration: ${appId}`, componentProps);
   return null;

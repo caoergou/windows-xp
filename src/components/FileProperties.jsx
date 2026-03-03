@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
+import { useFileSystem } from '../context/FileSystemContext';
+import XPIcon from './XPIcon';
 
 // Load all EXIF data files eagerly
 const exifFiles = import.meta.glob('../data/photos/**/*.json', { eager: true });
@@ -89,10 +91,15 @@ const Button = styled.button`
   font-size: 11px;
 `;
 
-const FileProperties = ({ fileItem, onClose }) => {
+const FileProperties = ({ fileItem, onClose, parentPath }) => {
   const [activeTab, setActiveTab] = useState('general');
   const [exifData, setExifData] = useState(null);
   const { closeWindow } = useWindowManager();
+  const { getFileProperties } = useFileSystem();
+
+  const properties = fileItem
+    ? getFileProperties(parentPath || [], fileItem.name)
+    : null;
 
   useEffect(() => {
     if (fileItem && fileItem.exifPath) {
@@ -139,40 +146,54 @@ const FileProperties = ({ fileItem, onClose }) => {
       </TabsContainer>
 
       <TabContent>
-        {activeTab === 'general' && (
+        {activeTab === 'general' && properties && (
           <>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-               {/* Icon placeholder */}
-               <div style={{ width: 32, height: 32, marginRight: 10, background: 'url(/icons/image.png) no-repeat center' }}></div>
-               <span style={{ fontWeight: 'bold' }}>{fileItem?.name}</span>
+               {/* Icon */}
+               <div style={{ marginRight: 10 }}>
+                 <XPIcon name={properties.icon || (properties.type === 'folder' ? 'folder' : 'file')} size={32} />
+               </div>
+               <span style={{ fontWeight: 'bold' }}>{properties.name}</span>
             </div>
             <div style={{ borderTop: '1px solid #ccc', margin: '5px 0' }}></div>
             <PropertyRow>
               <Label>文件类型:</Label>
-              <Value>JPEG 图像</Value>
-            </PropertyRow>
-            <PropertyRow>
-              <Label>打开方式:</Label>
-              <Value>Windows 图片查看器</Value>
+              <Value>{properties.type === 'folder' ? '文件夹' : '文件'}</Value>
             </PropertyRow>
             <div style={{ borderTop: '1px solid #ccc', margin: '5px 0' }}></div>
             <PropertyRow>
               <Label>位置:</Label>
-              <Value>{fileItem?.path || 'My Documents'}</Value>
+              <Value>{parentPath?.join('\\') || '桌面'}</Value>
             </PropertyRow>
             <PropertyRow>
               <Label>大小:</Label>
-              <Value>2.45 MB (2,569,011 字节)</Value>
+              <Value>{properties.size}</Value>
             </PropertyRow>
              <div style={{ borderTop: '1px solid #ccc', margin: '5px 0' }}></div>
             <PropertyRow>
               <Label>创建时间:</Label>
-              <Value>2026年1月15日, 14:30:00</Value>
+              <Value>{properties.created}</Value>
             </PropertyRow>
              <PropertyRow>
               <Label>修改时间:</Label>
-              <Value>2026年1月15日, 14:30:00</Value>
+              <Value>{properties.modified}</Value>
             </PropertyRow>
+             <PropertyRow>
+              <Label>访问时间:</Label>
+              <Value>{properties.accessed}</Value>
+            </PropertyRow>
+             {properties.locked && (
+              <PropertyRow>
+                <Label>状态:</Label>
+                <Value>已加密</Value>
+              </PropertyRow>
+             )}
+             {properties.broken && (
+              <PropertyRow>
+                <Label>状态:</Label>
+                <Value>已损坏</Value>
+              </PropertyRow>
+             )}
           </>
         )}
 

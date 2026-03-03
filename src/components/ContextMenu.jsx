@@ -42,12 +42,26 @@ const MenuItem = styled.div`
         align-items: center;
         justify-content: center;
     }
+
+    .shortcut {
+        position: absolute;
+        right: 10px;
+        font-size: 11px;
+        opacity: 0.7;
+    }
 `;
 
 const MenuSeparator = styled.div`
     height: 1px;
     background: #ACA899;
     margin: 4px 2px;
+`;
+
+const SubMenuIndicator = styled.span`
+    position: absolute;
+    right: 8px;
+    font-size: 10px;
+    color: #666;
 `;
 
 const ContextMenu = ({ visible, x, y, onClose, menuItems }) => {
@@ -133,12 +147,14 @@ const ContextMenu = ({ visible, x, y, onClose, menuItems }) => {
                         }}
                         $disabled={item.disabled}
                     >
-                         {item.icon && (
+                        {item.icon && (
                             <div className="icon-wrapper">
                                 <XPIcon name={item.icon} size={16} />
                             </div>
                         )}
                         {item.label}
+                        {item.shortcut && <span className="shortcut">{item.shortcut}</span>}
+                        {item.submenu && <SubMenuIndicator>▶</SubMenuIndicator>}
                     </MenuItem>
                 );
             })}

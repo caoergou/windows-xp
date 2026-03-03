@@ -49,6 +49,9 @@ import wpsIcon from '../assets/icons/wps.svg';
 // SVG toolbar/UI icons (small UI elements, no XP equivalents)
 import refreshIcon from '../assets/icons/refresh.svg';
 import pasteIcon from '../assets/icons/paste.svg';
+import copyIcon from '../assets/icons/copy.svg';
+import cutIcon from '../assets/icons/cut.svg';
+import deleteIcon from '../assets/icons/delete.svg';
 import newFolderIcon from '../assets/icons/new_folder.svg';
 import newShortcutIcon from '../assets/icons/new_shortcut.svg';
 import windowsIcon from '../assets/icons/windows.svg';
@@ -73,6 +76,9 @@ const IconMap = {
     "qq": qqIcon,
     "refresh": refreshIcon,
     "paste": pasteIcon,
+    "copy": copyIcon,
+    "cut": cutIcon,
+    "delete": deleteIcon,
     "new_folder": newFolderIcon,
     "new_shortcut": newShortcutIcon,
     "properties": propertiesIcon,
@@ -115,6 +121,9 @@ const IconMap = {
     "baofeng": baofengIcon,
     "360safe": safe360Icon,
     "wps": wpsIcon,
+    "minesweeper": appWindowIcon,
+    "solitaire": appWindowIcon,
+    "media": mediaPlayerIcon
 };
 
 const XPIcon = ({ name, size = 32, className, color, style, ...rest }) => {

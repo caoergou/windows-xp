@@ -6,6 +6,7 @@ import IEAddressBar from '../components/Explorer/IEAddressBar';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useTranslation } from 'react-i18next';
 import { BROWSER_BLACKLIST } from './BrowserPlugins';
+import HelpAndSupport from './HelpAndSupport';
 
 
 const Container = styled.div`
@@ -77,6 +78,133 @@ const HistoryItem = styled.div`
     }
 `;
 
+const FavoritesItem = styled.div`
+    padding: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid #eee;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    &:hover {
+        background: #f0f0f0;
+    }
+
+    .name {
+        color: #0066cc;
+        flex: 1;
+    }
+
+    .delete {
+        color: #ff0000;
+        font-size: 10px;
+        opacity: 0;
+        cursor: pointer;
+        padding: 2px 4px;
+        border-radius: 2px;
+
+        &:hover {
+            opacity: 1;
+            background: #ffdddd;
+        }
+    }
+
+    &:hover .delete {
+        opacity: 1;
+    }
+`;
+
+const FavoritesToolbar = styled.div`
+    padding: 5px;
+    background: #f0f0f0;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    gap: 3px;
+`;
+
+const ToolbarButton = styled.button`
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background: #f8f8f8;
+    border-radius: 2px;
+
+    &:hover {
+        background: #e8e8e8;
+    }
+
+    &:active {
+        background: #ddd;
+    }
+`;
+
+const AddFavoriteModal = styled.div`
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border: 2px solid #316ac5;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 1000;
+    min-width: 300px;
+`;
+
+const ModalTitle = styled.h3`
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 14px;
+`;
+
+const ModalInput = styled.input`
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    font-size: 12px;
+`;
+
+const ModalButtons = styled.div`
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+`;
+
+const ModalButton = styled.button`
+    padding: 5px 15px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background: #f8f8f8;
+    border-radius: 2px;
+
+    &:hover {
+        background: #e8e8e8;
+    }
+
+    &:active {
+        background: #ddd;
+    }
+
+    &.primary {
+        background: #316ac5;
+        color: white;
+        border-color: #2a5ca8;
+    }
+
+    &.primary:hover {
+        background: #2a5ca8;
+    }
+`;
+
 const Content = styled.div`
     flex: 1;
     background: white;
@@ -122,7 +250,11 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [inputUrl, setInputUrl] = useState(initialUrl || 'http://www.hao123.com');
     const [showHistory, setShowHistory] = useState(false);
+    const [showFavorites, setShowFavorites] = useState(false);
     const [browsingHistory, setBrowsingHistory] = useState([]);
+    const [favorites, setFavorites] = useState([]);
+    const [showAddFavorite, setShowAddFavorite] = useState(false);
+    const [favoriteName, setFavoriteName] = useState('');
 
     const currentEntry = history[currentIndex];
 
@@ -142,15 +274,31 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
         }
     };
 
-    // Load history from localStorage on mount
+    // Load history and favorites from localStorage on mount
     useEffect(() => {
         try {
-            const saved = localStorage.getItem('xp_ie_history');
-            if (saved) {
-                setBrowsingHistory(JSON.parse(saved));
+            const savedHistory = localStorage.getItem('xp_ie_history');
+            if (savedHistory) {
+                setBrowsingHistory(JSON.parse(savedHistory));
+            }
+
+            const savedFavorites = localStorage.getItem('xp_ie_favorites');
+            if (savedFavorites) {
+                setFavorites(JSON.parse(savedFavorites));
+            } else {
+                // 默认收藏夹
+                const defaultFavorites = [
+                    { name: '百度', url: 'http://www.baidu.com' },
+                    { name: '新浪', url: 'http://www.sina.com.cn' },
+                    { name: '搜狐', url: 'http://www.sohu.com' },
+                    { name: '网易', url: 'http://www.163.com' },
+                    { name: '腾讯', url: 'http://www.qq.com' }
+                ];
+                setFavorites(defaultFavorites);
+                localStorage.setItem('xp_ie_favorites', JSON.stringify(defaultFavorites));
             }
         } catch (e) {
-            console.error("Failed to load history", e);
+            console.error("Failed to load history or favorites", e);
         }
 
         if (initialUrl && initialUrl !== 'about:blank') {
@@ -229,6 +377,60 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
         navigateTo('http://www.hao123.com');
     };
 
+    const handleHelp = () => {
+        openWindow(
+            'HelpAndSupport',
+            '帮助和支持',
+            React.createElement(HelpAndSupport),
+            'help',
+            { width: 600, height: 400 },
+        );
+    };
+
+    const handleFavorites = () => {
+        setShowFavorites(!showFavorites);
+        if (showHistory) {
+            setShowHistory(false);
+        }
+    };
+
+    const handleAddFavorite = () => {
+        setFavoriteName(currentEntry.url);
+        setShowAddFavorite(true);
+    };
+
+    const handleSaveFavorite = () => {
+        if (favoriteName && currentEntry.url) {
+            const newFavorite = {
+                name: favoriteName,
+                url: currentEntry.url
+            };
+            const updatedFavorites = [...favorites, newFavorite];
+            setFavorites(updatedFavorites);
+            localStorage.setItem('xp_ie_favorites', JSON.stringify(updatedFavorites));
+            setShowAddFavorite(false);
+        }
+    };
+
+    const handleDeleteFavorite = (index) => {
+        const updatedFavorites = [...favorites];
+        updatedFavorites.splice(index, 1);
+        setFavorites(updatedFavorites);
+        localStorage.setItem('xp_ie_favorites', JSON.stringify(updatedFavorites));
+    };
+
+    const handleClearCache = () => {
+        // 清除浏览历史
+        localStorage.removeItem('xp_ie_history');
+        setBrowsingHistory([]);
+        // 清除临时数据
+        localStorage.removeItem('xp_ie_cache');
+        // 重置会话
+        setHistory([{ url: 'http://www.hao123.com', html: null }]);
+        setCurrentIndex(0);
+        setInputUrl('http://www.hao123.com');
+    };
+
 
     // Handle messages from iframe (for HTML content navigation)
     useEffect(() => {
@@ -297,11 +499,13 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
                 onStop={() => {}}
                 onHome={handleHome}
                 onSearch={() => {}}
-                onFavorites={() => {}}
+                onFavorites={handleFavorites}
                 onHistory={() => setShowHistory(!showHistory)}
                 onPrint={() => window.print()}
+                onHelp={handleHelp}
                 canBack={currentIndex > 0}
                 canForward={currentIndex < history.length - 1}
+                showFavorites={showFavorites}
                 showHistory={showHistory}
             />
             <IEAddressBar
@@ -329,10 +533,59 @@ const InternetExplorer = ({ url: initialUrl, html: initialHtml, plugin }) => {
                         </HistoryList>
                     </Sidebar>
                 )}
+                {showFavorites && (
+                    <Sidebar>
+                        <SidebarHeader>
+                            <span>收藏夹</span>
+                            <X size={14} style={{cursor: 'pointer'}} onClick={() => setShowFavorites(false)} />
+                        </SidebarHeader>
+                        <FavoritesToolbar>
+                            <ToolbarButton onClick={handleAddFavorite}>添加</ToolbarButton>
+                            <ToolbarButton onClick={handleClearCache}>清除缓存</ToolbarButton>
+                        </FavoritesToolbar>
+                        <HistoryList>
+                            {favorites.map((item, index) => (
+                                <FavoritesItem key={index}>
+                                    <span className="name" onClick={() => navigateTo(item.url)}>
+                                        {item.name}
+                                    </span>
+                                    <span
+                                        className="delete"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteFavorite(index);
+                                        }}
+                                    >
+                                        ×
+                                    </span>
+                                </FavoritesItem>
+                            ))}
+                            {favorites.length === 0 && (
+                                <div style={{padding: 10, color: '#888', fontSize: 12}}>暂无收藏夹</div>
+                            )}
+                        </HistoryList>
+                    </Sidebar>
+                )}
                 <Content>
                     {renderContent()}
                 </Content>
             </MainArea>
+            {showAddFavorite && (
+                <AddFavoriteModal>
+                    <ModalTitle>添加到收藏夹</ModalTitle>
+                    <ModalInput
+                        type="text"
+                        value={favoriteName}
+                        onChange={(e) => setFavoriteName(e.target.value)}
+                        placeholder="输入名称"
+                        autoFocus
+                    />
+                    <ModalButtons>
+                        <ModalButton onClick={() => setShowAddFavorite(false)}>取消</ModalButton>
+                        <ModalButton className="primary" onClick={handleSaveFavorite}>保存</ModalButton>
+                    </ModalButtons>
+                </AddFavoriteModal>
+            )}
         </Container>
     );
 };

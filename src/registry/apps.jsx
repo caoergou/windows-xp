@@ -6,6 +6,16 @@ import PhotoViewer from '../apps/PhotoViewer';
 import FileProperties from '../components/FileProperties';
 import QQLogin from '../apps/QQLogin';
 import Calculator from '../apps/Calculator';
+import HelpAndSupport from '../apps/HelpAndSupport';
+import RunDialog from '../apps/RunDialog';
+import CommandPrompt from '../apps/CommandPrompt';
+import VolumeControl from '../apps/VolumeControl';
+import NetworkConnections from '../apps/NetworkConnections';
+import ControlPanel from '../apps/ControlPanel';
+import MicrosoftPaint from '../apps/MicrosoftPaint';
+import WindowsMediaPlayer from '../apps/WindowsMediaPlayer';
+import Minesweeper from '../apps/Minesweeper';
+import Solitaire from '../apps/Solitaire';
 
 /**
  * APP_REGISTRY — 所有可打开应用的唯一注册中心。
@@ -100,6 +110,9 @@ export const APP_REGISTRY = {
     icon:   'qq',
     window: { width: 320, height: 380, resizable: false, singleton: true },
     lifecycle: {},
+    associations: [
+      { appField: 'QQLogin', getProps: () => ({}) },
+    ],
     restore: (props) => <QQLogin {...props} />,
   },
 
@@ -113,6 +126,111 @@ export const APP_REGISTRY = {
       { appField: 'Calculator', getProps: () => ({}) },
     ],
     restore: (props) => <Calculator {...props} />,
+  },
+
+  HelpAndSupport: {
+    id:     'HelpAndSupport',
+    name:   '帮助和支持',
+    icon:   'help',
+    window: { width: 600, height: 400 },
+    lifecycle: {},
+    associations: [
+      { appField: 'HelpAndSupport', getProps: () => ({}) },
+    ],
+    restore: (props) => <HelpAndSupport {...props} />,
+  },
+
+  RunDialog: {
+    id:     'RunDialog',
+    name:   '运行',
+    icon:   'run',
+    window: { width: 400, height: 120, resizable: false, singleton: true },
+    lifecycle: {},
+    restore: (props) => <RunDialog {...props} />,
+  },
+
+  CommandPrompt: {
+    id:     'CommandPrompt',
+    name:   '命令提示符',
+    icon:   'cmd',
+    window: { width: 600, height: 400 },
+    lifecycle: {},
+    restore: (props) => <CommandPrompt {...props} />,
+  },
+
+  VolumeControl: {
+    id:     'VolumeControl',
+    name:   '音量控制',
+    icon:   'volume',
+    window: { width: 280, height: 120, resizable: false, singleton: true },
+    lifecycle: {},
+    restore: (props) => <VolumeControl {...props} />,
+  },
+
+  NetworkConnections: {
+    id:     'NetworkConnections',
+    name:   '网络连接',
+    icon:   'network',
+    window: { width: 400, height: 300 },
+    lifecycle: {},
+    restore: (props) => <NetworkConnections {...props} />,
+  },
+
+  ControlPanel: {
+    id:     'ControlPanel',
+    name:   '控制面板',
+    icon:   'controlpanel',
+    window: { width: 600, height: 400 },
+    lifecycle: {},
+    restore: (props) => <ControlPanel {...props} />,
+  },
+
+  MicrosoftPaint: {
+    id:     'MicrosoftPaint',
+    name:   '画图',
+    icon:   'paint',
+    window: { width: 700, height: 500 },
+    lifecycle: {},
+    associations: [
+      { appField: 'MicrosoftPaint', getProps: () => ({}) },
+    ],
+    restore: (props) => <MicrosoftPaint {...props} />,
+  },
+
+  WindowsMediaPlayer: {
+    id:     'WindowsMediaPlayer',
+    name:   'Windows Media Player',
+    icon:   'media',
+    window: { width: 600, height: 450 },
+    lifecycle: {},
+    associations: [
+      { appField: 'WindowsMediaPlayer', getProps: () => ({}) },
+    ],
+    restore: (props) => <WindowsMediaPlayer {...props} />,
+  },
+
+  Minesweeper: {
+    id:     'Minesweeper',
+    name:   '扫雷',
+    icon:   'minesweeper',
+    window: { width: 320, height: 400, resizable: false, singleton: true },
+    lifecycle: {},
+    associations: [
+      { appField: 'Minesweeper', getProps: () => ({}) },
+    ],
+    restore: (props) => <Minesweeper {...props} />,
+  },
+
+  Solitaire: {
+    id:     'Solitaire',
+    name:   '纸牌',
+    icon:   'solitaire',
+    window: { width: 650, height: 500, resizable: false, singleton: true },
+    lifecycle: {},
+    associations: [
+      { appField: 'Solitaire', getProps: () => ({}) },
+    ],
+    restore: (props) => <Solitaire {...props} />,
   },
 };
 

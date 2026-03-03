@@ -108,5 +108,17 @@
     "maximize": "最大化",
     "restore": "还原",
     "close": "关闭"
+  },
+  "helpAndSupport": {
+    "title": "帮助和支持中心",
+    "topics": {
+      "welcome": "欢迎使用",
+      "getting-started": "入门指南",
+      "desktop": "桌面介绍",
+      "explorer": "文件资源管理器",
+      "internet": "Internet Explorer",
+      "applications": "应用程序",
+      "settings": "系统设置"
+    }
   }
 }

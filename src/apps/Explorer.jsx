@@ -7,6 +7,7 @@ import XPIcon from '../components/XPIcon';
 import ExplorerSidebar from '../components/Explorer/ExplorerSidebar';
 import ExplorerToolbar from '../components/Explorer/ExplorerToolbar';
 import AddressBar from '../components/Explorer/AddressBar';
+import ContextMenu from '../components/ContextMenu';
 
 const Container = styled.div`
     width: 100%;
@@ -110,12 +111,13 @@ const StatusBar = styled.div`
 
 // windowId 由 Window.jsx 通过 cloneElement 自动注入
 const Explorer = ({ initialPath = [], windowId }) => {
-    const { getFile, checkAccess } = useFileSystem();
+    const { getFile, checkAccess, createFile, renameFile, deleteFile, copyFile, cutFile, pasteFile, getFileProperties } = useFileSystem();
     const api = useApp(windowId);
-    
+
     const [history, setHistory] = useState([initialPath]);
     const [historyIndex, setHistoryIndex] = useState(0);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, targetItem: null });
 
     const currentPath = history[historyIndex];
     const currentFolder = getFile(currentPath);
@@ -248,12 +250,110 @@ const Explorer = ({ initialPath = [], windowId }) => {
         );
     };
 
+    const handleContextMenu = (e, key, item) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setSelectedItem({ name: item.name, type: item.type });
+        setContextMenu({ visible: true, x: e.clientX, y: e.clientY, targetItem: { key, item } });
+    };
+
+    const closeContextMenu = () => {
+        setContextMenu({ visible: false, x: 0, y: 0, targetItem: null });
+    };
+
+    const handleCreateFile = (type = 'file') => {
+        const fileName = type === 'folder' ? '新建文件夹' : '新建文本文档.txt';
+        createFile(currentPath, fileName, type);
+        closeContextMenu();
+    };
+
+    const handleDelete = () => {
+        if (contextMenu.targetItem) {
+            api.dialog.confirm({
+                title: '确认删除',
+                message: `确定要删除 "${contextMenu.targetItem.item.name}" 吗？`,
+                type: 'warning'
+            }).then(confirmed => {
+                if (confirmed) {
+                    deleteFile(currentPath, contextMenu.targetItem.key);
+                    closeContextMenu();
+                }
+            });
+        }
+    };
+
+    const handleRename = () => {
+        if (contextMenu.targetItem) {
+            api.dialog.prompt({
+                title: '重命名',
+                message: '请输入新名称：',
+                defaultValue: contextMenu.targetItem.item.name
+            }).then(newName => {
+                if (newName && newName.trim() !== '') {
+                    renameFile(currentPath, contextMenu.targetItem.key, newName.trim());
+                    closeContextMenu();
+                }
+            });
+        }
+    };
+
+    const handleCopy = () => {
+        if (contextMenu.targetItem) {
+            cutFile(currentPath, contextMenu.targetItem.key);
+            closeContextMenu();
+        }
+    };
+
+    const handleCut = () => {
+        if (contextMenu.targetItem) {
+            cutFile(currentPath, contextMenu.targetItem.key);
+            closeContextMenu();
+        }
+    };
+
+    const handlePaste = () => {
+        const success = pasteFile(currentPath);
+        if (success) {
+            closeContextMenu();
+        }
+    };
+
+    const handleProperties = () => {
+        if (contextMenu.targetItem) {
+            api.openWindow(
+                'FileProperties',
+                '属性',
+                <FileProperties
+                    fileItem={contextMenu.targetItem.item}
+                    parentPath={currentPath}
+                />,
+                'properties'
+            );
+            closeContextMenu();
+        }
+    };
+
+    const menuItems = [
+        { label: '新建', action: () => handleCreateFile('folder'), icon: 'folder' },
+        { label: '新建文件', action: () => handleCreateFile('file'), icon: 'file' },
+        { type: 'separator' },
+        { label: '复制', action: handleCopy, icon: 'copy', disabled: !contextMenu.targetItem },
+        { label: '剪切', action: handleCut, icon: 'cut', disabled: !contextMenu.targetItem },
+        { label: '粘贴', action: handlePaste, icon: 'paste', disabled: false },
+        { type: 'separator' },
+        { label: '重命名', action: handleRename, disabled: !contextMenu.targetItem },
+        { label: '删除', action: handleDelete, icon: 'delete', disabled: !contextMenu.targetItem },
+        { type: 'separator' },
+        { label: '属性', action: handleProperties, icon: 'properties', disabled: !contextMenu.targetItem }
+    ];
+
     const renderFileItem = (key, item) => (
         <FileItem
             key={key}
             data-testid={`file-item-${key}`}
             onDoubleClick={() => handleNavigate(key)}
             onClick={() => setSelectedItem({ name: item.name, type: item.type })}
+            onContextMenu={(e) => handleContextMenu(e, key, item)}
             selected={selectedItem && selectedItem.name === item.name}
         >
             <IconWrapper>
@@ -270,7 +370,7 @@ const Explorer = ({ initialPath = [], windowId }) => {
     );
 
     return (
-        <Container>
+        <Container onContextMenu={closeContextMenu}>
             <ExplorerToolbar
                 onBack={handleBack}
                 onForward={handleForward}
@@ -292,6 +392,13 @@ const Explorer = ({ initialPath = [], windowId }) => {
             <StatusBar>
                 {Object.keys(currentFolder.children || {}).length} 个对象
             </StatusBar>
+            <ContextMenu
+                visible={contextMenu.visible}
+                x={contextMenu.x}
+                y={contextMenu.y}
+                onClose={closeContextMenu}
+                menuItems={menuItems}
+            />
         </Container>
     );
 };
