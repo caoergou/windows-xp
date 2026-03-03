@@ -42,7 +42,7 @@ const Logo = styled.div`
     color: white;
     font-weight: bold;
     margin-bottom: 20px;
-
+    
     span {
         font-style: italic;
         color: #FF6600;
@@ -70,7 +70,7 @@ const UserIcon = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-
+    
     img {
         width: 100%;
         height: 100%;
@@ -93,7 +93,7 @@ const PasswordBox = styled.div`
     display: flex;
     align-items: center;
     gap: 5px;
-
+    
     label {
         font-size: 14px;
     }
@@ -118,7 +118,7 @@ const GoButton = styled.button`
     align-items: center;
     cursor: pointer;
     box-shadow: 1px 1px 2px black;
-
+    
     &:active {
         box-shadow: inset 1px 1px 2px black;
     }
@@ -131,10 +131,10 @@ const ErrorMsg = styled.div`
     min-height: 20px;
 `;
 
-const LoginScreen: React.FC = () => {
+const LoginScreen = () => {
     const { login, user } = useUserSession();
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [password, setPassword] = useState<string>('');
+    const [error, setError] = useState<string>('');
 
     const handleLogin = () => {
         if (login(password)) {
@@ -147,7 +147,7 @@ const LoginScreen: React.FC = () => {
         }
     };
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') handleLogin();
     };
 
@@ -167,9 +167,9 @@ const LoginScreen: React.FC = () => {
                         <UserName>{user.name}</UserName>
                         <PasswordBox>
                             <label>输入密码:</label>
-                            <Input
-                                type="password"
-                                value={password}
+                            <Input 
+                                type="password" 
+                                value={password} 
                                 onChange={(e) => setPassword(e.target.value)}
                                 onKeyPress={handleKeyPress}
                                 autoFocus

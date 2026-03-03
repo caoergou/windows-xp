@@ -5,11 +5,10 @@ import { useUserSession } from '../context/UserSessionContext';
 import { useTray } from '../context/TrayContext';
 import XPIcon from './XPIcon';
 import SystemClock from './SystemClock';
-import { APP_REGISTRY } from '../registry/apps.jsx';
+import { APP_REGISTRY } from '../registry/apps';
 import { defaultPlugin } from '../apps/BrowserPlugins';
 import { useModal } from '../context/ModalContext';
 import ContextMenu from './ContextMenu';
-import { MenuItem, WindowState } from '../types';
 
 const TaskbarContainer = styled.div`
     position: absolute;
@@ -40,16 +39,16 @@ const StartButton = styled.button`
     cursor: pointer;
     box-shadow: 2px 0 5px rgba(0,0,0,0.5);
     text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
-
+    
     &:hover {
         filter: brightness(1.1);
     }
-
+    
     &:active, &.active {
         filter: brightness(0.9);
         box-shadow: inset 2px 2px 2px rgba(0,0,0,0.5);
     }
-
+    
     .start-icon {
         margin-right: 4px;
         filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.3));
@@ -76,7 +75,7 @@ const taskFlash = keyframes`
     50%       { background: #FF8C00; }
 `;
 
-const TaskItem = styled.div`
+const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
     width: 150px;
     height: 25px;
     background: ${props => props.$active ? '#1E52B7' : '#3980F4'};
@@ -125,7 +124,7 @@ const TaskBadge = styled.div`
     pointer-events: none;
 `;
 
-const TaskProgress = styled.div`
+const TaskProgress = styled.div<{ $pct: number }>`
     position: absolute;
     bottom: 0;
     left: 0;
@@ -172,7 +171,7 @@ const StartHeader = styled.div`
     align-items: center;
     padding: 0 10px;
     border-radius: 5px 5px 0 0;
-
+    
     .user-avatar {
         margin-right: 10px;
         border: 2px solid white;
@@ -213,7 +212,7 @@ const StartRight = styled.div`
     overflow-y: auto;
 `;
 
-const MenuItemComponent = styled.div`
+const MenuItem = styled.div`
     display: flex;
     align-items: center;
     padding: 5px;
@@ -245,7 +244,7 @@ const StartFooter = styled.div`
     justify-content: flex-end;
     padding: 0 10px;
     gap: 10px;
-
+    
     button {
         background: none;
         border: none;
@@ -254,7 +253,7 @@ const StartFooter = styled.div`
         display: flex;
         align-items: center;
         font-size: 11px;
-
+        
         &:hover {
             text-decoration: underline;
         }
@@ -360,16 +359,17 @@ const CancelButton = styled.button`
     }
 `;
 
-const Taskbar: React.FC = () => {
+
+const Taskbar = () => {
     const { windows, activeWindowId, focusWindow, minimizeWindow, maximizeWindow, openWindow, closeWindow } = useWindowManager();
     const { logout } = useUserSession();
     const { showModal } = useModal();
     const { items: trayItems } = useTray();
-    const [startOpen, setStartOpen] = useState(false);
-    const [showTurnOff, setShowTurnOff] = useState(false);
+    const [startOpen, setStartOpen] = useState<boolean>(false);
+    const [showTurnOff, setShowTurnOff] = useState<boolean>(false);
     const [qqContextMenu, setQqContextMenu] = useState<{ x: number; y: number } | null>(null);
     const [taskContextMenu, setTaskContextMenu] = useState<{ x: number; y: number } | null>(null);
-    const [selectedWindow, setSelectedWindow] = useState<WindowState | null>(null);
+    const [selectedWindow, setSelectedWindow] = useState<any>(null);
     const startMenuRef = useRef<HTMLDivElement>(null);
     const startButtonRef = useRef<HTMLButtonElement>(null);
     const qqContextMenuRef = useRef<HTMLDivElement>(null);
@@ -415,7 +415,7 @@ const Taskbar: React.FC = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [qqContextMenu, taskContextMenu]);
 
-    const handleTaskContextMenu = (e: React.MouseEvent, win: WindowState) => {
+    const handleTaskContextMenu = (e: React.MouseEvent, win: any) => {
         e.preventDefault();
         e.stopPropagation();
         setSelectedWindow(win);
@@ -475,7 +475,7 @@ const Taskbar: React.FC = () => {
 
     const toggleStart = () => setStartOpen(!startOpen);
 
-    const handleTaskClick = (win: WindowState) => {
+    const handleTaskClick = (win: any) => {
         if (activeWindowId === win.id && !win.isMinimized) {
             minimizeWindow(win.id);
         } else {
@@ -505,12 +505,12 @@ const Taskbar: React.FC = () => {
                 ie.restore({ url: 'http://mail.qq.com', plugin: defaultPlugin }),
                 ie.icon, { width: 1000, height: 700 });
         } else if (appName === 'Explorer') {
-            openWindow('Explorer', pathOrKey || '',
-                explorer.restore({ initialPath: [pathOrKey || ''] }),
+            openWindow('Explorer', pathOrKey!,
+                explorer.restore({ initialPath: [pathOrKey!] }),
                 'folder', explorer.defaultWindowProps);
         } else if (appName === 'Recycle Bin') {
-            openWindow('Explorer', pathOrKey || '',
-                explorer.restore({ initialPath: [pathOrKey || ''] }),
+            openWindow('Explorer', pathOrKey!,
+                explorer.restore({ initialPath: [pathOrKey!] }),
                 'recycle_bin', explorer.defaultWindowProps);
         } else if (appName === 'DummyApp') {
             showModal(pathOrKey || '程序', `找不到文件 "${pathOrKey}"。\n请确认文件名是否正确，然后再试一次。`, 'error');
@@ -580,67 +580,67 @@ const Taskbar: React.FC = () => {
                     </StartHeader>
                     <StartBody>
                         <StartLeft>
-                            <MenuItemComponent onClick={() => handleLaunch('Internet Explorer')}>
+                            <MenuItem onClick={() => handleLaunch('Internet Explorer')}>
                                 <XPIcon name="ie" size={24} className="menu-icon" />
                                 <span>Internet Explorer</span>
-                            </MenuItemComponent>
-                            <MenuItemComponent onClick={() => handleLaunch('QQ')}>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('QQ')}>
                                 <XPIcon name="qq" size={24} className="menu-icon" />
                                 <span>QQ</span>
-                            </MenuItemComponent>
+                            </MenuItem>
                             <MenuSeparator />
-                            <MenuItemComponent onClick={() => handleLaunch('QQMail')}>
+                            <MenuItem onClick={() => handleLaunch('QQMail')}>
                                 <XPIcon name="email" size={24} className="menu-icon" />
                                 <span>QQ邮箱</span>
-                            </MenuItemComponent>
-                            <MenuItemComponent onClick={() => handleLaunch('DummyApp', 'WPS Office')}>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', 'WPS Office')}>
                                 <XPIcon name="wps" size={24} className="menu-icon" />
                                 <span>WPS Office</span>
-                            </MenuItemComponent>
-                            <MenuItemComponent onClick={() => handleLaunch('DummyApp', '暴风影音')}>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', '暴风影音')}>
                                 <XPIcon name="baofeng" size={24} className="menu-icon" />
                                 <span>暴风影音</span>
-                            </MenuItemComponent>
-                            <MenuItemComponent onClick={() => handleLaunch('DummyApp', '迅雷')}>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', '迅雷')}>
                                 <XPIcon name="thunder" size={24} className="menu-icon" />
                                 <span>迅雷</span>
-                            </MenuItemComponent>
-                            <MenuItemComponent onClick={() => handleLaunch('DummyApp', '360安全卫士')}>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', '360安全卫士')}>
                                 <XPIcon name="360safe" size={24} className="menu-icon" />
                                 <span>360安全卫士</span>
-                            </MenuItemComponent>
-                            <MenuItemComponent onClick={() => handleLaunch('DummyApp', '酷狗音乐')}>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', '酷狗音乐')}>
                                 <XPIcon name="kugou" size={24} className="menu-icon" />
                                 <span>酷狗音乐</span>
-                            </MenuItemComponent>
+                            </MenuItem>
                         </StartLeft>
                         <StartRight>
-                            <MenuItemComponent onClick={() => handleLaunch('Explorer', '我的文档')}>
+                            <MenuItem onClick={() => handleLaunch('Explorer', '我的文档')}>
                                 <XPIcon name="documents" size={24} className="menu-icon" />
                                 <span>我的文档</span>
-                            </MenuItemComponent>
-                            <MenuItemComponent onClick={() => handleLaunch('Explorer', '我的电脑')}>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('Explorer', '我的电脑')}>
                                 <XPIcon name="computer" size={24} className="menu-icon" />
                                 <span>我的电脑</span>
-                            </MenuItemComponent>
-                            <MenuItemComponent onClick={() => handleLaunch('Explorer', '我的音乐')}>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('Explorer', '我的音乐')}>
                                 <XPIcon name="folder" size={24} className="menu-icon" />
                                 <span>我的音乐</span>
-                            </MenuItemComponent>
+                            </MenuItem>
                             <MenuSeparator />
-                            <MenuItemComponent onClick={() => handleLaunch('DummyApp', '控制面板')}>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', '控制面板')}>
                                 <XPIcon name="control_panel" size={24} className="menu-icon" />
                                 <span>控制面板</span>
-                            </MenuItemComponent>
-                            <MenuItemComponent onClick={() => handleLaunch('DummyApp', '打印机和传真')}>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', '打印机和传真')}>
                                 <XPIcon name="printer" size={24} className="menu-icon" />
                                 <span>打印机和传真</span>
-                            </MenuItemComponent>
+                            </MenuItem>
                             <MenuSeparator />
-                            <MenuItemComponent onClick={() => handleLaunch('Recycle Bin', '回收站')}>
+                            <MenuItem onClick={() => handleLaunch('Recycle Bin', '回收站')}>
                                 <XPIcon name="recycle_bin" size={24} className="menu-icon" />
                                 <span>回收站</span>
-                            </MenuItemComponent>
+                            </MenuItem>
                         </StartRight>
                     </StartBody>
                     <StartFooter>
@@ -688,7 +688,7 @@ const Taskbar: React.FC = () => {
                             key={item.id}
                             style={{ marginRight: '8px', display: 'flex', alignItems: 'center', cursor: item.onClick ? 'pointer' : 'default' }}
                             title={item.tooltip || ''}
-                            onClick={item.onClick ? (e) => { e.stopPropagation(); item.onClick(); } : undefined}
+                            onClick={item.onClick ? (e) => { e.stopPropagation(); item.onClick!(); } : undefined}
                         >
                             <XPIcon name={item.icon} size={16} color="white" />
                         </div>

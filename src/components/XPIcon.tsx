@@ -127,15 +127,15 @@ const IconMap: Record<string, string> = {
 };
 
 interface XPIconProps {
-    name: string;
-    size?: number;
-    className?: string;
-    color?: string;
-    style?: React.CSSProperties;
-    [key: string]: any;
+  name: string;
+  size?: number;
+  className?: string;
+  color?: string;
+  style?: React.CSSProperties;
+  [key: string]: any;
 }
 
-const XPIcon: React.FC<XPIconProps> = ({ name, size = 32, className, color, style, ...rest }) => {
+const XPIcon = ({ name, size = 32, className, color, style, ...rest }: XPIconProps) => {
     const iconSrc = IconMap[name] || fileIcon;
 
     return (

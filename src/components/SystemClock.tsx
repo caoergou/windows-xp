@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-const SystemClock: React.FC = () => {
-    const [dateTime, setDateTime] = useState('');
+const SystemClock = () => {
+    const [dateTime, setDateTime] = useState<string>('');
 
     useEffect(() => {
         const update = () => {

@@ -64,9 +64,9 @@ const NoteContent = styled.div`
   white-space: pre-wrap;
 `;
 
-const StickyNote: React.FC = () => {
+const StickyNote = () => {
   const { openWindow } = useWindowManager();
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState<boolean>(true);
 
   if (!visible) return null;
 

@@ -98,22 +98,22 @@ const Btn = styled.button`
 interface XPConfirmProps {
   title: string;
   message: string;
-  type?: 'error' | 'warning' | 'question' | 'info';
+  type?: 'question' | 'info' | 'warning' | 'error';
   confirmLabel?: string;
   cancelLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-const XPConfirm: React.FC<XPConfirmProps> = ({
+const XPConfirm = ({
   title,
   message,
   type = 'question',
   confirmLabel = '是(Y)',
-  cancelLabel = '否(N)',
+  cancelLabel  = '否(N)',
   onConfirm,
   onCancel,
-}) => {
+}: XPConfirmProps) => {
   const confirmRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {

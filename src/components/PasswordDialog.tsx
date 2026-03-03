@@ -139,16 +139,16 @@ interface PasswordDialogProps {
   onCancel: () => void;
 }
 
-const PasswordDialog: React.FC<PasswordDialogProps> = ({
+const PasswordDialog = ({
   title = '请输入密码',
   message = '此内容已加密，请输入密码访问。',
   hint = '',
   correctPassword,
   onSuccess,
   onCancel,
-}) => {
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+}: PasswordDialogProps) => {
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -169,7 +169,7 @@ const PasswordDialog: React.FC<PasswordDialogProps> = ({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleSubmit();
     else if (e.key === 'Escape') onCancel();
   };

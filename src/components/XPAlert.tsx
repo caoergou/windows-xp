@@ -10,6 +10,7 @@ const Overlay = styled.div`
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0); /* Transparent overlay usually for XP, but maybe slight dim? XP didn't dim. */
+  /* However, to block interaction with background, we need this overlay. */
   z-index: 99999;
   display: flex;
   justify-content: center;
@@ -117,14 +118,12 @@ const OkButton = styled.button`
 interface XPAlertProps {
   title: string;
   message: string;
-  type?: 'error' | 'warning' | 'info';
+  type?: 'info' | 'warning' | 'error';
   onClose: () => void;
 }
 
-const XPAlert: React.FC<XPAlertProps> = ({ title, message, type = 'info', onClose }) => {
+const XPAlert = ({ title, message, type = 'info', onClose }: XPAlertProps) => {
     const okButtonRef = useRef<HTMLButtonElement>(null);
-
-    // Play sound on mount could be cool but browsers block audio context usually
 
     useEffect(() => {
         if (okButtonRef.current) {
