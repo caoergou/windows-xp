@@ -9,7 +9,7 @@
 [![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
-[在线演示](http://eric.run.place/windows-xp/) | [使用文档](USAGE.md) | [报告问题](https://github.com/caoergou/windows-xp/issues)
+[在线演示](https://eric.run.place/windows-xp/) | [使用文档](USAGE.md) | [报告问题](https://github.com/caoergou/windows-xp/issues)
 
 [English](README.md) | 简体中文
 
@@ -146,7 +146,7 @@ MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
 
 ## 🔑 默认登录凭据
 
-在线演示 [http://eric.run.place/windows-xp/](http://eric.run.place/windows-xp/) 的登录信息：
+在线演示 [https://eric.run.place/windows-xp/](https://eric.run.place/windows-xp/) 的登录信息：
 
 - **用户名：** `User`
 - **密码：** `forthe2000s`

@@ -9,7 +9,7 @@
 [![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
-[Live Demo](http://eric.run.place/windows-xp/) | [Documentation](USAGE.md) | [Report Bug](https://github.com/caoergou/windows-xp/issues)
+[Live Demo](https://eric.run.place/windows-xp/) | [Documentation](USAGE.md) | [Report Bug](https://github.com/caoergou/windows-xp/issues)
 
 English | [简体中文](README.zh-CN.md)
 
@@ -146,7 +146,7 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🔑 Default Login Credentials
 
-For the live demo at [http://eric.run.place/windows-xp/](http://eric.run.place/windows-xp/):
+For the live demo at [https://eric.run.place/windows-xp/](https://eric.run.place/windows-xp/):
 
 - **Username:** `User`
 - **Password:** `forthe2000s`
