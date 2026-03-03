@@ -97,9 +97,10 @@ interface FilePropertiesProps {
   fileItem?: FileItem;
   onClose?: () => void;
   parentPath?: string[];
+  windowId?: string;
 }
 
-const FileProperties: React.FC<FilePropertiesProps> = ({ fileItem, onClose, parentPath }) => {
+const FileProperties: React.FC<FilePropertiesProps> = ({ fileItem, onClose, parentPath, windowId }) => {
   const [activeTab, setActiveTab] = useState('general');
   const [exifData, setExifData] = useState<any>(null);
   const { closeWindow } = useWindowManager();
@@ -130,6 +131,7 @@ const FileProperties: React.FC<FilePropertiesProps> = ({ fileItem, onClose, pare
 
   const handleClose = () => {
     if (onClose) onClose();
+    if (windowId) closeWindow(windowId);
   };
 
   return (
@@ -239,9 +241,8 @@ const FileProperties: React.FC<FilePropertiesProps> = ({ fileItem, onClose, pare
       </TabContent>
 
       <ButtonRow>
-          {/* In a real modal, these would close the window */}
-          <Button disabled>确定</Button>
-          <Button disabled>取消</Button>
+          <Button onClick={handleClose}>确定</Button>
+          <Button onClick={handleClose}>取消</Button>
           <Button disabled>应用(A)</Button>
       </ButtonRow>
     </WindowContainer>

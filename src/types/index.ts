@@ -88,3 +88,17 @@ export interface ClipboardItem {
   sourcePath: string[];
   fileName: string;
 }
+
+// 文件别名（兼容旧代码）
+export type FileItem = FileNode;
+
+// 右键菜单项类型
+export interface MenuItem {
+  label?: string;
+  type?: 'separator';
+  action?: () => void;
+  disabled?: boolean;
+  icon?: string;
+  shortcut?: string;
+  submenu?: MenuItem[];
+}

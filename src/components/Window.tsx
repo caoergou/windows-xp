@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
 import { ResizableBox } from 'react-resizable';
 import { useWindowManager } from '../context/WindowManagerContext';
 import XPIcon from './XPIcon';
+import ContextMenu from './ContextMenu';
 import 'react-resizable/css/styles.css';
 import { useTranslation } from 'react-i18next';
 import { WindowState } from '../types';
@@ -175,6 +176,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
     const { closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow, moveWindow } = useWindowManager();
     const { t } = useTranslation();
     const { id, title, component, icon, zIndex, isMinimized, isMaximized, width, height, left, top, props: windowProps } = windowState;
+    const [sysMenu, setSysMenu] = useState<{ visible: boolean; x: number; y: number }>({ visible: false, x: 0, y: 0 });
 
     if (isMinimized) return null;
 
@@ -202,7 +204,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
 
     const content = (
         <WindowContainer ref={nodeRef} style={isMaximized ? style : { ...style, width: '100%', height: '100%' }} onClick={() => focusWindow(id)}>
-            <TitleBar className="title-bar">
+            <TitleBar className="title-bar" onDoubleClick={() => isResizable && maximizeWindow(id)}>
                 <TitleText>
                     <XPIcon name={icon} size={16} className="title-icon" color="white" />
                     {title}
@@ -238,12 +240,13 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
             handle=".title-bar"
             nodeRef={nodeRef}
             disabled={isMaximized}
+            defaultPosition={{ x: left ?? 100, y: top ?? 100 }}
             onMouseDown={() => focusWindow(id)}
             onStop={(e, data) => {
                 moveWindow(id, data.x, data.y);
             }}
         >
-            <div ref={nodeRef} style={{ position: 'absolute', left: style.left, top: style.top, zIndex: style.zIndex, width: currentWidth, height: currentHeight }}>
+            <div ref={nodeRef} style={{ position: 'absolute', top: 0, left: 0, zIndex: style.zIndex, width: currentWidth, height: currentHeight }}>
                 <ResizableBox
                     width={currentWidth}
                     height={currentHeight}
@@ -258,7 +261,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
                 >
                    {/* Remove left/top/zIndex from WindowContainer style since the wrapper div handles it */}
                    <WindowContainer style={{ width: '100%', height: '100%' }} onClick={() => focusWindow(id)}>
-                        <TitleBar className="title-bar">
+                        <TitleBar className="title-bar" onDoubleClick={() => isResizable && maximizeWindow(id)}>
                             <TitleText>
                                 <XPIcon name={icon} size={16} className="title-icon" color="white" />
                                 {title}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useApp } from '../hooks/useApp';
@@ -118,12 +118,14 @@ interface ExplorerProps {
 }
 
 const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
-    const { getFile, createFile, renameFile, deleteFile, cutFile, pasteFile, getFileProperties } = useFileSystem();
+    const { getFile, createFile, renameFile, deleteFile, cutFile, pasteFile, clipboard, getFileProperties, emptyRecycleBin, restoreFromRecycleBin, moveFile } = useFileSystem();
     const api = useApp(windowId);
 
     const [history, setHistory] = useState<string[][]>([initialPath]);
     const [historyIndex, setHistoryIndex] = useState(0);
     const [selectedItem, setSelectedItem] = useState<{ name: string; type: FileNode['type'] } | null>(null);
+    const [address, setAddress] = useState<string>(initialPath.join('\\'));
+    const [dragOver, setDragOver] = useState<string | null>(null);
     const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; targetItem: { key: string; item: FileNode } | null }>({
         visible: false,
         x: 0,
@@ -133,6 +135,19 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
 
     const currentPath = history[historyIndex];
     const currentFolder = getFile(currentPath);
+
+    // Keep address bar in sync when navigating
+    useEffect(() => {
+        setAddress(currentPath.join('\\'));
+    }, [currentPath]);
+
+    const handleAddressGo = () => {
+        const parts = address.split('\\').filter(p => p.trim() !== '');
+        const target = getFile(parts);
+        if (target) {
+            handleNavigateToPath(parts);
+        }
+    };
 
     const handleNavigate = async (name: string) => {
         const newPath = [...currentPath, name];
@@ -336,19 +351,64 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
         }
     };
 
-    const menuItems = [
+    const isInRecycleBin = currentPath.length === 1 && currentPath[0] === '回收站';
+
+    const handleEmptyRecycleBin = () => {
+        api.dialog.confirm({
+            title: '清空回收站',
+            message: '确定要永久删除回收站中的所有项目吗？',
+            type: 'warning'
+        }).then(confirmed => {
+            if (confirmed) {
+                emptyRecycleBin();
+                closeContextMenu();
+            }
+        });
+    };
+
+    const handleRestoreFromRecycleBin = () => {
+        if (contextMenu.targetItem) {
+            restoreFromRecycleBin(contextMenu.targetItem.key);
+            closeContextMenu();
+        }
+    };
+
+    const recycleBinMenuItems = [
+        { label: '还原', action: handleRestoreFromRecycleBin, disabled: !contextMenu.targetItem },
+        { type: 'separator' },
+        { label: '清空回收站', action: handleEmptyRecycleBin },
+        { type: 'separator' },
+        { label: '属性', action: handleProperties, disabled: !contextMenu.targetItem }
+    ];
+
+    const menuItems = isInRecycleBin ? recycleBinMenuItems : [
         { label: '新建文件夹', action: () => handleCreateFile('folder') },
         { label: '新建文本文档', action: () => handleCreateFile('file') },
         { type: 'separator' },
         { label: '复制', action: handleCopy, disabled: !contextMenu.targetItem },
         { label: '剪切', action: handleCut, disabled: !contextMenu.targetItem },
-        { label: '粘贴', action: handlePaste, disabled: false },
+        { label: '粘贴', action: handlePaste, disabled: !clipboard },
         { type: 'separator' },
         { label: '重命名', action: handleRename, disabled: !contextMenu.targetItem },
         { label: '删除', action: handleDelete, disabled: !contextMenu.targetItem },
         { type: 'separator' },
         { label: '属性', action: handleProperties, disabled: !contextMenu.targetItem }
     ];
+
+    const handleDragStart = (e: React.DragEvent, key: string) => {
+        e.dataTransfer.setData('text/plain', key);
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
+    const handleDropOnFolder = (e: React.DragEvent, targetKey: string, targetItem: FileNode) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragOver(null);
+        if (targetItem.type !== 'folder') return;
+        const srcKey = e.dataTransfer.getData('text/plain');
+        if (!srcKey || srcKey === targetKey) return;
+        moveFile(currentPath, srcKey, [...currentPath, targetKey]);
+    };
 
     const renderFileItem = (key: string, item: FileNode) => (
         <FileItem
@@ -358,6 +418,12 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
             onClick={() => setSelectedItem({ name: item.name, type: item.type })}
             onContextMenu={(e) => handleContextMenu(e, key, item)}
             selected={selectedItem && selectedItem.name === item.name}
+            draggable
+            onDragStart={(e) => handleDragStart(e, key)}
+            onDragOver={(e) => { if (item.type === 'folder') { e.preventDefault(); setDragOver(key); } }}
+            onDragLeave={() => setDragOver(null)}
+            onDrop={(e) => handleDropOnFolder(e, key, item)}
+            style={dragOver === key && item.type === 'folder' ? { background: '#C1D2EE', border: '1px dashed #316AC5' } : undefined}
         >
             <IconWrapper>
                 <XPIcon name={item.icon || (item.type === 'folder' ? 'folder' : 'file')} size={32} />
@@ -383,10 +449,15 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
                 onBack={handleBack}
                 onForward={handleForward}
                 onUp={handleUp}
-                canBack={historyIndex > 0}
-                canForward={historyIndex < history.length - 1}
+                canGoBack={historyIndex > 0}
+                canGoForward={historyIndex < history.length - 1}
+                canGoUp={currentPath.length > 0}
             />
-            <AddressBar currentPath={currentPath} />
+            <AddressBar
+                address={address}
+                onAddressChange={setAddress}
+                onGo={handleAddressGo}
+            />
             <MainContent>
                 <ExplorerSidebar
                     currentPath={currentPath}

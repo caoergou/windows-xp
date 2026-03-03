@@ -1,4 +1,5 @@
 import { useEffect, useRef, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import XPIcon from './XPIcon';
 import { MenuItem } from '../types';
@@ -9,7 +10,7 @@ const ContextMenuContainer = styled.div`
     border: 1px solid #000000;
     box-shadow: 2px 2px 0px #808080;
     padding: 1px;
-    z-index: 99999;
+    z-index: 2147483647;
     min-width: 150px;
     font-size: 12px;
     left: ${props => props.x}px;
@@ -144,7 +145,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ visible, x, y, onClose, menuI
 
     if (!visible) return null;
 
-    return (
+    return createPortal(
         <ContextMenuContainer ref={menuRef} x={x} y={y}>
             {menuItems.map((item, index) => {
                 if (item.type === 'separator') {
@@ -173,7 +174,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ visible, x, y, onClose, menuI
                     </MenuItemComponent>
                 );
             })}
-        </ContextMenuContainer>
+        </ContextMenuContainer>,
+        document.body
     );
 };
 

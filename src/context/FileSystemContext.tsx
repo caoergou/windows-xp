@@ -41,6 +41,8 @@ interface FileSystemContextType {
   copyFile: (sourcePath: string[], fileName: string, destinationPath: string[], newName?: string) => void;
   cutFile: (sourcePath: string[], fileName: string) => void;
   pasteFile: (destinationPath: string[]) => boolean;
+  emptyRecycleBin: () => void;
+  restoreFromRecycleBin: (fileName: string) => void;
   searchFiles: (query: string, startPath?: string[]) => Array<{ path: string[]; name: string; type: string; icon?: string }>;
   getFileProperties: (path: string[], fileName: string) => {
     name: string;
@@ -309,6 +311,29 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     return true;
   }, [clipboard, copyFile]);
 
+  const emptyRecycleBin = useCallback(() => {
+    setFs(prevFs => {
+      const newFs = JSON.parse(JSON.stringify(prevFs));
+      if (newFs.root.children['回收站']) {
+        newFs.root.children['回收站'].children = {};
+      }
+      return newFs;
+    });
+  }, []);
+
+  const restoreFromRecycleBin = useCallback((fileName: string) => {
+    setFs(prevFs => {
+      const newFs = JSON.parse(JSON.stringify(prevFs));
+      const recycleBin = newFs.root.children['回收站'];
+      if (recycleBin?.children?.[fileName]) {
+        if (!newFs.root.children) newFs.root.children = {};
+        newFs.root.children[fileName] = recycleBin.children[fileName];
+        delete recycleBin.children[fileName];
+      }
+      return newFs;
+    });
+  }, []);
+
   const searchFiles = useCallback((query: string, startPath: string[] = []): Array<{ path: string[]; name: string; type: string; icon?: string }> => {
     const results: Array<{ path: string[]; name: string; type: string; icon?: string }> = [];
     const searchNode = (node: FileNode, path: string[]) => {
@@ -369,6 +394,8 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     copyFile,
     cutFile,
     pasteFile,
+    emptyRecycleBin,
+    restoreFromRecycleBin,
     searchFiles,
     getFileProperties,
     moveFile

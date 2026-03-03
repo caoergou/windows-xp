@@ -131,10 +131,44 @@ const ErrorMsg = styled.div`
     min-height: 20px;
 `;
 
+const BottomBar = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 60%;
+    padding: 10px 0;
+    gap: 10px;
+`;
+
+const ShutdownButton = styled.button`
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 3px;
+    color: white;
+    font-size: 12px;
+    font-family: Tahoma, sans-serif;
+    padding: 4px 10px;
+    cursor: pointer;
+
+    &:hover {
+        background: rgba(255,255,255,0.15);
+        border-color: rgba(255,255,255,0.7);
+    }
+`;
+
 const LoginScreen = () => {
     const { login, user } = useUserSession();
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
+
+    const handleShutdown = () => {
+        localStorage.setItem('xp_power_state', 'shutdown');
+        localStorage.removeItem('xp_first_boot_done');
+        window.location.reload();
+    };
 
     const handleLogin = () => {
         if (login(password)) {
@@ -155,6 +189,7 @@ const LoginScreen = () => {
         <Container>
             <Logo>Microsoft Windows<span>XP</span></Logo>
             <Content>
+
                 <UserRow>
                     <UserIcon>
                         {user.avatar ? (
@@ -180,6 +215,12 @@ const LoginScreen = () => {
                     </InputArea>
                 </UserRow>
             </Content>
+            <BottomBar>
+                <ShutdownButton onClick={handleShutdown}>
+                    <XPIcon name="shutdown" size={16} />
+                    关闭计算机
+                </ShutdownButton>
+            </BottomBar>
         </Container>
     );
 };

@@ -7,6 +7,7 @@ import Taskbar from './Taskbar';
 import Window from './Window';
 import ContextMenu from './ContextMenu';
 import XPIcon from './XPIcon';
+import FileProperties from './FileProperties';
 import { resolveFileOpen } from '../registry/apps.jsx';
 import AntivirusPopup from './AntivirusPopup';
 import { useModal } from '../context/ModalContext';
@@ -34,7 +35,7 @@ const IconGrid = styled.div`
   align-content: flex-start;
 `;
 
-const DesktopIcon = styled.div`
+const DesktopIcon = styled.div<{ $selected?: boolean }>`
   width: 80px;
   display: flex;
   flex-direction: column;
@@ -43,7 +44,12 @@ const DesktopIcon = styled.div`
   padding: 5px;
   border: 1px solid transparent;
   color: white;
-  text-shadow: 1px 1px 2px black;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+
+  ${props => props.$selected && `
+    background-color: rgba(0, 51, 153, 0.5);
+    border: 1px dotted rgba(255,255,255,0.6);
+  `}
 
   &:hover {
     background-color: rgba(0, 51, 153, 0.3);
@@ -51,6 +57,7 @@ const DesktopIcon = styled.div`
   }
 
   .icon-wrapper {
+    position: relative;
     margin-bottom: 5px;
     filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.7));
   }
@@ -58,7 +65,29 @@ const DesktopIcon = styled.div`
   span {
     font-size: 12px;
     text-align: center;
+    width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    line-height: 1.3;
   }
+`;
+
+const ShortcutArrow = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const DragOverlay = styled.div`
@@ -73,13 +102,17 @@ const DragOverlay = styled.div`
   text-shadow: 1px 1px 2px black;
 `;
 
+// System icons that are not shortcuts (no shortcut arrow in XP)
+const SYSTEM_ICONS = new Set(['我的电脑', '我的文档', '回收站', '网上邻居']);
+
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
-  const { fs, moveFile } = useFileSystem();
+  const { fs, moveFile, deleteFile, renameFile } = useFileSystem();
   const { windows, openWindow, focusWindow } = useWindowManager();
-  const { showModal } = useModal();
+  const { showModal, showConfirm, showInput } = useModal();
 
-  const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
+  const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; iconKey: string | null }>({ visible: false, x: 0, y: 0, iconKey: null });
+  const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pasteDisabled, setPasteDisabled] = useState(true);
@@ -101,7 +134,9 @@ const Desktop: React.FC = () => {
   };
 
   const handleDrag = (e: React.DragEvent) => {
-    setDragPosition({ x: e.clientX, y: e.clientY });
+    if (e.clientX !== 0 || e.clientY !== 0) {
+      setDragPosition({ x: e.clientX, y: e.clientY });
+    }
   };
 
   const handleDragEnd = (e: React.DragEvent, targetKey: string | null) => {
@@ -114,6 +149,7 @@ const Desktop: React.FC = () => {
       }
     }
     setDraggedItem(null);
+    setDragPosition({ x: 0, y: 0 });
   };
 
   const handleContextMenu = async (e: React.MouseEvent) => {
@@ -124,11 +160,51 @@ const Desktop: React.FC = () => {
     } catch (err) {
       setPasteDisabled(true);
     }
-    setContextMenu({ visible: true, x: e.clientX, y: e.clientY });
+    setContextMenu({ visible: true, x: e.clientX, y: e.clientY, iconKey: null });
+  };
+
+  const handleIconContextMenu = (e: React.MouseEvent, key: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedIcon(key);
+    setContextMenu({ visible: true, x: e.clientX, y: e.clientY, iconKey: key });
   };
 
   const closeContextMenu = () => {
-    setContextMenu({ visible: false, x: 0, y: 0 });
+    setContextMenu({ visible: false, x: 0, y: 0, iconKey: null });
+  };
+
+  const handleIconDelete = (key: string) => {
+    const item = fs.root.children[key];
+    showConfirm('确认删除', `确定要把 "${item?.name}" 移到回收站吗？`, 'warning').then(confirmed => {
+      if (confirmed) {
+        deleteFile([], key);
+      }
+    });
+    closeContextMenu();
+  };
+
+  const handleIconRename = (key: string) => {
+    const item = fs.root.children[key];
+    if (!item) return;
+    showInput('重命名', '请输入新名称：', item.name).then(newName => {
+      if (newName && newName.trim() !== '') {
+        renameFile([], key, newName.trim());
+      }
+    });
+    closeContextMenu();
+  };
+
+  const handleIconProperties = (key: string) => {
+    const item = fs.root.children[key];
+    if (!item) return;
+    openWindow(
+      `properties-${key}`,
+      `${item.name} 属性`,
+      <FileProperties fileItem={item} parentPath={[]} />,
+      'properties'
+    );
+    closeContextMenu();
   };
 
   const handleRefresh = () => {
@@ -160,35 +236,85 @@ const Desktop: React.FC = () => {
     { label: t('contextMenu.properties'), action: () => {} }
   ];
 
+  const getIconMenuItems = (key: string) => {
+    const item = fs.root.children[key];
+    if (!item) return desktopMenuItems;
+    const isSystem = SYSTEM_ICONS.has(key);
+    const items = [
+      { label: '打开', action: () => { handleIconDoubleClick(key, item); closeContextMenu(); } },
+      { type: 'separator' },
+    ];
+    if (!isSystem) {
+      items.push(
+        { label: '剪切', action: () => {} },
+        { label: '复制', action: () => {} },
+        { type: 'separator' },
+        { label: '删除', action: () => handleIconDelete(key) },
+        { label: '重命名', action: () => handleIconRename(key) },
+      );
+    }
+    items.push(
+      { type: 'separator' },
+      { label: '属性', action: () => handleIconProperties(key) }
+    );
+    return items;
+  };
+
   const desktopItems = fs.root.children;
 
+  const activeMenuItems = contextMenu.iconKey
+    ? getIconMenuItems(contextMenu.iconKey)
+    : desktopMenuItems;
+
   return (
-    <DesktopContainer $bgUrl={desktopBg} onContextMenu={handleContextMenu}>
+    <DesktopContainer $bgUrl={desktopBg} onContextMenu={handleContextMenu} onClick={() => setSelectedIcon(null)}>
       <IconGrid key={refreshKey} style={{ opacity: isRefreshing ? 0 : 1 }}>
         {Object.entries(desktopItems).map(([key, item]) => {
           const iconName = (key === '回收站' && item.children && Object.keys(item.children).length > 0)
             ? 'recycle_bin_full'
             : item.icon;
+          const isShortcut = !SYSTEM_ICONS.has(key);
           return (
             <DesktopIcon
               key={key}
+              $selected={selectedIcon === key}
               data-testid={`desktop-icon-${key}`}
+              onClick={(e) => { e.stopPropagation(); setSelectedIcon(key); }}
               onDoubleClick={() => handleIconDoubleClick(key, item)}
+              onContextMenu={(e) => handleIconContextMenu(e, key)}
               draggable
               onDragStart={(e) => handleDragStart(e, key, item)}
               onDrag={(e) => handleDrag(e)}
               onDragEnd={(e) => handleDragEnd(e, null)}
-              onDragOver={(e) => e.preventDefault()} // 允许放置
+              onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => handleDragEnd(e, key)}
             >
               <div className="icon-wrapper">
                 <XPIcon name={iconName} size={32} />
+                {isShortcut && (
+                  <ShortcutArrow>
+                    <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" width="10" height="10">
+                      {/* XP 经典快捷方式箭头：从左下向右上弯曲的箭头 */}
+                      <path
+                        d="M2,10 L2,7 C2,5 3.5,3.5 5.5,3.5 L5.5,2 L9,5 L5.5,8 L5.5,5.5 C4,5.5 3,6.5 3,8 L3,10 Z"
+                        fill="black"
+                      />
+                    </svg>
+                  </ShortcutArrow>
+                )}
               </div>
               <span>{translateIconName(key, item.name)}</span>
             </DesktopIcon>
           );
         })}
       </IconGrid>
+
+      {draggedItem && (
+        <DragOverlay style={{ left: dragPosition.x + 12, top: dragPosition.y + 12 }}>
+          <XPIcon name={draggedItem.item.icon || 'file'} size={32} />
+          <span style={{ fontSize: '11px', marginTop: '3px' }}>{draggedItem.item.name}</span>
+        </DragOverlay>
+      )}
 
       {windows.map(win => (
         <Window key={win.id} windowState={win} />
@@ -201,7 +327,7 @@ const Desktop: React.FC = () => {
         x={contextMenu.x}
         y={contextMenu.y}
         onClose={closeContextMenu}
-        menuItems={desktopMenuItems}
+        menuItems={activeMenuItems}
       />
 
       <AntivirusPopup />
