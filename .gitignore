@@ -12,3 +12,4 @@ taskbar_screenshot*
 tmp/
 *.png
 *.yml
+!.github/**/*.yml

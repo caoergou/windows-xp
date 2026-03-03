@@ -1,6 +1,6 @@
 {
   "name": "@caoergou/windows-xp",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A faithful recreation of Windows XP desktop in React - Relive the millennium era with authentic Y2K aesthetics",
   "main": "dist/windows-xp.umd.js",
   "module": "dist/windows-xp.es.js",
