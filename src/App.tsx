@@ -7,6 +7,7 @@ import LoginScreen from './components/LoginScreen';
 import Desktop from './components/Desktop';
 import BootScreen from './components/BootScreen';
 import XPIcon from './components/XPIcon';
+import MobileWarning from './components/MobileWarning';
 import windowsIcon from './assets/icons/windows.svg';
 
 const Container = styled.div`
@@ -244,6 +245,7 @@ function App() {
   return (
     <ModalProvider>
       <Container>
+        <MobileWarning />
         {bootPhase === 'BOOTING' ? (
           <BootScreen onComplete={handleBootComplete} />
         ) : (

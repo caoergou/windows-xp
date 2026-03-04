@@ -192,5 +192,10 @@
       "applications": "Applications",
       "settings": "System Settings"
     }
+  },
+  "mobileWarning": {
+    "title": "Mobile Device Detected",
+    "message": "This Windows XP Simulator is best experienced on a desktop or laptop computer. The interface and functionality may be limited on mobile devices.",
+    "continue": "Continue to Desktop"
   }
 }
