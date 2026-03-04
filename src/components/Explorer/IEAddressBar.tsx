@@ -96,12 +96,12 @@ const GoButton = styled.button`
 `;
 
 interface IEAddressBarProps {
-    address: string;
-    onAddressChange?: (address: string) => void;
+    value: string;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onGo?: () => void;
 }
 
-const IEAddressBar: React.FC<IEAddressBarProps> = ({ address, onAddressChange, onGo }) => {
+const IEAddressBar: React.FC<IEAddressBarProps> = ({ value, onChange, onGo }) => {
     return (
         <Bar>
             <Label>地址</Label>
@@ -111,8 +111,8 @@ const IEAddressBar: React.FC<IEAddressBarProps> = ({ address, onAddressChange, o
                 </IconWrapper>
                 <Input
                     type="text"
-                    value={address}
-                    onChange={(e) => onAddressChange?.(e.target.value)}
+                    value={value}
+                    onChange={onChange}
                     onKeyDown={(e) => e.key === 'Enter' && onGo?.()}
                 />
                 <DropArrow>

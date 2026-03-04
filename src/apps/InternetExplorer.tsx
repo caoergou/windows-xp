@@ -217,14 +217,33 @@ const Content = styled.div`
 `;
 
 const Footer = styled.footer`
-    height: 20px;
-    border-top: 1px solid transparent;
-    box-shadow: inset 0 1px 3px rgba(50, 50, 50, 0.8);
+    height: 22px;
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
     background-color: rgb(236, 233, 216);
     display: flex;
     align-items: center;
-    padding-top: 2px;
     flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+`;
+
+const LoadingBar = styled.div<{ $visible: boolean }>`
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: #316AC5;
+    display: ${p => p.$visible ? 'block' : 'none'};
+    animation: ieLoadingBar 1.5s ease-in-out infinite;
+
+    @keyframes ieLoadingBar {
+        0%   { left: 0;   width: 0%; opacity: 1; }
+        30%  { left: 0;   width: 60%; }
+        60%  { left: 25%; width: 70%; }
+        90%  { left: 60%; width: 40%; opacity: 1; }
+        100% { left: 100%; width: 0%; opacity: 0; }
+    }
 `;
 
 const FooterStatus = styled.div`
@@ -232,14 +251,32 @@ const FooterStatus = styled.div`
     height: 100%;
     display: flex;
     align-items: center;
-    padding-left: 2px;
+    padding: 0 4px;
     font-size: 11px;
-    gap: 3px;
+    font-family: Tahoma, sans-serif;
+    gap: 4px;
+    overflow: hidden;
+    border-right: 1px solid rgba(0, 0, 0, 0.12);
+    box-shadow: inset -1px 0 rgba(255, 255, 255, 0.5);
+`;
 
-    img {
-        height: 14px;
-        width: 14px;
+const StatusIcon = styled.img<{ $spinning?: boolean }>`
+    height: 14px;
+    width: 14px;
+    flex-shrink: 0;
+    animation: ${p => p.$spinning ? 'ieSpin 0.8s linear infinite' : 'none'};
+
+    @keyframes ieSpin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
     }
+`;
+
+const StatusText = styled.span`
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #333;
 `;
 
 const FooterBlock = styled.div`
@@ -247,19 +284,22 @@ const FooterBlock = styled.div`
     width: 22px;
     border-left: 1px solid rgba(0, 0, 0, 0.15);
     box-shadow: inset 1px 0 rgba(255, 255, 255, 0.7);
+    flex-shrink: 0;
 `;
 
 const FooterRight = styled.div`
     display: flex;
     align-items: center;
     width: 150px;
-    height: 80%;
+    height: 100%;
     border-left: 1px solid rgba(0, 0, 0, 0.11);
     box-shadow: inset 1px 0 rgba(255, 255, 255, 0.7);
     padding-left: 5px;
     position: relative;
     font-size: 11px;
-    gap: 3px;
+    font-family: Tahoma, sans-serif;
+    gap: 4px;
+    flex-shrink: 0;
 
     img {
         height: 14px;
@@ -339,6 +379,8 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
     const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
     const [showAddFavorite, setShowAddFavorite] = useState(false);
     const [favoriteName, setFavoriteName] = useState<string>('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [statusText, setStatusText] = useState(t('internetExplorer.status.done'));
 
     const currentEntry = history[currentIndex];
 
@@ -414,6 +456,8 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
                 newHistory.push(blockedEntry);
                 setHistory(newHistory);
                 setCurrentIndex(newHistory.length - 1);
+                setIsLoading(false);
+                setStatusText(t('internetExplorer.status.cannotDisplay'));
                 return;
             }
         }
@@ -427,6 +471,11 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
         setHistory(newHistory);
         setCurrentIndex(newHistory.length - 1);
         addToHistory(newUrl);
+
+        // 开始加载
+        setIsLoading(true);
+        const shortUrl = newUrl.replace(/^https?:\/\//, '').replace(/^web\.archive\.org\/web\/\d+[a-z_]*\//, '');
+        setStatusText(`${t('internetExplorer.status.opening')} ${shortUrl}...`);
     };
 
     const handleGo = () => {
@@ -581,6 +630,10 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
                     srcDoc={srcDoc}
                     title="Browser Content"
                     sandbox="allow-scripts allow-same-origin"
+                    onLoad={() => {
+                        setIsLoading(false);
+                        setStatusText(t('internetExplorer.status.done'));
+                    }}
                 />
             );
         }
@@ -588,7 +641,11 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
         // Try the plugin first if provided
         if (plugin) {
             const pluginContent = plugin(currentEntry.url, navigateTo, openNewIE);
-            if (pluginContent) return pluginContent;
+            if (pluginContent) {
+                setIsLoading(false);
+                setStatusText(t('internetExplorer.status.done'));
+                return pluginContent;
+            }
         }
 
         return (
@@ -597,6 +654,14 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
                 src={toWaybackUrl(currentEntry.url)}
                 title="Browser"
                 key={currentEntry.url}
+                onLoad={() => {
+                    setIsLoading(false);
+                    setStatusText(t('internetExplorer.status.done'));
+                }}
+                onError={() => {
+                    setIsLoading(false);
+                    setStatusText(t('internetExplorer.status.cannotDisplay'));
+                }}
             />
         );
     };
@@ -618,6 +683,7 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
                 canForward={currentIndex < history.length - 1}
                 showFavorites={showFavorites}
                 showHistory={showHistory}
+                isLoading={isLoading}
             />
             <IEAddressBar
                 value={inputUrl}
@@ -682,16 +748,21 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
                 </Content>
             </MainArea>
             <Footer>
+                <LoadingBar $visible={isLoading} />
                 <FooterStatus>
-                    <img src="/icons/ie.png" alt="" />
-                    <span>完成</span>
+                    <StatusIcon
+                        src="/icons/ie.png"
+                        alt="IE"
+                        $spinning={isLoading}
+                    />
+                    <StatusText>{statusText}</StatusText>
                 </FooterStatus>
                 <FooterBlock />
                 <FooterBlock />
                 <FooterBlock />
                 <FooterBlock />
                 <FooterRight>
-                    <img src="/icons/earth.png" alt="" />
+                    <img src="/icons/earth.png" alt="Internet" />
                     <span>Internet</span>
                     <FooterDots />
                 </FooterRight>

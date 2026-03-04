@@ -77,6 +77,38 @@
     "messenger": "MSN Messenger",
     "outlook": "Outlook Express"
   },
+  "notepad": {
+    "menu": {
+      "file": "File(F)",
+      "edit": "Edit(E)",
+      "format": "Format(O)",
+      "view": "View(V)",
+      "help": "Help(H)"
+    },
+    "menuitems": {
+      "new": "New(N)",
+      "open": "Open(O)...",
+      "save": "Save(S)",
+      "saveAs": "Save As(A)...",
+      "pageSetup": "Page Setup(U)...",
+      "print": "Print(P)...",
+      "exit": "Exit(X)",
+      "undo": "Undo(U)",
+      "cut": "Cut(T)",
+      "copy": "Copy(C)",
+      "paste": "Paste(P)",
+      "delete": "Delete(L)",
+      "find": "Find(F)...",
+      "replace": "Replace(R)...",
+      "goTo": "Go To(G)...",
+      "selectAll": "Select All(A)",
+      "wrap": "Word Wrap(W)",
+      "font": "Font(F)...",
+      "statusBar": "Status Bar(S)",
+      "help": "View Help(V)",
+      "about": "About Notepad(A)..."
+    }
+  },
   "fileSystem": {
     "name": "Name",
     "size": "Size",
@@ -97,7 +129,47 @@
   },
   "internetExplorer": {
     "history": "History",
-    "noHistory": "No history"
+    "noHistory": "No history",
+    "status": {
+      "done": "Done",
+      "opening": "Opening page",
+      "cannotDisplay": "Cannot display page"
+    },
+    "menu": {
+      "file": "File(F)",
+      "edit": "Edit(E)",
+      "view": "View(V)",
+      "favorites": "Favorites(A)",
+      "tools": "Tools(T)",
+      "help": "Help(H)"
+    },
+    "menuitems": {
+      "new": "New(N)",
+      "open": "Open(O)...",
+      "save": "Save(S)",
+      "saveAs": "Save As(A)...",
+      "pageSetup": "Page Setup(U)...",
+      "printPreview": "Print Preview(V)",
+      "print": "Print(P)...",
+      "close": "Close(C)",
+      "cut": "Cut(T)",
+      "copy": "Copy(C)",
+      "paste": "Paste(V)",
+      "selectAll": "Select All(A)",
+      "find": "Find(F)...",
+      "toolbar": "Toolbar(T)",
+      "statusBar": "Status Bar(B)",
+      "refresh": "Refresh(R)",
+      "fullScreen": "Full Screen(U)",
+      "textSize": "Text Size(X)",
+      "encoding": "Encoding(D)",
+      "addToFavorites": "Add to Favorites(A)...",
+      "organizeFavorites": "Organize Favorites(O)...",
+      "email": "Mail and News(M)",
+      "internetOptions": "Internet Options(O)...",
+      "helpTopics": "Help Topics(C)",
+      "about": "About Internet Explorer(A)"
+    }
   },
   "photoViewer": {
     "noImageSelected": "No image selected",

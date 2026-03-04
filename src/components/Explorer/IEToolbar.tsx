@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import XPIcon from '../XPIcon';
+import { useTranslation } from 'react-i18next';
 
 const Container = styled.div`
     display: flex;
@@ -18,14 +19,64 @@ const MenuBar = styled.div`
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 `;
 
-const MenuItem = styled.div`
+const MenuItemWrapper = styled.div`
+    position: relative;
+`;
+
+const MenuItem = styled.div<{ $active?: boolean }>`
     padding: 2px 8px;
     cursor: pointer;
+    background: ${p => p.$active ? '#316AC5' : 'transparent'};
+    color: ${p => p.$active ? 'white' : 'inherit'};
 
     &:hover {
         background: #316AC5;
         color: white;
     }
+`;
+
+/* Windows XP 风格下拉菜单 */
+const DropdownMenu = styled.div`
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 180px;
+    background: #F0F0F0;
+    border: 1px solid #000;
+    box-shadow: 2px 2px 0px #808080;
+    padding: 2px 0;
+    z-index: 9999;
+    font-size: 12px;
+    font-family: Tahoma, sans-serif;
+`;
+
+const DropdownItem = styled.div<{ $disabled?: boolean }>`
+    padding: 3px 24px 3px 24px;
+    cursor: default;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: ${p => p.$disabled ? '#A0A0A0' : '#000'};
+    position: relative;
+    white-space: nowrap;
+
+    &:hover {
+        background: ${p => p.$disabled ? 'transparent' : '#316AC5'};
+        color: ${p => p.$disabled ? '#A0A0A0' : 'white'};
+    }
+
+    .shortcut {
+        margin-left: 24px;
+        font-size: 11px;
+        color: inherit;
+        opacity: 0.8;
+    }
+`;
+
+const DropdownSeparator = styled.div`
+    height: 1px;
+    background: #808080;
+    margin: 3px 2px;
 `;
 
 const ToolbarContainer = styled.div`
@@ -104,6 +155,58 @@ const Separator = styled.div`
     margin: 0 2px;
 `;
 
+type MenuKey = 'file' | 'edit' | 'view' | 'favorites' | 'tools' | 'help' | null;
+
+const MENUS: Record<Exclude<MenuKey, null>, { labelKey: string; shortcut?: string; separator?: boolean; disabled?: boolean }[]> = {
+    file: [
+        { labelKey: 'internetExplorer.menuitems.new', shortcut: 'Ctrl+N' },
+        { labelKey: 'internetExplorer.menuitems.open', shortcut: 'Ctrl+O' },
+        { labelKey: 'internetExplorer.menuitems.edit' },
+        { labelKey: 'internetExplorer.menuitems.save', shortcut: 'Ctrl+S', disabled: true },
+        { labelKey: 'internetExplorer.menuitems.saveAs' },
+        { label: '', separator: true },
+        { labelKey: 'internetExplorer.menuitems.pageSetup' },
+        { labelKey: 'internetExplorer.menuitems.printPreview' },
+        { labelKey: 'internetExplorer.menuitems.print', shortcut: 'Ctrl+P' },
+        { label: '', separator: true },
+        { labelKey: 'internetExplorer.menuitems.close' },
+    ],
+    edit: [
+        { labelKey: 'internetExplorer.menuitems.cut', shortcut: 'Ctrl+X' },
+        { labelKey: 'internetExplorer.menuitems.copy', shortcut: 'Ctrl+C' },
+        { labelKey: 'internetExplorer.menuitems.paste', shortcut: 'Ctrl+V' },
+        { label: '', separator: true },
+        { labelKey: 'internetExplorer.menuitems.selectAll', shortcut: 'Ctrl+A' },
+        { label: '', separator: true },
+        { labelKey: 'internetExplorer.menuitems.find', shortcut: 'Ctrl+F' },
+    ],
+    view: [
+        { labelKey: 'internetExplorer.menuitems.toolbar' },
+        { labelKey: 'internetExplorer.menuitems.statusBar' },
+        { label: '', separator: true },
+        { labelKey: 'internetExplorer.menuitems.refresh', shortcut: 'F5' },
+        { label: '', separator: true },
+        { labelKey: 'internetExplorer.menuitems.textSize' },
+        { labelKey: 'internetExplorer.menuitems.encoding' },
+        { label: '', separator: true },
+        { labelKey: 'internetExplorer.menuitems.fullScreen', shortcut: 'F11' },
+    ],
+    favorites: [
+        { labelKey: 'internetExplorer.menuitems.addToFavorites' },
+        { labelKey: 'internetExplorer.menuitems.organizeFavorites' },
+    ],
+    tools: [
+        { labelKey: 'internetExplorer.menuitems.email' },
+        { label: '', separator: true },
+        { labelKey: 'internetExplorer.menuitems.internetOptions' },
+    ],
+    help: [
+        { labelKey: 'internetExplorer.menuitems.helpTopics' },
+        { label: '', separator: true },
+        { labelKey: 'internetExplorer.menuitems.about' },
+    ],
+};
+
 interface IEToolbarProps {
     onBack?: () => void;
     onForward?: () => void;
@@ -139,15 +242,95 @@ const IEToolbar: React.FC<IEToolbarProps> = ({
     showHistory = false,
     isLoading = false
 }) => {
+    const { t } = useTranslation();
+    const [openMenu, setOpenMenu] = useState<MenuKey>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!openMenu) return;
+        const handleClickOutside = (e: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+                setOpenMenu(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [openMenu]);
+
+    const toggleMenu = (key: Exclude<MenuKey, null>, callback?: () => void) => {
+        setOpenMenu(prev => prev === key ? null : key);
+        if (key === 'favorites' && callback) callback();
+        if (key === 'help' && callback) callback();
+    };
+
+    const renderDropdown = (key: Exclude<MenuKey, null>) => {
+        if (openMenu !== key) return null;
+        const items = MENUS[key];
+        return (
+            <DropdownMenu>
+                {items.map((item, i) =>
+                    item.separator
+                        ? <DropdownSeparator key={i} />
+                        : (
+                            <DropdownItem
+                                key={i}
+                                $disabled={item.disabled}
+                                onClick={() => setOpenMenu(null)}
+                            >
+                                <span>{item.labelKey ? t(item.labelKey) : ''}</span>
+                                {item.shortcut && <span className="shortcut">{item.shortcut}</span>}
+                            </DropdownItem>
+                        )
+                )}
+            </DropdownMenu>
+        );
+    };
+
     return (
-        <Container>
+        <Container ref={containerRef}>
             <MenuBar>
-                <MenuItem>文件(F)</MenuItem>
-                <MenuItem>编辑(E)</MenuItem>
-                <MenuItem>查看(V)</MenuItem>
-                <MenuItem onClick={onFavorites}>收藏(A)</MenuItem>
-                <MenuItem>工具(T)</MenuItem>
-                <MenuItem onClick={onHelp}>帮助(H)</MenuItem>
+                <MenuItemWrapper>
+                    <MenuItem $active={openMenu === 'file'} onClick={() => toggleMenu('file')}>
+                        {t('internetExplorer.menu.file')}
+                    </MenuItem>
+                    {renderDropdown('file')}
+                </MenuItemWrapper>
+                <MenuItemWrapper>
+                    <MenuItem $active={openMenu === 'edit'} onClick={() => toggleMenu('edit')}>
+                        {t('internetExplorer.menu.edit')}
+                    </MenuItem>
+                    {renderDropdown('edit')}
+                </MenuItemWrapper>
+                <MenuItemWrapper>
+                    <MenuItem $active={openMenu === 'view'} onClick={() => toggleMenu('view')}>
+                        {t('internetExplorer.menu.view')}
+                    </MenuItem>
+                    {renderDropdown('view')}
+                </MenuItemWrapper>
+                <MenuItemWrapper>
+                    <MenuItem
+                        $active={openMenu === 'favorites' || showFavorites}
+                        onClick={() => { toggleMenu('favorites'); onFavorites?.(); }}
+                    >
+                        {t('internetExplorer.menu.favorites')}
+                    </MenuItem>
+                    {renderDropdown('favorites')}
+                </MenuItemWrapper>
+                <MenuItemWrapper>
+                    <MenuItem $active={openMenu === 'tools'} onClick={() => toggleMenu('tools')}>
+                        {t('internetExplorer.menu.tools')}
+                    </MenuItem>
+                    {renderDropdown('tools')}
+                </MenuItemWrapper>
+                <MenuItemWrapper>
+                    <MenuItem
+                        $active={openMenu === 'help'}
+                        onClick={() => { toggleMenu('help'); }}
+                    >
+                        {t('internetExplorer.menu.help')}
+                    </MenuItem>
+                    {renderDropdown('help')}
+                </MenuItemWrapper>
             </MenuBar>
             <ToolbarContainer>
                 <NavButton onClick={onBack} disabled={!canBack} $disabled={!canBack} title="后退">

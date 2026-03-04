@@ -77,6 +77,38 @@
     "messenger": "MSN Messenger",
     "outlook": "Outlook Express"
   },
+  "notepad": {
+    "menu": {
+      "file": "文件(F)",
+      "edit": "编辑(E)",
+      "format": "格式(O)",
+      "view": "查看(V)",
+      "help": "帮助(H)"
+    },
+    "menuitems": {
+      "new": "新建(N)",
+      "open": "打开(O)...",
+      "save": "保存(S)",
+      "saveAs": "另存为(A)...",
+      "pageSetup": "页面设置(U)...",
+      "print": "打印(P)...",
+      "exit": "退出(X)",
+      "undo": "撤销(U)",
+      "cut": "剪切(T)",
+      "copy": "复制(C)",
+      "paste": "粘贴(P)",
+      "delete": "删除(L)",
+      "find": "查找(F)...",
+      "replace": "替换(R)...",
+      "goTo": "转到(G)...",
+      "selectAll": "全选(A)",
+      "wrap": "自动换行(W)",
+      "font": "字体(F)...",
+      "statusBar": "状态栏(S)",
+      "help": "查看帮助(V)",
+      "about": "关于记事本(A)..."
+    }
+  },
   "fileSystem": {
     "name": "名称",
     "size": "大小",
@@ -97,7 +129,47 @@
   },
   "internetExplorer": {
     "history": "历史记录",
-    "noHistory": "无历史记录"
+    "noHistory": "无历史记录",
+    "status": {
+      "done": "完成",
+      "opening": "正在打开网页",
+      "cannotDisplay": "无法显示网页"
+    },
+    "menu": {
+      "file": "文件(F)",
+      "edit": "编辑(E)",
+      "view": "查看(V)",
+      "favorites": "收藏(A)",
+      "tools": "工具(T)",
+      "help": "帮助(H)"
+    },
+    "menuitems": {
+      "new": "新建(N)",
+      "open": "打开(O)...",
+      "save": "保存(S)",
+      "saveAs": "另存为(A)...",
+      "pageSetup": "页面设置(U)...",
+      "printPreview": "打印预览(V)",
+      "print": "打印(P)...",
+      "close": "关闭(C)",
+      "cut": "剪切(T)",
+      "copy": "复制(C)",
+      "paste": "粘贴(V)",
+      "selectAll": "全选(A)",
+      "find": "查找(F)...",
+      "toolbar": "工具栏(T)",
+      "statusBar": "状态栏(B)",
+      "refresh": "刷新(R)",
+      "fullScreen": "全屏(U)",
+      "textSize": "文字大小(X)",
+      "encoding": "编码(D)",
+      "addToFavorites": "添加到收藏夹(A)...",
+      "organizeFavorites": "整理收藏夹(O)...",
+      "email": "邮件和新闻(M)",
+      "internetOptions": "Internet 选项(O)...",
+      "helpTopics": "目录和索引(C)",
+      "about": "关于 Internet Explorer(A)"
+    }
   },
   "photoViewer": {
     "noImageSelected": "未选择图片",
