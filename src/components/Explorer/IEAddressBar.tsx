@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import XPIcon from '../XPIcon';
+import { useTranslation } from 'react-i18next';
 
 const Bar = styled.div`
     border-top: 1px solid rgba(255, 255, 255, 0.7);
@@ -102,9 +103,11 @@ interface IEAddressBarProps {
 }
 
 const IEAddressBar: React.FC<IEAddressBarProps> = ({ value, onChange, onGo }) => {
+    const { t } = useTranslation();
+
     return (
         <Bar>
-            <Label>地址</Label>
+            <Label>{t('explorer.address')}</Label>
             <InputWrapper>
                 <IconWrapper>
                     <XPIcon name="ie" size={14} />
