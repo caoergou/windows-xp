@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import ContextMenu from '../components/ContextMenu';
 import { useTranslation } from 'react-i18next';
+import { useApp } from '../hooks/useApp';
 
 const Container = styled.div`
     width: 100%;
@@ -141,12 +142,14 @@ const MENUS: Record<Exclude<MenuKey, null>, { labelKey: string; shortcut?: strin
 
 interface NotepadProps {
   content?: string;
+  readOnly?: boolean;
   windowId?: string;
 }
 
 // windowId 由 Window.jsx 通过 cloneElement 自动注入，可传给 useApp(windowId)
-const Notepad = ({ content = '', windowId }: NotepadProps) => {
+const Notepad = ({ content = '', readOnly = false, windowId }: NotepadProps) => {
     const { t } = useTranslation();
+    const api = useApp(windowId);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
     const [openMenu, setOpenMenu] = useState<MenuKey>(null);
