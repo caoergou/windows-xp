@@ -172,7 +172,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     id:     'Calculator',
     name:   '计算器',
     icon:   'calculator',
-    window: { width: 350, height: 450, resizable: false, singleton: true },
+    window: { width: 220, height: 300, resizable: false, singleton: true },
     lifecycle: {},
     associations: [
       { appField: 'Calculator', getProps: () => ({}) },
@@ -253,7 +253,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     id:     'Minesweeper',
     name:   '扫雷',
     icon:   'minesweeper',
-    window: { width: 320, height: 400, resizable: false, singleton: true },
+    window: { width: 400, height: 420, resizable: true, singleton: true },
     lifecycle: {},
     associations: [
       { appField: 'Minesweeper', getProps: () => ({}) },
@@ -265,7 +265,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     id:     'Solitaire',
     name:   '纸牌',
     icon:   'solitaire',
-    window: { width: 320, height: 400, resizable: false, singleton: true },
+    window: { width: 700, height: 520, resizable: true, singleton: true },
     lifecycle: {},
     associations: [
       { appField: 'Solitaire', getProps: () => ({}) },
@@ -277,7 +277,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     id:     'WindowsMediaPlayer',
     name:   'Windows Media Player',
     icon:   'media',
-    window: { width: 400, height: 300 },
+    window: { width: 520, height: 420 },
     lifecycle: {},
     associations: [
       { appField: 'WindowsMediaPlayer', getProps: () => ({}) },
