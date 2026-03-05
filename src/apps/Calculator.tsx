@@ -32,10 +32,30 @@ const Display = styled.div`
   letter-spacing: 1px;
 `;
 
-const Row = styled.div`
+const Row = styled.div<{ $hasTall?: boolean }>`
   display: flex;
   gap: 4px;
   margin-bottom: 4px;
+  ${p => p.$hasTall ? 'min-height: 60px;' : ''}
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+`;
+
+const Buttons4Col = styled.div`
+  display: flex;
+  flex: 4;
+  gap: 4px;
+`;
+
+const ButtonCol = styled.div`
+  display: flex;
+  flex: 1;
+  gap: 4px;
 `;
 
 const Btn = styled.button<{
@@ -271,21 +291,22 @@ const Calculator = ({ windowId }: CalculatorProps) => {
         <Btn $blue onClick={reciprocal}>1/x</Btn>
       </Row>
 
-      {/* 数字行4 */}
-      <Row>
-        <Btn onClick={() => inputDigit(1)}>1</Btn>
-        <Btn onClick={() => inputDigit(2)}>2</Btn>
-        <Btn onClick={() => inputDigit(3)}>3</Btn>
-        <Btn $op $blue onClick={() => pressOperator('-')}>−</Btn>
-        <Btn $eq rowSpan={2} style={{ height: '60px' }}
-          onClick={pressEquals}>=</Btn>
-      </Row>
-
-      {/* 数字行5 */}
-      <Row>
-        <Btn $wide onClick={() => inputDigit(0)}>0</Btn>
-        <Btn onClick={inputDot}>.</Btn>
-        <Btn $op $blue onClick={() => pressOperator('+')}>+</Btn>
+      {/* 数字行4-5 - 等号按钮跨两行 */}
+      <Row $hasTall>
+        <ButtonGroup style={{ flex: 4 }}>
+          <Row style={{ marginBottom: 0 }}>
+            <Btn onClick={() => inputDigit(1)}>1</Btn>
+            <Btn onClick={() => inputDigit(2)}>2</Btn>
+            <Btn onClick={() => inputDigit(3)}>3</Btn>
+            <Btn $op $blue onClick={() => pressOperator('-')}>−</Btn>
+          </Row>
+          <Row style={{ marginBottom: 0 }}>
+            <Btn $wide onClick={() => inputDigit(0)}>0</Btn>
+            <Btn onClick={inputDot}>.</Btn>
+            <Btn $op $blue onClick={() => pressOperator('+')}>+</Btn>
+          </Row>
+        </ButtonGroup>
+        <Btn $eq style={{ height: '60px', flex: 1 }} onClick={pressEquals}>=</Btn>
       </Row>
     </Wrap>
   );
