@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../context/FileSystemContext';
@@ -25,13 +25,26 @@ const DesktopContainer = styled.div`
   overflow: hidden;
 `;
 
+const SelectionBox = styled.div<{ $left: number; $top: number; $width: number; $height: number }>`
+  position: absolute;
+  left: ${props => props.$left}px;
+  top: ${props => props.$top}px;
+  width: ${props => props.$width}px;
+  height: ${props => props.$height}px;
+  border: 1px dotted #fff;
+  background-color: rgba(49, 106, 197, 0.3);
+  pointer-events: none;
+  z-index: 1000;
+  box-sizing: border-box;
+`;
+
 const IconGrid = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   flex-wrap: wrap;
   height: calc(100% - 30px);
   padding: 10px;
-  gap: 5px;
+  gap: 0px;
   align-content: flex-start;
 `;
 
@@ -42,29 +55,33 @@ const DesktopIcon = styled.div<{ $selected?: boolean }>`
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  padding: 5px;
+  padding: 4px 2px;
+  margin: 2px;
   border: 1px solid transparent;
   color: white;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  position: relative;
+  box-sizing: border-box;
 
   ${props => props.$selected && `
-    background-color: rgba(0, 51, 153, 0.5);
-    border: 1px dotted rgba(255,255,255,0.6);
+    border: 1px dotted #fff;
   `}
 
   &:hover {
-    background-color: rgba(0, 51, 153, 0.3);
-    border: 1px solid rgba(0, 51, 153, 0.5);
+    ${props => !props.$selected && `
+      background-color: rgba(49, 106, 197, 0.3);
+      border: 1px dotted rgba(255, 255, 255, 0.5);
+    `}
   }
 
   .icon-wrapper {
     position: relative;
-    margin-bottom: 5px;
-    filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.7));
+    margin-bottom: 4px;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5));
   }
 
   span {
-    font-size: 12px;
+    font-size: 11px;
+    font-family: Tahoma, SimSun, Microsoft YaHei, sans-serif;
     text-align: center;
     width: 100%;
     display: -webkit-box;
@@ -72,7 +89,15 @@ const DesktopIcon = styled.div<{ $selected?: boolean }>`
     -webkit-box-orient: vertical;
     overflow: hidden;
     word-break: break-word;
-    line-height: 1.3;
+    line-height: 1.2;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+    padding: 1px 2px;
+    background-color: transparent;
+
+    ${props => props.$selected && `
+      background-color: #316AC5;
+      text-shadow: none;
+    `}
   }
 `;
 
@@ -101,11 +126,110 @@ const Desktop: React.FC = () => {
   const { showModal, showConfirm, showInput } = useModal();
 
   const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; iconKey: string | null }>({ visible: false, x: 0, y: 0, iconKey: null });
-  const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
+  const [selectedIcons, setSelectedIcons] = useState<Set<string>>(new Set());
   const [refreshKey, setRefreshKey] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pasteDisabled, setPasteDisabled] = useState(true);
   const [dragOver, setDragOver] = useState<string | null>(null);
+
+  // Box selection state
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectionStart, setSelectionStart] = useState({ x: 0, y: 0 });
+  const [selectionEnd, setSelectionEnd] = useState({ x: 0, y: 0 });
+  const iconRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const toggleIconSelection = (key: string, e: React.MouseEvent) => {
+    if (e.ctrlKey) {
+      // Ctrl+Click: toggle single selection
+      const newSelected = new Set(selectedIcons);
+      if (newSelected.has(key)) {
+        newSelected.delete(key);
+      } else {
+        newSelected.add(key);
+      }
+      setSelectedIcons(newSelected);
+    } else {
+      // Normal click: select only this one
+      setSelectedIcons(new Set([key]));
+    }
+  };
+
+  // Box selection handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Only start box selection if clicking on the desktop background
+    const target = e.target as HTMLElement;
+    if (target.closest('.desktop-icon-selectable') ||
+        target.closest('[role="button"]') ||
+        target.closest('[data-testid^="desktop-icon-"]')) {
+      return;
+    }
+
+    if (e.button !== 0) return; // Only left mouse button
+
+    e.preventDefault();
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    setIsSelecting(true);
+    setSelectionStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setSelectionEnd({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+
+    if (!e.ctrlKey) {
+      setSelectedIcons(new Set());
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isSelecting) return;
+
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    setSelectionEnd({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+
+    // Update selection
+    const newSelected = new Set(e.ctrlKey ? selectedIcons : []);
+
+    // Calculate selection bounds
+    const left = Math.min(selectionStart.x, e.clientX - rect.left);
+    const right = Math.max(selectionStart.x, e.clientX - rect.left);
+    const top = Math.min(selectionStart.y, e.clientY - rect.top);
+    const bottom = Math.max(selectionStart.y, e.clientY - rect.top);
+
+    // Check each icon
+    iconRefs.current.forEach((iconEl, key) => {
+      if (!iconEl) return;
+
+      const iconRect = iconEl.getBoundingClientRect();
+      const containerRect = rect;
+
+      const iconLeft = iconRect.left - containerRect.left;
+      const iconRight = iconRect.right - containerRect.left;
+      const iconTop = iconRect.top - containerRect.top;
+      const iconBottom = iconRect.bottom - containerRect.top;
+
+      // Check for intersection
+      const intersects = !(iconRight < left || iconLeft > right ||
+                           iconBottom < top || iconTop > bottom);
+
+      if (intersects) {
+        if (e.ctrlKey && selectedIcons.has(key)) {
+          newSelected.delete(key);
+        } else {
+          newSelected.add(key);
+        }
+      } else if (e.ctrlKey && selectedIcons.has(key)) {
+        newSelected.add(key);
+      }
+    });
+
+    setSelectedIcons(newSelected);
+  };
+
+  const handleMouseUp = () => {
+    setIsSelecting(false);
+  };
 
   const handleIconDoubleClick = (key: string, item: FileItem) => {
     const resolved = resolveFileOpen(key, item);
@@ -149,7 +273,9 @@ const Desktop: React.FC = () => {
   const handleIconContextMenu = (e: React.MouseEvent, key: string) => {
     e.preventDefault();
     e.stopPropagation();
-    setSelectedIcon(key);
+    if (!selectedIcons.has(key)) {
+      setSelectedIcons(new Set([key]));
+    }
     setContextMenu({ visible: true, x: e.clientX, y: e.clientY, iconKey: key });
   };
 
@@ -158,10 +284,25 @@ const Desktop: React.FC = () => {
   };
 
   const handleIconDelete = (key: string) => {
-    const item = fs.root.children[key];
-    showConfirm('确认删除', `确定要把 "${item?.name}" 移到回收站吗？`, 'warning').then(confirmed => {
+    const keysToDelete = selectedIcons.size > 0 && selectedIcons.has(key)
+      ? Array.from(selectedIcons)
+      : [key];
+
+    const itemsToDelete = keysToDelete.map(k => fs.root.children[k]).filter(Boolean);
+
+    if (itemsToDelete.length === 0) {
+      closeContextMenu();
+      return;
+    }
+
+    const message = itemsToDelete.length === 1
+      ? `确定要把 "${itemsToDelete[0].name}" 移到回收站吗？`
+      : `确定要把选中的 ${itemsToDelete.length} 个项目移到回收站吗？`;
+
+    showConfirm('确认删除', message, 'warning').then(confirmed => {
       if (confirmed) {
-        deleteFile([], key);
+        keysToDelete.forEach(k => deleteFile([], k));
+        setSelectedIcons(new Set());
       }
     });
     closeContextMenu();
@@ -250,7 +391,22 @@ const Desktop: React.FC = () => {
     : desktopMenuItems;
 
   return (
-    <DesktopContainer $bgUrl={desktopBg} onContextMenu={handleContextMenu} onClick={() => setSelectedIcon(null)}>
+    <DesktopContainer
+      ref={containerRef}
+      $bgUrl={desktopBg}
+      onContextMenu={handleContextMenu}
+      onClick={(e) => {
+        const target = e.target as HTMLElement;
+        if (!target.closest('.desktop-icon-selectable') &&
+            !target.closest('[data-testid^="desktop-icon-"]')) {
+          setSelectedIcons(new Set());
+        }
+      }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
       <IconGrid key={refreshKey} style={{ opacity: isRefreshing ? 0 : 1 }}>
         {Object.entries(desktopItems).map(([key, item]) => {
           const iconName = (key === '回收站' && item.children && Object.keys(item.children).length > 0)
@@ -260,9 +416,18 @@ const Desktop: React.FC = () => {
           return (
             <DesktopIcon
               key={key}
-              $selected={selectedIcon === key}
+              ref={(el) => {
+                if (el) {
+                  iconRefs.current.set(key, el);
+                } else {
+                  iconRefs.current.delete(key);
+                }
+              }}
+              $selected={selectedIcons.has(key)}
               data-testid={`desktop-icon-${key}`}
-              onClick={(e) => { e.stopPropagation(); setSelectedIcon(key); }}
+              className="desktop-icon-selectable"
+              data-icon-key={key}
+              onClick={(e) => { e.stopPropagation(); toggleIconSelection(key, e); }}
               onDoubleClick={() => handleIconDoubleClick(key, item)}
               onContextMenu={(e) => handleIconContextMenu(e, key)}
               draggable
@@ -290,6 +455,16 @@ const Desktop: React.FC = () => {
           );
         })}
       </IconGrid>
+
+      {/* Selection Box */}
+      {isSelecting && (
+        <SelectionBox
+          $left={Math.min(selectionStart.x, selectionEnd.x)}
+          $top={Math.min(selectionStart.y, selectionEnd.y)}
+          $width={Math.abs(selectionEnd.x - selectionStart.x)}
+          $height={Math.abs(selectionEnd.y - selectionStart.y)}
+        />
+      )}
 
       {windows.map(win => (
         <Window key={win.id} windowState={win} />
