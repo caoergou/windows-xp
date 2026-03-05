@@ -227,6 +227,12 @@
         "name": "Minesweeper",
         "app": "Minesweeper",
         "icon": "app_window"
+      },
+      "Solitaire": {
+        "type": "app_shortcut",
+        "name": "Solitaire",
+        "app": "Solitaire",
+        "icon": "solitaire"
       }
     }
   }
