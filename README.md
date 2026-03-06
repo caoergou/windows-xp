@@ -34,9 +34,10 @@ This project is a nostalgic tribute to that era — the early 2000s internet, wh
 - 📁 **Virtual File System** - Browse folders, open files, and manage a simulated filesystem
 - 🌐 **Internet Explorer** - Built-in browser with history and iframe rendering
 - 📝 **Rich Applications** - Notepad, Paint, Calculator, Minesweeper, Solitaire, Media Player, and more
+- ❓ **Help and Support Center** - Built-in help documentation with multiple topics
 - 🔐 **Complete Boot Flow** - Authentic boot screen, login system, and screensaver
 - 💾 **Persistent State** - Windows and session state saved to localStorage
-- 🎵 **XP Sounds** - Authentic startup, shutdown, and UI sound effects
+- 🎵 **XP Sounds** - Authentic startup, shutdown, and UI sound effects via Web Audio API
 - ♻️ **Recycle Bin** - Delete and restore files with full functionality
 - 🖱️ **Context Menus** - Right-click menus throughout the interface
 - 🌍 **Bilingual Support** - English and Chinese language support
@@ -61,8 +62,14 @@ function App() {
 
 ### Default Login Credentials
 
-- **Username:** `User`
-- **Password:** `password`
+- **Live Demo**: https://eric.run.place/windows-xp/
+  - Username: `User`
+  - Password: `forthe2000s`
+
+- **Using as a Component**: Customize via props
+  ```jsx
+  <WindowsXP username="Admin" password="yourpassword" />
+  ```
 
 ## 📖 Usage
 
@@ -103,17 +110,25 @@ For detailed usage and API reference, see [USAGE.md](USAGE.md).
 
 ## 🎨 Built-in Applications
 
-- 📝 **Notepad** - Text editor
+### Fully Implemented
+- 📝 **Notepad** - Text editor with file support
 - 🖼️ **Photo Viewer** - Image viewer
 - 🌐 **Internet Explorer** - Web browser with history
-- 📁 **Explorer** - File manager
+- 📁 **Explorer** - File manager with navigation
 - 🎨 **Paint** - Drawing application
 - 🧮 **Calculator** - Basic calculator
 - 💣 **Minesweeper** - Classic game
 - 🃏 **Solitaire** - Card game
-- 🎵 **Media Player** - Audio/video player
-- ⚙️ **Control Panel** - System settings
-- 💻 **Command Prompt** - Terminal emulator
+- 💬 **QQ Login** - QQ login dialog
+- ❓ **Help and Support** - Help center
+- 🏃 **Run Dialog** - Run command dialog
+- 🔊 **Volume Control** - Volume settings
+
+### Basic UI (Limited Functionality)
+- 🎵 **Windows Media Player** - Media player UI with visualizations
+- ⚙️ **Control Panel** - System settings UI
+- 💻 **Command Prompt** - Terminal emulator with basic commands
+- 🖧 **Network Connections** - Network status UI
 
 ## 🛠️ Tech Stack
 
@@ -142,16 +157,6 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 - [winXP](https://github.com/ShizukuIchi/winXP) - Inspiration
 - Microsoft - For creating the iconic Windows XP
 
----
-
-## 🔑 Default Login Credentials
-
-For the live demo at [https://eric.run.place/windows-xp/](https://eric.run.place/windows-xp/):
-
-- **Username:** `User`
-- **Password:** `forthe2000s`
-
----
 
 <div align="center">
 Made with &#10084;&#65039; and nostalgia for the millennium era

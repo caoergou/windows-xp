@@ -81,14 +81,18 @@ export const WindowManagerProvider: React.FC<{
     const defaultLeft = Math.max(0, (screenWidth - windowWidth) / 2);
     const defaultTop = Math.max(0, (screenHeight - windowHeight) / 2);
 
+    // 从 props 中提取 componentProps（如果有）
+    // 不直接从 React 元素提取，而是使用显式传递的 componentProps
+    const { componentProps, ...windowProps } = props;
+
     const newWindow: WindowState = {
       id,
       appId,
       title,
       component,
-      componentProps: component?.props,
+      componentProps: componentProps || {},  // 使用显式传递的 componentProps
       icon,
-      props,
+      props: windowProps,
       isMinimized: false,
       isMaximized: props.isMaximized || false,
       zIndex: zIndexCounter + 1,

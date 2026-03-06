@@ -153,7 +153,12 @@ const IconMap: Record<string, string> = {
     "wps": wpsIcon,
     "minesweeper": appWindowIcon,
     "solitaire": appWindowIcon,
-    "media": mediaPlayerIcon
+    "media": mediaPlayerIcon,
+    "controlpanel": controlPanelIcon,
+    "cmd": appWindowIcon,
+    "volume": soundIcon,
+    "help": appWindowIcon,
+    "run": appWindowIcon
 };
 
 interface XPIconProps {

@@ -75,7 +75,13 @@
     "wordpad": "写字板",
     "mediaPlayer": "Windows Media Player",
     "messenger": "MSN Messenger",
-    "outlook": "Outlook Express"
+    "outlook": "Outlook Express",
+    "comingSoon": "此功能正在开发中，敬请期待！"
+  },
+  "errorBoundary": {
+    "title": "应用程序出错",
+    "message": "此应用遇到了问题，无法继续运行。",
+    "details": "查看详细信息"
   },
   "notepad": {
     "menu": {

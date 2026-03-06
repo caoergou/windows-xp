@@ -338,14 +338,16 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
 
     const handleProperties = () => {
         if (contextMenu.targetItem) {
+            const componentProps = {
+                fileItem: contextMenu.targetItem.item,
+                parentPath: currentPath
+            };
             api.openWindow(
                 'FileProperties',
                 '属性',
-                <FileProperties
-                    fileItem={contextMenu.targetItem.item}
-                    parentPath={currentPath}
-                />,
-                'properties'
+                <FileProperties {...componentProps} />,
+                'properties',
+                { componentProps }  // 显式传递 componentProps 用于持久化
             );
             closeContextMenu();
         }

@@ -17,6 +17,57 @@ import Minesweeper from '../apps/Minesweeper';
 import Solitaire from '../apps/Solitaire';
 import WindowsMediaPlayer from '../apps/WindowsMediaPlayer';
 import { AppRegistryEntry, FileNode } from '../types';
+import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
+
+// 占位应用 - 用于尚未实现的应用
+const DummyAppContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  font-family: Tahoma, sans-serif;
+  text-align: center;
+  padding: 20px;
+`;
+
+const IconWrapper = styled.div`
+  font-size: 64px;
+  margin-bottom: 20px;
+`;
+
+const Title = styled.h2`
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 18px;
+`;
+
+const Message = styled.p`
+  color: #666;
+  font-size: 12px;
+  line-height: 1.6;
+`;
+
+interface DummyAppProps {
+  appName?: string;
+  windowId?: string;
+}
+
+const DummyAppComponent: React.FC<DummyAppProps> = ({ appName = '此应用' }) => {
+  const { t } = useTranslation();
+  return (
+    <DummyAppContainer>
+      <IconWrapper>🚧</IconWrapper>
+      <Title>{appName}</Title>
+      <Message>
+        {t('apps.comingSoon', '此功能正在开发中，敬请期待！')}
+      </Message>
+    </DummyAppContainer>
+  );
+};
 
 /**
  * APP_REGISTRY — 所有可打开应用的唯一注册中心。
@@ -121,7 +172,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     id:     'Calculator',
     name:   '计算器',
     icon:   'calculator',
-    window: { width: 350, height: 450, resizable: false, singleton: true },
+    window: { width: 220, height: 300, resizable: false, singleton: true },
     lifecycle: {},
     associations: [
       { appField: 'Calculator', getProps: () => ({}) },
@@ -202,7 +253,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     id:     'Minesweeper',
     name:   '扫雷',
     icon:   'minesweeper',
-    window: { width: 320, height: 400, resizable: false, singleton: true },
+    window: { width: 400, height: 420, resizable: true, singleton: true },
     lifecycle: {},
     associations: [
       { appField: 'Minesweeper', getProps: () => ({}) },
@@ -214,7 +265,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     id:     'Solitaire',
     name:   '纸牌',
     icon:   'solitaire',
-    window: { width: 320, height: 400, resizable: false, singleton: true },
+    window: { width: 700, height: 520, resizable: true, singleton: true },
     lifecycle: {},
     associations: [
       { appField: 'Solitaire', getProps: () => ({}) },
@@ -226,12 +277,24 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     id:     'WindowsMediaPlayer',
     name:   'Windows Media Player',
     icon:   'media',
-    window: { width: 400, height: 300 },
+    window: { width: 520, height: 420 },
     lifecycle: {},
     associations: [
       { appField: 'WindowsMediaPlayer', getProps: () => ({}) },
     ],
     restore: (props) => <WindowsMediaPlayer {...props} />,
+  },
+
+  DummyApp: {
+    id:   'DummyApp',
+    name: '应用',
+    icon: 'app_window',
+    window: { width: 350, height: 250, resizable: false, singleton: false },
+    lifecycle: {},
+    associations: [
+      { appField: 'DummyApp', getProps: (item: FileNode) => ({ appName: item.name }) },
+    ],
+    restore: (props) => <DummyAppComponent {...props} />,
   },
 };
 
@@ -255,11 +318,15 @@ export const resolveFileOpen = (key: string, item: FileNode) => {
   // 文件夹 / 根目录 → 用 Explorer 打开
   if (item.type === 'folder' || item.type === 'root') {
     const def = APP_REGISTRY.Explorer;
+    const componentProps = { initialPath: [key] };
     return {
       appId:       'Explorer',
-      component:   def.restore({ initialPath: [key] }),
+      component:   def.restore(componentProps),
       icon:        item.icon || def.icon,
-      windowProps: _buildWindowProps(def),
+      windowProps: {
+        ..._buildWindowProps(def),
+        componentProps  // 显式传递 componentProps 用于持久化
+      },
     };
   }
 
@@ -274,7 +341,10 @@ export const resolveFileOpen = (key: string, item: FileNode) => {
     appId:       def.id,
     component:   def.restore(componentProps),
     icon:        item.icon || def.icon,
-    windowProps: _buildWindowProps(def),
+    windowProps: {
+      ..._buildWindowProps(def),
+      componentProps  // 显式传递 componentProps 用于持久化
+    },
   };
 };
 

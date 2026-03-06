@@ -63,6 +63,7 @@
     "react-i18next": "^16.5.4",
     "react-old-icons": "^1.0.2",
     "react-resizable": "^3.0.5",
+    "react-selecto": "^1.26.3",
     "styled-components": "^6.1.1",
     "xp.css": "^0.2.5"
   },

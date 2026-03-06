@@ -75,7 +75,13 @@
     "wordpad": "WordPad",
     "mediaPlayer": "Windows Media Player",
     "messenger": "MSN Messenger",
-    "outlook": "Outlook Express"
+    "outlook": "Outlook Express",
+    "comingSoon": "This feature is coming soon!"
+  },
+  "errorBoundary": {
+    "title": "Application Error",
+    "message": "This application has encountered a problem and cannot continue.",
+    "details": "View details"
   },
   "notepad": {
     "menu": {

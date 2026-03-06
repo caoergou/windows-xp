@@ -5,6 +5,7 @@ import { ResizableBox } from 'react-resizable';
 import { useWindowManager } from '../context/WindowManagerContext';
 import XPIcon from './XPIcon';
 import ContextMenu from './ContextMenu';
+import ErrorBoundary from './ErrorBoundary';
 import 'react-resizable/css/styles.css';
 import { useTranslation } from 'react-i18next';
 import { WindowState } from '../types';
@@ -337,7 +338,9 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
                 </TitleControls>
             </TitleBar>
             <WindowBody>
-                {injectedComponent}
+                <ErrorBoundary windowId={id}>
+                    {injectedComponent}
+                </ErrorBoundary>
             </WindowBody>
         </WindowContainer>
     );
