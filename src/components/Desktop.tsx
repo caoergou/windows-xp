@@ -40,7 +40,7 @@ const SelectionBox = styled.div<{ $left: number; $top: number; $width: number; $
 
 const IconGrid = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: wrap;
   height: calc(100% - 30px);
   padding: 10px;
