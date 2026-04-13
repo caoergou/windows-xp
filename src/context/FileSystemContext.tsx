@@ -2,6 +2,14 @@ import React, { createContext, useState, useContext, useCallback } from 'react';
 import initialFileSystem from '../data/filesystem.json';
 import { FileNode, ClipboardItem } from '../types';
 
+// Deep clone helper - uses structuredClone when available, falls back to JSON method
+const deepClone = <T,>(obj: T): T => {
+  if (typeof structuredClone === 'function') {
+    return structuredClone(obj);
+  }
+  return JSON.parse(JSON.stringify(obj));
+};
+
 // Load all JSON files from src/data/recycle_bin
 const recycleBinFiles = import.meta.glob('../data/recycle_bin/*.json', { eager: true });
 
@@ -14,7 +22,7 @@ for (const path in recycleBinFiles) {
 }
 
 // Deep clone initialFileSystem to avoid mutating the original import
-const fileSystemWithRecycleBin = JSON.parse(JSON.stringify(initialFileSystem));
+const fileSystemWithRecycleBin = deepClone(initialFileSystem);
 
 // Inject items into Recycle Bin
 if (
@@ -24,7 +32,7 @@ if (
 ) {
   fileSystemWithRecycleBin.root.children['回收站'].children = {
     ...fileSystemWithRecycleBin.root.children['回收站'].children,
-    ...recycleBinItems
+    ...recycleBinItems,
   };
 }
 
@@ -34,17 +42,38 @@ interface FileSystemContextType {
   getFile: (path: string[]) => FileNode | null;
   checkAccess: (node: FileNode, passwordInput: string) => boolean;
   updateFile: (path: string[], updates: Partial<FileNode>) => void;
-  createFile: (parentPath: string[], fileName: string, type?: 'file' | 'folder', properties?: Partial<FileNode>) => void;
+  createFile: (
+    parentPath: string[],
+    fileName: string,
+    type?: 'file' | 'folder',
+    properties?: Partial<FileNode>
+  ) => void;
   renameFile: (parentPath: string[], oldName: string, newName: string) => void;
   deleteFile: (parentPath: string[], fileName: string) => void;
-  moveFile: (sourcePath: string[], fileName: string, destinationPath: string[], newName?: string) => void;
-  copyFile: (sourcePath: string[], fileName: string, destinationPath: string[], newName?: string) => void;
+  moveFile: (
+    sourcePath: string[],
+    fileName: string,
+    destinationPath: string[],
+    newName?: string
+  ) => void;
+  copyFile: (
+    sourcePath: string[],
+    fileName: string,
+    destinationPath: string[],
+    newName?: string
+  ) => void;
   cutFile: (sourcePath: string[], fileName: string) => void;
   pasteFile: (destinationPath: string[]) => boolean;
   emptyRecycleBin: () => void;
   restoreFromRecycleBin: (fileName: string) => void;
-  searchFiles: (query: string, startPath?: string[]) => Array<{ path: string[]; name: string; type: string; icon?: string }>;
-  getFileProperties: (path: string[], fileName: string) => {
+  searchFiles: (
+    query: string,
+    startPath?: string[]
+  ) => Array<{ path: string[]; name: string; type: string; icon?: string }>;
+  getFileProperties: (
+    path: string[],
+    fileName: string
+  ) => {
     name: string;
     type: string;
     size: string;
@@ -71,17 +100,20 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [fs, setFs] = useState<{ root: FileNode }>(fileSystemWithRecycleBin);
   const [clipboard, setClipboard] = useState<ClipboardItem | null>(null);
 
-  const getFile = useCallback((path: string[]): FileNode | null => {
-    let current = fs.root;
-    for (let part of path) {
-      if (current.children && current.children[part]) {
-        current = current.children[part];
-      } else {
-        return null;
+  const getFile = useCallback(
+    (path: string[]): FileNode | null => {
+      let current = fs.root;
+      for (let part of path) {
+        if (current.children && current.children[part]) {
+          current = current.children[part];
+        } else {
+          return null;
+        }
       }
-    }
-    return current;
-  }, [fs]);
+      return current;
+    },
+    [fs]
+  );
 
   const checkAccess = useCallback((node: FileNode, passwordInput: string): boolean => {
     if (!node.locked) return true;
@@ -90,7 +122,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const updateFile = useCallback((path: string[], updates: Partial<FileNode>) => {
     setFs(prevFs => {
-      const newFs = JSON.parse(JSON.stringify(prevFs));
+      const newFs = deepClone(prevFs);
       let current = newFs.root;
       for (let part of path) {
         if (current.children && current.children[part]) {
@@ -104,33 +136,41 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     });
   }, []);
 
-  const createFile = useCallback((parentPath: string[], fileName: string, type: 'file' | 'folder' = 'file', properties: Partial<FileNode> = {}) => {
-    setFs(prevFs => {
-      const newFs = JSON.parse(JSON.stringify(prevFs));
-      let current = newFs.root;
-      for (let part of parentPath) {
-        if (current.children && current.children[part]) {
-          current = current.children[part];
-        } else {
-          return prevFs;
+  const createFile = useCallback(
+    (
+      parentPath: string[],
+      fileName: string,
+      type: 'file' | 'folder' = 'file',
+      properties: Partial<FileNode> = {}
+    ) => {
+      setFs(prevFs => {
+        const newFs = deepClone(prevFs);
+        let current = newFs.root;
+        for (let part of parentPath) {
+          if (current.children && current.children[part]) {
+            current = current.children[part];
+          } else {
+            return prevFs;
+          }
         }
-      }
-      if (!current.children) {
-        current.children = {};
-      }
-      current.children[fileName] = {
-        type,
-        name: fileName,
-        ...(type === 'folder' ? { children: {} } : {}),
-        ...properties
-      };
-      return newFs;
-    });
-  }, []);
+        if (!current.children) {
+          current.children = {};
+        }
+        current.children[fileName] = {
+          type,
+          name: fileName,
+          ...(type === 'folder' ? { children: {} } : {}),
+          ...properties,
+        };
+        return newFs;
+      });
+    },
+    []
+  );
 
   const renameFile = useCallback((parentPath: string[], oldName: string, newName: string) => {
     setFs(prevFs => {
-      const newFs = JSON.parse(JSON.stringify(prevFs));
+      const newFs = deepClone(prevFs);
       let current = newFs.root;
       for (let part of parentPath) {
         if (current.children && current.children[part]) {
@@ -144,7 +184,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         delete current.children[oldName];
         current.children[newName] = {
           ...file,
-          name: newName
+          name: newName,
         };
       }
       return newFs;
@@ -153,7 +193,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const deleteFile = useCallback((parentPath: string[], fileName: string) => {
     setFs(prevFs => {
-      const newFs = JSON.parse(JSON.stringify(prevFs));
+      const newFs = deepClone(prevFs);
       let current = newFs.root;
       for (let part of parentPath) {
         if (current.children && current.children[part]) {
@@ -178,97 +218,15 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     });
   }, []);
 
-  const moveFile = useCallback((sourcePath: string[], fileName: string, destinationPath: string[], newName: string = fileName) => {
-    setFs(prevFs => {
-      const newFs = JSON.parse(JSON.stringify(prevFs));
-
-      let sourceParent = newFs.root;
-      for (let part of sourcePath) {
-        if (sourceParent.children && sourceParent.children[part]) {
-          sourceParent = sourceParent.children[part];
-        } else {
-          return prevFs;
-        }
-      }
-
-      if (!sourceParent.children || !sourceParent.children[fileName]) {
-        return prevFs;
-      }
-
-      let destinationParent = newFs.root;
-      for (let part of destinationPath) {
-        if (destinationParent.children && destinationParent.children[part]) {
-          destinationParent = destinationParent.children[part];
-        } else {
-          return prevFs;
-        }
-      }
-
-      if (!destinationParent.children) {
-        destinationParent.children = {};
-      }
-
-      destinationParent.children[newName] = JSON.parse(JSON.stringify(sourceParent.children[fileName]));
-      destinationParent.children[newName].name = newName;
-      delete sourceParent.children[fileName];
-
-      return newFs;
-    });
-  }, []);
-
-  const copyFile = useCallback((sourcePath: string[], fileName: string, destinationPath: string[], newName: string = fileName) => {
-    setFs(prevFs => {
-      const newFs = JSON.parse(JSON.stringify(prevFs));
-
-      let sourceParent = newFs.root;
-      for (let part of sourcePath) {
-        if (sourceParent.children && sourceParent.children[part]) {
-          sourceParent = sourceParent.children[part];
-        } else {
-          return prevFs;
-        }
-      }
-
-      if (!sourceParent.children || !sourceParent.children[fileName]) {
-        return prevFs;
-      }
-
-      let destinationParent = newFs.root;
-      for (let part of destinationPath) {
-        if (destinationParent.children && destinationParent.children[part]) {
-          destinationParent = destinationParent.children[part];
-        } else {
-          return prevFs;
-        }
-      }
-
-      if (!destinationParent.children) {
-        destinationParent.children = {};
-      }
-
-      destinationParent.children[newName] = JSON.parse(JSON.stringify(sourceParent.children[fileName]));
-      destinationParent.children[newName].name = newName;
-
-      return newFs;
-    });
-  }, []);
-
-  const cutFile = useCallback((sourcePath: string[], fileName: string) => {
-    setClipboard({
-      type: 'cut',
-      sourcePath,
-      fileName
-    });
-  }, []);
-
-  const pasteFile = useCallback((destinationPath: string[]): boolean => {
-    if (!clipboard) return false;
-
-    if (clipboard.type === 'cut') {
-      const { sourcePath, fileName } = clipboard;
-
+  const moveFile = useCallback(
+    (
+      sourcePath: string[],
+      fileName: string,
+      destinationPath: string[],
+      newName: string = fileName
+    ) => {
       setFs(prevFs => {
-        const newFs = JSON.parse(JSON.stringify(prevFs));
+        const newFs = deepClone(prevFs);
 
         let sourceParent = newFs.root;
         for (let part of sourcePath) {
@@ -277,6 +235,10 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           } else {
             return prevFs;
           }
+        }
+
+        if (!sourceParent.children || !sourceParent.children[fileName]) {
+          return prevFs;
         }
 
         let destinationParent = newFs.root;
@@ -288,32 +250,129 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           }
         }
 
+        if (!destinationParent.children) {
+          destinationParent.children = {};
+        }
+
+        destinationParent.children[newName] = deepClone(sourceParent.children[fileName]);
+        destinationParent.children[newName].name = newName;
+        delete sourceParent.children[fileName];
+
+        return newFs;
+      });
+    },
+    []
+  );
+
+  const copyFile = useCallback(
+    (
+      sourcePath: string[],
+      fileName: string,
+      destinationPath: string[],
+      newName: string = fileName
+    ) => {
+      setFs(prevFs => {
+        const newFs = deepClone(prevFs);
+
+        let sourceParent = newFs.root;
+        for (let part of sourcePath) {
+          if (sourceParent.children && sourceParent.children[part]) {
+            sourceParent = sourceParent.children[part];
+          } else {
+            return prevFs;
+          }
+        }
+
         if (!sourceParent.children || !sourceParent.children[fileName]) {
           return prevFs;
+        }
+
+        let destinationParent = newFs.root;
+        for (let part of destinationPath) {
+          if (destinationParent.children && destinationParent.children[part]) {
+            destinationParent = destinationParent.children[part];
+          } else {
+            return prevFs;
+          }
         }
 
         if (!destinationParent.children) {
           destinationParent.children = {};
         }
 
-        destinationParent.children[fileName] = JSON.parse(JSON.stringify(sourceParent.children[fileName]));
-        delete sourceParent.children[fileName];
+        destinationParent.children[newName] = deepClone(sourceParent.children[fileName]);
+        destinationParent.children[newName].name = newName;
 
         return newFs;
       });
+    },
+    []
+  );
 
-      setClipboard(null);
-    } else if (clipboard.type === 'copy') {
-      const { sourcePath, fileName } = clipboard;
-      copyFile(sourcePath, fileName, destinationPath);
-    }
+  const cutFile = useCallback((sourcePath: string[], fileName: string) => {
+    setClipboard({
+      type: 'cut',
+      sourcePath,
+      fileName,
+    });
+  }, []);
 
-    return true;
-  }, [clipboard, copyFile]);
+  const pasteFile = useCallback(
+    (destinationPath: string[]): boolean => {
+      if (!clipboard) return false;
+
+      if (clipboard.type === 'cut') {
+        const { sourcePath, fileName } = clipboard;
+
+        setFs(prevFs => {
+          const newFs = deepClone(prevFs);
+
+          let sourceParent = newFs.root;
+          for (let part of sourcePath) {
+            if (sourceParent.children && sourceParent.children[part]) {
+              sourceParent = sourceParent.children[part];
+            } else {
+              return prevFs;
+            }
+          }
+
+          let destinationParent = newFs.root;
+          for (let part of destinationPath) {
+            if (destinationParent.children && destinationParent.children[part]) {
+              destinationParent = destinationParent.children[part];
+            } else {
+              return prevFs;
+            }
+          }
+
+          if (!sourceParent.children || !sourceParent.children[fileName]) {
+            return prevFs;
+          }
+
+          if (!destinationParent.children) {
+            destinationParent.children = {};
+          }
+
+          destinationParent.children[fileName] = deepClone(sourceParent.children[fileName]);
+          delete sourceParent.children[fileName];
+
+          return newFs;
+        });
+
+        setClipboard(null);
+      } else if (clipboard.type === 'copy') {
+        const { sourcePath, fileName } = clipboard;
+        copyFile(sourcePath, fileName, destinationPath);
+      }
+
+      return true;
+    },
+    [clipboard, copyFile]
+  );
 
   const emptyRecycleBin = useCallback(() => {
     setFs(prevFs => {
-      const newFs = JSON.parse(JSON.stringify(prevFs));
+      const newFs = deepClone(prevFs);
       if (newFs.root.children['回收站']) {
         newFs.root.children['回收站'].children = {};
       }
@@ -323,7 +382,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const restoreFromRecycleBin = useCallback((fileName: string) => {
     setFs(prevFs => {
-      const newFs = JSON.parse(JSON.stringify(prevFs));
+      const newFs = deepClone(prevFs);
       const recycleBin = newFs.root.children['回收站'];
       if (recycleBin?.children?.[fileName]) {
         if (!newFs.root.children) newFs.root.children = {};
@@ -334,53 +393,65 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     });
   }, []);
 
-  const searchFiles = useCallback((query: string, startPath: string[] = []): Array<{ path: string[]; name: string; type: string; icon?: string }> => {
-    const results: Array<{ path: string[]; name: string; type: string; icon?: string }> = [];
-    const searchNode = (node: FileNode, path: string[]) => {
-      if (node.name.toLowerCase().includes(query.toLowerCase())) {
-        results.push({
-          path: [...path],
-          name: node.name,
-          type: node.type,
-          icon: node.icon
-        });
+  const searchFiles = useCallback(
+    (
+      query: string,
+      startPath: string[] = []
+    ): Array<{ path: string[]; name: string; type: string; icon?: string }> => {
+      const results: Array<{ path: string[]; name: string; type: string; icon?: string }> = [];
+      const searchNode = (node: FileNode, path: string[]) => {
+        if (node.name.toLowerCase().includes(query.toLowerCase())) {
+          results.push({
+            path: [...path],
+            name: node.name,
+            type: node.type,
+            icon: node.icon,
+          });
+        }
+
+        if (node.children) {
+          Object.entries(node.children).forEach(([key, child]) => {
+            searchNode(child, [...path, key]);
+          });
+        }
+      };
+
+      const startNode = getFile(startPath);
+      if (startNode) {
+        searchNode(startNode, startPath);
       }
 
-      if (node.children) {
-        Object.entries(node.children).forEach(([key, child]) => {
-          searchNode(child, [...path, key]);
-        });
-      }
-    };
+      return results;
+    },
+    [getFile]
+  );
 
-    const startNode = getFile(startPath);
-    if (startNode) {
-      searchNode(startNode, startPath);
-    }
+  const getFileProperties = useCallback(
+    (path: string[], fileName: string) => {
+      const node = getFile([...path, fileName]);
+      if (!node) return null;
 
-    return results;
-  }, [getFile]);
+      const size =
+        node.type === 'folder'
+          ? `${Object.keys(node.children || {}).length} 个对象`
+          : node.content
+            ? `${node.content.length} 字节`
+            : '0 字节';
 
-  const getFileProperties = useCallback((path: string[], fileName: string) => {
-    const node = getFile([...path, fileName]);
-    if (!node) return null;
-
-    const size = node.type === 'folder'
-      ? `${Object.keys(node.children || {}).length} 个对象`
-      : node.content ? `${node.content.length} 字节` : '0 字节';
-
-    return {
-      name: node.name,
-      type: node.type,
-      size,
-      icon: node.icon,
-      created: '2003年10月25日',
-      modified: '2003年10月25日',
-      accessed: '2003年10月25日',
-      locked: !!node.locked,
-      broken: !!node.broken
-    };
-  }, [getFile]);
+      return {
+        name: node.name,
+        type: node.type,
+        size,
+        icon: node.icon,
+        created: '2003年10月25日',
+        modified: '2003年10月25日',
+        accessed: '2003年10月25日',
+        locked: !!node.locked,
+        broken: !!node.broken,
+      };
+    },
+    [getFile]
+  );
 
   const contextValue: FileSystemContextType = {
     fs,
@@ -398,12 +469,8 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     restoreFromRecycleBin,
     searchFiles,
     getFileProperties,
-    moveFile
+    moveFile,
   };
 
-  return (
-    <FileSystemContext.Provider value={contextValue}>
-      {children}
-    </FileSystemContext.Provider>
-  );
+  return <FileSystemContext.Provider value={contextValue}>{children}</FileSystemContext.Provider>;
 };
