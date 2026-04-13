@@ -7,7 +7,7 @@ import { AppRegistryEntry } from '../types';
  *
  * 优先使用注册表（appId 精确匹配），对旧格式数据回退到 prop 启发式识别。
  */
-export const restoreComponent = (appId: string, componentProps: Record<string, any> = {}): React.ReactNode => {
+export const restoreComponent = (appId: string, componentProps: Record<string, unknown> = {}): React.ReactNode => {
   // 1. 注册表精确匹配（新格式）
   const def = APP_REGISTRY[appId as keyof typeof APP_REGISTRY] as AppRegistryEntry | undefined;
   if (def?.restore) {

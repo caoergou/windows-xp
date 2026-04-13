@@ -102,7 +102,15 @@ interface FilePropertiesProps {
 
 const FileProperties: React.FC<FilePropertiesProps> = ({ fileItem, onClose, parentPath, windowId }) => {
   const [activeTab, setActiveTab] = useState('general');
-  const [exifData, setExifData] = useState<any>(null);
+  const [exifData, setExifData] = useState<{
+    Model?: string;
+    Make?: string;
+    FNumber?: number;
+    ExposureTime?: number;
+    ISOSpeedRatings?: number;
+    FocalLength?: number;
+    DateTimeOriginal?: string;
+  } | null>(null);
   const { closeWindow } = useWindowManager();
   const { getFileProperties } = useFileSystem();
 

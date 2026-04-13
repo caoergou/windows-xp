@@ -167,7 +167,7 @@ interface XPIconProps {
   className?: string;
   color?: string;
   style?: React.CSSProperties;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 const XPIcon = ({ name, size = 32, className, color, style, ...rest }: XPIconProps) => {
