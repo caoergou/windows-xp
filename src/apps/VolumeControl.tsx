@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { getVolume, setVolume, getMuted, setMuted } from '../utils/soundManager';
 
 const Container = styled.div`
   padding: 16px;
@@ -84,15 +85,23 @@ const Label = styled.label`
 `;
 
 const VolumeControl = () => {
-  const [volume, setVolume] = useState<number>(75);
-  const [muted, setMuted] = useState<boolean>(false);
+  const [volume, setVolumeState] = useState<number>(getVolume());
+  const [muted, setMutedState] = useState<boolean>(getMuted());
+
+  useEffect(() => {
+    setVolume(volume);
+  }, [volume]);
+
+  useEffect(() => {
+    setMuted(muted);
+  }, [muted]);
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setVolume(parseInt(e.target.value));
+    setVolumeState(parseInt(e.target.value));
   };
 
   const handleMuteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMuted(e.target.checked);
+    setMutedState(e.target.checked);
   };
 
   const getVolumeIcon = () => {
@@ -121,12 +130,7 @@ const VolumeControl = () => {
         </SliderContainer>
       </VolumeContainer>
       <CheckboxContainer>
-        <Checkbox
-          type="checkbox"
-          id="mute"
-          checked={muted}
-          onChange={handleMuteChange}
-        />
+        <Checkbox type="checkbox" id="mute" checked={muted} onChange={handleMuteChange} />
         <Label htmlFor="mute">静音(&M)</Label>
       </CheckboxContainer>
     </Container>
