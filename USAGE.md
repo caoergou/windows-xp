@@ -24,7 +24,7 @@ The `WindowsXP` component accepts the following props:
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `username` | string | `'User'` | Default username for login screen |
-| `password` | string | `'password'` | Default password for authentication |
+| `password` | string | `'forthe2000s'` | Default password for authentication |
 | `language` | string | `'en'` | Initial language (`'en'` or `'zh'`) |
 | `customFileSystem` | object | `null` | Custom file system structure (see below) |
 | `skipBoot` | boolean | `false` | Skip boot screen on first load |
@@ -168,6 +168,8 @@ The component comes with default Windows XP styling via `xp.css`. You can overri
 - ✅ Recycle Bin functionality
 
 ### Built-in Applications
+
+#### Fully Implemented
 - 📝 **Notepad** - Text editor
 - 🖼️ **Photo Viewer** - Image viewer
 - 🌐 **Internet Explorer** - Web browser with history
@@ -176,9 +178,16 @@ The component comes with default Windows XP styling via `xp.css`. You can overri
 - 🧮 **Calculator** - Basic calculator
 - 💣 **Minesweeper** - Classic game
 - 🃏 **Solitaire** - Card game
-- 🎵 **Media Player** - Audio/video player
-- ⚙️ **Control Panel** - System settings
-- 💻 **Command Prompt** - Terminal emulator
+- 🔊 **Volume Control** - Volume settings
+- 🏃 **Run Dialog** - Run command dialog
+- ❓ **Help and Support** - Help center
+- 💬 **QQ Login** - QQ login dialog
+
+#### Basic UI (Limited Functionality)
+- 🎵 **Windows Media Player** - Media player UI with visualizations
+- ⚙️ **Control Panel** - System settings UI
+- 💻 **Command Prompt** - Terminal emulator with basic commands
+- 🖧 **Network Connections** - Network status UI
 
 ### System Features
 - 🔐 Boot screen and login system

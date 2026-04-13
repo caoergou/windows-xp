@@ -32,13 +32,13 @@ interface WindowsXPProps {
  *
  * @param {WindowsXPProps} props - Component props
  * @param {string} [props.username='User'] - Default username for login
- * @param {string} [props.password='password'] - Default password for login
+ * @param {string} [props.password='forthe2000s'] - Default password for login
  * @param {string} [props.language='en'] - Initial language ('en' or 'zh')
  * @param {Object} [props.customFileSystem] - Custom file system structure
  */
 export const WindowsXP: React.FC<WindowsXPProps> = ({
   username = 'User',
-  password = 'password',
+  password = 'forthe2000s',
   language = 'en',
   customFileSystem = null
 }) => {

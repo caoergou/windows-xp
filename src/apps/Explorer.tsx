@@ -118,7 +118,7 @@ interface ExplorerProps {
 }
 
 const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
-    const { getFile, createFile, renameFile, deleteFile, cutFile, pasteFile, clipboard, getFileProperties, emptyRecycleBin, restoreFromRecycleBin, moveFile } = useFileSystem();
+    const { getFile, createFile, renameFile, deleteFile, cutFile, pasteFile, clipboard, getFileProperties, emptyRecycleBin, restoreFromRecycleBin, moveFile, copyToClipboard, uploadTextFile } = useFileSystem();
     const api = useApp(windowId);
 
     const [history, setHistory] = useState<string[][]>([initialPath]);
@@ -317,9 +317,29 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
 
     const handleCopy = () => {
         if (contextMenu.targetItem) {
-            cutFile(currentPath, contextMenu.targetItem.key);
+            copyToClipboard(currentPath, contextMenu.targetItem.key);
             closeContextMenu();
         }
+    };
+
+    const handleUpload = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.txt,.md,.json,.js,.ts,.jsx,.tsx,.css,.html,.xml,.csv';
+        input.onchange = (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const content = event.target?.result as string;
+                    uploadTextFile(currentPath, file.name, content);
+                    closeContextMenu();
+                };
+                reader.readAsText(file);
+            }
+        };
+        input.click();
+        closeContextMenu();
     };
 
     const handleCut = () => {
@@ -386,6 +406,8 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     const menuItems = isInRecycleBin ? recycleBinMenuItems : [
         { label: '新建文件夹', action: () => handleCreateFile('folder') },
         { label: '新建文本文档', action: () => handleCreateFile('file') },
+        { type: 'separator' },
+        { label: '上传文件', action: handleUpload },
         { type: 'separator' },
         { label: '复制', action: handleCopy, disabled: !contextMenu.targetItem },
         { label: '剪切', action: handleCut, disabled: !contextMenu.targetItem },
