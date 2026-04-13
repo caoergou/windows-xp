@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useCallback } from 'react';
 
-interface TrayItem {
+export interface TrayItem {
   id: string;
   icon: string;
   tooltip: string;

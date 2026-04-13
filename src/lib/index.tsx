@@ -12,7 +12,7 @@ interface WindowsXPProps {
   username?: string;
   password?: string;
   language?: 'en' | 'zh';
-  customFileSystem?: any;
+  customFileSystem?: Record<string, unknown>;
 }
 
 /**

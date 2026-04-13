@@ -152,12 +152,9 @@ function App() {
    \\ \\/  \\/ /  | || '_ \\  / _\` | / _ \\\\ \\ /\\ / /   \\___ \\  / _ \\ / __|| | | || '__|| || |_
     \\  /\\  /   | || | | || (_| || (_) |\\ V  V /    ____) ||  __/| (__ | |_| || |   | || |_
      \\/  \\/    |_||_| |_| \\__,_| \\___/  \\_/\\_/    |_____/  \\___| \\___| \\__,_||_|   |_| \\__|
-      `;
-    console.log(`%c${art}`, 'color: #0080ff; font-weight: bold; font-family: monospace;');
-    console.log('%c Windows Security Center detected an intrusion attempt', 'color: red; font-size: 24px; font-weight: bold; background: #ffff00; padding: 10px; border: 2px solid red; border-radius: 5px;');
-    console.log('%c Warning: System is monitoring your activities.', 'font-size: 16px; color: #333;');
+       `;
 
-    return () => {
+     return () => {
       window.removeEventListener('contextmenu', handleContextMenu);
     };
   }, []);

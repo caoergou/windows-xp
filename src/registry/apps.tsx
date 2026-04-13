@@ -108,10 +108,10 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       {
         appField: 'InternetExplorer',
-        getProps: (item: any) =>
-          item.isHtmlContent
-            ? { html: item.content }
-            : { url: item.content || item.url || 'about:blank' },
+        getProps: (item: FileNode) =>
+          (item as any).isHtmlContent
+            ? { html: (item as any).content }
+            : { url: (item as any).content || (item as any).url || 'about:blank' },
       },
     ],
     restore: (props) => <InternetExplorer {...props} />,
@@ -126,7 +126,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       {
         appField: 'Notepad',
-        getProps: (item: any) => ({ content: item.content ?? '', readOnly: item.readOnly }),
+        getProps: (item: FileNode) => ({ content: (item as any).content ?? '', readOnly: (item as any).readOnly }),
       },
     ],
     restore: (props) => <Notepad {...props} />,
@@ -141,7 +141,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       {
         appField: 'PhotoViewer',
-        getProps: (item: any) => ({ src: item.content, fileItem: item }),
+        getProps: (item: FileNode) => ({ src: (item as any).content, fileItem: item }),
       },
     ],
     restore: (props) => <PhotoViewer {...props} />,
@@ -304,7 +304,7 @@ const _assocByField = Object.values(APP_REGISTRY).reduce((acc, def) => {
     if (assoc.appField) acc[assoc.appField] = { def, assoc };
   }
   return acc;
-}, {} as Record<string, { def: AppRegistryEntry; assoc: any }>);
+  }, {} as Record<string, { def: AppRegistryEntry; assoc: AppAssociation }>);
 
 /**
  * resolveFileOpen — 将文件系统节点解析为可直接传给 openWindow() 的参数对象。

@@ -2,7 +2,7 @@ import { useWindowManager } from '../context/WindowManagerContext';
 import { useModal } from '../context/ModalContext';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useUserSession } from '../context/UserSessionContext';
-import { useTray } from '../context/TrayContext';
+import { useTray, TrayItem } from '../context/TrayContext';
 import { sounds } from '../utils/soundManager';
 
 /**
@@ -70,9 +70,9 @@ export function useApp(windowId: string) {
 
     // ── 系统托盘 ─────────────────────────────────────────────────────────
     tray: {
-      register:   (config: any)  => register(trayId, config),
+      register:   (config: Omit<TrayItem, 'id'>)  => register(trayId, config),
       unregister: ()        => unregister(trayId),
-      update:     (updates: any) => update(trayId, updates),
+      update:     (updates: Partial<Omit<TrayItem, 'id'>>) => update(trayId, updates),
     },
   };
 }

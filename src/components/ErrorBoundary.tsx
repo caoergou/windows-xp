@@ -88,29 +88,31 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     this.setState({ errorInfo });
 
-    // 详细的控制台输出，方便开发调试
-    const { windowId } = this.props;
+    // Development-only error logging
+    if (process.env.NODE_ENV === 'development') {
+      const { windowId } = this.props;
 
-    console.group('%c🚨 ErrorBoundary: 应用程序崩溃', 'color: #c00; font-size: 14px; font-weight: bold;');
+      console.group('%c🚨 ErrorBoundary: Application crashed', 'color: #c00; font-size: 14px; font-weight: bold;');
 
-    if (windowId) {
-      console.log(`%c窗口 ID:`, 'color: #666; font-weight: bold;', windowId);
+      if (windowId) {
+        console.log(`%cWindow ID:`, 'color: #666; font-weight: bold;', windowId);
+      }
+
+      console.log('%cError object:', 'color: #0066cc; font-weight: bold;');
+      console.dir(error);
+
+      console.log('%cError stack:', 'color: #0066cc; font-weight: bold;');
+      console.error(error);
+
+      if (errorInfo?.componentStack) {
+        console.log('%cComponent stack:', 'color: #0066cc; font-weight: bold;');
+        console.log(errorInfo.componentStack);
+      }
+
+      console.groupEnd();
     }
 
-    console.log('%c错误对象:', 'color: #0066cc; font-weight: bold;');
-    console.dir(error);
-
-    console.log('%c错误堆栈:', 'color: #0066cc; font-weight: bold;');
-    console.error(error);
-
-    if (errorInfo?.componentStack) {
-      console.log('%c组件堆栈:', 'color: #0066cc; font-weight: bold;');
-      console.log(errorInfo.componentStack);
-    }
-
-    console.groupEnd();
-
-    // 调用自定义错误处理
+    // Call custom error handler
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }

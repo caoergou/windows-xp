@@ -67,7 +67,7 @@ const RunDialog = ({ onClose }: RunDialogProps) => {
   const [command, setCommand] = useState<string>('');
 
   const handleOk = () => {
-    if (command.trim()) {
+    if (command.trim() && process.env.NODE_ENV === 'development') {
       console.log('Running command:', command);
     }
     onClose?.();

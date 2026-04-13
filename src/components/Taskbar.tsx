@@ -369,7 +369,7 @@ const Taskbar = () => {
     const [showTurnOff, setShowTurnOff] = useState<boolean>(false);
     const [qqContextMenu, setQqContextMenu] = useState<{ x: number; y: number } | null>(null);
     const [taskContextMenu, setTaskContextMenu] = useState<{ x: number; y: number } | null>(null);
-    const [selectedWindow, setSelectedWindow] = useState<any>(null);
+    const [selectedWindow, setSelectedWindow] = useState<WindowState | null>(null);
     const startMenuRef = useRef<HTMLDivElement>(null);
     const startButtonRef = useRef<HTMLButtonElement>(null);
     const qqContextMenuRef = useRef<HTMLDivElement>(null);
@@ -415,7 +415,7 @@ const Taskbar = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [qqContextMenu, taskContextMenu]);
 
-    const handleTaskContextMenu = (e: React.MouseEvent, win: any) => {
+    const handleTaskContextMenu = (e: React.MouseEvent, win: WindowState) => {
         e.preventDefault();
         e.stopPropagation();
         setSelectedWindow(win);
@@ -475,7 +475,7 @@ const Taskbar = () => {
 
     const toggleStart = () => setStartOpen(!startOpen);
 
-    const handleTaskClick = (win: any) => {
+    const handleTaskClick = (win: WindowState) => {
         if (activeWindowId === win.id && !win.isMinimized) {
             minimizeWindow(win.id);
         } else {
