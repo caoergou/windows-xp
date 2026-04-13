@@ -68,7 +68,9 @@ const ControlPanel = () => {
   ];
 
   const handleCategoryClick = (name: string) => {
-    console.log('Opening category:', name);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Opening category:', name);
+    }
   };
 
   return (

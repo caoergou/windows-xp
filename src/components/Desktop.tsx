@@ -8,7 +8,7 @@ import Window from './Window';
 import ContextMenu from './ContextMenu';
 import XPIcon from './XPIcon';
 import FileProperties from './FileProperties';
-import { resolveFileOpen } from '../registry/apps.jsx';
+import { resolveFileOpen } from '../registry/apps';
 import AntivirusPopup from './AntivirusPopup';
 import { useModal } from '../context/ModalContext';
 import desktopBg from '../assets/images/desktop_bg.jpg';

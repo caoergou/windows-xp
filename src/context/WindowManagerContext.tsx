@@ -121,16 +121,20 @@ export const WindowManagerProvider: React.FC<{
     const win = windows.find(w => w.id === id);
     win?.onClose?.(id);
 
-    setWindows(prev => prev.filter(w => w.id !== id));
-    if (activeWindowId === id) {
-      const remaining = windows.filter(w => w.id !== id);
-      if (remaining.length > 0) {
-        const top = remaining.reduce((a, b) => (a.zIndex > b.zIndex ? a : b));
-        setActiveWindowId(top.id);
-      } else {
-        setActiveWindowId(null);
+    setWindows(prev => {
+      const newWindows = prev.filter(w => w.id !== id);
+      
+      if (activeWindowId === id) {
+        if (newWindows.length > 0) {
+          const top = newWindows.reduce((a, b) => (a.zIndex > b.zIndex ? a : b));
+          setActiveWindowId(top.id);
+        } else {
+          setActiveWindowId(null);
+        }
       }
-    }
+      
+      return newWindows;
+    });
   }, [windows, activeWindowId]);
 
   // Minimize a window

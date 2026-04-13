@@ -3,7 +3,7 @@ let audioCtx: AudioContext | null = null;
 
 const getCtx = (): AudioContext => {
   if (!audioCtx) {
-    audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
   }
   return audioCtx;
 };
@@ -21,7 +21,9 @@ const tone = (freq: number, dur: number, type: OscillatorType = 'sine', vol: num
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + dur);
     osc.start(ctx.currentTime + delay);
     osc.stop(ctx.currentTime + delay + dur + 0.05);
-  } catch (_) {}
+  } catch (error) {
+    console.warn('Audio playback failed:', error);
+  }
 };
 
 export const sounds = {
