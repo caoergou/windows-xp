@@ -486,6 +486,15 @@ const Taskbar = () => {
             openWindow('RunDialog', t('startMenu.run'),
                 APP_REGISTRY.RunDialog.restore({}),
                 'run', APP_REGISTRY.RunDialog.window);
+        } else if (appName === 'HelpAndSupport') {
+            const help = APP_REGISTRY.HelpAndSupport;
+            openWindow('HelpAndSupport', t('helpAndSupport.title'),
+                help.restore({}),
+                'help', help.window);
+        } else if (appName === 'Search') {
+            showModal(t('startMenu.search'), t('apps.comingSoon'), 'info');
+        } else if (appName === 'AllPrograms') {
+            showModal(t('startMenu.allPrograms'), t('apps.comingSoon'), 'info');
         } else if (appName === 'DummyApp') {
             showModal(pathOrKey || t('errors.program'), t('errors.fileNotFoundMessage', { name: pathOrKey }), 'error');
         }
@@ -554,38 +563,43 @@ const Taskbar = () => {
                     </StartHeader>
                     <StartBody>
                         <StartLeft>
+                            <MenuItem onClick={() => handleLaunch('AllPrograms')}>
+                                <XPIcon name="programs" size={24} className="menu-icon" />
+                                <span>{t('startMenu.allPrograms')}</span>
+                            </MenuItem>
+                            <MenuSeparator />
                             <MenuItem onClick={() => handleLaunch('Internet Explorer')}>
                                 <XPIcon name="ie" size={24} className="menu-icon" />
-                                <span>Internet Explorer</span>
+                                <span>{t('startMenu.apps.internetExplorer')}</span>
                             </MenuItem>
                             <MenuItem onClick={() => handleLaunch('QQ')}>
                                 <XPIcon name="qq" size={24} className="menu-icon" />
-                                <span>QQ</span>
+                                <span>{t('startMenu.apps.qq')}</span>
                             </MenuItem>
                             <MenuSeparator />
                             <MenuItem onClick={() => handleLaunch('QQMail')}>
                                 <XPIcon name="email" size={24} className="menu-icon" />
-                                <span>QQ Mail</span>
+                                <span>{t('startMenu.apps.qqMail')}</span>
                             </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('DummyApp', 'WPS Office')}>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', t('startMenu.apps.wpsOffice'))}>
                                 <XPIcon name="wps" size={24} className="menu-icon" />
-                                <span>WPS Office</span>
+                                <span>{t('startMenu.apps.wpsOffice')}</span>
                             </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('DummyApp', '暴风影音')}>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', t('startMenu.apps.baofeng'))}>
                                 <XPIcon name="baofeng" size={24} className="menu-icon" />
-                                <span>暴风影音</span>
+                                <span>{t('startMenu.apps.baofeng')}</span>
                             </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('DummyApp', '迅雷')}>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', t('startMenu.apps.thunder'))}>
                                 <XPIcon name="thunder" size={24} className="menu-icon" />
-                                <span>迅雷</span>
+                                <span>{t('startMenu.apps.thunder')}</span>
                             </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('DummyApp', '360安全卫士')}>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', t('startMenu.apps.safeGuard'))}>
                                 <XPIcon name="360safe" size={24} className="menu-icon" />
-                                <span>360安全卫士</span>
+                                <span>{t('startMenu.apps.safeGuard')}</span>
                             </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('DummyApp', '酷狗音乐')}>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', t('startMenu.apps.kugou'))}>
                                 <XPIcon name="kugou" size={24} className="menu-icon" />
-                                <span>酷狗音乐</span>
+                                <span>{t('startMenu.apps.kugou')}</span>
                             </MenuItem>
                             <MenuSeparator />
                             <MenuItem onClick={() => handleLaunch('RunDialog')}>
@@ -614,6 +628,15 @@ const Taskbar = () => {
                             <MenuItem onClick={() => handleLaunch('DummyApp', t('startMenu.printersAndFaxes'))}>
                                 <XPIcon name="printer" size={24} className="menu-icon" />
                                 <span>{t('startMenu.printersAndFaxes')}</span>
+                            </MenuItem>
+                            <MenuSeparator />
+                            <MenuItem onClick={() => handleLaunch('Search')}>
+                                <XPIcon name="search" size={24} className="menu-icon" />
+                                <span>{t('startMenu.search')}</span>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleLaunch('HelpAndSupport')}>
+                                <XPIcon name="help" size={24} className="menu-icon" />
+                                <span>{t('startMenu.help')}</span>
                             </MenuItem>
                             <MenuSeparator />
                             <MenuItem onClick={() => handleLaunch('Recycle Bin', t('desktop.recycleBin'))}>

@@ -16,7 +16,17 @@
     "help": "Help and Support",
     "run": "Run...",
     "logOff": "Log Off",
-    "turnOff": "Turn Off Computer"
+    "turnOff": "Turn Off Computer",
+    "apps": {
+      "internetExplorer": "Internet Explorer",
+      "qq": "QQ",
+      "qqMail": "QQ Mail",
+      "wpsOffice": "WPS Office",
+      "baofeng": "Baofeng Player",
+      "thunder": "Thunder",
+      "safeGuard": "360 Safe Guard",
+      "kugou": "Kugou Music"
+    }
   },
   "taskbar": {
     "start": "Start"
