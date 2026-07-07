@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { APP_REGISTRY } from '../registry/apps';
+import { getStickyNote } from '../data/culture';
 
 const NoteContainer = styled.div`
   position: absolute;
@@ -66,9 +67,10 @@ const NoteContent = styled.div`
 `;
 
 const StickyNote = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { openWindow } = useWindowManager();
   const [visible, setVisible] = useState<boolean>(true);
+  const stickyNote = getStickyNote(i18n.language);
 
   if (!visible) return null;
 
@@ -86,23 +88,13 @@ const StickyNote = () => {
   return (
     <NoteContainer>
       <NoteTitle>
-        {t('stickyNote.title', 'Memo')}
+        {stickyNote.title}
         <CloseBtn onClick={() => setVisible(false)}>✕</CloseBtn>
       </NoteTitle>
       <NoteContent
         style={{ cursor: 'pointer' }}
         onDoubleClick={handleOpenDocuments}
-      >{t('stickyNote.content', {
-        docsPath,
-        defaultValue: `📁 Double-click to open {{docsPath}}
-
-☑ PC password is configured
-☐ Update 360 Safe Guard
-☐ Download Baofeng Player with Thunder
-
-💡 Tip:
-   Right-click desktop to refresh`
-      })}</NoteContent>
+      >{stickyNote.content.replace('{{docsPath}}', docsPath)}</NoteContent>
     </NoteContainer>
   );
 };
