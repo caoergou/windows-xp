@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import { useWindowManager } from '../context/WindowManagerContext';
-import Explorer from '../apps/Explorer';
+import { useUserSession } from '../context/UserSessionContext';
+import { APP_REGISTRY } from '../registry/apps';
 
 const NoteContainer = styled.div`
   position: absolute;
@@ -65,33 +67,45 @@ const NoteContent = styled.div`
 `;
 
 const StickyNote = () => {
+  const { t } = useTranslation();
   const { openWindow } = useWindowManager();
+  const { password } = useUserSession();
   const [visible, setVisible] = useState<boolean>(true);
 
   if (!visible) return null;
 
+  const docsPath = t('startMenu.myDocuments');
+  const handleOpenDocuments = () => {
+    openWindow(
+      'Explorer',
+      docsPath,
+      APP_REGISTRY.Explorer.restore({ initialPath: [docsPath] }),
+      'documents',
+      APP_REGISTRY.Explorer.window
+    );
+  };
+
   return (
     <NoteContainer>
       <NoteTitle>
-        备忘录
+        {t('stickyNote.title', 'Memo')}
         <CloseBtn onClick={() => setVisible(false)}>✕</CloseBtn>
       </NoteTitle>
       <NoteContent
         style={{ cursor: 'pointer' }}
-        onDoubleClick={() =>
-          openWindow('我的文档', '我的文档',
-            <Explorer initialPath={['我的文档']} />, 'documents',
-            { width: 700, height: 500 })
-        }
-      >{`📁 双击打开我的文档
+        onDoubleClick={handleOpenDocuments}
+      >{t('stickyNote.content', {
+        password,
+        docsPath,
+        defaultValue: `📁 Double-click to open {{docsPath}}
 
-☑ 电脑密码：password
-☐ 更新 360 安全卫士
-☐ 用迅雷下载暴风影音
+☑ PC password: {{password}}
+☐ Update 360 Safe Guard
+☐ Download Baofeng Player with Thunder
 
-💡 小贴士：
-   右键桌面可刷新`}
-      </NoteContent>
+💡 Tip:
+   Right-click desktop to refresh`
+      })}</NoteContent>
     </NoteContainer>
   );
 };

@@ -5,6 +5,7 @@ import { UserSession } from '../types';
 interface UserSessionContextType {
   isLoggedIn: boolean;
   user: { name: string; avatar: string };
+  password: string;
   login: (password: string) => boolean;
   logout: () => void;
 }
@@ -62,6 +63,7 @@ export const UserSessionProvider: React.FC<{
   const contextValue: UserSessionContextType = {
     isLoggedIn,
     user,
+    password,
     login,
     logout
   };

@@ -11,6 +11,7 @@ import FileProperties from './FileProperties';
 import { resolveFileOpen } from '../registry/apps';
 import AntivirusPopup from './AntivirusPopup';
 import { useModal } from '../context/ModalContext';
+import StickyNote from './StickyNote';
 import desktopBg from '../assets/images/desktop_bg.jpg';
 import { FileItem } from '../types';
 
@@ -475,6 +476,8 @@ const Desktop: React.FC = () => {
       {windows.map(win => (
         <Window key={win.id} windowState={win} />
       ))}
+
+      <StickyNote />
 
       <Taskbar />
 

@@ -136,6 +136,10 @@
   "runDialog": {
     "placeholder": "输入要运行的程序、文件夹、文档或 Internet 资源的名称..."
   },
+  "stickyNote": {
+    "title": "备忘录",
+    "content": "📁 双击打开{{docsPath}}\n\n☑ 电脑密码：{{password}}\n☐ 更新 360 安全卫士\n☐ 用迅雷下载暴风影音\n\n💡 小贴士：\n   右键桌面可刷新"
+  },
   "errors": {
     "program": "程序",
     "fileNotFound": "找不到文件",

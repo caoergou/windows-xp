@@ -136,6 +136,10 @@
   "runDialog": {
     "placeholder": "Enter the name of a program, folder, document, or Internet resource..."
   },
+  "stickyNote": {
+    "title": "Memo",
+    "content": "📁 Double-click to open {{docsPath}}\n\n☑ PC password: {{password}}\n☐ Update 360 Safe Guard\n☐ Download Baofeng Player with Thunder\n\n💡 Tip:\n   Right-click desktop to refresh"
+  },
   "errors": {
     "program": "Program",
     "fileNotFound": "File not found",
