@@ -367,9 +367,9 @@ const Desktop: React.FC = () => {
     { type: 'separator' },
     { label: t('contextMenu.paste'), action: () => undefined, disabled: pasteDisabled },
     { type: 'separator' },
-    { label: t('contextMenu.new'), action: () => undefined },
+    { label: t('contextMenu.new'), action: () => undefined, disabled: true },
     { type: 'separator' },
-    { label: t('contextMenu.properties'), action: () => undefined }
+    { label: t('contextMenu.properties'), action: () => undefined, disabled: true }
   ];
 
   const getIconMenuItems = (key: string): MenuItem[] => {
@@ -439,6 +439,7 @@ const Desktop: React.FC = () => {
               data-testid={`desktop-icon-${key}`}
               className="desktop-icon-selectable"
               data-icon-key={key}
+              title={item.name}
               onClick={(e) => { e.stopPropagation(); toggleIconSelection(key, e); }}
               onDoubleClick={() => handleIconDoubleClick(key, item)}
               onContextMenu={(e) => handleIconContextMenu(e, key)}
