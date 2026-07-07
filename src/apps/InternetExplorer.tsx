@@ -8,6 +8,7 @@ import { useWindowManager } from '../context/WindowManagerContext';
 import { useTranslation } from 'react-i18next';
 import { BROWSER_BLACKLIST } from './BrowserPlugins';
 import HelpAndSupport from './HelpAndSupport';
+import IEErrorPage from '../components/Explorer/IEErrorPage';
 
 const Container = styled.div`
     width: 100%;
@@ -335,6 +336,7 @@ const toWaybackUrl = (url: string): string => {
 interface HistoryEntry {
     url: string;
     html: string | null;
+    error?: boolean;
 }
 
 interface BrowsingHistoryItem {
@@ -450,11 +452,8 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
             if (blocked) {
                 const blockedEntry: HistoryEntry = {
                     url: newUrl,
-                    html: `<div style="padding:40px;text-align:center;font-family:sans-serif;">
-                        <h2>无法访问此网站</h2>
-                        <p>无法连接到 ${blocked.label}</p>
-                        <p style="color:#666;">ERR_CONNECTION_TIMED_OUT</p>
-                    </div>`,
+                    html: null,
+                    error: true,
                 };
                 const newHistory = history.slice(0, currentIndex + 1);
                 newHistory.push(blockedEntry);
@@ -613,6 +612,22 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
     }, [currentEntry, navigateTo]);
 
     const renderContent = () => {
+        if (currentEntry.error) {
+            return (
+                <IEErrorPage
+                    url={currentEntry.url}
+                    onRefresh={() => navigateTo(currentEntry.url)}
+                    onDiagnose={() => openWindow(
+                        'HelpAndSupport',
+                        t('helpAndSupport.title'),
+                        React.createElement(HelpAndSupport),
+                        'help',
+                        { width: 600, height: 400 }
+                    )}
+                />
+            );
+        }
+
         if (currentEntry.html) {
              // Inject script to capture clicks
              const script = `
@@ -665,6 +680,15 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
                 onError={() => {
                     setIsLoading(false);
                     setStatusText(t('internetExplorer.status.cannotDisplay'));
+                    const errorEntry: HistoryEntry = {
+                        url: currentEntry.url,
+                        html: null,
+                        error: true,
+                    };
+                    const newHistory = history.slice(0, currentIndex + 1);
+                    newHistory.push(errorEntry);
+                    setHistory(newHistory);
+                    setCurrentIndex(newHistory.length - 1);
                 }}
             />
         );
