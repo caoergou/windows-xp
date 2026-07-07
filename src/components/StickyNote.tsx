@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useWindowManager } from '../context/WindowManagerContext';
-import { useUserSession } from '../context/UserSessionContext';
 import { APP_REGISTRY } from '../registry/apps';
 
 const NoteContainer = styled.div`
@@ -69,7 +68,6 @@ const NoteContent = styled.div`
 const StickyNote = () => {
   const { t } = useTranslation();
   const { openWindow } = useWindowManager();
-  const { password } = useUserSession();
   const [visible, setVisible] = useState<boolean>(true);
 
   if (!visible) return null;
@@ -95,11 +93,10 @@ const StickyNote = () => {
         style={{ cursor: 'pointer' }}
         onDoubleClick={handleOpenDocuments}
       >{t('stickyNote.content', {
-        password,
         docsPath,
         defaultValue: `📁 Double-click to open {{docsPath}}
 
-☑ PC password: {{password}}
+☑ PC password is configured
 ☐ Update 360 Safe Guard
 ☐ Download Baofeng Player with Thunder
 
