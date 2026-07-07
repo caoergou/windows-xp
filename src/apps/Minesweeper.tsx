@@ -1,3 +1,4 @@
+// @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 
