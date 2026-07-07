@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { restoreComponent } from '../utils/WindowFactory';
 import { WindowState, WindowProps } from '../types';
 import { WINDOW_DEFAULTS } from '../constants';
