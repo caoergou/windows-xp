@@ -134,11 +134,16 @@
     "cancel": "Cancel"
   },
   "runDialog": {
-    "placeholder": "Enter the name of a program, folder, document, or Internet resource..."
+    "placeholder": "Enter the name of a program, folder, document, or Internet resource...",
+    "errorTitle": "Windows XP",
+    "errorMessage": "Windows cannot find '{{command}}'. Make sure you typed the name correctly, and then try again."
   },
   "stickyNote": {
     "title": "Memo",
-    "content": "📁 Double-click to open {{docsPath}}\n\n☑ PC password: {{password}}\n☐ Update 360 Safe Guard\n☐ Download Baofeng Player with Thunder\n\n💡 Tip:\n   Right-click desktop to refresh"
+    "content": "📁 Double-click to open {{docsPath}}\n\n☑ PC password is configured\n☐ Update 360 Safe Guard\n☐ Download Baofeng Player with Thunder\n\n💡 Tip:\n   Right-click desktop to refresh"
+  },
+  "altTab": {
+    "switchWindow": "Switch windows"
   },
   "errors": {
     "program": "Program",
