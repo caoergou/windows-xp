@@ -16,7 +16,17 @@
     "help": "帮助和支持",
     "run": "运行...",
     "logOff": "注销",
-    "turnOff": "关闭计算机"
+    "turnOff": "关闭计算机",
+    "apps": {
+      "internetExplorer": "Internet Explorer",
+      "qq": "QQ",
+      "qqMail": "QQ 邮箱",
+      "wpsOffice": "WPS Office",
+      "baofeng": "暴风影音",
+      "thunder": "迅雷",
+      "safeGuard": "360 安全卫士",
+      "kugou": "酷狗音乐"
+    }
   },
   "taskbar": {
     "start": "开始"
