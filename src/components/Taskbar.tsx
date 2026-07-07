@@ -6,6 +6,7 @@ import { useUserSession } from '../context/UserSessionContext';
 import { useTray } from '../context/TrayContext';
 import XPIcon from './XPIcon';
 import SystemClock from './SystemClock';
+import LanguageSwitcher from './LanguageSwitcher';
 import { APP_REGISTRY } from '../registry/apps';
 import { defaultPlugin } from '../apps/BrowserPlugins';
 import { useModal } from '../context/ModalContext';
@@ -706,6 +707,7 @@ const Taskbar = () => {
                     >
                          <XPIcon name="network" size={16} color="white" />
                     </div>
+                    <LanguageSwitcher />
                     <SystemClock />
                 </SystemTray>
             </TaskbarContainer>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 const SystemClock = () => {
-    const [dateTime, setDateTime] = useState<string>('');
+    const [time, setTime] = useState<string>('');
+    const [tooltip, setTooltip] = useState<string>('');
 
     useEffect(() => {
         const update = () => {
@@ -11,14 +12,15 @@ const SystemClock = () => {
             const y = now.getFullYear();
             const mo = String(now.getMonth() + 1).padStart(2, '0');
             const d = String(now.getDate()).padStart(2, '0');
-            setDateTime(`${y}/${mo}/${d} ${h}:${m}`);
+            setTime(`${h}:${m}`);
+            setTooltip(`${y}/${mo}/${d} ${h}:${m}`);
         };
         update();
         const id = setInterval(update, 1000);
         return () => clearInterval(id);
     }, []);
 
-    return <span>{dateTime}</span>;
+    return <span title={tooltip}>{time}</span>;
 };
 
 export default SystemClock;
