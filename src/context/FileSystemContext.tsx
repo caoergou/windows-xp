@@ -134,6 +134,10 @@ export const FileSystemProvider: React.FC<{
   children: React.ReactNode;
   customFileSystem?: Record<string, FileNode>;
 }> = ({ children, customFileSystem }) => {
+  // Stabilize customFileSystem reference so parent re-renders don't trigger
+  // repeated persistence reloads.
+  const customFsRef = useRef(customFileSystem);
+
   const [fs, setFs] = useState<{ root: FileNode }>(
     mergeCustomFileSystem(fileSystemWithRecycleBin, customFileSystem)
   );
@@ -200,17 +204,17 @@ export const FileSystemProvider: React.FC<{
           mergedFs.root.children['回收站'].children = recycleBinItems;
         }
 
-        setFs(mergeCustomFileSystem(mergedFs, customFileSystem));
+        setFs(mergeCustomFileSystem(mergedFs, customFsRef.current));
       } catch (e) {
         console.error('Failed to load persisted data:', e);
-        setFs(mergeCustomFileSystem(fileSystemWithRecycleBin, customFileSystem));
+        setFs(mergeCustomFileSystem(fileSystemWithRecycleBin, customFsRef.current));
       } finally {
         setIsLoaded(true);
       }
     };
 
     loadPersistedData();
-  }, [customFileSystem]);
+  }, []);
 
   // Persist filesystem changes
   const persistFs = useCallback(
