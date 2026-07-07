@@ -12,6 +12,7 @@ import { defaultPlugin } from '../apps/BrowserPlugins';
 import { useModal } from '../context/ModalContext';
 import ContextMenu from './ContextMenu';
 import { WindowState } from '../types';
+import { getStartMenuApps } from '../data/culture';
 
 const TaskbarContainer = styled.div`
     position: absolute;
@@ -364,8 +365,9 @@ const CancelButton = styled.button`
 
 
 const Taskbar = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { windows, activeWindowId, focusWindow, minimizeWindow, maximizeWindow, openWindow, closeWindow } = useWindowManager();
+    const startMenuApps = getStartMenuApps(i18n.language);
     const { logout, user } = useUserSession();
     const { showModal } = useModal();
     const { items: trayItems } = useTray();
@@ -577,30 +579,12 @@ const Taskbar = () => {
                                 <span>{t('startMenu.apps.qq')}</span>
                             </MenuItem>
                             <MenuSeparator />
-                            <MenuItem onClick={() => handleLaunch('QQMail')}>
-                                <XPIcon name="email" size={24} className="menu-icon" />
-                                <span>{t('startMenu.apps.qqMail')}</span>
-                            </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('DummyApp', t('startMenu.apps.wpsOffice'))}>
-                                <XPIcon name="wps" size={24} className="menu-icon" />
-                                <span>{t('startMenu.apps.wpsOffice')}</span>
-                            </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('DummyApp', t('startMenu.apps.baofeng'))}>
-                                <XPIcon name="baofeng" size={24} className="menu-icon" />
-                                <span>{t('startMenu.apps.baofeng')}</span>
-                            </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('DummyApp', t('startMenu.apps.thunder'))}>
-                                <XPIcon name="thunder" size={24} className="menu-icon" />
-                                <span>{t('startMenu.apps.thunder')}</span>
-                            </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('DummyApp', t('startMenu.apps.safeGuard'))}>
-                                <XPIcon name="360safe" size={24} className="menu-icon" />
-                                <span>{t('startMenu.apps.safeGuard')}</span>
-                            </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('DummyApp', t('startMenu.apps.kugou'))}>
-                                <XPIcon name="kugou" size={24} className="menu-icon" />
-                                <span>{t('startMenu.apps.kugou')}</span>
-                            </MenuItem>
+                            {startMenuApps.map(app => (
+                                <MenuItem key={app.id} onClick={() => handleLaunch(app.action, app.action === 'DummyApp' ? t(app.nameKey) : undefined)}>
+                                    <XPIcon name={app.icon} size={24} className="menu-icon" />
+                                    <span>{t(app.nameKey)}</span>
+                                </MenuItem>
+                            ))}
                             <MenuSeparator />
                             <MenuItem onClick={() => handleLaunch('RunDialog')}>
                                 <XPIcon name="run" size={24} className="menu-icon" />

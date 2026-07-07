@@ -148,10 +148,7 @@
     "errorTitle": "Windows XP",
     "errorMessage": "Windows 找不到文件 '{{command}}'。请确认文件名是否正确，然后再试一次。"
   },
-  "stickyNote": {
-    "title": "备忘录",
-    "content": "📁 双击打开{{docsPath}}\n\n☑ 电脑密码已设置\n☐ 更新 360 安全卫士\n☐ 用迅雷下载暴风影音\n\n💡 小贴士：\n   右键桌面可刷新"
-  },
+
   "altTab": {
     "switchWindow": "切换窗口"
   },

@@ -25,7 +25,13 @@
       "baofeng": "Baofeng Player",
       "thunder": "Thunder",
       "safeGuard": "360 Safe Guard",
-      "kugou": "Kugou Music"
+      "kugou": "Kugou Music",
+      "msn": "MSN Messenger",
+      "microsoftOffice": "Microsoft Office",
+      "winamp": "Winamp",
+      "utorrent": "uTorrent",
+      "norton": "Norton AntiVirus",
+      "itunes": "iTunes"
     }
   },
   "taskbar": {
@@ -148,10 +154,7 @@
     "errorTitle": "Windows XP",
     "errorMessage": "Windows cannot find '{{command}}'. Make sure you typed the name correctly, and then try again."
   },
-  "stickyNote": {
-    "title": "Memo",
-    "content": "📁 Double-click to open {{docsPath}}\n\n☑ PC password is configured\n☐ Update 360 Safe Guard\n☐ Download Baofeng Player with Thunder\n\n💡 Tip:\n   Right-click desktop to refresh"
-  },
+
   "altTab": {
     "switchWindow": "Switch windows"
   },
