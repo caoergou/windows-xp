@@ -1,5 +1,5 @@
 // @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { X } from 'lucide-react';
 import IEToolbar from '../components/Explorer/IEToolbar';

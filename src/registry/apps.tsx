@@ -130,14 +130,11 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
       {
         appField: 'InternetExplorer',
         getProps: (item: FileNode) => {
-          if (!isFileContentNode(item)) {
-            return { url: 'about:blank' };
+          const itemWithUrl = item as FileContentNode & { url?: string; isHtmlContent?: boolean };
+          if (itemWithUrl.isHtmlContent) {
+            return { html: itemWithUrl.content ?? '' };
           }
-          if ('isHtmlContent' in item && item.isHtmlContent) {
-            return { html: item.content ?? '' };
-          }
-          const itemWithUrl = item as FileContentNode & { url?: string };
-          return { url: item.content || itemWithUrl.url || 'about:blank' };
+          return { url: itemWithUrl.url || itemWithUrl.content || 'about:blank' };
         },
       },
     ],
