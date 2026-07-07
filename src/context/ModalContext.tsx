@@ -5,14 +5,14 @@ import XPConfirm from '../components/XPConfirm';
 import PasswordDialog from '../components/PasswordDialog';
 
 interface ModalContextType {
-  showModal: (title: string, message: string, type?: 'info' | 'warning' | 'error' | 'success') => Promise<void>;
+  showModal: (title: string, message: string, type?: 'info' | 'warning' | 'error') => Promise<void>;
   hideModal: () => void;
   showInput: (title: string, message: string, defaultValue?: string) => Promise<string | null>;
   showPasswordDialog: (options: { title: string; message: string; hint?: string; correctPassword: string }) => Promise<boolean>;
-  showConfirm: (title: string, message: string, type?: 'question' | 'info' | 'warning' | 'error' | 'success', confirmLabel?: string, cancelLabel?: string) => Promise<boolean>;
+  showConfirm: (title: string, message: string, type?: 'question' | 'info' | 'warning' | 'error', confirmLabel?: string, cancelLabel?: string) => Promise<boolean>;
   dialog: {
-    alert: (opts: { title: string; message: string; type?: 'info' | 'warning' | 'error' | 'success' }) => Promise<void>;
-    confirm: (opts: { title: string; message: string; type?: 'question' | 'info' | 'warning' | 'error' | 'success'; confirmLabel?: string; cancelLabel?: string }) => Promise<boolean>;
+    alert: (opts: { title: string; message: string; type?: 'info' | 'warning' | 'error' }) => Promise<void>;
+    confirm: (opts: { title: string; message: string; type?: 'question' | 'info' | 'warning' | 'error'; confirmLabel?: string; cancelLabel?: string }) => Promise<boolean>;
     prompt: (opts: { title: string; message: string; defaultValue?: string }) => Promise<string | null>;
     password: (opts: { title: string; message: string; hint?: string; correctPassword: string }) => Promise<boolean>;
   };
@@ -33,7 +33,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     mode: 'alert' | 'confirm' | 'input' | 'password';
     title: string;
     message: string;
-    type?: 'info' | 'warning' | 'error' | 'success' | 'question';
+    type?: 'info' | 'warning' | 'error' | 'question';
     confirmLabel?: string;
     cancelLabel?: string;
     defaultValue?: string;
@@ -47,7 +47,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }>(null);
 
   // Show alert modal (Promise<void>)
-  const showModal = useCallback((title: string, message: string, type: 'info' | 'warning' | 'error' | 'success' = 'info'): Promise<void> => {
+  const showModal = useCallback((title: string, message: string, type: 'info' | 'warning' | 'error' = 'info'): Promise<void> => {
     return new Promise((resolve) => {
       setModal({
         mode: 'alert',
@@ -62,7 +62,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const hideModal = useCallback(() => setModal(null), []);
 
   // Show confirm modal (Promise<boolean>)
-  const showConfirm = useCallback((title: string, message: string, type: 'question' | 'info' | 'warning' | 'error' | 'success' = 'question', confirmLabel?: string, cancelLabel?: string): Promise<boolean> => {
+  const showConfirm = useCallback((title: string, message: string, type: 'question' | 'info' | 'warning' | 'error' = 'question', confirmLabel?: string, cancelLabel?: string): Promise<boolean> => {
     return new Promise((resolve) => {
       setModal({
         mode: 'confirm',
@@ -78,7 +78,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   // Show input modal (Promise<string | null>)
-  const showInput = useCallback((title: string, message: string, defaultValue: string = ''): Promise<string | null> => {
+  const showInput = useCallback((title: string, message: string, defaultValue = ''): Promise<string | null> => {
     return new Promise((resolve) => {
       setModal({
         mode: 'input',
@@ -105,8 +105,8 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Unified dialog object for useApp
   const dialog = useMemo(() => ({
-    alert: (opts: { title: string; message: string; type?: 'info' | 'warning' | 'error' | 'success' }) => showModal(opts.title, opts.message, opts.type),
-    confirm: (opts: { title: string; message: string; type?: 'question' | 'info' | 'warning' | 'error' | 'success'; confirmLabel?: string; cancelLabel?: string }) => showConfirm(opts.title, opts.message, opts.type, opts.confirmLabel, opts.cancelLabel),
+    alert: (opts: { title: string; message: string; type?: 'info' | 'warning' | 'error' }) => showModal(opts.title, opts.message, opts.type),
+    confirm: (opts: { title: string; message: string; type?: 'question' | 'info' | 'warning' | 'error'; confirmLabel?: string; cancelLabel?: string }) => showConfirm(opts.title, opts.message, opts.type, opts.confirmLabel, opts.cancelLabel),
     prompt: (opts: { title: string; message: string; defaultValue?: string }) => showInput(opts.title, opts.message, opts.defaultValue),
     password: (opts: { title: string; message: string; hint?: string; correctPassword: string }) => showPasswordDialog(opts),
   }), [showModal, showConfirm, showInput, showPasswordDialog]);
@@ -128,19 +128,19 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         <XPAlert
           title={modal.title}
           message={modal.message}
-          type={modal.type}
-          onClose={modal.onClose}
+          type={modal.type as 'info' | 'warning' | 'error' | undefined}
+          onClose={modal.onClose || (() => setModal(null))}
         />
       )}
       {modal?.mode === 'confirm' && (
         <XPConfirm
           title={modal.title}
           message={modal.message}
-          type={modal.type}
+          type={modal.type as 'question' | 'info' | 'warning' | 'error' | undefined}
           confirmLabel={modal.confirmLabel}
           cancelLabel={modal.cancelLabel}
-          onConfirm={modal.onConfirm}
-          onCancel={modal.onCancel}
+          onConfirm={modal.onConfirm || (() => setModal(null))}
+          onCancel={modal.onCancel || (() => setModal(null))}
         />
       )}
       {modal?.mode === 'input' && (
@@ -148,8 +148,8 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           title={modal.title}
           message={modal.message}
           defaultValue={modal.defaultValue}
-          onOk={modal.onOk}
-          onCancel={modal.onCancel}
+          onOk={modal.onOk || (() => setModal(null))}
+          onCancel={modal.onCancel || (() => setModal(null))}
         />
       )}
       {modal?.mode === 'password' && (
@@ -157,9 +157,9 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           title={modal.title}
           message={modal.message}
           hint={modal.hint}
-          correctPassword={modal.correctPassword}
-          onSuccess={modal.onSuccess}
-          onCancel={modal.onCancel}
+          correctPassword={modal.correctPassword || ''}
+          onSuccess={modal.onSuccess || (() => setModal(null))}
+          onCancel={modal.onCancel || (() => setModal(null))}
         />
       )}
     </ModalContext.Provider>

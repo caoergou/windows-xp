@@ -38,7 +38,7 @@ describe('Image File Integration', () => {
     renderDesktop();
 
     // 1. Open My Documents
-    const myDocs = screen.getByText('我的文档');
+    const myDocs = screen.getByText('My Documents');
     fireEvent.doubleClick(myDocs);
 
     // 2. Open My Pictures

@@ -14,6 +14,7 @@ test.describe('Windows XP Simulator - Basic Access Test', () => {
     // 截图保存
     await page.screenshot({ path: 'test-results/homepage.png' });
 
+    // eslint-disable-next-line no-console -- Playwright test logging
     console.log('✓ 页面成功加载');
   });
 
@@ -25,6 +26,7 @@ test.describe('Windows XP Simulator - Basic Access Test', () => {
     const bodyText = await page.textContent('body');
     expect(bodyText?.length).toBeGreaterThan(0);
 
+    // eslint-disable-next-line no-console -- Playwright test logging
     console.log('✓ 页面包含内容');
   });
 });

@@ -1,6 +1,7 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { restoreComponent } from '../utils/WindowFactory';
 import { WindowState, WindowProps } from '../types';
+import { WINDOW_DEFAULTS } from '../constants';
 
 interface WindowManagerContextType {
   windows: WindowState[];
@@ -36,7 +37,7 @@ export const WindowManagerProvider: React.FC<{
     try {
       const saved = localStorage.getItem('xp_open_windows');
       if (saved) {
-        const parsed = JSON.parse(saved);
+        const parsed: WindowState[] = JSON.parse(saved);
         const restored = parsed.map(w => {
           const component = restoreComponent(w.appId, w.componentProps || w.props);
           return component ? { ...w, component } : null;
@@ -50,15 +51,46 @@ export const WindowManagerProvider: React.FC<{
   });
 
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
+  const activeWindowIdRef = useRef(activeWindowId);
   const [zIndexCounter, setZIndexCounter] = useState(10000);
+
+  // Keep ref in sync so focusWindow can read the latest value inside setWindows
+  useEffect(() => {
+    activeWindowIdRef.current = activeWindowId;
+  }, [activeWindowId]);
 
   // Persist windows to localStorage
   useEffect(() => {
     const windowsToSave = windows.map(
-      ({ component, onOpen, onClose, onFocus, badge, progress, isFlashing, ...rest }) => rest
+      ({ component: _component, onOpen: _onOpen, onClose: _onClose, onFocus: _onFocus, badge: _badge, progress: _progress, isFlashing: _isFlashing, ...rest }) => rest
     );
     localStorage.setItem('xp_open_windows', JSON.stringify(windowsToSave));
   }, [windows]);
+
+  // Focus a window
+  const focusWindow = useCallback((id: string) => {
+    setWindows(prev => {
+      const win = prev.find(w => w.id === id);
+      if (!win) return prev;
+
+      if (activeWindowIdRef.current !== id) {
+        win.onFocus?.(id);
+        const newZIndex = Math.max(...prev.map(w => w.zIndex), WINDOW_DEFAULTS.INITIAL_Z_INDEX) + 1;
+        setZIndexCounter(newZIndex);
+        setActiveWindowId(id);
+        return prev.map(w => w.id === id
+          ? { ...w, zIndex: newZIndex, isMinimized: false, isFlashing: false }
+          : w
+        );
+      }
+
+      if (win.isMinimized) {
+        return prev.map(w => w.id === id ? { ...w, isMinimized: false, isFlashing: false } : w);
+      }
+
+      return prev;
+    });
+  }, []);
 
   // Open a new window
   const openWindow = useCallback((appId: string, title: string, component: React.ReactNode, icon?: string, props: WindowProps = {}): string => {
@@ -90,7 +122,7 @@ export const WindowManagerProvider: React.FC<{
       appId,
       title,
       component,
-      componentProps: componentProps || {},  // 使用显式传递的 componentProps
+      componentProps: (componentProps || {}) as Record<string, unknown>,  // 使用显式传递的 componentProps
       icon,
       props: windowProps,
       isMinimized: false,
@@ -114,7 +146,7 @@ export const WindowManagerProvider: React.FC<{
     props.onOpen?.(id);
 
     return id;
-  }, [windows, zIndexCounter]);
+  }, [windows, zIndexCounter, focusWindow]);
 
   // Close a window
   const closeWindow = useCallback((id: string) => {
@@ -157,26 +189,6 @@ export const WindowManagerProvider: React.FC<{
   const moveWindow = useCallback((id: string, left: number, top: number) => {
     setWindows(prev => prev.map(w => w.id === id ? { ...w, left, top } : w));
   }, []);
-
-  // Focus a window
-  const focusWindow = useCallback((id: string) => {
-    const win = windows.find(w => w.id === id);
-    if (!win) return;
-
-    if (activeWindowId !== id) {
-      win.onFocus?.(id);
-      setZIndexCounter(prev => prev + 1);
-      setWindows(prev =>
-        prev.map(w => w.id === id
-          ? { ...w, zIndex: zIndexCounter + 1, isMinimized: false, isFlashing: false }
-          : w
-        )
-      );
-      setActiveWindowId(id);
-    } else if (win.isMinimized) {
-      setWindows(prev => prev.map(w => w.id === id ? { ...w, isMinimized: false, isFlashing: false } : w));
-    }
-  }, [windows, activeWindowId, zIndexCounter]);
 
   // Set window title
   const setWindowTitle = useCallback((id: string, title: string) => {

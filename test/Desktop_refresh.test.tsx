@@ -34,8 +34,8 @@ test('Desktop refresh action triggers visible blink (remount)', async () => {
     </UserSessionProvider>
   );
 
-  // We know "我的电脑" exists on desktop
-  const myComputer = screen.getByText('我的电脑');
+  // We know "My Computer" exists on desktop
+  const myComputer = screen.getByText('My Computer');
   expect(myComputer).toBeDefined();
 
   // Find the container to right click (DesktopContainer)
@@ -49,8 +49,8 @@ test('Desktop refresh action triggers visible blink (remount)', async () => {
   // Right click
   fireEvent.contextMenu(desktopContainer);
 
-  // Click "刷新"
-  const refreshOption = screen.getByText('刷新');
+  // Click "Refresh"
+  const refreshOption = screen.getByText('Refresh');
   fireEvent.click(refreshOption);
 
   // We check for opacity 0
@@ -63,7 +63,7 @@ test('Desktop refresh action triggers visible blink (remount)', async () => {
   });
 
   // Re-query for the element because it might have been remounted (key change)
-  const myComputerNew = screen.getByText('我的电脑');
+  const myComputerNew = screen.getByText('My Computer');
   const iconGridElementNew = myComputerNew.parentElement?.parentElement;
 
   // Now opacity should be 1

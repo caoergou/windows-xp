@@ -163,11 +163,10 @@ interface WindowsMediaPlayerProps {
   windowId?: string;
 }
 
-const WindowsMediaPlayer = ({ windowId }: WindowsMediaPlayerProps) => {
+const WindowsMediaPlayer = ({ windowId: _windowId }: WindowsMediaPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
-  const [duration, setDuration] = useState<number>(300);
-  const [volume, setVolume] = useState<number>(80);
+  const [duration] = useState<number>(300);
 
   const tracks: Track[] = [
     { title: 'Windows XP Startup', artist: 'Microsoft', duration: 300 },

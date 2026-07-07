@@ -16,8 +16,14 @@ vi.mock('../src/components/XPIcon', () => ({
 vi.mock('../src/components/Explorer/ExplorerSidebar', () => ({
     default: () => <div>Sidebar</div>
 }));
+interface ToolbarProps {
+  onBack: () => void;
+  onForward: () => void;
+  onUp: () => void;
+}
+
 vi.mock('../src/components/Explorer/ExplorerToolbar', () => ({
-    default: ({ onBack, onForward, onUp }: any) => (
+    default: ({ onBack, onForward, onUp }: ToolbarProps) => (
         <div>
             <button onClick={onBack}>Back</button>
             <button onClick={onForward}>Forward</button>
@@ -78,7 +84,9 @@ test('Opening a broken folder shows error message', async () => {
   const brokenFolder = screen.getByText('损坏的文件夹');
 
   // Double click to open
-  fireEvent.doubleClick(brokenFolder.closest('div')!); // Click the wrapper
+  const brokenFolderWrapper = brokenFolder.closest('div');
+  if (!brokenFolderWrapper) throw new Error('Broken folder wrapper not found');
+  fireEvent.doubleClick(brokenFolderWrapper); // Click the wrapper
 
   // Check for error modal
   await waitFor(() => {
@@ -108,7 +116,9 @@ test('Opening a broken file shows error message', async () => {
     const brokenFile = screen.getByText('损坏的文件.txt');
 
     // Double click to open
-    fireEvent.doubleClick(brokenFile.closest('div')!); // Click the wrapper
+    const brokenFileWrapper = brokenFile.closest('div');
+    if (!brokenFileWrapper) throw new Error('Broken file wrapper not found');
+    fireEvent.doubleClick(brokenFileWrapper); // Click the wrapper
 
     await waitFor(() => {
        const errorMsg = screen.queryByText(/磁盘文件损坏/);

@@ -50,7 +50,7 @@ export const TrayProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setItems(prev => {
       const exists = prev.some(i => i.id === id);
       if (exists) return prev.map(i => i.id === id ? { ...i, ...config, id } : i);
-      return [...prev, { order: 50, ...config, id }];
+      return [...prev, { id, ...config, order: config.order ?? 50 }];
     });
   }, []);
 

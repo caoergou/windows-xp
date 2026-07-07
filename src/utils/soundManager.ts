@@ -27,8 +27,8 @@ const tone = (
   freq: number,
   dur: number,
   type: OscillatorType = 'sine',
-  vol: number = 0.25,
-  delay: number = 0
+  vol = 0.25,
+  delay = 0
 ) => {
   if (isMuted) return;
   try {

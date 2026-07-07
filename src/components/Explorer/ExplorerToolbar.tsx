@@ -137,7 +137,7 @@ interface ExplorerToolbarProps {
 }
 
 const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
-    onBack, onForward, onUp, onRefresh,
+    onBack, onForward, onUp, onRefresh: _onRefresh,
     canGoBack = false, canGoForward = false, canGoUp = false
 }) => {
     return (

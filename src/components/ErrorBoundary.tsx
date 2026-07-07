@@ -89,7 +89,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     this.setState({ errorInfo });
 
     // Development-only error logging
-    if (process.env.NODE_ENV === 'development') {
+    /* eslint-disable no-console -- intentional dev-only diagnostics */
+    if (import.meta.env?.DEV) {
       const { windowId } = this.props;
 
       console.group('%c🚨 ErrorBoundary: Application crashed', 'color: #c00; font-size: 14px; font-weight: bold;');
@@ -111,6 +112,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       console.groupEnd();
     }
+    /* eslint-enable no-console */
 
     // Call custom error handler
     if (this.props.onError) {
@@ -152,7 +154,7 @@ const ErrorBoundaryFallback: React.FC<{
   error: Error | null;
   errorInfo: React.ErrorInfo | null;
   onReset: () => void;
-}> = ({ error, errorInfo, onReset }) => {
+}> = ({ error, errorInfo, onReset: _onReset }) => {
   const { t } = useTranslation();
 
   return (

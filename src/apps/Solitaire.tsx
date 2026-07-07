@@ -58,7 +58,6 @@ const Foundation = styled.div`
   height: 96px;
   background: rgba(0, 255, 0, 0.3);
   border: 2px solid #00ff00;
-  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,7 +85,6 @@ const Card = styled.div<{ $faceUp?: boolean; $suit?: string; $rank?: string; $zI
   height: 96px;
   background: ${p => p.$faceUp ? (p.$suit === '♠' || p.$suit === '♣' ? '#ffffff' : '#ffffff') : '#0000ff'};
   border: 1px solid #808080;
-  border-radius: 5px;
   display: flex;
   flex-direction: column;
   padding: 4px;
@@ -129,7 +127,6 @@ const StockPile = styled.div`
   height: 96px;
   background: rgba(0, 255, 0, 0.3);
   border: 2px solid #00ff00;
-  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -146,7 +143,6 @@ const WastePile = styled.div`
   height: 96px;
   background: rgba(0, 255, 0, 0.3);
   border: 2px solid #00ff00;
-  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -166,14 +162,14 @@ interface GameState {
   tableaus: CardData[][];
 }
 
-const Solitaire = ({ windowId }: { windowId?: string }) => {
+const Solitaire = ({ windowId: _windowId }: { windowId?: string }) => {
   const [gameState, setGameState] = useState<GameState>(() => {
     const suits = ['♠', '♥', '♣', '♦'];
     const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
     const deck: CardData[] = [];
 
-    for (let suit of suits) {
-      for (let rank of ranks) {
+    for (const suit of suits) {
+      for (const rank of ranks) {
         deck.push({ suit, rank, faceUp: false });
       }
     }
@@ -220,8 +216,8 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
     const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
     const deck: CardData[] = [];
 
-    for (let suit of suits) {
-      for (let rank of ranks) {
+    for (const suit of suits) {
+      for (const rank of ranks) {
         deck.push({ suit, rank, faceUp: false });
       }
     }

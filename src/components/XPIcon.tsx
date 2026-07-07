@@ -13,11 +13,6 @@ import userIcon from '../assets/icons/xp/user.webp';
 import shutdownIcon from '../assets/icons/xp/shutdown.webp';
 import networkIcon from '../assets/icons/xp/network.webp';
 import emailIcon from '../assets/icons/xp/email.webp';
-import searchIcon from '../assets/icons/xp/search.webp';
-import homeIcon from '../assets/icons/xp/home.webp';
-import favoritesIcon from '../assets/icons/xp/favorites.webp';
-import historyIcon from '../assets/icons/xp/history.webp';
-import printIcon from '../assets/icons/xp/print.webp';
 import clockIcon from '../assets/icons/xp/clock.webp';
 import imageIcon from '../assets/icons/xp/image.webp';
 import htmlIcon from '../assets/icons/xp/html.webp';
@@ -57,7 +52,6 @@ import newShortcutIcon from '../assets/icons/new_shortcut.svg';
 import windowsIcon from '../assets/icons/windows.svg';
 import logoutIcon from '../assets/icons/logout.svg';
 import chevronDownIcon from '../assets/icons/chevron_down.svg';
-import stopIcon from '../assets/icons/stop.svg';
 
 // Windows XP authentic toolbar icons from winXP reference project
 import backIconXP from '../assets/windowsIcons/back.png';
@@ -170,7 +164,7 @@ interface XPIconProps {
   [key: string]: unknown;
 }
 
-const XPIcon = ({ name, size = 32, className, color, style, ...rest }: XPIconProps) => {
+const XPIcon = ({ name, size = 32, className, _color, style, ...rest }: XPIconProps) => {
     const iconSrc = IconMap[name] || fileIcon;
 
     return (

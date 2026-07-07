@@ -14,16 +14,6 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const LoginBox = styled.div`
-    width: 100%;
-    max-width: 800px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-`;
-
 const Content = styled.div`
     display: flex;
     align-items: center;

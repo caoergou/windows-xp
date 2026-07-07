@@ -1,8 +1,8 @@
 const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
-  testDir: './test',
-  testMatch: '**/*.spec.js',
+  testDir: './e2e',
+  testMatch: '**/*.spec.{ts,tsx,js}',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -23,7 +23,7 @@ module.exports = defineConfig({
 
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:5174',
+    url: 'http://localhost:5173',
     reuseExistingServer: true,
   },
 });

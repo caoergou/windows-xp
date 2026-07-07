@@ -9,7 +9,9 @@
     "allPrograms": "所有程序",
     "myDocuments": "我的文档",
     "myComputer": "我的电脑",
+    "myMusic": "我的音乐",
     "controlPanel": "控制面板",
+    "printersAndFaxes": "打印机和传真",
     "search": "搜索",
     "help": "帮助和支持",
     "run": "运行...",
@@ -18,6 +20,10 @@
   },
   "taskbar": {
     "start": "开始"
+  },
+  "tray": {
+    "volume": "音量",
+    "networkConnected": "网络已连接"
   },
   "window": {
     "minimize": "最小化",
@@ -123,8 +129,26 @@
     "folder": "文件夹",
     "file": "文件"
   },
+  "common": {
+    "ok": "确定",
+    "cancel": "取消"
+  },
+  "runDialog": {
+    "placeholder": "输入要运行的程序、文件夹、文档或 Internet 资源的名称...",
+    "errorTitle": "Windows XP",
+    "errorMessage": "Windows 找不到文件 '{{command}}'。请确认文件名是否正确，然后再试一次。"
+  },
+  "stickyNote": {
+    "title": "备忘录",
+    "content": "📁 双击打开{{docsPath}}\n\n☑ 电脑密码已设置\n☐ 更新 360 安全卫士\n☐ 用迅雷下载暴风影音\n\n💡 小贴士：\n   右键桌面可刷新"
+  },
+  "altTab": {
+    "switchWindow": "切换窗口"
+  },
   "errors": {
+    "program": "程序",
     "fileNotFound": "找不到文件",
+    "fileNotFoundMessage": "找不到文件 \"{{name}}\"。\n请确认文件名是否正确，然后再试一次。",
     "accessDenied": "拒绝访问",
     "invalidOperation": "无效操作"
   },

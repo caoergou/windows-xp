@@ -3,6 +3,8 @@
  * Uses IndexedDB for file content and localStorage for metadata
  */
 
+import { FileNode } from '../types';
+
 const DB_NAME = 'WindowsXP_FS';
 const DB_VERSION = 1;
 const STORE_NAME = 'fileContents';
@@ -32,7 +34,7 @@ interface FileSystemMetadata {
 }
 
 interface RecycleBinItem {
-  item: Record<string, unknown>;
+  item: FileNode;
   originalPath: string[];
   deletedAt: number;
 }
