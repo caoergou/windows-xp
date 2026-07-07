@@ -9,7 +9,7 @@ module.exports = defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:5173/windows-xp/',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -23,7 +23,8 @@ module.exports = defineConfig({
 
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:5173',
+    url: 'http://localhost:5173/windows-xp/',
+    timeout: 120000,
     reuseExistingServer: true,
   },
 });
