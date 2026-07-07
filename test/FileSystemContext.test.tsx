@@ -23,7 +23,7 @@ describe('FileSystemContext', () => {
 
     const root = result.current.getFile([]);
     expect(root).toBeDefined();
-    expect(root?.type).toBe('root');
+    expect(root?.type).toBe('folder');
   });
 
   test('can create a new file', () => {
@@ -82,5 +82,76 @@ describe('FileSystemContext', () => {
     });
 
     expect(result.current.fs.root.children['delete-test.txt']).toBeUndefined();
+  });
+
+  test('can copy and paste a file', () => {
+    const { result } = renderHook(() => useFileSystem(), { wrapper });
+
+    act(() => {
+      result.current.createFile([], 'copy-source.txt', 'file', {
+        content: 'Copy me',
+      });
+    });
+
+    act(() => {
+      result.current.createFile([], 'dest-folder', 'folder');
+    });
+
+    act(() => {
+      result.current.copyToClipboard([], 'copy-source.txt');
+    });
+
+    expect(result.current.clipboard).toEqual({
+      type: 'copy',
+      sourcePath: [],
+      fileName: 'copy-source.txt',
+    });
+
+    act(() => {
+      result.current.pasteFile(['dest-folder']);
+    });
+
+    expect(result.current.fs.root.children['copy-source.txt']).toBeDefined();
+    expect(result.current.fs.root.children['dest-folder']?.children?.['copy-source.txt']).toBeDefined();
+
+    const sourceFile = result.current.getFile(['copy-source.txt']);
+    const pastedFile = result.current.getFile(['dest-folder', 'copy-source.txt']);
+    expect((sourceFile as any).content).toBe('Copy me');
+    expect((pastedFile as any).content).toBe('Copy me');
+  });
+
+  test('can cut and paste a file', () => {
+    const { result } = renderHook(() => useFileSystem(), { wrapper });
+
+    act(() => {
+      result.current.createFile([], 'cut-source.txt', 'file', {
+        content: 'Move me',
+      });
+    });
+
+    act(() => {
+      result.current.createFile([], 'cut-dest-folder', 'folder');
+    });
+
+    act(() => {
+      result.current.cutFile([], 'cut-source.txt');
+    });
+
+    expect(result.current.clipboard).toEqual({
+      type: 'cut',
+      sourcePath: [],
+      fileName: 'cut-source.txt',
+    });
+
+    act(() => {
+      result.current.pasteFile(['cut-dest-folder']);
+    });
+
+    expect(result.current.fs.root.children['cut-source.txt']).toBeUndefined();
+    expect(result.current.fs.root.children['cut-dest-folder']?.children?.['cut-source.txt']).toBeDefined();
+
+    const movedFile = result.current.getFile(['cut-dest-folder', 'cut-source.txt']);
+    expect((movedFile as any).content).toBe('Move me');
+    expect(result.current.clipboard).toBeNull();
   });
 });

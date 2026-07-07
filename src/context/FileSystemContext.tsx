@@ -45,6 +45,22 @@ if (
   };
 }
 
+// Merge custom file system nodes into the default tree
+const mergeCustomFileSystem = (
+  base: { root: FileNode },
+  custom?: Record<string, FileNode>
+): { root: FileNode } => {
+  if (!custom || Object.keys(custom).length === 0) return base;
+
+  const merged = deepClone(base);
+  if (isContainerNode(merged.root) && merged.root.children) {
+    for (const [key, node] of Object.entries(custom)) {
+      merged.root.children[key] = node;
+    }
+  }
+  return merged;
+};
+
 interface FileSystemContextType {
   fs: { root: FileNode };
   clipboard: ClipboardItem | null;
@@ -112,8 +128,13 @@ export const useFileSystem = (): FileSystemContextType => {
   return context;
 };
 
-export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [fs, setFs] = useState<{ root: FileNode }>(fileSystemWithRecycleBin);
+export const FileSystemProvider: React.FC<{
+  children: React.ReactNode;
+  customFileSystem?: Record<string, FileNode>;
+}> = ({ children, customFileSystem }) => {
+  const [fs, setFs] = useState<{ root: FileNode }>(
+    mergeCustomFileSystem(fileSystemWithRecycleBin, customFileSystem)
+  );
   const [clipboard, setClipboard] = useState<ClipboardItem | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const recycleBinRef = useRef<Record<string, { item: FileNode; originalPath: string[] }>>({});
@@ -127,7 +148,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         const savedRecycleBin = getRecycleBin();
 
         // Start with default filesystem
-        let mergedFs = deepClone(initialFileSystem);
+        const mergedFs = deepClone(initialFileSystem);
 
         // Merge persisted file contents
         if (metadata?.files) {
@@ -180,17 +201,17 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           mergedFs.root.children['回收站'].children = recycleBinItems;
         }
 
-        setFs(mergedFs);
+        setFs(mergeCustomFileSystem(mergedFs, customFileSystem));
       } catch (e) {
         console.error('Failed to load persisted data:', e);
-        setFs(fileSystemWithRecycleBin);
+        setFs(mergeCustomFileSystem(fileSystemWithRecycleBin, customFileSystem));
       } finally {
         setIsLoaded(true);
       }
     };
 
     loadPersistedData();
-  }, []);
+  }, [customFileSystem]);
 
   // Persist filesystem changes
   const persistFs = useCallback(
@@ -240,7 +261,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const getFile = useCallback(
     (path: string[]): FileNode | null => {
       let current = fs.root;
-      for (let part of path) {
+      for (const part of path) {
         if (isContainerNode(current) && current.children?.[part]) {
           current = current.children[part];
         } else {
@@ -262,7 +283,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setFs(prevFs => {
         const newFs = deepClone(prevFs);
         let current = newFs.root;
-        for (let part of path) {
+        for (const part of path) {
           if (isContainerNode(current) && current.children?.[part]) {
             current = current.children[part];
           } else {
@@ -287,7 +308,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setFs(prevFs => {
         const newFs = deepClone(prevFs);
         let current = newFs.root;
-        for (let part of parentPath) {
+        for (const part of parentPath) {
           if (isContainerNode(current) && current.children?.[part]) {
             current = current.children[part];
           } else {
@@ -318,7 +339,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setFs(prevFs => {
         const newFs = deepClone(prevFs);
         let current = newFs.root;
-        for (let part of parentPath) {
+        for (const part of parentPath) {
           if (isContainerNode(current) && current.children?.[part]) {
             current = current.children[part];
           } else {
@@ -345,7 +366,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setFs(prevFs => {
         const newFs = deepClone(prevFs);
         let current = newFs.root;
-        for (let part of parentPath) {
+        for (const part of parentPath) {
           if (isContainerNode(current) && current.children?.[part]) {
             current = current.children[part];
           } else {
@@ -390,7 +411,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         const newFs = deepClone(prevFs);
 
         let sourceParent = newFs.root;
-        for (let part of sourcePath) {
+        for (const part of sourcePath) {
           if (isContainerNode(sourceParent) && sourceParent.children?.[part]) {
             sourceParent = sourceParent.children[part];
           } else {
@@ -403,7 +424,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }
 
         let destinationParent = newFs.root;
-        for (let part of destinationPath) {
+        for (const part of destinationPath) {
           if (isContainerNode(destinationParent) && destinationParent.children?.[part]) {
             destinationParent = destinationParent.children[part];
           } else {
@@ -443,7 +464,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         const newFs = deepClone(prevFs);
 
         let sourceParent = newFs.root;
-        for (let part of sourcePath) {
+        for (const part of sourcePath) {
           if (isContainerNode(sourceParent) && sourceParent.children?.[part]) {
             sourceParent = sourceParent.children[part];
           } else {
@@ -456,7 +477,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }
 
         let destinationParent = newFs.root;
-        for (let part of destinationPath) {
+        for (const part of destinationPath) {
           if (isContainerNode(destinationParent) && destinationParent.children?.[part]) {
             destinationParent = destinationParent.children[part];
           } else {
@@ -492,6 +513,14 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     });
   }, []);
 
+  const cutFile = useCallback((sourcePath: string[], fileName: string) => {
+    setClipboard({
+      type: 'cut',
+      sourcePath,
+      fileName,
+    });
+  }, []);
+
   const pasteFile = useCallback(
     (destinationPath: string[]): boolean => {
       if (!clipboard) return false;
@@ -503,7 +532,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           const newFs = deepClone(prevFs);
 
           let sourceParent = newFs.root;
-          for (let part of sourcePath) {
+          for (const part of sourcePath) {
             if (isContainerNode(sourceParent) && sourceParent.children?.[part]) {
               sourceParent = sourceParent.children[part];
             } else {
@@ -512,7 +541,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           }
 
           let destinationParent = newFs.root;
-          for (let part of destinationPath) {
+          for (const part of destinationPath) {
             if (isContainerNode(destinationParent) && destinationParent.children?.[part]) {
               destinationParent = destinationParent.children[part];
             } else {
