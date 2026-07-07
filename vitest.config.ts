@@ -10,6 +10,10 @@ export default defineConfig({
     exclude: [
       '**/.dev/**',
       '**/node_modules/**',
+      'e2e/**',
+      'test/**/*.spec.ts',
+      'test/**/*.spec.js',
+      'test/**/*.e2e.{ts,tsx}',
     ],
   },
 });

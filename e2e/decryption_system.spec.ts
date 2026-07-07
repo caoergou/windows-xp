@@ -24,7 +24,7 @@ test.describe('Decryption System', () => {
         console.log("Login screen detected");
         // Login
         // Password from src/data/user_config.json
-        await loginInput.fill('shanyue2015');
+        await loginInput.fill('forthe2000s');
         await page.keyboard.press('Enter');
 
         // Wait for Desktop after login
