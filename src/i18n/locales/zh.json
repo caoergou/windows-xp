@@ -186,19 +186,6 @@
       "checkConnection": "检查您的网络连接和代理服务器设置。",
       "notFound": "404 - 找不到网页"
     },
-    "favorites": {
-      "baidu": "百度",
-      "sina": "新浪",
-      "sohu": "搜狐",
-      "netease": "网易",
-      "tencent": "腾讯",
-      "qzone": "QQ空间",
-      "mail163": "163邮箱",
-      "xunleiKankan": "迅雷看看",
-      "verycd": "VeryCD",
-      "tianya": "天涯社区",
-      "tieba": "百度贴吧"
-    },
     "hao123": {
       "searchPlaceholder": "百度一下，你就知道",
       "searchButton": "百度搜索",

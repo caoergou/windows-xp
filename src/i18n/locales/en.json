@@ -186,19 +186,6 @@
       "checkConnection": "Check your network connection and proxy settings.",
       "notFound": "404 - Not Found"
     },
-    "favorites": {
-      "baidu": "Baidu",
-      "sina": "Sina",
-      "sohu": "Sohu",
-      "netease": "NetEase",
-      "tencent": "Tencent",
-      "qzone": "QZone",
-      "mail163": "163 Mail",
-      "xunleiKankan": "Xunlei Kankan",
-      "verycd": "VeryCD",
-      "tianya": "Tianya Club",
-      "tieba": "Baidu Tieba"
-    },
     "hao123": {
       "searchPlaceholder": "Baidu once and you'll know",
       "searchButton": "Baidu Search",
