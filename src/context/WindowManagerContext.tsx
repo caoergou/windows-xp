@@ -51,7 +51,13 @@ export const WindowManagerProvider: React.FC<{
   });
 
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
+  const activeWindowIdRef = useRef(activeWindowId);
   const [zIndexCounter, setZIndexCounter] = useState(10000);
+
+  // Keep ref in sync so focusWindow can read the latest value inside setWindows
+  useEffect(() => {
+    activeWindowIdRef.current = activeWindowId;
+  }, [activeWindowId]);
 
   // Persist windows to localStorage
   useEffect(() => {
@@ -67,7 +73,7 @@ export const WindowManagerProvider: React.FC<{
       const win = prev.find(w => w.id === id);
       if (!win) return prev;
 
-      if (activeWindowId !== id) {
+      if (activeWindowIdRef.current !== id) {
         win.onFocus?.(id);
         const newZIndex = Math.max(...prev.map(w => w.zIndex), WINDOW_DEFAULTS.INITIAL_Z_INDEX) + 1;
         setZIndexCounter(newZIndex);
@@ -84,7 +90,7 @@ export const WindowManagerProvider: React.FC<{
 
       return prev;
     });
-  }, [activeWindowId]);
+  }, []);
 
   // Open a new window
   const openWindow = useCallback((appId: string, title: string, component: React.ReactNode, icon?: string, props: WindowProps = {}): string => {
