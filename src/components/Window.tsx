@@ -356,7 +356,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
           <XPIcon name={icon || 'app_window'} size={16} className="title-icon" color="white" />
           {title || ''}
         </TitleText>
-        <TitleControls isFocus={true}>
+        <TitleControls isFocus={isFocused}>
           <MinimizeBtn
             onClick={e => {
               e.stopPropagation();
@@ -441,7 +441,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
             onClick={() => focusWindow(id)}
           >
             <TitleBar
-              isFocus={true}
+              isFocus={isFocused}
               className="title-bar"
               onDoubleClick={() => isResizable && maximizeWindow(id)}
             >
@@ -449,7 +449,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
                 <XPIcon name={icon || 'app_window'} size={16} className="title-icon" color="white" />
                 {title || ''}
               </TitleText>
-              <TitleControls>
+              <TitleControls isFocus={isFocused}>
                 <MinimizeBtn
                   onClick={e => {
                     e.stopPropagation();
