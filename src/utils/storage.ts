@@ -31,8 +31,10 @@ interface FileSystemMetadata {
   lastModified: number;
 }
 
+import { FileNode } from '../types';
+
 interface RecycleBinItem {
-  item: Record<string, unknown>;
+  item: FileNode;
   originalPath: string[];
   deletedAt: number;
 }

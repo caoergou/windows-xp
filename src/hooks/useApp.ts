@@ -4,6 +4,7 @@ import { useFileSystem } from '../context/FileSystemContext';
 import { useUserSession } from '../context/UserSessionContext';
 import { useTray, TrayItem } from '../context/TrayContext';
 import { sounds } from '../utils/soundManager';
+import { FileNode } from '../types';
 
 /**
  * useApp(windowId) — App 组件与系统交互的唯一入口。
@@ -52,13 +53,13 @@ export function useApp(windowId: string) {
 
     // ── 声音 ────────────────────────────────────────────────────────────────
     sound: {
-      play: (name: string) => sounds[name]?.(),
+      play: (name: string) => (sounds as Record<string, (() => void) | undefined>)[name]?.(),
     },
 
     // ── 文件系统（只读）──────────────────────────────────────────────────
     fs: {
       readFile:    (path: string[]) => getFile(path),
-      readDir:     (path: string[]) => getFile(path)?.children ?? null,
+      readDir:     (path: string[]) => (getFile(path) as { children?: Record<string, FileNode> } | null)?.children ?? null,
       checkAccess,
     },
 

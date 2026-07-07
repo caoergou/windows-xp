@@ -37,7 +37,7 @@ export const WindowManagerProvider: React.FC<{
     try {
       const saved = localStorage.getItem('xp_open_windows');
       if (saved) {
-        const parsed = JSON.parse(saved);
+        const parsed: WindowState[] = JSON.parse(saved);
         const restored = parsed.map(w => {
           const component = restoreComponent(w.appId, w.componentProps || w.props);
           return component ? { ...w, component } : null;
@@ -91,7 +91,7 @@ export const WindowManagerProvider: React.FC<{
       appId,
       title,
       component,
-      componentProps: componentProps || {},  // 使用显式传递的 componentProps
+      componentProps: (componentProps || {}) as Record<string, unknown>,  // 使用显式传递的 componentProps
       icon,
       props: windowProps,
       isMinimized: false,

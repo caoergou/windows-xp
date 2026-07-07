@@ -1,6 +1,5 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import userConfig from '../data/user_config.json';
-import { UserSession } from '../types';
 
 interface UserSessionContextType {
   isLoggedIn: boolean;
@@ -44,6 +43,10 @@ export const UserSessionProvider: React.FC<{
     name: username,
     avatar: userConfig.avatar
   });
+
+  useEffect(() => {
+    setUser(prev => ({ ...prev, name: username }));
+  }, [username]);
 
   const login = (inputPassword: string): boolean => {
     if (inputPassword === password) {
