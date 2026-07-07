@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useFileSystem } from '../context/FileSystemContext';
+import { useApp } from '../hooks/useApp';
 
 const Container = styled.div`
   padding: 4px;
@@ -52,8 +53,13 @@ interface CommandHistory {
   output: string;
 }
 
-const CommandPrompt = () => {
+interface CommandPromptProps {
+  windowId?: string;
+}
+
+const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
   const { getFile } = useFileSystem();
+  const api = useApp(windowId);
   const [output, setOutput] = useState<string>(
     'Microsoft Windows XP [版本 5.1.2600]\n(C) 版权所有 1985-2001 Microsoft Corp.\n\n'
   );
@@ -308,6 +314,7 @@ VOL         显示磁盘卷标和序列号。`;
         );
       } else if (result === '__EXIT__') {
         setOutput(prev => prev + input + '\n');
+        api.window.close();
       } else {
         setOutput(prev => prev + getPrompt() + input + '\n' + result);
       }
