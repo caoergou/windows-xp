@@ -112,8 +112,8 @@ export interface WindowState {
   progress?: number | null;
   isFlashing?: boolean;
   onOpen?: (id: string) => void;
-  onClose?: (id: string) => void;
-  onFocus?: (id: string) => void;
+  onClose?: ((id: string) => void) | null;
+  onFocus?: ((id: string) => void) | null;
 }
 
 /** 窗口配置属性 */
@@ -125,9 +125,9 @@ export interface WindowProps {
   top?: number;
   isMaximized?: boolean;
   resizable?: boolean;
-  onOpen?: (id: string) => void;
-  onClose?: (id: string) => void;
-  onFocus?: (id: string) => void;
+  onOpen?: ((id: string) => void) | null;
+  onClose?: ((id: string) => void) | null;
+  onFocus?: ((id: string) => void) | null;
   [key: string]: unknown;
 }
 
@@ -160,6 +160,7 @@ export interface AppRegistryEntry<TProps = unknown> {
     isMaximized?: boolean;
     resizable?: boolean;
   };
+  defaultWindowProps?: Record<string, unknown>;
   lifecycle?: AppLifecycle;
   associations?: AppAssociation[];
   restore: (props: TProps) => React.ReactNode;

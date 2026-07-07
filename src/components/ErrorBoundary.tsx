@@ -89,7 +89,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     this.setState({ errorInfo });
 
     // Development-only error logging
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env?.DEV) {
       const { windowId } = this.props;
 
       console.group('%c🚨 ErrorBoundary: Application crashed', 'color: #c00; font-size: 14px; font-weight: bold;');

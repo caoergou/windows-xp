@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { AppProviders } from './components/AppProviders';
 import './i18n';

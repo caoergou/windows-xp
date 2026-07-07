@@ -11,6 +11,7 @@ import { APP_REGISTRY } from '../registry/apps';
 import { defaultPlugin } from '../apps/BrowserPlugins';
 import { useModal } from '../context/ModalContext';
 import ContextMenu from './ContextMenu';
+import { WindowState } from '../types';
 
 const TaskbarContainer = styled.div`
     position: absolute;
@@ -686,7 +687,7 @@ const Taskbar = () => {
                             onClick={(e) => { e.stopPropagation(); handleTaskClick(win); }}
                             onContextMenu={(e) => handleTaskContextMenu(e, win)}
                         >
-                            <XPIcon name={win.icon} size={16} className="task-icon" />
+                            <XPIcon name={win.icon || 'app_window'} size={16} className="task-icon" />
                             {win.title}
                             {win.badge != null && <TaskBadge>{win.badge}</TaskBadge>}
                             {win.progress != null && <TaskProgress $pct={win.progress} />}
