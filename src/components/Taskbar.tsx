@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserSession } from '../context/UserSessionContext';
 import { useTray } from '../context/TrayContext';
@@ -361,8 +362,9 @@ const CancelButton = styled.button`
 
 
 const Taskbar = () => {
+    const { t } = useTranslation();
     const { windows, activeWindowId, focusWindow, minimizeWindow, maximizeWindow, openWindow, closeWindow } = useWindowManager();
-    const { logout } = useUserSession();
+    const { logout, user } = useUserSession();
     const { showModal } = useModal();
     const { items: trayItems } = useTray();
     const [startOpen, setStartOpen] = useState<boolean>(false);
@@ -513,7 +515,7 @@ const Taskbar = () => {
                 explorer.restore({ initialPath: [pathOrKey!] }),
                 'recycle_bin', explorer.defaultWindowProps);
         } else if (appName === 'DummyApp') {
-            showModal(pathOrKey || '程序', `找不到文件 "${pathOrKey}"。\n请确认文件名是否正确，然后再试一次。`, 'error');
+            showModal(pathOrKey || t('errors.program'), t('errors.fileNotFoundMessage', { name: pathOrKey }), 'error');
         }
     };
 
@@ -540,7 +542,7 @@ const Taskbar = () => {
                 <TurnOffOverlay>
                     <TurnOffDialog>
                         <DialogHeader>
-                            <span>关闭计算机</span>
+                            <span>{t('shutdown.title')}</span>
                             <XPIcon name="close" size={16} color="white" style={{cursor:'pointer'}} onClick={() => setShowTurnOff(false)}/>
                         </DialogHeader>
                         <DialogBody>
@@ -548,23 +550,23 @@ const Taskbar = () => {
                                 <div className="icon-circle standby">
                                     <XPIcon name="clock" size={16} color="white" />
                                 </div>
-                                <span>待机</span>
+                                <span>{t('shutdown.standBy')}</span>
                             </ActionButton>
                             <ActionButton onClick={performShutdown}>
                                 <div className="icon-circle shutdown">
                                     <XPIcon name="shutdown" size={16} color="white" />
                                 </div>
-                                <span>关闭</span>
+                                <span>{t('shutdown.turnOff')}</span>
                             </ActionButton>
                             <ActionButton onClick={performRestart}>
                                 <div className="icon-circle restart">
                                     <XPIcon name="refresh" size={16} color="white" />
                                 </div>
-                                <span>重新启动</span>
+                                <span>{t('shutdown.restart')}</span>
                             </ActionButton>
                         </DialogBody>
                         <DialogFooter>
-                            <CancelButton onClick={() => setShowTurnOff(false)}>取消</CancelButton>
+                            <CancelButton onClick={() => setShowTurnOff(false)}>{t('shutdown.cancel')}</CancelButton>
                         </DialogFooter>
                     </TurnOffDialog>
                 </TurnOffOverlay>
@@ -576,7 +578,7 @@ const Taskbar = () => {
                          <div className="user-avatar">
                              <XPIcon name="user" size={24} color="white" />
                          </div>
-                         <span>Administrator</span>
+                         <span>{user.name}</span>
                     </StartHeader>
                     <StartBody>
                         <StartLeft>
@@ -591,7 +593,7 @@ const Taskbar = () => {
                             <MenuSeparator />
                             <MenuItem onClick={() => handleLaunch('QQMail')}>
                                 <XPIcon name="email" size={24} className="menu-icon" />
-                                <span>QQ邮箱</span>
+                                <span>QQ Mail</span>
                             </MenuItem>
                             <MenuItem onClick={() => handleLaunch('DummyApp', 'WPS Office')}>
                                 <XPIcon name="wps" size={24} className="menu-icon" />
@@ -615,42 +617,42 @@ const Taskbar = () => {
                             </MenuItem>
                         </StartLeft>
                         <StartRight>
-                            <MenuItem onClick={() => handleLaunch('Explorer', '我的文档')}>
+                            <MenuItem onClick={() => handleLaunch('Explorer', t('startMenu.myDocuments'))}>
                                 <XPIcon name="documents" size={24} className="menu-icon" />
-                                <span>我的文档</span>
+                                <span>{t('startMenu.myDocuments')}</span>
                             </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('Explorer', '我的电脑')}>
+                            <MenuItem onClick={() => handleLaunch('Explorer', t('startMenu.myComputer'))}>
                                 <XPIcon name="computer" size={24} className="menu-icon" />
-                                <span>我的电脑</span>
+                                <span>{t('startMenu.myComputer')}</span>
                             </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('Explorer', '我的音乐')}>
+                            <MenuItem onClick={() => handleLaunch('Explorer', t('startMenu.myMusic'))}>
                                 <XPIcon name="folder" size={24} className="menu-icon" />
-                                <span>我的音乐</span>
+                                <span>{t('startMenu.myMusic')}</span>
                             </MenuItem>
                             <MenuSeparator />
-                            <MenuItem onClick={() => handleLaunch('DummyApp', '控制面板')}>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', t('startMenu.controlPanel'))}>
                                 <XPIcon name="control_panel" size={24} className="menu-icon" />
-                                <span>控制面板</span>
+                                <span>{t('startMenu.controlPanel')}</span>
                             </MenuItem>
-                            <MenuItem onClick={() => handleLaunch('DummyApp', '打印机和传真')}>
+                            <MenuItem onClick={() => handleLaunch('DummyApp', t('startMenu.printersAndFaxes'))}>
                                 <XPIcon name="printer" size={24} className="menu-icon" />
-                                <span>打印机和传真</span>
+                                <span>{t('startMenu.printersAndFaxes')}</span>
                             </MenuItem>
                             <MenuSeparator />
-                            <MenuItem onClick={() => handleLaunch('Recycle Bin', '回收站')}>
+                            <MenuItem onClick={() => handleLaunch('Recycle Bin', t('desktop.recycleBin'))}>
                                 <XPIcon name="recycle_bin" size={24} className="menu-icon" />
-                                <span>回收站</span>
+                                <span>{t('desktop.recycleBin')}</span>
                             </MenuItem>
                         </StartRight>
                     </StartBody>
                     <StartFooter>
                         <button onClick={handleLogout}>
                             <XPIcon name="logout" size={16} className="footer-icon" color="white" />
-                            注销
+                            {t('startMenu.logOff')}
                         </button>
                         <button onClick={handleTurnOffRequest}>
                             <XPIcon name="shutdown" size={16} className="footer-icon" color="white" />
-                            关闭计算机
+                            {t('startMenu.turnOff')}
                         </button>
                     </StartFooter>
                 </StartMenu>
@@ -662,7 +664,7 @@ const Taskbar = () => {
                     className={startOpen ? 'active' : ''}
                 >
                     <XPIcon name="windows" size={20} className="start-icon" color="white" />
-                    开始
+                    {t('taskbar.start')}
                 </StartButton>
                 <Divider />
                 <TaskItems>
@@ -682,7 +684,6 @@ const Taskbar = () => {
                     ))}
                 </TaskItems>
                 <SystemTray>
-                    {/* 动态托盘图标（由各应用通过 TrayContext 注册）*/}
                     {trayItems.map(item => (
                         <div
                             key={item.id}
@@ -693,17 +694,15 @@ const Taskbar = () => {
                             <XPIcon name={item.icon} size={16} color="white" />
                         </div>
                     ))}
-                    {/* 固定系统托盘图标 */}
                     <div
                         style={{ marginRight: '8px', display: 'flex', alignItems: 'center' }}
-                        title="音量"
+                        title={t('tray.volume')}
                     >
                         <XPIcon name="sound" size={16} color="white" />
                     </div>
-                    {/* QQ tray icon is now dynamically registered by QQLogin component */}
                     <div
                         style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}
-                        title="网络已连接"
+                        title={t('tray.networkConnected')}
                     >
                          <XPIcon name="network" size={16} color="white" />
                     </div>
@@ -720,10 +719,10 @@ const Taskbar = () => {
                     visible={true}
                     onClose={() => { setTaskContextMenu(null); setSelectedWindow(null); }}
                     menuItems={[
-                        { label: selectedWindow?.isMaximized ? '恢复' : '最大化', action: () => handleTaskMenuAction('maximize') },
-                        { label: '最小化', action: () => handleTaskMenuAction('minimize') },
+                        { label: selectedWindow?.isMaximized ? t('window.restore') : t('window.maximize'), action: () => handleTaskMenuAction('maximize') },
+                        { label: t('window.minimize'), action: () => handleTaskMenuAction('minimize') },
                         { type: 'separator' },
-                        { label: '关闭', action: () => handleTaskMenuAction('close') }
+                        { label: t('window.close'), action: () => handleTaskMenuAction('close') }
                     ]}
                 />
             )}

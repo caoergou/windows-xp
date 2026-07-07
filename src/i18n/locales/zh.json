@@ -9,7 +9,9 @@
     "allPrograms": "所有程序",
     "myDocuments": "我的文档",
     "myComputer": "我的电脑",
+    "myMusic": "我的音乐",
     "controlPanel": "控制面板",
+    "printersAndFaxes": "打印机和传真",
     "search": "搜索",
     "help": "帮助和支持",
     "run": "运行...",
@@ -18,6 +20,10 @@
   },
   "taskbar": {
     "start": "开始"
+  },
+  "tray": {
+    "volume": "音量",
+    "networkConnected": "网络已连接"
   },
   "window": {
     "minimize": "最小化",
@@ -124,7 +130,9 @@
     "file": "文件"
   },
   "errors": {
+    "program": "程序",
     "fileNotFound": "找不到文件",
+    "fileNotFoundMessage": "找不到文件 \"{{name}}\"。\n请确认文件名是否正确，然后再试一次。",
     "accessDenied": "拒绝访问",
     "invalidOperation": "无效操作"
   },

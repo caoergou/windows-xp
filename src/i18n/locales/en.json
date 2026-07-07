@@ -9,7 +9,9 @@
     "allPrograms": "All Programs",
     "myDocuments": "My Documents",
     "myComputer": "My Computer",
+    "myMusic": "My Music",
     "controlPanel": "Control Panel",
+    "printersAndFaxes": "Printers and Faxes",
     "search": "Search",
     "help": "Help and Support",
     "run": "Run...",
@@ -18,6 +20,10 @@
   },
   "taskbar": {
     "start": "Start"
+  },
+  "tray": {
+    "volume": "Volume",
+    "networkConnected": "Network connected"
   },
   "window": {
     "minimize": "Minimize",
@@ -124,7 +130,9 @@
     "file": "File"
   },
   "errors": {
+    "program": "Program",
     "fileNotFound": "File not found",
+    "fileNotFoundMessage": "Windows cannot find \"{{name}}\". Check the spelling and try again.",
     "accessDenied": "Access denied",
     "invalidOperation": "Invalid operation"
   },
