@@ -303,6 +303,29 @@
       "about": "About Internet Explorer(A)"
     }
   },
+  "qq": {
+    "title": "QQ",
+    "login": {
+      "accountLabel": "QQ Number:",
+      "accountPlaceholder": "QQ/Phone/Email",
+      "passwordLabel": "Password:",
+      "passwordPlaceholder": "Enter password",
+      "captchaLabel": "Captcha:",
+      "captchaPlaceholder": "Enter captcha",
+      "rememberPassword": "Remember password",
+      "autoLogin": "Auto-login",
+      "invisibleLogin": "Invisible login",
+      "loginButton": "Login",
+      "cancelButton": "Cancel",
+      "register": "Register",
+      "forgotPassword": "Forgot password",
+      "appeal": "Appeal ban",
+      "enterCaptcha": "Please enter the captcha",
+      "captchaError": "Incorrect captcha, please try again",
+      "loggingIn": "Logging in…",
+      "versionTooOld": "Your QQ version is too old to log in.\nPlease download the latest version from the official website."
+    }
+  },
   "photoViewer": {
     "noImageSelected": "No image selected",
     "view": "View"

@@ -303,6 +303,29 @@
       "about": "关于 Internet Explorer(A)"
     }
   },
+  "qq": {
+    "title": "QQ",
+    "login": {
+      "accountLabel": "QQ号：",
+      "accountPlaceholder": "QQ号/手机号/邮箱",
+      "passwordLabel": "密  码：",
+      "passwordPlaceholder": "请输入密码",
+      "captchaLabel": "验证码：",
+      "captchaPlaceholder": "请输入验证码",
+      "rememberPassword": "记住密码",
+      "autoLogin": "自动登录",
+      "invisibleLogin": "隐身登录",
+      "loginButton": "登  录",
+      "cancelButton": "取  消",
+      "register": "注册新账号",
+      "forgotPassword": "找回密码",
+      "appeal": "申诉解封",
+      "enterCaptcha": "请输入验证码",
+      "captchaError": "验证码错误，请重新输入",
+      "loggingIn": "正在登录…",
+      "versionTooOld": "您使用的 QQ 版本过低，无法登录。\n请前往官网下载最新版本的 QQ。"
+    }
+  },
   "photoViewer": {
     "noImageSelected": "未选择图片",
     "view": "查看"
