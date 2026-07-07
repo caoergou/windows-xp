@@ -177,7 +177,7 @@
       "360 Safe": {
         "type": "app_shortcut",
         "name": "360 Safe Guard",
-        "app": "DummyApp",
+        "app": "SafeGuard360",
         "icon": "360safe"
       },
       "Baofeng Player": {
@@ -189,7 +189,7 @@
       "Thunder": {
         "type": "app_shortcut",
         "name": "Thunder",
-        "app": "DummyApp",
+        "app": "Thunder",
         "icon": "thunder"
       },
       "WPS Office": {

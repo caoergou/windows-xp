@@ -1,13 +1,24 @@
 // @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../hooks/useApp';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useTray } from '../context/TrayContext';
 
 // ─── 样式 ─────────────────────────────────────────────────────────────────────
 
-const Wrap = styled.div`
+const shake = keyframes`
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-7px); }
+  30% { transform: translateX(7px); }
+  45% { transform: translateX(-5px); }
+  60% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+  90% { transform: translateX(3px); }
+`;
+
+const Wrap = styled.div<{ $shake?: boolean }>`
   width: 100%;
   height: 100%;
   display: flex;
@@ -18,6 +29,7 @@ const Wrap = styled.div`
   user-select: none;
   position: relative;
   overflow: hidden;
+  animation: ${p => p.$shake ? css`${shake} 0.45s ease-in-out` : 'none'};
 
   &::before {
     content: '';
@@ -226,6 +238,11 @@ const Btn = styled.button<{ $primary?: boolean }>`
   position: relative;
   overflow: hidden;
 
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
   ${p => p.$primary ? `
     background: linear-gradient(to bottom, #7cb3f0 0%, #5a93e0 50%, #3a7bd5 100%);
     color: white;
@@ -257,6 +274,41 @@ const Btn = styled.button<{ $primary?: boolean }>`
       box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
     }
   `}
+`;
+
+const LoadingOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(220, 232, 247, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 10;
+  font-size: 13px;
+  color: #3a7bd5;
+  text-shadow: 1px 1px 1px rgba(255,255,255,0.8);
+`;
+
+const LoadingPenguin = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4a90d9 0%, #2a6bc5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  animation: qqBounce 0.6s ease-in-out infinite;
+
+  @keyframes qqBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
 `;
 
 const Footer = styled.div`
@@ -292,6 +344,7 @@ interface QQLoginProps {
 }
 
 const QQLogin = ({ windowId }: QQLoginProps) => {
+  const { t } = useTranslation();
   const api = useApp(windowId);
   const { closeWindow } = useWindowManager();
   const { register, unregister } = useTray();
@@ -299,8 +352,11 @@ const QQLogin = ({ windowId }: QQLoginProps) => {
   const [password, setPassword] = useState<string>('');
   const [rememberPwd, setRememberPwd] = useState<boolean>(true);
   const [autoLogin, setAutoLogin] = useState<boolean>(false);
+  const [invisibleLogin, setInvisibleLogin] = useState<boolean>(false);
   const [captcha, setCaptcha] = useState<string>('');
   const [captchaImg, setCaptchaImg] = useState<string>('');
+  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
+  const [shake, setShake] = useState<boolean>(false);
 
   // Generate a simple captcha
   const generateCaptcha = () => {
@@ -334,26 +390,37 @@ const QQLogin = ({ windowId }: QQLoginProps) => {
   const handleLogin = async () => {
     if (!captcha) {
       await api.dialog.alert({
-        title: 'QQ',
-        message: '请输入验证码',
+        title: t('qq.title'),
+        message: t('qq.login.enterCaptcha'),
         type: 'error',
       });
       return;
     }
     if (captcha.toUpperCase() !== captchaImg) {
       await api.dialog.alert({
-        title: 'QQ',
-        message: '验证码错误，请重新输入',
+        title: t('qq.title'),
+        message: t('qq.login.captchaError'),
         type: 'error',
       });
       generateCaptcha();
       setCaptcha('');
       return;
     }
-    // 不管输什么都提示版本过旧
+
+    // 进入登录等待：播放敲门声并展示 1.5s 加载态
+    setIsLoggingIn(true);
+    api.sound.play('qqKnock');
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setIsLoggingIn(false);
+
+    // 彩蛋：无论输入什么，都提示版本过旧，并触发窗口抖动
+    setShake(true);
+    api.sound.play('error');
+    setTimeout(() => setShake(false), 450);
+
     await api.dialog.alert({
-      title: 'QQ',
-      message: '您使用的 QQ 版本过低，无法登录。\n请前往官网下载最新版本的 QQ。',
+      title: t('qq.title'),
+      message: t('qq.login.versionTooOld'),
       type: 'error',
     });
   };
@@ -365,7 +432,13 @@ const QQLogin = ({ windowId }: QQLoginProps) => {
   };
 
   return (
-    <Wrap>
+    <Wrap $shake={shake}>
+      {isLoggingIn && (
+        <LoadingOverlay>
+          <LoadingPenguin>🐧</LoadingPenguin>
+          <span>{t('qq.login.loggingIn')}</span>
+        </LoadingOverlay>
+      )}
       <Header>
         <Penguin />
         <HeaderText>
@@ -380,34 +453,34 @@ const QQLogin = ({ windowId }: QQLoginProps) => {
         </AvatarRow>
 
         <FieldRow>
-          <label>QQ号：</label>
+          <label>{t('qq.login.accountLabel')}</label>
           <input
             type="text"
             value={qqNum}
             onChange={e => setQqNum(e.target.value)}
-            placeholder="QQ号/手机号/邮箱"
+            placeholder={t('qq.login.accountPlaceholder')}
             maxLength={20}
           />
         </FieldRow>
 
         <FieldRow>
-          <label>密&emsp;码：</label>
+          <label>{t('qq.login.passwordLabel')}</label>
           <input
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            placeholder="请输入密码"
+            placeholder={t('qq.login.passwordPlaceholder')}
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
           />
         </FieldRow>
 
         <FieldRow>
-          <label>验证码：</label>
+          <label>{t('qq.login.captchaLabel')}</label>
           <input
             type="text"
             value={captcha}
             onChange={e => setCaptcha(e.target.value.toUpperCase())}
-            placeholder="请输入验证码"
+            placeholder={t('qq.login.captchaPlaceholder')}
             maxLength={4}
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
           />
@@ -420,26 +493,30 @@ const QQLogin = ({ windowId }: QQLoginProps) => {
         <CheckRow>
           <label>
             <input type="checkbox" checked={rememberPwd} onChange={e => setRememberPwd(e.target.checked)} />
-            记住密码
+            {t('qq.login.rememberPassword')}
           </label>
           <label>
             <input type="checkbox" checked={autoLogin} onChange={e => setAutoLogin(e.target.checked)} />
-            自动登录
+            {t('qq.login.autoLogin')}
+          </label>
+          <label>
+            <input type="checkbox" checked={invisibleLogin} onChange={e => setInvisibleLogin(e.target.checked)} />
+            {t('qq.login.invisibleLogin')}
           </label>
         </CheckRow>
 
         <Divider />
 
         <ButtonRow>
-          <Btn $primary onClick={handleLogin}>登&emsp;录</Btn>
-          <Btn onClick={handleCancel}>取&emsp;消</Btn>
+          <Btn $primary onClick={handleLogin} disabled={isLoggingIn}>{t('qq.login.loginButton')}</Btn>
+          <Btn onClick={handleCancel} disabled={isLoggingIn}>{t('qq.login.cancelButton')}</Btn>
         </ButtonRow>
       </Body>
 
       <Footer>
-        <a>注册新账号</a>
-        <a>找回密码</a>
-        <a>申诉解封</a>
+        <a>{t('qq.login.register')}</a>
+        <a>{t('qq.login.forgotPassword')}</a>
+        <a>{t('qq.login.appeal')}</a>
       </Footer>
     </Wrap>
   );
