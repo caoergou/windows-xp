@@ -326,6 +326,57 @@
       "versionTooOld": "Your QQ version is too old to log in.\nPlease download the latest version from the official website."
     }
   },
+  "safeGuard360": {
+    "title": "360 Safe Guard",
+    "version": "4.0 Final",
+    "healthScore": "Health Score",
+    "toolbar": {
+      "computerCheckup": "Checkup",
+      "trojanScan": "Trojan Scan",
+      "pluginCleanup": "Plugin Cleanup",
+      "vulnerabilityFix": "Vulnerability Fix"
+    },
+    "status": {
+      "firewall": "Trojan Firewall",
+      "vulnerabilities": "Vulnerabilities",
+      "viruses": "Viruses Blocked",
+      "on": "On"
+    },
+    "progress": {
+      "realtimeProtection": "Realtime Protection"
+    },
+    "scan": {
+      "quickScan": "Scan Now",
+      "scanning": "Scanning…",
+      "resultSafe": "Your computer is very safe. Keep it up!"
+    },
+    "footer": {
+      "lastScan": "Last Scan",
+      "never": "Never",
+      "updateTime": "Definitions Date"
+    }
+  },
+  "thunder": {
+    "title": "Thunder 5",
+    "version": "5.9 Stable",
+    "newTask": "New",
+    "start": "Start",
+    "pause": "Pause",
+    "delete": "Delete",
+    "columnName": "Name",
+    "columnProgress": "Progress",
+    "columnSpeed": "Speed",
+    "columnStatus": "Status",
+    "columnSize": "Size",
+    "statusWaiting": "Waiting",
+    "statusDownloading": "Downloading",
+    "statusPaused": "Paused",
+    "statusCompleted": "Completed",
+    "statusError": "Error",
+    "empty": "No download tasks",
+    "statusCount": "{{count}} task(s)",
+    "statusSpeed": "Download Speed"
+  },
   "photoViewer": {
     "noImageSelected": "No image selected",
     "view": "View"

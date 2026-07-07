@@ -326,6 +326,57 @@
       "versionTooOld": "您使用的 QQ 版本过低，无法登录。\n请前往官网下载最新版本的 QQ。"
     }
   },
+  "safeGuard360": {
+    "title": "360 安全卫士",
+    "version": "版本 5.0.0.1001",
+    "toolbar": {
+      "computerCheckup": "电脑体检",
+      "trojanScan": "木马查杀",
+      "pluginCleanup": "插件清理",
+      "vulnerabilityFix": "漏洞修复"
+    },
+    "healthScore": "健康指数",
+    "status": {
+      "firewall": "木马防火墙",
+      "on": "已开启",
+      "vulnerabilities": "系统漏洞",
+      "viruses": "木马病毒"
+    },
+    "progress": {
+      "realtimeProtection": "实时防护"
+    },
+    "scan": {
+      "quickScan": "电脑体检",
+      "scanning": "正在体检…",
+      "resultSafe": "您的电脑很安全，请继续保持！"
+    },
+    "footer": {
+      "lastScan": "上次体检",
+      "never": "从未",
+      "updateTime": "特征库日期"
+    }
+  },
+  "thunder": {
+    "title": "迅雷 5",
+    "version": "5.9 稳定版",
+    "newTask": "新建",
+    "start": "开始",
+    "pause": "暂停",
+    "delete": "删除",
+    "columnName": "文件名",
+    "columnProgress": "进度",
+    "columnSpeed": "速度",
+    "columnStatus": "状态",
+    "columnSize": "大小",
+    "statusWaiting": "等待中",
+    "statusDownloading": "下载中",
+    "statusPaused": "已暂停",
+    "statusCompleted": "已完成",
+    "statusError": "失败",
+    "empty": "暂无下载任务",
+    "statusCount": "共 {{count}} 个任务",
+    "statusSpeed": "下载速度"
+  },
   "photoViewer": {
     "noImageSelected": "未选择图片",
     "view": "查看"
