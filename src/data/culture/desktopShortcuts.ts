@@ -9,11 +9,11 @@ import { DesktopShortcut } from './types';
  */
 const DESKTOP_SHORTCUTS_BY_LOCALE: Record<string, DesktopShortcut[]> = {
   zh: [
-    { id: '360safe', name: '360 Safe Guard', app: 'SafeGuard360', icon: '360safe' },
-    { id: 'baofeng', name: 'Baofeng Media Player', app: 'DummyApp', icon: 'baofeng' },
-    { id: 'thunder', name: 'Thunder', app: 'Thunder', icon: 'thunder' },
+    { id: '360safe', name: '360安全卫士', app: 'SafeGuard360', icon: '360safe' },
+    { id: 'baofeng', name: '暴风影音', app: 'BaofengPlayer', icon: 'baofeng' },
+    { id: 'thunder', name: '迅雷', app: 'Thunder', icon: 'thunder' },
     { id: 'wps', name: 'WPS Office', app: 'DummyApp', icon: 'wps' },
-    { id: 'kugou', name: 'Kugou Music', app: 'DummyApp', icon: 'kugou' },
+    { id: 'kugou', name: '酷狗音乐', app: 'KugouMusic', icon: 'kugou' },
   ],
   en: [
     { id: 'norton', name: 'Norton AntiVirus', app: 'DummyApp', icon: '360safe' },

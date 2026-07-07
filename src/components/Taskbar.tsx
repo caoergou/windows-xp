@@ -499,6 +499,15 @@ const Taskbar = () => {
             showModal(t('startMenu.allPrograms'), t('apps.comingSoon'), 'info');
         } else if (appName === 'DummyApp') {
             showModal(pathOrKey || t('errors.program'), t('errors.fileNotFoundMessage', { name: pathOrKey }), 'error');
+        } else if (appName in APP_REGISTRY) {
+            // 通用注册应用启动（暴风影音、酷狗音乐等）
+            const app = APP_REGISTRY[appName];
+            const existing = windows.find(w => w.appId === app.id);
+            if (existing && app.window?.singleton) {
+                focusWindow(existing.id);
+            } else {
+                openWindow(app.id, app.name, app.restore({}), app.icon, app.window);
+            }
         }
     };
 
