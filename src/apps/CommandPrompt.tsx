@@ -91,11 +91,11 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
     }
 
     if (path.startsWith('\\') || path.startsWith('/')) {
-      const parts = path.split(/[\\\/]/).filter(Boolean);
+      const parts = path.split(/[\\/]/).filter(Boolean);
       return ['root', ...parts];
     }
 
-    const parts = path.split(/[\\\/]/).filter(Boolean);
+    const parts = path.split(/[\\/]/).filter(Boolean);
     return [...currentPath, ...parts];
   };
 
