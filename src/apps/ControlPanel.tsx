@@ -67,10 +67,8 @@ const ControlPanel = () => {
     { name: '系统', icon: '⚙️' },
   ];
 
-  const handleCategoryClick = (name: string) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Opening category:', name);
-    }
+  const handleCategoryClick = (_name: string) => {
+    // Category click handler reserved for future navigation
   };
 
   return (
