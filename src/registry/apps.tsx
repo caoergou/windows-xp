@@ -5,6 +5,7 @@ import Notepad from '../apps/Notepad';
 import PhotoViewer from '../apps/PhotoViewer';
 import FileProperties from '../components/FileProperties';
 import QQLogin from '../apps/QQLogin';
+import SafeGuard360 from '../apps/SafeGuard360';
 import Calculator from '../apps/Calculator';
 import HelpAndSupport from '../apps/HelpAndSupport';
 import RunDialog from '../apps/RunDialog';
@@ -16,6 +17,7 @@ import MicrosoftPaint from '../apps/MicrosoftPaint';
 import Minesweeper from '../apps/Minesweeper';
 import Solitaire from '../apps/Solitaire';
 import WindowsMediaPlayer from '../apps/WindowsMediaPlayer';
+import Thunder from '../apps/Thunder';
 import { AppRegistryEntry, AppAssociation, FileNode, FileContentNode, isFileContentNode } from '../types';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
@@ -194,6 +196,18 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     restore: restoreApp(QQLogin),
   },
 
+  SafeGuard360: {
+    id:     'SafeGuard360',
+    name:   '360 Safe Guard',
+    icon:   '360safe',
+    window: { width: 500, height: 360, resizable: false, singleton: true },
+    lifecycle: {},
+    associations: [
+      { appField: 'SafeGuard360', getProps: () => ({}) },
+    ],
+    restore: restoreApp(SafeGuard360),
+  },
+
   Calculator: {
     id:     'Calculator',
     name:   '计算器',
@@ -309,6 +323,18 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
       { appField: 'WindowsMediaPlayer', getProps: () => ({}) },
     ],
     restore: restoreApp(WindowsMediaPlayer),
+  },
+
+  Thunder: {
+    id:     'Thunder',
+    name:   '迅雷',
+    icon:   'thunder',
+    window: { width: 560, height: 400 },
+    lifecycle: {},
+    associations: [
+      { appField: 'Thunder', getProps: () => ({}) },
+    ],
+    restore: restoreApp(Thunder),
   },
 
   DummyApp: {
