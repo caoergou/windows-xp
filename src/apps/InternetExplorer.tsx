@@ -347,6 +347,7 @@ interface BrowsingHistoryItem {
 interface FavoriteItem {
     name: string;
     url: string;
+    nameKey?: string;
 }
 
 interface InternetExplorerProps {
@@ -415,13 +416,19 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
             if (savedFavorites) {
                 setFavorites(JSON.parse(savedFavorites));
             } else {
-                // 默认收藏夹
+                // 默认收藏夹：2000s 中文网民记忆链接
                 const defaultFavorites = [
-                    { name: '百度', url: 'http://www.baidu.com' },
-                    { name: '新浪', url: 'http://www.sina.com.cn' },
-                    { name: '搜狐', url: 'http://www.sohu.com' },
-                    { name: '网易', url: 'http://www.163.com' },
-                    { name: '腾讯', url: 'http://www.qq.com' }
+                    { name: '百度', nameKey: 'internetExplorer.favorites.baidu', url: 'http://www.baidu.com' },
+                    { name: '新浪', nameKey: 'internetExplorer.favorites.sina', url: 'http://www.sina.com.cn' },
+                    { name: '搜狐', nameKey: 'internetExplorer.favorites.sohu', url: 'http://www.sohu.com' },
+                    { name: '网易', nameKey: 'internetExplorer.favorites.netease', url: 'http://www.163.com' },
+                    { name: '腾讯', nameKey: 'internetExplorer.favorites.tencent', url: 'http://www.qq.com' },
+                    { name: 'QQ空间', nameKey: 'internetExplorer.favorites.qzone', url: 'http://qzone.qq.com' },
+                    { name: '163邮箱', nameKey: 'internetExplorer.favorites.mail163', url: 'http://mail.163.com' },
+                    { name: '迅雷看看', nameKey: 'internetExplorer.favorites.xunleiKankan', url: 'http://kankan.xunlei.com' },
+                    { name: 'VeryCD', nameKey: 'internetExplorer.favorites.verycd', url: 'http://www.verycd.com' },
+                    { name: '天涯社区', nameKey: 'internetExplorer.favorites.tianya', url: 'http://www.tianya.cn' },
+                    { name: '百度贴吧', nameKey: 'internetExplorer.favorites.tieba', url: 'http://tieba.baidu.com' }
                 ];
                 setFavorites(defaultFavorites);
                 localStorage.setItem('xp_ie_favorites', JSON.stringify(defaultFavorites));
@@ -752,7 +759,7 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({ url: initialUrl, ht
                             {favorites.map((item, index) => (
                                 <FavoritesItem key={index}>
                                     <span className="name" onClick={() => navigateTo(item.url)}>
-                                        {item.name}
+                                        {item.nameKey ? t(item.nameKey) : item.name}
                                     </span>
                                     <span
                                         className="delete"
