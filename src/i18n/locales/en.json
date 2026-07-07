@@ -380,9 +380,46 @@
     "statusCount": "{{count}} task(s)",
     "statusSpeed": "Download Speed"
   },
+  "kugouMusic": {
+    "title": "Kugou Music",
+    "version": "2010 Edition",
+    "playlist": "Playlist",
+    "search": "Search",
+    "onlineMusic": "Online Music",
+    "columnTitle": "Title",
+    "columnArtist": "Artist",
+    "columnDuration": "Duration",
+    "previous": "Previous",
+    "next": "Next",
+    "playPause": "Play/Pause",
+    "volume": "Volume",
+    "nowPlaying": "Now playing: {{title}} - {{artist}}",
+    "stopped": "Stopped",
+    "statusCount": "{{count}} song(s)",
+    "statusPlaying": "Playing",
+    "statusReady": "Ready"
+  },
   "photoViewer": {
     "noImageSelected": "No image selected",
     "view": "View"
+  },
+  "baofengPlayer": {
+    "title": "Baofeng Player",
+    "version": "3.6 Smart Edition",
+    "brand": "Baofeng Player",
+    "openFileHint": "Click to open file",
+    "playing": "Now playing",
+    "play": "Play",
+    "pause": "Pause",
+    "stop": "Stop",
+    "fullscreen": "Full Screen",
+    "playlist": "Playlist",
+    "volumeLabel": "Volume",
+    "status": {
+      "ready": "Ready",
+      "playing": "Playing",
+      "paused": "Paused"
+    }
   },
   "window": {
     "minimize": "Minimize",

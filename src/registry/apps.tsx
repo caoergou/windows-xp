@@ -18,6 +18,8 @@ import Minesweeper from '../apps/Minesweeper';
 import Solitaire from '../apps/Solitaire';
 import WindowsMediaPlayer from '../apps/WindowsMediaPlayer';
 import Thunder from '../apps/Thunder';
+import BaofengPlayer from '../apps/BaofengPlayer';
+import KugouMusic from '../apps/KugouMusic';
 import { AppRegistryEntry, AppAssociation, FileNode, FileContentNode, isFileContentNode } from '../types';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
@@ -335,6 +337,30 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
       { appField: 'Thunder', getProps: () => ({}) },
     ],
     restore: restoreApp(Thunder),
+  },
+
+  KugouMusic: {
+    id:     'KugouMusic',
+    name:   '酷狗音乐',
+    icon:   'kugou',
+    window: { width: 520, height: 400, resizable: true, singleton: true },
+    lifecycle: {},
+    associations: [
+      { appField: 'KugouMusic', getProps: () => ({}) },
+    ],
+    restore: restoreApp(KugouMusic),
+  },
+
+  BaofengPlayer: {
+    id:     'BaofengPlayer',
+    name:   '暴风影音',
+    icon:   'baofeng',
+    window: { width: 600, height: 450, resizable: true, singleton: true },
+    lifecycle: {},
+    associations: [
+      { appField: 'BaofengPlayer', getProps: () => ({}) },
+    ],
+    restore: restoreApp(BaofengPlayer),
   },
 
   DummyApp: {
