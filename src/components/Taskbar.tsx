@@ -31,7 +31,7 @@ const StartButton = styled.button`
     width: 100px;
     background: linear-gradient(to bottom, #3E864E 0%, #57A965 10%, #3E864E 100%);
     border: none;
-    border-radius: 0 10px 10px 0;
+    border-radius: 0;
     color: white;
     font-style: italic;
     font-weight: bold;
@@ -84,7 +84,7 @@ const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
     background: ${props => props.$active ? '#1E52B7' : '#3980F4'};
     color: white;
     border: 1px solid #1646A1;
-    border-radius: 3px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     padding: 0 5px;
@@ -160,7 +160,7 @@ const StartMenu = styled.div`
     width: 300px;
     background: white;
     border: 1px solid #003399;
-    border-radius: 5px 5px 0 0;
+    border-radius: 0;
     z-index: 10000;
     box-shadow: 2px -2px 5px rgba(0,0,0,0.5);
     display: flex;
@@ -173,7 +173,7 @@ const StartHeader = styled.div`
     display: flex;
     align-items: center;
     padding: 0 10px;
-    border-radius: 5px 5px 0 0;
+    border-radius: 0;
     
     .user-avatar {
         margin-right: 10px;
@@ -284,7 +284,7 @@ const TurnOffOverlay = styled.div`
 const TurnOffDialog = styled.div`
     width: 300px;
     background: #003399; /* XP Blue header color as base */
-    border-radius: 3px;
+    border-radius: 0;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
     display: flex;
     flex-direction: column;
@@ -323,7 +323,7 @@ const ActionButton = styled.div`
     .icon-circle {
         width: 32px;
         height: 32px;
-        border-radius: 50%;
+        border-radius: 0;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -650,6 +650,7 @@ const Taskbar = () => {
                             key={win.id}
                             $active={activeWindowId === win.id && !win.isMinimized}
                             $flashing={win.isFlashing}
+                            title={win.title}
                             onClick={(e) => { e.stopPropagation(); handleTaskClick(win); }}
                             onContextMenu={(e) => handleTaskContextMenu(e, win)}
                         >
