@@ -359,7 +359,9 @@ const QQLogin = ({ windowId }: QQLoginProps) => {
   };
 
   const handleCancel = () => {
-    closeWindow(windowId!);
+    if (windowId) {
+      closeWindow(windowId);
+    }
   };
 
   return (

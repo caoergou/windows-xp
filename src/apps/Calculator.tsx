@@ -93,7 +93,7 @@ interface CalculatorProps {
   windowId?: string;
 }
 
-const Calculator = ({ windowId }: CalculatorProps) => {
+const Calculator = ({ windowId: _windowId }: CalculatorProps) => {
   const [display, setDisplay]     = useState<string>('0');
   const [operand, setOperand]     = useState<number | null>(null);   // 等待计算的第一个操作数
   const [operator, setOperator]   = useState<string | null>(null);   // 当前运算符
@@ -101,7 +101,7 @@ const Calculator = ({ windowId }: CalculatorProps) => {
   const [memory, setMemory]       = useState<number>(0);
   const [hasMemory, setHasMemory] = useState<boolean>(false);
 
-  const currentVal = () => parseFloat(display);
+  const currentVal = useCallback(() => parseFloat(display), [display]);
 
   // 输入数字
   const inputDigit = useCallback((d: number) => {
@@ -165,8 +165,8 @@ const Calculator = ({ windowId }: CalculatorProps) => {
   // 按下运算符
   const pressOperator = useCallback((op: string) => {
     const val = currentVal();
-    if (operator && !waitNext) {
-      const result = compute(operand!, operator, val);
+    if (operator && operand !== null && !waitNext) {
+      const result = compute(operand, operator, val);
       const formatted = formatResult(result);
       setDisplay(formatted);
       setOperand(parseFloat(formatted));
@@ -175,18 +175,18 @@ const Calculator = ({ windowId }: CalculatorProps) => {
     }
     setOperator(op);
     setWaitNext(true);
-  }, [display, operand, operator, waitNext, compute]);
+  }, [currentVal, operand, operator, waitNext, compute]);
 
   // 等号
   const pressEquals = useCallback(() => {
-    if (operator === null) return;
+    if (operator === null || operand === null) return;
     const val = currentVal();
-    const result = compute(operand!, operator, val);
+    const result = compute(operand, operator, val);
     setDisplay(formatResult(result));
     setOperand(null);
     setOperator(null);
     setWaitNext(true);
-  }, [display, operand, operator, compute]);
+  }, [currentVal, operand, operator, compute]);
 
   // 正负切换
   const toggleSign = useCallback(() => {
@@ -196,7 +196,7 @@ const Calculator = ({ windowId }: CalculatorProps) => {
   // 百分比
   const percent = useCallback(() => {
     setDisplay(formatResult(currentVal() / 100));
-  }, [display]);
+  }, [currentVal]);
 
   // 倒数
   const reciprocal = useCallback(() => {
@@ -204,7 +204,7 @@ const Calculator = ({ windowId }: CalculatorProps) => {
     if (v === 0) { setDisplay('除数不能为零'); setWaitNext(true); return; }
     setDisplay(formatResult(1 / v));
     setWaitNext(true);
-  }, [display]);
+  }, [currentVal]);
 
   // 平方根
   const sqrt = useCallback(() => {
@@ -212,7 +212,7 @@ const Calculator = ({ windowId }: CalculatorProps) => {
     if (v < 0) { setDisplay('输入无效'); setWaitNext(true); return; }
     setDisplay(formatResult(Math.sqrt(v)));
     setWaitNext(true);
-  }, [display]);
+  }, [currentVal]);
 
   // 内存操作
   const memClear = () => { setMemory(0); setHasMemory(false); };

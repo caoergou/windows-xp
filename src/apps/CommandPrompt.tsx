@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useApp } from '../hooks/useApp';
+import { isFileContentNode } from '../types';
 
 const Container = styled.div`
   padding: 4px;
@@ -78,11 +79,6 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
   const getPrompt = () => {
     const pathStr = currentPath.slice(1).join('\\');
     return `C:\\${pathStr}>`;
-  };
-
-  const getCurrentFolder = () => {
-    const folder = getFile(currentPath);
-    return folder;
   };
 
   const resolvePath = (path: string): string[] => {
@@ -182,7 +178,8 @@ VOL         显示磁盘卷标和序列号。`;
             result += `${formatDate()}    <DIR>          ${name}\n`;
             dirCount++;
           } else {
-            const size = (item as any).content?.length || 0;
+            const fileContent = isFileContentNode(item) ? item.content : undefined;
+            const size = fileContent?.length || 0;
             result += `${formatDate()}             ${formatSize(size)} ${name}\n`;
             fileCount++;
             totalSize += size;
@@ -240,7 +237,11 @@ VOL         显示磁盘卷标和序列号。`;
           return `拒绝访问。\n`;
         }
 
-        return ((file as any).content || '') + '\n';
+        if (!isFileContentNode(file) || file.content === undefined) {
+          return `无法读取此文件类型。\n`;
+        }
+
+        return (file.content || '') + '\n';
       }
 
       case 'echo': {
