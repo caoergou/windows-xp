@@ -6,7 +6,6 @@ import { FileNode, ClipboardItem, isContainerNode, isFileContentNode } from '../
 import {
   saveFileContent,
   getFileContent,
-  deleteFileContent,
   saveMetadata,
   getMetadata,
   saveRecycleBin,

@@ -16,7 +16,7 @@ import MicrosoftPaint from '../apps/MicrosoftPaint';
 import Minesweeper from '../apps/Minesweeper';
 import Solitaire from '../apps/Solitaire';
 import WindowsMediaPlayer from '../apps/WindowsMediaPlayer';
-import { AppRegistryEntry, AppAssociation, FileNode } from '../types';
+import { AppRegistryEntry, AppAssociation, FileNode, FileContentNode, isFileContentNode } from '../types';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 
@@ -125,10 +125,16 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       {
         appField: 'InternetExplorer',
-        getProps: (item: FileNode) =>
-          (item as any).isHtmlContent
-            ? { html: (item as any).content }
-            : { url: (item as any).content || (item as any).url || 'about:blank' },
+        getProps: (item: FileNode) => {
+          if (!isFileContentNode(item)) {
+            return { url: 'about:blank' };
+          }
+          if ('isHtmlContent' in item && item.isHtmlContent) {
+            return { html: item.content ?? '' };
+          }
+          const itemWithUrl = item as FileContentNode & { url?: string };
+          return { url: item.content || itemWithUrl.url || 'about:blank' };
+        },
       },
     ],
     restore: restoreApp(InternetExplorer),
@@ -143,7 +149,10 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       {
         appField: 'Notepad',
-        getProps: (item: FileNode) => ({ content: (item as any).content ?? '', readOnly: (item as any).readOnly }),
+        getProps: (item: FileNode) => ({
+          content: isFileContentNode(item) ? (item.content ?? '') : '',
+          readOnly: isFileContentNode(item) ? item.readOnly : false,
+        }),
       },
     ],
     restore: restoreApp(Notepad),
@@ -158,7 +167,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       {
         appField: 'PhotoViewer',
-        getProps: (item: FileNode) => ({ src: (item as any).content, fileItem: item }),
+        getProps: (item: FileNode) => ({ src: isFileContentNode(item) ? item.content : undefined, fileItem: item }),
       },
     ],
     restore: restoreApp(PhotoViewer),
