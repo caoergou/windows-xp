@@ -235,12 +235,12 @@ const IEToolbar: React.FC<IEToolbarProps> = ({
     onSearch,
     onFavorites,
     onHistory,
-    onPrint,
-    onHelp,
+    _onPrint,
+    _onHelp,
     canBack = false,
     canForward = false,
     showFavorites = false,
-    showHistory = false,
+    _showHistory = false,
     isLoading = false
 }) => {
     const { t } = useTranslation();

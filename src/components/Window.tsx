@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
 import { ResizableBox } from 'react-resizable';
@@ -336,7 +336,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
   };
 
   // 将 windowId 注入到 App 组件，使其可通过 useApp(windowId) 访问系统 API
-  const injectedComponent = React.cloneElement(component as React.ReactElement<any>, { windowId: id });
+  const injectedComponent = React.cloneElement(component as React.ReactElement<{ windowId?: string }>, { windowId: id });
 
   const isFocused = id === activeWindowId;
 

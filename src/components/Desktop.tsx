@@ -1,6 +1,6 @@
 // @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 // TODO: refine Desktop types; disabled due to extensive styled-components / FileNode union issues
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../context/FileSystemContext';
@@ -134,7 +134,7 @@ const SYSTEM_ICONS = new Set(['我的电脑', '我的文档', '回收站', '网�
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
   const { fs, moveFile, deleteFile, renameFile } = useFileSystem();
-  const { windows, openWindow, focusWindow } = useWindowManager();
+  const { windows, openWindow } = useWindowManager();
   const { showModal, showConfirm, showInput } = useModal();
 
   const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; iconKey: string | null }>({ visible: false, x: 0, y: 0, iconKey: null });

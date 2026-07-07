@@ -371,12 +371,10 @@ const Taskbar = () => {
     const { items: trayItems } = useTray();
     const [startOpen, setStartOpen] = useState<boolean>(false);
     const [showTurnOff, setShowTurnOff] = useState<boolean>(false);
-    const [qqContextMenu, setQqContextMenu] = useState<{ x: number; y: number } | null>(null);
     const [taskContextMenu, setTaskContextMenu] = useState<{ x: number; y: number } | null>(null);
     const [selectedWindow, setSelectedWindow] = useState<WindowState | null>(null);
     const startMenuRef = useRef<HTMLDivElement>(null);
     const startButtonRef = useRef<HTMLButtonElement>(null);
-    const qqContextMenuRef = useRef<HTMLDivElement>(null);
     const taskContextMenuRef = useRef<HTMLDivElement>(null);
 
     const handleLogout = () => {
@@ -403,11 +401,6 @@ const Taskbar = () => {
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (qqContextMenu &&
-                qqContextMenuRef.current &&
-                !qqContextMenuRef.current.contains(event.target as Node)) {
-                setQqContextMenu(null);
-            }
             if (taskContextMenu &&
                 taskContextMenuRef.current &&
                 !taskContextMenuRef.current.contains(event.target as Node)) {
@@ -417,7 +410,7 @@ const Taskbar = () => {
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [qqContextMenu, taskContextMenu]);
+    }, [taskContextMenu]);
 
     const handleTaskContextMenu = (e: React.MouseEvent, win: WindowState) => {
         e.preventDefault();
@@ -445,35 +438,6 @@ const Taskbar = () => {
             case 'restore':
                 maximizeWindow(selectedWindow.id); // 切换最大化/恢复状态
                 break;
-        }
-    };
-
-    const handleQqContextMenu = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setQqContextMenu({ x: e.clientX, y: e.clientY });
-    };
-
-    const handleQqMenuAction = (action: string) => {
-        setQqContextMenu(null);
-        const ie = APP_REGISTRY.InternetExplorer;
-        const qq = APP_REGISTRY.QQLogin;
-        if (action === 'open') {
-            openWindow('QQLogin', 'QQ', qq.restore({}), 'qq', qq.window);
-        } else if (action === 'space') {
-            openWindow('qzone-browser', 'QQ空间',
-                ie.restore({ url: 'http://qzone.qq.com', plugin: defaultPlugin }),
-                'qzone', { width: 1000, height: 700, isMaximized: true });
-        } else if (action === 'mail') {
-            openWindow('qqmail-browser', 'QQ邮箱',
-                ie.restore({ url: 'http://mail.qq.com', plugin: defaultPlugin }),
-                ie.icon, { width: 1000, height: 700 });
-        } else if (action === 'exit') {
-            windows.forEach(w => {
-                if (['QQLogin', 'qzone-browser', 'qqmail-browser'].includes(w.appId)) {
-                    closeWindow(w.id);
-                }
-            });
         }
     };
 
@@ -509,12 +473,14 @@ const Taskbar = () => {
                 ie.restore({ url: 'http://mail.qq.com', plugin: defaultPlugin }),
                 ie.icon, { width: 1000, height: 700 });
         } else if (appName === 'Explorer') {
-            openWindow('Explorer', pathOrKey!,
-                explorer.restore({ initialPath: [pathOrKey!] }),
+            if (!pathOrKey) return;
+            openWindow('Explorer', pathOrKey,
+                explorer.restore({ initialPath: [pathOrKey] }),
                 'folder', explorer.defaultWindowProps);
         } else if (appName === 'Recycle Bin') {
-            openWindow('Explorer', pathOrKey!,
-                explorer.restore({ initialPath: [pathOrKey!] }),
+            if (!pathOrKey) return;
+            openWindow('Explorer', pathOrKey,
+                explorer.restore({ initialPath: [pathOrKey] }),
                 'recycle_bin', explorer.defaultWindowProps);
         } else if (appName === 'RunDialog') {
             openWindow('RunDialog', t('startMenu.run'),
@@ -700,7 +666,7 @@ const Taskbar = () => {
                             key={item.id}
                             style={{ marginRight: '8px', display: 'flex', alignItems: 'center', cursor: item.onClick ? 'pointer' : 'default' }}
                             title={item.tooltip || ''}
-                            onClick={item.onClick ? (e) => { e.stopPropagation(); item.onClick!(); } : undefined}
+                            onClick={item.onClick ? (e) => { e.stopPropagation(); item.onClick?.(); } : undefined}
                         >
                             <XPIcon name={item.icon} size={16} color="white" />
                         </div>
