@@ -155,16 +155,7 @@ function App({ initialLanguage }: AppProps = {}) {
     };
     window.addEventListener('contextmenu', handleContextMenu);
 
-    const art = `
- __          __ _             _                     _____                    _  _
- \\ \\        / /(_)           | |                   / ____|                  (_)| |
-  \\ \\  /\\  / /  _  _ __    __| |  ___ __      __  | (___    ___   ___  _   _  _ __  _  _
-   \\ \\/  \\/ /  | || '_ \\  / _\` | / _ \\\\ \\ /\\ / /   \\___ \\  / _ \\ / __|| | | || '__|| || |_
-    \\  /\\  /   | || | | || (_| || (_) |\\ V  V /    ____) ||  __/| (__ | |_| || |   | || |_
-     \\/  \\/    |_||_| |_| \\__,_| \\___/  \\_/\\_/    |_____/  \\___| \\___| \\__,_||_|   |_| \\__|
-       `;
-
-     return () => {
+    return () => {
       window.removeEventListener('contextmenu', handleContextMenu);
     };
   }, []);

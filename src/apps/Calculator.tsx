@@ -46,18 +46,6 @@ const ButtonGroup = styled.div`
   flex: 1;
 `;
 
-const Buttons4Col = styled.div`
-  display: flex;
-  flex: 4;
-  gap: 4px;
-`;
-
-const ButtonCol = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 4px;
-`;
-
 const Btn = styled.button<{
   $wide?: boolean;
   $op?: boolean;
