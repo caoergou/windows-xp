@@ -28,7 +28,6 @@ const CategoryItem = styled.div`
   padding: 12px;
   background: linear-gradient(to bottom, #ffffff, #ece9d8);
   border: 1px solid #7f9db9;
-  border-radius: 4px;
   cursor: pointer;
   text-align: center;
 

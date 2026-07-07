@@ -25,7 +25,6 @@ const Input = styled.input`
   flex: 1;
   padding: 4px;
   border: 1px solid #7f9db9;
-  border-radius: 2px;
   font-size: 12px;
 
   &:focus {
@@ -47,7 +46,6 @@ const Button = styled.button`
   font-size: 12px;
   background: linear-gradient(to bottom, #ffffff, #ece9d8);
   border: 1px solid #7f9db9;
-  border-radius: 2px;
   cursor: pointer;
 
   &:hover {

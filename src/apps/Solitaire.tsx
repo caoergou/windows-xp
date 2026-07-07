@@ -58,7 +58,6 @@ const Foundation = styled.div`
   height: 96px;
   background: rgba(0, 255, 0, 0.3);
   border: 2px solid #00ff00;
-  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,7 +85,6 @@ const Card = styled.div<{ $faceUp?: boolean; $suit?: string; $rank?: string; $zI
   height: 96px;
   background: ${p => p.$faceUp ? (p.$suit === '♠' || p.$suit === '♣' ? '#ffffff' : '#ffffff') : '#0000ff'};
   border: 1px solid #808080;
-  border-radius: 5px;
   display: flex;
   flex-direction: column;
   padding: 4px;
@@ -129,7 +127,6 @@ const StockPile = styled.div`
   height: 96px;
   background: rgba(0, 255, 0, 0.3);
   border: 2px solid #00ff00;
-  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -146,7 +143,6 @@ const WastePile = styled.div`
   height: 96px;
   background: rgba(0, 255, 0, 0.3);
   border: 2px solid #00ff00;
-  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;

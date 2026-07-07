@@ -449,8 +449,7 @@ const Desktop: React.FC = () => {
               onDrop={(e) => handleDropOnFolder(e, key)}
               style={dragOver === key && item.type === 'folder' ? {
                 background: 'rgba(193, 210, 238, 0.5)',
-                border: '1px dashed #316AC5',
-                borderRadius: '4px'
+                border: '1px dashed #316AC5'
               } : undefined}
             >
               <div className="icon-wrapper">

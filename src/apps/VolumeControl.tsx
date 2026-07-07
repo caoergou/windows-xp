@@ -35,7 +35,6 @@ const Slider = styled.input`
   height: 6px;
   background: linear-gradient(to bottom, #ffffff, #ece9d8);
   border: 1px solid #7f9db9;
-  border-radius: 3px;
   outline: none;
 
   &::-webkit-slider-thumb {
@@ -44,7 +43,6 @@ const Slider = styled.input`
     height: 16px;
     background: linear-gradient(to bottom, #ffffff, #ece9d8);
     border: 1px solid #7f9db9;
-    border-radius: 50%;
     cursor: pointer;
 
     &:hover {
@@ -57,7 +55,6 @@ const Slider = styled.input`
     height: 16px;
     background: linear-gradient(to bottom, #ffffff, #ece9d8);
     border: 1px solid #7f9db9;
-    border-radius: 50%;
     cursor: pointer;
   }
 `;
