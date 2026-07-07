@@ -129,15 +129,12 @@ const RunDialog = ({ windowId = '' }: RunDialogProps) => {
       return;
     }
 
-    // Treat as a folder/document path and open Explorer
-    api.openWindow(
-      'Explorer',
-      trimmed,
-      APP_REGISTRY.Explorer.restore({ initialPath: [trimmed] }),
-      'folder',
-      APP_REGISTRY.Explorer.window
-    );
-    api.window.close();
+    // Unknown command — show error instead of pretending to open a path
+    api.dialog.alert({
+      title: t('runDialog.errorTitle', 'Windows XP'),
+      message: t('runDialog.errorMessage', { command: trimmed, defaultValue: `Windows cannot find '{{command}}'. Make sure you typed the name correctly, and then try again.` }),
+      type: 'error',
+    });
   };
 
   const handleCancel = () => {
