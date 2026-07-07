@@ -352,7 +352,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
         className="title-bar"
         onDoubleClick={() => isResizable && maximizeWindow(id)}
       >
-        <TitleText>
+        <TitleText data-testid="window-title">
           <XPIcon name={icon || 'app_window'} size={16} className="title-icon" color="white" />
           {title || ''}
         </TitleText>
@@ -445,7 +445,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
               className="title-bar"
               onDoubleClick={() => isResizable && maximizeWindow(id)}
             >
-              <TitleText>
+              <TitleText data-testid="window-title">
                 <XPIcon name={icon || 'app_window'} size={16} className="title-icon" color="white" />
                 {title || ''}
               </TitleText>

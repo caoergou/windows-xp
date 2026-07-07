@@ -441,7 +441,7 @@ const SafeGuard360: React.FC<SafeGuard360Props> = () => {
         )}
 
         <ActionArea>
-          <ScanButton $scanning={scanning} onClick={startScan} disabled={scanning}>
+          <ScanButton data-testid="safe-guard-scan-button" $scanning={scanning} onClick={startScan} disabled={scanning}>
             {scanning ? t('safeGuard360.scan.scanning') : t('safeGuard360.scan.quickScan')}
           </ScanButton>
         </ActionArea>

@@ -565,7 +565,7 @@ const Taskbar = () => {
             )}
 
             {startOpen && (
-                <StartMenu ref={startMenuRef}>
+                <StartMenu ref={startMenuRef} data-testid="start-menu">
                     <StartHeader>
                          <div className="user-avatar">
                              <XPIcon name="user" size={24} color="white" />
@@ -589,7 +589,11 @@ const Taskbar = () => {
                             </MenuItem>
                             <MenuSeparator />
                             {startMenuApps.map(app => (
-                                <MenuItem key={app.id} onClick={() => handleLaunch(app.action, app.action === 'DummyApp' ? t(app.nameKey) : undefined)}>
+                                <MenuItem
+                                    key={app.id}
+                                    data-testid={`start-menu-${app.id}`}
+                                    onClick={() => handleLaunch(app.action, app.action === 'DummyApp' ? t(app.nameKey) : undefined)}
+                                >
                                     <XPIcon name={app.icon} size={24} className="menu-icon" />
                                     <span>{t(app.nameKey)}</span>
                                 </MenuItem>
@@ -653,6 +657,7 @@ const Taskbar = () => {
             <TaskbarContainer data-testid="taskbar" onClick={() => setStartOpen(false)}>
                 <StartButton
                     ref={startButtonRef}
+                    data-testid="start-button"
                     onClick={(e) => { e.stopPropagation(); toggleStart(); }}
                     className={startOpen ? 'active' : ''}
                 >
