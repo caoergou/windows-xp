@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { expect, test, vi } from 'vitest';
+import { expect, test } from 'vitest';
 import PhotoViewer from '../src/apps/PhotoViewer';
 import FileProperties from '../src/components/FileProperties';
 import { WindowManagerProvider } from '../src/context/WindowManagerContext';
@@ -7,22 +7,6 @@ import { ModalProvider } from '../src/context/ModalContext';
 import { FileSystemProvider } from '../src/context/FileSystemContext';
 import { UserSessionProvider } from '../src/context/UserSessionContext';
 import { TrayProvider } from '../src/context/TrayContext';
-import initialFileSystem from '../src/data/filesystem.json';
-
-// Mock context functions
-const mockOpenWindow = vi.fn();
-const mockCloseWindow = vi.fn();
-
-const mockWindowManager = {
-    openWindow: mockOpenWindow,
-    closeWindow: mockCloseWindow,
-    windows: [],
-    activeWindowId: null,
-    minimizeWindow: vi.fn(),
-    maximizeWindow: vi.fn(),
-    resizeWindow: vi.fn(),
-    focusWindow: vi.fn(),
-};
 
 
 test('PhotoViewer renders image and properties button when fileItem provided', () => {

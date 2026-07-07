@@ -15,12 +15,14 @@ test.describe('Decryption System', () => {
     try {
         await page.waitForSelector('input[type="password"], [data-testid="taskbar"]', { timeout: 10000 });
     } catch (e) {
+        // eslint-disable-next-line no-console -- Playwright test logging
         console.log("Timeout waiting for initial screen");
     }
 
     // Check if we are at login screen
     const loginInput = page.locator('input[type="password"]');
     if (await loginInput.count() > 0 && await loginInput.isVisible()) {
+        // eslint-disable-next-line no-console -- Playwright test logging
         console.log("Login screen detected");
         // Login
         // Password from src/data/user_config.json
@@ -30,6 +32,7 @@ test.describe('Decryption System', () => {
         // Wait for Desktop after login
         await page.waitForSelector('[data-testid="taskbar"]', { timeout: 20000 });
     } else {
+        // eslint-disable-next-line no-console -- Playwright test logging
         console.log("Already at desktop or login input not found");
     }
   });
