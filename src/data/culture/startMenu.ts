@@ -10,8 +10,8 @@ const START_MENU_APPS_BY_LOCALE: Record<string, StartMenuApp[]> = {
     { id: 'qqmail', action: 'QQMail', nameKey: 'startMenu.apps.qqMail', icon: 'email' },
     { id: 'wps', action: 'DummyApp', nameKey: 'startMenu.apps.wpsOffice', icon: 'wps' },
     { id: 'baofeng', action: 'BaofengPlayer', nameKey: 'startMenu.apps.baofeng', icon: 'baofeng' },
-    { id: 'thunder', action: 'DummyApp', nameKey: 'startMenu.apps.thunder', icon: 'thunder' },
-    { id: '360safe', action: 'DummyApp', nameKey: 'startMenu.apps.safeGuard', icon: '360safe' },
+    { id: 'thunder', action: 'Thunder', nameKey: 'startMenu.apps.thunder', icon: 'thunder' },
+    { id: '360safe', action: 'SafeGuard360', nameKey: 'startMenu.apps.safeGuard', icon: '360safe' },
     { id: 'kugou', action: 'KugouMusic', nameKey: 'startMenu.apps.kugou', icon: 'kugou' },
   ],
   en: [
