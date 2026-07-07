@@ -3,7 +3,6 @@ import styled, { keyframes } from 'styled-components';
 import i18n from './i18n';
 import { useUserSession } from './context/UserSessionContext';
 import { useWindowManager } from './context/WindowManagerContext';
-import { ModalProvider } from './context/ModalContext';
 import LoginScreen from './components/LoginScreen';
 import Desktop from './components/Desktop';
 import BootScreen from './components/BootScreen';
@@ -251,39 +250,37 @@ function App({ initialLanguage }: AppProps = {}) {
   }
 
   return (
-    <ModalProvider>
-      <Container>
-        <MobileWarning />
-        {bootPhase === 'BOOTING' ? (
-          <BootScreen onComplete={handleBootComplete} />
-        ) : (
-          isLoggedIn ? <Desktop /> : <LoginScreen />
-        )}
-        {altTabVisible && windows.length > 0 && (
-          <AltTabOverlay>
-            <AltTabTitle>切换窗口</AltTabTitle>
-            <AltTabItems>
-              {windows.map((win, idx) => (
-                <AltTabItem
-                  key={win.id}
-                  $active={idx === altTabIndex}
-                  onClick={() => {
-                    focusWindow(win.id);
-                    setAltTabVisible(false);
-                  }}
-                >
-                  <XPIcon name={win.icon || 'app_window'} size={32} />
-                  <span>{win.title}</span>
-                </AltTabItem>
-              ))}
-            </AltTabItems>
-            {windows[altTabIndex] && (
-              <AltTabTitle>{windows[altTabIndex].title}</AltTabTitle>
-            )}
-          </AltTabOverlay>
-        )}
-      </Container>
-    </ModalProvider>
+    <Container>
+      <MobileWarning />
+      {bootPhase === 'BOOTING' ? (
+        <BootScreen onComplete={handleBootComplete} />
+      ) : (
+        isLoggedIn ? <Desktop /> : <LoginScreen />
+      )}
+      {altTabVisible && windows.length > 0 && (
+        <AltTabOverlay>
+          <AltTabTitle>切换窗口</AltTabTitle>
+          <AltTabItems>
+            {windows.map((win, idx) => (
+              <AltTabItem
+                key={win.id}
+                $active={idx === altTabIndex}
+                onClick={() => {
+                  focusWindow(win.id);
+                  setAltTabVisible(false);
+                }}
+              >
+                <XPIcon name={win.icon || 'app_window'} size={32} />
+                <span>{win.title}</span>
+              </AltTabItem>
+            ))}
+          </AltTabItems>
+          {windows[altTabIndex] && (
+            <AltTabTitle>{windows[altTabIndex].title}</AltTabTitle>
+          )}
+        </AltTabOverlay>
+      )}
+    </Container>
   );
 }
 

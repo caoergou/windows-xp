@@ -297,7 +297,7 @@ interface WindowProps {
 }
 
 const Window: React.FC<WindowProps> = ({ windowState }) => {
-  const { closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow, moveWindow } =
+  const { closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow, moveWindow, activeWindowId } =
     useWindowManager();
   const { t } = useTranslation();
   const {
@@ -344,15 +344,17 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
   // 将 windowId 注入到 App 组件，使其可通过 useApp(windowId) 访问系统 API
   const injectedComponent = React.cloneElement(component as React.ReactElement, { windowId: id });
 
+  const isFocused = id === activeWindowId;
+
   const content = (
     <WindowContainer
-      isFocus={true}
+      isFocus={isFocused}
       ref={nodeRef}
       style={isMaximized ? style : { ...style, width: '100%', height: '100%' }}
       onClick={() => focusWindow(id)}
     >
       <TitleBar
-        isFocus={true}
+        isFocus={isFocused}
         className="title-bar"
         onDoubleClick={() => isResizable && maximizeWindow(id)}
       >

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { restoreComponent } from '../utils/WindowFactory';
 import { WindowState, WindowProps } from '../types';
+import { WINDOW_DEFAULTS } from '../constants';
 
 interface WindowManagerContextType {
   windows: WindowState[];
@@ -160,23 +161,28 @@ export const WindowManagerProvider: React.FC<{
 
   // Focus a window
   const focusWindow = useCallback((id: string) => {
-    const win = windows.find(w => w.id === id);
-    if (!win) return;
+    setWindows(prev => {
+      const win = prev.find(w => w.id === id);
+      if (!win) return prev;
 
-    if (activeWindowId !== id) {
-      win.onFocus?.(id);
-      setZIndexCounter(prev => prev + 1);
-      setWindows(prev =>
-        prev.map(w => w.id === id
-          ? { ...w, zIndex: zIndexCounter + 1, isMinimized: false, isFlashing: false }
+      if (activeWindowId !== id) {
+        win.onFocus?.(id);
+        const newZIndex = Math.max(...prev.map(w => w.zIndex), WINDOW_DEFAULTS.INITIAL_Z_INDEX) + 1;
+        setZIndexCounter(newZIndex);
+        setActiveWindowId(id);
+        return prev.map(w => w.id === id
+          ? { ...w, zIndex: newZIndex, isMinimized: false, isFlashing: false }
           : w
-        )
-      );
-      setActiveWindowId(id);
-    } else if (win.isMinimized) {
-      setWindows(prev => prev.map(w => w.id === id ? { ...w, isMinimized: false, isFlashing: false } : w));
-    }
-  }, [windows, activeWindowId, zIndexCounter]);
+        );
+      }
+
+      if (win.isMinimized) {
+        return prev.map(w => w.id === id ? { ...w, isMinimized: false, isFlashing: false } : w);
+      }
+
+      return prev;
+    });
+  }, [activeWindowId]);
 
   // Set window title
   const setWindowTitle = useCallback((id: string, title: string) => {

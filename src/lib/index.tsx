@@ -1,9 +1,5 @@
 import React from 'react';
-import App from '../App';
-import { FileSystemProvider } from '../context/FileSystemContext';
-import { WindowManagerProvider } from '../context/WindowManagerContext';
-import { UserSessionProvider } from '../context/UserSessionContext';
-import { ModalProvider } from '../context/ModalContext';
+import { AppProviders } from '../components/AppProviders';
 import { FileNode } from '../types';
 import '../i18n';
 import 'xp.css/dist/XP.css';
@@ -44,15 +40,12 @@ export const WindowsXP: React.FC<WindowsXPProps> = ({
   customFileSystem = null
 }) => {
   return (
-    <UserSessionProvider username={username} password={password}>
-      <FileSystemProvider customFileSystem={customFileSystem}>
-        <WindowManagerProvider>
-          <ModalProvider>
-            <App initialLanguage={language} />
-          </ModalProvider>
-        </WindowManagerProvider>
-      </FileSystemProvider>
-    </UserSessionProvider>
+    <AppProviders
+      username={username}
+      password={password}
+      language={language}
+      customFileSystem={customFileSystem || undefined}
+    />
   );
 };
 
