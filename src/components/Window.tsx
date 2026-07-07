@@ -4,12 +4,11 @@ import Draggable from 'react-draggable';
 import { ResizableBox } from 'react-resizable';
 import { useWindowManager } from '../context/WindowManagerContext';
 import XPIcon from './XPIcon';
-import ContextMenu from './ContextMenu';
 import ErrorBoundary from './ErrorBoundary';
 import 'react-resizable/css/styles.css';
 import { useTranslation } from 'react-i18next';
 import { WindowState } from '../types';
-import { WINDOW_DEFAULTS, COLORS } from '../constants';
+import { WINDOW_DEFAULTS } from '../constants';
 
 const WindowContainer = styled.div<{ isFocus?: boolean }>`
   box-sizing: border-box;
@@ -314,11 +313,8 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
     top,
     props: windowProps,
   } = windowState;
-  const [sysMenu, setSysMenu] = useState<{ visible: boolean; x: number; y: number }>({
-    visible: false,
-    x: 0,
-    y: 0,
-  });
+
+  const nodeRef = React.useRef<HTMLDivElement>(null);
 
   if (isMinimized) return null;
 
@@ -339,10 +335,8 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
     height: isMaximized ? 'calc(100% - 30px)' : 'auto',
   };
 
-  const nodeRef = React.useRef<HTMLDivElement>(null);
-
   // 将 windowId 注入到 App 组件，使其可通过 useApp(windowId) 访问系统 API
-  const injectedComponent = React.cloneElement(component as React.ReactElement, { windowId: id });
+  const injectedComponent = React.cloneElement(component as React.ReactElement<any>, { windowId: id });
 
   const isFocused = id === activeWindowId;
 
@@ -359,8 +353,8 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
         onDoubleClick={() => isResizable && maximizeWindow(id)}
       >
         <TitleText>
-          <XPIcon name={icon} size={16} className="title-icon" color="white" />
-          {title}
+          <XPIcon name={icon || 'app_window'} size={16} className="title-icon" color="white" />
+          {title || ''}
         </TitleText>
         <TitleControls isFocus={true}>
           <MinimizeBtn
@@ -414,7 +408,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
       disabled={isMaximized}
       defaultPosition={{ x: left ?? 100, y: top ?? 100 }}
       onMouseDown={() => focusWindow(id)}
-      onStop={(e, data) => {
+      onStop={(_e, data) => {
         moveWindow(id, data.x, data.y);
       }}
     >
@@ -434,16 +428,15 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
           height={currentHeight}
           minConstraints={[300, 200]}
           maxConstraints={[2000, 2000]}
-          onResizeStop={(e, { size }) => {
+          onResizeStop={(_e, { size }) => {
             resizeWindow(id, size.width, size.height);
           }}
-          handleSize={[20, 20]} // Larger handle area
           axis={isResizable ? 'both' : 'none'}
           resizeHandles={isResizable ? ['se'] : []}
         >
           {/* Remove left/top/zIndex from WindowContainer style since the wrapper div handles it */}
           <WindowContainer
-            isFocus={true}
+            isFocus={isFocused}
             style={{ width: '100%', height: '100%' }}
             onClick={() => focusWindow(id)}
           >
@@ -453,8 +446,8 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
               onDoubleClick={() => isResizable && maximizeWindow(id)}
             >
               <TitleText>
-                <XPIcon name={icon} size={16} className="title-icon" color="white" />
-                {title}
+                <XPIcon name={icon || 'app_window'} size={16} className="title-icon" color="white" />
+                {title || ''}
               </TitleText>
               <TitleControls>
                 <MinimizeBtn

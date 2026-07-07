@@ -16,9 +16,25 @@ import MicrosoftPaint from '../apps/MicrosoftPaint';
 import Minesweeper from '../apps/Minesweeper';
 import Solitaire from '../apps/Solitaire';
 import WindowsMediaPlayer from '../apps/WindowsMediaPlayer';
-import { AppRegistryEntry, FileNode } from '../types';
+import { AppRegistryEntry, AppAssociation, FileNode } from '../types';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+
+/** Helper to cast unknown props when restoring an app component */
+const restoreApp = <P extends Record<string, unknown>>(Component: React.FC<P>) => {
+  const RestoredApp = (props: unknown) => {
+    if (!Component) {
+      return (
+        <div style={{ padding: 20, fontFamily: 'Tahoma, sans-serif' }}>
+          Unable to restore app component.
+        </div>
+      );
+    }
+    return <Component {...(props as P)} />;
+  };
+  RestoredApp.displayName = `Restored(${Component?.displayName || Component?.name || 'Unknown'})`;
+  return RestoredApp;
+};
 
 // 占位应用 - 用于尚未实现的应用
 const DummyAppContainer = styled.div`
@@ -96,7 +112,8 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     icon: 'folder',
     window: { width: 720, height: 500 },
     lifecycle: {},
-    restore: (props) => <Explorer {...props} />,
+    restore: restoreApp(Explorer),
+    defaultWindowProps: { width: 720, height: 500 },
   },
 
   InternetExplorer: {
@@ -114,7 +131,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
             : { url: (item as any).content || (item as any).url || 'about:blank' },
       },
     ],
-    restore: (props) => <InternetExplorer {...props} />,
+    restore: restoreApp(InternetExplorer),
   },
 
   Notepad: {
@@ -129,7 +146,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
         getProps: (item: FileNode) => ({ content: (item as any).content ?? '', readOnly: (item as any).readOnly }),
       },
     ],
-    restore: (props) => <Notepad {...props} />,
+    restore: restoreApp(Notepad),
   },
 
   PhotoViewer: {
@@ -144,7 +161,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
         getProps: (item: FileNode) => ({ src: (item as any).content, fileItem: item }),
       },
     ],
-    restore: (props) => <PhotoViewer {...props} />,
+    restore: restoreApp(PhotoViewer),
   },
 
   FileProperties: {
@@ -153,7 +170,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     icon: 'properties',
     window: { width: 380, height: 420, resizable: false },
     lifecycle: {},
-    restore: (props) => <FileProperties {...props} />,
+    restore: restoreApp(FileProperties),
   },
 
   QQLogin: {
@@ -165,7 +182,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       { appField: 'QQLogin', getProps: () => ({}) },
     ],
-    restore: (props) => <QQLogin {...props} />,
+    restore: restoreApp(QQLogin),
   },
 
   Calculator: {
@@ -177,7 +194,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       { appField: 'Calculator', getProps: () => ({}) },
     ],
-    restore: (props) => <Calculator {...props} />,
+    restore: restoreApp(Calculator),
   },
 
   HelpAndSupport: {
@@ -189,7 +206,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       { appField: 'HelpAndSupport', getProps: () => ({}) },
     ],
-    restore: (props) => <HelpAndSupport {...props} />,
+    restore: restoreApp(HelpAndSupport),
   },
 
   RunDialog: {
@@ -198,7 +215,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     icon:   'run',
     window: { width: 400, height: 120, resizable: false, singleton: true },
     lifecycle: {},
-    restore: (props) => <RunDialog {...props} />,
+    restore: restoreApp(RunDialog),
   },
 
   CommandPrompt: {
@@ -207,7 +224,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     icon:   'cmd',
     window: { width: 600, height: 400 },
     lifecycle: {},
-    restore: (props) => <CommandPrompt {...props} />,
+    restore: restoreApp(CommandPrompt),
   },
 
   VolumeControl: {
@@ -216,7 +233,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     icon:   'volume',
     window: { width: 280, height: 120, resizable: false, singleton: true },
     lifecycle: {},
-    restore: (props) => <VolumeControl {...props} />,
+    restore: restoreApp(VolumeControl),
   },
 
   NetworkConnections: {
@@ -225,7 +242,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     icon:   'network',
     window: { width: 400, height: 300 },
     lifecycle: {},
-    restore: (props) => <NetworkConnections {...props} />,
+    restore: restoreApp(NetworkConnections),
   },
 
   ControlPanel: {
@@ -234,7 +251,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     icon:   'controlpanel',
     window: { width: 600, height: 400 },
     lifecycle: {},
-    restore: (props) => <ControlPanel {...props} />,
+    restore: restoreApp(ControlPanel),
   },
 
   MicrosoftPaint: {
@@ -246,7 +263,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       { appField: 'MicrosoftPaint', getProps: () => ({}) },
     ],
-    restore: (props) => <MicrosoftPaint {...props} />,
+    restore: restoreApp(MicrosoftPaint),
   },
 
   Minesweeper: {
@@ -258,7 +275,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       { appField: 'Minesweeper', getProps: () => ({}) },
     ],
-    restore: (props) => <Minesweeper {...props} />,
+    restore: restoreApp(Minesweeper),
   },
 
   Solitaire: {
@@ -270,7 +287,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       { appField: 'Solitaire', getProps: () => ({}) },
     ],
-    restore: (props) => <Solitaire {...props} />,
+    restore: restoreApp(Solitaire),
   },
 
   WindowsMediaPlayer: {
@@ -282,7 +299,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       { appField: 'WindowsMediaPlayer', getProps: () => ({}) },
     ],
-    restore: (props) => <WindowsMediaPlayer {...props} />,
+    restore: restoreApp(WindowsMediaPlayer),
   },
 
   DummyApp: {
@@ -294,7 +311,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       { appField: 'DummyApp', getProps: (item: FileNode) => ({ appName: item.name }) },
     ],
-    restore: (props) => <DummyAppComponent {...props} />,
+    restore: restoreApp(DummyAppComponent),
   },
 };
 
@@ -315,8 +332,8 @@ const _assocByField = Object.values(APP_REGISTRY).reduce((acc, def) => {
  *   返回 null 表示无法打开（DummyApp 或未注册），调用方负责给出提示。
  */
 export const resolveFileOpen = (key: string, item: FileNode) => {
-  // 文件夹 / 根目录 → 用 Explorer 打开
-  if (item.type === 'folder' || item.type === 'root') {
+  // 文件夹 / 根目录 / 驱动器 → 用 Explorer 打开
+  if (item.type === 'folder' || item.type === 'root' || item.type === 'drive') {
     const def = APP_REGISTRY.Explorer;
     const componentProps = { initialPath: [key] };
     return {
@@ -331,7 +348,14 @@ export const resolveFileOpen = (key: string, item: FileNode) => {
   }
 
   // app_shortcut / file → 按 appField 查注册表
-  const entry = _assocByField[item.app];
+  const appField = item.type === 'app_shortcut'
+    ? item.app
+    : item.type === 'file'
+      ? item.app
+      : undefined;
+  if (!appField) return null;
+
+  const entry = _assocByField[appField];
   if (!entry) return null;
 
   const { def, assoc } = entry;
