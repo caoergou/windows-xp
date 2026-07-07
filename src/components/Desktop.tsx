@@ -101,20 +101,27 @@ const DesktopIcon = styled.div<{ $selected?: boolean }>`
   }
 `;
 
-const ShortcutArrow = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 12px;
-  height: 12px;
-  background: white;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  pointer-events: none;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
+const ShortcutArrow: React.FC = () => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    style={{
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      pointerEvents: 'none',
+      zIndex: 1,
+    }}
+  >
+    <path
+      d="M2,11 L2,9 L5,9 L5,2 L3,2 L6,0 L9,2 L7,2 L7,11 Z"
+      fill="white"
+      stroke="#333"
+      strokeWidth="0.5"
+    />
+  </svg>
+);
 
 // System icons that are not shortcuts (no shortcut arrow in XP)
 const SYSTEM_ICONS = new Set(['我的电脑', '我的文档', '回收站', '网上邻居']);
@@ -448,7 +455,7 @@ const Desktop: React.FC = () => {
             >
               <div className="icon-wrapper">
                 <XPIcon name={iconName} size={32} />
-                {/* 快捷方式箭头已移除 */}
+                {isShortcut && <ShortcutArrow />}
               </div>
               <span>{translateIconName(key, item.name)}</span>
             </DesktopIcon>
