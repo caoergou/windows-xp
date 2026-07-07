@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
+import i18n from './i18n';
 import { useUserSession } from './context/UserSessionContext';
 import { useWindowManager } from './context/WindowManagerContext';
 import { ModalProvider } from './context/ModalContext';
@@ -128,7 +129,17 @@ const getInitialBootPhase = (): BootPhase => {
   return 'RUNNING';
 };
 
-function App() {
+interface AppProps {
+  initialLanguage?: 'en' | 'zh';
+}
+
+function App({ initialLanguage }: AppProps = {}) {
+  useEffect(() => {
+    if (initialLanguage && i18n.language !== initialLanguage) {
+      i18n.changeLanguage(initialLanguage);
+    }
+  }, [initialLanguage]);
+
   const { isLoggedIn } = useUserSession();
   const { windows, activeWindowId, closeWindow, focusWindow } = useWindowManager();
   const [bootPhase, setBootPhase] = useState<BootPhase>(getInitialBootPhase);

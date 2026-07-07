@@ -33,15 +33,19 @@ const getInitialLoginState = (): boolean => {
   return hasLoggedInBefore;
 };
 
-export const UserSessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const UserSessionProvider: React.FC<{
+  children: React.ReactNode;
+  username?: string;
+  password?: string;
+}> = ({ children, username = userConfig.username, password = userConfig.password }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(getInitialLoginState);
   const [user, setUser] = useState<{ name: string; avatar: string }>({
-    name: userConfig.username,
+    name: username,
     avatar: userConfig.avatar
   });
 
-  const login = (password: string): boolean => {
-    if (password === userConfig.password) {
+  const login = (inputPassword: string): boolean => {
+    if (inputPassword === password) {
       setIsLoggedIn(true);
       localStorage.setItem('xp_logged_in', 'true');
       localStorage.setItem('xp_power_state', 'running');
