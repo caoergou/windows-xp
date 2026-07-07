@@ -209,6 +209,8 @@ function App({ initialLanguage }: AppProps = {}) {
     };
   }, [activeWindowId, altTabVisible, altTabIndex, windows, closeWindow, focusWindow]);
 
+  const SCREENSAVER_TIMEOUT = 60000; // 1 minute of inactivity
+
   const dismissScreenSaver = useCallback(() => {
     if (bootPhase === 'SCREENSAVER' && !screenSaverFading) {
       setScreenSaverFading(true);
@@ -218,6 +220,28 @@ function App({ initialLanguage }: AppProps = {}) {
       }, 500);
     }
   }, [bootPhase, screenSaverFading]);
+
+  // Idle detection: trigger screensaver after timeout
+  useEffect(() => {
+    if (bootPhase !== 'RUNNING' || !isLoggedIn) return;
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setBootPhase('SCREENSAVER');
+      }, SCREENSAVER_TIMEOUT);
+    };
+
+    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'wheel'];
+    events.forEach(event => window.addEventListener(event, resetTimer, { passive: true }));
+    resetTimer();
+
+    return () => {
+      clearTimeout(timeoutId);
+      events.forEach(event => window.removeEventListener(event, resetTimer));
+    };
+  }, [bootPhase, isLoggedIn]);
 
   const handleBootComplete = () => {
     localStorage.setItem('xp_first_boot_done', 'true');
