@@ -129,6 +129,13 @@
     "folder": "Folder",
     "file": "File"
   },
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel"
+  },
+  "runDialog": {
+    "placeholder": "Enter the name of a program, folder, document, or Internet resource..."
+  },
   "errors": {
     "program": "Program",
     "fileNotFound": "File not found",

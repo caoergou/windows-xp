@@ -515,6 +515,10 @@ const Taskbar = () => {
             openWindow('Explorer', pathOrKey!,
                 explorer.restore({ initialPath: [pathOrKey!] }),
                 'recycle_bin', explorer.defaultWindowProps);
+        } else if (appName === 'RunDialog') {
+            openWindow('RunDialog', t('startMenu.run'),
+                APP_REGISTRY.RunDialog.restore({}),
+                'run', APP_REGISTRY.RunDialog.window);
         } else if (appName === 'DummyApp') {
             showModal(pathOrKey || t('errors.program'), t('errors.fileNotFoundMessage', { name: pathOrKey }), 'error');
         }
@@ -615,6 +619,11 @@ const Taskbar = () => {
                             <MenuItem onClick={() => handleLaunch('DummyApp', '酷狗音乐')}>
                                 <XPIcon name="kugou" size={24} className="menu-icon" />
                                 <span>酷狗音乐</span>
+                            </MenuItem>
+                            <MenuSeparator />
+                            <MenuItem onClick={() => handleLaunch('RunDialog')}>
+                                <XPIcon name="run" size={24} className="menu-icon" />
+                                <span>{t('startMenu.run')}</span>
                             </MenuItem>
                         </StartLeft>
                         <StartRight>

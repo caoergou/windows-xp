@@ -129,6 +129,13 @@
     "folder": "文件夹",
     "file": "文件"
   },
+  "common": {
+    "ok": "确定",
+    "cancel": "取消"
+  },
+  "runDialog": {
+    "placeholder": "输入要运行的程序、文件夹、文档或 Internet 资源的名称..."
+  },
   "errors": {
     "program": "程序",
     "fileNotFound": "找不到文件",

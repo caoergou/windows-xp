@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
+import { useApp } from '../hooks/useApp';
+import { APP_REGISTRY } from '../registry/apps';
+import { defaultPlugin } from './BrowserPlugins';
 
 const Container = styled.div`
   padding: 16px;
@@ -58,35 +62,111 @@ const Button = styled.button`
 `;
 
 interface RunDialogProps {
-  onClose?: () => void;
+  windowId?: string;
 }
 
-const RunDialog = ({ onClose }: RunDialogProps) => {
+const COMMAND_MAP: Record<string, string> = {
+  notepad: 'Notepad',
+  calc: 'Calculator',
+  calculator: 'Calculator',
+  cmd: 'CommandPrompt',
+  mspaint: 'MicrosoftPaint',
+  paint: 'MicrosoftPaint',
+  solitaire: 'Solitaire',
+  minesweeper: 'Minesweeper',
+  wmplayer: 'WindowsMediaPlayer',
+  wmp: 'WindowsMediaPlayer',
+  windowsmediaplayer: 'WindowsMediaPlayer',
+  iexplore: 'InternetExplorer',
+  ie: 'InternetExplorer',
+  internetexplorer: 'InternetExplorer',
+  explorer: 'Explorer',
+  control: 'ControlPanel',
+  controlpanel: 'ControlPanel',
+  vol: 'VolumeControl',
+  volume: 'VolumeControl',
+  network: 'NetworkConnections',
+  networkconnections: 'NetworkConnections',
+  qq: 'QQLogin',
+  help: 'HelpAndSupport',
+  helpandsupport: 'HelpAndSupport',
+};
+
+const RunDialog = ({ windowId = '' }: RunDialogProps) => {
+  const { t } = useTranslation();
+  const api = useApp(windowId);
   const [command, setCommand] = useState<string>('');
 
-  const handleOk = () => {
-    onClose?.();
+  const handleRun = () => {
+    if (!api) return;
+    const trimmed = command.trim();
+    if (!trimmed) {
+      api.window.close();
+      return;
+    }
+
+    const lower = trimmed.toLowerCase();
+
+    // URL: open in Internet Explorer
+    if (lower.startsWith('http://') || lower.startsWith('https://')) {
+      api.openWindow(
+        'InternetExplorer',
+        'Internet Explorer',
+        APP_REGISTRY.InternetExplorer.restore({ url: trimmed, plugin: defaultPlugin }),
+        'ie',
+        { isMaximized: true }
+      );
+      api.window.close();
+      return;
+    }
+
+    // Registered command
+    const appId = COMMAND_MAP[lower];
+    if (appId && APP_REGISTRY[appId]) {
+      const def = APP_REGISTRY[appId];
+      api.openWindow(appId, def.name, def.restore({}), def.icon, def.window);
+      api.window.close();
+      return;
+    }
+
+    // Treat as a folder/document path and open Explorer
+    api.openWindow(
+      'Explorer',
+      trimmed,
+      APP_REGISTRY.Explorer.restore({ initialPath: [trimmed] }),
+      'folder',
+      APP_REGISTRY.Explorer.window
+    );
+    api.window.close();
   };
 
   const handleCancel = () => {
-    onClose?.();
+    api?.window.close();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleRun();
+    }
   };
 
   return (
     <Container>
-      <Label>打开(&O)：</Label>
+      <Label>{t('startMenu.run')}:</Label>
       <InputContainer>
         <Input
           type="text"
           value={command}
           onChange={(e) => setCommand(e.target.value)}
-          placeholder="输入要运行的程序、文件夹、文档或 Internet 资源的名称..."
+          onKeyDown={handleKeyDown}
+          placeholder={t('runDialog.placeholder', 'Enter the name of a program, folder, document, or Internet resource...')}
           autoFocus
         />
       </InputContainer>
       <ButtonContainer>
-        <Button onClick={handleOk}>确定</Button>
-        <Button onClick={handleCancel}>取消</Button>
+        <Button onClick={handleRun}>{t('common.ok', 'OK')}</Button>
+        <Button onClick={handleCancel}>{t('common.cancel', 'Cancel')}</Button>
       </ButtonContainer>
     </Container>
   );
