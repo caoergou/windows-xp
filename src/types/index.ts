@@ -43,6 +43,8 @@ export interface FileContentNode extends BaseFileNode {
 export interface AppShortcutNode extends BaseFileNode {
   type: 'app_shortcut';
   app: string;
+  url?: string;
+  isHtmlContent?: boolean;
 }
 
 /** 联合类型 - 所有可能的文件节点 */

@@ -1,7 +1,7 @@
 import React from 'react';
 import Explorer from '../apps/Explorer';
-import InternetExplorer from '../apps/InternetExplorer';
-import Notepad from '../apps/Notepad';
+const InternetExplorer = React.lazy(() => import('../apps/InternetExplorer'));
+const Notepad = React.lazy(() => import('../apps/Notepad'));
 import PhotoViewer from '../apps/PhotoViewer';
 import FileProperties from '../components/FileProperties';
 import QQLogin from '../apps/QQLogin';
@@ -9,18 +9,18 @@ import SafeGuard360 from '../apps/SafeGuard360';
 import Calculator from '../apps/Calculator';
 import HelpAndSupport from '../apps/HelpAndSupport';
 import RunDialog from '../apps/RunDialog';
-import CommandPrompt from '../apps/CommandPrompt';
+const CommandPrompt = React.lazy(() => import('../apps/CommandPrompt'));
 import VolumeControl from '../apps/VolumeControl';
 import NetworkConnections from '../apps/NetworkConnections';
 import ControlPanel from '../apps/ControlPanel';
-import MicrosoftPaint from '../apps/MicrosoftPaint';
+const MicrosoftPaint = React.lazy(() => import('../apps/MicrosoftPaint'));
 import Minesweeper from '../apps/Minesweeper';
-import Solitaire from '../apps/Solitaire';
-import WindowsMediaPlayer from '../apps/WindowsMediaPlayer';
-import Thunder from '../apps/Thunder';
-import BaofengPlayer from '../apps/BaofengPlayer';
-import KugouMusic from '../apps/KugouMusic';
-import { AppRegistryEntry, AppAssociation, FileNode, FileContentNode, isFileContentNode } from '../types';
+const Solitaire = React.lazy(() => import('../apps/Solitaire'));
+const WindowsMediaPlayer = React.lazy(() => import('../apps/WindowsMediaPlayer'));
+const Thunder = React.lazy(() => import('../apps/Thunder'));
+const BaofengPlayer = React.lazy(() => import('../apps/BaofengPlayer'));
+const KugouMusic = React.lazy(() => import('../apps/KugouMusic'));
+import { AppRegistryEntry, AppAssociation, FileNode, isFileContentNode, isAppShortcutNode } from '../types';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
@@ -138,11 +138,13 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
       {
         appField: 'InternetExplorer',
         getProps: (item: FileNode) => {
-          const itemWithUrl = item as FileContentNode & { url?: string; isHtmlContent?: boolean };
-          if (itemWithUrl.isHtmlContent) {
-            return { html: itemWithUrl.content ?? '' };
+          if (isAppShortcutNode(item)) {
+            if (item.isHtmlContent) {
+              return { html: item.url ?? '' };
+            }
+            return { url: item.url || 'about:blank' };
           }
-          return { url: itemWithUrl.url || itemWithUrl.content || 'about:blank' };
+          return { url: isFileContentNode(item) ? item.content || 'about:blank' : 'about:blank' };
         },
       },
     ],
