@@ -77,7 +77,7 @@ const DesktopIcon = styled.div<{ $selected?: boolean }>`
   .icon-wrapper {
     position: relative;
     margin-bottom: 4px;
-    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.7));
   }
 
   span {
@@ -91,7 +91,7 @@ const DesktopIcon = styled.div<{ $selected?: boolean }>`
     overflow: hidden;
     word-break: break-word;
     line-height: 1.2;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
     padding: 1px 2px;
     background-color: transparent;
 
@@ -110,7 +110,7 @@ const ShortcutArrow: React.FC = () => (
     style={{
       position: 'absolute',
       bottom: 0,
-      left: 0,
+      right: 0,
       pointerEvents: 'none',
       zIndex: 1,
     }}
