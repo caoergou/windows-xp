@@ -26,7 +26,7 @@ const Content = styled.div`
     border-top: 2px solid #F5C684;
     border-bottom: 2px solid #F5C684;
     padding: 40px;
-    border-radius: 5px;
+    border-radius: 0;
 `;
 
 const Logo = styled.div`
@@ -103,7 +103,7 @@ const GoButton = styled.button`
     height: 30px;
     background: #009933;
     border: 1px solid white;
-    border-radius: 4px;
+    border-radius: 0;
     color: white;
     display: flex;
     justify-content: center;
@@ -150,7 +150,7 @@ const ShutdownButton = styled.button`
     gap: 6px;
     background: transparent;
     border: 1px solid rgba(255,255,255,0.4);
-    border-radius: 3px;
+    border-radius: 0;
     color: white;
     font-size: 12px;
     font-family: Tahoma, sans-serif;

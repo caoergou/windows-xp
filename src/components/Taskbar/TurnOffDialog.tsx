@@ -50,8 +50,11 @@ const ActionButton = styled.div`
   cursor: pointer;
 
   &:hover .icon-circle {
-    transform: scale(1.1);
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    filter: brightness(1.1);
+  }
+
+  &:active .icon-circle {
+    filter: brightness(0.9);
   }
 
   .icon-circle {
@@ -62,7 +65,6 @@ const ActionButton = styled.div`
     justify-content: center;
     align-items: center;
     margin-bottom: 5px;
-    transition: transform 0.1s;
     border: 1px solid rgba(0, 0, 0, 0.2);
   }
 
