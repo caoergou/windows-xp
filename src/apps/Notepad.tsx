@@ -524,7 +524,8 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
     // Keyboard shortcuts
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            const handlers = keyboardHandlersRef.current!;
+            const handlers = keyboardHandlersRef.current;
+            if (!handlers) return;
             if (e.ctrlKey) {
                 switch (e.key.toLowerCase()) {
                     case 'n':
