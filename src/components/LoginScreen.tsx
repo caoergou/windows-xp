@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import { useUserSession } from '../context/UserSessionContext';
 import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
@@ -162,6 +163,7 @@ const ShutdownButton = styled.button`
 `;
 
 const LoginScreen = () => {
+    const { t } = useTranslation();
     const { login, user } = useUserSession();
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
@@ -203,7 +205,7 @@ const LoginScreen = () => {
                     <InputArea>
                         <UserName>{user.name}</UserName>
                         <PasswordBox>
-                            <label>输入密码:</label>
+                            <label>{t('login.password')}:</label>
                             <Input
                                 type="password"
                                 value={password}
@@ -223,7 +225,7 @@ const LoginScreen = () => {
             <BottomBar>
                 <ShutdownButton onClick={handleShutdown}>
                     <XPIcon name="shutdown" size={16} />
-                    关闭计算机
+                    {t('login.turnOff')}
                 </ShutdownButton>
             </BottomBar>
         </Container>

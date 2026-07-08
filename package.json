@@ -29,8 +29,8 @@
     "test:e2e:debug": "playwright test --debug",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "lint:fix": "eslint . --ext ts,tsx --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\""
   },
   "keywords": [
     "windows-xp",

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../hooks/useApp';
-import { APP_REGISTRY } from '../registry/apps';
+import { APP_REGISTRY, getAppDisplayName } from '../registry/apps';
 import { defaultPlugin } from './BrowserPlugins';
 
 const Container = styled.div`
@@ -124,7 +124,7 @@ const RunDialog = ({ windowId = '' }: RunDialogProps) => {
     const appId = COMMAND_MAP[lower];
     if (appId && APP_REGISTRY[appId]) {
       const def = APP_REGISTRY[appId];
-      api.openWindow(appId, def.name, def.restore({}), def.icon, def.window);
+      api.openWindow(appId, getAppDisplayName(def, t), def.restore({}), def.icon, def.window);
       api.window.close();
       return;
     }

@@ -334,33 +334,33 @@ const IEToolbar: React.FC<IEToolbarProps> = ({
                 </MenuItemWrapper>
             </MenuBar>
             <ToolbarContainer>
-                <NavButton onClick={onBack} disabled={!canBack} $disabled={!canBack} title="后退">
+                <NavButton onClick={onBack} disabled={!canBack} $disabled={!canBack} title={t('internetExplorer.toolbar.back')}>
                     <XPIcon name="back" size={24} />
                 </NavButton>
-                <NavButton onClick={onForward} disabled={!canForward} $disabled={!canForward} title="前进">
+                <NavButton onClick={onForward} disabled={!canForward} $disabled={!canForward} title={t('internetExplorer.toolbar.forward')}>
                     <XPIcon name="forward" size={24} />
                 </NavButton>
                 <Separator />
-                <ToolbarButton onClick={isLoading ? onStop : onRefresh} title={isLoading ? "停止" : "刷新"}>
+                <ToolbarButton onClick={isLoading ? onStop : onRefresh} title={isLoading ? t('internetExplorer.toolbar.stop') : t('internetExplorer.toolbar.refresh')}>
                     <XPIcon name={isLoading ? "stop" : "refresh"} size={16} />
-                    {isLoading ? "停止" : "刷新"}
+                    {isLoading ? t('internetExplorer.toolbar.stop') : t('internetExplorer.toolbar.refresh')}
                 </ToolbarButton>
-                <ToolbarButton onClick={onHome} title="主页">
+                <ToolbarButton onClick={onHome} title={t('internetExplorer.toolbar.home')}>
                     <XPIcon name="home" size={16} />
-                    主页
+                    {t('internetExplorer.toolbar.home')}
                 </ToolbarButton>
                 <Separator />
-                <ToolbarButton onClick={onSearch} title="搜索">
+                <ToolbarButton onClick={onSearch} title={t('internetExplorer.toolbar.search')}>
                     <XPIcon name="search" size={16} />
-                    搜索
+                    {t('internetExplorer.toolbar.search')}
                 </ToolbarButton>
-                <ToolbarButton onClick={onFavorites} title="收藏夹">
+                <ToolbarButton onClick={onFavorites} title={t('internetExplorer.toolbar.favorites')}>
                     <XPIcon name="favorites" size={16} />
-                    收藏夹
+                    {t('internetExplorer.toolbar.favorites')}
                 </ToolbarButton>
-                <ToolbarButton onClick={onHistory} title="历史记录">
+                <ToolbarButton onClick={onHistory} title={t('internetExplorer.toolbar.history')}>
                     <XPIcon name="history" size={16} />
-                    历史
+                    {t('internetExplorer.toolbar.history')}
                 </ToolbarButton>
             </ToolbarContainer>
         </Container>

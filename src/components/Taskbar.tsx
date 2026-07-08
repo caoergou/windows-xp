@@ -7,7 +7,7 @@ import { useTray } from '../context/TrayContext';
 import XPIcon from './XPIcon';
 import SystemClock from './SystemClock';
 import LanguageSwitcher from './LanguageSwitcher';
-import { APP_REGISTRY } from '../registry/apps';
+import { APP_REGISTRY, getAppDisplayName } from '../registry/apps';
 import { defaultPlugin } from '../apps/BrowserPlugins';
 import { useModal } from '../context/ModalContext';
 import ContextMenu from './ContextMenu';
@@ -507,7 +507,7 @@ const Taskbar = () => {
             if (existing && app.window?.singleton) {
                 focusWindow(existing.id);
             } else {
-                openWindow(app.id, app.name, app.restore({}), app.icon, app.window);
+                openWindow(app.id, getAppDisplayName(app, t), app.restore({}), app.icon, app.window);
             }
         }
     };

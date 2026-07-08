@@ -144,7 +144,7 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
     await expect(safeGuardItem).toBeVisible();
     await safeGuardItem.click();
 
-    await expect(page.locator('[data-testid="window-title"]:has-text("360 Safe Guard")')).toBeVisible();
+    await expect(page.locator('[data-testid="window-title"]:has-text("360 安全卫士")')).toBeVisible();
 
     // Click scan button
     const scanBtn = page.locator('[data-testid="safe-guard-scan-button"]');

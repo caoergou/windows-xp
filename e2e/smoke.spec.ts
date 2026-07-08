@@ -1,4 +1,14 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+const LOGIN_PASSWORD = 'forthe2000s';
+
+async function login(page: Page) {
+  // Login screen: fill password and submit
+  await page.locator('input[type="password"]').fill(LOGIN_PASSWORD);
+  await page.locator('button').filter({ hasText: /→/ }).click();
+  // Wait for desktop to appear
+  await expect(page.locator('[data-testid="desktop-icon-My Computer"], [data-testid="desktop-icon-我的电脑"]')).toBeVisible();
+}
 
 test.describe('Windows XP Simulator - Basic Access Test', () => {
   test('应用能够正常加载', async ({ page }) => {
@@ -25,5 +35,42 @@ test.describe('Windows XP Simulator - Basic Access Test', () => {
 
     // eslint-disable-next-line no-console -- Playwright test logging
     console.log('✓ 页面包含内容');
+  });
+
+  test('英文语言下显示西方文化桌面图标', async ({ page }) => {
+    await page.goto('./?lang=en');
+    await page.waitForLoadState('networkidle');
+
+    await login(page);
+
+    // Western 2000s cultural shortcuts expected in English locale
+    const expectedIcons = ['Norton AntiVirus', 'Winamp', 'uTorrent', 'Microsoft Office', 'iTunes'];
+    for (const name of expectedIcons) {
+      await expect(page.locator(`[data-testid="desktop-icon-${name}"]`)).toBeVisible();
+    }
+
+    // eslint-disable-next-line no-console -- Playwright test logging
+    console.log('✓ English locale shows Western cultural icons');
+  });
+
+  test('运行对话框可以启动计算器', async ({ page }) => {
+    await page.goto('./?lang=en');
+    await page.waitForLoadState('networkidle');
+
+    await login(page);
+
+    // Open Start menu and click Run
+    await page.locator('[data-testid="start-button"]').click();
+    await page.locator('[data-testid="start-menu"]').getByText('Run...').click();
+
+    // Type calc and submit
+    await page.locator('[data-testid="run-dialog-input"], input[placeholder*="program"]').fill('calc');
+    await page.getByRole('button', { name: 'OK' }).click();
+
+    // Calculator window should appear
+    await expect(page.locator('[data-testid="window-title"]').filter({ hasText: 'Calculator' })).toBeVisible();
+
+    // eslint-disable-next-line no-console -- Playwright test logging
+    console.log('✓ Run Dialog launches Calculator');
   });
 });

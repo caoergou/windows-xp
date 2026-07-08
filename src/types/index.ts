@@ -152,6 +152,8 @@ export interface AppAssociation<TFileNode extends FileNode = FileNode, TProps = 
 export interface AppRegistryEntry<TProps = unknown> {
   id: string;
   name: string;
+  /** i18n key for the window title; falls back to `name` if omitted or untranslated */
+  nameKey?: string;
   icon: string;
   window?: {
     width?: number;

@@ -113,21 +113,26 @@ For detailed usage and API reference, see [USAGE.md](USAGE.md).
 ### Fully Implemented
 - 📝 **Notepad** - Text editor with file support
 - 🖼️ **Photo Viewer** - Image viewer
-- 🌐 **Internet Explorer** - Web browser with history
+- 🌐 **Internet Explorer** - Web browser with history and hao123 portal
 - 📁 **Explorer** - File manager with navigation
-- 🎨 **Paint** - Drawing application
 - 🧮 **Calculator** - Basic calculator
-- 💣 **Minesweeper** - Classic game
-- 🃏 **Solitaire** - Card game
 - 💬 **QQ Login** - QQ login dialog
 - ❓ **Help and Support** - Help center
-- 🏃 **Run Dialog** - Run command dialog
+- 🏃 **Run Dialog** - Run command dialog with common XP commands
 - 🔊 **Volume Control** - Volume settings
 
+### Playable / Working Core
+- 💣 **Minesweeper** - Classic game (difficulty menu and best times coming soon)
+
+### Partial Functionality
+- 🎨 **Paint** - Brush, line, rectangle, circle drawing; save/load and advanced tools coming soon
+- 📝 **Notepad** - Edit/save works; Undo, Find/Replace, Word Wrap, Font are stubbed
+- 💻 **Command Prompt** - Basic commands work; `exit` closes the window
+- 🃏 **Solitaire** - Card UI rendered; move logic and win detection not yet implemented
+
 ### Basic UI (Limited Functionality)
-- 🎵 **Windows Media Player** - Media player UI with visualizations
-- ⚙️ **Control Panel** - System settings UI
-- 💻 **Command Prompt** - Terminal emulator with basic commands
+- 🎵 **Windows Media Player** - Media player UI with visualizations, no audio playback yet
+- ⚙️ **Control Panel** - System settings UI, applets not yet functional
 - 🖧 **Network Connections** - Network status UI
 
 ## 🛠️ Tech Stack
