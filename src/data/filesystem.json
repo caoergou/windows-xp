@@ -166,43 +166,14 @@
         "type": "app_shortcut",
         "name": "Internet Explorer",
         "app": "InternetExplorer",
-        "icon": "ie"
+        "icon": "ie",
+        "url": "http://www.hao123.com"
       },
       "Notepad": {
         "type": "app_shortcut",
         "name": "Notepad",
         "app": "Notepad",
         "icon": "file"
-      },
-      "360 Safe": {
-        "type": "app_shortcut",
-        "name": "360 Safe Guard",
-        "app": "SafeGuard360",
-        "icon": "360safe"
-      },
-      "Baofeng Player": {
-        "type": "app_shortcut",
-        "name": "Baofeng Media Player",
-        "app": "DummyApp",
-        "icon": "baofeng"
-      },
-      "Thunder": {
-        "type": "app_shortcut",
-        "name": "Thunder",
-        "app": "Thunder",
-        "icon": "thunder"
-      },
-      "WPS Office": {
-        "type": "app_shortcut",
-        "name": "WPS Office",
-        "app": "DummyApp",
-        "icon": "wps"
-      },
-      "Kugou Music": {
-        "type": "app_shortcut",
-        "name": "Kugou Music",
-        "app": "DummyApp",
-        "icon": "kugou"
       },
       "Calculator": {
         "type": "app_shortcut",

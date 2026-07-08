@@ -9,6 +9,8 @@ taskbar_context_menu*
 taskbar_screenshot*
 .playwright-mcp/
 .playwright-cli/
+test-results/
+playwright-report/
 tmp/
 *.png
 !src/**/*.png

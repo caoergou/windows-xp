@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Windows XP Simulator - Basic Access Test', () => {
   test('应用能够正常加载', async ({ page }) => {
-    // 访问开发服务器
-    await page.goto('http://localhost:5174/');
+    // 访问开发服务器（baseURL 在 playwright.config.js 中配置）
+    await page.goto('./');
 
     // 等待页面加载
     await page.waitForLoadState('networkidle');
@@ -11,15 +11,12 @@ test.describe('Windows XP Simulator - Basic Access Test', () => {
     // 检查页面标题
     await expect(page).toHaveTitle(/Windows XP|React XP/i);
 
-    // 截图保存
-    await page.screenshot({ path: 'test-results/homepage.png' });
-
     // eslint-disable-next-line no-console -- Playwright test logging
     console.log('✓ 页面成功加载');
   });
 
   test('页面包含基本元素', async ({ page }) => {
-    await page.goto('http://localhost:5174/');
+    await page.goto('./');
     await page.waitForLoadState('networkidle');
 
     // 检查页面是否有内容
