@@ -7,61 +7,124 @@ const StartMenuContainer = styled.div`
   position: absolute;
   bottom: 30px;
   left: 0;
-  width: 300px;
-  background: white;
-  border: 1px solid #003399;
-  border-radius: 0;
+  width: 380px;
+  background-color: #4282d6;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
   z-index: 20000;
   box-shadow: 2px -2px 5px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  overflow: hidden;
 `;
 
 const StartHeader = styled.div`
-  height: 50px;
-  background: linear-gradient(to bottom, #245edc 0%, #3e87eb 100%);
+  position: relative;
+  align-self: flex-start;
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  border-radius: 0;
+  color: #fff;
+  height: 54px;
+  padding: 6px 5px 5px;
+  width: 100%;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  background: linear-gradient(
+    to bottom,
+    #1868ce 0%,
+    #0e60cb 12%,
+    #0e60cb 20%,
+    #1164cf 32%,
+    #1667cf 33%,
+    #1b6cd3 47%,
+    #1e70d9 54%,
+    #2476dc 60%,
+    #297ae0 65%,
+    #3482e3 77%,
+    #3786e5 79%,
+    #428ee9 90%,
+    #4791eb 100%
+  );
+  overflow: hidden;
+
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(
+      to right,
+      transparent 0,
+      rgba(255, 255, 255, 0.3) 1%,
+      rgba(255, 255, 255, 0.5) 2%,
+      rgba(255, 255, 255, 0.5) 95%,
+      rgba(255, 255, 255, 0.3) 98%,
+      rgba(255, 255, 255, 0.2) 99%,
+      transparent 100%
+    );
+    box-shadow: inset 0 -1px 1px #0e60cb;
+  }
 
   .user-avatar {
-    margin-right: 10px;
-    border: 2px solid white;
+    width: 42px;
+    height: 42px;
+    margin-right: 5px;
     border-radius: 3px;
+    border: 2px solid rgba(222, 222, 222, 0.8);
     background: #99ccff;
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 36px;
-    height: 36px;
   }
 
   span {
-    color: white;
-    font-weight: bold;
-    text-shadow: 1px 1px 1px black;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    text-shadow: 1px 1px rgba(0, 0, 0, 0.7);
   }
 `;
 
 const StartBody = styled.div`
   display: flex;
   height: 400px;
-  border-top: 1px solid #f5c684;
+  width: calc(100% - 4px);
+  position: relative;
+  border-top: 1px solid #385de7;
+  box-shadow: 0 1px #385de7;
+`;
+
+const OrangeLine = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0) 0%,
+    #da884a 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  z-index: 1;
 `;
 
 const StartLeft = styled.div`
-  width: 50%;
-  background: white;
-  padding: 5px;
+  width: 190px;
+  background: #fff;
+  padding: 6px 5px 0;
   overflow-y: auto;
 `;
 
 const StartRight = styled.div`
-  width: 50%;
-  background: #d3e5fa;
-  padding: 5px;
-  border-left: 1px solid #95bdee;
+  width: 190px;
+  background: #cbe3ff;
+  border-left: solid rgba(58, 58, 255, 0.37) 1px;
+  padding: 6px 5px 5px;
   overflow-y: auto;
 `;
 
@@ -74,7 +137,7 @@ const MenuItem = styled.div`
   color: #333;
 
   &:hover {
-    background: #316ac5;
+    background: #2f71cd;
     color: white;
   }
 
@@ -83,20 +146,65 @@ const MenuItem = styled.div`
   }
 `;
 
+const RightMenuItem = styled(MenuItem)`
+  color: #00136b;
+
+  &:hover {
+    background: #2f71cd;
+    color: #fff;
+  }
+`;
+
 const MenuSeparator = styled.div`
-  height: 1px;
-  background: #c0c0c0;
-  margin: 3px 5px;
+  height: 7.5px;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  background-clip: content-box;
+`;
+
+const RightMenuSeparator = styled(MenuSeparator)`
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
 `;
 
 const StartFooter = styled.div`
-  height: 40px;
-  background: linear-gradient(to bottom, #245edc 0%, #3e87eb 100%);
   display: flex;
+  align-self: flex-end;
   align-items: center;
   justify-content: flex-end;
+  color: #fff;
+  height: 36px;
+  width: 100%;
   padding: 0 10px;
   gap: 10px;
+  background: linear-gradient(
+    to bottom,
+    #4282d6 0%,
+    #3b85e0 3%,
+    #418ae3 5%,
+    #418ae3 17%,
+    #3c87e2 21%,
+    #3786e4 26%,
+    #3482e3 29%,
+    #2e7ee1 39%,
+    #2374df 49%,
+    #2072db 57%,
+    #196edb 62%,
+    #176bd8 72%,
+    #1468d5 75%,
+    #1165d2 83%,
+    #0f61cb 88%
+  );
 
   button {
     background: none;
@@ -106,9 +214,10 @@ const StartFooter = styled.div`
     display: flex;
     align-items: center;
     font-size: 11px;
+    padding: 3px;
 
     &:hover {
-      text-decoration: underline;
+      background-color: rgba(60, 80, 210, 0.5);
     }
 
     .footer-icon {
@@ -151,11 +260,12 @@ const StartMenu: React.FC<StartMenuProps> = ({
     <StartMenuContainer ref={menuRef} data-testid="start-menu">
       <StartHeader>
         <div className="user-avatar">
-          <XPIcon name="user" size={24} color="white" />
+          <XPIcon name="user" size={32} color="white" />
         </div>
         <span>{userName}</span>
       </StartHeader>
       <StartBody>
+        <OrangeLine />
         <StartLeft>
           <MenuItem onClick={() => onLaunch('AllPrograms')}>
             <XPIcon name="programs" size={24} className="menu-icon" />
@@ -190,41 +300,41 @@ const StartMenu: React.FC<StartMenuProps> = ({
           </MenuItem>
         </StartLeft>
         <StartRight>
-          <MenuItem onClick={() => onLaunch('Explorer', t('startMenu.myDocuments'))}>
+          <RightMenuItem onClick={() => onLaunch('Explorer', t('startMenu.myDocuments'))}>
             <XPIcon name="documents" size={24} className="menu-icon" />
             <span>{t('startMenu.myDocuments')}</span>
-          </MenuItem>
-          <MenuItem onClick={() => onLaunch('Explorer', t('startMenu.myComputer'))}>
+          </RightMenuItem>
+          <RightMenuItem onClick={() => onLaunch('Explorer', t('startMenu.myComputer'))}>
             <XPIcon name="computer" size={24} className="menu-icon" />
             <span>{t('startMenu.myComputer')}</span>
-          </MenuItem>
-          <MenuItem onClick={() => onLaunch('Explorer', t('startMenu.myMusic'))}>
+          </RightMenuItem>
+          <RightMenuItem onClick={() => onLaunch('Explorer', t('startMenu.myMusic'))}>
             <XPIcon name="folder" size={24} className="menu-icon" />
             <span>{t('startMenu.myMusic')}</span>
-          </MenuItem>
-          <MenuSeparator />
-          <MenuItem onClick={() => onLaunch('DummyApp', t('startMenu.controlPanel'))}>
+          </RightMenuItem>
+          <RightMenuSeparator />
+          <RightMenuItem onClick={() => onLaunch('DummyApp', t('startMenu.controlPanel'))}>
             <XPIcon name="control_panel" size={24} className="menu-icon" />
             <span>{t('startMenu.controlPanel')}</span>
-          </MenuItem>
-          <MenuItem onClick={() => onLaunch('DummyApp', t('startMenu.printersAndFaxes'))}>
+          </RightMenuItem>
+          <RightMenuItem onClick={() => onLaunch('DummyApp', t('startMenu.printersAndFaxes'))}>
             <XPIcon name="printer" size={24} className="menu-icon" />
             <span>{t('startMenu.printersAndFaxes')}</span>
-          </MenuItem>
-          <MenuSeparator />
-          <MenuItem onClick={() => onLaunch('Search')}>
+          </RightMenuItem>
+          <RightMenuSeparator />
+          <RightMenuItem onClick={() => onLaunch('Search')}>
             <XPIcon name="search" size={24} className="menu-icon" />
             <span>{t('startMenu.search')}</span>
-          </MenuItem>
-          <MenuItem onClick={() => onLaunch('HelpAndSupport')}>
+          </RightMenuItem>
+          <RightMenuItem onClick={() => onLaunch('HelpAndSupport')}>
             <XPIcon name="help" size={24} className="menu-icon" />
             <span>{t('startMenu.help')}</span>
-          </MenuItem>
-          <MenuSeparator />
-          <MenuItem onClick={() => onLaunch('Recycle Bin', t('desktop.recycleBin'))}>
+          </RightMenuItem>
+          <RightMenuSeparator />
+          <RightMenuItem onClick={() => onLaunch('Recycle Bin', t('desktop.recycleBin'))}>
             <XPIcon name="recycle_bin" size={24} className="menu-icon" />
             <span>{t('desktop.recycleBin')}</span>
-          </MenuItem>
+          </RightMenuItem>
         </StartRight>
       </StartBody>
       <StartFooter>
