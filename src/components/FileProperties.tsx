@@ -29,14 +29,14 @@ const TabsContainer = styled.div`
 const Tab = styled.div`
   padding: 3px 6px;
   border: 1px solid #919B9C;
-  border-bottom: 1px solid ${props => props.active ? '#ECE9D8' : '#919B9C'};
-  background-color: ${props => props.active ? '#ECE9D8' : '#ECE9D8'};
+  border-bottom: 1px solid ${props => props.$active ? '#ECE9D8' : '#919B9C'};
+  background-color: ${props => props.$active ? '#ECE9D8' : '#ECE9D8'};
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
   margin-right: 2px;
   cursor: pointer;
   position: relative;
-  z-index: ${props => props.active ? 1 : 0};
+  z-index: ${props => props.$active ? 1 : 0};
 
   &:hover {
     background-color: #fff;
@@ -145,8 +145,8 @@ const FileProperties: React.FC<FilePropertiesProps> = ({ fileItem, onClose, pare
   return (
     <WindowContainer>
       <TabsContainer>
-        <Tab active={activeTab === 'general'} onClick={() => setActiveTab('general')}>常规</Tab>
-        <Tab active={activeTab === 'summary'} onClick={() => setActiveTab('summary')}>摘要</Tab>
+        <Tab $active={activeTab === 'general'} onClick={() => setActiveTab('general')}>常规</Tab>
+        <Tab $active={activeTab === 'summary'} onClick={() => setActiveTab('summary')}>摘要</Tab>
       </TabsContainer>
 
       <TabContent>

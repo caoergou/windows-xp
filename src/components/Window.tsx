@@ -10,14 +10,14 @@ import { useTranslation } from 'react-i18next';
 import { WindowState } from '../types';
 import { WINDOW_DEFAULTS } from '../constants';
 
-const WindowContainer = styled.div<{ isFocus?: boolean }>`
+const WindowContainer = styled.div<{ $isFocus?: boolean }>`
   box-sizing: border-box;
   position: absolute;
   display: flex;
   flex-direction: column;
   min-height: ${WINDOW_DEFAULTS.MIN_HEIGHT}px;
   min-width: ${WINDOW_DEFAULTS.MIN_WIDTH}px;
-  background-color: ${({ isFocus }) => (isFocus ? '#0831d9' : '#6582f5')};
+  background-color: ${({ $isFocus }) => ($isFocus ? '#0831d9' : '#6582f5')};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
@@ -29,12 +29,12 @@ const WindowContainer = styled.div<{ isFocus?: boolean }>`
   }
 `;
 
-const TitleBar = styled.div<{ isFocus?: boolean }>`
+const TitleBar = styled.div<{ $isFocus?: boolean }>`
   height: 25px;
   min-height: 25px;
   max-height: 25px;
-  background: ${({ isFocus }) =>
-    isFocus
+  background: ${({ $isFocus }) =>
+    $isFocus
       ? 'linear-gradient(to bottom,#0058ee 0%,#3593ff 4%,#288eff 6%,#127dff 8%,#036ffc 10%,#0262ee 14%,#0057e5 20%,#0054e3 24%,#0055eb 56%,#005bf5 66%,#026afe 76%,#0062ef 86%,#0052d6 92%,#0040ab 94%,#003092 100%)'
       : 'linear-gradient(to bottom, #7697e7 0%,#7e9ee3 3%,#94afe8 6%,#97b4e9 8%,#82a5e4 14%,#7c9fe2 17%,#7996de 25%,#7b99e1 56%,#82a9e9 81%,#80a5e7 89%,#7b96e1 94%,#7a93df 97%,#abbae3 100%)'};
   border-top-left-radius: 8px;
@@ -58,7 +58,7 @@ const TitleBar = styled.div<{ isFocus?: boolean }>`
     display: block;
     position: absolute;
     left: 0;
-    opacity: ${({ isFocus }) => (isFocus ? 1 : 0.3)};
+    opacity: ${({ $isFocus }) => ($isFocus ? 1 : 0.3)};
     background: linear-gradient(to right, #1638e6 0%, transparent 100%);
     top: 0;
     bottom: 0;
@@ -69,7 +69,7 @@ const TitleBar = styled.div<{ isFocus?: boolean }>`
 
   &:after {
     content: '';
-    opacity: ${({ isFocus }) => (isFocus ? 1 : 0.4)};
+    opacity: ${({ $isFocus }) => ($isFocus ? 1 : 0.4)};
     display: block;
     position: absolute;
     right: 0;
@@ -106,8 +106,8 @@ const TitleText = styled.div`
   }
 `;
 
-const TitleControls = styled.div<{ isFocus?: boolean }>`
-  opacity: ${({ isFocus }) => (isFocus ? 1 : 0.6)};
+const TitleControls = styled.div<{ $isFocus?: boolean }>`
+  opacity: ${({ $isFocus }) => ($isFocus ? 1 : 0.6)};
   height: 22px;
   min-height: 22px;
   max-height: 22px;
@@ -338,17 +338,17 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
   // 将 windowId 注入到 App 组件，使其可通过 useApp(windowId) 访问系统 API
   const injectedComponent = React.cloneElement(component as React.ReactElement<{ windowId?: string }>, { windowId: id });
 
-  const isFocused = id === activeWindowId;
+  const $isFocused = id === activeWindowId;
 
   const content = (
     <WindowContainer
-      isFocus={isFocused}
+      $isFocus={$isFocused}
       ref={nodeRef}
       style={isMaximized ? style : { ...style, width: '100%', height: '100%' }}
       onClick={() => focusWindow(id)}
     >
       <TitleBar
-        isFocus={isFocused}
+        $isFocus={$isFocused}
         className="title-bar"
         onDoubleClick={() => isResizable && maximizeWindow(id)}
       >
@@ -356,7 +356,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
           <XPIcon name={icon || 'app_window'} size={16} className="title-icon" color="white" />
           {title || ''}
         </TitleText>
-        <TitleControls isFocus={isFocused}>
+        <TitleControls $isFocus={$isFocused}>
           <MinimizeBtn
             onClick={e => {
               e.stopPropagation();
@@ -436,12 +436,12 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
         >
           {/* Remove left/top/zIndex from WindowContainer style since the wrapper div handles it */}
           <WindowContainer
-            isFocus={isFocused}
+            $isFocus={$isFocused}
             style={{ width: '100%', height: '100%' }}
             onClick={() => focusWindow(id)}
           >
             <TitleBar
-              isFocus={isFocused}
+              $isFocus={$isFocused}
               className="title-bar"
               onDoubleClick={() => isResizable && maximizeWindow(id)}
             >
@@ -449,7 +449,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
                 <XPIcon name={icon || 'app_window'} size={16} className="title-icon" color="white" />
                 {title || ''}
               </TitleText>
-              <TitleControls isFocus={isFocused}>
+              <TitleControls $isFocus={$isFocused}>
                 <MinimizeBtn
                   onClick={e => {
                     e.stopPropagation();

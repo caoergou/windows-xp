@@ -193,15 +193,18 @@ export const FileSystemProvider: React.FC<{
         }
 
         // Inject recycle bin items from localStorage
-        if (savedRecycleBin && mergedFs.root?.children?.['回收站']) {
-          mergedFs.root.children['回收站'].children = {};
-          for (const [fileName, binItem] of Object.entries(savedRecycleBin)) {
-            mergedFs.root.children['回收站'].children[fileName] = binItem.item as FileNode;
+        const recycleBinNode = mergedFs.root?.children?.['回收站'];
+        if (recycleBinNode && isContainerNode(recycleBinNode)) {
+          if (savedRecycleBin) {
+            recycleBinNode.children = {};
+            for (const [fileName, binItem] of Object.entries(savedRecycleBin)) {
+              recycleBinNode.children[fileName] = binItem.item as FileNode;
+            }
+            recycleBinRef.current = savedRecycleBin;
+          } else {
+            // Load from JSON files (original behavior)
+            recycleBinNode.children = recycleBinItems;
           }
-          recycleBinRef.current = savedRecycleBin;
-        } else {
-          // Load from JSON files (original behavior)
-          mergedFs.root.children['回收站'].children = recycleBinItems;
         }
 
         setFs(mergeCustomFileSystem(mergedFs, customFsRef.current));
