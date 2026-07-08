@@ -33,37 +33,11 @@ const WindowsLogo = styled.div`
   margin-right: 15px;
   position: relative;
 
-  &::before, &::after, span::before, span::after {
-    content: '';
-    position: absolute;
-    width: 38px;
-    height: 38px;
-    border-radius: 2px;
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
-
-  &::before {
-    top: 0;
-    left: 0;
-    background-color: #f35325; /* Red */
-  }
-  &::after {
-    top: 0;
-    right: 0;
-    background-color: #81bc06; /* Green */
-  }
-  span::before {
-    bottom: 0;
-    left: 0;
-    background-color: #05a6f0; /* Blue */
-  }
-  span::after {
-    bottom: 0;
-    right: 0;
-    background-color: #ffba08; /* Yellow */
-  }
-
-  /* Make it wavy/flag like simple transform */
-  transform: skew(-10deg) rotate(-5deg);
 `;
 
 const LogoText = styled.div`
@@ -94,7 +68,7 @@ const ProgressBarContainer = styled.div`
   width: 200px;
   height: 15px;
   border: 2px solid #555;
-  border-radius: 3px;
+  border-radius: 0;
   padding: 2px;
   position: relative;
   background: transparent;
@@ -120,7 +94,7 @@ const ProgressBlocks = styled.div`
     width: 15px;
     height: 100%;
     background: linear-gradient(to bottom, #2d58cc 0%, #76a0f0 30%, #2d58cc 100%);
-    border-radius: 1px;
+    border-radius: 0;
     box-shadow: 0 0 2px #2d58cc;
   }
 `;
@@ -147,8 +121,15 @@ const BootScreen: React.FC<BootScreenProps> = ({ onComplete }) => {
   return (
     <Container>
       <LogoContainer>
-        {/* Simple CSS representation of Windows Flag */}
-        <WindowsLogo><span></span></WindowsLogo>
+        {/* Windows XP wavy flag logo */}
+        <WindowsLogo>
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5,10 C25,5 45,5 65,12 L65,45 C45,40 25,40 5,45 Z" fill="#f35325" />
+            <path d="M70,13 C80,16 90,18 95,22 L95,48 C90,45 80,43 70,42 Z" fill="#81bc06" />
+            <path d="M5,50 C25,45 45,45 65,50 L65,88 C45,82 25,82 5,88 Z" fill="#05a6f0" />
+            <path d="M70,51 C80,50 90,48 95,46 L95,84 C90,87 80,89 70,90 Z" fill="#ffba08" />
+          </svg>
+        </WindowsLogo>
         <LogoText>
           <Microsoft>Microsoft</Microsoft>
           <WindowsXP>Windows<span>XP</span></WindowsXP>
