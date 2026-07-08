@@ -14,6 +14,8 @@ const STICKY_NOTES_BY_LOCALE: Record<string, StickyNoteContent[]> = {
 ☐ 更新 360 安全卫士
 ☐ 用迅雷下载暴风影音
 
+🔑 密码提示：为了 2000s（小写）
+
 💡 小贴士：
    右键桌面可刷新`,
     },
@@ -27,6 +29,8 @@ const STICKY_NOTES_BY_LOCALE: Record<string, StickyNoteContent[]> = {
 ☑ PC password is configured
 ☐ Update Norton AntiVirus
 ☐ Download Winamp with uTorrent
+
+🔑 Password hint: for the 2000s (lowercase)
 
 💡 Tip:
    Right-click desktop to refresh`,

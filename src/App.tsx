@@ -7,6 +7,7 @@ import { useWindowManager } from './context/WindowManagerContext';
 import LoginScreen from './components/LoginScreen';
 import Desktop from './components/Desktop';
 import BootScreen from './components/BootScreen';
+import BsodScreen from './components/BsodScreen';
 import XPIcon from './components/XPIcon';
 import MobileWarning from './components/MobileWarning';
 import windowsIcon from './assets/icons/windows.svg';
@@ -149,6 +150,7 @@ function App({ initialLanguage }: AppProps = {}) {
   const [screenSaverFading, setScreenSaverFading] = useState(false);
   const [altTabVisible, setAltTabVisible] = useState(false);
   const [altTabIndex, setAltTabIndex] = useState(0);
+  const [bsodVisible, setBsodVisible] = useState(false);
 
   // One-time setup: context menu block + easter egg
   useEffect(() => {
@@ -194,6 +196,11 @@ function App({ initialLanguage }: AppProps = {}) {
         } else {
           setAltTabIndex(prev => (prev + 1) % windows.length);
         }
+      }
+      // BSOD easter egg: Ctrl+Shift+Alt+B
+      if (e.ctrlKey && e.shiftKey && e.altKey && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        setBsodVisible(true);
       }
     };
 
@@ -250,6 +257,10 @@ function App({ initialLanguage }: AppProps = {}) {
     localStorage.setItem('xp_power_state', 'running');
     setBootPhase('RUNNING');
   };
+
+  if (bsodVisible) {
+    return <BsodScreen onClick={() => setBsodVisible(false)} />;
+  }
 
   if (bootPhase === 'SCREENSAVER') {
     return (

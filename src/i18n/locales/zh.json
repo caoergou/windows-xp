@@ -88,6 +88,11 @@
     "notepad": "记事本",
     "paint": "画图",
     "calculator": "计算器",
+    "commandPrompt": "命令提示符",
+    "volumeControl": "音量控制",
+    "networkConnections": "网络连接",
+    "minesweeper": "扫雷",
+    "solitaire": "纸牌",
     "wordpad": "写字板",
     "mediaPlayer": "Windows Media Player",
     "messenger": "MSN Messenger",
@@ -264,6 +269,19 @@
       "mapGoogle": "谷歌地图",
       "dict": "在线词典"
     },
+    "toolbar": {
+      "back": "后退",
+      "forward": "前进",
+      "stop": "停止",
+      "refresh": "刷新",
+      "home": "主页",
+      "search": "搜索",
+      "favorites": "收藏夹",
+      "history": "历史"
+    },
+    "addressBar": {
+      "go": "转到"
+    },
     "menu": {
       "file": "文件(F)",
       "edit": "编辑(E)",
@@ -394,6 +412,7 @@
     "statusReady": "准备就绪"
   },
   "photoViewer": {
+    "title": "图片查看器",
     "noImageSelected": "未选择图片",
     "view": "查看"
   },
