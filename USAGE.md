@@ -29,6 +29,10 @@ The `WindowsXP` component accepts the following props:
 | `customFileSystem` | object | `null` | Custom file system structure (see below) |
 | `skipBoot` | boolean | `false` | Skip boot screen on first load |
 | `autoLogin` | boolean | `false` | Automatically login without showing login screen |
+| `storagePrefix` | string | `'xp_'` | Namespace prefix for localStorage / IndexedDB |
+| `disableContextMenuBlock` | boolean | `false` | Disable the global right-click menu block |
+| `disableDevToolsBlock` | boolean | `false` | Disable blocking of F12 / Ctrl+Shift+I/J/C |
+| `disableScreenSaver` | boolean | `false` | Disable the idle screensaver |
 
 ## Examples
 
@@ -260,41 +264,49 @@ function MyCustomComponent() {
 
 ### Programmatic Window Control
 
+`useWindowManager` is now exported from the package entry. It must be used inside the component tree rendered by `<WindowsXP />` (or `<AppProviders />`).
+
 ```jsx
 import { WindowsXP, useWindowManager } from '@caoergou/windows-xp';
+import Notepad from '@caoergou/windows-xp/dist/apps/Notepad';
 
-function MyApp() {
-  const windowManager = useWindowManager();
+function OpenNotepadButton() {
+  const { openWindow } = useWindowManager();
 
-  const openNotepad = () => {
-    windowManager.openWindow({
-      appId: 'Notepad',
-      title: 'Untitled - Notepad',
-      component: 'Notepad',
-      componentProps: { content: 'Hello World!' }
-    });
+  const handleClick = () => {
+    openWindow(
+      'Notepad',
+      'Untitled - Notepad',
+      <Notepad content="Hello World!" />,
+      'notepad',
+      { width: 600, height: 400 }
+    );
   };
 
+  return <button onClick={handleClick}>Open Notepad</button>;
+}
+
+function MyApp() {
   return (
-    <div>
-      <button onClick={openNotepad}>Open Notepad</button>
+    <>
+      <OpenNotepadButton />
       <WindowsXP />
-    </div>
+    </>
   );
 }
 ```
 
-### Custom Application Integration
+### Embedding in a host app
+
+When `<WindowsXP />` is embedded inside an existing application you usually want to disable the global event interceptors and use a unique storage namespace:
 
 ```jsx
-import { WindowsXP } from '@caoergou/windows-xp';
-
-// Register your custom app
-const customApps = {
-  'MyCustomApp': () => import('./MyCustomApp')
-};
-
-<WindowsXP customApps={customApps} />
+<WindowsXP
+  storagePrefix="myapp_xp_"
+  disableContextMenuBlock
+  disableDevToolsBlock
+  disableScreenSaver
+/>
 ```
 
 ## License

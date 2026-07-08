@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FavoriteItem } from '../types';
+import { safeLocalStorage, getStorageKey } from '../../../utils/storage';
 
-const STORAGE_KEY = 'xp_ie_favorites';
+const STORAGE_KEY = 'ie_favorites';
 
 const DEFAULT_FAVORITES_BY_LOCALE: Record<string, FavoriteItem[]> = {
   zh: [
@@ -43,13 +44,13 @@ export const useFavorites = () => {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = safeLocalStorage.getItem(getStorageKey(STORAGE_KEY));
       if (saved) {
         setFavorites(JSON.parse(saved));
       } else {
         const defaults = getDefaultFavorites(i18n.language);
         setFavorites(defaults);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
+        safeLocalStorage.setItem(getStorageKey(STORAGE_KEY), JSON.stringify(defaults));
       }
     } catch (e) {
       console.error('Failed to load favorites:', e);
@@ -60,7 +61,7 @@ export const useFavorites = () => {
     if (!name || !url) return;
     setFavorites(prev => {
       const updated = [...prev, { name, url }];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      safeLocalStorage.setItem(getStorageKey(STORAGE_KEY), JSON.stringify(updated));
       return updated;
     });
   }, []);
@@ -69,7 +70,7 @@ export const useFavorites = () => {
     setFavorites(prev => {
       const updated = [...prev];
       updated.splice(index, 1);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      safeLocalStorage.setItem(getStorageKey(STORAGE_KEY), JSON.stringify(updated));
       return updated;
     });
   }, []);

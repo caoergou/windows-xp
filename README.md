@@ -82,6 +82,7 @@ function App() {
   language="en"
   skipBoot={false}
   autoLogin={false}
+  storagePrefix="xp_"
 />
 ```
 

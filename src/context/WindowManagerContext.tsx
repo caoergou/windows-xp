@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect, useCallback, use
 import { restoreComponent } from '../utils/WindowFactory';
 import { WindowState, WindowProps } from '../types';
 import { WINDOW_DEFAULTS } from '../constants';
+import { safeLocalStorage, getStorageKey, canUseDOM } from '../utils/storage';
 
 interface WindowManagerContextType {
   windows: WindowState[];
@@ -35,7 +36,7 @@ export const WindowManagerProvider: React.FC<{
 }> = ({ children, value }) => {
   const [windows, setWindows] = useState<WindowState[]>(() => {
     try {
-      const saved = localStorage.getItem('xp_open_windows');
+      const saved = safeLocalStorage.getItem(getStorageKey('open_windows'));
       if (saved) {
         const parsed: WindowState[] = JSON.parse(saved);
         const restored = parsed.map(w => {
@@ -64,7 +65,7 @@ export const WindowManagerProvider: React.FC<{
     const windowsToSave = windows.map(
       ({ component: _component, onOpen: _onOpen, onClose: _onClose, onFocus: _onFocus, badge: _badge, progress: _progress, isFlashing: _isFlashing, ...rest }) => rest
     );
-    localStorage.setItem('xp_open_windows', JSON.stringify(windowsToSave));
+    safeLocalStorage.setItem(getStorageKey('open_windows'), JSON.stringify(windowsToSave));
   }, [windows]);
 
   // Focus a window
@@ -107,8 +108,8 @@ export const WindowManagerProvider: React.FC<{
 
     const windowWidth = props.width || 600;
     const windowHeight = props.height || 400;
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight - 30;
+    const screenWidth = canUseDOM ? window.innerWidth : 1280;
+    const screenHeight = canUseDOM ? window.innerHeight - 30 : 720;
 
     const defaultLeft = Math.max(0, (screenWidth - windowWidth) / 2);
     const defaultTop = Math.max(0, (screenHeight - windowHeight) / 2);
@@ -122,7 +123,7 @@ export const WindowManagerProvider: React.FC<{
       appId,
       title,
       component,
-      componentProps: (componentProps || {}) as Record<string, unknown>,  // 使用显式传递的 componentProps
+      componentProps: (componentProps || {}) as Record<string, unknown>,
       icon,
       props: windowProps,
       isMinimized: false,
