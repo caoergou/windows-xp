@@ -10,8 +10,12 @@
     "README.md",
     "LICENSE"
   ],
+  "sideEffects": [
+    "*.css"
+  ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/windows-xp.es.js",
       "require": "./dist/windows-xp.umd.js"
     },
@@ -20,7 +24,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:lib": "vite build --config vite.config.lib.ts",
+    "build:lib": "rm -rf dist && vite build --config vite.config.lib.ts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
@@ -60,24 +64,32 @@
   },
   "peerDependencies": {
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "framer-motion": "^10.0.0",
+    "i18next": "^25.0.0",
+    "immer": "^10.0.0 || ^11.0.0",
+    "lucide-react": "^0.400.0",
+    "react-draggable": "^4.4.0",
+    "react-i18next": "^16.0.0",
+    "react-old-icons": "^1.0.0",
+    "react-resizable": "^3.0.0",
+    "styled-components": "^5.0.0 || ^6.0.0",
+    "xp.css": "^0.2.0"
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "framer-motion": "^10.16.4",
     "i18next": "^25.8.13",
-    "i18next-browser-languagedetector": "^8.2.1",
     "immer": "^11.1.11",
     "lucide-react": "^0.556.0",
     "react-draggable": "^4.4.6",
     "react-i18next": "^16.5.4",
     "react-old-icons": "^1.0.2",
     "react-resizable": "^3.0.5",
-    "react-selecto": "^1.26.3",
     "styled-components": "^6.1.1",
-    "xp.css": "^0.2.5"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.57.0",
+    "vite-plugin-dts": "^4.5.3",
+    "xp.css": "^0.2.5",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@types/react": "^19.2.14",

@@ -36,15 +36,6 @@ export const FS_DEFAULTS = {
   MY_COMPUTER_PATH: 'My Computer',
 };
 
-// Local storage keys
-export const STORAGE_KEYS = {
-  WINDOWS: 'xp_open_windows',
-  LOGGED_IN: 'xp_logged_in',
-  POWER_STATE: 'xp_power_state',
-  IE_HISTORY: 'xp_ie_history',
-  IE_FAVORITES: 'xp_ie_favorites',
-};
-
 // Time constants (in milliseconds)
 export const TIME = {
   SCREENSAVER_TIMEOUT: 60000, // 1 minute

@@ -8,6 +8,7 @@ import { APP_REGISTRY, getAppDisplayName } from '../../registry/apps';
 import { defaultPlugin } from '../../apps/BrowserPlugins';
 import { getStartMenuApps } from '../../data/culture';
 import { WindowState } from '../../types';
+import { safeLocalStorage, getStorageKey, canUseDOM } from '../../utils/storage';
 import StartButton from './StartButton';
 import StartMenu from './StartMenu';
 import TaskList from './TaskList';
@@ -57,7 +58,7 @@ const Taskbar = () => {
   const taskContextMenuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = useCallback(() => {
-    localStorage.removeItem('xp_open_windows');
+    safeLocalStorage.removeItem(getStorageKey('open_windows'));
     logout();
   }, [logout]);
 
@@ -227,9 +228,11 @@ const Taskbar = () => {
   );
 
   const performPowerAction = useCallback((state: 'shutdown' | 'restart') => {
-    localStorage.removeItem('xp_open_windows');
-    localStorage.setItem('xp_power_state', state);
-    window.location.reload();
+    safeLocalStorage.removeItem(getStorageKey('open_windows'));
+    safeLocalStorage.setItem(getStorageKey('power_state'), state);
+    if (canUseDOM) {
+      window.location.reload();
+    }
   }, []);
 
   return (

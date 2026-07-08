@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useUserSession } from '../context/UserSessionContext';
 import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
+import { safeLocalStorage, getStorageKey, canUseDOM } from '../utils/storage';
 
 const Container = styled.div`
   background-color: #003399;
@@ -169,9 +170,11 @@ const LoginScreen = () => {
     const [error, setError] = useState<string>('');
 
     const handleShutdown = () => {
-        localStorage.setItem('xp_power_state', 'shutdown');
-        localStorage.removeItem('xp_first_boot_done');
-        window.location.reload();
+        safeLocalStorage.setItem(getStorageKey('power_state'), 'shutdown');
+        safeLocalStorage.removeItem(getStorageKey('first_boot_done'));
+        if (canUseDOM) {
+            window.location.reload();
+        }
     };
 
     const handleLogin = () => {

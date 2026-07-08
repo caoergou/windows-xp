@@ -1,16 +1,33 @@
 /**
  * Storage utilities for Windows XP Simulator
  * Uses IndexedDB for file content and localStorage for metadata
+ *
+ * All keys are prefixed with a configurable namespace so multiple instances
+ * embedded on the same origin do not clobber each other.
  */
 
 import { FileNode } from '../types';
 
-const DB_NAME = 'WindowsXP_FS';
+let storagePrefix = 'xp_';
+
+/** Set the namespace used for all localStorage / IndexedDB keys. */
+export const setStoragePrefix = (prefix: string): void => {
+  storagePrefix = prefix.endsWith('_') ? prefix : `${prefix}_`;
+};
+
+/** @internal */
+export const getStoragePrefix = (): string => storagePrefix;
+
+/** Build a fully-qualified storage key from a short key constant. */
+export const getStorageKey = (key: string): string => `${storagePrefix}${key}`;
+
 const DB_VERSION = 1;
 const STORE_NAME = 'fileContents';
 
-const METADATA_KEY = 'xp_fs_metadata';
-const RECYCLE_BIN_KEY = 'xp_fs_recycle_bin';
+const getDBName = (): string => `${storagePrefix}WindowsXP_FS`;
+
+const getMetadataKey = (): string => `${storagePrefix}fs_metadata`;
+const getRecycleBinKey = (): string => `${storagePrefix}fs_recycle_bin`;
 
 interface FileMetadata {
   path: string[];
@@ -39,6 +56,39 @@ interface RecycleBinItem {
   deletedAt: number;
 }
 
+/** True when running in a browser-like environment. */
+export const canUseDOM =
+  typeof window !== 'undefined' && typeof document !== 'undefined';
+
+/** SSR-safe localStorage wrapper. No-ops in Node / non-browser envs. */
+export const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    if (!canUseDOM) return null;
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.error('Failed to read localStorage:', e);
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    if (!canUseDOM) return;
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.error('Failed to write localStorage:', e);
+    }
+  },
+  removeItem: (key: string): void => {
+    if (!canUseDOM) return;
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.error('Failed to remove localStorage:', e);
+    }
+  },
+};
+
 // IndexedDB may be undefined in non-browser environments (e.g. jsdom, SSR)
 const idb = typeof indexedDB !== 'undefined' ? indexedDB : null;
 
@@ -49,7 +99,7 @@ function initDB(): Promise<IDBDatabase | null> {
       resolve(null);
       return;
     }
-    const request = idb.open(DB_NAME, DB_VERSION);
+    const request = idb.open(getDBName(), DB_VERSION);
 
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
@@ -119,62 +169,52 @@ export async function deleteFileContent(path: string[]): Promise<void> {
 
 // Save metadata to localStorage
 export function saveMetadata(metadata: FileSystemMetadata): void {
-  try {
-    localStorage.setItem(METADATA_KEY, JSON.stringify(metadata));
-  } catch (e) {
-    console.error('Failed to save metadata:', e);
-  }
+  safeLocalStorage.setItem(getMetadataKey(), JSON.stringify(metadata));
 }
 
 // Get metadata from localStorage
 export function getMetadata(): FileSystemMetadata | null {
+  const data = safeLocalStorage.getItem(getMetadataKey());
+  if (!data) return null;
   try {
-    const data = localStorage.getItem(METADATA_KEY);
-    return data ? JSON.parse(data) : null;
+    return JSON.parse(data);
   } catch (e) {
-    console.error('Failed to get metadata:', e);
+    console.error('Failed to parse metadata:', e);
     return null;
   }
 }
 
 // Clear all stored data
 export async function clearAllStorage(): Promise<void> {
-  try {
-    localStorage.removeItem(METADATA_KEY);
-    localStorage.removeItem(RECYCLE_BIN_KEY);
+  safeLocalStorage.removeItem(getMetadataKey());
+  safeLocalStorage.removeItem(getRecycleBinKey());
 
-    const db = await initDB();
-    if (!db) return;
+  const db = await initDB();
+  if (!db) return;
 
-    const transaction = db.transaction([STORE_NAME], 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
+  const transaction = db.transaction([STORE_NAME], 'readwrite');
+  const store = transaction.objectStore(STORE_NAME);
 
-    return new Promise((resolve, reject) => {
-      const request = store.clear();
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
-  } catch (e) {
-    console.error('Failed to clear storage:', e);
-  }
+  return new Promise((resolve, reject) => {
+    const request = store.clear();
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
 }
 
 // Save recycle bin to localStorage
 export function saveRecycleBin(items: Record<string, RecycleBinItem>): void {
-  try {
-    localStorage.setItem(RECYCLE_BIN_KEY, JSON.stringify(items));
-  } catch (e) {
-    console.error('Failed to save recycle bin:', e);
-  }
+  safeLocalStorage.setItem(getRecycleBinKey(), JSON.stringify(items));
 }
 
 // Get recycle bin from localStorage
 export function getRecycleBin(): Record<string, RecycleBinItem> | null {
+  const data = safeLocalStorage.getItem(getRecycleBinKey());
+  if (!data) return null;
   try {
-    const data = localStorage.getItem(RECYCLE_BIN_KEY);
-    return data ? JSON.parse(data) : null;
+    return JSON.parse(data);
   } catch (e) {
-    console.error('Failed to get recycle bin:', e);
+    console.error('Failed to parse recycle bin:', e);
     return null;
   }
 }

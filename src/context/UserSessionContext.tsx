@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import userConfig from '../data/user_config.json';
+import { safeLocalStorage, getStorageKey } from '../utils/storage';
 
 interface UserSessionContextType {
   isLoggedIn: boolean;
@@ -19,9 +20,11 @@ export const useUserSession = (): UserSessionContextType => {
 };
 
 // Check if login is required: only after shutdown, restart, or logout
-const getInitialLoginState = (): boolean => {
-  const powerState = localStorage.getItem('xp_power_state');
-  const hasLoggedInBefore = localStorage.getItem('xp_logged_in') === 'true';
+const getInitialLoginState = (autoLogin?: boolean): boolean => {
+  if (autoLogin) return true;
+
+  const powerState = safeLocalStorage.getItem(getStorageKey('power_state'));
+  const hasLoggedInBefore = safeLocalStorage.getItem(getStorageKey('logged_in')) === 'true';
 
   // Shutdown, restart, logout → need to login again
   if (powerState === 'shutdown' || powerState === 'restart' || powerState === 'logout') {
@@ -36,8 +39,9 @@ export const UserSessionProvider: React.FC<{
   children: React.ReactNode;
   username?: string;
   password?: string;
-}> = ({ children, username = userConfig.username, password = userConfig.password }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(getInitialLoginState);
+  autoLogin?: boolean;
+}> = ({ children, username = userConfig.username, password = userConfig.password, autoLogin }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => getInitialLoginState(autoLogin));
   const [user, setUser] = useState<{ name: string; avatar: string }>({
     name: username,
     avatar: userConfig.avatar
@@ -47,11 +51,18 @@ export const UserSessionProvider: React.FC<{
     setUser(prev => ({ ...prev, name: username }));
   }, [username]);
 
+  useEffect(() => {
+    if (autoLogin) {
+      safeLocalStorage.setItem(getStorageKey('logged_in'), 'true');
+      safeLocalStorage.setItem(getStorageKey('power_state'), 'running');
+    }
+  }, [autoLogin]);
+
   const login = (inputPassword: string): boolean => {
     if (inputPassword === password) {
       setIsLoggedIn(true);
-      localStorage.setItem('xp_logged_in', 'true');
-      localStorage.setItem('xp_power_state', 'running');
+      safeLocalStorage.setItem(getStorageKey('logged_in'), 'true');
+      safeLocalStorage.setItem(getStorageKey('power_state'), 'running');
       return true;
     }
     return false;
@@ -59,7 +70,7 @@ export const UserSessionProvider: React.FC<{
 
   const logout = () => {
     setIsLoggedIn(false);
-    localStorage.setItem('xp_power_state', 'logout');
+    safeLocalStorage.setItem(getStorageKey('power_state'), 'logout');
   };
 
   const contextValue: UserSessionContextType = {

@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { BrowsingHistoryItem } from '../types';
+import { safeLocalStorage, getStorageKey } from '../../../utils/storage';
 
-const STORAGE_KEY = 'xp_ie_history';
+const STORAGE_KEY = 'ie_history';
 const HISTORY_LIMIT = 100;
 
 export const useBrowsingHistory = () => {
@@ -9,7 +10,7 @@ export const useBrowsingHistory = () => {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = safeLocalStorage.getItem(getStorageKey(STORAGE_KEY));
       if (saved) {
         setBrowsingHistory(JSON.parse(saved));
       }
@@ -22,10 +23,10 @@ export const useBrowsingHistory = () => {
     if (!url || url === 'about:blank') return;
 
     try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const saved = JSON.parse(safeLocalStorage.getItem(getStorageKey(STORAGE_KEY)) || '[]');
       const newItem = { url, timestamp: Date.now() };
       const newHistory = [newItem, ...saved].slice(0, HISTORY_LIMIT);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
+      safeLocalStorage.setItem(getStorageKey(STORAGE_KEY), JSON.stringify(newHistory));
       setBrowsingHistory(newHistory);
     } catch (e) {
       console.error(e);
@@ -33,7 +34,7 @@ export const useBrowsingHistory = () => {
   }, []);
 
   const clearHistory = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
+    safeLocalStorage.removeItem(getStorageKey(STORAGE_KEY));
     setBrowsingHistory([]);
   }, []);
 
