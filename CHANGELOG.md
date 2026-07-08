@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 - Added English locale e2e smoke tests for Western cultural icons and Run Dialog app launching.
 - CI quality gates: lint, typecheck, and unit tests now run before build/deploy and before npm publish.
 - Added `CONTRIBUTING.md` and this changelog.
+- BSOD easter egg triggered by Ctrl+Shift+Alt+B.
+- Sticky note password hint for both locales.
 
 ### Changed
 
