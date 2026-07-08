@@ -31,8 +31,7 @@ const Tab = styled.div`
   border: 1px solid #919B9C;
   border-bottom: 1px solid ${props => props.$active ? '#ECE9D8' : '#919B9C'};
   background-color: ${props => props.$active ? '#ECE9D8' : '#ECE9D8'};
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
+  border-radius: 0;
   margin-right: 2px;
   cursor: pointer;
   position: relative;
@@ -52,7 +51,6 @@ const TabContent = styled.div`
   flex-direction: column;
   gap: 10px;
   overflow-y: auto;
-  box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 `;
 
 const PropertyRow = styled.div`

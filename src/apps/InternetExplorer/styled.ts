@@ -259,8 +259,8 @@ export const AddFavoriteModal = styled.div`
   background: white;
   padding: 20px;
   border: 2px solid #316ac5;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-radius: 0;
+  box-shadow: 2px 2px 0 #808080;
   z-index: 1000;
   min-width: 300px;
 `;

@@ -1,37 +1,34 @@
 import React from 'react';
 import styled from 'styled-components';
-import XPIcon from '../XPIcon';
+import startButtonImg from '../../assets/windowsIcons/start.png';
 
 const StartButtonContainer = styled.button`
   height: 30px;
   width: 100px;
-  background: linear-gradient(to bottom, #3e864e 0%, #57a965 10%, #3e864e 100%);
+  background: transparent;
   border: none;
   border-radius: 0;
-  color: white;
-  font-style: italic;
-  font-weight: bold;
-  font-size: 14px;
+  padding: 0;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  padding-left: 10px;
-  cursor: pointer;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+
+  img {
+    height: 100%;
+    width: auto;
+    display: block;
+  }
 
   &:hover {
-    filter: brightness(1.1);
+    filter: brightness(1.05);
   }
 
   &:active,
   &.active {
-    filter: brightness(0.9);
-    box-shadow: inset 2px 2px 2px rgba(0, 0, 0, 0.5);
-  }
-
-  .start-icon {
-    margin-right: 4px;
-    filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3));
+    filter: brightness(0.85);
   }
 `;
 
@@ -48,9 +45,10 @@ const StartButton: React.FC<StartButtonProps> = ({ label, isActive, buttonRef, o
     data-testid="start-button"
     onClick={onClick}
     className={isActive ? 'active' : ''}
+    title={label}
+    aria-label={label}
   >
-    <XPIcon name="windows" size={20} className="start-icon" color="white" />
-    {label}
+    <img src={startButtonImg} alt={label} />
   </StartButtonContainer>
 );
 

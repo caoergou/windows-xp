@@ -14,7 +14,6 @@ export const WindowContainer = styled.div<{ $isFocus?: boolean }>`
   background-color: ${({ $isFocus }) => ($isFocus ? '#0831d9' : '#6582f5')};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
   padding: 3px;
 
   .react-resizable-handle {
@@ -41,8 +40,8 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
   user-select: none;
   position: relative;
   font-weight: 700;
-  font-size: 12px;
-  font-family: 'Tahoma', 'Microsoft YaHei', sans-serif;
+  font-size: 13px;
+  font-family: 'Trebuchet MS', 'Microsoft YaHei', sans-serif;
   text-shadow: 1px 1px #000;
   color: white;
   flex-shrink: 0;
@@ -79,7 +78,8 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
 const TitleText = styled.div`
   color: white;
   font-weight: bold;
-  font-size: 12px;
+  font-size: 13px;
+  font-family: 'Trebuchet MS', 'Microsoft YaHei', sans-serif;
   text-shadow: 1px 1px 1px black;
   display: flex;
   align-items: center;
