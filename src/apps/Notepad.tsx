@@ -125,8 +125,16 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
     const [isReadOnly, setIsReadOnly] = useState(readOnly);
 
     // Ref to always access the latest keyboard handlers without re-registering the listener
-    const keyboardHandlersRef = useRef({ handleNew, handleOpen, handleSave, handleSaveAs, handleCut, handlePaste, handleSelectAll, handleCopy });
-    keyboardHandlersRef.current = { handleNew, handleOpen, handleSave, handleSaveAs, handleCut, handlePaste, handleSelectAll, handleCopy };
+    const keyboardHandlersRef = useRef<{
+        handleNew: () => void;
+        handleOpen: () => void;
+        handleSave: () => Promise<void>;
+        handleSaveAs: () => Promise<void>;
+        handleCut: () => void;
+        handlePaste: () => void;
+        handleSelectAll: () => void;
+        handleCopy: () => void;
+    } | null>(null);
 
     // Update window title when file changes
     useEffect(() => {
@@ -404,6 +412,10 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
         }
     };
 
+    // Populate the ref after all handlers are initialized so we never read
+    // them from the temporary dead zone (TDZ) during the initial render.
+    keyboardHandlersRef.current = { handleNew, handleOpen, handleSave, handleSaveAs, handleCut, handlePaste, handleSelectAll, handleCopy };
+
     // Click outside to close menu
     useEffect(() => {
         if (!openMenu) return;
@@ -512,7 +524,7 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
     // Keyboard shortcuts
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            const handlers = keyboardHandlersRef.current;
+            const handlers = keyboardHandlersRef.current!;
             if (e.ctrlKey) {
                 switch (e.key.toLowerCase()) {
                     case 'n':

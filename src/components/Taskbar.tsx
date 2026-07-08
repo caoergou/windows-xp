@@ -162,7 +162,7 @@ const StartMenu = styled.div`
     background: white;
     border: 1px solid #003399;
     border-radius: 0;
-    z-index: 10000;
+    z-index: 20000;
     box-shadow: 2px -2px 5px rgba(0,0,0,0.5);
     display: flex;
     flex-direction: column;
@@ -498,7 +498,8 @@ const Taskbar = () => {
         } else if (appName === 'AllPrograms') {
             showModal(t('startMenu.allPrograms'), t('apps.comingSoon'), 'info');
         } else if (appName === 'DummyApp') {
-            showModal(pathOrKey || t('errors.program'), t('errors.fileNotFoundMessage', { name: pathOrKey }), 'error');
+            const dummy = APP_REGISTRY.DummyApp;
+            openWindow(dummy.id, pathOrKey || dummy.name, dummy.restore({ appName: pathOrKey }), dummy.icon, dummy.window);
         } else if (appName in APP_REGISTRY) {
             // 通用注册应用启动（暴风影音、酷狗音乐等）
             const app = APP_REGISTRY[appName];

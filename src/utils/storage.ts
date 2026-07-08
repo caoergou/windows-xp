@@ -39,10 +39,17 @@ interface RecycleBinItem {
   deletedAt: number;
 }
 
+// IndexedDB may be undefined in non-browser environments (e.g. jsdom, SSR)
+const idb = typeof indexedDB !== 'undefined' ? indexedDB : null;
+
 // Initialize IndexedDB
-function initDB(): Promise<IDBDatabase> {
+function initDB(): Promise<IDBDatabase | null> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    if (!idb) {
+      resolve(null);
+      return;
+    }
+    const request = idb.open(DB_NAME, DB_VERSION);
 
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
@@ -59,6 +66,8 @@ function initDB(): Promise<IDBDatabase> {
 // Save file content to IndexedDB
 export async function saveFileContent(path: string[], content: string): Promise<void> {
   const db = await initDB();
+  if (!db) return;
+
   const transaction = db.transaction([STORE_NAME], 'readwrite');
   const store = transaction.objectStore(STORE_NAME);
 
@@ -74,6 +83,8 @@ export async function saveFileContent(path: string[], content: string): Promise<
 // Get file content from IndexedDB
 export async function getFileContent(path: string[]): Promise<string | null> {
   const db = await initDB();
+  if (!db) return null;
+
   const transaction = db.transaction([STORE_NAME], 'readonly');
   const store = transaction.objectStore(STORE_NAME);
 
@@ -92,6 +103,8 @@ export async function getFileContent(path: string[]): Promise<string | null> {
 // Delete file content from IndexedDB
 export async function deleteFileContent(path: string[]): Promise<void> {
   const db = await initDB();
+  if (!db) return;
+
   const transaction = db.transaction([STORE_NAME], 'readwrite');
   const store = transaction.objectStore(STORE_NAME);
 
@@ -131,6 +144,8 @@ export async function clearAllStorage(): Promise<void> {
     localStorage.removeItem(RECYCLE_BIN_KEY);
 
     const db = await initDB();
+    if (!db) return;
+
     const transaction = db.transaction([STORE_NAME], 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
 
