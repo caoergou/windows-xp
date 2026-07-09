@@ -335,7 +335,7 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
         handleSelectAll: () => void;
         handleCopy: () => void;
         handleFind: () => void;
-        handleReplace: () => void;
+        handleOpenReplace: () => void;
         handleToggleWrap: () => void;
         handleToggleStatusBar: () => void;
         handleAbout: () => void;
@@ -349,7 +349,8 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
         } else {
             api.window.setTitle(isModified ? '无标题 * - 记事本' : '无标题 - 记事本');
         }
-    }, [currentFileName, isModified, api.window]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentFileName, isModified]);
 
     const pushHistory = () => {
         historyRef.current.past.push({ ...editorStateRef.current });
@@ -539,7 +540,7 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
     };
 
     // Find / Replace
-    const openFindDialog = () => {
+    const handleFind = () => {
         const ta = textareaRef.current;
         const selected = ta ? ta.value.substring(ta.selectionStart, ta.selectionEnd) : '';
         setFindQuery(selected || findQuery);
@@ -548,7 +549,7 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
         setTimeout(() => findInputRef.current?.focus(), 0);
     };
 
-    const openReplaceDialog = () => {
+    const handleOpenReplace = () => {
         const ta = textareaRef.current;
         const selected = ta ? ta.value.substring(ta.selectionStart, ta.selectionEnd) : '';
         setReplaceQuery(selected || replaceQuery);
@@ -874,7 +875,7 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
     keyboardHandlersRef.current = {
         handleNew, handleOpen, handleSave, handleSaveAs,
         handleUndo, handleRedo, handleCut, handlePaste, handleDelete,
-        handleSelectAll, handleCopy, handleFind, handleReplace,
+        handleSelectAll, handleCopy, handleFind, handleOpenReplace,
         handleToggleWrap, handleToggleStatusBar, handleAbout
     };
 
@@ -926,7 +927,7 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
             { label: '删除(L)', shortcut: 'Del', action: handleDelete },
             { type: 'separator' as const },
             { label: '查找(F)...', shortcut: 'Ctrl+F', action: handleFind },
-            { label: '替换(R)...', shortcut: 'Ctrl+H', action: handleReplace },
+            { label: '替换(R)...', shortcut: 'Ctrl+H', action: handleOpenReplace },
             { type: 'separator' as const },
             { label: '全选(A)', shortcut: 'Ctrl+A', action: handleSelectAll },
         ];
@@ -1059,7 +1060,7 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
                         break;
                     case 'h':
                         e.preventDefault();
-                        handlers.handleReplace();
+                        handlers.handleOpenReplace();
                         break;
                 }
             } else if (e.key === 'Delete') {
@@ -1097,8 +1098,15 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
                                     findStartIndexRef.current = 0;
                                 }}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter') handleFindNext();
-                                    if (e.key === 'Escape') closeDialog();
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleFindNext();
+                                    }
+                                    if (e.key === 'Escape') {
+                                        e.preventDefault();
+                                        closeDialog();
+                                    }
                                 }}
                             />
                         </DialogRow>
@@ -1135,7 +1143,15 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
                                     replaceStartIndexRef.current = 0;
                                 }}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Escape') closeDialog();
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleReplaceFindNext();
+                                    }
+                                    if (e.key === 'Escape') {
+                                        e.preventDefault();
+                                        closeDialog();
+                                    }
                                 }}
                             />
                         </DialogRow>
@@ -1145,7 +1161,10 @@ const Notepad = ({ content: initialContent = '', readOnly = false, windowId, fil
                                 value={replaceWith}
                                 onChange={(e) => setReplaceWith(e.target.value)}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Escape') closeDialog();
+                                    if (e.key === 'Escape') {
+                                        e.preventDefault();
+                                        closeDialog();
+                                    }
                                 }}
                             />
                         </DialogRow>

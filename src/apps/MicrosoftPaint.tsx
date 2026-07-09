@@ -206,7 +206,8 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
       const title = isModified ? '无标题 * - 画图' : '无标题 - 画图';
       api.window.setTitle(title);
     }
-  }, [currentFileName, isModified, api.window]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentFileName, isModified]);
 
   // Load image from props when available
   useEffect(() => {
