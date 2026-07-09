@@ -27,7 +27,8 @@ button:focus-visible {
   box-shadow: none !important;
 }
 
-#root {
+html, body, #root {
   width: 100vw;
   height: 100vh;
+  min-width: 1024px;
 }

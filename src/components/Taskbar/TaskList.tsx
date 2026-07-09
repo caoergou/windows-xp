@@ -9,7 +9,14 @@ const TaskItems = styled.div`
   display: flex;
   padding-left: 5px;
   gap: 2px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const taskFlash = keyframes`
@@ -18,7 +25,8 @@ const taskFlash = keyframes`
 `;
 
 const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 40px;
   max-width: 150px;
   height: 22px;
   color: #fff;
