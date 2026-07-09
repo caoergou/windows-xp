@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { TFunction } from 'i18next';
 import XPIcon from '../XPIcon';
+import { xpScrollbarStyles } from '../../theme';
 
 const StartMenuContainer = styled.div`
   position: absolute;
@@ -118,6 +119,7 @@ const StartLeft = styled.div`
   background: #fff;
   padding: 6px 5px 0;
   overflow-y: auto;
+  ${xpScrollbarStyles}
 `;
 
 const StartRight = styled.div`
@@ -126,6 +128,7 @@ const StartRight = styled.div`
   border-left: solid rgba(58, 58, 255, 0.37) 1px;
   padding: 6px 5px 5px;
   overflow-y: auto;
+  ${xpScrollbarStyles}
 `;
 
 const MenuItem = styled.div`

@@ -10,6 +10,7 @@ import ExplorerToolbar from '../components/Explorer/ExplorerToolbar';
 import AddressBar from '../components/Explorer/AddressBar';
 import ContextMenu from '../components/ContextMenu';
 import FileProperties from '../components/FileProperties';
+import { xpScrollbarStyles } from '../theme';
 import { FileNode } from '../types';
 
 const Container = styled.div`
@@ -34,6 +35,7 @@ const FileArea = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
+    ${xpScrollbarStyles}
 `;
 
 const GroupHeader = styled.div`

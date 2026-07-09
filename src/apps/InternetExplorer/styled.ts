@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components';
+import { xpScrollbarStyles, xpButtonStyles } from '../../theme';
 
 export const Container = styled.div`
   width: 100%;
@@ -40,6 +41,7 @@ export const HistoryList = styled.div`
   overflow-y: auto;
   padding: 0;
   background: white;
+  ${xpScrollbarStyles}
 `;
 
 export const HistoryItem = styled.div`
@@ -118,19 +120,7 @@ export const FavoritesToolbar = styled.div`
 
 export const ToolbarButton = styled.button`
   padding: 3px 8px;
-  font-size: 11px;
-  cursor: pointer;
-  border: 1px solid #ccc;
-  background: #f8f8f8;
-  border-radius: 2px;
-
-  &:hover {
-    background: #e8e8e8;
-  }
-
-  &:active {
-    background: #ddd;
-  }
+  ${xpButtonStyles}
 `;
 
 export const Content = styled.div`
