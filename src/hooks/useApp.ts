@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useModal } from '../context/ModalContext';
 import { useFileSystem } from '../context/FileSystemContext';
@@ -31,7 +32,7 @@ export function useApp(windowId: string) {
 
   const trayId = `app-tray-${windowId}`;
 
-  return {
+  return useMemo(() => ({
     // ── 当前窗口控制 ────────────────────────────────────────────────────────
     window: {
       id:          windowId,
@@ -75,5 +76,13 @@ export function useApp(windowId: string) {
       unregister: ()        => unregister(trayId),
       update:     (updates: Partial<Omit<TrayItem, 'id'>>) => update(trayId, updates),
     },
-  };
+  }), [
+    windowId,
+    setWindowTitle, closeWindow, minimizeWindow, maximizeWindow,
+    setWindowBadge, setWindowProgress, flashWindow,
+    openWindow, dialog,
+    getFile, checkAccess,
+    user?.name, logout,
+    register, unregister, update, trayId,
+  ]);
 }

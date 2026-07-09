@@ -70,7 +70,35 @@
               "游戏": {
                 "type": "folder",
                 "name": "游戏",
-                "children": {}
+                "children": {
+                  "聊天记录.txt": {
+                    "type": "file",
+                    "name": "聊天记录.txt",
+                    "icon": "file",
+                    "app": "Notepad",
+                    "content": "「往事随风」对「水晶女孩」说：\r\n在吗？晚上去网吧联机 CS 吗？\r\n\r\n「水晶女孩」对「往事随风」说：\r\n好呀，我先把 QQ 隐身挂好等级。\r\n\r\n「往事随风」对「水晶女孩」说：\r\n哈哈，记得把迅雷下载完的电影发我。\r\n"
+                  },
+                  "CS1.6.lnk": {
+                    "type": "app_shortcut",
+                    "name": "CS1.6.lnk",
+                    "app": "InternetExplorer",
+                    "icon": "app_window",
+                    "url": "about:blank"
+                  }
+                }
+              },
+              "音乐": {
+                "type": "folder",
+                "name": "音乐",
+                "children": {
+                  "我的最爱.m3u": {
+                    "type": "file",
+                    "name": "我的最爱.m3u",
+                    "icon": "media_player",
+                    "app": "WindowsMediaPlayer",
+                    "broken": true
+                  }
+                }
               }
             }
           },
@@ -108,6 +136,13 @@
                     "name": "Mozart - Eine Kleine.mp3",
                     "icon": "music_library",
                     "broken": true
+                  },
+                  "Sample Music.mp3": {
+                    "type": "file",
+                    "name": "Sample Music.mp3",
+                    "icon": "music_library",
+                    "app": "mp3",
+                    "content": "/audio/sample.mp3"
                   }
                 }
               }
@@ -141,6 +176,12 @@
                 }
               }
             }
+          },
+          "我的图片": {
+            "type": "folder",
+            "name": "我的图片",
+            "icon": "folder",
+            "children": {}
           },
           "My Videos": {
             "type": "folder",

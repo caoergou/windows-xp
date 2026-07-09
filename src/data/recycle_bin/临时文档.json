@@ -1,0 +1,10 @@
+{
+  "临时文档.txt": {
+    "type": "file",
+    "name": "临时文档.txt",
+    "icon": "file",
+    "app": "Notepad",
+    "content": "会议记录（临时）\r\n\r\n1. 下周二前把报表交给王姐\r\n2. 记得给打印机加墨\r\n3. 晚上 8 点约好去网吧联机打 CS\r\n\r\n——写完后忘了删\r\n",
+    "description": "临时记事本文件"
+  }
+}

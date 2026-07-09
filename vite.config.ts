@@ -6,5 +6,8 @@ export default defineConfig({
   base: '/windows-xp/',
   server: {
     port: 5173,
+    watch: {
+      ignored: ['**/xp-research/**'],
+    },
   },
 });

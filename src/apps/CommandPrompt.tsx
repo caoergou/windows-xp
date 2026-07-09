@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useApp } from '../hooks/useApp';
-import { isFileContentNode } from '../types';
+import { isFileContentNode, isContainerNode, FileNode } from '../types';
+import { parseCmdArgs, resolveCmdPath } from '../utils/commandPath';
 
 const DRIVE_ROOT = ['root', '我的电脑', '本地磁盘 (C:)'] as const;
+const PROTECTED_FOLDERS = ['Windows', 'WINDOWS', 'Program Files'];
 
 const Container = styled.div`
   font-family: 'Lucida Console', 'Courier New', monospace;
@@ -74,7 +76,7 @@ interface CommandPromptProps {
 }
 
 const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
-  const { getFile } = useFileSystem();
+  const { getFile, createFolder, deleteFolder, renameNode, copyFile, deleteFile } = useFileSystem();
   const api = useApp(windowId);
   const [output, setOutput] = useState<string>(
     'Microsoft Windows XP [版本 5.1.2600]\n(C) 版权所有 1985-2001 Microsoft Corp.\n\n'
@@ -101,26 +103,7 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
     return relative.length ? `C:\\${relative.join('\\')}>` : 'C:\\>';
   };
 
-  const resolvePath = (path: string): string[] => {
-    if (path === '\\' || path === '/') {
-      return [...DRIVE_ROOT];
-    }
-
-    if (path.startsWith('C:') || path.startsWith('c:')) {
-      const stripped = path.slice(2).replace(/^[\\/]+/, '');
-      if (!stripped) return [...DRIVE_ROOT];
-      const parts = stripped.split(/[\\/]/).filter(Boolean);
-      return [...DRIVE_ROOT, ...parts];
-    }
-
-    if (path.startsWith('\\') || path.startsWith('/')) {
-      const parts = path.split(/[\\/]/).filter(Boolean);
-      return ['root', ...parts];
-    }
-
-    const parts = path.split(/[\\/]/).filter(Boolean);
-    return [...currentPath, ...parts];
-  };
+  const resolvePath = (path: string): string[] => resolveCmdPath(path, currentPath, DRIVE_ROOT);
 
   const formatSize = (size?: number) => {
     if (!size) return '0';
@@ -140,14 +123,16 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
     const trimmed = cmd.trim();
     if (!trimmed) return '';
 
-    const [command, ...args] = trimmed.split(/\s+/);
+    const [command, ...args] = parseCmdArgs(trimmed);
     const lowerCmd = command.toLowerCase();
 
     switch (lowerCmd) {
       case 'help':
         return `有关某个命令的详细信息，请键入 HELP 命令名
 CLS         清除屏幕。
+COPY        将至少一个文件复制到另一个位置。
 DATE        显示或设置日期。
+DEL         删除至少一个文件。
 DIR         显示目录中的文件和子目录列表。
 ECHO        显示消息，或将命令回显打开或关闭。
 EXIT        退出 CMD.EXE 程序(命令解释程序)。
@@ -157,6 +142,7 @@ PING        测试网络连接。
 RD          删除目录。
 REN         重命名文件。
 TIME        显示或设置系统时间。
+TREE        以图形显示驱动器或路径的目录结构。
 TYPE        显示文本文件的内容。
 VER         显示 Windows 版本。
 VOL         显示磁盘卷标和序列号。`;
@@ -281,15 +267,213 @@ VOL         显示磁盘卷标和序列号。`;
       }
 
       case 'md':
-      case 'mkdir':
-        return `目录已存在或无法创建。\n`;
+      case 'mkdir': {
+        if (!args[0]) {
+          return '语法不正确。\n';
+        }
+
+        const targetPath = resolvePath(args[0]);
+        const parentPath = targetPath.slice(0, -1);
+        const folderName = targetPath[targetPath.length - 1];
+
+        if (!folderName) {
+          return '语法不正确。\n';
+        }
+
+        const parent = getFile(parentPath);
+        if (!parent || !isContainerNode(parent)) {
+          return '系统找不到指定的路径。\n';
+        }
+
+        if (parent.locked) {
+          return '拒绝访问。\n';
+        }
+
+        if (getFile(targetPath)) {
+          return '子目录或文件 已存在。\n';
+        }
+
+        createFolder(parentPath, folderName);
+        return '';
+      }
 
       case 'rd':
-      case 'rmdir':
-        return `目录不是空的。\n`;
+      case 'rmdir': {
+        if (!args[0]) {
+          return '语法不正确。\n';
+        }
+
+        const targetPath = resolvePath(args[0]);
+        const parentPath = targetPath.slice(0, -1);
+        const folderName = targetPath[targetPath.length - 1];
+        const folder = getFile(targetPath);
+        const parent = getFile(parentPath);
+
+        if (!folder) {
+          return '系统找不到指定的文件。\n';
+        }
+
+        if (folder.type !== 'folder') {
+          return '目录名称无效。\n';
+        }
+
+        if (
+          folder.locked ||
+          parent?.locked ||
+          (PROTECTED_FOLDERS.includes(folderName) && parentPath.length === DRIVE_ROOT.length)
+        ) {
+          return '拒绝访问。\n';
+        }
+
+        if (isContainerNode(folder) && Object.keys(folder.children || {}).length > 0) {
+          return '目录不是空的。\n';
+        }
+
+        deleteFolder(parentPath, folderName);
+        return '';
+      }
 
       case 'ren':
-        return args.length < 2 ? '语法不正确。\n' : '拒绝访问。\n';
+      case 'rename': {
+        if (args.length < 2) {
+          return '语法不正确。\n';
+        }
+
+        const sourcePath = resolvePath(args[0]);
+        const sourceName = sourcePath[sourcePath.length - 1];
+        const parentPath = sourcePath.slice(0, -1);
+        const targetName = args[1].replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1');
+        const source = getFile(sourcePath);
+
+        if (!source) {
+          return '系统找不到指定的文件。\n';
+        }
+
+        if (/[\\/]/.test(targetName)) {
+          return '语法不正确。\n';
+        }
+
+        if (
+          source.locked ||
+          (source.type === 'folder' &&
+            PROTECTED_FOLDERS.includes(sourceName) &&
+            parentPath.length === DRIVE_ROOT.length)
+        ) {
+          return '拒绝访问。\n';
+        }
+
+        const parent = getFile(parentPath);
+        if (!parent || !isContainerNode(parent)) {
+          return '系统找不到指定的路径。\n';
+        }
+
+        if (parent.locked) {
+          return '拒绝访问。\n';
+        }
+
+        if (parent.children?.[targetName]) {
+          return '当文件已存在时，无法创建该文件。\n';
+        }
+
+        renameNode(parentPath, sourceName, targetName);
+        return '';
+      }
+
+      case 'copy': {
+        if (args.length < 2) {
+          return '语法不正确。\n';
+        }
+
+        const sourcePath = resolvePath(args[0]);
+        const destPath = resolvePath(args[1]);
+        const sourceName = sourcePath[sourcePath.length - 1];
+        const sourceParent = sourcePath.slice(0, -1);
+        const source = getFile(sourcePath);
+        const sourceParentNode = getFile(sourceParent);
+
+        if (!source) {
+          return '系统找不到指定的文件。\n';
+        }
+
+        if (source.type === 'folder' || sourceParentNode?.locked) {
+          return '拒绝访问。\n';
+        }
+
+        let destParent: string[];
+        let destName: string;
+        const destNode = getFile(destPath);
+
+        if (destNode && destNode.type === 'folder' && isContainerNode(destNode)) {
+          destParent = destPath;
+          destName = sourceName;
+        } else {
+          destName = destPath[destPath.length - 1] || sourceName;
+          destParent = destPath.slice(0, -1);
+        }
+
+        const destParentNode = getFile(destParent);
+        if (!destParentNode || !isContainerNode(destParentNode)) {
+          return '系统找不到指定的路径。\n';
+        }
+
+        if (destParentNode.locked || destParentNode.children?.[destName]) {
+          return '拒绝访问。\n';
+        }
+
+        copyFile(sourceParent, sourceName, destParent, destName);
+        return '        1 个文件已被复制。\n';
+      }
+
+      case 'del': {
+        if (!args[0]) {
+          return '语法不正确。\n';
+        }
+
+        const targetPath = resolvePath(args[0]);
+        const fileName = targetPath[targetPath.length - 1];
+        const parentPath = targetPath.slice(0, -1);
+        const target = getFile(targetPath);
+        const parent = getFile(parentPath);
+
+        if (!target) {
+          return '系统找不到指定的文件。\n';
+        }
+
+        if (target.type === 'folder' || parent?.locked) {
+          return '拒绝访问。\n';
+        }
+
+        deleteFile(parentPath, fileName);
+        return '';
+      }
+
+      case 'tree': {
+        const targetPath = args[0] ? resolvePath(args[0]) : currentPath;
+        const folder = getFile(targetPath);
+
+        if (!folder || !isContainerNode(folder)) {
+          return '系统找不到指定的路径。\n';
+        }
+
+        const buildTree = (node: FileNode, prefix: string): string => {
+          if (!isContainerNode(node) || !node.children) return '';
+          const entries = Object.entries(node.children).filter(
+            ([, child]) => child.type === 'folder'
+          );
+          let result = '';
+          for (let i = 0; i < entries.length; i++) {
+            const [name, child] = entries[i];
+            const isLast = i === entries.length - 1;
+            result += `${prefix}${isLast ? '└──' : '├──'}${name}\n`;
+            result += buildTree(child, prefix + (isLast ? '    ' : '│   '));
+          }
+          return result;
+        };
+
+        const displayPath = targetPath.slice(DRIVE_ROOT.length);
+        const label = displayPath.length ? `C:\\${displayPath.join('\\')}` : 'C:\\';
+        return `文件夹 PATH 列表\n卷序列号为 0C5E-1D5A\n${label}\n${buildTree(folder, '')}`;
+      }
 
       case 'ping': {
         if (!args[0]) {
@@ -318,8 +502,8 @@ VOL         显示磁盘卷标和序列号。`;
           `Ethernet adapter 本地连接:\n\n` +
           `   Connection-specific DNS Suffix  . : \n` +
           `   IP Address. . . . . . . . . . . . : 192.168.1.100\n` +
-          `   Subnet Mask . . . . . . . . . . . : 255.255.255.0\n` +
-          `   Default Gateway . . . . . . . . . : 192.168.1.1\n`
+          `   Subnet Mask. . . . . . . . . . . . : 255.255.255.0\n` +
+          `   Default Gateway. . . . . . . . . . . . : 192.168.1.1\n`
         );
 
       default:

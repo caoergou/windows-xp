@@ -1,5 +1,26 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import styled, { css } from 'styled-components';
+import {
+  type Card,
+  type GameState,
+  type PileLocation,
+  applyMove,
+  canPlaceOnFoundation,
+  canPlaceOnTableau,
+  checkWin,
+  dealFromStock,
+  dealGame,
+  getCardAtPosition,
+  getMovableCards,
+  getTopCard,
+  RANK_LABELS,
+  SUIT_SYMBOLS,
+} from '../lib/solitaire';
+
+const CARD_WIDTH = 71;
+const CARD_HEIGHT = 96;
+const TABLEAU_OFFSET = 18;
 
 const Wrap = styled.div`
   width: 100%;
@@ -13,6 +34,8 @@ const Wrap = styled.div`
   font-size: 12px;
   user-select: none;
   color: #ffffff;
+  overflow: auto;
+  position: relative;
 `;
 
 const MenuBar = styled.div`
@@ -22,6 +45,8 @@ const MenuBar = styled.div`
   color: #000000;
   display: flex;
   gap: 12px;
+  border: 1px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
 `;
 
 const MenuItem = styled.button`
@@ -39,284 +64,467 @@ const MenuItem = styled.button`
   }
 `;
 
-const GameArea = styled.div`
-  flex: 1;
+const TopArea = styled.div`
   display: flex;
   gap: 16px;
   padding: 10px;
-`;
-
-const FoundationArea = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-right: 20px;
-`;
-
-const Foundation = styled.div`
-  width: 71px;
-  height: 96px;
-  background: rgba(0, 255, 0, 0.3);
-  border: 2px solid #00ff00;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  position: relative;
-`;
-
-const TableauArea = styled.div`
-  flex: 1;
-  display: flex;
-  gap: 10px;
-`;
-
-const TableauPile = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 71px;
-  height: 100%;
-  position: relative;
-`;
-
-const Card = styled.div<{ $faceUp?: boolean; $suit?: string; $rank?: string; $zIndex?: number }>`
-  width: 71px;
-  height: 96px;
-  background: ${p => p.$faceUp ? (p.$suit === '♠' || p.$suit === '♣' ? '#ffffff' : '#ffffff') : '#0000ff'};
-  border: 1px solid #808080;
-  display: flex;
-  flex-direction: column;
-  padding: 4px;
-  box-sizing: border-box;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  position: relative;
-  z-index: ${p => p.$zIndex || 0};
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-`;
-
-const CardRank = styled.div<{ $suit?: string }>`
-  font-size: 14px;
-  font-weight: bold;
-  color: ${p => p.$suit === '♠' || p.$suit === '♣' ? '#000000' : '#ff0000'};
-  margin-bottom: 2px;
-`;
-
-const CardSuit = styled.div<{ $suit?: string }>`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  color: ${p => p.$suit === '♠' || p.$suit === '♣' ? '#000000' : '#ff0000'};
+  align-items: flex-start;
 `;
 
 const StockArea = styled.div`
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
 `;
 
-const StockPile = styled.div`
-  width: 71px;
-  height: 96px;
-  background: rgba(0, 255, 0, 0.3);
-  border: 2px solid #00ff00;
+const FoundationArea = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
+  gap: 10px;
+  margin-left: auto;
+`;
+
+const GameArea = styled.div`
+  flex: 1;
+  padding: 10px;
+`;
+
+const TableauArea = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const PileSlot = styled.div<{ $empty?: boolean }>`
+  width: ${CARD_WIDTH}px;
+  height: ${CARD_HEIGHT}px;
+  background: ${p => (p.$empty ? 'rgba(0, 255, 0, 0.15)' : 'transparent')};
+  border: ${p => (p.$empty ? '2px solid #00cc00' : 'none')};
+  border-radius: 4px;
+  position: relative;
+  box-sizing: border-box;
+`;
+
+const TableauPile = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: ${CARD_WIDTH}px;
+  min-height: ${CARD_HEIGHT}px;
+  position: relative;
   cursor: pointer;
+`;
+
+const cardBase = css`
+  width: ${CARD_WIDTH}px;
+  height: ${CARD_HEIGHT}px;
+  border: 1px solid #808080;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  box-sizing: border-box;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: 'Microsoft YaHei', Tahoma, sans-serif;
+`;
+
+const FaceUpCard = styled.div<{ $suit?: string }>`
+  ${cardBase}
+  background: #ffffff;
+  color: ${p => (p.$suit === 'hearts' || p.$suit === 'diamonds' ? '#ff0000' : '#000000')};
 
   &:hover {
-    background: rgba(0, 255, 0, 0.5);
+    filter: brightness(0.97);
   }
 `;
 
-const WastePile = styled.div`
-  width: 71px;
-  height: 96px;
-  background: rgba(0, 255, 0, 0.3);
-  border: 2px solid #00ff00;
+const FaceDownCard = styled.div`
+  ${cardBase}
+  background: #1a3c8a;
+  background-image:
+    repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(255, 255, 255, 0.08) 6px, rgba(255, 255, 255, 0.08) 12px),
+    repeating-linear-gradient(-45deg, transparent, transparent 6px, rgba(0, 0, 0, 0.08) 6px, rgba(0, 0, 0, 0.08) 12px);
+  border: 1px solid #003366;
+`;
+
+const CardRank = styled.div`
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1;
+`;
+
+const CardSuit = styled.div`
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  font-size: 28px;
 `;
 
-interface CardData {
-  suit: string;
-  rank: string;
-  faceUp: boolean;
-}
+const DragOverlay = styled.div<{ $x: number; $y: number; $bouncing: boolean }>`
+  position: fixed;
+  left: ${p => p.$x}px;
+  top: ${p => p.$y}px;
+  pointer-events: none;
+  z-index: 10000;
+  transition: ${p => (p.$bouncing ? 'left 200ms ease-out, top 200ms ease-out' : 'none')};
+`;
 
-interface GameState {
-  stock: CardData[];
-  waste: CardData[];
-  foundations: CardData[][];
-  tableaus: CardData[][];
+const DragStackCard = styled.div<{ $offset: number; $suit?: string }>`
+  ${cardBase}
+  background: #ffffff;
+  position: absolute;
+  top: ${p => p.$offset}px;
+  left: 0;
+  color: ${p => (p.$suit === 'hearts' || p.$suit === 'diamonds' ? '#ff0000' : '#000000')};
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.35);
+`;
+
+const WinMessage = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #d4d0c8;
+  color: #000000;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  z-index: 100;
+`;
+
+const SolitaireCard: React.FC<{
+  card: Card;
+  offset?: number;
+  onMouseDown?: (e: React.MouseEvent) => void;
+  onDoubleClick?: (e: React.MouseEvent) => void;
+}> = ({ card, offset = 0, onMouseDown, onDoubleClick }) => {
+  if (!card.faceUp) {
+    return <FaceDownCard style={{ top: offset }} />;
+  }
+
+  return (
+    <FaceUpCard
+      $suit={card.suit}
+      style={{ top: offset }}
+      onMouseDown={onMouseDown}
+      onDoubleClick={onDoubleClick}
+    >
+      <CardRank>{RANK_LABELS[card.rank]}</CardRank>
+      <CardSuit>{SUIT_SYMBOLS[card.suit]}</CardSuit>
+    </FaceUpCard>
+  );
+};
+
+interface DragState {
+  cards: Card[];
+  source: PileLocation;
+  startX: number;
+  startY: number;
+  x: number;
+  y: number;
+  pointerOffsetX: number;
+  pointerOffsetY: number;
+  bouncing: boolean;
 }
 
 const Solitaire = ({ windowId: _windowId }: { windowId?: string }) => {
-  const [gameState, setGameState] = useState<GameState>(() => {
-    const suits = ['♠', '♥', '♣', '♦'];
-    const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-    const deck: CardData[] = [];
+  const [gameState, setGameState] = useState<GameState>(() => dealGame());
+  const [drag, setDrag] = useState<DragState | null>(null);
+  const [won, setWon] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const foundationRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const tableauRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const stockRef = useRef<HTMLDivElement>(null);
+  const wasteRef = useRef<HTMLDivElement>(null);
 
-    for (const suit of suits) {
-      for (const rank of ranks) {
-        deck.push({ suit, rank, faceUp: false });
+  useEffect(() => {
+    setWon(checkWin(gameState.foundations));
+  }, [gameState]);
+
+  const resetGame = useCallback(() => {
+    setGameState(dealGame());
+    setWon(false);
+  }, []);
+
+  const handleStockClick = useCallback(() => {
+    setGameState(prev => dealFromStock(prev));
+  }, []);
+
+  const findDropTarget = useCallback(
+    (clientX: number, clientY: number): PileLocation | null => {
+      for (let i = 0; i < foundationRefs.current.length; i++) {
+        const el = foundationRefs.current[i];
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        if (
+          clientX >= rect.left &&
+          clientX <= rect.right &&
+          clientY >= rect.top &&
+          clientY <= rect.bottom
+        ) {
+          return { type: 'foundation', index: i };
+        }
       }
-    }
 
-    for (let i = deck.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [deck[i], deck[j]] = [deck[j], deck[i]];
-    }
+      for (let i = 0; i < tableauRefs.current.length; i++) {
+        const el = tableauRefs.current[i];
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        if (
+          clientX >= rect.left &&
+          clientX <= rect.right &&
+          clientY >= rect.top &&
+          clientY <= rect.bottom
+        ) {
+          return { type: 'tableau', index: i };
+        }
+      }
 
-    const tableaus: CardData[][] = [];
-    for (let i = 0; i < 7; i++) {
-      const pile = deck.slice(i * (i + 1), (i + 1) * (i + 2));
-      pile[pile.length - 1].faceUp = true;
-      tableaus.push(pile);
-    }
+      return null;
+    },
+    []
+  );
 
-    return {
-      stock: deck.slice(28),
-      waste: [],
-      foundations: [[], [], [], []],
-      tableaus
+  const tryAutoMoveToFoundation = useCallback(
+    (card: Card, source: PileLocation): boolean => {
+      for (let i = 0; i < 4; i++) {
+        if (canPlaceOnFoundation(card, gameState.foundations[i])) {
+          setGameState(prev => applyMove(prev, [card], source, { type: 'foundation', index: i }));
+          return true;
+        }
+      }
+      return false;
+    },
+    [gameState.foundations]
+  );
+
+  const startDrag = useCallback(
+    (cards: Card[], source: PileLocation, cardEl: HTMLElement, clientX: number, clientY: number) => {
+      const rect = cardEl.getBoundingClientRect();
+      setDrag({
+        cards,
+        source,
+        startX: rect.left,
+        startY: rect.top,
+        x: rect.left,
+        y: rect.top,
+        pointerOffsetX: clientX - rect.left,
+        pointerOffsetY: clientY - rect.top,
+        bouncing: false,
+      });
+    },
+    []
+  );
+
+  const handleTableauMouseDown = useCallback(
+    (e: React.MouseEvent, pileIndex: number) => {
+      e.preventDefault();
+      if (e.button !== 0) return;
+
+      const pile = gameState.tableaus[pileIndex];
+      const rawIndex = Math.floor(e.nativeEvent.offsetY / TABLEAU_OFFSET);
+      const cardIndex = Math.min(Math.max(0, rawIndex), pile.length - 1);
+      const location: PileLocation = { type: 'tableau', index: pileIndex };
+      const movable = getCardAtPosition(gameState, location, cardIndex);
+      if (!movable) return;
+
+      const pileEl = e.currentTarget as HTMLElement;
+      const cardEl = pileEl.children[cardIndex] as HTMLElement | undefined;
+      if (!cardEl) return;
+
+      startDrag(movable.cards, movable.source, cardEl, e.clientX, e.clientY);
+    },
+    [gameState, startDrag]
+  );
+
+  const handleWasteMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      if (e.button !== 0) return;
+
+      const movable = getMovableCards(gameState, { type: 'waste' });
+      if (!movable) return;
+
+      startDrag(movable.cards, movable.source, e.currentTarget as HTMLElement, e.clientX, e.clientY);
+    },
+    [gameState, startDrag]
+  );
+
+  const handleFoundationMouseDown = useCallback(
+    (e: React.MouseEvent, index: number) => {
+      e.preventDefault();
+      if (e.button !== 0) return;
+
+      const movable = getMovableCards(gameState, { type: 'foundation', index });
+      if (!movable) return;
+
+      startDrag(movable.cards, movable.source, e.currentTarget as HTMLElement, e.clientX, e.clientY);
+    },
+    [gameState, startDrag]
+  );
+
+  const handleTableauDoubleClick = useCallback(
+    (e: React.MouseEvent, pileIndex: number) => {
+      e.stopPropagation();
+      const pile = gameState.tableaus[pileIndex];
+      const faceUpStart = pile.findIndex(card => card.faceUp);
+      if (faceUpStart === -1) return;
+
+      const cardIndex = pile.length - 1;
+      const location: PileLocation = { type: 'tableau', index: pileIndex };
+      const movable = getCardAtPosition(gameState, location, cardIndex);
+      if (!movable || movable.cards.length !== 1) return;
+
+      tryAutoMoveToFoundation(movable.cards[0], movable.source);
+    },
+    [gameState, tryAutoMoveToFoundation]
+  );
+
+  const handleWasteDoubleClick = useCallback(
+    (_e: React.MouseEvent) => {
+      const movable = getMovableCards(gameState, { type: 'waste' });
+      if (!movable || movable.cards.length !== 1) return;
+
+      tryAutoMoveToFoundation(movable.cards[0], movable.source);
+    },
+    [gameState, tryAutoMoveToFoundation]
+  );
+
+  useEffect(() => {
+    if (!drag) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      setDrag(prev =>
+        prev && !prev.bouncing
+          ? {
+              ...prev,
+              x: e.clientX - prev.pointerOffsetX,
+              y: e.clientY - prev.pointerOffsetY,
+            }
+          : prev
+      );
     };
-  });
 
-  const dealCard = () => {
-    if (gameState.stock.length === 0) {
-      setGameState(prev => ({
-        ...prev,
-        stock: [...prev.waste.reverse().map(card => ({ ...card, faceUp: false }))],
-        waste: []
-      }));
-    } else {
-      const card = gameState.stock[gameState.stock.length - 1];
-      setGameState(prev => ({
-        ...prev,
-        stock: prev.stock.slice(0, -1),
-        waste: [...prev.waste, { ...card, faceUp: true }]
-      }));
+    const handleMouseUp = (e: MouseEvent) => {
+      setDrag(prev => {
+        if (!prev) return null;
+
+        const target = findDropTarget(e.clientX, e.clientY);
+        let valid = false;
+
+        if (target && target.type !== 'stock' && target.type !== 'waste') {
+          if (target.type === 'foundation' && prev.cards.length === 1) {
+            valid = canPlaceOnFoundation(prev.cards[0], gameState.foundations[target.index]);
+          } else if (target.type === 'tableau') {
+            valid = canPlaceOnTableau(prev.cards, gameState.tableaus[target.index]);
+          }
+        }
+
+        if (valid && target) {
+          setGameState(current => applyMove(current, prev.cards, prev.source, target));
+          return null;
+        }
+
+        return { ...prev, x: prev.startX, y: prev.startY, bouncing: true };
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [drag, findDropTarget, gameState]);
+
+  // Clear bounce-back drag state after animation
+  useEffect(() => {
+    if (drag?.bouncing) {
+      const timer = setTimeout(() => setDrag(null), 220);
+      return () => clearTimeout(timer);
     }
-  };
+  }, [drag?.bouncing]);
 
-  const resetGame = () => {
-    const suits = ['♠', '♥', '♣', '♦'];
-    const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-    const deck: CardData[] = [];
-
-    for (const suit of suits) {
-      for (const rank of ranks) {
-        deck.push({ suit, rank, faceUp: false });
-      }
-    }
-
-    for (let i = deck.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [deck[i], deck[j]] = [deck[j], deck[i]];
-    }
-
-    const tableaus: CardData[][] = [];
-    for (let i = 0; i < 7; i++) {
-      const pile = deck.slice(i * (i + 1), (i + 1) * (i + 2));
-      pile[pile.length - 1].faceUp = true;
-      tableaus.push(pile);
-    }
-
-    setGameState({
-      stock: deck.slice(28),
-      waste: [],
-      foundations: [[], [], [], []],
-      tableaus
-    });
-  };
+  const topWaste = getTopCard(gameState.waste);
 
   return (
-    <Wrap>
+    <Wrap ref={wrapRef}>
       <MenuBar>
         <MenuItem onClick={resetGame}>游戏(G)</MenuItem>
         <MenuItem>帮助(H)</MenuItem>
       </MenuBar>
 
-      <StockArea>
-        <StockPile onClick={dealCard}>
-          {gameState.stock.length === 0 ? '📂' : '🃏'}
-        </StockPile>
-        <WastePile>
-          {gameState.waste.length > 0 && (
-            <Card
-              $faceUp={true}
-              $suit={gameState.waste[gameState.waste.length - 1].suit}
-              $rank={gameState.waste[gameState.waste.length - 1].rank}
-            >
-              <CardRank $suit={gameState.waste[gameState.waste.length - 1].suit}>
-                {gameState.waste[gameState.waste.length - 1].rank}
-              </CardRank>
-              <CardSuit $suit={gameState.waste[gameState.waste.length - 1].suit}>
-                {gameState.waste[gameState.waste.length - 1].suit}
-              </CardSuit>
-            </Card>
-          )}
-        </WastePile>
+      <TopArea>
+        <StockArea>
+          <PileSlot $empty={gameState.stock.length === 0} ref={stockRef} onClick={handleStockClick}>
+            {gameState.stock.length > 0 && <FaceDownCard />}
+          </PileSlot>
+          <PileSlot $empty={!topWaste} ref={wasteRef}>
+            {topWaste && (
+              <SolitaireCard
+                card={topWaste}
+                onMouseDown={handleWasteMouseDown}
+                onDoubleClick={handleWasteDoubleClick}
+              />
+            )}
+          </PileSlot>
+        </StockArea>
+
         <FoundationArea>
-          {gameState.foundations.map((foundation, index) => (
-            <Foundation key={index}>
-              {foundation.length > 0 ? (
-                <Card
-                  $faceUp={true}
-                  $suit={foundation[foundation.length - 1].suit}
-                  $rank={foundation[foundation.length - 1].rank}
-                >
-                  <CardRank $suit={foundation[foundation.length - 1].suit}>
-                    {foundation[foundation.length - 1].rank}
-                  </CardRank>
-                  <CardSuit $suit={foundation[foundation.length - 1].suit}>
-                    {foundation[foundation.length - 1].suit}
-                  </CardSuit>
-                </Card>
-              ) : (
-                <span>🀄</span>
-              )}
-            </Foundation>
-          ))}
+          {gameState.foundations.map((foundation, index) => {
+            const top = getTopCard(foundation);
+            return (
+              <PileSlot $empty={!top} key={index} ref={el => { foundationRefs.current[index] = el; }}>
+                {top && (
+                  <SolitaireCard
+                    card={top}
+                    onMouseDown={e => handleFoundationMouseDown(e, index)}
+                  />
+                )}
+              </PileSlot>
+            );
+          })}
         </FoundationArea>
-      </StockArea>
+      </TopArea>
 
       <GameArea>
         <TableauArea>
           {gameState.tableaus.map((pile, pileIndex) => (
-            <TableauPile key={pileIndex}>
+            <TableauPile
+              key={pileIndex}
+              ref={el => { tableauRefs.current[pileIndex] = el; }}
+              onMouseDown={e => handleTableauMouseDown(e, pileIndex)}
+              onDoubleClick={e => handleTableauDoubleClick(e, pileIndex)}
+            >
               {pile.map((card, cardIndex) => (
-                <Card
-                  key={cardIndex}
-                  $faceUp={card.faceUp}
-                  $suit={card.suit}
-                  $rank={card.rank}
-                  $zIndex={cardIndex}
-                >
-                  {card.faceUp && (
-                    <>
-                      <CardRank $suit={card.suit}>{card.rank}</CardRank>
-                      <CardSuit $suit={card.suit}>{card.suit}</CardSuit>
-                    </>
-                  )}
-                </Card>
+                <SolitaireCard
+                  key={`${pileIndex}-${card.id}`}
+                  card={card}
+                  offset={cardIndex * TABLEAU_OFFSET}
+                />
               ))}
             </TableauPile>
           ))}
         </TableauArea>
       </GameArea>
+
+      {won && <WinMessage>胜利！</WinMessage>}
+
+      {drag &&
+        createPortal(
+          <DragOverlay $x={drag.x} $y={drag.y} $bouncing={drag.bouncing}>
+            {drag.cards.map((card, index) => (
+              <DragStackCard key={card.id} $offset={index * TABLEAU_OFFSET} $suit={card.suit}>
+                <CardRank>{RANK_LABELS[card.rank]}</CardRank>
+                <CardSuit>{SUIT_SYMBOLS[card.suit]}</CardSuit>
+              </DragStackCard>
+            ))}
+          </DragOverlay>,
+          document.body
+        )}
     </Wrap>
   );
 };

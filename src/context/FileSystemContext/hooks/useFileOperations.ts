@@ -92,6 +92,45 @@ export const useFileOperations = (
     [setFs, doPersistFs]
   );
 
+  const createFolder = useCallback(
+    (parentPath: string[], folderName: string) => {
+      createFile(parentPath, folderName, 'folder');
+    },
+    [createFile]
+  );
+
+  const deleteFolder = useCallback(
+    (parentPath: string[], folderName: string) => {
+      setFs(prevFs => {
+        const newFs = produce(prevFs, draft => {
+          if (!isContainerNode(draft.root)) return;
+          let current: any = draft.root;
+          for (const part of parentPath) {
+            if (isContainerNode(current) && current.children?.[part]) {
+              current = current.children[part];
+            } else {
+              return;
+            }
+          }
+          if (!isContainerNode(current) || !current.children?.[folderName]) return;
+          const folder = current.children[folderName];
+          if (!isContainerNode(folder) || Object.keys(folder.children || {}).length > 0) return;
+          delete current.children[folderName];
+        });
+        doPersistFs(newFs);
+        return newFs;
+      });
+    },
+    [setFs, doPersistFs]
+  );
+
+  const renameNode = useCallback(
+    (parentPath: string[], oldName: string, newName: string) => {
+      renameFile(parentPath, oldName, newName);
+    },
+    [renameFile]
+  );
+
   const deleteFile = useCallback(
     (parentPath: string[], fileName: string) => {
       setFs(prevFs => {
@@ -326,7 +365,8 @@ export const useFileOperations = (
         const newFs = produce(prevFs, draft => {
           if (!isContainerNode(draft.root)) return;
           const recycleBin = (draft.root as any).children?.['回收站'];
-          if (!recycleBin || !isContainerNode(recycleBin) || !recycleBin.children?.[fileName]) return;
+          if (!recycleBin || !isContainerNode(recycleBin) || !recycleBin.children?.[fileName])
+            return;
 
           let targetParent: any = draft.root;
           if (binItem?.originalPath?.length > 0) {
@@ -357,8 +397,11 @@ export const useFileOperations = (
   return {
     updateFile,
     createFile,
+    createFolder,
     renameFile,
+    renameNode,
     deleteFile,
+    deleteFolder,
     moveFile,
     copyFile,
     pasteFile,

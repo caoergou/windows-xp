@@ -20,6 +20,7 @@ const WindowsMediaPlayer = React.lazy(() => import('../apps/WindowsMediaPlayer')
 const Thunder = React.lazy(() => import('../apps/Thunder'));
 const BaofengPlayer = React.lazy(() => import('../apps/BaofengPlayer'));
 const KugouMusic = React.lazy(() => import('../apps/KugouMusic'));
+const WPSOffice = React.lazy(() => import('../apps/WPSOffice'));
 import { AppRegistryEntry, AppAssociation, FileNode, isFileContentNode, isAppShortcutNode } from '../types';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
@@ -304,7 +305,13 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     window: { width: 700, height: 500 },
     lifecycle: {},
     associations: [
-      { appField: 'MicrosoftPaint', getProps: () => ({}) },
+      {
+        appField: 'MicrosoftPaint',
+        getProps: (item: FileNode) => ({
+          src: isFileContentNode(item) ? item.content : undefined,
+          fileName: item.name,
+        }),
+      },
     ],
     restore: restoreApp(MicrosoftPaint),
   },
@@ -344,6 +351,24 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     lifecycle: {},
     associations: [
       { appField: 'WindowsMediaPlayer', getProps: () => ({}) },
+      {
+        appField: 'mp3',
+        getProps: (item: FileNode) => ({
+          src: isFileContentNode(item) ? item.content : undefined,
+        }),
+      },
+      {
+        appField: 'wma',
+        getProps: (item: FileNode) => ({
+          src: isFileContentNode(item) ? item.content : undefined,
+        }),
+      },
+      {
+        appField: 'avi',
+        getProps: (item: FileNode) => ({
+          src: isFileContentNode(item) ? item.content : undefined,
+        }),
+      },
     ],
     restore: restoreApp(WindowsMediaPlayer),
   },
@@ -385,6 +410,19 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
       { appField: 'BaofengPlayer', getProps: () => ({}) },
     ],
     restore: restoreApp(BaofengPlayer),
+  },
+
+  WPSOffice: {
+    id:     'WPSOffice',
+    name:   'WPS Office',
+    nameKey: 'wpsOffice.title',
+    icon:   'wps',
+    window: { width: 720, height: 520, resizable: true, singleton: true },
+    lifecycle: {},
+    associations: [
+      { appField: 'WPSOffice', getProps: () => ({}) },
+    ],
+    restore: restoreApp(WPSOffice),
   },
 
   DummyApp: {

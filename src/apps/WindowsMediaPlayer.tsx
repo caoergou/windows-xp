@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 const Wrap = styled.div`
@@ -107,11 +107,11 @@ const SpectrumBar = styled.div`
   padding: 0 20px;
 `;
 
-const Bar = styled.div<{ $height: number; $delay: number }>`
+const Bar = styled.div<{ $height: number; $delay: number; $isPlaying: boolean }>`
   width: 8px;
   background: linear-gradient(to top, #00ffff, #0080ff);
   height: ${p => p.$height}%;
-  animation: pulse 0.5s ease-in-out infinite;
+  animation: ${p => (p.$isPlaying ? 'pulse 0.5s ease-in-out infinite' : 'none')};
   animation-delay: ${p => p.$delay}s;
 
   @keyframes pulse {
@@ -153,69 +153,144 @@ const TrackArtist = styled.div`
   color: #cccccc;
 `;
 
-interface Track {
-  title: string;
-  artist: string;
-  duration: number;
-}
+const DEFAULT_SRC = '/audio/sample.mp3';
 
 interface WindowsMediaPlayerProps {
   windowId?: string;
+  src?: string;
 }
 
-const WindowsMediaPlayer = ({ windowId: _windowId }: WindowsMediaPlayerProps) => {
+const WindowsMediaPlayer = ({ windowId: _windowId, src = DEFAULT_SRC }: WindowsMediaPlayerProps) => {
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
-  const [duration] = useState<number>(300);
+  const [duration, setDuration] = useState<number>(0);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  const tracks: Track[] = [
-    { title: 'Windows XP Startup', artist: 'Microsoft', duration: 300 },
-    { title: 'Bliss', artist: 'Microsoft', duration: 240 },
-    { title: 'Connected', artist: 'Microsoft', duration: 180 }
-  ];
-  const [currentTrack, setCurrentTrack] = useState<number>(0);
+  const mediaSrc = src || DEFAULT_SRC;
+  const fileName = mediaSrc.split('/').pop() || 'Sample Music';
+  const trackTitle = fileName.replace(/\.[^/.]+$/, '');
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleTimeUpdate = () => {
+      if (!isDragging) {
+        setCurrentTime(audio.currentTime);
+      }
+    };
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration || 0);
+    };
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
+    };
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('durationchange', handleLoadedMetadata);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+
+    return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('durationchange', handleLoadedMetadata);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+    };
+  }, [isDragging]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.src !== mediaSrc) {
+      audio.src = mediaSrc;
+      audio.load();
+      setCurrentTime(0);
+      setDuration(0);
+      setIsPlaying(false);
+    }
+  }, [mediaSrc]);
 
   const togglePlay = () => {
-    setIsPlaying(!isPlaying);
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      setIsPlaying(true);
+      audio.play()?.catch(() => {
+        setIsPlaying(false);
+      });
+    }
   };
 
-  const nextTrack = () => {
-    setCurrentTrack((prev) => (prev + 1) % tracks.length);
+  const stopPlayback = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.pause();
+    audio.currentTime = 0;
     setCurrentTime(0);
+    setIsPlaying(false);
   };
 
-  const prevTrack = () => {
-    setCurrentTrack((prev) => (prev - 1 + tracks.length) % tracks.length);
-    setCurrentTime(0);
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const audio = audioRef.current;
+    if (!audio || !duration) return;
+
+    const value = parseFloat(e.target.value);
+    const newTime = (value / 100) * duration;
+    audio.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
+  const handleSeekStart = () => {
+    setIsDragging(true);
+  };
+
+  const handleSeekEnd = () => {
+    setIsDragging(false);
   };
 
   const formatTime = (seconds: number) => {
+    if (!isFinite(seconds) || isNaN(seconds)) return '00:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const progress = (currentTime / duration) * 100;
-
+  const progress = duration ? (currentTime / duration) * 100 : 0;
   const spectrumHeights = [40, 60, 30, 70, 50, 80, 45, 65, 35, 75];
 
   return (
     <Wrap>
+      <audio ref={audioRef} preload="metadata" style={{ display: 'none' }} />
+
       <TitleBar>
         <Title>Windows Media Player</Title>
         <PlayerControls>
-          <ControlBtn onClick={prevTrack} title="上一首">⏮️</ControlBtn>
+          <ControlBtn onClick={stopPlayback} title="停止">⏹️</ControlBtn>
           <ControlBtn onClick={togglePlay} title={isPlaying ? '暂停' : '播放'}>
             {isPlaying ? '⏸️' : '▶️'}
           </ControlBtn>
-          <ControlBtn onClick={nextTrack} title="下一首">⏭️</ControlBtn>
         </PlayerControls>
       </TitleBar>
 
       <Visualization>
         <SpectrumBar>
           {spectrumHeights.map((height, index) => (
-            <Bar key={index} $height={height} $delay={index * 0.1} />
+            <Bar key={index} $height={height} $delay={index * 0.1} $isPlaying={isPlaying} />
           ))}
         </SpectrumBar>
       </Visualization>
@@ -226,8 +301,13 @@ const WindowsMediaPlayer = ({ windowId: _windowId }: WindowsMediaPlayerProps) =>
           type="range"
           min="0"
           max="100"
+          step="0.1"
           value={progress}
-          onChange={(e) => setCurrentTime((parseFloat(e.target.value) / 100) * duration)}
+          onChange={handleSeek}
+          onMouseDown={handleSeekStart}
+          onMouseUp={handleSeekEnd}
+          onTouchStart={handleSeekStart}
+          onTouchEnd={handleSeekEnd}
         />
         <TimeDisplay>{formatTime(duration)}</TimeDisplay>
       </PlaybackBar>
@@ -235,8 +315,8 @@ const WindowsMediaPlayer = ({ windowId: _windowId }: WindowsMediaPlayerProps) =>
       <TrackInfo>
         <AlbumArt>💿</AlbumArt>
         <TrackDetails>
-          <TrackTitle>{tracks[currentTrack].title}</TrackTitle>
-          <TrackArtist>{tracks[currentTrack].artist}</TrackArtist>
+          <TrackTitle>{trackTitle}</TrackTitle>
+          <TrackArtist>{isPlaying ? '正在播放' : '已停止'}</TrackArtist>
         </TrackDetails>
       </TrackInfo>
     </Wrap>

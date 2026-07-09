@@ -166,6 +166,24 @@
       "statusBar": "Status Bar(S)",
       "help": "View Help(V)",
       "about": "About Notepad(A)..."
+    },
+    "find": {
+      "title": "Find",
+      "findWhat": "Find what:",
+      "findNext": "Find Next",
+      "notFound": "Cannot find \"{{query}}\"."
+    },
+    "replace": {
+      "title": "Replace",
+      "findWhat": "Find what:",
+      "replaceWith": "Replace with:",
+      "replace": "Replace",
+      "replaceAll": "Replace All",
+      "replacedCount": "Replaced {{count}} occurrences."
+    },
+    "about": {
+      "title": "About Notepad",
+      "message": "Windows XP Notepad\nVersion 1.0\n\n© 2026 Windows XP Simulator"
     }
   },
   "fileSystem": {
@@ -465,6 +483,59 @@
     "title": "Photo Viewer",
     "noImageSelected": "No image selected",
     "view": "View"
+  },
+  "paint": {
+    "menu": {
+      "file": "File(F)",
+      "edit": "Edit(E)",
+      "view": "View(V)",
+      "help": "Help(H)"
+    },
+    "menuitems": {
+      "new": "New(N)",
+      "open": "Open(O)...",
+      "save": "Save(S)",
+      "saveAs": "Save As(A)...",
+      "exit": "Exit(X)",
+      "undo": "Undo(U)",
+      "cut": "Cut(T)",
+      "copy": "Copy(C)",
+      "paste": "Paste(P)",
+      "delete": "Delete(L)",
+      "selectAll": "Select All(A)",
+      "toolbox": "Toolbox(T)",
+      "colorBox": "Color Box(C)",
+      "statusBar": "Status Bar(S)",
+      "helpTopics": "Help Topics(H)",
+      "about": "About Paint(A)..."
+    }
+  },
+  "wpsOffice": {
+    "title": "WPS Office",
+    "menu": {
+      "file": "File(F)",
+      "edit": "Edit(E)",
+      "view": "View(V)",
+      "insert": "Insert(I)",
+      "format": "Format(O)",
+      "tools": "Tools(T)",
+      "help": "Help(H)"
+    },
+    "toolbar": {
+      "new": "New",
+      "open": "Open",
+      "save": "Save",
+      "print": "Print",
+      "preview": "Preview"
+    },
+    "documentTitle": "My Document",
+    "paragraph1": "Welcome to WPS Office word processor.",
+    "paragraph2": "This is a classic office suite shell that recreates the familiar WPS experience from the 2000s.",
+    "paragraph3": "Edit documents and explore the nostalgic office atmosphere here.",
+    "status": {
+      "ready": "Ready",
+      "zoom": "Zoom {{zoom}}%"
+    }
   },
   "baofengPlayer": {
     "title": "Baofeng Player",

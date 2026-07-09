@@ -1,0 +1,10 @@
+{
+  "下载未完成.url": {
+    "type": "file",
+    "name": "下载未完成.url",
+    "icon": "html",
+    "app": "InternetExplorer",
+    "content": "http://www.hao123.com",
+    "description": "迅雷下载到一半的网页快捷方式"
+  }
+}

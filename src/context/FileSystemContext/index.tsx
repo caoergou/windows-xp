@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useCallback, useEffect, useRef } from 'react';
 import initialFileSystem from '../../data/filesystem.json';
+import recycleBinManifest from '../../data/recycle_bin/index.json';
 import { FileNode, ClipboardItem, isContainerNode, isFileContentNode } from '../../types';
 import {
   loadPersistedFileSystem,
@@ -9,15 +10,35 @@ import {
 } from './utils/persistence';
 import { useFileOperations } from './hooks/useFileOperations';
 
+interface RecycleBinManifestEntry {
+  file: string;
+  originalPath: string[];
+}
+
 // Load all JSON files from src/data/recycle_bin
 const recycleBinFiles = import.meta.glob('../../data/recycle_bin/*.json', { eager: true });
 
-// Merge all recycle bin items
+// Merge all recycle bin items (skip the manifest index.json)
 const recycleBinItems: Record<string, FileNode> = {};
 for (const path in recycleBinFiles) {
+  if (path.endsWith('index.json')) continue;
   const module = recycleBinFiles[path] as { default?: Record<string, FileNode> };
   const content = module.default || (module as Record<string, FileNode>);
   Object.assign(recycleBinItems, content);
+}
+
+// Build preset recycle-bin metadata so restore can return items to their original paths
+const manifest = recycleBinManifest as unknown as Record<string, RecycleBinManifestEntry>;
+const presetRecycleBinRef: Record<string, RecycleBinItem> = {};
+for (const [fileName, entry] of Object.entries(manifest)) {
+  const item = recycleBinItems[fileName];
+  if (item && entry?.originalPath) {
+    presetRecycleBinRef[fileName] = {
+      item,
+      originalPath: entry.originalPath,
+      deletedAt: Date.now() - 1000000000,
+    };
+  }
 }
 
 // Inject items into Recycle Bin
@@ -65,8 +86,11 @@ interface FileSystemContextType {
     type?: 'file' | 'folder',
     properties?: Partial<FileNode>
   ) => void;
+  createFolder: (parentPath: string[], folderName: string) => void;
   renameFile: (parentPath: string[], oldName: string, newName: string) => void;
+  renameNode: (parentPath: string[], oldName: string, newName: string) => void;
   deleteFile: (parentPath: string[], fileName: string) => void;
+  deleteFolder: (parentPath: string[], folderName: string) => void;
   moveFile: (
     sourcePath: string[],
     fileName: string,
@@ -129,15 +153,26 @@ export const FileSystemProvider: React.FC<{
   );
   const [clipboard, setClipboard] = useState<ClipboardItem | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const recycleBinRef = useRef<Record<string, RecycleBinItem>>({});
+  const recycleBinRef = useRef<Record<string, RecycleBinItem>>({ ...presetRecycleBinRef });
 
   useEffect(() => {
     const loadPersistedData = async () => {
       try {
-        const { root, recycleBinRef: savedRecycleBinRef } = await loadPersistedFileSystem(
-          fileSystemWithRecycleBin
-        );
+        const { root, recycleBinRef: savedRecycleBinRef } =
+          await loadPersistedFileSystem(fileSystemWithRecycleBin);
         recycleBinRef.current = savedRecycleBinRef;
+
+        // Re-attach preset recycle-bin metadata for any preset items still present.
+        // This keeps restore working when no persisted recycle-bin state exists yet.
+        const currentRecycleBin = (root as any).children?.['回收站'];
+        if (isContainerNode(currentRecycleBin)) {
+          for (const fileName of Object.keys(presetRecycleBinRef)) {
+            if (currentRecycleBin.children?.[fileName] && !recycleBinRef.current[fileName]) {
+              recycleBinRef.current[fileName] = presetRecycleBinRef[fileName];
+            }
+          }
+        }
+
         setFs(mergeCustomFileSystem({ root }, customFsRef.current));
       } catch (e) {
         console.error('Failed to load persisted data:', e);
@@ -306,8 +341,11 @@ export const FileSystemProvider: React.FC<{
     checkAccess,
     updateFile: fileOperations.updateFile,
     createFile: fileOperations.createFile,
+    createFolder: fileOperations.createFolder,
     renameFile: fileOperations.renameFile,
+    renameNode: fileOperations.renameNode,
     deleteFile: fileOperations.deleteFile,
+    deleteFolder: fileOperations.deleteFolder,
     copyFile: fileOperations.copyFile,
     copyToClipboard,
     cutFile,

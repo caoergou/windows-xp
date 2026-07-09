@@ -13,11 +13,13 @@ const STICKY_NOTES_BY_LOCALE: Record<string, StickyNoteContent[]> = {
 ☑ 电脑密码已设置
 ☐ 更新 360 安全卫士
 ☐ 用迅雷下载暴风影音
+☐ 晚上 8 点网吧联机 CS
 
 🔑 密码提示：为了 2000s（小写）
 
 💡 小贴士：
-   右键桌面可刷新`,
+   右键桌面可刷新
+   回收站里还有几封旧信`,
     },
   ],
   en: [
@@ -29,11 +31,13 @@ const STICKY_NOTES_BY_LOCALE: Record<string, StickyNoteContent[]> = {
 ☑ PC password is configured
 ☐ Update Norton AntiVirus
 ☐ Download Winamp with uTorrent
+☐ 8 PM LAN party for Counter-Strike
 
 🔑 Password hint: for the 2000s (lowercase)
 
 💡 Tip:
-   Right-click desktop to refresh`,
+   Right-click desktop to refresh
+   Check the Recycle Bin for old letters`,
     },
   ],
 };

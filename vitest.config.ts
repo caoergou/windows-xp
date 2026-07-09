@@ -3,6 +3,11 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    watch: {
+      ignored: ['**/xp-research/**'],
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
