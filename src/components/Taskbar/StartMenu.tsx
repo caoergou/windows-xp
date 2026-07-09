@@ -313,7 +313,7 @@ const StartMenu: React.FC<StartMenuProps> = ({
             <span>{t('startMenu.myMusic')}</span>
           </RightMenuItem>
           <RightMenuSeparator />
-          <RightMenuItem onClick={() => onLaunch('DummyApp', t('startMenu.controlPanel'))}>
+          <RightMenuItem onClick={() => onLaunch('ControlPanel')}>
             <XPIcon name="control_panel" size={24} className="menu-icon" />
             <span>{t('startMenu.controlPanel')}</span>
           </RightMenuItem>
