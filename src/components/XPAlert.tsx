@@ -137,9 +137,9 @@ const XPAlert = ({ title, message, type = 'info', onClose }: XPAlertProps) => {
     const nodeRef = useRef<HTMLDivElement>(null);
 
     return (
-        <Overlay onClick={(e) => { if(e.target === e.currentTarget) { /* Do nothing, must click ok or close */ } }}>
+        <Overlay className="xp-alert" onMouseDown={(e) => e.stopPropagation()}>
             <Draggable nodeRef={nodeRef} handle=".title-bar">
-                <AlertWindow ref={nodeRef}>
+                <AlertWindow ref={nodeRef} onMouseDown={(e) => e.stopPropagation()}>
                     <TitleBar className="title-bar">
                         <span>{title}</span>
                         <CloseButton onClick={onClose}>×</CloseButton>

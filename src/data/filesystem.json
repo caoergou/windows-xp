@@ -173,7 +173,7 @@
         "type": "app_shortcut",
         "name": "Notepad",
         "app": "Notepad",
-        "icon": "file"
+        "icon": "journal"
       },
       "Calculator": {
         "type": "app_shortcut",
@@ -197,7 +197,7 @@
         "type": "app_shortcut",
         "name": "Minesweeper",
         "app": "Minesweeper",
-        "icon": "app_window"
+        "icon": "minesweeper"
       },
       "Solitaire": {
         "type": "app_shortcut",

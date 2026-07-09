@@ -18,8 +18,8 @@ export const DESKTOP_DEFAULTS = {
 
 // Calculator defaults
 export const CALCULATOR_DEFAULTS = {
-  WIDTH: 260,
-  HEIGHT: 340,
+  WIDTH: 208,
+  HEIGHT: 196,
 };
 
 // Internet Explorer defaults

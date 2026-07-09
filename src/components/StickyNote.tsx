@@ -86,7 +86,7 @@ const StickyNote = () => {
   };
 
   return (
-    <NoteContainer>
+    <NoteContainer className="sticky-note">
       <NoteTitle>
         {stickyNote.title}
         <CloseBtn onClick={() => setVisible(false)}>✕</CloseBtn>

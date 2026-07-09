@@ -39,13 +39,17 @@ const ResizableWrapper: React.FC<ResizableWrapperProps> = ({
       nodeRef={nodeRef}
       disabled={false}
       defaultPosition={{ x: left, y: top }}
-      onMouseDown={onFocus}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        onFocus();
+      }}
       onStop={(_e, data) => {
         onMove(id, data.x, data.y);
       }}
     >
       <div
         ref={nodeRef}
+        className="xp-window"
         style={{
           position: 'absolute',
           top: 0,
@@ -54,12 +58,14 @@ const ResizableWrapper: React.FC<ResizableWrapperProps> = ({
           width,
           height,
         }}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <ResizableBox
           width={width}
           height={height}
           minConstraints={[WINDOW_DEFAULTS.MIN_WIDTH, WINDOW_DEFAULTS.MIN_HEIGHT]}
           maxConstraints={[2000, 2000]}
+          onResizeStart={(e) => e.stopPropagation()}
           onResizeStop={(_e, { size }) => {
             onResize(id, size.width, size.height);
           }}

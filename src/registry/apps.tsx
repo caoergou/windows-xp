@@ -226,7 +226,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     name:   '计算器',
     nameKey: 'apps.calculator',
     icon:   'calculator',
-    window: { width: 220, height: 300, resizable: false, singleton: true },
+    window: { width: 208, height: 196, resizable: false, singleton: true },
     lifecycle: {},
     associations: [
       { appField: 'Calculator', getProps: () => ({}) },

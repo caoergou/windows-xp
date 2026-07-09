@@ -69,30 +69,48 @@ const DropArrow = styled.div`
     }
 `;
 
+const GoIcon = styled.span`
+    display: inline-flex;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        width: 14px;
+        height: 14px;
+        display: block;
+    }
+`;
+
 const GoButton = styled.button`
     display: flex;
     align-items: center;
-    padding: 0 18px 0 5px;
-    height: 95%;
+    padding: 0 6px 0 2px;
+    height: auto;
+    min-height: 0;
     position: relative;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
     cursor: pointer;
     font-size: 11px;
     font-family: Tahoma, sans-serif;
-    gap: 3px;
+    gap: 2px;
+    line-height: 1;
 
     img {
-        height: 95%;
-        margin-right: 3px;
+        margin: 0;
     }
 
     &:hover {
-        filter: brightness(1.1);
+        filter: brightness(1.08);
     }
 
     &:active {
-        filter: brightness(0.9);
+        filter: brightness(0.92);
     }
 `;
 
@@ -123,7 +141,9 @@ const IEAddressBar: React.FC<IEAddressBarProps> = ({ value, onChange, onGo }) =>
                 </DropArrow>
             </InputWrapper>
             <GoButton onClick={onGo}>
-                <XPIcon name="go" size={16} />
+                <GoIcon>
+                    <XPIcon name="go" size={14} />
+                </GoIcon>
                 <span>{t('internetExplorer.addressBar.go')}</span>
             </GoButton>
         </Bar>

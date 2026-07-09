@@ -4,54 +4,69 @@ import { useFileSystem } from '../context/FileSystemContext';
 import { useApp } from '../hooks/useApp';
 import { isFileContentNode } from '../types';
 
+const DRIVE_ROOT = ['root', '我的电脑', '本地磁盘 (C:)'] as const;
+
 const Container = styled.div`
-  padding: 4px;
-  font-family: 'Consolas', 'Courier New', monospace;
+  font-family: 'Lucida Console', 'Courier New', monospace;
   font-size: 12px;
-  background: #000080;
-  color: #ffffff;
+  background: #000000;
+  color: #c0c0c0;
   height: 100%;
   display: flex;
   flex-direction: column;
+  padding: 2px 0;
+  box-sizing: border-box;
 `;
 
 const Output = styled.div`
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   white-space: pre-wrap;
   word-wrap: break-word;
-  padding: 4px;
+  padding: 0 6px;
+  min-height: 0;
 `;
 
-const InputContainer = styled.div`
+const InputLine = styled.div`
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px;
+  flex-shrink: 0;
+  padding: 0 6px;
+  background: #000000;
 `;
 
 const Prompt = styled.span`
-  color: #ffffff;
-  font-weight: bold;
+  color: #c0c0c0;
+  white-space: pre;
+  flex-shrink: 0;
 `;
 
 const Input = styled.input`
   flex: 1;
-  background: transparent;
-  border: none;
-  color: #ffffff;
+  min-width: 0;
+  background: #000000 !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  color: #c0c0c0;
   font-family: inherit;
   font-size: inherit;
+  line-height: inherit;
   outline: none;
+  padding: 0;
+  margin: 0;
+  caret-color: #c0c0c0;
 
-  &::placeholder {
-    color: #cccccc;
+  &:focus,
+  &:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
   }
 `;
 
 interface CommandHistory {
   command: string;
-  output: string;
 }
 
 interface CommandPromptProps {
@@ -65,10 +80,11 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
     'Microsoft Windows XP [版本 5.1.2600]\n(C) 版权所有 1985-2001 Microsoft Corp.\n\n'
   );
   const [input, setInput] = useState<string>('');
-  const [currentPath, setCurrentPath] = useState<string[]>(['root', '我的电脑', '本地磁盘 (C:)']);
+  const [currentPath, setCurrentPath] = useState<string[]>([...DRIVE_ROOT]);
   const [history, setHistory] = useState<CommandHistory[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
   const outputRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (outputRef.current) {
@@ -76,14 +92,25 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
     }
   }, [output]);
 
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
   const getPrompt = () => {
-    const pathStr = currentPath.slice(1).join('\\');
-    return `C:\\${pathStr}>`;
+    const relative = currentPath.slice(DRIVE_ROOT.length);
+    return relative.length ? `C:\\${relative.join('\\')}>` : 'C:\\>';
   };
 
   const resolvePath = (path: string): string[] => {
     if (path === '\\' || path === '/') {
-      return ['root'];
+      return [...DRIVE_ROOT];
+    }
+
+    if (path.startsWith('C:') || path.startsWith('c:')) {
+      const stripped = path.slice(2).replace(/^[\\/]+/, '');
+      if (!stripped) return [...DRIVE_ROOT];
+      const parts = stripped.split(/[\\/]/).filter(Boolean);
+      return [...DRIVE_ROOT, ...parts];
     }
 
     if (path.startsWith('\\') || path.startsWith('/')) {
@@ -167,7 +194,9 @@ VOL         显示磁盘卷标和序列号。`;
         }
 
         const entries = Object.entries(folder.children);
-        let result = `\n ${targetPath.slice(1).join('\\')} 的目录\n\n`;
+        const displayPath = targetPath.slice(DRIVE_ROOT.length);
+        const dirLabel = displayPath.length ? `C:\\${displayPath.join('\\')}` : 'C:\\';
+        let result = `\n ${dirLabel} 的目录\n\n`;
 
         let fileCount = 0;
         let dirCount = 0;
@@ -194,19 +223,19 @@ VOL         显示磁盘卷标和序列号。`;
       case 'cd':
       case 'chdir': {
         if (!args[0]) {
-          return currentPath.slice(1).join('\\') + '\n';
+          const relative = currentPath.slice(DRIVE_ROOT.length);
+          return (relative.length ? `C:\\${relative.join('\\')}` : 'C:\\') + '\n';
         }
 
         if (args[0] === '..') {
-          if (currentPath.length > 1) {
+          if (currentPath.length > DRIVE_ROOT.length) {
             setCurrentPath(currentPath.slice(0, -1));
-            return '';
           }
           return '';
         }
 
         if (args[0] === '\\' || args[0] === '/') {
-          setCurrentPath(['root']);
+          setCurrentPath([...DRIVE_ROOT]);
           return '';
         }
 
@@ -300,10 +329,11 @@ VOL         显示磁盘卷标和序列号。`;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      const command = input.trim();
+      const command = input;
+      const prompt = getPrompt();
 
-      if (command) {
-        setHistory([...history, { command, output: '' }]);
+      if (command.trim()) {
+        setHistory(prev => [...prev, { command }]);
         setHistoryIndex(-1);
       }
 
@@ -314,10 +344,10 @@ VOL         显示磁盘卷标和序列号。`;
           'Microsoft Windows XP [版本 5.1.2600]\n(C) 版权所有 1985-2001 Microsoft Corp.\n\n'
         );
       } else if (result === '__EXIT__') {
-        setOutput(prev => prev + input + '\n');
+        setOutput(prev => prev + prompt + command + '\n');
         api.window.close();
       } else {
-        setOutput(prev => prev + getPrompt() + input + '\n' + result);
+        setOutput(prev => prev + prompt + command + '\n' + result);
       }
 
       setInput('');
@@ -344,21 +374,23 @@ VOL         显示磁盘卷标和序列号。`;
   };
 
   return (
-    <Container>
-      <Output ref={outputRef}>
-        {output}
-        {getPrompt()}
-      </Output>
-      <InputContainer>
+    <Container onClick={() => inputRef.current?.focus()}>
+      <Output ref={outputRef}>{output}</Output>
+      <InputLine>
         <Prompt>{getPrompt()}</Prompt>
         <Input
+          ref={inputRef}
           type="text"
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          autoFocus
+          spellCheck={false}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          aria-label="Command input"
         />
-      </InputContainer>
+      </InputLine>
     </Container>
   );
 };

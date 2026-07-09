@@ -79,8 +79,8 @@ interface FileSystemContextType {
     destinationPath: string[],
     newName?: string
   ) => void;
-  copyToClipboard: (sourcePath: string[], fileName: string) => void;
-  cutFile: (sourcePath: string[], fileName: string) => void;
+  copyToClipboard: (sourcePath: string[], fileName: string | string[]) => void;
+  cutFile: (sourcePath: string[], fileName: string | string[]) => void;
   pasteFile: (destinationPath: string[]) => boolean;
   emptyRecycleBin: () => void;
   restoreFromRecycleBin: (fileName: string) => void;
@@ -179,12 +179,24 @@ export const FileSystemProvider: React.FC<{
     return node.password === passwordInput;
   }, []);
 
-  const copyToClipboard = useCallback((sourcePath: string[], fileName: string) => {
-    setClipboard({ type: 'copy', sourcePath, fileName });
+  const copyToClipboard = useCallback((sourcePath: string[], fileName: string | string[]) => {
+    const fileNames = Array.isArray(fileName) ? fileName : [fileName];
+    setClipboard({
+      type: 'copy',
+      sourcePath,
+      fileName: fileNames[0],
+      ...(fileNames.length > 1 ? { fileNames } : {}),
+    });
   }, []);
 
-  const cutFile = useCallback((sourcePath: string[], fileName: string) => {
-    setClipboard({ type: 'cut', sourcePath, fileName });
+  const cutFile = useCallback((sourcePath: string[], fileName: string | string[]) => {
+    const fileNames = Array.isArray(fileName) ? fileName : [fileName];
+    setClipboard({
+      type: 'cut',
+      sourcePath,
+      fileName: fileNames[0],
+      ...(fileNames.length > 1 ? { fileNames } : {}),
+    });
   }, []);
 
   const pasteFile = useCallback(

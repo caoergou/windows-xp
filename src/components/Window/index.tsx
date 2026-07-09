@@ -100,6 +100,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
   if (isMaximized) {
     return (
       <div
+        className="xp-window"
         style={{
           zIndex,
           position: 'absolute',
@@ -108,6 +109,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
           width: '100%',
           height: 'calc(100% - 30px)',
         }}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         {chrome}
       </div>

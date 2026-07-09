@@ -241,12 +241,17 @@ export const useFileOperations = (
     [setFs, doPersistFs]
   );
 
+  const getClipboardFileNames = (item: ClipboardItem): string[] =>
+    item.fileNames?.length ? item.fileNames : [item.fileName];
+
   const pasteFile = useCallback(
     (destinationPath: string[], clipboard: ClipboardItem | null): boolean => {
       if (!clipboard) return false;
 
+      const names = getClipboardFileNames(clipboard);
+
       if (clipboard.type === 'cut') {
-        const { sourcePath, fileName } = clipboard;
+        const { sourcePath } = clipboard;
         setFs(prevFs => {
           const newFs = produce(prevFs, draft => {
             if (!isContainerNode(draft.root)) return;
@@ -268,24 +273,28 @@ export const useFileOperations = (
               }
             }
 
-            if (!isContainerNode(sourceParent) || !sourceParent.children?.[fileName]) return;
-            if (!isContainerNode(destinationParent)) return;
+            if (!isContainerNode(sourceParent) || !isContainerNode(destinationParent)) return;
             if (!destinationParent.children) {
               destinationParent.children = {};
             }
 
-            destinationParent.children[fileName] = JSON.parse(
-              JSON.stringify(sourceParent.children[fileName])
-            );
-            delete sourceParent.children[fileName];
+            for (const fileName of names) {
+              if (!sourceParent.children?.[fileName]) continue;
+              destinationParent.children[fileName] = JSON.parse(
+                JSON.stringify(sourceParent.children[fileName])
+              );
+              delete sourceParent.children[fileName];
+            }
           });
           doPersistFs(newFs);
           return newFs;
         });
         return true;
       } else if (clipboard.type === 'copy') {
-        const { sourcePath, fileName } = clipboard;
-        copyFile(sourcePath, fileName, destinationPath);
+        const { sourcePath } = clipboard;
+        for (const fileName of names) {
+          copyFile(sourcePath, fileName, destinationPath);
+        }
         return true;
       }
 

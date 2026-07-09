@@ -10,6 +10,23 @@ body {
   font-smooth: never;
 }
 
+/*
+ * XP.css applies a blue inset glow on button:focus, which persists after mouse
+ * clicks and feels like a "selected" state. Real Windows XP only shows:
+ * - momentary sunken border while the mouse is held (:active)
+ * - dotted inner outline for keyboard focus, not after mouse click
+ */
+button:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+button:focus-visible {
+  outline: 1px dotted #000;
+  outline-offset: -4px;
+  box-shadow: none !important;
+}
+
 #root {
   width: 100vw;
   height: 100vh;

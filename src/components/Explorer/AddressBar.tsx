@@ -5,11 +5,11 @@ import XPIcon from '../XPIcon';
 const Bar = styled.div`
     flex-shrink: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.7);
-    height: 20px;
+    height: 22px;
     font-size: 11px;
     display: flex;
     align-items: center;
-    padding: 0 2px;
+    padding: 0 2px 1px;
     box-shadow: inset 0 -2px 3px -1px #b0b0b0;
     background: linear-gradient(to right, #edede5 0%, #ede8cd 100%);
 `;
@@ -71,23 +71,44 @@ const DropArrow = styled.div`
     }
 `;
 
+const GoIcon = styled.span`
+    display: inline-flex;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        width: 14px;
+        height: 14px;
+        display: block;
+    }
+`;
+
 const GoButton = styled.button`
     display: flex;
     align-items: center;
-    padding: 0 18px 0 5px;
-    height: 100%;
+    padding: 0 6px 0 2px;
+    height: auto;
+    min-height: 0;
     position: relative;
-    background: transparent;
-    border: none;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
     cursor: pointer;
     font-size: 11px;
     font-family: Tahoma, sans-serif;
-    gap: 3px;
+    gap: 2px;
+    line-height: 1;
 
-    img {
-        height: 95%;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        margin-right: 3px;
+    &:hover {
+        filter: brightness(1.08);
+    }
+
+    &:active {
+        filter: brightness(0.92);
     }
 `;
 
@@ -116,7 +137,9 @@ const AddressBar: React.FC<AddressBarProps> = ({ address, onAddressChange, onGo 
                 </DropArrow>
             </InputWrapper>
             <GoButton onClick={onGo}>
-                <XPIcon name="go" size={16} />
+                <GoIcon>
+                    <XPIcon name="go" size={14} />
+                </GoIcon>
                 <span>转到</span>
             </GoButton>
         </Bar>
