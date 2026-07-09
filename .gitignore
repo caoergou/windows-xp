@@ -17,3 +17,11 @@ tmp/
 !src/**/*.png
 *.yml
 !.github/**/*.yml
+
+# AI / dogfood artifacts
+code-review-report.md
+dogfood-output/
+dogfood-output-*/
+
+# XP research clones (local reference only, not part of the app)
+xp-research/
