@@ -108,4 +108,10 @@ export const sounds = {
     tone(880, 0.08, 'sine', 0.12, 0.0);
     tone(1175, 0.16, 'sine', 0.12, 0.08);
   },
+
+  // Windows XP 关机/注销：低沉的下行提示音
+  shutdown() {
+    tone(262, 0.25, 'sine', 0.12, 0.0);
+    tone(196, 0.35, 'sine', 0.1, 0.18);
+  },
 };

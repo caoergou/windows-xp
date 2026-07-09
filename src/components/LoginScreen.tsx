@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import { useUserSession } from '../context/UserSessionContext';
 import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
+import { safeLocalStorage, getStorageKey, canUseDOM } from '../utils/storage';
 
 const Container = styled.div`
   background-color: #003399;
@@ -24,7 +26,7 @@ const Content = styled.div`
     border-top: 2px solid #F5C684;
     border-bottom: 2px solid #F5C684;
     padding: 40px;
-    border-radius: 5px;
+    border-radius: 0;
 `;
 
 const Logo = styled.div`
@@ -101,7 +103,7 @@ const GoButton = styled.button`
     height: 30px;
     background: #009933;
     border: 1px solid white;
-    border-radius: 4px;
+    border-radius: 0;
     color: white;
     display: flex;
     justify-content: center;
@@ -148,7 +150,7 @@ const ShutdownButton = styled.button`
     gap: 6px;
     background: transparent;
     border: 1px solid rgba(255,255,255,0.4);
-    border-radius: 3px;
+    border-radius: 0;
     color: white;
     font-size: 12px;
     font-family: Tahoma, sans-serif;
@@ -162,14 +164,17 @@ const ShutdownButton = styled.button`
 `;
 
 const LoginScreen = () => {
+    const { t } = useTranslation();
     const { login, user } = useUserSession();
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
 
     const handleShutdown = () => {
-        localStorage.setItem('xp_power_state', 'shutdown');
-        localStorage.removeItem('xp_first_boot_done');
-        window.location.reload();
+        safeLocalStorage.setItem(getStorageKey('power_state'), 'shutdown');
+        safeLocalStorage.removeItem(getStorageKey('first_boot_done'));
+        if (canUseDOM) {
+            window.location.reload();
+        }
     };
 
     const handleLogin = () => {
@@ -203,7 +208,7 @@ const LoginScreen = () => {
                     <InputArea>
                         <UserName>{user.name}</UserName>
                         <PasswordBox>
-                            <label>输入密码:</label>
+                            <label>{t('login.password')}:</label>
                             <Input
                                 type="password"
                                 value={password}
@@ -223,7 +228,7 @@ const LoginScreen = () => {
             <BottomBar>
                 <ShutdownButton onClick={handleShutdown}>
                     <XPIcon name="shutdown" size={16} />
-                    关闭计算机
+                    {t('login.turnOff')}
                 </ShutdownButton>
             </BottomBar>
         </Container>

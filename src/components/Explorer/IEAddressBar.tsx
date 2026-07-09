@@ -144,7 +144,7 @@ const IEAddressBar: React.FC<IEAddressBarProps> = ({ value, onChange, onGo }) =>
                 <GoIcon>
                     <XPIcon name="go" size={14} />
                 </GoIcon>
-                <span>转到</span>
+                <span>{t('internetExplorer.addressBar.go')}</span>
             </GoButton>
         </Bar>
     );

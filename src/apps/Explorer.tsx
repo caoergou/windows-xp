@@ -94,7 +94,7 @@ const FileInfo = styled.div`
 
 const FileName = styled.span`
     font-size: 11px;
-    font-weight: ${props => props.isDrive ? 'bold' : 'normal'};
+    font-weight: ${props => props.$isDrive ? 'bold' : 'normal'};
 `;
 
 const FileType = styled.span`
@@ -456,7 +456,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
                 <XPIcon name={item.icon || (item.type === 'folder' ? 'folder' : 'file')} size={32} />
             </IconWrapper>
             <FileInfo>
-                <FileName isDrive={isRoot && (item.type === 'drive' || item.icon === 'drive')}>
+                <FileName $isDrive={isRoot && (item.type === 'drive' || item.icon === 'drive')}>
                     {item.name}
                     {item.locked && <span style={{ marginLeft: '5px', fontSize: '10px' }}>🔒</span>}
                 </FileName>

@@ -7,10 +7,12 @@ import { useWindowManager } from './context/WindowManagerContext';
 import LoginScreen from './components/LoginScreen';
 import Desktop from './components/Desktop';
 import BootScreen from './components/BootScreen';
+import BsodScreen from './components/BsodScreen';
 import XPIcon from './components/XPIcon';
 import MobileWarning from './components/MobileWarning';
 import windowsIcon from './assets/icons/windows.svg';
 import { TIME } from './constants';
+import { safeLocalStorage, getStorageKey, canUseDOM } from './utils/storage';
 
 const Container = styled.div`
   width: 100%;
@@ -115,26 +117,38 @@ const AltTabItem = styled.div<{ $active: boolean }>`
 
 type BootPhase = 'BOOTING' | 'RUNNING' | 'SCREENSAVER';
 
-const getInitialBootPhase = (): BootPhase => {
-  const firstBootDone = localStorage.getItem('xp_first_boot_done');
-  const powerState = localStorage.getItem('xp_power_state');
+const getInitialBootPhase = (skipBoot?: boolean): BootPhase => {
+  if (skipBoot) return 'RUNNING';
+
+  const firstBootDone = safeLocalStorage.getItem(getStorageKey('first_boot_done'));
+  const powerState = safeLocalStorage.getItem(getStorageKey('power_state'));
 
   if (!firstBootDone || powerState === 'shutdown' || powerState === 'restart' || powerState === 'logout') {
     return 'BOOTING';
   }
 
-  if (localStorage.getItem('xp_logged_in') === 'true') {
+  if (safeLocalStorage.getItem(getStorageKey('logged_in')) === 'true') {
     return 'SCREENSAVER';
   }
 
   return 'RUNNING';
 };
 
-interface AppProps {
+export interface AppProps {
   initialLanguage?: 'en' | 'zh';
+  skipBoot?: boolean;
+  disableContextMenuBlock?: boolean;
+  disableDevToolsBlock?: boolean;
+  disableScreenSaver?: boolean;
 }
 
-function App({ initialLanguage }: AppProps = {}) {
+function App({
+  initialLanguage,
+  skipBoot,
+  disableContextMenuBlock,
+  disableDevToolsBlock,
+  disableScreenSaver,
+}: AppProps = {}) {
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -145,13 +159,16 @@ function App({ initialLanguage }: AppProps = {}) {
 
   const { isLoggedIn } = useUserSession();
   const { windows, activeWindowId, closeWindow, focusWindow } = useWindowManager();
-  const [bootPhase, setBootPhase] = useState<BootPhase>(getInitialBootPhase);
+  const [bootPhase, setBootPhase] = useState<BootPhase>(() => getInitialBootPhase(skipBoot));
   const [screenSaverFading, setScreenSaverFading] = useState(false);
   const [altTabVisible, setAltTabVisible] = useState(false);
   const [altTabIndex, setAltTabIndex] = useState(0);
+  const [bsodVisible, setBsodVisible] = useState(false);
 
-  // One-time setup: context menu block + easter egg
+  // Context menu block (can be disabled for embedded usage)
   useEffect(() => {
+    if (disableContextMenuBlock || !canUseDOM) return undefined;
+
     const handleContextMenu = (e: MouseEvent) => {
       if (!e.defaultPrevented) {
         e.preventDefault();
@@ -162,22 +179,26 @@ function App({ initialLanguage }: AppProps = {}) {
     return () => {
       window.removeEventListener('contextmenu', handleContextMenu);
     };
-  }, []);
+  }, [disableContextMenuBlock]);
 
-  // Keyboard shortcuts: re-register when window state changes
+  // Keyboard shortcuts and dev-tools block
   useEffect(() => {
+    if (!canUseDOM) return undefined;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'F12' || e.code === 'F12') {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      if (e.ctrlKey && e.shiftKey && ['KeyI', 'KeyJ', 'KeyC'].includes(e.code)) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      if (e.ctrlKey && e.code === 'KeyU') {
-        e.preventDefault();
-        e.stopPropagation();
+      if (!disableDevToolsBlock) {
+        if (e.key === 'F12' || e.code === 'F12') {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        if (e.ctrlKey && e.shiftKey && ['KeyI', 'KeyJ', 'KeyC'].includes(e.code)) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        if (e.ctrlKey && e.code === 'KeyU') {
+          e.preventDefault();
+          e.stopPropagation();
+        }
       }
       // Alt+F4: close focused window
       if (e.altKey && e.key === 'F4' && activeWindowId) {
@@ -195,6 +216,11 @@ function App({ initialLanguage }: AppProps = {}) {
           setAltTabIndex(prev => (prev + 1) % windows.length);
         }
       }
+      // BSOD easter egg: Ctrl+Shift+Alt+B
+      if (e.ctrlKey && e.shiftKey && e.altKey && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        setBsodVisible(true);
+      }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -211,7 +237,7 @@ function App({ initialLanguage }: AppProps = {}) {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [activeWindowId, altTabVisible, altTabIndex, windows, closeWindow, focusWindow]);
+  }, [activeWindowId, altTabVisible, altTabIndex, windows, closeWindow, focusWindow, disableDevToolsBlock]);
 
   const dismissScreenSaver = useCallback(() => {
     if (bootPhase === 'SCREENSAVER' && !screenSaverFading) {
@@ -225,7 +251,7 @@ function App({ initialLanguage }: AppProps = {}) {
 
   // Idle detection: trigger screensaver after timeout
   useEffect(() => {
-    if (bootPhase !== 'RUNNING' || !isLoggedIn) return;
+    if (disableScreenSaver || bootPhase !== 'RUNNING' || !isLoggedIn || !canUseDOM) return undefined;
 
     let timeoutId: ReturnType<typeof setTimeout>;
     const resetTimer = () => {
@@ -243,13 +269,17 @@ function App({ initialLanguage }: AppProps = {}) {
       clearTimeout(timeoutId);
       events.forEach(event => window.removeEventListener(event, resetTimer));
     };
-  }, [bootPhase, isLoggedIn]);
+  }, [bootPhase, isLoggedIn, disableScreenSaver]);
 
   const handleBootComplete = () => {
-    localStorage.setItem('xp_first_boot_done', 'true');
-    localStorage.setItem('xp_power_state', 'running');
+    safeLocalStorage.setItem(getStorageKey('first_boot_done'), 'true');
+    safeLocalStorage.setItem(getStorageKey('power_state'), 'running');
     setBootPhase('RUNNING');
   };
+
+  if (bsodVisible) {
+    return <BsodScreen onClick={() => setBsodVisible(false)} />;
+  }
 
   if (bootPhase === 'SCREENSAVER') {
     return (

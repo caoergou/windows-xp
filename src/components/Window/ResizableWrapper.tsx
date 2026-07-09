@@ -1,0 +1,82 @@
+import React from 'react';
+import Draggable from 'react-draggable';
+import { ResizableBox } from 'react-resizable';
+import { WINDOW_DEFAULTS } from '../../constants';
+import 'react-resizable/css/styles.css';
+
+interface ResizableWrapperProps {
+  id: string;
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  zIndex: number;
+  isResizable: boolean;
+  onFocus: () => void;
+  onMove: (id: string, left: number, top: number) => void;
+  onResize: (id: string, width: number, height: number) => void;
+  children: React.ReactNode;
+}
+
+const ResizableWrapper: React.FC<ResizableWrapperProps> = ({
+  id,
+  left,
+  top,
+  width,
+  height,
+  zIndex,
+  isResizable,
+  onFocus,
+  onMove,
+  onResize,
+  children,
+}) => {
+  const nodeRef = React.useRef<HTMLDivElement>(null);
+
+  return (
+    <Draggable
+      handle=".title-bar"
+      nodeRef={nodeRef}
+      disabled={false}
+      defaultPosition={{ x: left, y: top }}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        onFocus();
+      }}
+      onStop={(_e, data) => {
+        onMove(id, data.x, data.y);
+      }}
+    >
+      <div
+        ref={nodeRef}
+        className="xp-window"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          zIndex,
+          width,
+          height,
+        }}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <ResizableBox
+          width={width}
+          height={height}
+          minConstraints={[WINDOW_DEFAULTS.MIN_WIDTH, WINDOW_DEFAULTS.MIN_HEIGHT]}
+          maxConstraints={[2000, 2000]}
+          onResizeStart={(e) => e.stopPropagation()}
+          onResizeStop={(_e, { size }) => {
+            onResize(id, size.width, size.height);
+          }}
+          axis={isResizable ? 'both' : 'none'}
+          resizeHandles={isResizable ? ['se'] : []}
+        >
+          {children}
+        </ResizableBox>
+      </div>
+    </Draggable>
+  );
+};
+
+export default ResizableWrapper;

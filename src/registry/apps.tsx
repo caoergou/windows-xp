@@ -1,7 +1,7 @@
 import React from 'react';
 import Explorer from '../apps/Explorer';
-import InternetExplorer from '../apps/InternetExplorer';
-import Notepad from '../apps/Notepad';
+const InternetExplorer = React.lazy(() => import('../apps/InternetExplorer'));
+const Notepad = React.lazy(() => import('../apps/Notepad'));
 import PhotoViewer from '../apps/PhotoViewer';
 import FileProperties from '../components/FileProperties';
 import QQLogin from '../apps/QQLogin';
@@ -9,18 +9,21 @@ import SafeGuard360 from '../apps/SafeGuard360';
 import Calculator from '../apps/Calculator';
 import HelpAndSupport from '../apps/HelpAndSupport';
 import RunDialog from '../apps/RunDialog';
-import CommandPrompt from '../apps/CommandPrompt';
+const CommandPrompt = React.lazy(() => import('../apps/CommandPrompt'));
 import VolumeControl from '../apps/VolumeControl';
 import NetworkConnections from '../apps/NetworkConnections';
 import ControlPanel from '../apps/ControlPanel';
-import MicrosoftPaint from '../apps/MicrosoftPaint';
+const MicrosoftPaint = React.lazy(() => import('../apps/MicrosoftPaint'));
 import Minesweeper from '../apps/Minesweeper';
-import Solitaire from '../apps/Solitaire';
-import WindowsMediaPlayer from '../apps/WindowsMediaPlayer';
-import Thunder from '../apps/Thunder';
-import { AppRegistryEntry, AppAssociation, FileNode, FileContentNode, isFileContentNode } from '../types';
+const Solitaire = React.lazy(() => import('../apps/Solitaire'));
+const WindowsMediaPlayer = React.lazy(() => import('../apps/WindowsMediaPlayer'));
+const Thunder = React.lazy(() => import('../apps/Thunder'));
+const BaofengPlayer = React.lazy(() => import('../apps/BaofengPlayer'));
+const KugouMusic = React.lazy(() => import('../apps/KugouMusic'));
+import { AppRegistryEntry, AppAssociation, FileNode, isFileContentNode, isAppShortcutNode } from '../types';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 /** Helper to cast unknown props when restoring an app component */
 const restoreApp = <P extends Record<string, unknown>>(Component: React.FC<P>) => {
@@ -87,6 +90,13 @@ const DummyAppComponent: React.FC<DummyAppProps> = ({ appName = '此应用' }) =
   );
 };
 
+/** Resolve the localized display title for a registry entry. */
+export const getAppDisplayName = (def: AppRegistryEntry, t: TFunction): string => {
+  if (!def.nameKey) return def.name;
+  const translated = t(def.nameKey, { defaultValue: '' });
+  return translated || def.name;
+};
+
 /**
  * APP_REGISTRY — 所有可打开应用的唯一注册中心。
  *
@@ -128,14 +138,13 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
       {
         appField: 'InternetExplorer',
         getProps: (item: FileNode) => {
-          if (!isFileContentNode(item)) {
-            return { url: 'about:blank' };
+          if (isAppShortcutNode(item)) {
+            if (item.isHtmlContent) {
+              return { html: item.url ?? '' };
+            }
+            return { url: item.url || 'about:blank' };
           }
-          if ('isHtmlContent' in item && item.isHtmlContent) {
-            return { html: item.content ?? '' };
-          }
-          const itemWithUrl = item as FileContentNode & { url?: string };
-          return { url: item.content || itemWithUrl.url || 'about:blank' };
+          return { url: isFileContentNode(item) ? item.content || 'about:blank' : 'about:blank' };
         },
       },
     ],
@@ -145,6 +154,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   Notepad: {
     id:   'Notepad',
     name: '记事本',
+    nameKey: 'apps.notepad',
     icon: 'file',
     window: { width: 480, height: 300 },
     lifecycle: {},
@@ -163,6 +173,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   PhotoViewer: {
     id:   'PhotoViewer',
     name: '图片查看器',
+    nameKey: 'photoViewer.title',
     icon: 'image',
     window: { width: 660, height: 520 },
     lifecycle: {},
@@ -187,6 +198,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   QQLogin: {
     id:     'QQLogin',
     name:   'QQ',
+    nameKey: 'qq.title',
     icon:   'qq',
     window: { width: 320, height: 380, resizable: false, singleton: true },
     lifecycle: {},
@@ -199,6 +211,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   SafeGuard360: {
     id:     'SafeGuard360',
     name:   '360 Safe Guard',
+    nameKey: 'safeGuard360.title',
     icon:   '360safe',
     window: { width: 500, height: 360, resizable: false, singleton: true },
     lifecycle: {},
@@ -211,6 +224,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   Calculator: {
     id:     'Calculator',
     name:   '计算器',
+    nameKey: 'apps.calculator',
     icon:   'calculator',
     window: { width: 208, height: 196, resizable: false, singleton: true },
     lifecycle: {},
@@ -223,6 +237,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   HelpAndSupport: {
     id:     'HelpAndSupport',
     name:   '帮助和支持',
+    nameKey: 'helpAndSupport.title',
     icon:   'help',
     window: { width: 600, height: 400 },
     lifecycle: {},
@@ -244,6 +259,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   CommandPrompt: {
     id:     'CommandPrompt',
     name:   '命令提示符',
+    nameKey: 'apps.commandPrompt',
     icon:   'cmd',
     window: { width: 600, height: 400 },
     lifecycle: {},
@@ -253,6 +269,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   VolumeControl: {
     id:     'VolumeControl',
     name:   '音量控制',
+    nameKey: 'apps.volumeControl',
     icon:   'volume',
     window: { width: 280, height: 120, resizable: false, singleton: true },
     lifecycle: {},
@@ -262,6 +279,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   NetworkConnections: {
     id:     'NetworkConnections',
     name:   '网络连接',
+    nameKey: 'apps.networkConnections',
     icon:   'network',
     window: { width: 400, height: 300 },
     lifecycle: {},
@@ -271,6 +289,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   ControlPanel: {
     id:     'ControlPanel',
     name:   '控制面板',
+    nameKey: 'startMenu.controlPanel',
     icon:   'controlpanel',
     window: { width: 600, height: 400 },
     lifecycle: {},
@@ -280,6 +299,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   MicrosoftPaint: {
     id:     'MicrosoftPaint',
     name:   '画图',
+    nameKey: 'apps.paint',
     icon:   'paint',
     window: { width: 700, height: 500 },
     lifecycle: {},
@@ -292,6 +312,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   Minesweeper: {
     id:     'Minesweeper',
     name:   '扫雷',
+    nameKey: 'apps.minesweeper',
     icon:   'minesweeper',
     window: { width: 400, height: 420, resizable: true, singleton: true },
     lifecycle: {},
@@ -304,6 +325,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   Solitaire: {
     id:     'Solitaire',
     name:   '纸牌',
+    nameKey: 'apps.solitaire',
     icon:   'solitaire',
     window: { width: 700, height: 520, resizable: true, singleton: true },
     lifecycle: {},
@@ -316,6 +338,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   WindowsMediaPlayer: {
     id:     'WindowsMediaPlayer',
     name:   'Windows Media Player',
+    nameKey: 'apps.mediaPlayer',
     icon:   'media',
     window: { width: 520, height: 420 },
     lifecycle: {},
@@ -328,6 +351,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   Thunder: {
     id:     'Thunder',
     name:   '迅雷',
+    nameKey: 'thunder.title',
     icon:   'thunder',
     window: { width: 560, height: 400 },
     lifecycle: {},
@@ -335,6 +359,32 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
       { appField: 'Thunder', getProps: () => ({}) },
     ],
     restore: restoreApp(Thunder),
+  },
+
+  KugouMusic: {
+    id:     'KugouMusic',
+    name:   '酷狗音乐',
+    nameKey: 'kugouMusic.title',
+    icon:   'kugou',
+    window: { width: 520, height: 400, resizable: true, singleton: true },
+    lifecycle: {},
+    associations: [
+      { appField: 'KugouMusic', getProps: () => ({}) },
+    ],
+    restore: restoreApp(KugouMusic),
+  },
+
+  BaofengPlayer: {
+    id:     'BaofengPlayer',
+    name:   '暴风影音',
+    nameKey: 'baofengPlayer.title',
+    icon:   'baofeng',
+    window: { width: 600, height: 450, resizable: true, singleton: true },
+    lifecycle: {},
+    associations: [
+      { appField: 'BaofengPlayer', getProps: () => ({}) },
+    ],
+    restore: restoreApp(BaofengPlayer),
   },
 
   DummyApp: {

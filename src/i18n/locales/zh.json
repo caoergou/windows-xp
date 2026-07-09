@@ -88,6 +88,11 @@
     "notepad": "记事本",
     "paint": "画图",
     "calculator": "计算器",
+    "commandPrompt": "命令提示符",
+    "volumeControl": "音量控制",
+    "networkConnections": "网络连接",
+    "minesweeper": "扫雷",
+    "solitaire": "纸牌",
     "wordpad": "写字板",
     "mediaPlayer": "Windows Media Player",
     "messenger": "MSN Messenger",
@@ -148,10 +153,7 @@
     "errorTitle": "Windows XP",
     "errorMessage": "Windows 找不到文件 '{{command}}'。请确认文件名是否正确，然后再试一次。"
   },
-  "stickyNote": {
-    "title": "备忘录",
-    "content": "📁 双击打开{{docsPath}}\n\n☑ 电脑密码已设置\n☐ 更新 360 安全卫士\n☐ 用迅雷下载暴风影音\n\n💡 小贴士：\n   右键桌面可刷新"
-  },
+
   "altTab": {
     "switchWindow": "切换窗口"
   },
@@ -267,6 +269,19 @@
       "mapGoogle": "谷歌地图",
       "dict": "在线词典"
     },
+    "toolbar": {
+      "back": "后退",
+      "forward": "前进",
+      "stop": "停止",
+      "refresh": "刷新",
+      "home": "主页",
+      "search": "搜索",
+      "favorites": "收藏夹",
+      "history": "历史"
+    },
+    "addressBar": {
+      "go": "转到"
+    },
     "menu": {
       "file": "文件(F)",
       "edit": "编辑(E)",
@@ -377,9 +392,47 @@
     "statusCount": "共 {{count}} 个任务",
     "statusSpeed": "下载速度"
   },
+  "kugouMusic": {
+    "title": "酷狗音乐",
+    "version": "2010 正式版",
+    "playlist": "播放列表",
+    "search": "搜索",
+    "onlineMusic": "在线音乐",
+    "columnTitle": "歌曲",
+    "columnArtist": "歌手",
+    "columnDuration": "时长",
+    "previous": "上一首",
+    "next": "下一首",
+    "playPause": "播放/暂停",
+    "volume": "音量",
+    "nowPlaying": "正在播放：{{title}} - {{artist}}",
+    "stopped": "已停止",
+    "statusCount": "共 {{count}} 首",
+    "statusPlaying": "正在播放",
+    "statusReady": "准备就绪"
+  },
   "photoViewer": {
+    "title": "图片查看器",
     "noImageSelected": "未选择图片",
     "view": "查看"
+  },
+  "baofengPlayer": {
+    "title": "暴风影音",
+    "version": "3.6 智能版",
+    "brand": "暴风影音",
+    "openFileHint": "点击打开文件",
+    "playing": "正在播放",
+    "play": "播放",
+    "pause": "暂停",
+    "stop": "停止",
+    "fullscreen": "全屏",
+    "playlist": "播放列表",
+    "volumeLabel": "音量",
+    "status": {
+      "ready": "就绪",
+      "playing": "正在播放",
+      "paused": "已暂停"
+    }
   },
   "window": {
     "minimize": "最小化",

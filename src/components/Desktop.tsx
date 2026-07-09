@@ -13,13 +13,11 @@ import FileProperties from './FileProperties';
 import { resolveFileOpen } from '../registry/apps';
 import AntivirusPopup from './AntivirusPopup';
 import { useModal } from '../context/ModalContext';
-// @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
-// TODO: refine Desktop types; disabled due to extensive styled-components / FileNode union issues
 import StickyNote from './StickyNote';
 import desktopBg from '../assets/images/desktop_bg.jpg';
-import { FileItem, FileNode, MenuItem } from '../types';
+import { FileItem, FileNode, MenuItem, RootNode, isContainerNode } from '../types';
 
-const DesktopContainer = styled.div`
+const DesktopContainer = styled.div<{ $bgUrl: string }>`
   width: 100%;
   height: 100%;
   background-color: #3A6EA5;
@@ -83,8 +81,8 @@ const DesktopIcon = styled.div<{ $selected?: boolean }>`
 
   .icon-wrapper {
     position: relative;
-    margin-bottom: 2px;
-    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5));
+    margin-bottom: 4px;
+    filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.7));
   }
 
   .icon-label {
@@ -99,7 +97,7 @@ const DesktopIcon = styled.div<{ $selected?: boolean }>`
     word-break: break-word;
     line-height: 1.2;
     color: white;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
     padding: 0 1px;
     user-select: none;
     -webkit-user-select: none;
@@ -133,6 +131,7 @@ const SYSTEM_ICON_KEYS = new Set(['我的电脑', '我的文档', '回收站', '
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
   const { fs, moveFile, deleteFile, renameFile, copyToClipboard, cutFile, pasteFile, clipboard } = useFileSystem();
+  const rootChildren = (fs.root as RootNode).children;
   const { windows, openWindow } = useWindowManager();
   const { showModal, showConfirm, showInput } = useModal();
 
@@ -199,7 +198,6 @@ const Desktop: React.FC = () => {
 
   const toggleIconSelection = (key: string, e: React.MouseEvent) => {
     if (e.ctrlKey) {
-      // Ctrl+Click: toggle single selection
       const newSelected = new Set(selectedIcons);
       if (newSelected.has(key)) {
         newSelected.delete(key);
@@ -208,12 +206,10 @@ const Desktop: React.FC = () => {
       }
       setSelectedIcons(newSelected);
     } else {
-      // Normal click: select only this one
       setSelectedIcons(new Set([key]));
     }
   };
 
-  // Box selection handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     if (target.closest(BOX_SELECT_IGNORE)) {
@@ -295,7 +291,7 @@ const Desktop: React.FC = () => {
     e.stopPropagation();
     setDragOver(null);
 
-    const targetItem = fs.root.children[targetKey];
+    const targetItem = rootChildren[targetKey];
     if (!targetItem || targetItem.type !== 'folder') return;
 
     const srcKey = e.dataTransfer.getData('text/plain');
@@ -342,7 +338,7 @@ const Desktop: React.FC = () => {
       ? getOperableKeys(Array.from(selectedIcons))
       : SYSTEM_ICON_KEYS.has(key) ? [] : [key];
 
-    const itemsToDelete = keysToDelete.map(k => fs.root.children[k]).filter(Boolean);
+    const itemsToDelete = keysToDelete.map(k => rootChildren[k]).filter(Boolean);
 
     if (itemsToDelete.length === 0) {
       closeContextMenu();
@@ -383,14 +379,14 @@ const Desktop: React.FC = () => {
 
   const handleOpenSelection = (keys: string[]) => {
     keys.forEach(k => {
-      const item = fs.root.children[k];
+      const item = rootChildren[k];
       if (item) handleIconDoubleClick(k, item);
     });
     closeContextMenu();
   };
 
   const handleIconRename = (key: string) => {
-    const item = fs.root.children[key];
+    const item = rootChildren[key];
     if (!item) return;
     showInput('重命名', '请输入新名称：', item.name).then(newName => {
       if (newName && newName.trim() !== '') {
@@ -401,7 +397,7 @@ const Desktop: React.FC = () => {
   };
 
   const handleIconProperties = (key: string) => {
-    const item = fs.root.children[key];
+    const item = rootChildren[key];
     if (!item) return;
     openWindow(
       `properties-${key}`,
@@ -420,7 +416,6 @@ const Desktop: React.FC = () => {
     }, 100);
   };
 
-  // Translate desktop icon names
   const translateIconName = (key: string, name: string) => {
     const nameMap: Record<string, string> = {
       '我的电脑': 'desktop.myComputer',
@@ -447,7 +442,7 @@ const Desktop: React.FC = () => {
     const operable = getOperableKeys(keys);
     const isMulti = keys.length > 1;
     const primaryKey = keys[0];
-    const primaryItem = fs.root.children[primaryKey];
+    const primaryItem = rootChildren[primaryKey];
     if (!primaryItem) return desktopMenuItems;
 
     const isSystem = !isMulti && primaryItem.type === 'folder' && SYSTEM_ICON_KEYS.has(primaryKey);
@@ -491,7 +486,7 @@ const Desktop: React.FC = () => {
     return items;
   };
 
-  const desktopItems = fs.root.children;
+  const desktopItems = rootChildren;
 
   const activeMenuItems = buildIconMenuItems(resolveMenuKeys(contextMenu.iconKey));
 
@@ -515,7 +510,7 @@ const Desktop: React.FC = () => {
     >
       <IconGrid key={refreshKey} style={{ opacity: isRefreshing ? 0 : 1 }}>
         {Object.entries(desktopItems || {}).map(([key, item]: [string, FileNode]) => {
-          const iconName = (key === '回收站' && item.children && Object.keys(item.children).length > 0)
+          const iconName = (key === '回收站' && isContainerNode(item) && item.children && Object.keys(item.children).length > 0)
             ? 'recycle_bin_full'
             : item.icon;
           return (
@@ -559,7 +554,7 @@ const Desktop: React.FC = () => {
               } : undefined}
             >
               <div className="icon-wrapper">
-                <XPIcon name={iconName} size={32} />
+                <XPIcon name={iconName || 'app_window'} size={32} />
               </div>
               <span className="icon-label">{translateIconName(key, item.name)}</span>
             </DesktopIcon>
@@ -567,7 +562,6 @@ const Desktop: React.FC = () => {
         })}
       </IconGrid>
 
-      {/* Selection Box */}
       {isSelecting && (
         <SelectionBox
           $left={Math.min(selectionStart.x, selectionEnd.x)}
