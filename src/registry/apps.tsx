@@ -304,7 +304,13 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     window: { width: 700, height: 500 },
     lifecycle: {},
     associations: [
-      { appField: 'MicrosoftPaint', getProps: () => ({}) },
+      {
+        appField: 'MicrosoftPaint',
+        getProps: (item: FileNode) => ({
+          src: isFileContentNode(item) ? item.content : undefined,
+          fileName: item.name,
+        }),
+      },
     ],
     restore: restoreApp(MicrosoftPaint),
   },
@@ -344,6 +350,24 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     lifecycle: {},
     associations: [
       { appField: 'WindowsMediaPlayer', getProps: () => ({}) },
+      {
+        appField: 'mp3',
+        getProps: (item: FileNode) => ({
+          src: isFileContentNode(item) ? item.content : undefined,
+        }),
+      },
+      {
+        appField: 'wma',
+        getProps: (item: FileNode) => ({
+          src: isFileContentNode(item) ? item.content : undefined,
+        }),
+      },
+      {
+        appField: 'avi',
+        getProps: (item: FileNode) => ({
+          src: isFileContentNode(item) ? item.content : undefined,
+        }),
+      },
     ],
     restore: restoreApp(WindowsMediaPlayer),
   },

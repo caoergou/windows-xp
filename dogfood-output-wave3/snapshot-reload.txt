@@ -1,0 +1,4 @@
+- generic [ref=e1] clickable [onclick]
+  - generic [ref=e2] clickable [cursor:pointer, onclick, tabindex]
+    - image "Windows XP"
+    - StaticText "Click or press any key to continue..."

@@ -116,6 +116,19 @@ const StatusBar = styled.div`
     color: #000;
 `;
 
+const EmptyRecycleBinMessage = styled.div`
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #808080;
+    font-size: 12px;
+    font-family: Tahoma, "Microsoft YaHei", sans-serif;
+    gap: 10px;
+    user-select: none;
+`;
+
 // windowId 由 Window.tsx 通过 cloneElement 自动注入
 interface ExplorerProps {
     initialPath?: string[];
@@ -494,7 +507,14 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
                     onNavigate={handleNavigateToPath}
                 />
                 <FileArea>
-                    {renderContent()}
+                    {isInRecycleBin && Object.keys(currentFolder.children || {}).length === 0 ? (
+                        <EmptyRecycleBinMessage>
+                            <XPIcon name="recycle_bin" size={48} />
+                            <span>回收站是空的。</span>
+                        </EmptyRecycleBinMessage>
+                    ) : (
+                        renderContent()
+                    )}
                 </FileArea>
             </MainContent>
             <StatusBar>

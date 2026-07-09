@@ -1,0 +1,10 @@
+{
+  "旧照片.jpg": {
+    "type": "file",
+    "name": "旧照片.jpg",
+    "icon": "image",
+    "app": "PhotoViewer",
+    "content": "/images/desktop_bg.jpg",
+    "description": "2003 年夏天在老家拍的合影，边角已经有点泛黄了。"
+  }
+}

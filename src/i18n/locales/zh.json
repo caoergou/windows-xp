@@ -160,6 +160,24 @@
       "statusBar": "状态栏(S)",
       "help": "查看帮助(V)",
       "about": "关于记事本(A)..."
+    },
+    "find": {
+      "title": "查找",
+      "findWhat": "查找内容：",
+      "findNext": "查找下一个",
+      "notFound": "找不到“{{query}}”。"
+    },
+    "replace": {
+      "title": "替换",
+      "findWhat": "查找内容：",
+      "replaceWith": "替换为：",
+      "replace": "替换",
+      "replaceAll": "全部替换",
+      "replacedCount": "已替换 {{count}} 处。"
+    },
+    "about": {
+      "title": "关于记事本",
+      "message": "Windows XP 记事本\n版本 1.0\n\n© 2026 Windows XP 模拟器"
     }
   },
   "fileSystem": {
@@ -459,6 +477,32 @@
     "title": "图片查看器",
     "noImageSelected": "未选择图片",
     "view": "查看"
+  },
+  "paint": {
+    "menu": {
+      "file": "文件(F)",
+      "edit": "编辑(E)",
+      "view": "查看(V)",
+      "help": "帮助(H)"
+    },
+    "menuitems": {
+      "new": "新建(N)",
+      "open": "打开(O)...",
+      "save": "保存(S)",
+      "saveAs": "另存为(A)...",
+      "exit": "退出(X)",
+      "undo": "撤销(U)",
+      "cut": "剪切(T)",
+      "copy": "复制(C)",
+      "paste": "粘贴(P)",
+      "delete": "删除(L)",
+      "selectAll": "全选(A)",
+      "toolbox": "工具箱(T)",
+      "colorBox": "颜料盒(C)",
+      "statusBar": "状态栏(S)",
+      "helpTopics": "帮助主题(H)",
+      "about": "关于画图(A)..."
+    }
   },
   "baofengPlayer": {
     "title": "暴风影音",

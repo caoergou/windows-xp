@@ -1,0 +1,1 @@
+- generic "MicrosoftWindowsXPCopyright © Microsoft Corporation" [ref=e1] clickable [onclick]

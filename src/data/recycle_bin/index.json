@@ -1,1 +1,18 @@
-{}
+{
+  "旧照片.jpg": {
+    "file": "旧照片.json",
+    "originalPath": ["我的文档", "My Pictures", "Sample Pictures"]
+  },
+  "写给未来的信.txt": {
+    "file": "写给未来的信.json",
+    "originalPath": ["我的文档"]
+  },
+  "下载未完成.url": {
+    "file": "下载未完成.json",
+    "originalPath": ["我的文档"]
+  },
+  "临时文档.txt": {
+    "file": "临时文档.json",
+    "originalPath": ["我的文档"]
+  }
+}
