@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { X } from 'lucide-react';
+import XPIcon from '../../../components/XPIcon';
 import { FavoriteItem } from '../types';
 import { Sidebar, SidebarHeader, HistoryList, FavoritesItem, FavoritesToolbar, ToolbarButton } from '../styled';
 
@@ -27,7 +27,7 @@ const FavoritesPanel: React.FC<FavoritesPanelProps> = ({
     <Sidebar>
       <SidebarHeader>
         <span>{t('explorer.favorites')}</span>
-        <X size={14} style={{ cursor: 'pointer' }} onClick={onClose} />
+        <XPIcon name="close" size={14} color="white" style={{ cursor: 'pointer' }} onClick={onClose} />
       </SidebarHeader>
       <FavoritesToolbar>
         <ToolbarButton onClick={onAdd}>{t('contextMenu.new')}</ToolbarButton>

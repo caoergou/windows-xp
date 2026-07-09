@@ -1,5 +1,6 @@
 import styled, { keyframes } from 'styled-components';
-import { xpScrollbarStyles, xpButtonStyles } from '../../theme';
+import { xpScrollbarStyles, xpButtonStyles, xpTitleBarStyles } from '../../theme';
+import { COLORS } from '../../constants';
 
 export const Container = styled.div`
   width: 100%;
@@ -246,59 +247,51 @@ export const AddFavoriteModal = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: white;
-  padding: 20px;
+  background: ${COLORS.SURFACE};
   border: 2px solid #316ac5;
   border-radius: 0;
   box-shadow: 2px 2px 0 #808080;
   z-index: 1000;
   min-width: 300px;
+  overflow: hidden;
 `;
 
-export const ModalTitle = styled.h3`
-  margin: 0 0 15px 0;
-  color: #333;
-  font-size: 14px;
+export const ModalHeader = styled.div`
+  ${xpTitleBarStyles}
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+`;
+
+export const ModalTitle = styled.span`
+  color: #fff;
+`;
+
+export const ModalBody = styled.div`
+  padding: 12px 16px;
 `;
 
 export const ModalInput = styled.input`
   width: 100%;
-  padding: 5px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 2px;
+  padding: 3px 4px;
+  border: 1px solid #7f9db9;
   font-size: 12px;
+  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+  box-sizing: border-box;
 `;
 
 export const ModalButtons = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: flex-end;
+  padding: 0 16px 16px;
 `;
 
 export const ModalButton = styled.button`
-  padding: 5px 15px;
-  font-size: 12px;
-  cursor: pointer;
-  border: 1px solid #ccc;
-  background: #f8f8f8;
-  border-radius: 2px;
-
-  &:hover {
-    background: #e8e8e8;
-  }
-
-  &:active {
-    background: #ddd;
-  }
-
-  &.primary {
-    background: #316ac5;
-    color: white;
-    border-color: #2a5ca8;
-  }
-
-  &.primary:hover {
-    background: #2a5ca8;
-  }
+  padding: 3px 12px;
+  ${xpButtonStyles}
 `;

@@ -18,23 +18,29 @@ const LanguageSwitcher: React.FC = () => {
 };
 
 const SwitcherButton = styled.button`
+  width: 22px;
+  height: 22px;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
+  border-radius: 0;
   color: white;
   font-size: 11px;
   font-weight: bold;
-  padding: 2px 6px;
+  padding: 0;
+  margin: 0 2px;
   cursor: pointer;
-  height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
   }
 
   &:active {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.1);
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3);
   }
 `;
 
