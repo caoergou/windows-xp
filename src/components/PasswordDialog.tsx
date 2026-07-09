@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
 
@@ -140,13 +141,16 @@ interface PasswordDialogProps {
 }
 
 const PasswordDialog = ({
-  title = '请输入密码',
-  message = '此内容已加密，请输入密码访问。',
+  title,
+  message,
   hint = '',
   correctPassword,
   onSuccess,
   onCancel,
 }: PasswordDialogProps) => {
+  const { t } = useTranslation();
+  const dialogTitle = title || t('passwordDialog.defaultTitle');
+  const dialogMessage = message || t('passwordDialog.defaultMessage');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -156,14 +160,14 @@ const PasswordDialog = ({
   }, []);
 
   const handleSubmit = () => {
-    if (!password) { setError('请输入密码'); return; }
+    if (!password) { setError(t('passwordDialog.emptyError')); return; }
 
     if (password === correctPassword) {
       sounds.ding();
       onSuccess();
     } else {
       sounds.error();
-      setError('密码错误，请重试');
+      setError(t('passwordDialog.incorrectError'));
       setPassword('');
       inputRef.current?.focus();
     }
@@ -178,15 +182,15 @@ const PasswordDialog = ({
     <Overlay>
       <DialogWindow>
         <TitleBar>
-          <span>{title}</span>
+          <span>{dialogTitle}</span>
           <CloseButton onClick={onCancel}>×</CloseButton>
         </TitleBar>
         <ContentArea>
           <MessageRow>
             <XPIcon name="lock" size={32} />
             <div style={{ flex: 1 }}>
-              <Message>{message}</Message>
-              {hint && <HintText>提示：{hint}</HintText>}
+              <Message>{dialogMessage}</Message>
+              {hint && <HintText>{t('passwordDialog.hintPrefix')} {hint}</HintText>}
             </div>
           </MessageRow>
           <div>
@@ -196,14 +200,14 @@ const PasswordDialog = ({
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(''); }}
               onKeyDown={handleKeyDown}
-              placeholder="输入密码..."
+              placeholder={t('passwordDialog.placeholder')}
             />
             <ErrorText>{error}</ErrorText>
           </div>
         </ContentArea>
         <ButtonArea>
-          <Button onClick={onCancel}>取消</Button>
-          <Button onClick={handleSubmit}>确定</Button>
+          <Button onClick={onCancel}>{t('common.cancel')}</Button>
+          <Button onClick={handleSubmit}>{t('common.ok')}</Button>
         </ButtonArea>
       </DialogWindow>
     </Overlay>

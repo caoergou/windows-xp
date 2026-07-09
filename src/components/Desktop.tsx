@@ -346,10 +346,10 @@ const Desktop: React.FC = () => {
     }
 
     const message = itemsToDelete.length === 1
-      ? `确定要把 "${itemsToDelete[0].name}" 移到回收站吗？`
-      : `确定要把选中的 ${itemsToDelete.length} 个项目移到回收站吗？`;
+      ? t('common.deleteConfirmSingle', { name: itemsToDelete[0].name })
+      : t('common.deleteConfirmMultiple', { count: itemsToDelete.length });
 
-    showConfirm('确认删除', message, 'warning').then(confirmed => {
+    showConfirm(t('common.deleteConfirmTitle'), message, 'warning').then(confirmed => {
       if (confirmed) {
         keysToDelete.forEach(k => deleteFile([], k));
         setSelectedIcons(new Set());
@@ -388,7 +388,7 @@ const Desktop: React.FC = () => {
   const handleIconRename = (key: string) => {
     const item = rootChildren[key];
     if (!item) return;
-    showInput('重命名', '请输入新名称：', item.name).then(newName => {
+    showInput(t('common.renameTitle'), t('common.renamePrompt'), item.name).then(newName => {
       if (newName && newName.trim() !== '') {
         renameFile([], key, newName.trim());
       }
@@ -401,7 +401,7 @@ const Desktop: React.FC = () => {
     if (!item) return;
     openWindow(
       `properties-${key}`,
-      `${item.name} 属性`,
+      t('common.propertiesTitle', { name: item.name }),
       <FileProperties fileItem={item} parentPath={[]} />,
       'properties'
     );

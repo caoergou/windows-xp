@@ -1,6 +1,7 @@
 // @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useFileSystem } from '../context/FileSystemContext';
 import XPIcon from './XPIcon';
@@ -99,6 +100,7 @@ interface FilePropertiesProps {
 }
 
 const FileProperties: React.FC<FilePropertiesProps> = ({ fileItem, onClose, parentPath, windowId }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('general');
   const [exifData, setExifData] = useState<{
     Model?: string;
@@ -247,9 +249,9 @@ const FileProperties: React.FC<FilePropertiesProps> = ({ fileItem, onClose, pare
       </TabContent>
 
       <ButtonRow>
-          <Button onClick={handleClose}>确定</Button>
-          <Button onClick={handleClose}>取消</Button>
-          <Button disabled>应用(A)</Button>
+          <Button onClick={handleClose}>{t('common.ok')}</Button>
+          <Button onClick={handleClose}>{t('common.cancel')}</Button>
+          <Button disabled>{t('common.apply')}</Button>
       </ButtonRow>
     </WindowContainer>
   );
