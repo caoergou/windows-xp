@@ -3,7 +3,19 @@
     "myComputer": "我的电脑",
     "myDocuments": "我的文档",
     "recycleBin": "回收站",
-    "internetExplorer": "Internet Explorer"
+    "internetExplorer": "Internet Explorer",
+    "newFolderName": "新建文件夹",
+    "newTextDocumentName": "新建文本文档.txt",
+    "propertiesTitle": "显示属性"
+  },
+  "desktopProperties": {
+    "themes": "主题",
+    "desktop": "桌面",
+    "settings": "设置",
+    "background": "背景：",
+    "position": "位置：",
+    "stretch": "拉伸",
+    "comingSoon": "此标签页仅用于显示。"
   },
   "startMenu": {
     "allPrograms": "所有程序",
@@ -76,7 +88,9 @@
     "rename": "重命名",
     "properties": "属性",
     "refresh": "刷新",
-    "new": "新建"
+    "new": "新建",
+    "newFolder": "文件夹",
+    "newTextDocument": "文本文档"
   },
   "login": {
     "welcome": "欢迎使用",

@@ -10,6 +10,7 @@ import Window from './Window';
 import ContextMenu from './ContextMenu';
 import XPIcon from './XPIcon';
 import FileProperties from './FileProperties';
+import DesktopProperties from './DesktopProperties';
 import { resolveFileOpen } from '../registry/apps';
 import AntivirusPopup from './AntivirusPopup';
 import { useModal } from '../context/ModalContext';
@@ -130,7 +131,7 @@ const SYSTEM_ICON_KEYS = new Set(['我的电脑', '我的文档', '回收站', '
 
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
-  const { fs, moveFile, deleteFile, renameFile, copyToClipboard, cutFile, pasteFile, clipboard } = useFileSystem();
+  const { fs, moveFile, deleteFile, renameFile, createFile, copyToClipboard, cutFile, pasteFile, clipboard } = useFileSystem();
   const rootChildren = (fs.root as RootNode).children;
   const { windows, openWindow } = useWindowManager();
   const { showModal, showConfirm, showInput } = useModal();
@@ -426,14 +427,60 @@ const Desktop: React.FC = () => {
     return nameMap[key] ? t(nameMap[key]) : name;
   };
 
+  const generateUniqueName = (baseName: string) => {
+    const siblings = (fs.root as RootNode).children;
+    if (!siblings[baseName]) return baseName;
+
+    const dotIndex = baseName.lastIndexOf('.');
+    const namePart = dotIndex > 0 ? baseName.slice(0, dotIndex) : baseName;
+    const extPart = dotIndex > 0 ? baseName.slice(dotIndex) : '';
+
+    let counter = 2;
+    while (counter < 100) {
+      const candidate = `${namePart} (${counter})${extPart}`;
+      if (!siblings[candidate]) return candidate;
+      counter += 1;
+    }
+    return baseName;
+  };
+
+  const handleNewFolder = () => {
+    const name = generateUniqueName(t('desktop.newFolderName', 'New Folder'));
+    createFile([], name, 'folder', { icon: 'folder' });
+    closeContextMenu();
+  };
+
+  const handleNewTextDocument = () => {
+    const name = generateUniqueName(t('desktop.newTextDocumentName', 'New Text Document.txt'));
+    createFile([], name, 'file', { app: 'Notepad', icon: 'journal' });
+    closeContextMenu();
+  };
+
+  const handleDesktopProperties = () => {
+    openWindow(
+      'DesktopProperties',
+      t('desktop.propertiesTitle', 'Display Properties'),
+      <DesktopProperties />,
+      'properties',
+      { width: 380, height: 320, resizable: false }
+    );
+    closeContextMenu();
+  };
+
   const desktopMenuItems: MenuItem[] = [
     { label: t('contextMenu.refresh'), action: handleRefresh },
     { type: 'separator' },
     { label: t('contextMenu.paste'), action: handlePaste, disabled: !clipboard },
     { type: 'separator' },
-    { label: t('contextMenu.new'), action: () => undefined, disabled: true },
+    {
+      label: t('contextMenu.new'),
+      submenu: [
+        { label: t('contextMenu.newFolder'), action: handleNewFolder, icon: 'folder' },
+        { label: t('contextMenu.newTextDocument'), action: handleNewTextDocument, icon: 'journal' },
+      ],
+    },
     { type: 'separator' },
-    { label: t('contextMenu.properties'), action: () => undefined, disabled: true }
+    { label: t('contextMenu.properties'), action: handleDesktopProperties }
   ];
 
   const buildIconMenuItems = (keys: string[]): MenuItem[] => {

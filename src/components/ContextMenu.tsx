@@ -1,5 +1,5 @@
 // @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
-import React, { useEffect, useRef, useLayoutEffect, forwardRef, useCallback } from 'react';
+import React, { useEffect, useRef, useLayoutEffect, forwardRef, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import XPIcon from './XPIcon';
@@ -68,6 +68,18 @@ const SubMenuIndicator = styled.span`
     color: #666;
 `;
 
+const SubMenuContainer = styled.div`
+    position: absolute;
+    left: calc(100% - 2px);
+    top: -2px;
+    background: #F0F0F0;
+    border: 1px solid #000000;
+    box-shadow: 2px 2px 0px #808080;
+    padding: 1px;
+    min-width: 140px;
+    z-index: 2147483648;
+`;
+
 interface ContextMenuProps {
   visible: boolean;
   x: number;
@@ -76,8 +88,68 @@ interface ContextMenuProps {
   menuItems: MenuItem[];
 }
 
+const MenuRow = ({
+  item,
+  onClose,
+  openSubmenu,
+  setOpenSubmenu,
+  index,
+}: {
+  item: MenuItem;
+  onClose: () => void;
+  openSubmenu: number | null;
+  setOpenSubmenu: (idx: number | null) => void;
+  index: number;
+}) => {
+  if (item.type === 'separator') {
+    return <MenuSeparator key={index} />;
+  }
+
+  const hasSubmenu = item.submenu && item.submenu.length > 0;
+  const isSubmenuOpen = openSubmenu === index;
+
+  return (
+    <MenuItemComponent
+      key={index}
+      onMouseEnter={() => hasSubmenu && setOpenSubmenu(index)}
+      onMouseLeave={() => hasSubmenu && setOpenSubmenu(null)}
+      onClick={() => {
+        if (!item.disabled && item.action && !hasSubmenu) {
+          item.action();
+          onClose();
+        }
+      }}
+      $disabled={item.disabled}
+    >
+      {item.icon && (
+        <div className="icon-wrapper">
+          <XPIcon name={item.icon} size={16} />
+        </div>
+      )}
+      {item.label}
+      {item.shortcut && <span className="shortcut">{item.shortcut}</span>}
+      {hasSubmenu && <SubMenuIndicator>▶</SubMenuIndicator>}
+      {hasSubmenu && isSubmenuOpen && (
+        <SubMenuContainer>
+          {item.submenu.map((subItem, subIndex) => (
+            <MenuRow
+              key={subIndex}
+              item={subItem}
+              onClose={onClose}
+              openSubmenu={null}
+              setOpenSubmenu={() => {}}
+              index={subIndex}
+            />
+          ))}
+        </SubMenuContainer>
+      )}
+    </MenuItemComponent>
+  );
+};
+
 const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(({ visible, x, y, onClose, menuItems }, ref) => {
     const menuRef = useRef<HTMLDivElement>(null);
+    const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
 
     const setRef = useCallback((el: HTMLDivElement | null) => {
         menuRef.current = el;
@@ -90,7 +162,6 @@ const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(({ visible, x, 
 
     useLayoutEffect(() => {
         if (visible && menuRef.current) {
-            // 首先设置到指定位置，以便获取正确的尺寸
             menuRef.current.style.left = `${x}px`;
             menuRef.current.style.top = `${y}px`;
 
@@ -98,21 +169,16 @@ const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(({ visible, x, 
             let finalX = x;
             let finalY = y;
 
-            // Horizontal flip if it overflows right
             if (x + rect.width > window.innerWidth) {
                 finalX = x - rect.width;
             }
-            // Safety clamp for left edge
             if (finalX < 0) finalX = 0;
 
-            // Vertical flip if it overflows bottom
             if (y + rect.height > window.innerHeight) {
                 finalY = y - rect.height;
             }
-            // Safety clamp for top edge
             if (finalY < 0) finalY = 0;
 
-            // 应用最终计算出的位置
             menuRef.current.style.left = `${finalX}px`;
             menuRef.current.style.top = `${finalY}px`;
         }
@@ -127,18 +193,14 @@ const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(({ visible, x, 
             };
 
             const handleContextMenu = (event: MouseEvent) => {
-                // Don't close if clicked inside
                 if (menuRef.current && menuRef.current.contains(event.target as Node)) {
                     return;
                 }
 
-                // Don't close if another handler (like Desktop) processed this event.
-                // This allows the menu to move to a new position instead of closing.
                 if (event.defaultPrevented) {
                     return;
                 }
 
-                // Otherwise, close the menu and prevent browser context menu
                 event.preventDefault();
                 onClose();
             };
@@ -157,33 +219,16 @@ const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(({ visible, x, 
 
     return createPortal(
         <ContextMenuContainer ref={setRef} x={x} y={y}>
-            {menuItems.map((item, index) => {
-                if (item.type === 'separator') {
-                    return <MenuSeparator key={index} />;
-                }
-
-                return (
-                    <MenuItemComponent
-                        key={index}
-                        onClick={() => {
-                            if (!item.disabled && item.action) {
-                                item.action();
-                            }
-                            onClose();
-                        }}
-                        $disabled={item.disabled}
-                    >
-                        {item.icon && (
-                            <div className="icon-wrapper">
-                                <XPIcon name={item.icon} size={16} />
-                            </div>
-                        )}
-                        {item.label}
-                        {item.shortcut && <span className="shortcut">{item.shortcut}</span>}
-                        {item.submenu && <SubMenuIndicator>▶</SubMenuIndicator>}
-                    </MenuItemComponent>
-                );
-            })}
+            {menuItems.map((item, index) => (
+                <MenuRow
+                  key={index}
+                  item={item}
+                  onClose={onClose}
+                  openSubmenu={openSubmenu}
+                  setOpenSubmenu={setOpenSubmenu}
+                  index={index}
+                />
+            ))}
         </ContextMenuContainer>,
         document.body
     );

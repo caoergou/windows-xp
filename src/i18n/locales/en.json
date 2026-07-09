@@ -3,7 +3,19 @@
     "myComputer": "My Computer",
     "myDocuments": "My Documents",
     "recycleBin": "Recycle Bin",
-    "internetExplorer": "Internet Explorer"
+    "internetExplorer": "Internet Explorer",
+    "newFolderName": "New Folder",
+    "newTextDocumentName": "New Text Document.txt",
+    "propertiesTitle": "Display Properties"
+  },
+  "desktopProperties": {
+    "themes": "Themes",
+    "desktop": "Desktop",
+    "settings": "Settings",
+    "background": "Background:",
+    "position": "Position:",
+    "stretch": "Stretch",
+    "comingSoon": "This tab is for display only."
   },
   "startMenu": {
     "allPrograms": "All Programs",
@@ -82,7 +94,9 @@
     "rename": "Rename",
     "properties": "Properties",
     "refresh": "Refresh",
-    "new": "New"
+    "new": "New",
+    "newFolder": "Folder",
+    "newTextDocument": "Text Document"
   },
   "login": {
     "welcome": "Welcome",
