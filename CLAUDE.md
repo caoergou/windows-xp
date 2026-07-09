@@ -20,7 +20,6 @@ npm test         # Run tests
 - **Framework**: React 18 + Vite 5
 - **Language**: TypeScript 5
 - **Styling**: styled-components + xp.css (Windows XP theme)
-- **Animation**: Framer Motion
 - **Window interaction**: react-draggable + react-resizable
 - **Internationalization**: i18next
 

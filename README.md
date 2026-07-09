@@ -142,7 +142,6 @@ For detailed usage and API reference, see [USAGE.md](USAGE.md).
 - **TypeScript 5** - Type-safe development
 - **styled-components** - CSS-in-JS styling solution
 - **xp.css** - Windows XP theme library
-- **Framer Motion** - Smooth animations
 - **react-draggable** - Window dragging
 - **react-resizable** - Window resizing
 - **i18next** - Internationalization
