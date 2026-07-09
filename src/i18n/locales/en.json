@@ -40,7 +40,16 @@
   },
   "tray": {
     "volume": "Volume",
+    "mute": "Mute",
     "networkConnected": "Network connected"
+  },
+  "calendar": {
+    "monthNames": [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ],
+    "weekdays": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+    "today": "Today"
   },
   "window": {
     "minimize": "Minimize",
