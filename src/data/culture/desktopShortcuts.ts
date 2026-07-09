@@ -12,7 +12,7 @@ const DESKTOP_SHORTCUTS_BY_LOCALE: Record<string, DesktopShortcut[]> = {
     { id: '360safe', name: '360安全卫士', app: 'SafeGuard360', icon: '360safe' },
     { id: 'baofeng', name: '暴风影音', app: 'BaofengPlayer', icon: 'baofeng' },
     { id: 'thunder', name: '迅雷', app: 'Thunder', icon: 'thunder' },
-    { id: 'wps', name: 'WPS Office', app: 'DummyApp', icon: 'wps' },
+    { id: 'wps', name: 'WPS Office', app: 'WPSOffice', icon: 'wps' },
     { id: 'kugou', name: '酷狗音乐', app: 'KugouMusic', icon: 'kugou' },
   ],
   en: [

@@ -510,6 +510,33 @@
       "about": "About Paint(A)..."
     }
   },
+  "wpsOffice": {
+    "title": "WPS Office",
+    "menu": {
+      "file": "File(F)",
+      "edit": "Edit(E)",
+      "view": "View(V)",
+      "insert": "Insert(I)",
+      "format": "Format(O)",
+      "tools": "Tools(T)",
+      "help": "Help(H)"
+    },
+    "toolbar": {
+      "new": "New",
+      "open": "Open",
+      "save": "Save",
+      "print": "Print",
+      "preview": "Preview"
+    },
+    "documentTitle": "My Document",
+    "paragraph1": "Welcome to WPS Office word processor.",
+    "paragraph2": "This is a classic office suite shell that recreates the familiar WPS experience from the 2000s.",
+    "paragraph3": "Edit documents and explore the nostalgic office atmosphere here.",
+    "status": {
+      "ready": "Ready",
+      "zoom": "Zoom {{zoom}}%"
+    }
+  },
   "baofengPlayer": {
     "title": "Baofeng Player",
     "version": "3.6 Smart Edition",

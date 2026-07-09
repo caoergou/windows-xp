@@ -504,6 +504,33 @@
       "about": "关于画图(A)..."
     }
   },
+  "wpsOffice": {
+    "title": "WPS Office",
+    "menu": {
+      "file": "文件(F)",
+      "edit": "编辑(E)",
+      "view": "视图(V)",
+      "insert": "插入(I)",
+      "format": "格式(O)",
+      "tools": "工具(T)",
+      "help": "帮助(H)"
+    },
+    "toolbar": {
+      "new": "新建",
+      "open": "打开",
+      "save": "保存",
+      "print": "打印",
+      "preview": "预览"
+    },
+    "documentTitle": "我的文档",
+    "paragraph1": "欢迎使用 WPS Office 文字处理软件。",
+    "paragraph2": "这是一款经典的办公套件界面，还原 2000 年代中国网民熟悉的 WPS 体验。",
+    "paragraph3": "您可以在此编辑文档、调整格式，感受那个年代的办公氛围。",
+    "status": {
+      "ready": "就绪",
+      "zoom": "缩放 {{zoom}}%"
+    }
+  },
   "baofengPlayer": {
     "title": "暴风影音",
     "version": "3.6 智能版",

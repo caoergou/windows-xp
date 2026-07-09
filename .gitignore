@@ -1,5 +1,6 @@
 node_modules/
 dist/
+xp-research/
 .env
 .DS_Store
 .dev/
