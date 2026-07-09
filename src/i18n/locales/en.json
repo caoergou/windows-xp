@@ -13,6 +13,7 @@
     "controlPanel": "Control Panel",
     "printersAndFaxes": "Printers and Faxes",
     "search": "Search",
+    "searchPlaceholder": "Type here to search...",
     "help": "Help and Support",
     "run": "Run...",
     "logOff": "Log Off",

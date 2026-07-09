@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { TFunction } from 'i18next';
 import XPIcon from '../XPIcon';
 import { xpScrollbarStyles } from '../../theme';
+import { APP_REGISTRY } from '../../registry/apps';
+import StartMenuFlyout from './StartMenuFlyout';
 
 const StartMenuContainer = styled.div`
   position: absolute;
@@ -11,13 +13,13 @@ const StartMenuContainer = styled.div`
   width: 380px;
   background-color: #4282d6;
   border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
+  border-top-right-radius: 8px;
   z-index: 20000;
   box-shadow: 2px -2px 5px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: hidden;
+  overflow: visible;
 `;
 
 const StartHeader = styled.div`
@@ -30,7 +32,7 @@ const StartHeader = styled.div`
   padding: 6px 5px 5px;
   width: 100%;
   border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
+  border-top-right-radius: 8px;
   background: linear-gradient(
     to bottom,
     #1868ce 0%,
@@ -92,7 +94,8 @@ const StartHeader = styled.div`
 
 const StartBody = styled.div`
   display: flex;
-  height: 400px;
+  min-height: 220px;
+  max-height: calc(100vh - 84px);
   width: calc(100% - 4px);
   position: relative;
   border-top: 1px solid #385de7;
@@ -171,6 +174,26 @@ const MenuSeparator = styled.div`
   background-clip: content-box;
 `;
 
+const MenuArrow = styled.span`
+  margin-left: auto;
+  font-size: 10px;
+  color: #666;
+`;
+
+const SearchBox = styled.div`
+  padding: 5px 6px 6px;
+  margin-top: auto;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 2px 4px;
+  border: 1px solid #7f9db9;
+  font-size: 11px;
+  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+  box-sizing: border-box;
+`;
+
 const RightMenuSeparator = styled(MenuSeparator)`
   background: linear-gradient(
     to right,
@@ -247,6 +270,8 @@ interface StartMenuProps {
   t: TFunction;
 }
 
+const INTERNAL_APPS = new Set(['FileProperties', 'DummyApp']);
+
 const StartMenu: React.FC<StartMenuProps> = ({
   isOpen,
   menuRef,
@@ -257,10 +282,21 @@ const StartMenu: React.FC<StartMenuProps> = ({
   onLogout,
   t,
 }) => {
+  const [flyoutOpen, setFlyoutOpen] = useState(false);
+
+  const allProgramsApps = useMemo(
+    () => Object.values(APP_REGISTRY).filter(app => !INTERNAL_APPS.has(app.id)),
+    []
+  );
+
   if (!isOpen) return null;
 
   return (
-    <StartMenuContainer ref={menuRef} data-testid="start-menu">
+    <StartMenuContainer
+      ref={menuRef}
+      data-testid="start-menu"
+      onMouseLeave={() => setFlyoutOpen(false)}
+    >
       <StartHeader>
         <div className="user-avatar">
           <XPIcon name="user" size={32} color="white" />
@@ -270,9 +306,14 @@ const StartMenu: React.FC<StartMenuProps> = ({
       <StartBody>
         <OrangeLine />
         <StartLeft>
-          <MenuItem onClick={() => onLaunch('AllPrograms')}>
+          <MenuItem
+            data-testid="start-menu-all-programs"
+            onMouseEnter={() => setFlyoutOpen(true)}
+            onClick={() => setFlyoutOpen(prev => !prev)}
+          >
             <XPIcon name="programs" size={24} className="menu-icon" />
             <span>{t('startMenu.allPrograms')}</span>
+            <MenuArrow>▶</MenuArrow>
           </MenuItem>
           <MenuSeparator />
           <MenuItem onClick={() => onLaunch('Internet Explorer')}>
@@ -301,6 +342,13 @@ const StartMenu: React.FC<StartMenuProps> = ({
             <XPIcon name="run" size={24} className="menu-icon" />
             <span>{t('startMenu.run')}</span>
           </MenuItem>
+          <SearchBox>
+            <SearchInput
+              type="text"
+              placeholder={t('startMenu.searchPlaceholder', 'Search')}
+              readOnly
+            />
+          </SearchBox>
         </StartLeft>
         <StartRight>
           <RightMenuItem onClick={() => onLaunch('Explorer', t('startMenu.myDocuments'))}>
@@ -350,6 +398,15 @@ const StartMenu: React.FC<StartMenuProps> = ({
           {t('startMenu.turnOff')}
         </button>
       </StartFooter>
+      {flyoutOpen && (
+        <StartMenuFlyout
+          apps={allProgramsApps}
+          onLaunch={appId => {
+            setFlyoutOpen(false);
+            onLaunch(appId);
+          }}
+        />
+      )}
     </StartMenuContainer>
   );
 };
