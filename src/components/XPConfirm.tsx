@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 
 // ── Styled components（与 XPAlert 保持视觉一致）─────────────────────────────
@@ -109,12 +110,15 @@ const XPConfirm = ({
   title,
   message,
   type = 'question',
-  confirmLabel = '是(Y)',
-  cancelLabel  = '否(N)',
+  confirmLabel,
+  cancelLabel,
   onConfirm,
   onCancel,
 }: XPConfirmProps) => {
+  const { t } = useTranslation();
   const confirmRef = useRef<HTMLButtonElement>(null);
+  const finalConfirmLabel = confirmLabel || t('common.ok');
+  const finalCancelLabel = cancelLabel || t('common.cancel');
 
   useEffect(() => {
     confirmRef.current?.focus();
@@ -137,8 +141,8 @@ const XPConfirm = ({
           <Message>{message}</Message>
         </ContentArea>
         <ButtonArea>
-          <Btn ref={confirmRef} onClick={onConfirm}>{confirmLabel}</Btn>
-          <Btn onClick={onCancel}>{cancelLabel}</Btn>
+          <Btn ref={confirmRef} onClick={onConfirm}>{finalConfirmLabel}</Btn>
+          <Btn onClick={onCancel}>{finalCancelLabel}</Btn>
         </ButtonArea>
       </AlertWindow>
     </Overlay>

@@ -81,7 +81,8 @@
     "password": "Password",
     "login": "Log In",
     "turnOff": "Turn off computer",
-    "incorrectPassword": "Incorrect password"
+    "incorrectPassword": "Incorrect password",
+    "forgotPasswordHint": "Forgot password? View README"
   },
   "shutdown": {
     "title": "Turn off computer",
@@ -152,7 +153,22 @@
   },
   "common": {
     "ok": "OK",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "deleteConfirmTitle": "Confirm Delete",
+    "deleteConfirmSingle": "Are you sure you want to move \"{{name}}\" to the Recycle Bin?",
+    "deleteConfirmMultiple": "Are you sure you want to move these {{count}} items to the Recycle Bin?",
+    "renameTitle": "Rename",
+    "renamePrompt": "Enter a new name:",
+    "propertiesTitle": "{{name}} Properties",
+    "apply": "Apply"
+  },
+  "passwordDialog": {
+    "defaultTitle": "Enter password",
+    "defaultMessage": "This content is encrypted. Please enter the password to access it.",
+    "hintPrefix": "Hint:",
+    "placeholder": "Enter password...",
+    "emptyError": "Please enter a password",
+    "incorrectError": "Incorrect password. Please try again."
   },
   "runDialog": {
     "placeholder": "Enter the name of a program, folder, document, or Internet resource...",
@@ -162,6 +178,9 @@
 
   "altTab": {
     "switchWindow": "Switch windows"
+  },
+  "screensaver": {
+    "dismissHint": "Click or press any key to continue..."
   },
   "errors": {
     "program": "Program",
@@ -439,12 +458,6 @@
       "playing": "Playing",
       "paused": "Paused"
     }
-  },
-  "window": {
-    "minimize": "Minimize",
-    "maximize": "Maximize",
-    "restore": "Restore",
-    "close": "Close"
   },
   "helpAndSupport": {
     "title": "Help and Support Center",

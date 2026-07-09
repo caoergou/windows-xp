@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 
 const Overlay = styled.div`
   position: fixed;
@@ -137,6 +138,7 @@ interface XPInputProps {
 }
 
 const XPInput: React.FC<XPInputProps> = ({ title, message, defaultValue = '', onOk, onCancel }) => {
+    const { t } = useTranslation();
     const [value, setValue] = useState(defaultValue);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -174,8 +176,8 @@ const XPInput: React.FC<XPInputProps> = ({ title, message, defaultValue = '', on
                     />
                 </ContentArea>
                 <ButtonArea>
-                    <XPButton onClick={() => onOk(value)}>确定</XPButton>
-                    <XPButton onClick={onCancel}>取消</XPButton>
+                    <XPButton onClick={() => onOk(value)}>{t('common.ok')}</XPButton>
+                    <XPButton onClick={onCancel}>{t('common.cancel')}</XPButton>
                 </ButtonArea>
             </AlertWindow>
         </Overlay>

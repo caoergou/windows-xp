@@ -291,7 +291,7 @@ function App({
         autoFocus
       >
         <FloatingLogo src={windowsIcon} alt="Windows XP" draggable={false} />
-        <ScreenSaverHint>Click or press any key to continue...</ScreenSaverHint>
+        <ScreenSaverHint>{t('screensaver.dismissHint')}</ScreenSaverHint>
       </ScreenSaverContainer>
     );
   }

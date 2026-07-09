@@ -6,7 +6,6 @@ import path from 'path';
 const peerDeps = [
   'react',
   'react-dom',
-  'framer-motion',
   'i18next',
   'immer',
   'lucide-react',
@@ -40,7 +39,6 @@ export default defineConfig({
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
-          'framer-motion': 'Motion',
           i18next: 'i18n',
           'i18next-browser-languagedetector': 'i18nextBrowserLanguageDetector',
           immer: 'immer',

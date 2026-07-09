@@ -183,7 +183,7 @@ const LoginScreen = () => {
             sounds.logon();
         } else {
             sounds.error();
-            setError('密码错误，请重试。');
+            setError(t('login.incorrectPassword'));
             setPassword('');
         }
     };
@@ -220,7 +220,7 @@ const LoginScreen = () => {
                         </PasswordBox>
                         <ErrorMsg>{error}</ErrorMsg>
                         <HelpLink href="https://github.com/caoergou/windows-xp#readme" target="_blank" rel="noopener noreferrer">
-                            忘记密码？查看 README
+                            {t('login.forgotPasswordHint')}
                         </HelpLink>
                     </InputArea>
                 </UserRow>

@@ -137,7 +137,6 @@ const customFS = {
 - **TypeScript 5** - 类型安全开发
 - **styled-components** - CSS-in-JS 样式方案
 - **xp.css** - Windows XP 主题库
-- **Framer Motion** - 流畅动画
 - **react-draggable** - 窗口拖拽
 - **react-resizable** - 窗口调整大小
 - **i18next** - 国际化框架

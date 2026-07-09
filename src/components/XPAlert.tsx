@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import Draggable from 'react-draggable';
 
@@ -123,6 +124,7 @@ interface XPAlertProps {
 }
 
 const XPAlert = ({ title, message, type = 'info', onClose }: XPAlertProps) => {
+    const { t } = useTranslation();
     const okButtonRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
@@ -149,7 +151,7 @@ const XPAlert = ({ title, message, type = 'info', onClose }: XPAlertProps) => {
                         <Message>{message}</Message>
                     </ContentArea>
                     <ButtonArea>
-                        <OkButton ref={okButtonRef} onClick={onClose}>确定</OkButton>
+                        <OkButton ref={okButtonRef} onClick={onClose}>{t('common.ok')}</OkButton>
                     </ButtonArea>
                 </AlertWindow>
             </Draggable>
