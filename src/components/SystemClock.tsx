@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 
 const ClockContainer = styled.div`
   position: relative;
   display: flex;
   align-items: center;
   height: 100%;
-  cursor: default;
+  cursor: pointer;
   user-select: none;
+  padding: 0 4px;
 `;
 
 const TimeLabel = styled.span`
@@ -15,24 +17,19 @@ const TimeLabel = styled.span`
   font-size: 12px;
 `;
 
-const CalendarTooltip = styled.div`
+const CalendarPopup = styled.div`
   position: absolute;
   bottom: calc(100% + 4px);
   right: 0;
   width: 180px;
-  background: #fffef0;
+  background: #ece9d8;
   border: 1px solid #003c74;
-  box-shadow: 2px -2px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 2px 2px 0 #808080;
   padding: 6px;
-  font-family: Tahoma, Arial, sans-serif;
+  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
   font-size: 11px;
   color: #000;
   z-index: 30000;
-  display: none;
-
-  ${ClockContainer}:hover &, ${ClockContainer}:active &, ${ClockContainer}:focus-within & {
-    display: block;
-  }
 `;
 
 const CalendarHeader = styled.div`
@@ -71,8 +68,11 @@ const DayCell = styled.div<{ $today?: boolean }>`
 `;
 
 const SystemClock = () => {
+  const { t, i18n } = useTranslation();
   const [time, setTime] = useState<string>('');
   const [now, setNow] = useState<Date>(new Date());
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const update = () => {
@@ -86,6 +86,31 @@ const SystemClock = () => {
     const id = setInterval(update, 1000);
     return () => clearInterval(id);
   }, []);
+
+  const toggleOpen = useCallback(() => setOpen(prev => !prev), []);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [open]);
 
   const calendar = useMemo(() => {
     const year = now.getFullYear();
@@ -112,27 +137,37 @@ const SystemClock = () => {
     return { year, month, today, weeks };
   }, [now]);
 
-  const monthLabel = now.toLocaleString(undefined, { year: 'numeric', month: 'long' });
-  const weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  const monthNames = t('calendar.monthNames', { returnObjects: true }) as string[];
+  const weekdays = t('calendar.weekdays', { returnObjects: true }) as string[];
+
+  const monthLabel = monthNames[calendar.month]
+    ? `${calendar.year} ${monthNames[calendar.month]}`
+    : now.toLocaleString(i18n.language, { year: 'numeric', month: 'long' });
 
   return (
-    <ClockContainer data-testid="system-clock">
+    <ClockContainer
+      ref={containerRef}
+      data-testid="system-clock"
+      onClick={toggleOpen}
+    >
       <TimeLabel>{time}</TimeLabel>
-      <CalendarTooltip data-testid="calendar-tooltip">
-        <CalendarHeader>{monthLabel}</CalendarHeader>
-        <WeekdayRow>
-          {weekdays.map(d => (
-            <div key={d}>{d}</div>
-          ))}
-        </WeekdayRow>
-        <DayGrid>
-          {calendar.weeks.flat().map((day, idx) => (
-            <DayCell key={idx} $today={day === calendar.today}>
-              {day ?? ''}
-            </DayCell>
-          ))}
-        </DayGrid>
-      </CalendarTooltip>
+      {open && (
+        <CalendarPopup data-testid="calendar-popup">
+          <CalendarHeader>{monthLabel}</CalendarHeader>
+          <WeekdayRow>
+            {weekdays.map((d, idx) => (
+              <div key={idx}>{d}</div>
+            ))}
+          </WeekdayRow>
+          <DayGrid>
+            {calendar.weeks.flat().map((day, idx) => (
+              <DayCell key={idx} $today={day === calendar.today}>
+                {day ?? ''}
+              </DayCell>
+            ))}
+          </DayGrid>
+        </CalendarPopup>
+      )}
     </ClockContainer>
   );
 };

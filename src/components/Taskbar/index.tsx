@@ -258,6 +258,7 @@ const Taskbar = () => {
       <TurnOffDialog
         visible={showTurnOff}
         title={t('shutdown.title')}
+        message={t('shutdown.message')}
         standbyLabel={t('shutdown.standBy')}
         turnOffLabel={t('shutdown.turnOff')}
         restartLabel={t('shutdown.restart')}

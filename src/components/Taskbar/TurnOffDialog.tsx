@@ -8,99 +8,109 @@ const TurnOffOverlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: linear-gradient(to bottom, #0058e6 0%, #003399 100%);
   z-index: 20000;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  align-items: center;
+  user-select: none;
 `;
 
-const TurnOffDialogContainer = styled.div`
-  width: 300px;
-  background: #003399;
-  border-radius: 0;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+const TurnOffContent = styled.div`
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  align-items: center;
+  gap: 40px;
+  max-width: 640px;
+  width: 90%;
 `;
 
-const DialogHeader = styled.div`
-  padding: 5px 10px;
+const Header = styled.div`
+  align-self: flex-start;
   color: white;
-  font-weight: bold;
-  font-size: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+
+  h2 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: normal;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
 `;
 
-const DialogBody = styled.div`
-  background: linear-gradient(to bottom, #f0f0f0 0%, #dcdcdc 100%);
-  padding: 20px;
+const Actions = styled.div`
   display: flex;
-  justify-content: space-around;
-  align-items: center;
+  gap: 60px;
+  justify-content: center;
+  align-items: flex-start;
 `;
 
-const ActionButton = styled.div`
+const ActionButton = styled.div<{ $disabled?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
-  cursor: pointer;
+  cursor: ${props => (props.$disabled ? 'not-allowed' : 'pointer')};
+  opacity: ${props => (props.$disabled ? 0.5 : 1)};
+  gap: 10px;
 
-  &:hover .icon-circle {
-    filter: brightness(1.1);
+  &:hover .action-icon {
+    filter: ${props => (props.$disabled ? 'none' : 'brightness(1.15)')};
   }
 
-  &:active .icon-circle {
-    filter: brightness(0.9);
+  &:active .action-icon {
+    filter: ${props => (props.$disabled ? 'none' : 'brightness(0.9)')};
   }
 
-  .icon-circle {
-    width: 32px;
-    height: 32px;
-    border-radius: 0;
+  .action-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 4px;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 5px;
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3), 2px 2px 8px rgba(0, 0, 0, 0.4);
   }
 
+  .standby { background: #ebc644; }
   .shutdown { background: #e04646; }
   .restart { background: #45b050; }
-  .standby { background: #ebc644; }
 
   span {
-    font-size: 11px;
-    color: #333;
+    font-size: 14px;
+    color: white;
+    font-family: Tahoma, 'Microsoft YaHei', sans-serif;
   }
-`;
-
-const DialogFooter = styled.div`
-  background: #003399;
-  padding: 5px 10px;
-  display: flex;
-  justify-content: flex-end;
 `;
 
 const CancelButton = styled.button`
-  padding: 3px 10px;
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+  padding: 4px 24px;
+  font-size: 12px;
+  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
   background: #f0f0f0;
   border: 1px solid #999;
-  border-radius: 2px;
   cursor: pointer;
-  font-size: 11px;
 
   &:hover {
     background: #e0e0e0;
+  }
+
+  &:active {
+    background: #d0d0d0;
   }
 `;
 
 interface TurnOffDialogProps {
   visible: boolean;
   title: string;
+  message: string;
   standbyLabel: string;
   turnOffLabel: string;
   restartLabel: string;
@@ -113,6 +123,7 @@ interface TurnOffDialogProps {
 const TurnOffDialog: React.FC<TurnOffDialogProps> = ({
   visible,
   title,
+  message,
   standbyLabel,
   turnOffLabel,
   restartLabel,
@@ -124,42 +135,34 @@ const TurnOffDialog: React.FC<TurnOffDialogProps> = ({
   if (!visible) return null;
 
   return (
-    <TurnOffOverlay>
-      <TurnOffDialogContainer>
-        <DialogHeader>
-          <span>{title}</span>
-          <XPIcon
-            name="close"
-            size={16}
-            color="white"
-            style={{ cursor: 'pointer' }}
-            onClick={onCancel}
-          />
-        </DialogHeader>
-        <DialogBody>
-          <ActionButton className="disabled" style={{ opacity: 0.5 }}>
-            <div className="icon-circle standby">
-              <XPIcon name="clock" size={16} color="white" />
+    <TurnOffOverlay data-testid="turn-off-dialog">
+      <TurnOffContent>
+        <Header>
+          <h2>{title}</h2>
+          <p>{message}</p>
+        </Header>
+        <Actions>
+          <ActionButton $disabled>
+            <div className="action-icon standby">
+              <XPIcon name="clock" size={32} color="white" />
             </div>
             <span>{standbyLabel}</span>
           </ActionButton>
           <ActionButton onClick={onShutdown}>
-            <div className="icon-circle shutdown">
-              <XPIcon name="shutdown" size={16} color="white" />
+            <div className="action-icon shutdown">
+              <XPIcon name="shutdown" size={32} color="white" />
             </div>
             <span>{turnOffLabel}</span>
           </ActionButton>
           <ActionButton onClick={onRestart}>
-            <div className="icon-circle restart">
-              <XPIcon name="refresh" size={16} color="white" />
+            <div className="action-icon restart">
+              <XPIcon name="refresh" size={32} color="white" />
             </div>
             <span>{restartLabel}</span>
           </ActionButton>
-        </DialogBody>
-        <DialogFooter>
-          <CancelButton onClick={onCancel}>{cancelLabel}</CancelButton>
-        </DialogFooter>
-      </TurnOffDialogContainer>
+        </Actions>
+      </TurnOffContent>
+      <CancelButton onClick={onCancel}>{cancelLabel}</CancelButton>
     </TurnOffOverlay>
   );
 };

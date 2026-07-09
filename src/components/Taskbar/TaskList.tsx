@@ -9,7 +9,14 @@ const TaskItems = styled.div`
   display: flex;
   padding-left: 5px;
   gap: 2px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const taskFlash = keyframes`
@@ -18,7 +25,8 @@ const taskFlash = keyframes`
 `;
 
 const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 40px;
   max-width: 150px;
   height: 22px;
   color: #fff;
@@ -59,36 +67,6 @@ const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
   .task-icon {
     margin-right: 5px;
   }
-`;
-
-const TaskBadge = styled.div`
-  position: absolute;
-  top: 1px;
-  right: 3px;
-  background: #e81224;
-  color: white;
-  border-radius: 50%;
-  min-width: 13px;
-  height: 13px;
-  font-size: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 2px;
-  font-weight: bold;
-  line-height: 1;
-  pointer-events: none;
-`;
-
-const TaskProgress = styled.div<{ $pct: number }>`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  width: ${props => props.$pct}%;
-  background: linear-gradient(to right, #00c6ff, #0072ff);
-  transition: width 0.3s ease;
-  pointer-events: none;
 `;
 
 interface TaskListProps {
@@ -133,8 +111,6 @@ const TaskList: React.FC<TaskListProps> = ({
           >
             <XPIcon name={win.icon || 'app_window'} size={16} className="task-icon" />
             {win.title}
-            {win.badge != null && <TaskBadge>{win.badge}</TaskBadge>}
-            {win.progress != null && <TaskProgress $pct={win.progress} />}
           </TaskItem>
         ))}
       </TaskItems>

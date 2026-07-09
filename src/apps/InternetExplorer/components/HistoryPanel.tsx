@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { X } from 'lucide-react';
+import XPIcon from '../../../components/XPIcon';
 import { BrowsingHistoryItem } from '../types';
 import { Sidebar, SidebarHeader, HistoryList, HistoryItem } from '../styled';
 
@@ -17,7 +17,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onNavigate, onClos
     <Sidebar>
       <SidebarHeader>
         <span>{t('internetExplorer.history')}</span>
-        <X size={14} style={{ cursor: 'pointer' }} onClick={onClose} />
+        <XPIcon name="close" size={14} color="white" style={{ cursor: 'pointer' }} onClick={onClose} />
       </SidebarHeader>
       <HistoryList>
         {history.map((item, index) => (

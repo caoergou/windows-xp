@@ -106,13 +106,18 @@ export const WindowManagerProvider: React.FC<{
 
     const id = Date.now().toString();
 
-    const windowWidth = props.width || 600;
-    const windowHeight = props.height || 400;
+    const windowWidth = Math.max(props.width || WINDOW_DEFAULTS.WIDTH, WINDOW_DEFAULTS.MIN_WIDTH);
+    const windowHeight = Math.max(props.height || WINDOW_DEFAULTS.HEIGHT, WINDOW_DEFAULTS.MIN_HEIGHT);
     const screenWidth = canUseDOM ? window.innerWidth : 1280;
-    const screenHeight = canUseDOM ? window.innerHeight - 30 : 720;
+    const screenHeight = canUseDOM ? Math.max(window.innerHeight - 30, WINDOW_DEFAULTS.MIN_HEIGHT) : 720;
 
-    const defaultLeft = Math.max(0, (screenWidth - windowWidth) / 2);
-    const defaultTop = Math.max(0, (screenHeight - windowHeight) / 2);
+    const maxLeft = Math.max(0, screenWidth - windowWidth);
+    const maxTop = Math.max(0, screenHeight - windowHeight);
+    const centeredLeft = Math.max(0, (screenWidth - windowWidth) / 2);
+    const centeredTop = Math.max(0, (screenHeight - windowHeight) / 2);
+
+    const defaultLeft = Math.min(centeredLeft, maxLeft);
+    const defaultTop = Math.min(centeredTop, maxTop);
 
     // 从 props 中提取 componentProps（如果有）
     // 不直接从 React 元素提取，而是使用显式传递的 componentProps

@@ -3,7 +3,19 @@
     "myComputer": "My Computer",
     "myDocuments": "My Documents",
     "recycleBin": "Recycle Bin",
-    "internetExplorer": "Internet Explorer"
+    "internetExplorer": "Internet Explorer",
+    "newFolderName": "New Folder",
+    "newTextDocumentName": "New Text Document.txt",
+    "propertiesTitle": "Display Properties"
+  },
+  "desktopProperties": {
+    "themes": "Themes",
+    "desktop": "Desktop",
+    "settings": "Settings",
+    "background": "Background:",
+    "position": "Position:",
+    "stretch": "Stretch",
+    "comingSoon": "This tab is for display only."
   },
   "startMenu": {
     "allPrograms": "All Programs",
@@ -13,6 +25,7 @@
     "controlPanel": "Control Panel",
     "printersAndFaxes": "Printers and Faxes",
     "search": "Search",
+    "searchPlaceholder": "Type here to search...",
     "help": "Help and Support",
     "run": "Run...",
     "logOff": "Log Off",
@@ -39,7 +52,16 @@
   },
   "tray": {
     "volume": "Volume",
+    "mute": "Mute",
     "networkConnected": "Network connected"
+  },
+  "calendar": {
+    "monthNames": [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ],
+    "weekdays": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+    "today": "Today"
   },
   "window": {
     "minimize": "Minimize",
@@ -72,7 +94,9 @@
     "rename": "Rename",
     "properties": "Properties",
     "refresh": "Refresh",
-    "new": "New"
+    "new": "New",
+    "newFolder": "Folder",
+    "newTextDocument": "Text Document"
   },
   "login": {
     "welcome": "Welcome",
@@ -86,6 +110,7 @@
   },
   "shutdown": {
     "title": "Turn off computer",
+    "message": "What do you want the computer to do?",
     "standBy": "Stand by",
     "turnOff": "Turn off",
     "restart": "Restart",

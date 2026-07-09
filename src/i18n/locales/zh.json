@@ -3,7 +3,19 @@
     "myComputer": "我的电脑",
     "myDocuments": "我的文档",
     "recycleBin": "回收站",
-    "internetExplorer": "Internet Explorer"
+    "internetExplorer": "Internet Explorer",
+    "newFolderName": "新建文件夹",
+    "newTextDocumentName": "新建文本文档.txt",
+    "propertiesTitle": "显示属性"
+  },
+  "desktopProperties": {
+    "themes": "主题",
+    "desktop": "桌面",
+    "settings": "设置",
+    "background": "背景：",
+    "position": "位置：",
+    "stretch": "拉伸",
+    "comingSoon": "此标签页仅用于显示。"
   },
   "startMenu": {
     "allPrograms": "所有程序",
@@ -13,6 +25,7 @@
     "controlPanel": "控制面板",
     "printersAndFaxes": "打印机和传真",
     "search": "搜索",
+    "searchPlaceholder": "在此输入进行搜索...",
     "help": "帮助和支持",
     "run": "运行...",
     "logOff": "注销",
@@ -33,7 +46,16 @@
   },
   "tray": {
     "volume": "音量",
+    "mute": "静音",
     "networkConnected": "网络已连接"
+  },
+  "calendar": {
+    "monthNames": [
+      "一月", "二月", "三月", "四月", "五月", "六月",
+      "七月", "八月", "九月", "十月", "十一月", "十二月"
+    ],
+    "weekdays": ["日", "一", "二", "三", "四", "五", "六"],
+    "today": "今天"
   },
   "window": {
     "minimize": "最小化",
@@ -66,7 +88,9 @@
     "rename": "重命名",
     "properties": "属性",
     "refresh": "刷新",
-    "new": "新建"
+    "new": "新建",
+    "newFolder": "文件夹",
+    "newTextDocument": "文本文档"
   },
   "login": {
     "welcome": "欢迎使用",
@@ -80,6 +104,7 @@
   },
   "shutdown": {
     "title": "关闭计算机",
+    "message": "您希望计算机做什么？",
     "standBy": "待机",
     "turnOff": "关闭",
     "restart": "重新启动",
