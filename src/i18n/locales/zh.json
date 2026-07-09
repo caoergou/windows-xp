@@ -81,6 +81,7 @@
   },
   "shutdown": {
     "title": "关闭计算机",
+    "message": "您希望计算机做什么？",
     "standBy": "待机",
     "turnOff": "关闭",
     "restart": "重新启动",

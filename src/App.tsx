@@ -48,7 +48,6 @@ const ScreenSaverContainer = styled.div<{ $fading: boolean }>`
 const FloatingLogo = styled.img`
   width: 128px;
   height: 128px;
-  filter: drop-shadow(0 0 15px rgba(0, 120, 215, 0.6));
   animation: ${floatAnimation} 12s ease-in-out infinite;
   user-select: none;
 `;
@@ -66,9 +65,9 @@ const AltTabOverlay = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 50, 0.88);
-  border: 2px solid #5a8adf;
-  border-radius: 6px;
+  background: #ece9d8;
+  border: 1px solid #003c74;
+  box-shadow: 2px 2px 0 #808080;
   padding: 12px 16px;
   display: flex;
   flex-direction: column;
@@ -76,12 +75,13 @@ const AltTabOverlay = styled.div`
   gap: 10px;
   z-index: 999999;
   min-width: 300px;
+  max-width: 90vw;
 `;
 
 const AltTabTitle = styled.div`
-  color: white;
-  font-size: 12px;
-  font-family: Tahoma, sans-serif;
+  color: #000;
+  font-size: 11px;
+  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
 `;
 
 const AltTabItems = styled.div`
@@ -97,18 +97,17 @@ const AltTabItem = styled.div<{ $active: boolean }>`
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  border-radius: 4px;
-  border: 2px solid ${props => props.$active ? '#fff' : 'transparent'};
-  background: ${props => props.$active ? 'rgba(255,255,255,0.2)' : 'transparent'};
+  border: 2px solid ${props => props.$active ? '#316AC5' : 'transparent'};
+  background: ${props => props.$active ? '#e5e5e5' : 'transparent'};
   cursor: pointer;
-  min-width: 60px;
+  min-width: 70px;
 
   span {
-    color: white;
-    font-size: 10px;
-    font-family: Tahoma, sans-serif;
+    color: #000;
+    font-size: 11px;
+    font-family: Tahoma, 'Microsoft YaHei', sans-serif;
     text-align: center;
-    max-width: 70px;
+    max-width: 90px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

@@ -87,6 +87,7 @@
   },
   "shutdown": {
     "title": "Turn off computer",
+    "message": "What do you want the computer to do?",
     "standBy": "Stand by",
     "turnOff": "Turn off",
     "restart": "Restart",
