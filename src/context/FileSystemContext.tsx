@@ -89,8 +89,8 @@ interface FileSystemContextType {
     destinationPath: string[],
     newName?: string
   ) => void;
-  copyToClipboard: (sourcePath: string[], fileName: string) => void;
-  cutFile: (sourcePath: string[], fileName: string) => void;
+  copyToClipboard: (sourcePath: string[], fileName: string | string[]) => void;
+  cutFile: (sourcePath: string[], fileName: string | string[]) => void;
   pasteFile: (destinationPath: string[]) => boolean;
   emptyRecycleBin: () => void;
   restoreFromRecycleBin: (fileName: string) => void;
@@ -509,28 +509,37 @@ export const FileSystemProvider: React.FC<{
     [persistFs]
   );
 
-  const copyToClipboard = useCallback((sourcePath: string[], fileName: string) => {
+  const copyToClipboard = useCallback((sourcePath: string[], fileName: string | string[]) => {
+    const fileNames = Array.isArray(fileName) ? fileName : [fileName];
     setClipboard({
       type: 'copy',
       sourcePath,
-      fileName,
+      fileName: fileNames[0],
+      ...(fileNames.length > 1 ? { fileNames } : {}),
     });
   }, []);
 
-  const cutFile = useCallback((sourcePath: string[], fileName: string) => {
+  const cutFile = useCallback((sourcePath: string[], fileName: string | string[]) => {
+    const fileNames = Array.isArray(fileName) ? fileName : [fileName];
     setClipboard({
       type: 'cut',
       sourcePath,
-      fileName,
+      fileName: fileNames[0],
+      ...(fileNames.length > 1 ? { fileNames } : {}),
     });
   }, []);
+
+  const getClipboardFileNames = (item: ClipboardItem) =>
+    item.fileNames?.length ? item.fileNames : [item.fileName];
 
   const pasteFile = useCallback(
     (destinationPath: string[]): boolean => {
       if (!clipboard) return false;
 
+      const names = getClipboardFileNames(clipboard);
+
       if (clipboard.type === 'cut') {
-        const { sourcePath, fileName } = clipboard;
+        const { sourcePath } = clipboard;
 
         setFs(prevFs => {
           const newFs = deepClone(prevFs);
@@ -553,11 +562,7 @@ export const FileSystemProvider: React.FC<{
             }
           }
 
-          if (!isContainerNode(sourceParent) || !sourceParent.children?.[fileName]) {
-            return prevFs;
-          }
-
-          if (!isContainerNode(destinationParent)) {
+          if (!isContainerNode(sourceParent) || !isContainerNode(destinationParent)) {
             return prevFs;
           }
 
@@ -565,10 +570,13 @@ export const FileSystemProvider: React.FC<{
             destinationParent.children = {};
           }
 
-          destinationParent.children[fileName] = JSON.parse(
-            JSON.stringify(sourceParent.children[fileName])
-          );
-          delete sourceParent.children[fileName];
+          for (const fileName of names) {
+            if (!sourceParent.children?.[fileName]) continue;
+            destinationParent.children[fileName] = JSON.parse(
+              JSON.stringify(sourceParent.children[fileName])
+            );
+            delete sourceParent.children[fileName];
+          }
 
           persistFs(newFs);
           return newFs;
@@ -576,8 +584,10 @@ export const FileSystemProvider: React.FC<{
 
         setClipboard(null);
       } else if (clipboard.type === 'copy') {
-        const { sourcePath, fileName } = clipboard;
-        copyFile(sourcePath, fileName, destinationPath);
+        const { sourcePath } = clipboard;
+        for (const fileName of names) {
+          copyFile(sourcePath, fileName, destinationPath);
+        }
       }
 
       return true;

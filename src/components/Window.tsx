@@ -8,15 +8,17 @@ import ErrorBoundary from './ErrorBoundary';
 import 'react-resizable/css/styles.css';
 import { useTranslation } from 'react-i18next';
 import { WindowState } from '../types';
-import { WINDOW_DEFAULTS } from '../constants';
 
 const WindowContainer = styled.div<{ isFocus?: boolean }>`
   box-sizing: border-box;
   position: absolute;
   display: flex;
   flex-direction: column;
-  min-height: ${WINDOW_DEFAULTS.MIN_HEIGHT}px;
-  min-width: ${WINDOW_DEFAULTS.MIN_WIDTH}px;
+  user-select: none;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
   background-color: ${({ isFocus }) => (isFocus ? '#0831d9' : '#6582f5')};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
@@ -284,6 +286,8 @@ const CloseBtn = styled(BaseButton)`
 
 const WindowBody = styled.div`
   flex: 1;
+  min-width: 0;
+  min-height: 0;
   background: #ece9d8;
   overflow: hidden;
   position: relative;
@@ -398,7 +402,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
   );
 
   if (isMaximized) {
-    return <div style={style}>{content}</div>;
+    return <div className="xp-window" style={style} onMouseDown={(e) => e.stopPropagation()}>{content}</div>;
   }
 
   return (
@@ -407,13 +411,17 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
       nodeRef={nodeRef}
       disabled={isMaximized}
       defaultPosition={{ x: left ?? 100, y: top ?? 100 }}
-      onMouseDown={() => focusWindow(id)}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        focusWindow(id);
+      }}
       onStop={(_e, data) => {
         moveWindow(id, data.x, data.y);
       }}
     >
       <div
         ref={nodeRef}
+        className="xp-window"
         style={{
           position: 'absolute',
           top: 0,
@@ -422,12 +430,14 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
           width: currentWidth,
           height: currentHeight,
         }}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <ResizableBox
           width={currentWidth}
           height={currentHeight}
           minConstraints={[300, 200]}
           maxConstraints={[2000, 2000]}
+          onResizeStart={(e) => e.stopPropagation()}
           onResizeStop={(_e, { size }) => {
             resizeWindow(id, size.width, size.height);
           }}

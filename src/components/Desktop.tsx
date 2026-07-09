@@ -1,6 +1,6 @@
 // @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 // TODO: refine Desktop types; disabled due to extensive styled-components / FileNode union issues
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../context/FileSystemContext';
@@ -66,9 +66,12 @@ const DesktopIcon = styled.div<{ $selected?: boolean }>`
   color: white;
   position: relative;
   box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
 
   ${props => props.$selected && `
-    border: 1px dotted #fff;
+    background-color: rgba(49, 106, 197, 0.55);
+    border: 1px dotted rgba(255, 255, 255, 0.9);
   `}
 
   &:hover {
@@ -80,60 +83,56 @@ const DesktopIcon = styled.div<{ $selected?: boolean }>`
 
   .icon-wrapper {
     position: relative;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5));
   }
 
-  span {
+  .icon-label {
     font-size: 11px;
     font-family: Tahoma, SimSun, Microsoft YaHei, sans-serif;
     text-align: center;
-    width: 100%;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    max-width: 100%;
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
     overflow: hidden;
     word-break: break-word;
     line-height: 1.2;
+    color: white;
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
-    padding: 1px 2px;
-    background-color: transparent;
+    padding: 0 1px;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none;
+
+    &::selection {
+      background: transparent;
+    }
 
     ${props => props.$selected && `
-      background-color: #316AC5;
+      color: #ffffff;
       text-shadow: none;
     `}
   }
 `;
 
-const ShortcutArrow: React.FC = () => (
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 12 12"
-    style={{
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      pointerEvents: 'none',
-      zIndex: 1,
-    }}
-  >
-    <path
-      d="M2,11 L2,9 L5,9 L5,2 L3,2 L6,0 L9,2 L7,2 L7,11 Z"
-      fill="white"
-      stroke="#333"
-      strokeWidth="0.5"
-    />
-  </svg>
-);
+// Elements that must not trigger desktop box-selection
+const BOX_SELECT_IGNORE = [
+  '.desktop-icon-selectable',
+  '[data-testid^="desktop-icon-"]',
+  '[role="button"]',
+  '.xp-window',
+  '.title-bar',
+  '.react-resizable-handle',
+  '.sticky-note',
+  '.xp-alert',
+].join(', ');
 
-// System icons that are not shortcuts (no shortcut arrow in XP)
-const SYSTEM_ICONS = new Set(['我的电脑', '我的文档', '回收站', '网上邻居']);
+const SYSTEM_ICON_KEYS = new Set(['我的电脑', '我的文档', '回收站', '网上邻居']);
 
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
-  const { fs, moveFile, deleteFile, renameFile } = useFileSystem();
+  const { fs, moveFile, deleteFile, renameFile, copyToClipboard, cutFile, pasteFile, clipboard } = useFileSystem();
   const { windows, openWindow } = useWindowManager();
   const { showModal, showConfirm, showInput } = useModal();
 
@@ -141,7 +140,6 @@ const Desktop: React.FC = () => {
   const [selectedIcons, setSelectedIcons] = useState<Set<string>>(new Set());
   const [refreshKey, setRefreshKey] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [pasteDisabled, setPasteDisabled] = useState(true);
   const [dragOver, setDragOver] = useState<string | null>(null);
 
   // Box selection state
@@ -150,6 +148,54 @@ const Desktop: React.FC = () => {
   const [selectionEnd, setSelectionEnd] = useState({ x: 0, y: 0 });
   const iconRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const containerRef = useRef<HTMLDivElement>(null);
+  const isSelectingRef = useRef(false);
+  const selectionStartRef = useRef({ x: 0, y: 0 });
+  const selectionEndRef = useRef({ x: 0, y: 0 });
+  const baseSelectedRef = useRef<Set<string>>(new Set());
+  const ctrlKeyRef = useRef(false);
+  const suppressClickClearRef = useRef(false);
+
+  const updateSelectionFromBox = useCallback((start: { x: number; y: number }, end: { x: number; y: number }, ctrlKey: boolean) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const newSelected = new Set(ctrlKey ? baseSelectedRef.current : []);
+    const left = Math.min(start.x, end.x);
+    const right = Math.max(start.x, end.x);
+    const top = Math.min(start.y, end.y);
+    const bottom = Math.max(start.y, end.y);
+
+    iconRefs.current.forEach((iconEl, key) => {
+      if (!iconEl) return;
+
+      const iconRect = iconEl.getBoundingClientRect();
+      const iconLeft = iconRect.left - rect.left;
+      const iconRight = iconRect.right - rect.left;
+      const iconTop = iconRect.top - rect.top;
+      const iconBottom = iconRect.bottom - rect.top;
+
+      const intersects = !(iconRight < left || iconLeft > right ||
+                           iconBottom < top || iconTop > bottom);
+
+      if (intersects) {
+        if (ctrlKey && baseSelectedRef.current.has(key)) {
+          newSelected.delete(key);
+        } else {
+          newSelected.add(key);
+        }
+      } else if (ctrlKey && baseSelectedRef.current.has(key)) {
+        newSelected.add(key);
+      }
+    });
+
+    setSelectedIcons(newSelected);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      isSelectingRef.current = false;
+    };
+  }, []);
 
   const toggleIconSelection = (key: string, e: React.MouseEvent) => {
     if (e.ctrlKey) {
@@ -169,78 +215,65 @@ const Desktop: React.FC = () => {
 
   // Box selection handlers
   const handleMouseDown = (e: React.MouseEvent) => {
-    // Only start box selection if clicking on the desktop background
     const target = e.target as HTMLElement;
-    if (target.closest('.desktop-icon-selectable') ||
-        target.closest('[role="button"]') ||
-        target.closest('[data-testid^="desktop-icon-"]')) {
+    if (target.closest(BOX_SELECT_IGNORE)) {
       return;
     }
 
-    if (e.button !== 0) return; // Only left mouse button
+    if (e.button !== 0) return;
 
     e.preventDefault();
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
 
+    const start = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    isSelectingRef.current = true;
+    selectionStartRef.current = start;
+    selectionEndRef.current = start;
+    ctrlKeyRef.current = e.ctrlKey;
+    baseSelectedRef.current = e.ctrlKey ? new Set(selectedIcons) : new Set();
     setIsSelecting(true);
-    setSelectionStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-    setSelectionEnd({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setSelectionStart(start);
+    setSelectionEnd(start);
 
     if (!e.ctrlKey) {
       setSelectedIcons(new Set());
     }
-  };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isSelecting) return;
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!isSelectingRef.current) return;
+      const containerRect = containerRef.current?.getBoundingClientRect();
+      if (!containerRect) return;
 
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
+      const current = {
+        x: ev.clientX - containerRect.left,
+        y: ev.clientY - containerRect.top,
+      };
+      selectionEndRef.current = current;
+      setSelectionEnd(current);
+      updateSelectionFromBox(selectionStartRef.current, current, ctrlKeyRef.current);
+    };
 
-    setSelectionEnd({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    const onMouseUp = () => {
+      if (!isSelectingRef.current) return;
 
-    // Update selection
-    const newSelected = new Set(e.ctrlKey ? selectedIcons : []);
+      const startPos = selectionStartRef.current;
+      const endPos = selectionEndRef.current;
+      const dragged = Math.abs(endPos.x - startPos.x) > 4 || Math.abs(endPos.y - startPos.y) > 4;
 
-    // Calculate selection bounds
-    const left = Math.min(selectionStart.x, e.clientX - rect.left);
-    const right = Math.max(selectionStart.x, e.clientX - rect.left);
-    const top = Math.min(selectionStart.y, e.clientY - rect.top);
-    const bottom = Math.max(selectionStart.y, e.clientY - rect.top);
-
-    // Check each icon
-    iconRefs.current.forEach((iconEl, key) => {
-      if (!iconEl) return;
-
-      const iconRect = iconEl.getBoundingClientRect();
-      const containerRect = rect;
-
-      const iconLeft = iconRect.left - containerRect.left;
-      const iconRight = iconRect.right - containerRect.left;
-      const iconTop = iconRect.top - containerRect.top;
-      const iconBottom = iconRect.bottom - containerRect.top;
-
-      // Check for intersection
-      const intersects = !(iconRight < left || iconLeft > right ||
-                           iconBottom < top || iconTop > bottom);
-
-      if (intersects) {
-        if (e.ctrlKey && selectedIcons.has(key)) {
-          newSelected.delete(key);
-        } else {
-          newSelected.add(key);
-        }
-      } else if (e.ctrlKey && selectedIcons.has(key)) {
-        newSelected.add(key);
+      if (dragged) {
+        updateSelectionFromBox(startPos, endPos, ctrlKeyRef.current);
+        suppressClickClearRef.current = true;
       }
-    });
 
-    setSelectedIcons(newSelected);
-  };
+      isSelectingRef.current = false;
+      setIsSelecting(false);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
 
-  const handleMouseUp = () => {
-    setIsSelecting(false);
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
   };
 
   const handleIconDoubleClick = (key: string, item: FileItem) => {
@@ -271,14 +304,23 @@ const Desktop: React.FC = () => {
     moveFile([], srcKey, [targetKey]);
   };
 
-  const handleContextMenu = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    try {
-      const clipboardText = await navigator.clipboard.readText();
-      setPasteDisabled(clipboardText.trim() === '');
-    } catch (err) {
-      setPasteDisabled(true);
+  const getOperableKeys = (keys: string[]) => keys.filter(k => !SYSTEM_ICON_KEYS.has(k));
+
+  const resolveMenuKeys = (iconKey: string | null): string[] => {
+    if (iconKey) {
+      if (selectedIcons.has(iconKey) && selectedIcons.size > 1) {
+        return Array.from(selectedIcons);
+      }
+      return [iconKey];
     }
+    if (selectedIcons.size > 0) {
+      return Array.from(selectedIcons);
+    }
+    return [];
+  };
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
     setContextMenu({ visible: true, x: e.clientX, y: e.clientY, iconKey: null });
   };
 
@@ -297,8 +339,8 @@ const Desktop: React.FC = () => {
 
   const handleIconDelete = (key: string) => {
     const keysToDelete = selectedIcons.size > 0 && selectedIcons.has(key)
-      ? Array.from(selectedIcons)
-      : [key];
+      ? getOperableKeys(Array.from(selectedIcons))
+      : SYSTEM_ICON_KEYS.has(key) ? [] : [key];
 
     const itemsToDelete = keysToDelete.map(k => fs.root.children[k]).filter(Boolean);
 
@@ -316,6 +358,33 @@ const Desktop: React.FC = () => {
         keysToDelete.forEach(k => deleteFile([], k));
         setSelectedIcons(new Set());
       }
+    });
+    closeContextMenu();
+  };
+
+  const handleIconCopy = (keys: string[]) => {
+    const operable = getOperableKeys(keys);
+    if (operable.length === 0) return;
+    copyToClipboard([], operable.length === 1 ? operable[0] : operable);
+    closeContextMenu();
+  };
+
+  const handleIconCut = (keys: string[]) => {
+    const operable = getOperableKeys(keys);
+    if (operable.length === 0) return;
+    cutFile([], operable.length === 1 ? operable[0] : operable);
+    closeContextMenu();
+  };
+
+  const handlePaste = () => {
+    pasteFile([]);
+    closeContextMenu();
+  };
+
+  const handleOpenSelection = (keys: string[]) => {
+    keys.forEach(k => {
+      const item = fs.root.children[k];
+      if (item) handleIconDoubleClick(k, item);
     });
     closeContextMenu();
   };
@@ -365,42 +434,66 @@ const Desktop: React.FC = () => {
   const desktopMenuItems: MenuItem[] = [
     { label: t('contextMenu.refresh'), action: handleRefresh },
     { type: 'separator' },
-    { label: t('contextMenu.paste'), action: () => undefined, disabled: pasteDisabled },
+    { label: t('contextMenu.paste'), action: handlePaste, disabled: !clipboard },
     { type: 'separator' },
     { label: t('contextMenu.new'), action: () => undefined, disabled: true },
     { type: 'separator' },
     { label: t('contextMenu.properties'), action: () => undefined, disabled: true }
   ];
 
-  const getIconMenuItems = (key: string): MenuItem[] => {
-    const item = fs.root.children[key];
-    if (!item) return desktopMenuItems;
-    const isSystem = SYSTEM_ICONS.has(key);
-    const items = [
-      { label: '打开', action: () => { handleIconDoubleClick(key, item); closeContextMenu(); } },
+  const buildIconMenuItems = (keys: string[]): MenuItem[] => {
+    if (keys.length === 0) return desktopMenuItems;
+
+    const operable = getOperableKeys(keys);
+    const isMulti = keys.length > 1;
+    const primaryKey = keys[0];
+    const primaryItem = fs.root.children[primaryKey];
+    if (!primaryItem) return desktopMenuItems;
+
+    const isSystem = !isMulti && primaryItem.type === 'folder' && SYSTEM_ICON_KEYS.has(primaryKey);
+
+    const items: MenuItem[] = [
+      {
+        label: t('contextMenu.open'),
+        action: () => {
+          if (isMulti) {
+            handleOpenSelection(keys);
+          } else {
+            handleIconDoubleClick(primaryKey, primaryItem);
+            closeContextMenu();
+          }
+        },
+      },
       { type: 'separator' },
     ];
-    if (!isSystem) {
+
+    if (!isSystem || operable.length > 0) {
       items.push(
-        { label: '剪切', action: () => undefined },
-        { label: '复制', action: () => undefined },
+        { label: t('contextMenu.cut'), action: () => handleIconCut(keys), disabled: operable.length === 0 },
+        { label: t('contextMenu.copy'), action: () => handleIconCopy(keys), disabled: operable.length === 0 },
         { type: 'separator' },
-        { label: '删除', action: () => handleIconDelete(key) },
-        { label: '重命名', action: () => handleIconRename(key) },
+        { label: t('contextMenu.delete'), action: () => handleIconDelete(primaryKey), disabled: operable.length === 0 },
       );
+      if (!isMulti && !isSystem) {
+        items.push({ label: t('contextMenu.rename'), action: () => handleIconRename(primaryKey) });
+      }
     }
+
     items.push(
       { type: 'separator' },
-      { label: '属性', action: () => handleIconProperties(key) }
+      {
+        label: t('contextMenu.properties'),
+        action: () => handleIconProperties(primaryKey),
+        disabled: isMulti,
+      },
     );
+
     return items;
   };
 
   const desktopItems = fs.root.children;
 
-  const activeMenuItems = contextMenu.iconKey
-    ? getIconMenuItems(contextMenu.iconKey)
-    : desktopMenuItems;
+  const activeMenuItems = buildIconMenuItems(resolveMenuKeys(contextMenu.iconKey));
 
   return (
     <DesktopContainer
@@ -408,6 +501,10 @@ const Desktop: React.FC = () => {
       $bgUrl={desktopBg}
       onContextMenu={handleContextMenu}
       onClick={(e) => {
+        if (suppressClickClearRef.current) {
+          suppressClickClearRef.current = false;
+          return;
+        }
         const target = e.target as HTMLElement;
         if (!target.closest('.desktop-icon-selectable') &&
             !target.closest('[data-testid^="desktop-icon-"]')) {
@@ -415,16 +512,12 @@ const Desktop: React.FC = () => {
         }
       }}
       onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
     >
       <IconGrid key={refreshKey} style={{ opacity: isRefreshing ? 0 : 1 }}>
         {Object.entries(desktopItems || {}).map(([key, item]: [string, FileNode]) => {
           const iconName = (key === '回收站' && item.children && Object.keys(item.children).length > 0)
             ? 'recycle_bin_full'
             : item.icon;
-          const isShortcut = !SYSTEM_ICONS.has(key);
           return (
             <DesktopIcon
               key={key}
@@ -440,7 +533,14 @@ const Desktop: React.FC = () => {
               className="desktop-icon-selectable"
               data-icon-key={key}
               title={item.name}
-              onClick={(e) => { e.stopPropagation(); toggleIconSelection(key, e); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (suppressClickClearRef.current) {
+                  suppressClickClearRef.current = false;
+                  return;
+                }
+                toggleIconSelection(key, e);
+              }}
               onDoubleClick={() => handleIconDoubleClick(key, item)}
               onContextMenu={(e) => handleIconContextMenu(e, key)}
               draggable
@@ -460,9 +560,8 @@ const Desktop: React.FC = () => {
             >
               <div className="icon-wrapper">
                 <XPIcon name={iconName} size={32} />
-                {isShortcut && <ShortcutArrow />}
               </div>
-              <span>{translateIconName(key, item.name)}</span>
+              <span className="icon-label">{translateIconName(key, item.name)}</span>
             </DesktopIcon>
           );
         })}

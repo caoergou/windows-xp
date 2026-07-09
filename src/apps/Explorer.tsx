@@ -83,6 +83,8 @@ const FileItem = styled.div`
 
 const IconWrapper = styled.div`
     margin-right: 5px;
+    position: relative;
+    flex-shrink: 0;
 `;
 
 const FileInfo = styled.div`

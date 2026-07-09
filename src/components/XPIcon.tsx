@@ -21,6 +21,8 @@ import appWindowIcon from '../assets/icons/xp/app_window.webp';
 import journalIcon from '../assets/icons/xp/journal.webp';
 import recycleBinFullIcon from '../assets/icons/xp/recycle_bin_full.webp';
 import calculatorIcon from '../assets/icons/xp/WindowsXPCalculator.webp';
+import minesweeperIcon from '../assets/icons/xp/minesweeper.webp';
+import solitaireIcon from '../assets/icons/xp/solitaire.webp';
 import paintIcon from '../assets/icons/xp/WindowsXPPaint.webp';
 import soundIcon from '../assets/icons/xp/WindowsXPSound.webp';
 import controlPanelIcon from '../assets/icons/xp/WindowsXPControlPanel.webp';
@@ -145,8 +147,8 @@ const IconMap: Record<string, string> = {
     "baofeng": baofengIcon,
     "360safe": safe360Icon,
     "wps": wpsIcon,
-    "minesweeper": appWindowIcon,
-    "solitaire": appWindowIcon,
+    "minesweeper": minesweeperIcon,
+    "solitaire": solitaireIcon,
     "media": mediaPlayerIcon,
     "controlpanel": controlPanelIcon,
     "cmd": appWindowIcon,

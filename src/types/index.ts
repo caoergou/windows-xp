@@ -181,6 +181,8 @@ export interface ClipboardItem {
   type: 'cut' | 'copy';
   sourcePath: string[];
   fileName: string;
+  /** 批量操作时包含的全部文件名；fileName 为其中第一项 */
+  fileNames?: string[];
 }
 
 /** 右键菜单项 */
