@@ -1,4 +1,0 @@
-[debug] [vite] connecting...
-[debug] [vite] connected.
-[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
-[info] 🌐 i18next is maintained with support from Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙
