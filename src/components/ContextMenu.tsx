@@ -1,5 +1,5 @@
 // @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
-import React, { useEffect, useRef, useLayoutEffect, forwardRef, useCallback, useState } from 'react';
+import React, { useEffect, useRef, useLayoutEffect, forwardRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import XPIcon from './XPIcon';
@@ -26,7 +26,6 @@ const MenuItemComponent = styled.div`
     color: ${props => props.$disabled ? '#777' : '#000'};
     position: relative;
     border: 1px solid transparent;
-    cursor: default;
     background-color: #F0F0F0;
 
     &:hover {
@@ -53,6 +52,10 @@ const MenuItemComponent = styled.div`
         font-size: 11px;
         opacity: 0.7;
     }
+
+    &:hover > .submenu {
+        display: block;
+    }
 `;
 
 const MenuSeparator = styled.div`
@@ -69,8 +72,9 @@ const SubMenuIndicator = styled.span`
 `;
 
 const SubMenuContainer = styled.div`
+    display: none;
     position: absolute;
-    left: calc(100% - 2px);
+    left: calc(100% - 1px);
     top: -2px;
     background: #F0F0F0;
     border: 1px solid #000000;
@@ -91,28 +95,18 @@ interface ContextMenuProps {
 const MenuRow = ({
   item,
   onClose,
-  openSubmenu,
-  setOpenSubmenu,
-  index,
 }: {
   item: MenuItem;
   onClose: () => void;
-  openSubmenu: number | null;
-  setOpenSubmenu: (idx: number | null) => void;
-  index: number;
 }) => {
   if (item.type === 'separator') {
-    return <MenuSeparator key={index} />;
+    return <MenuSeparator />;
   }
 
   const hasSubmenu = item.submenu && item.submenu.length > 0;
-  const isSubmenuOpen = openSubmenu === index;
 
   return (
     <MenuItemComponent
-      key={index}
-      onMouseEnter={() => hasSubmenu && setOpenSubmenu(index)}
-      onMouseLeave={() => hasSubmenu && setOpenSubmenu(null)}
       onClick={() => {
         if (!item.disabled && item.action && !hasSubmenu) {
           item.action();
@@ -129,16 +123,13 @@ const MenuRow = ({
       {item.label}
       {item.shortcut && <span className="shortcut">{item.shortcut}</span>}
       {hasSubmenu && <SubMenuIndicator>▶</SubMenuIndicator>}
-      {hasSubmenu && isSubmenuOpen && (
-        <SubMenuContainer>
+      {hasSubmenu && (
+        <SubMenuContainer className="submenu">
           {item.submenu.map((subItem, subIndex) => (
             <MenuRow
               key={subIndex}
               item={subItem}
               onClose={onClose}
-              openSubmenu={null}
-              setOpenSubmenu={() => {}}
-              index={subIndex}
             />
           ))}
         </SubMenuContainer>
@@ -149,7 +140,6 @@ const MenuRow = ({
 
 const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(({ visible, x, y, onClose, menuItems }, ref) => {
     const menuRef = useRef<HTMLDivElement>(null);
-    const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
 
     const setRef = useCallback((el: HTMLDivElement | null) => {
         menuRef.current = el;
@@ -224,9 +214,6 @@ const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(({ visible, x, 
                   key={index}
                   item={item}
                   onClose={onClose}
-                  openSubmenu={openSubmenu}
-                  setOpenSubmenu={setOpenSubmenu}
-                  index={index}
                 />
             ))}
         </ContextMenuContainer>,
