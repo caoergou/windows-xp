@@ -102,25 +102,34 @@ const DesktopIcon = styled.div<{ $selected?: boolean }>`
   }
 `;
 
+// Windows XP-style shortcut overlay: a small white badge in the bottom-left
+// corner of the icon holding a black arrow that points up and to the right.
 const ShortcutArrow: React.FC = () => (
   <svg
-    width="12"
-    height="12"
-    viewBox="0 0 12 12"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
     style={{
       position: 'absolute',
-      bottom: 0,
-      right: 0,
+      bottom: -2,
+      left: -2,
       pointerEvents: 'none',
-      zIndex: 1,
+      zIndex: 2,
+      filter: 'drop-shadow(0 1px 1px rgba(0, 0, 0, 0.4))',
     }}
   >
-    <path
-      d="M2,11 L2,9 L5,9 L5,2 L3,2 L6,0 L9,2 L7,2 L7,11 Z"
-      fill="white"
-      stroke="#333"
-      strokeWidth="0.5"
+    <rect
+      x="1"
+      y="1"
+      width="22"
+      height="22"
+      rx="2.5"
+      fill="#ffffff"
+      stroke="#9a9a9a"
+      strokeWidth="1.25"
     />
+    <path d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z" fill="#1a1a1a" />
   </svg>
 );
 
@@ -166,15 +175,18 @@ const Desktop: React.FC = () => {
 
   // Box selection handlers
   const handleMouseDown = (e: React.MouseEvent) => {
-    // Only start box selection if clicking on the desktop background
-    const target = e.target as HTMLElement;
-    if (target.closest('.desktop-icon-selectable') ||
-        target.closest('[role="button"]') ||
-        target.closest('[data-testid^="desktop-icon-"]')) {
-      return;
-    }
-
     if (e.button !== 0) return; // Only left mouse button
+
+    // Only start a rubber-band selection when the press begins directly on the
+    // empty desktop background (the container itself or the icon grid). Any
+    // other target — most importantly a window title bar or resize handle,
+    // whose mousedown bubbles up here without stopping propagation — must be
+    // ignored, otherwise a selection rectangle would appear while dragging or
+    // resizing a window.
+    const target = e.target as HTMLElement;
+    const isBackground =
+      target === containerRef.current || target.classList.contains('desktop-icon-grid');
+    if (!isBackground) return;
 
     e.preventDefault();
     const rect = containerRef.current?.getBoundingClientRect();
@@ -416,7 +428,7 @@ const Desktop: React.FC = () => {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      <IconGrid key={refreshKey} style={{ opacity: isRefreshing ? 0 : 1 }}>
+      <IconGrid key={refreshKey} className="desktop-icon-grid" style={{ opacity: isRefreshing ? 0 : 1 }}>
         {Object.entries(desktopItems || {}).map(([key, item]: [string, FileNode]) => {
           const iconName = (key === '回收站' && isContainerNode(item) && item.children && Object.keys(item.children).length > 0)
             ? 'recycle_bin_full'
