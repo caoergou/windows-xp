@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import XPIcon from '../components/XPIcon';
 
 interface DownloadItem {
   id: string;
@@ -17,7 +18,7 @@ const Wrap = styled.div`
   display: flex;
   flex-direction: column;
   background: #f7f7f7;
-  font-family: 'Microsoft YaHei', '微软雅黑', Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   color: #333;
   user-select: none;
@@ -420,16 +421,16 @@ const Thunder: React.FC<ThunderProps> = () => {
 
       <Toolbar>
         <ToolbarBtn $primary onClick={addDownload}>
-          ➕ {t('thunder.newTask')}
+          <XPIcon name="add" size={16} /> {t('thunder.newTask')}
         </ToolbarBtn>
         <ToolbarBtn onClick={handleStartClick} disabled={items.length === 0}>
-          ▶ {t('thunder.start')}
+          <XPIcon name="media_play" size={16} /> {t('thunder.start')}
         </ToolbarBtn>
         <ToolbarBtn onClick={handlePauseClick} disabled={!selectedItem || selectedItem.status !== 'downloading'}>
-          ⏸ {t('thunder.pause')}
+          <XPIcon name="media_pause" size={16} /> {t('thunder.pause')}
         </ToolbarBtn>
         <ToolbarBtn onClick={handleDeleteClick} disabled={!selectedItem}>
-          🗑 {t('thunder.delete')}
+          <XPIcon name="delete_xp" size={16} /> {t('thunder.delete')}
         </ToolbarBtn>
       </Toolbar>
 

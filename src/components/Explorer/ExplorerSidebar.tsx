@@ -45,7 +45,7 @@ const PanelTitle = styled.div`
     color: #0c327d;
     flex: 1;
     font-size: 11px;
-    font-family: Tahoma, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 `;
 
 const CollapseBtn = styled.img`
@@ -74,7 +74,7 @@ const LinkItem = styled.div<{ $active?: boolean }>`
     font-size: 10px;
     line-height: 14px;
     color: #0c327d;
-    font-family: Tahoma, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 
     &:hover {
         cursor: pointer;
@@ -94,7 +94,7 @@ const LinkItem = styled.div<{ $active?: boolean }>`
 const DetailText = styled.div`
     padding: 3px 10px 2px 12px;
     font-size: 11px;
-    font-family: Tahoma, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     color: #333;
     line-height: 1.5;
 `;

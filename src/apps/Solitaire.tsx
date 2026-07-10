@@ -30,7 +30,7 @@ const Wrap = styled.div`
   flex-direction: column;
   padding: 6px;
   box-sizing: border-box;
-  font-family: 'Microsoft YaHei', Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   user-select: none;
   color: #ffffff;
@@ -124,7 +124,7 @@ const cardBase = css`
   position: absolute;
   top: 0;
   left: 0;
-  font-family: 'Microsoft YaHei', Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 `;
 
 const FaceUpCard = styled.div<{ $suit?: string }>`

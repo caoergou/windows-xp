@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import XPIcon from '../components/XPIcon';
 
 const Wrap = styled.div`
   width: 100%;
@@ -9,7 +10,7 @@ const Wrap = styled.div`
   flex-direction: column;
   padding: 6px;
   box-sizing: border-box;
-  font-family: 'Microsoft YaHei', Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   user-select: none;
   color: #ffffff;
@@ -280,9 +281,11 @@ const WindowsMediaPlayer = ({ windowId: _windowId, src = DEFAULT_SRC }: WindowsM
       <TitleBar>
         <Title>Windows Media Player</Title>
         <PlayerControls>
-          <ControlBtn onClick={stopPlayback} title="停止">⏹️</ControlBtn>
+          <ControlBtn onClick={stopPlayback} title="停止">
+            <XPIcon name="media_stop" size={16} />
+          </ControlBtn>
           <ControlBtn onClick={togglePlay} title={isPlaying ? '暂停' : '播放'}>
-            {isPlaying ? '⏸️' : '▶️'}
+            <XPIcon name={isPlaying ? 'media_pause' : 'media_play'} size={16} />
           </ControlBtn>
         </PlayerControls>
       </TitleBar>
@@ -313,7 +316,9 @@ const WindowsMediaPlayer = ({ windowId: _windowId, src = DEFAULT_SRC }: WindowsM
       </PlaybackBar>
 
       <TrackInfo>
-        <AlbumArt>💿</AlbumArt>
+        <AlbumArt>
+          <XPIcon name="cd_rom" size={48} />
+        </AlbumArt>
         <TrackDetails>
           <TrackTitle>{trackTitle}</TrackTitle>
           <TrackArtist>{isPlaying ? '正在播放' : '已停止'}</TrackArtist>

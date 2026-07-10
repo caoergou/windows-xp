@@ -13,13 +13,13 @@ describe('WindowsXP component props', () => {
 
   it('renders the boot screen by default', () => {
     render(<WindowsXP />);
-    expect(screen.getByText('Microsoft')).toBeInTheDocument();
+    expect(screen.getByAltText('Microsoft Windows XP')).toBeInTheDocument();
   });
 
   it('skipBoot bypasses the boot screen and renders the login screen', async () => {
     render(<WindowsXP skipBoot />);
 
-    expect(screen.queryByText('Microsoft')).not.toBeInTheDocument();
+    expect(screen.queryByAltText('Microsoft Windows XP')).not.toBeInTheDocument();
     await waitFor(() => {
       expect(document.querySelector('input[type="password"]')).toBeInTheDocument();
     });
@@ -28,7 +28,7 @@ describe('WindowsXP component props', () => {
   it('autoLogin bypasses both boot and login screens and renders the desktop', async () => {
     render(<WindowsXP skipBoot autoLogin />);
 
-    expect(screen.queryByText('Microsoft')).not.toBeInTheDocument();
+    expect(screen.queryByAltText('Microsoft Windows XP')).not.toBeInTheDocument();
     expect(document.querySelector('input[type="password"]')).not.toBeInTheDocument();
 
     await waitFor(() => {

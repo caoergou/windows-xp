@@ -25,7 +25,7 @@ const MenuBar = styled.div`
     align-items: center;
     padding: 0 2px;
     font-size: 11px;
-    font-family: Tahoma, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     flex-shrink: 0;
 `;
 
@@ -56,7 +56,7 @@ const DropdownMenu = styled.div`
     padding: 2px 0;
     z-index: 9999;
     font-size: 12px;
-    font-family: Tahoma, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 `;
 
 const DropdownItem = styled.div<{ $disabled?: boolean; $checked?: boolean }>`
@@ -130,7 +130,7 @@ const StatusBar = styled.div`
     justify-content: flex-end;
     padding: 0 8px;
     font-size: 11px;
-    font-family: Tahoma, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     flex-shrink: 0;
 `;
 
@@ -160,7 +160,7 @@ const DialogWindow = styled.div`
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
-    font-family: 'Tahoma', sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 `;
 
 const DialogTitleBar = styled.div`
@@ -226,7 +226,7 @@ const DialogInput = styled.input`
     flex: 1;
     border: 1px solid #7F9DB9;
     padding: 3px;
-    font-family: 'Tahoma', sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     font-size: 12px;
 `;
 
@@ -243,7 +243,7 @@ const DialogButton = styled.button`
     background: #ECE9D8;
     border: 1px solid #003C74;
     border-radius: 2px;
-    font-family: 'Tahoma', sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     font-size: 12px;
     cursor: pointer;
     box-shadow: inset 1px 1px 0px white, 1px 1px 2px rgba(0,0,0,0.3);

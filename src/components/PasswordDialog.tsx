@@ -25,7 +25,7 @@ const DialogWindow = styled.div`
   box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
   display: flex;
   flex-direction: column;
-  font-family: 'Tahoma', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 `;
 
 const TitleBar = styled.div`
@@ -94,7 +94,7 @@ const PasswordInput = styled.input`
   padding: 2px 5px;
   border: 1px solid #7F9DB9;
   border-radius: 1px;
-  font-family: 'Tahoma', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
   box-sizing: border-box;
@@ -121,7 +121,7 @@ const Button = styled.button`
   background: #ECE9D8;
   border: 1px solid #003C74;
   border-radius: 2px;
-  font-family: 'Tahoma', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   cursor: pointer;
   box-shadow: inset 1px 1px 0px white, 1px 1px 2px rgba(0,0,0,0.2);

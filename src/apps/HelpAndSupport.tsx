@@ -9,7 +9,7 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     background: #f0f0f0;
-    font-family: Tahoma, "Microsoft YaHei", sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 `;
 
 const Header = styled.div`

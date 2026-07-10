@@ -15,7 +15,7 @@ const MenuBar = styled.div`
 const MenuBarItem = styled.div`
     padding: 1px 6px;
     font-size: 11px;
-    font-family: Tahoma, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     cursor: default;
     border: 1px solid transparent;
 
@@ -45,7 +45,7 @@ const NavBtn = styled.button<{ $disabled?: boolean }>`
     height: 100%;
     padding: 0 4px 0 2px;
     font-size: 11px;
-    font-family: Tahoma, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     background: transparent;
     border: 1px solid rgba(0, 0, 0, 0);
     border-radius: 3px;
@@ -70,7 +70,7 @@ const NavBtn = styled.button<{ $disabled?: boolean }>`
 
 const NavLabel = styled.span`
     font-size: 11px;
-    font-family: Tahoma, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     white-space: nowrap;
 `;
 
@@ -92,7 +92,7 @@ const ToolBtn = styled.button<{ $disabled?: boolean }>`
     height: 100%;
     padding: 0 6px;
     font-size: 11px;
-    font-family: Tahoma, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     background: transparent;
     border: 1px solid rgba(0, 0, 0, 0);
     border-radius: 3px;

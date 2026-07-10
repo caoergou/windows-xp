@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
+import XPIcon from '../components/XPIcon';
 
 const Container = styled.div`
   padding: 16px;
-  font-family: Tahoma, Arial, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   height: 100%;
   display: flex;
@@ -40,7 +41,9 @@ const ConnectionItem = styled.div`
 `;
 
 const ConnectionIcon = styled.div`
-  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ConnectionInfo = styled.div`
@@ -97,13 +100,13 @@ const NetworkConnections = ({ onClose }: NetworkConnectionsProps) => {
     {
       name: '本地连接',
       status: '已连接',
-      icon: '🖧',
+      icon: 'network_connections',
       type: '本地',
     },
     {
       name: '无线网络连接',
       status: '未连接',
-      icon: '📶',
+      icon: 'wireless_network',
       type: '无线',
     },
   ];
@@ -114,7 +117,9 @@ const NetworkConnections = ({ onClose }: NetworkConnectionsProps) => {
       <ConnectionList>
         {connections.map((conn, index) => (
           <ConnectionItem key={index}>
-            <ConnectionIcon>{conn.icon}</ConnectionIcon>
+            <ConnectionIcon>
+              <XPIcon name={conn.icon} size={32} />
+            </ConnectionIcon>
             <ConnectionInfo>
               <ConnectionName>{conn.name}</ConnectionName>
               <ConnectionStatus>{conn.status} - {conn.type}</ConnectionStatus>

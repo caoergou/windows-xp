@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import XPIcon from '../XPIcon';
+import standbyIcon from '../../assets/icons/xp/standby.png';
+import shutdownIcon from '../../assets/icons/xp/shutdown_action.png';
+import restartIcon from '../../assets/icons/xp/restart.png';
 
 const TurnOffOverlay = styled.div`
   position: fixed;
@@ -20,16 +22,15 @@ const TurnOffOverlay = styled.div`
 const TurnOffContent = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 40px;
+  align-items: flex-start;
+  gap: 48px;
   max-width: 640px;
   width: 90%;
 `;
 
 const Header = styled.div`
-  align-self: flex-start;
   color: white;
-  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 
   h2 {
     margin: 0 0 8px 0;
@@ -45,9 +46,10 @@ const Header = styled.div`
 
 const Actions = styled.div`
   display: flex;
-  gap: 60px;
+  gap: 72px;
   justify-content: center;
   align-items: flex-start;
+  width: 100%;
 `;
 
 const ActionButton = styled.div<{ $disabled?: boolean }>`
@@ -56,34 +58,41 @@ const ActionButton = styled.div<{ $disabled?: boolean }>`
   align-items: center;
   cursor: ${props => (props.$disabled ? 'not-allowed' : 'pointer')};
   opacity: ${props => (props.$disabled ? 0.5 : 1)};
-  gap: 10px;
+  gap: 12px;
 
   &:hover .action-icon {
-    filter: ${props => (props.$disabled ? 'none' : 'brightness(1.15)')};
+    filter: ${props => (props.$disabled ? 'none' : 'brightness(1.1)')};
   }
 
   &:active .action-icon {
-    filter: ${props => (props.$disabled ? 'none' : 'brightness(0.9)')};
+    filter: ${props => (props.$disabled ? 'none' : 'brightness(0.95)')};
   }
 
   .action-icon {
     width: 64px;
     height: 64px;
-    border-radius: 4px;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3), 2px 2px 8px rgba(0, 0, 0, 0.4);
+    /* Authentic XP shutdown-dialog button look: subtle raised border */
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      0 4px 12px rgba(0, 0, 0, 0.35);
   }
 
-  .standby { background: #ebc644; }
-  .shutdown { background: #e04646; }
-  .restart { background: #45b050; }
+  img {
+    width: 48px;
+    height: 48px;
+    image-rendering: auto;
+  }
 
   span {
     font-size: 14px;
     color: white;
-    font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   }
 `;
 
@@ -93,7 +102,7 @@ const CancelButton = styled.button`
   right: 40px;
   padding: 4px 24px;
   font-size: 12px;
-  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   background: #f0f0f0;
   border: 1px solid #999;
   cursor: pointer;
@@ -143,20 +152,20 @@ const TurnOffDialog: React.FC<TurnOffDialogProps> = ({
         </Header>
         <Actions>
           <ActionButton $disabled>
-            <div className="action-icon standby">
-              <XPIcon name="clock" size={32} color="white" />
+            <div className="action-icon">
+              <img src={standbyIcon} alt={standbyLabel} />
             </div>
             <span>{standbyLabel}</span>
           </ActionButton>
           <ActionButton onClick={onShutdown}>
-            <div className="action-icon shutdown">
-              <XPIcon name="shutdown" size={32} color="white" />
+            <div className="action-icon">
+              <img src={shutdownIcon} alt={turnOffLabel} />
             </div>
             <span>{turnOffLabel}</span>
           </ActionButton>
           <ActionButton onClick={onRestart}>
-            <div className="action-icon restart">
-              <XPIcon name="refresh" size={32} color="white" />
+            <div className="action-icon">
+              <img src={restartIcon} alt={restartLabel} />
             </div>
             <span>{restartLabel}</span>
           </ActionButton>

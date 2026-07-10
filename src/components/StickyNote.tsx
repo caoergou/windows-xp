@@ -14,7 +14,7 @@ const NoteContainer = styled.div`
   padding: 14px 14px 12px;
   box-shadow: 2px 2px 10px rgba(0,0,0,0.3), inset 0 0 40px rgba(255,255,255,0.3);
   transform: rotate(-2deg);
-  font-family: 'Comic Sans MS', '微软雅黑', cursive, sans-serif;
+  font-family: 'Comic Sans MS', 'SimSun', '微软雅黑', cursive, sans-serif;
   cursor: default;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   z-index: 100;
@@ -89,7 +89,7 @@ const StickyNote = () => {
     <NoteContainer className="sticky-note">
       <NoteTitle>
         {stickyNote.title}
-        <CloseBtn onClick={() => setVisible(false)}>✕</CloseBtn>
+        <CloseBtn onClick={() => setVisible(false)}>×</CloseBtn>
       </NoteTitle>
       <NoteContent
         style={{ cursor: 'pointer' }}

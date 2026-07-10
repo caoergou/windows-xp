@@ -27,3 +27,13 @@ declare module '*.ico' {
   const value: string;
   export default value;
 }
+
+declare module '*.wav' {
+  const value: string;
+  export default value;
+}
+
+declare module '*.cur' {
+  const value: string;
+  export default value;
+}

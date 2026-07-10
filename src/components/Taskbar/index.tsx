@@ -5,6 +5,7 @@ import { useWindowManager } from '../../context/WindowManagerContext';
 import { useUserSession } from '../../context/UserSessionContext';
 import { useModal } from '../../context/ModalContext';
 import { APP_REGISTRY, getAppDisplayName } from '../../registry/apps';
+import { sounds } from '../../utils/soundManager';
 import { defaultPlugin } from '../../apps/BrowserPlugins';
 import { getStartMenuApps } from '../../data/culture';
 import { WindowState } from '../../types';
@@ -149,11 +150,26 @@ const Taskbar = () => {
 
   const toggleStart = useCallback(() => setStartOpen(prev => !prev), []);
 
+  const handleStartButtonClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      if (!startOpen) {
+        sounds.menuCommand();
+      }
+      toggleStart();
+    },
+    [startOpen, toggleStart]
+  );
+
   const handleTaskClick = useCallback(
     (win: WindowState) => {
       if (activeWindowId === win.id && !win.isMinimized) {
+        sounds.minimize();
         minimizeWindow(win.id);
       } else {
+        if (win.isMinimized) {
+          sounds.restore();
+        }
         focusWindow(win.id);
       }
     },
@@ -248,10 +264,17 @@ const Taskbar = () => {
   const performPowerAction = useCallback((state: 'shutdown' | 'restart') => {
     safeLocalStorage.removeItem(getStorageKey('open_windows'));
     safeLocalStorage.setItem(getStorageKey('power_state'), state);
+    sounds.shutdown();
     if (canUseDOM) {
-      window.location.reload();
+      // Give the shutdown sound a moment to start before the page reloads.
+      setTimeout(() => window.location.reload(), 600);
     }
   }, []);
+
+  const handleLogoutWithSound = useCallback(() => {
+    sounds.logoff();
+    handleLogout();
+  }, [handleLogout]);
 
   return (
     <>
@@ -278,7 +301,7 @@ const Taskbar = () => {
           setStartOpen(false);
           setShowTurnOff(true);
         }}
-        onLogout={handleLogout}
+        onLogout={handleLogoutWithSound}
         t={t}
       />
 
@@ -287,10 +310,7 @@ const Taskbar = () => {
           label={t('taskbar.start')}
           isActive={startOpen}
           buttonRef={startButtonRef}
-          onClick={e => {
-            e.stopPropagation();
-            toggleStart();
-          }}
+          onClick={handleStartButtonClick}
         />
         <Divider />
         <TaskList

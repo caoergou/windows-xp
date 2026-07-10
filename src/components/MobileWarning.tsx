@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import XPIcon from './XPIcon';
 
 const WarningContainer = styled.div`
   position: fixed;
@@ -38,7 +39,7 @@ const WarningTitle = styled.h2`
   color: #333;
   font-size: 24px;
   margin: 0 0 15px 0;
-  font-family: 'Tahoma', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 `;
 
 const WarningText = styled.p`
@@ -46,7 +47,7 @@ const WarningText = styled.p`
   font-size: 16px;
   line-height: 1.6;
   margin: 0 0 25px 0;
-  font-family: 'Tahoma', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 `;
 
 const ContinueButton = styled.button`
@@ -56,7 +57,7 @@ const ContinueButton = styled.button`
   border-radius: 4px;
   padding: 10px 25px;
   font-size: 14px;
-  font-family: 'Tahoma', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   cursor: pointer;
   transition: all 0.2s;
 
@@ -113,7 +114,7 @@ const MobileWarning: React.FC = () => {
   return (
     <WarningContainer>
       <WarningCard>
-        <WarningIcon>⚠️</WarningIcon>
+        <WarningIcon><XPIcon name="dialog_warning" size={48} /></WarningIcon>
         <WarningTitle>{t('mobileWarning.title')}</WarningTitle>
         <WarningText>{t('mobileWarning.message')}</WarningText>
         <ContinueButton onClick={handleContinue}>{t('mobileWarning.continue')}</ContinueButton>

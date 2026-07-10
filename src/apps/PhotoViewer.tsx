@@ -59,7 +59,7 @@ const ToolbarButton = styled.button`
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  font-family: Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 
   &:hover {
     border: 1px solid #A0B2C8;
@@ -79,9 +79,21 @@ interface PhotoViewerProps {
 }
 
 // windowId 由 Window.jsx 通过 cloneElement 自动注入
+const normalizeImageSrc = (src?: string): string | undefined => {
+  if (!src) return undefined;
+  // Handle legacy absolute paths under the deployed base URL.
+  // When the app is served under /windows-xp/, absolute /images/... would
+  // resolve to the domain root and 404. Convert them to relative paths.
+  if (src.startsWith('/images/')) {
+    return `.${src}`;
+  }
+  return src;
+};
+
 const PhotoViewer = ({ src, fileItem, windowId }: PhotoViewerProps) => {
   const api = useApp(windowId);
   const { t } = useTranslation();
+  const imageSrc = normalizeImageSrc(src);
 
   const handleProperties = () => {
     if (fileItem) {
@@ -110,8 +122,8 @@ const PhotoViewer = ({ src, fileItem, windowId }: PhotoViewerProps) => {
          )}
       </Toolbar>
       <Content>
-        {src ? (
-            <StyledImage src={src} alt={t('photoViewer.view')} draggable={false} />
+        {imageSrc ? (
+            <StyledImage src={imageSrc} alt={t('photoViewer.view')} draggable={false} />
         ) : (
             <div>{t('photoViewer.noImageSelected')}</div>
         )}

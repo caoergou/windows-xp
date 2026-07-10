@@ -9,7 +9,7 @@ const BsodContainer = styled.div`
   height: 100%;
   background-color: #0033a0;
   color: white;
-  font-family: 'Lucida Console', 'Courier New', monospace;
+  font-family: "Perfect DOS VGA 437 Win", "Lucida Console", "Courier New", monospace;
   font-size: 14px;
   padding: 40px 60px;
   z-index: 2147483647;

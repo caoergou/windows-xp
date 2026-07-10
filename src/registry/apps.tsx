@@ -25,6 +25,7 @@ import { AppRegistryEntry, AppAssociation, FileNode, isFileContentNode, isAppSho
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
+import XPIcon from '../components/XPIcon';
 
 /** Helper to cast unknown props when restoring an app component */
 const restoreApp = <P extends Record<string, unknown>>(Component: React.FC<P>) => {
@@ -51,13 +52,14 @@ const DummyAppContainer = styled.div`
   align-items: center;
   justify-content: center;
   background: white;
-  font-family: Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   text-align: center;
   padding: 20px;
 `;
 
 const IconWrapper = styled.div`
-  font-size: 64px;
+  width: 64px;
+  height: 64px;
   margin-bottom: 20px;
 `;
 
@@ -82,7 +84,7 @@ const DummyAppComponent: React.FC<DummyAppProps> = ({ appName = '此应用' }) =
   const { t } = useTranslation();
   return (
     <DummyAppContainer>
-      <IconWrapper>🚧</IconWrapper>
+      <IconWrapper><XPIcon name="alert" size={64} /></IconWrapper>
       <Title>{appName}</Title>
       <Message>
         {t('apps.comingSoon', '此功能正在开发中，敬请期待！')}
@@ -321,7 +323,8 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     name:   '扫雷',
     nameKey: 'apps.minesweeper',
     icon:   'minesweeper',
-    window: { width: 400, height: 420, resizable: true, singleton: true },
+    // The game measures its panel and resizes the window to fit the current difficulty.
+    window: { width: 300, height: 286, resizable: false, singleton: true },
     lifecycle: {},
     associations: [
       { appField: 'Minesweeper', getProps: () => ({}) },

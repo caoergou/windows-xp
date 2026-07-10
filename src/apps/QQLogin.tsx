@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useApp } from '../hooks/useApp';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useTray } from '../context/TrayContext';
+import XPIcon from '../components/XPIcon';
 
 // ─── 样式 ─────────────────────────────────────────────────────────────────────
 
@@ -24,7 +25,7 @@ const Wrap = styled.div<{ $shake?: boolean }>`
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, #dce8f7 0%, #c8d8e8 100%);
-  font-family: 'Microsoft YaHei', '微软雅黑', Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   user-select: none;
   position: relative;
@@ -435,7 +436,7 @@ const QQLogin = ({ windowId }: QQLoginProps) => {
     <Wrap $shake={shake}>
       {isLoggingIn && (
         <LoadingOverlay>
-          <LoadingPenguin>🐧</LoadingPenguin>
+          <LoadingPenguin><XPIcon name="qq" size={48} /></LoadingPenguin>
           <span>{t('qq.login.loggingIn')}</span>
         </LoadingOverlay>
       )}
@@ -449,7 +450,7 @@ const QQLogin = ({ windowId }: QQLoginProps) => {
 
       <Body>
         <AvatarRow>
-          <Avatar>🐧</Avatar>
+          <Avatar><XPIcon name="qq" size={64} /></Avatar>
         </AvatarRow>
 
         <FieldRow>

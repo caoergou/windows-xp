@@ -8,7 +8,7 @@ const Wrap = styled.div`
   display: flex;
   flex-direction: column;
   background: #ECE9D8;
-  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   color: #000;
   user-select: none;

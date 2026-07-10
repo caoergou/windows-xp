@@ -17,7 +17,7 @@ const WindowContainer = styled.div`
   background-color: #ECE9D8;
   padding: 10px;
   box-sizing: border-box;
-  font-family: Tahoma, "Microsoft YaHei", sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 11px;
 `;
 
@@ -88,7 +88,7 @@ const ButtonRow = styled.div`
 const Button = styled.button`
   min-width: 75px;
   padding: 2px 10px;
-  font-family: Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 11px;
 `;
 

@@ -6,7 +6,7 @@ import { COLORS } from '../constants';
  * Apply to styled-components that render native <button> elements.
  */
 export const xpButtonStyles = css`
-  font-family: Tahoma, "Microsoft YaHei", sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 11px;
   box-sizing: border-box;
   border: 1px solid ${COLORS.BUTTON_BORDER};

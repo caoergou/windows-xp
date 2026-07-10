@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import XPIcon from '../components/XPIcon';
 
 const rotate = keyframes`
   from { transform: rotate(0deg); }
@@ -24,7 +25,7 @@ const Wrap = styled.div`
   display: flex;
   flex-direction: column;
   background: #f7fbf5;
-  font-family: 'Microsoft YaHei', '微软雅黑', Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   user-select: none;
   position: relative;
@@ -435,7 +436,7 @@ const SafeGuard360: React.FC<SafeGuard360Props> = () => {
 
         {resultVisible && (
           <ResultPanel>
-            <div className="icon">✅</div>
+            <div className="icon"><XPIcon name="checklist" size={48} /></div>
             <div className="text">{t('safeGuard360.scan.resultSafe')}</div>
           </ResultPanel>
         )}

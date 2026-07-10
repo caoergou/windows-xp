@@ -46,4 +46,13 @@ module.exports = {
       version: 'detect',
     },
   },
+  ignorePatterns: [
+    'dist/',
+    'node_modules/',
+    'xp-research/',
+    'test-results/',
+    'playwright-report/',
+    '*.config.js',
+    '*.config.cjs',
+  ],
 };

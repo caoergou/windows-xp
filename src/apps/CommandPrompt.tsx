@@ -9,7 +9,7 @@ const DRIVE_ROOT = ['root', '我的电脑', '本地磁盘 (C:)'] as const;
 const PROTECTED_FOLDERS = ['Windows', 'WINDOWS', 'Program Files'];
 
 const Container = styled.div`
-  font-family: 'Lucida Console', 'Courier New', monospace;
+  font-family: "Perfect DOS VGA 437 Win", "Lucida Console", "Courier New", monospace;
   font-size: 12px;
   background: #000000;
   color: #c0c0c0;

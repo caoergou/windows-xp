@@ -1,6 +1,7 @@
 // @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import XPIcon from '../components/XPIcon';
 
 // ─── Shared link helpers ─────────────────────────────────────────────────────
 
@@ -27,7 +28,7 @@ const PageWrap = styled.div`
   height: 100%;
   overflow-y: auto;
   background: #f5f5f5;
-  font-family: SimSun, '宋体', Arial, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   color: #333;
 `;
@@ -278,7 +279,10 @@ function Hao123Page({ onNavigate, onOpenNew }: Hao123PageProps) {
       </NavTabs>
 
       <BottomBanner>
-        <span>🔔 hao123 网址之家 — 中国最大的上网导航，为您精选最常用的网址</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <XPIcon name="alert_warning" size={14} />
+          hao123 网址之家 — 中国最大的上网导航，为您精选最常用的网址
+        </span>
         <span style={{ color: '#999' }}>设为主页</span>
       </BottomBanner>
 

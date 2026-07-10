@@ -1,37 +1,69 @@
 import React from 'react';
 
-// Windows XP authentic icons from react-old-icons (downloaded as local .webp)
-import computerIcon from '../assets/icons/xp/computer.webp';
-import documentsIcon from '../assets/icons/xp/documents.webp';
-import recycleBinIcon from '../assets/icons/xp/recycle_bin.webp';
-import ieIcon from '../assets/icons/xp/ie.webp';
-import folderIcon from '../assets/icons/xp/folder.webp';
-import folderOpenIcon from '../assets/icons/xp/folder_open.webp';
-import fileIcon from '../assets/icons/xp/file.webp';
-import driveIcon from '../assets/icons/xp/drive.webp';
-import userIcon from '../assets/icons/xp/user.webp';
+// Authentic Windows XP system/app icons from xp-research/organized/icons/XPIcons/XP/
+// and react-xp/frontend/public/, resized to a consistent 48×48.
+// Imported as modules so Vite handles the base URL and hashing.
+import computerIcon from '../assets/icons/xp-system-large/computer.png';
+import documentsIcon from '../assets/icons/xp-system-large/documents.png';
+import recycleBinIcon from '../assets/icons/xp-system-large/recycle_bin.png';
+import recycleBinFullIcon from '../assets/icons/xp-system-large/recycle_bin_full.png';
+import ieIcon from '../assets/icons/xp-system-large/ie.png';
+import folderIcon from '../assets/icons/xp-system-large/folder.png';
+import folderOpenIcon from '../assets/icons/xp-system-large/folder_open.png';
+import fileIcon from '../assets/icons/xp-system-large/file.png';
+import driveIcon from '../assets/icons/xp-system-large/drive.png';
+import userIcon from '../assets/icons/xp-system-large/user.png';
+import networkIcon from '../assets/icons/xp-system-large/network.png';
+import controlPanelIcon from '../assets/icons/xp-system-large/control_panel.png';
+import printerIcon from '../assets/icons/xp-system-large/printer.png';
+import helpIcon from '../assets/icons/xp-system-large/help.png';
+import searchIcon from '../assets/icons/xp-system-large/search.png';
+import runIcon from '../assets/icons/xp-system-large/run.png';
+import appWindowIcon from '../assets/icons/xp-system-large/app_window.png';
+import journalIcon from '../assets/icons/xp-system-large/journal.png';
+import txtIcon from '../assets/icons/xp-system-large/txt.png';
+import docIcon from '../assets/icons/xp-system-large/doc.png';
+import xlsIcon from '../assets/icons/xp-system-large/xls.png';
+import pdfIcon from '../assets/icons/xp-system-large/pdf.png';
+import paintIcon from '../assets/icons/xp-system-large/paint.png';
+import mediaPlayerIcon from '../assets/icons/xp-system-large/media_player.png';
+import musicLibraryIcon from '../assets/icons/xp-system-large/music_library.png';
+import solitaireIcon from '../assets/icons/xp-system-large/solitaire.png';
+
+// Additional authentic Windows XP icons from xp-research (XPIcons/XP, winxpsite, etc.)
+import alertIcon from '../assets/icons/xp/alert.png';
+import securityCenterIcon from '../assets/icons/xp/security_center.png';
+import networkConnectionsIcon from '../assets/icons/xp/network_connections.png';
+import wirelessNetworkIcon from '../assets/icons/xp/wireless_network.png';
+import volumeIcon from '../assets/icons/xp/volume.png';
+import muteIcon from '../assets/icons/xp/mute.png';
+import cdRomIcon from '../assets/icons/xp/cd_rom.png';
+import deleteXPIcon from '../assets/icons/xp/delete.png';
+import addIcon from '../assets/icons/xp/add.png';
+import stopXPIcon from '../assets/icons/xp/stop.png';
+import checklistIcon from '../assets/icons/xp/checklist.png';
+import dialogWarningIcon from '../assets/icons/xp/dialog_warning.png';
+import dialogErrorIcon from '../assets/icons/xp/dialog_error.png';
+import dialogInfoIcon from '../assets/icons/xp/dialog_info.png';
+import mediaPlayIcon from '../assets/icons/xp/media/play.png';
+import mediaPauseIcon from '../assets/icons/xp/media/pause.png';
+import mediaStopIcon from '../assets/icons/xp/media/stop.png';
+import mediaPreviousIcon from '../assets/icons/xp/media/previous.png';
+import mediaNextIcon from '../assets/icons/xp/media/next.png';
+
+// Icons without large XP equivalents (keep original assets)
 import shutdownIcon from '../assets/icons/xp/shutdown.webp';
-import networkIcon from '../assets/icons/xp/network.webp';
 import emailIcon from '../assets/icons/xp/email.webp';
 import clockIcon from '../assets/icons/xp/clock.webp';
 import imageIcon from '../assets/icons/xp/image.webp';
 import htmlIcon from '../assets/icons/xp/html.webp';
 import propertiesIcon from '../assets/icons/xp/properties.webp';
-import appWindowIcon from '../assets/icons/xp/app_window.webp';
-import journalIcon from '../assets/icons/xp/journal.webp';
-import recycleBinFullIcon from '../assets/icons/xp/recycle_bin_full.webp';
 import calculatorIcon from '../assets/icons/xp/WindowsXPCalculator.webp';
 import minesweeperIcon from '../assets/icons/xp/minesweeper.webp';
-import solitaireIcon from '../assets/icons/xp/solitaire.webp';
-import paintIcon from '../assets/icons/xp/WindowsXPPaint.webp';
 import soundIcon from '../assets/icons/xp/WindowsXPSound.webp';
-import controlPanelIcon from '../assets/icons/xp/WindowsXPControlPanel.webp';
-import printerIcon from '../assets/icons/xp/WindowsXPPrinter.webp';
-import mediaPlayerIcon from '../assets/icons/xp/WindowsMediaPlayer.webp';
-import musicLibraryIcon from '../assets/icons/xp/WindowsMusicLibrary.webp';
 
 // Icons without react-old-icons equivalents (keep original)
-import qqIcon from '../assets/icons/qq.png';
+import qqIcon from '../assets/icons/xp/qq.png';
 import alertErrorIcon from '../assets/icons/alert_error.png';
 import alertInfoIcon from '../assets/icons/alert_info.png';
 import alertWarningIcon from '../assets/icons/alert_warning.png';
@@ -59,7 +91,6 @@ import chevronDownIcon from '../assets/icons/chevron_down.svg';
 import backIconXP from '../assets/windowsIcons/back.png';
 import forwardIconXP from '../assets/windowsIcons/forward.png';
 import upIconXP from '../assets/windowsIcons/up.png';
-import searchIconXP from '../assets/windowsIcons/299(32x32).png';
 import homeIconXP from '../assets/windowsIcons/home.png';
 import refreshIconXP from '../assets/windowsIcons/refresh.png';
 import stopIconXP from '../assets/windowsIcons/stop.png';
@@ -68,7 +99,6 @@ import viewsIconXP from '../assets/windowsIcons/358(32x32).png';
 import historyIconXP from '../assets/windowsIcons/history.png';
 import favoritesIconXP from '../assets/windowsIcons/744(32x32).png';
 import mailIconXP from '../assets/windowsIcons/mail.png';
-import printerIconXP from '../assets/windowsIcons/17(32x32).png';
 import editIconXP from '../assets/windowsIcons/edit.png';
 import windowsLogoXP from '../assets/windowsIcons/windows.png';
 import dropdownIconXP from '../assets/windowsIcons/dropdown.png';
@@ -108,19 +138,23 @@ const IconMap: Record<string, string> = {
     "alert_warning": alertWarningIcon,
     "qzone": qzoneIcon,
     "journal": journalIcon,
+    "txt": txtIcon,
+    "doc": docIcon,
+    "xls": xlsIcon,
+    "pdf": pdfIcon,
     "recycle_bin_full": recycleBinFullIcon,
     "tieba": tiebaIcon,
     "email": emailIcon,
     "back": backIconXP,
     "forward": forwardIconXP,
     "up": upIconXP,
-    "search": searchIconXP,
+    "search": searchIcon,
     "chevron_down": chevronDownIcon,
     "home": homeIconXP,
     "views": viewsIconXP,
     "favorites": favoritesIconXP,
     "history": historyIconXP,
-    "print": printerIconXP,
+    "print": printerIcon,
     "stop": stopIconXP,
     "refresh": refreshIconXP,
     "folder_open_toolbar": folderOpenIconXP,
@@ -153,8 +187,27 @@ const IconMap: Record<string, string> = {
     "controlpanel": controlPanelIcon,
     "cmd": appWindowIcon,
     "volume": soundIcon,
-    "help": appWindowIcon,
-    "run": appWindowIcon
+    "help": helpIcon,
+    "run": runIcon,
+    "alert": alertIcon,
+    "security_center": securityCenterIcon,
+    "network_connections": networkConnectionsIcon,
+    "wireless_network": wirelessNetworkIcon,
+    "volume_status": volumeIcon,
+    "mute": muteIcon,
+    "cd_rom": cdRomIcon,
+    "delete_xp": deleteXPIcon,
+    "add": addIcon,
+    "stop_xp": stopXPIcon,
+    "checklist": checklistIcon,
+    "dialog_warning": dialogWarningIcon,
+    "dialog_error": dialogErrorIcon,
+    "dialog_info": dialogInfoIcon,
+    "media_play": mediaPlayIcon,
+    "media_pause": mediaPauseIcon,
+    "media_stop": mediaStopIcon,
+    "media_previous": mediaPreviousIcon,
+    "media_next": mediaNextIcon
 };
 
 interface XPIconProps {
