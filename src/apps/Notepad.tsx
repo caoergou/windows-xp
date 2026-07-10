@@ -1173,7 +1173,7 @@ const Notepad = ({
   const renderFindDialog = () => {
     if (dialogMode !== 'find') return null;
     return createPortal(
-      <DialogOverlay onMouseDown={e => e.stopPropagation()}>
+      <DialogOverlay className="windows-xp-portal" onMouseDown={e => e.stopPropagation()}>
         <DialogWindow>
           <DialogTitleBar>
             <span>{t('notepad.find.title')}</span>
@@ -1218,7 +1218,7 @@ const Notepad = ({
   const renderReplaceDialog = () => {
     if (dialogMode !== 'replace') return null;
     return createPortal(
-      <DialogOverlay onMouseDown={e => e.stopPropagation()}>
+      <DialogOverlay className="windows-xp-portal" onMouseDown={e => e.stopPropagation()}>
         <DialogWindow>
           <DialogTitleBar>
             <span>{t('notepad.replace.title')}</span>

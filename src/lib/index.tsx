@@ -25,6 +25,14 @@ export interface WindowsXPProps {
   autoLogin?: boolean;
   /** Namespace prefix for localStorage / IndexedDB keys (default: `'xp_'`). */
   storagePrefix?: string;
+  /**
+   * Integration mode. `'fullscreen'` (default) keeps the classic kiosk
+   * behavior. `'embedded'` makes the component a well-behaved guest inside a
+   * host application: the right-click block, devtools block, global shortcuts
+   * (Alt+F4 / Alt+Tab / BSOD) and the idle screensaver are all disabled by
+   * default. Individual `disable*` props still override these defaults.
+   */
+  mode?: 'fullscreen' | 'embedded';
   /** Disable the global right-click context menu block. */
   disableContextMenuBlock?: boolean;
   /** Disable blocking of F12 / Ctrl+Shift+I/J/C / Ctrl+U. */
@@ -60,11 +68,13 @@ export const WindowsXP: React.FC<WindowsXPProps> = ({
   skipBoot = false,
   autoLogin = false,
   storagePrefix,
+  mode = 'fullscreen',
   disableContextMenuBlock,
   disableDevToolsBlock,
   disableGlobalShortcuts,
   disableScreenSaver,
 }) => {
+  const embedded = mode === 'embedded';
   return (
     <AppProviders
       username={username}
@@ -76,10 +86,10 @@ export const WindowsXP: React.FC<WindowsXPProps> = ({
       skipBoot={skipBoot}
       autoLogin={autoLogin}
       storagePrefix={storagePrefix}
-      disableContextMenuBlock={disableContextMenuBlock}
-      disableDevToolsBlock={disableDevToolsBlock}
-      disableGlobalShortcuts={disableGlobalShortcuts}
-      disableScreenSaver={disableScreenSaver}
+      disableContextMenuBlock={disableContextMenuBlock ?? embedded}
+      disableDevToolsBlock={disableDevToolsBlock ?? embedded}
+      disableGlobalShortcuts={disableGlobalShortcuts ?? embedded}
+      disableScreenSaver={disableScreenSaver ?? embedded}
     />
   );
 };

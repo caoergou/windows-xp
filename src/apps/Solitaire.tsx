@@ -524,7 +524,7 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
 
       {drag &&
         createPortal(
-          <DragOverlay $x={drag.x} $y={drag.y} $bouncing={drag.bouncing}>
+          <DragOverlay $x={drag.x} $y={drag.y} $bouncing={drag.bouncing} className="windows-xp-portal">
             {drag.cards.map((card, index) => (
               <DragStackCard key={card.id} $offset={index * TABLEAU_OFFSET} $suit={card.suit}>
                 <CardRank>{RANK_LABELS[card.rank]}</CardRank>

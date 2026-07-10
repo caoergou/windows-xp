@@ -34,6 +34,7 @@ The `WindowsXP` component accepts the following props:
 | `skipBoot` | boolean | `false` | Skip boot screen on first load |
 | `autoLogin` | boolean | `false` | Automatically login without showing login screen |
 | `storagePrefix` | string | `'xp_'` | Namespace prefix for localStorage / IndexedDB |
+| `mode` | `'fullscreen'` \| `'embedded'` | `'fullscreen'` | `'embedded'` disables all host-page hijacking (right-click/devtools blocks, global shortcuts, screensaver) by default |
 | `disableContextMenuBlock` | boolean | `false` | Disable the global right-click menu block |
 | `disableDevToolsBlock` | boolean | `false` | Disable blocking of F12 / Ctrl+Shift+I/J/C |
 | `disableGlobalShortcuts` | boolean | `false` | Disable Alt+F4 / Alt+Tab / BSOD easter egg |
@@ -246,7 +247,7 @@ The component comes with default Windows XP styling via `xp.css`. You can overri
 }
 ```
 
-When embedding in an existing app, import the scoped stylesheet instead of the full one to avoid global `body`/`html` resets:
+The stylesheet is fully scoped: every xp.css rule is rewritten at build time under `:where(.windows-xp-root, .windows-xp-portal)`, so importing it cannot restyle your host page's `body`, buttons or form controls:
 
 ```jsx
 import '@caoergou/windows-xp/style.css';        // full demo experience
@@ -375,16 +376,24 @@ function MyCustomComponent() {
 
 ## Embedding in a host app
 
-When `<WindowsXP />` is embedded inside an existing application you usually want to disable the global event interceptors and use a unique storage namespace:
+When `<WindowsXP />` is embedded inside an existing application, use `mode="embedded"` — it disables all global event interceptors (right-click block, devtools block, Alt+F4/Alt+Tab shortcuts, idle screensaver) in one switch. Pair it with a unique storage namespace:
 
 ```jsx
-<WindowsXP
-  storagePrefix="myapp_xp_"
-  disableContextMenuBlock
-  disableDevToolsBlock
-  disableGlobalShortcuts
-  disableScreenSaver
-/>
+<WindowsXP mode="embedded" storagePrefix="myapp_xp_" />
+```
+
+Individual `disable*` props still work and override the mode defaults, e.g. `mode="embedded" disableScreenSaver={false}` keeps the screensaver while staying otherwise non-intrusive.
+
+The stylesheet never leaks: all XP styles are scoped under `.windows-xp-root` (and `.windows-xp-portal` for context menus/dialogs), so your host app's controls keep their own look.
+
+Note on storage: `storagePrefix` is currently process-wide — two instances with different prefixes on one page will share the most recently mounted prefix (a console warning is emitted). Full per-instance isolation is tracked in issue #73.
+
+Note on i18n: the library uses its own isolated i18next instance and never initializes the global singleton, so it cannot conflict with your app's i18next setup. If you render standalone components from `@caoergou/windows-xp/components` without `<WindowsXP/>`/`<AppProviders/>`, wrap them in an `I18nextProvider` bound to the exported instance:
+
+```jsx
+import { I18nextProvider } from 'react-i18next';
+import { AppProviders } from '@caoergou/windows-xp';
+// AppProviders already includes the provider; for bare components use your own i18next instance.
 ```
 
 ## License

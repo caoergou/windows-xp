@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import libAssetsPlugin from '@laynezh/vite-plugin-lib-assets';
+import { xpCssScopePlugin } from './vite.xp-css-scope';
 import path from 'path';
 
 const peerDeps = [
@@ -32,6 +33,11 @@ export default defineConfig({
     }),
   ],
   publicDir: false,
+  css: {
+    postcss: {
+      plugins: [xpCssScopePlugin()],
+    },
+  },
   build: {
     assetsInlineLimit: 0,
     lib: {

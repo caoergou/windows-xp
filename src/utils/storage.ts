@@ -9,10 +9,27 @@
 import { FileNode } from '../types';
 
 let storagePrefix = 'xp_';
+let prefixAssigned = false;
+let warnedPrefixConflict = false;
 
-/** Set the namespace used for all localStorage / IndexedDB keys. */
+/**
+ * Set the namespace used for all localStorage / IndexedDB keys.
+ *
+ * Limitation: the prefix is currently process-wide. Two <WindowsXP/> instances
+ * with different prefixes on the same page will share the most recently
+ * mounted prefix; full per-instance isolation is tracked in issue #73.
+ */
 export const setStoragePrefix = (prefix: string): void => {
-  storagePrefix = prefix.endsWith('_') ? prefix : `${prefix}_`;
+  const normalized = prefix.endsWith('_') ? prefix : `${prefix}_`;
+  if (prefixAssigned && normalized !== storagePrefix && !warnedPrefixConflict) {
+    warnedPrefixConflict = true;
+    console.warn(
+      '[windows-xp] Multiple WindowsXP instances with different storagePrefix values detected. ' +
+        'Storage is currently process-wide, so instances will share the most recently mounted prefix.'
+    );
+  }
+  storagePrefix = normalized;
+  prefixAssigned = true;
 };
 
 /** @internal */

@@ -25,13 +25,11 @@ const i18nConfig = {
 const xpI18n = i18n.createInstance();
 xpI18n.use(initReactI18next).init(i18nConfig);
 
-// Initialize the global i18n singleton as a fallback for standalone components
-// or existing tests that render components without an I18nextProvider. This
-// keeps the library usable out-of-the-box while the provider path remains the
-// recommended integration.
-if (!i18n.isInitialized) {
-  i18n.use(initReactI18next).init(i18nConfig);
-}
+// NOTE: we intentionally do NOT initialize the global i18next singleton here.
+// Doing so at module-load time would pre-configure the host application's
+// i18next instance before it gets a chance to call init() itself (issue #73).
+// Standalone component usage (without <WindowsXP/> or <AppProviders/>) must
+// wrap components in an I18nextProvider bound to this instance - see USAGE.md.
 
 export default xpI18n;
-export { NAMESPACE };
+export { NAMESPACE, i18nConfig };
