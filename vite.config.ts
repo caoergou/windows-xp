@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     port: 5173,
     watch: {
-      ignored: ['**/xp-research/**'],
+      ignored: ['**/xp-research/**', '**/cn-net-research/**'],
     },
   },
 });
