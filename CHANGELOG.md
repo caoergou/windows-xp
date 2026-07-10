@@ -4,6 +4,36 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (test coverage, #83)
+
+- Core-path test suites (unit tests 174 -> 245, +5 tracked todos), the
+  safety net for the #80/#81 refactors:
+  - `test/WindowFactory.test.tsx`: every `restoreComponent` branch (registry
+    exact match, properties-*, initialPath/url/html/content/src heuristics,
+    legacy aliases, unknown-app fallback) plus the WindowManager
+    localStorage round-trip (serialization strips functions, restore
+    rebuilds windows, unrestorable entries are pruned).
+  - `test/persistence.test.ts` (fake-indexeddb): file-content IndexedDB
+    round-trips, metadata/recycle-bin localStorage round-trips,
+    corrupt-JSON handling, storagePrefix tenant isolation, persist->load
+    merge.
+  - `test/recycleBinClipboard.test.tsx`: soft-delete/restore/empty recycle
+    bin, copy/cut/paste incl. multi-select and cross-directory.
+  - `test/bootAndShortcuts.test.tsx`: boot state machine (first boot,
+    power_state shutdown/restart/logout, logged-in resume via screensaver),
+    Alt+F4 / Alt+Tab / BSOD shortcuts, screensaver idle/dismiss/disable,
+    fullscreen-vs-embedded interception behavior.
+  - `e2e/persistence.spec.ts`: "the world survives a refresh" - restored
+    window and its position after a real reload; known #81 gaps marked as
+    `test.fixme`.
+- Known persistence bugs are pinned as `it.todo('#81: ...')` placeholders;
+  four newly confirmed issues were reported to #81 (files in user folders
+  relocate to root on reload; pasteFile clears the clipboard even when the
+  destination is missing; element-baked props never persist; dead legacy
+  branches in WindowFactory).
+- CONTRIBUTING.md: persistence/window-restore changes now MUST come with
+  tests; UI changes must update the matching FIDELITY.md entry.
+
 ### Fixed (docs/API alignment, #75)
 
 - README(+zh) component example imported a non-existent `Button`; now uses
