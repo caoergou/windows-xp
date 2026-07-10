@@ -16,6 +16,16 @@ export { default as StartMenu } from '../components/Taskbar/StartMenu';
 export { default as TaskList } from '../components/Taskbar/TaskList';
 export { default as SystemTray } from '../components/Taskbar/SystemTray';
 export { default as XPIcon } from '../components/XPIcon';
+export { XPButton } from '../components/XPButton';
+export {
+  XPMenuBar,
+  XPMenuBarItem,
+  XPMenuSlot,
+  XPMenuDropdown,
+  XPMenuDropdownItem,
+  XPMenuSeparator,
+  XPMenuMark,
+} from '../components/XPMenuBar';
 export { default as XPAlert } from '../components/XPAlert';
 export { default as XPConfirm } from '../components/XPConfirm';
 export { default as XPInput } from '../components/XPInput';

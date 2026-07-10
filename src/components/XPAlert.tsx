@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { XPButton } from './XPButton';
+import { CloseBtn } from './Window/WindowControls';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import Draggable from 'react-draggable';
@@ -43,32 +45,6 @@ const TitleBar = styled.div`
   border-radius: 2px 2px 0 0;
 `;
 
-const CloseButton = styled.button`
-  width: 21px;
-  height: 21px;
-  background: linear-gradient(to bottom, #E79176, #DA5E42);
-  border: 1px solid white;
-  border-radius: 3px;
-  color: white;
-  font-weight: bold;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-
-  &:hover {
-    filter: brightness(1.1);
-  }
-
-  &:active {
-    filter: brightness(0.9);
-    box-shadow: inset 1px 1px 1px rgba(0,0,0,0.5);
-  }
-`;
-
 const ContentArea = styled.div`
   padding: 20px;
   display: flex;
@@ -87,33 +63,6 @@ const ButtonArea = styled.div`
   padding: 10px;
   display: flex;
   justify-content: center;
-`;
-
-const OkButton = styled.button`
-  min-width: 75px;
-  height: 23px;
-  background: #ECE9D8;
-  border: 1px solid #003C74;
-  border-radius: 2px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  font-size: 12px;
-  cursor: pointer;
-  box-shadow: inset 1px 1px 0px white, 1px 1px 2px rgba(0,0,0,0.3);
-
-  &:hover {
-    box-shadow: inset 1px 1px 0px #F5F2E4, 1px 1px 2px rgba(0,0,0,0.3);
-  }
-
-  &:active {
-    box-shadow: inset 1px 1px 1px rgba(0,0,0,0.2);
-    padding-top: 1px;
-    padding-left: 1px;
-  }
-
-  &:focus {
-     outline: 1px dotted black;
-     outline-offset: -4px;
-  }
 `;
 
 interface XPAlertProps {
@@ -144,14 +93,14 @@ const XPAlert = ({ title, message, type = 'info', onClose }: XPAlertProps) => {
                 <AlertWindow ref={nodeRef} onMouseDown={(e) => e.stopPropagation()}>
                     <TitleBar className="title-bar">
                         <span>{title}</span>
-                        <CloseButton onClick={onClose}>×</CloseButton>
+                        <CloseBtn onClick={onClose} aria-label="Close" />
                     </TitleBar>
                     <ContentArea>
                         <XPIcon name={iconName} size={32} />
                         <Message>{message}</Message>
                     </ContentArea>
                     <ButtonArea>
-                        <OkButton ref={okButtonRef} onClick={onClose}>{t('common.ok')}</OkButton>
+                        <XPButton ref={okButtonRef} onClick={onClose}>{t('common.ok')}</XPButton>
                     </ButtonArea>
                 </AlertWindow>
             </Draggable>

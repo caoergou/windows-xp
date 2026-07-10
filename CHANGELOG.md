@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed (micro-component visual consistency, #99)
+
+- New shared `XPButton` (exported from `/components`): value-for-value
+  identical to xp.css's Luna button (white gradient face, `#003C74` border,
+  3px radius, orange hover glow, pressed gradient). XPAlert, XPConfirm,
+  PasswordDialog and XPInput each duplicated a slightly different flat
+  `#ECE9D8` button (one even square-cornered) - all migrated.
+- Calculator keys rebuilt on the same Luna values - they were the
+  Windows 2000 look (`#d4d0c8` face, two-tone 1px border, visibly flat).
+- Dialog close buttons were a hand-drawn orange gradient bar; all four
+  dialogs now reuse the real Luna close-button artwork (`CloseBtn`).
+- `XPMenuBar` primitives exported from `/components` alongside `XPButton`.
+- All fixes verified visually via Playwright screenshots against the
+  running app; FIDELITY.md §K updated.
+
 ### Changed (menu-bar consistency, #99)
 
 - Added shared `XPMenuBar` primitives (`src/components/XPMenuBar.tsx`) and

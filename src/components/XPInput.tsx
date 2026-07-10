@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { XPButton } from './XPButton';
+import { CloseBtn } from './Window/WindowControls';
 import { useTranslation } from 'react-i18next';
 
 const Overlay = styled.div`
@@ -43,35 +45,6 @@ const TitleBar = styled.div`
   box-sizing: border-box;
 `;
 
-const CloseButton = styled.button`
-  width: 21px;
-  height: 21px;
-  background:
-    linear-gradient(135deg, transparent 0 36%, #fff 36% 47%, transparent 47% 53%, #fff 53% 64%, transparent 64%),
-    linear-gradient(45deg, transparent 0 36%, #fff 36% 47%, transparent 47% 53%, #fff 53% 64%, transparent 64%),
-    linear-gradient(to bottom, #ffb49d 0%, #ef6f45 45%, #d83b17 100%);
-  border: 1px solid #fff;
-  border-radius: 3px;
-  color: white;
-  font-size: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  box-shadow: inset -1px -1px 0 #9b1b05;
-
-  &:hover {
-    filter: brightness(1.1);
-  }
-
-  &:active {
-    filter: brightness(0.9);
-    box-shadow: inset 1px 1px 1px rgba(0,0,0,0.5);
-  }
-`;
-
 const ContentArea = styled.div`
   padding: 18px 14px 7px 14px;
   display: flex;
@@ -111,33 +84,6 @@ const ButtonArea = styled.div`
   gap: 8px;
 `;
 
-const XPButton = styled.button`
-  min-width: 75px;
-  height: 23px;
-  background: #ECE9D8;
-  border: 1px solid #003C74;
-  border-radius: 0;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  font-size: 12px;
-  cursor: pointer;
-  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
-
-  &:hover {
-    box-shadow: inset 1px 1px 0px #F5F2E4, 1px 1px 2px rgba(0,0,0,0.3);
-  }
-
-  &:active {
-    box-shadow: inset 1px 1px 1px rgba(0,0,0,0.2);
-    padding-top: 1px;
-    padding-left: 1px;
-  }
-
-  &:focus {
-     outline: 1px dotted black;
-     outline-offset: -4px;
-  }
-`;
-
 interface XPInputProps {
   title: string;
   message: string;
@@ -171,7 +117,7 @@ const XPInput: React.FC<XPInputProps> = ({ title, message, defaultValue = '', on
             <AlertWindow>
                 <TitleBar>
                     <span>{title}</span>
-                    <CloseButton onClick={onCancel}>×</CloseButton>
+                    <CloseBtn onClick={onCancel} aria-label="Close" />
                 </TitleBar>
                 <ContentArea>
                     <MessageRow>

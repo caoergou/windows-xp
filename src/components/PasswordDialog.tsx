@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { XPButton } from './XPButton';
+import { CloseBtn } from './Window/WindowControls';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
@@ -40,26 +42,6 @@ const TitleBar = styled.div`
   font-size: 13px;
   text-shadow: 1px 1px 1px black;
   border-radius: 2px 2px 0 0;
-`;
-
-const CloseButton = styled.button`
-  width: 21px;
-  height: 21px;
-  background: linear-gradient(to bottom, #E79176, #DA5E42);
-  border: 1px solid white;
-  border-radius: 3px;
-  color: white;
-  font-weight: bold;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-
-  &:hover { filter: brightness(1.1); }
-  &:active { filter: brightness(0.9); box-shadow: inset 1px 1px 1px rgba(0,0,0,0.5); }
 `;
 
 const ContentArea = styled.div`
@@ -115,22 +97,6 @@ const ButtonArea = styled.div`
   gap: 8px;
 `;
 
-const Button = styled.button`
-  min-width: 75px;
-  height: 23px;
-  background: #ECE9D8;
-  border: 1px solid #003C74;
-  border-radius: 2px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  font-size: 12px;
-  cursor: pointer;
-  box-shadow: inset 1px 1px 0px white, 1px 1px 2px rgba(0,0,0,0.2);
-
-  &:hover { background: #f5f2e4; }
-  &:active { box-shadow: inset 1px 1px 1px rgba(0,0,0,0.2); }
-  &:focus { outline: 1px dotted black; outline-offset: -4px; }
-`;
-
 interface PasswordDialogProps {
   title?: string;
   message?: string;
@@ -183,7 +149,7 @@ const PasswordDialog = ({
       <DialogWindow>
         <TitleBar>
           <span>{dialogTitle}</span>
-          <CloseButton onClick={onCancel}>×</CloseButton>
+          <CloseBtn onClick={onCancel} aria-label="Close" />
         </TitleBar>
         <ContentArea>
           <MessageRow>
@@ -206,8 +172,8 @@ const PasswordDialog = ({
           </div>
         </ContentArea>
         <ButtonArea>
-          <Button onClick={onCancel}>{t('common.cancel')}</Button>
-          <Button onClick={handleSubmit}>{t('common.ok')}</Button>
+          <XPButton onClick={onCancel}>{t('common.cancel')}</XPButton>
+          <XPButton onClick={handleSubmit}>{t('common.ok')}</XPButton>
         </ButtonArea>
       </DialogWindow>
     </Overlay>
