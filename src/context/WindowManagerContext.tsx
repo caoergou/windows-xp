@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { restoreComponent } from '../utils/WindowFactory';
-import { WindowState, WindowProps } from '../types';
+import { APP_REGISTRY } from '../registry/apps';
+import { WindowState, WindowProps, AppRegistryEntry } from '../types';
 import { WINDOW_DEFAULTS } from '../constants';
 import { safeLocalStorage, getStorageKey, canUseDOM } from '../utils/storage';
 
@@ -32,15 +33,16 @@ export const useWindowManager = (): WindowManagerContextType => {
 
 export const WindowManagerProvider: React.FC<{
   children: React.ReactNode;
+  registry?: Record<string, AppRegistryEntry>;
   value?: Partial<WindowManagerContextType>;
-}> = ({ children, value }) => {
+}> = ({ children, registry = APP_REGISTRY, value }) => {
   const [windows, setWindows] = useState<WindowState[]>(() => {
     try {
       const saved = safeLocalStorage.getItem(getStorageKey('open_windows'));
       if (saved) {
         const parsed: WindowState[] = JSON.parse(saved);
         const restored = parsed.map(w => {
-          const component = restoreComponent(w.appId, w.componentProps || w.props);
+          const component = restoreComponent(w.appId, w.componentProps || w.props, registry);
           return component ? { ...w, component } : null;
         }).filter(Boolean);
         return restored as WindowState[];

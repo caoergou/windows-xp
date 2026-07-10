@@ -1,82 +1,17 @@
-@font-face {
-  font-family: "Tahoma";
-  src: url("./assets/fonts/Tahoma.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
+@import './scoped.css';
 
-@font-face {
-  font-family: "Tahoma";
-  src: url("./assets/fonts/Tahoma-Bold.woff") format("woff");
-  font-weight: bold;
-  font-style: normal;
-}
-
-/*
- * XP.css (already imported in main.tsx/lib/index.tsx) provides
- * "Pixelated MS Sans Serif" and "Perfect DOS VGA 437 Win" webfonts.
- * We reference those families here and keep system fallbacks for CJK glyphs.
- */
-body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  /* XP's default UI font was Tahoma (or MS Sans Serif in earlier builds).
-     SimSun is the authentic XP Chinese fallback; YaHei is kept only as a
-     last-resort modern fallback. */
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  user-select: none;
-}
-
-/*
- * XP.css applies a blue inset glow on button:focus, which persists after mouse
- * clicks and feels like a "selected" state. Real Windows XP only shows:
- * - momentary sunken border while the mouse is held (:active)
- * - dotted inner outline for keyboard focus, not after mouse click
- */
-button:focus:not(:focus-visible) {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-button:focus-visible {
-  outline: 1px dotted #000;
-  outline-offset: -4px;
-  box-shadow: none !important;
-}
-
-html, body, #root {
+/* Demo-specific global rules: make the host page fill the viewport.
+ * When embedding <WindowsXP /> into an existing app, import scoped.css
+ * instead of index.css to avoid these global resets. */
+html,
+body,
+#root {
   width: 100vw;
   height: 100vh;
-  min-width: 1024px;
+  margin: 0;
+  padding: 0;
 }
 
-/* Windows XP authentic cursor set from src/assets/cursors/xp/ */
-html, body {
-  cursor: url('./assets/cursors/xp/arrow_r.cur'), default;
-}
-
-a, button, [role="button"], .xp-clickable {
-  cursor: url('./assets/cursors/xp/hand.png') 7 3, pointer;
-}
-
-input, textarea, [contenteditable] {
-  cursor: url('./assets/cursors/xp/beam_r.cur'), text;
-}
-
-.xp-help { cursor: url('./assets/cursors/xp/help_r.cur'), help; }
-.xp-busy { cursor: url('./assets/cursors/xp/busy_r.cur'), wait; }
-.xp-progress { cursor: url('./assets/cursors/xp/wait_r.cur'), progress; }
-.xp-move { cursor: url('./assets/cursors/xp/move_r.cur'), move; }
-.xp-not-allowed { cursor: url('./assets/cursors/xp/no_r.cur'), not-allowed; }
-.xp-crosshair { cursor: url('./assets/cursors/xp/cross_r.cur'), crosshair; }
-
-.resize-nesw { cursor: url('./assets/cursors/xp/size1_r.cur'), nesw-resize; }
-.resize-nwse { cursor: url('./assets/cursors/xp/size2_r.cur'), nwse-resize; }
-.resize-ew   { cursor: url('./assets/cursors/xp/size3_r.cur'), ew-resize; }
-.resize-ns   { cursor: url('./assets/cursors/xp/size4_r.cur'), ns-resize; }
-
-/* react-resizable handles */
-.react-resizable-handle-se {
-  cursor: url('./assets/cursors/xp/size2_r.cur'), se-resize;
+body {
+  overflow: hidden;
 }

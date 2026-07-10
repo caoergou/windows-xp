@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useWindowManager } from '../../context/WindowManagerContext';
+import { useCulture } from '../../context/CultureContext';
 import { useTranslation } from 'react-i18next';
 import IEToolbar from '../../components/Explorer/IEToolbar';
 import IEAddressBar from '../../components/Explorer/IEAddressBar';
 import HelpAndSupport from '../HelpAndSupport';
 import { BROWSER_BLACKLIST, defaultPlugin } from '../BrowserPlugins';
 import { InternetExplorerProps } from './types';
-import { getBrowserCultureProfile } from '../../data/culture';
 import { useBrowserHistory } from './hooks/useBrowserHistory';
 import { useBrowsingHistory } from './hooks/useBrowsingHistory';
 import { useFavorites } from './hooks/useFavorites';
@@ -23,8 +23,9 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
   plugin = defaultPlugin,
 }) => {
   const { openWindow } = useWindowManager();
-  const { t, i18n } = useTranslation();
-  const homepage = getBrowserCultureProfile(i18n.language).homepage;
+  const { t } = useTranslation();
+  const { culture } = useCulture();
+  const homepage = culture.browser?.homepage ?? 'about:blank';
 
   const openNewIE = useCallback(
     (newUrl: string) => {

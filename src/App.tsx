@@ -144,6 +144,7 @@ export interface AppProps {
   skipBoot?: boolean;
   disableContextMenuBlock?: boolean;
   disableDevToolsBlock?: boolean;
+  disableGlobalShortcuts?: boolean;
   disableScreenSaver?: boolean;
 }
 
@@ -152,6 +153,7 @@ function App({
   skipBoot,
   disableContextMenuBlock,
   disableDevToolsBlock,
+  disableGlobalShortcuts,
   disableScreenSaver,
 }: AppProps = {}) {
   const { t } = useTranslation();
@@ -205,12 +207,12 @@ function App({
         }
       }
       // Alt+F4: close focused window
-      if (e.altKey && e.key === 'F4' && activeWindowId) {
+      if (!disableGlobalShortcuts && e.altKey && e.key === 'F4' && activeWindowId) {
         e.preventDefault();
         closeWindow(activeWindowId);
       }
       // Alt+Tab: show/cycle switcher
-      if (e.altKey && e.key === 'Tab' && windows.length > 0) {
+      if (!disableGlobalShortcuts && e.altKey && e.key === 'Tab' && windows.length > 0) {
         e.preventDefault();
         if (!altTabVisible) {
           setAltTabVisible(true);
@@ -221,7 +223,7 @@ function App({
         }
       }
       // BSOD easter egg: Ctrl+Shift+Alt+B
-      if (e.ctrlKey && e.shiftKey && e.altKey && e.key.toLowerCase() === 'b') {
+      if (!disableGlobalShortcuts && e.ctrlKey && e.shiftKey && e.altKey && e.key.toLowerCase() === 'b') {
         e.preventDefault();
         setBsodVisible(true);
       }
@@ -249,6 +251,7 @@ function App({
     closeWindow,
     focusWindow,
     disableDevToolsBlock,
+    disableGlobalShortcuts,
   ]);
 
   const dismissScreenSaver = useCallback(() => {

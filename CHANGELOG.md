@@ -4,23 +4,42 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-10
+
 ### Added
 
+- Package is now a consumable React library with multiple subpath exports:
+  - `@caoergou/windows-xp` – main `WindowsXP` component.
+  - `@caoergou/windows-xp/components` – reusable UI components.
+  - `@caoergou/windows-xp/apps` – built-in applications.
+  - `@caoergou/windows-xp/hooks` – system hooks (`useWindowManager`, `useFileSystem`, `useApp`, `useCulture`, `useAppRegistry`).
+  - `@caoergou/windows-xp/theme` – theme tokens and scrollbar styles.
+  - `@caoergou/windows-xp/registry` – app registry helpers.
+- Pluggable culture packages via `CultureProvider`/`useCulture` and the `cultures` prop on `WindowsXP`.
+- Pluggable app registry via `AppRegistryProvider`/`useAppRegistry` and the `apps` prop on `WindowsXP`.
+- Scoped global CSS via `.windows-xp-root` to avoid leaking XP styles into host apps.
+- New `disableGlobalShortcuts` prop to disable Alt+F4 / Alt+Tab / BSOD easter egg handlers.
+- `WindowIdContext` so app components no longer rely on `cloneElement` injecting `windowId`.
 - Cultural packs: desktop shortcuts and sticky notes are now localized per language.
 - Added English locale e2e smoke tests for Western cultural icons and Run Dialog app launching.
-- CI quality gates: lint, typecheck, and unit tests now run before build/deploy and before npm publish.
+- CI quality gates: lint, typecheck, and a smoke test run before GitHub Pages deploy; full unit tests run before npm publish.
 - Added `CONTRIBUTING.md` and this changelog.
 - BSOD easter egg triggered by Ctrl+Shift+Alt+B.
 - Sticky note password hint for both locales.
 
 ### Changed
 
+- `src/i18n/index.ts` now creates an isolated i18n instance for `AppProviders` while still initializing the global singleton as a fallback for standalone components.
+- `useApp` now uses refs internally so its returned API object is stable and safe to use in `useEffect` dependency arrays.
+- `UserSessionContext` action callbacks are now memoized with `useCallback`.
+- `useCulture` and `useAppRegistry` return sensible defaults when used outside their providers instead of throwing.
 - Replaced deprecated Prettier option `jsxBracketSameLine` with `bracketSameLine`.
 - Expanded Prettier format globs to cover `e2e/`, `test/`, and root config files.
 - Run Dialog now resolves localized app titles from registry `nameKey` entries.
 
 ### Fixed
 
+- Fixed unit-test hang caused by an unstable `useApp` API object interacting with `WindowManagerContext` state updates.
 - Removed hard-coded Chinese strings from IE toolbar, IE address bar, and login screen; they now use i18n keys.
 - Fixed Run Dialog so `calc` launches Calculator with the correct localized title.
 

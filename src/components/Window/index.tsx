@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import { useWindowManager } from '../../context/WindowManagerContext';
+import { WindowIdProvider } from '../../context/WindowIdContext';
 import { sounds } from '../../utils/soundManager';
 import { WindowState } from '../../types';
 import { WINDOW_DEFAULTS } from '../../constants';
@@ -72,12 +73,6 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
   const minHeight = windowProps?.minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT;
   const isFocused = id === activeWindowId;
 
-  // Inject windowId into the app component so it can access useApp(windowId)
-  const injectedComponent = React.cloneElement(
-    component as React.ReactElement<{ windowId?: string }>,
-    { windowId: id }
-  );
-
   const chrome = (
     <WindowChrome
       windowState={windowState}
@@ -99,7 +94,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
     >
       <ErrorBoundary windowId={id}>
         <Suspense fallback={<div style={{ padding: 20 }}>Loading...</div>}>
-          {injectedComponent}
+          <WindowIdProvider windowId={id}>{component}</WindowIdProvider>
         </Suspense>
       </ErrorBoundary>
     </WindowChrome>

@@ -1,8 +1,4 @@
-import { normalizeCultureLang } from './types';
-
-export interface BrowserCultureProfile {
-  homepage: string;
-}
+import { normalizeCultureLang, BrowserCultureProfile } from './types';
 
 const BROWSER_PROFILES: Record<string, BrowserCultureProfile> = {
   zh: { homepage: 'http://www.hao123.com' },

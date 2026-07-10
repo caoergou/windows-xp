@@ -163,7 +163,7 @@ export interface AppRegistryEntry<TProps = unknown> {
   nameKey?: string;
   icon: string;
   /** Omitted for applications shared by every culture profile. */
-  locales?: Array<'en' | 'zh'>;
+  locales?: string[];
   window?: {
     width?: number;
     height?: number;

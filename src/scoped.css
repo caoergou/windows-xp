@@ -1,0 +1,82 @@
+@font-face {
+  font-family: "Tahoma";
+  src: url("./assets/fonts/Tahoma.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Tahoma";
+  src: url("./assets/fonts/Tahoma-Bold.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+}
+
+/*
+ * XP.css (already imported in main.tsx/lib/index.tsx) provides
+ * "Pixelated MS Sans Serif" and "Perfect DOS VGA 437 Win" webfonts.
+ * We reference those families here and keep system fallbacks for CJK glyphs.
+ */
+.windows-xp-root {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  /* XP's default UI font was Tahoma (or MS Sans Serif in earlier builds).
+     SimSun is the authentic XP Chinese fallback; YaHei is kept only as a
+     last-resort modern fallback. */
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  user-select: none;
+  width: 100%;
+  height: 100%;
+  min-width: 1024px;
+
+  /* Windows XP authentic cursor set from src/assets/cursors/xp/ */
+  cursor: url('./assets/cursors/xp/arrow_r.cur'), default;
+}
+
+/*
+ * XP.css applies a blue inset glow on button:focus, which persists after mouse
+ * clicks and feels like a "selected" state. Real Windows XP only shows:
+ * - momentary sunken border while the mouse is held (:active)
+ * - dotted inner outline for keyboard focus, not after mouse click
+ */
+.windows-xp-root button:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.windows-xp-root button:focus-visible {
+  outline: 1px dotted #000;
+  outline-offset: -4px;
+  box-shadow: none !important;
+}
+
+.windows-xp-root a,
+.windows-xp-root button,
+.windows-xp-root [role="button"],
+.windows-xp-root .xp-clickable {
+  cursor: url('./assets/cursors/xp/hand.png') 7 3, pointer;
+}
+
+.windows-xp-root input,
+.windows-xp-root textarea,
+.windows-xp-root [contenteditable] {
+  cursor: url('./assets/cursors/xp/beam_r.cur'), text;
+}
+
+.windows-xp-root .xp-help { cursor: url('./assets/cursors/xp/help_r.cur'), help; }
+.windows-xp-root .xp-busy { cursor: url('./assets/cursors/xp/busy_r.cur'), wait; }
+.windows-xp-root .xp-progress { cursor: url('./assets/cursors/xp/wait_r.cur'), progress; }
+.windows-xp-root .xp-move { cursor: url('./assets/cursors/xp/move_r.cur'), move; }
+.windows-xp-root .xp-not-allowed { cursor: url('./assets/cursors/xp/no_r.cur'), not-allowed; }
+.windows-xp-root .xp-crosshair { cursor: url('./assets/cursors/xp/cross_r.cur'), crosshair; }
+
+.windows-xp-root .resize-nesw { cursor: url('./assets/cursors/xp/size1_r.cur'), nesw-resize; }
+.windows-xp-root .resize-nwse { cursor: url('./assets/cursors/xp/size2_r.cur'), nwse-resize; }
+.windows-xp-root .resize-ew   { cursor: url('./assets/cursors/xp/size3_r.cur'), ew-resize; }
+.windows-xp-root .resize-ns   { cursor: url('./assets/cursors/xp/size4_r.cur'), ns-resize; }
+
+/* react-resizable handles */
+.windows-xp-root .react-resizable-handle-se {
+  cursor: url('./assets/cursors/xp/size2_r.cur'), se-resize;
+}

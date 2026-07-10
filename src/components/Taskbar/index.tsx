@@ -4,14 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { useWindowManager } from '../../context/WindowManagerContext';
 import { useUserSession } from '../../context/UserSessionContext';
 import { useModal } from '../../context/ModalContext';
+import { useCulture } from '../../context/CultureContext';
 import { APP_REGISTRY, getAppDisplayName } from '../../registry/apps';
 import { sounds } from '../../utils/soundManager';
 import { defaultPlugin } from '../../apps/BrowserPlugins';
-import {
-  getBrowserCultureProfile,
-  getStartMenuProfile,
-  normalizeCultureLang,
-} from '../../data/culture';
 import { getSystemPathTitle } from '../../data/systemPaths';
 import { WindowState } from '../../types';
 import { safeLocalStorage, getStorageKey, canUseDOM } from '../../utils/storage';
@@ -72,8 +68,8 @@ const Taskbar = () => {
     closeWindow,
     setWindowTitle,
   } = useWindowManager();
-  const startMenuProfile = getStartMenuProfile(i18n.language);
-  const cultureKey = normalizeCultureLang(i18n.language);
+  const { culture, cultureKey } = useCulture();
+  const startMenuProfile = culture.startMenu ?? { pinned: [], recent: [] };
   const { logout, user } = useUserSession();
   const { showModal } = useModal();
   const [startOpen, setStartOpen] = useState<boolean>(false);
@@ -216,7 +212,7 @@ const Taskbar = () => {
       const explorer = APP_REGISTRY.Explorer;
 
       if (appName === 'InternetExplorer') {
-        const homepage = getBrowserCultureProfile(i18n.language).homepage;
+        const homepage = culture.browser?.homepage ?? 'about:blank';
         openWindow(
           'InternetExplorer',
           'Internet Explorer',
@@ -313,7 +309,7 @@ const Taskbar = () => {
         menuRef={startMenuRef}
         userName={user.name}
         startMenuProfile={startMenuProfile}
-        language={i18n.language}
+        cultureKey={cultureKey}
         onLaunch={handleLaunch}
         onTurnOff={() => {
           setStartOpen(false);

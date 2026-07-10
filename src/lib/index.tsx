@@ -1,9 +1,10 @@
 import React from 'react';
 import { AppProviders } from '../components/AppProviders';
-import { FileNode } from '../types';
+import { FileNode, AppRegistryEntry } from '../types';
+import { CulturePackage } from '../data/culture';
 import '../i18n';
 import 'xp.css/dist/XP.css';
-import '../index.css';
+import '../scoped.css';
 
 export interface WindowsXPProps {
   /** Default username for the login screen. */
@@ -14,6 +15,10 @@ export interface WindowsXPProps {
   language?: 'en' | 'zh';
   /** Custom file system structure merged on top of the defaults. */
   customFileSystem?: Record<string, FileNode>;
+  /** Custom culture packages that extend or override the built-in en/zh cultures. */
+  cultures?: CulturePackage[];
+  /** Custom applications that extend or override the built-in APP_REGISTRY. */
+  apps?: AppRegistryEntry[];
   /** Skip the boot animation on first load. */
   skipBoot?: boolean;
   /** Automatically log the user in without showing the login screen. */
@@ -24,6 +29,8 @@ export interface WindowsXPProps {
   disableContextMenuBlock?: boolean;
   /** Disable blocking of F12 / Ctrl+Shift+I/J/C / Ctrl+U. */
   disableDevToolsBlock?: boolean;
+  /** Disable global shortcuts like Alt+F4, Alt+Tab and the BSOD easter egg. */
+  disableGlobalShortcuts?: boolean;
   /** Disable the idle screensaver. */
   disableScreenSaver?: boolean;
 }
@@ -48,11 +55,14 @@ export const WindowsXP: React.FC<WindowsXPProps> = ({
   password = 'forthe2000s',
   language = 'en',
   customFileSystem = null,
+  cultures,
+  apps,
   skipBoot = false,
   autoLogin = false,
   storagePrefix,
   disableContextMenuBlock,
   disableDevToolsBlock,
+  disableGlobalShortcuts,
   disableScreenSaver,
 }) => {
   return (
@@ -61,11 +71,14 @@ export const WindowsXP: React.FC<WindowsXPProps> = ({
       password={password}
       language={language}
       customFileSystem={customFileSystem || undefined}
+      cultures={cultures}
+      apps={apps}
       skipBoot={skipBoot}
       autoLogin={autoLogin}
       storagePrefix={storagePrefix}
       disableContextMenuBlock={disableContextMenuBlock}
       disableDevToolsBlock={disableDevToolsBlock}
+      disableGlobalShortcuts={disableGlobalShortcuts}
       disableScreenSaver={disableScreenSaver}
     />
   );
@@ -73,6 +86,8 @@ export const WindowsXP: React.FC<WindowsXPProps> = ({
 
 // Re-export providers for advanced composition.
 export { AppProviders } from '../components/AppProviders';
+export { AppRegistryProvider } from '../context/AppRegistryContext';
+export { CultureProvider } from '../context/CultureContext';
 export { FileSystemProvider } from '../context/FileSystemContext';
 export { WindowManagerProvider } from '../context/WindowManagerContext';
 export { UserSessionProvider } from '../context/UserSessionContext';
@@ -80,6 +95,8 @@ export { ModalProvider } from '../context/ModalContext';
 export { TrayProvider } from '../context/TrayContext';
 
 // Re-export hooks.
+export { useAppRegistry } from '../context/AppRegistryContext';
+export { useCulture } from '../context/CultureContext';
 export { useFileSystem } from '../context/FileSystemContext';
 export { useWindowManager } from '../context/WindowManagerContext';
 export { useUserSession } from '../context/UserSessionContext';
@@ -106,3 +123,4 @@ export type {
   ClipboardItem,
   MenuItem,
 } from '../types';
+export type { CulturePackage } from '../data/culture';
