@@ -1,6 +1,7 @@
 // @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../hooks/useApp';
 import { useFileSystem } from '../context/FileSystemContext';
 import { isContainerNode, isFileContentNode } from '../types';
@@ -13,7 +14,7 @@ const Wrap = styled.div`
   flex-direction: column;
   padding: 6px;
   box-sizing: border-box;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 12px;
   user-select: none;
 
@@ -32,7 +33,7 @@ const MenuBar = styled.div`
   align-items: center;
   padding: 0 2px;
   font-size: 11px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   flex-shrink: 0;
   margin: -6px -6px 6px -6px;
 `;
@@ -44,11 +45,11 @@ const MenuItemWrapper = styled.div`
 const MenuItem = styled.div<{ $active?: boolean }>`
   padding: 2px 8px;
   cursor: pointer;
-  background: ${p => p.$active ? '#316AC5' : 'transparent'};
-  color: ${p => p.$active ? 'white' : 'inherit'};
+  background: ${p => (p.$active ? '#316AC5' : 'transparent')};
+  color: ${p => (p.$active ? 'white' : 'inherit')};
 
   &:hover {
-    background: #316AC5;
+    background: #316ac5;
     color: white;
   }
 `;
@@ -58,28 +59,28 @@ const DropdownMenu = styled.div`
   top: 100%;
   left: 0;
   min-width: 160px;
-  background: #F0F0F0;
+  background: #f0f0f0;
   border: 1px solid #000;
   box-shadow: 2px 2px 0px #808080;
   padding: 2px 0;
   z-index: 9999;
   font-size: 12px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 `;
 
 const DropdownItem = styled.div<{ $disabled?: boolean }>`
   padding: 3px 24px 3px 24px;
-  cursor: ${p => p.$disabled ? 'default' : 'pointer'};
+  cursor: ${p => (p.$disabled ? 'default' : 'pointer')};
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: ${p => p.$disabled ? '#A0A0A0' : '#000'};
+  color: ${p => (p.$disabled ? '#A0A0A0' : '#000')};
   position: relative;
   white-space: nowrap;
 
   &:hover {
-    background: ${p => p.$disabled ? 'transparent' : '#316AC5'};
-    color: ${p => p.$disabled ? '#A0A0A0' : 'white'};
+    background: ${p => (p.$disabled ? 'transparent' : '#316AC5')};
+    color: ${p => (p.$disabled ? '#A0A0A0' : 'white')};
   }
 
   .shortcut {
@@ -150,7 +151,7 @@ const ColorSwatch = styled.div<{ $color: string; $active: boolean }>`
   height: 24px;
   flex: 0 0 24px;
   box-sizing: border-box;
-  border: 2px solid ${p => p.$active ? '#ff0000' : '#808080'};
+  border: 2px solid ${p => (p.$active ? '#ff0000' : '#808080')};
   background: ${p => p.$color};
   cursor: pointer;
 `;
@@ -181,7 +182,13 @@ interface MicrosoftPaintProps {
 
 const DEFAULT_SAVE_DIR = ['我的文档', '我的图片'];
 
-const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: initialFilePath }: MicrosoftPaintProps) => {
+const MicrosoftPaint = ({
+  windowId,
+  src,
+  fileName: initialFileName,
+  filePath: initialFilePath,
+}: MicrosoftPaintProps) => {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingSnapshotRef = useRef<ImageData | null>(null);
   const api = useApp(windowId);
@@ -199,10 +206,22 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
   const [openMenu, setOpenMenu] = useState<MenuKey>(null);
 
   const colors = [
-    '#000000', '#808080', '#c0c0c0', '#ffffff',
-    '#800000', '#ff0000', '#808000', '#ffff00',
-    '#008000', '#00ff00', '#008080', '#00ffff',
-    '#000080', '#0000ff', '#800080', '#ff00ff'
+    '#000000',
+    '#808080',
+    '#c0c0c0',
+    '#ffffff',
+    '#800000',
+    '#ff0000',
+    '#808000',
+    '#ffff00',
+    '#008000',
+    '#00ff00',
+    '#008080',
+    '#00ffff',
+    '#000080',
+    '#0000ff',
+    '#800080',
+    '#ff00ff',
   ];
 
   const keyboardHandlersRef = useRef<{
@@ -215,10 +234,14 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
   // Update window title when file changes
   useEffect(() => {
     if (currentFileName) {
-      const title = isModified ? `${currentFileName} * - 画图` : `${currentFileName} - 画图`;
+      const title = isModified
+        ? `${currentFileName} * - ${t('apps.paint')}`
+        : `${currentFileName} - ${t('apps.paint')}`;
       api.window.setTitle(title);
     } else {
-      const title = isModified ? '无标题 * - 画图' : '无标题 - 画图';
+      const title = isModified
+        ? `${t('paint.untitled')} * - ${t('apps.paint')}`
+        : `${t('paint.untitled')} - ${t('apps.paint')}`;
       api.window.setTitle(title);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -252,7 +275,11 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
       setIsModified(false);
     };
     img.onerror = () => {
-      api.dialog.alert({ title: '画图', message: '无法加载图片。', type: 'error' });
+      api.dialog.alert({
+        title: t('apps.paint'),
+        message: t('paint.dialogs.loadFailed'),
+        type: 'error',
+      });
     };
     img.src = imageSrc;
   };
@@ -363,19 +390,21 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
   // File Operations
   const handleNew = () => {
     if (isModified) {
-      api.dialog.confirm({
-        title: '画图',
-        message: '文件已修改，是否保存更改？',
-        type: 'question'
-      }).then(confirmed => {
-        if (confirmed) {
-          handleSave().then(() => {
+      api.dialog
+        .confirm({
+          title: t('apps.paint'),
+          message: t('paint.dialogs.unsavedChanges'),
+          type: 'question',
+        })
+        .then(confirmed => {
+          if (confirmed) {
+            handleSave().then(() => {
+              resetCanvas();
+            });
+          } else {
             resetCanvas();
-          });
-        } else {
-          resetCanvas();
-        }
-      });
+          }
+        });
     } else {
       resetCanvas();
     }
@@ -383,19 +412,21 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
 
   const handleOpen = () => {
     if (isModified) {
-      api.dialog.confirm({
-        title: '画图',
-        message: '文件已修改，是否保存更改？',
-        type: 'question'
-      }).then(confirmed => {
-        if (confirmed) {
-          handleSave().then(() => {
+      api.dialog
+        .confirm({
+          title: t('apps.paint'),
+          message: t('paint.dialogs.unsavedChanges'),
+          type: 'question',
+        })
+        .then(confirmed => {
+          if (confirmed) {
+            handleSave().then(() => {
+              showOpenDialog();
+            });
+          } else {
             showOpenDialog();
-          });
-        } else {
-          showOpenDialog();
-        }
-      });
+          }
+        });
     } else {
       showOpenDialog();
     }
@@ -403,14 +434,16 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
 
   const showOpenDialog = () => {
     const defaultPath = DEFAULT_SAVE_DIR.join('\\');
-    api.dialog.prompt({
-      title: '打开',
-      message: '请输入文件路径（例如：我的文档\\我的图片\\image.png）：',
-      defaultValue: defaultPath ? `${defaultPath}\\` : ''
-    }).then(filePathStr => {
-      if (!filePathStr) return;
-      openFileAtPath(filePathStr);
-    });
+    api.dialog
+      .prompt({
+        title: t('paint.dialogs.openTitle'),
+        message: t('paint.dialogs.openPrompt'),
+        defaultValue: defaultPath ? `${defaultPath}\\` : '',
+      })
+      .then(filePathStr => {
+        if (!filePathStr) return;
+        openFileAtPath(filePathStr);
+      });
   };
 
   const openFileAtPath = async (filePathStr: string) => {
@@ -422,17 +455,29 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
 
     const node = getFile(parts);
     if (!node) {
-      await api.dialog.alert({ title: '打开', message: '找不到文件。', type: 'error' });
+      await api.dialog.alert({
+        title: t('paint.dialogs.openTitle'),
+        message: t('paint.dialogs.fileNotFound'),
+        type: 'error',
+      });
       return;
     }
 
     if (node.type !== 'file') {
-      await api.dialog.alert({ title: '打开', message: '无法打开文件夹。', type: 'error' });
+      await api.dialog.alert({
+        title: t('paint.dialogs.openTitle'),
+        message: t('paint.dialogs.cannotOpenFolder'),
+        type: 'error',
+      });
       return;
     }
 
     if (!isFileContentNode(node) || !node.content) {
-      await api.dialog.alert({ title: '打开', message: '无法读取此文件类型。', type: 'error' });
+      await api.dialog.alert({
+        title: t('paint.dialogs.openTitle'),
+        message: t('paint.dialogs.unsupportedType'),
+        type: 'error',
+      });
       return;
     }
 
@@ -448,7 +493,11 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
 
       if (node && isFileContentNode(node)) {
         if (node.readOnly) {
-          await api.dialog.alert({ title: '保存', message: '文件是只读的。', type: 'error' });
+          await api.dialog.alert({
+            title: t('paint.dialogs.saveTitle'),
+            message: t('paint.dialogs.readOnly'),
+            type: 'error',
+          });
           return;
         }
 
@@ -463,12 +512,12 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
   const handleSaveAs = async (): Promise<void> => {
     const defaultPath = currentFileName
       ? [...DEFAULT_SAVE_DIR, currentFileName].join('\\')
-      : [...DEFAULT_SAVE_DIR, '未命名.png'].join('\\');
+      : [...DEFAULT_SAVE_DIR, t('paint.untitledFile')].join('\\');
 
     const filePathStr = await api.dialog.prompt({
-      title: '另存为',
-      message: '请输入文件名和路径：',
-      defaultValue: defaultPath
+      title: t('paint.dialogs.saveAsTitle'),
+      message: t('paint.dialogs.saveAsPrompt'),
+      defaultValue: defaultPath,
     });
 
     if (!filePathStr) return;
@@ -481,12 +530,20 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
 
     const parent = getFile(parentPath);
     if (!parent) {
-      await api.dialog.alert({ title: '另存为', message: '路径不存在。', type: 'error' });
+      await api.dialog.alert({
+        title: t('paint.dialogs.saveAsTitle'),
+        message: t('paint.dialogs.pathNotFound'),
+        type: 'error',
+      });
       return;
     }
 
     if (!isContainerNode(parent)) {
-      await api.dialog.alert({ title: '另存为', message: '无效的路径。', type: 'error' });
+      await api.dialog.alert({
+        title: t('paint.dialogs.saveAsTitle'),
+        message: t('paint.dialogs.invalidPath'),
+        type: 'error',
+      });
       return;
     }
 
@@ -494,9 +551,9 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
     const existingFile = getFile(parts);
     if (existingFile) {
       const overwrite = await api.dialog.confirm({
-        title: '另存为',
-        message: `文件 "${newFileName}" 已存在。是否覆盖？`,
-        type: 'warning'
+        title: t('paint.dialogs.saveAsTitle'),
+        message: t('paint.dialogs.fileExists', { name: newFileName }),
+        type: 'warning',
       });
       if (!overwrite) return;
 
@@ -505,7 +562,7 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
       createFile(parentPath, newFileName, 'file', {
         content,
         app: 'MicrosoftPaint',
-        icon: 'image'
+        icon: 'image',
       });
     }
 
@@ -516,19 +573,21 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
 
   const handleExit = () => {
     if (isModified) {
-      api.dialog.confirm({
-        title: '画图',
-        message: '文件已修改，是否保存更改？',
-        type: 'question'
-      }).then(confirmed => {
-        if (confirmed) {
-          handleSave().then(() => {
+      api.dialog
+        .confirm({
+          title: t('apps.paint'),
+          message: t('paint.dialogs.unsavedChanges'),
+          type: 'question',
+        })
+        .then(confirmed => {
+          if (confirmed) {
+            handleSave().then(() => {
+              api.window.close();
+            });
+          } else {
             api.window.close();
-          });
-        } else {
-          api.window.close();
-        }
-      });
+          }
+        });
     } else {
       api.window.close();
     }
@@ -581,42 +640,72 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
   }, []);
 
   const toggleMenu = (key: Exclude<MenuKey, null>) => {
-    setOpenMenu(prev => prev === key ? null : key);
+    setOpenMenu(prev => (prev === key ? null : key));
   };
 
   const renderDropdown = (key: Exclude<MenuKey, null>) => {
     if (openMenu !== key) return null;
 
     const fileMenuItems = [
-      { label: '新建(N)', shortcut: 'Ctrl+N', action: handleNew },
-      { label: '打开(O)...', shortcut: 'Ctrl+O', action: handleOpen },
-      { label: '保存(S)', shortcut: 'Ctrl+S', action: handleSave },
-      { label: '另存为(A)...', action: handleSaveAs },
+      { label: t('paint.menuitems.new'), shortcut: 'Ctrl+N', action: handleNew },
+      { label: t('paint.menuitems.open'), shortcut: 'Ctrl+O', action: handleOpen },
+      { label: t('paint.menuitems.save'), shortcut: 'Ctrl+S', action: handleSave },
+      { label: t('paint.menuitems.saveAs'), action: handleSaveAs },
       { type: 'separator' as const },
-      { label: '退出(X)', action: handleExit },
+      { label: t('paint.menuitems.exit'), action: handleExit },
     ];
 
     const editMenuItems = [
-      { label: '撤销(U)', shortcut: 'Ctrl+Z', action: () => undefined, disabled: true },
+      {
+        label: t('paint.menuitems.undo'),
+        shortcut: 'Ctrl+Z',
+        action: () => undefined,
+        disabled: true,
+      },
       { type: 'separator' as const },
-      { label: '剪切(T)', shortcut: 'Ctrl+X', action: () => undefined, disabled: true },
-      { label: '复制(C)', shortcut: 'Ctrl+C', action: () => undefined, disabled: true },
-      { label: '粘贴(P)', shortcut: 'Ctrl+V', action: () => undefined, disabled: true },
-      { label: '删除(L)', shortcut: 'Del', action: () => undefined, disabled: true },
+      {
+        label: t('paint.menuitems.cut'),
+        shortcut: 'Ctrl+X',
+        action: () => undefined,
+        disabled: true,
+      },
+      {
+        label: t('paint.menuitems.copy'),
+        shortcut: 'Ctrl+C',
+        action: () => undefined,
+        disabled: true,
+      },
+      {
+        label: t('paint.menuitems.paste'),
+        shortcut: 'Ctrl+V',
+        action: () => undefined,
+        disabled: true,
+      },
+      {
+        label: t('paint.menuitems.delete'),
+        shortcut: 'Del',
+        action: () => undefined,
+        disabled: true,
+      },
       { type: 'separator' as const },
-      { label: '全选(A)', shortcut: 'Ctrl+A', action: () => undefined, disabled: true },
+      {
+        label: t('paint.menuitems.selectAll'),
+        shortcut: 'Ctrl+A',
+        action: () => undefined,
+        disabled: true,
+      },
     ];
 
     const viewMenuItems = [
-      { label: '工具箱(T)', action: () => undefined, disabled: true },
-      { label: '颜料盒(C)', action: () => undefined, disabled: true },
-      { label: '状态栏(S)', action: () => undefined, disabled: true },
+      { label: t('paint.menuitems.toolbox'), action: () => undefined, disabled: true },
+      { label: t('paint.menuitems.colorBox'), action: () => undefined, disabled: true },
+      { label: t('paint.menuitems.statusBar'), action: () => undefined, disabled: true },
     ];
 
     const helpMenuItems = [
-      { label: '帮助主题(H)', action: () => undefined, disabled: true },
+      { label: t('paint.menuitems.helpTopics'), action: () => undefined, disabled: true },
       { type: 'separator' as const },
-      { label: '关于画图(A)', action: () => undefined, disabled: true },
+      { label: t('paint.menuitems.about'), action: () => undefined, disabled: true },
     ];
 
     const menuMap: Record<string, typeof fileMenuItems> = {
@@ -631,23 +720,23 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
     return (
       <DropdownMenu>
         {items.map((item, i) =>
-          item.type === 'separator'
-            ? <DropdownSeparator key={i} />
-            : (
-              <DropdownItem
-                key={i}
-                $disabled={item.disabled}
-                onClick={() => {
-                  if (!item.disabled && item.action) {
-                    item.action();
-                  }
-                  setOpenMenu(null);
-                }}
-              >
-                <span>{item.label}</span>
-                {item.shortcut && <span className="shortcut">{item.shortcut}</span>}
-              </DropdownItem>
-            )
+          item.type === 'separator' ? (
+            <DropdownSeparator key={i} />
+          ) : (
+            <DropdownItem
+              key={i}
+              $disabled={item.disabled}
+              onClick={() => {
+                if (!item.disabled && item.action) {
+                  item.action();
+                }
+                setOpenMenu(null);
+              }}
+            >
+              <span>{item.label}</span>
+              {item.shortcut && <span className="shortcut">{item.shortcut}</span>}
+            </DropdownItem>
+          )
         )}
       </DropdownMenu>
     );
@@ -657,7 +746,7 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
     { id: 'brush', label: 'brush' },
     { id: 'line', label: 'line' },
     { id: 'rectangle', label: 'rectangle' },
-    { id: 'circle', label: 'circle' }
+    { id: 'circle', label: 'circle' },
   ];
 
   return (
@@ -665,25 +754,25 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
       <MenuBar>
         <MenuItemWrapper>
           <MenuItem $active={openMenu === 'file'} onClick={() => toggleMenu('file')}>
-            文件(F)
+            {t('paint.menu.file')}
           </MenuItem>
           {renderDropdown('file')}
         </MenuItemWrapper>
         <MenuItemWrapper>
           <MenuItem $active={openMenu === 'edit'} onClick={() => toggleMenu('edit')}>
-            编辑(E)
+            {t('paint.menu.edit')}
           </MenuItem>
           {renderDropdown('edit')}
         </MenuItemWrapper>
         <MenuItemWrapper>
           <MenuItem $active={openMenu === 'view'} onClick={() => toggleMenu('view')}>
-            查看(V)
+            {t('paint.menu.view')}
           </MenuItem>
           {renderDropdown('view')}
         </MenuItemWrapper>
         <MenuItemWrapper>
           <MenuItem $active={openMenu === 'help'} onClick={() => toggleMenu('help')}>
-            帮助(H)
+            {t('paint.menu.help')}
           </MenuItem>
           {renderDropdown('help')}
         </MenuItemWrapper>
@@ -698,8 +787,16 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
           >
             {tool.id === 'brush' && (
               <svg width="16" height="16" viewBox="0 0 16 16">
-                <path d="M2 14c0-2 1.5-4 3-5.5L10 3.5l2.5 2.5-5 5.5C6 13 4 14 2 14z" fill="currentColor" />
-                <path d="M10.5 2.5L13 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path
+                  d="M2 14c0-2 1.5-4 3-5.5L10 3.5l2.5 2.5-5 5.5C6 13 4 14 2 14z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M10.5 2.5L13 5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
               </svg>
             )}
             {tool.id === 'line' && (
@@ -709,7 +806,15 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
             )}
             {tool.id === 'rectangle' && (
               <svg width="16" height="16" viewBox="0 0 16 16">
-                <rect x="2" y="3" width="12" height="10" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                <rect
+                  x="2"
+                  y="3"
+                  width="12"
+                  height="10"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  fill="none"
+                />
               </svg>
             )}
             {tool.id === 'circle' && (
@@ -719,9 +824,18 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
             )}
           </ToolBtn>
         ))}
-        <ToolBtn onClick={clearCanvas} title="清空">
+        <ToolBtn onClick={clearCanvas} title={t('paint.clear')}>
           <svg width="16" height="16" viewBox="0 0 16 16">
-            <rect x="2" y="4" width="12" height="10" rx="1" stroke="currentColor" strokeWidth="1.2" fill="none" />
+            <rect
+              x="2"
+              y="4"
+              width="12"
+              height="10"
+              rx="1"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              fill="none"
+            />
             <line x1="5" y1="2" x2="11" y2="2" stroke="currentColor" strokeWidth="1.2" />
             <line x1="6" y1="7" x2="6" y2="11" stroke="currentColor" strokeWidth="1.2" />
             <line x1="10" y1="7" x2="10" y2="11" stroke="currentColor" strokeWidth="1.2" />

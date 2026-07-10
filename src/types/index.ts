@@ -6,6 +6,9 @@
 interface BaseFileNode {
   name: string;
   icon?: string;
+  /** Derived desktop entry owned by the active culture profile. */
+  managedByCulture?: boolean;
+  cultureId?: string;
   locked?: boolean;
   password?: string;
   broken?: boolean;
@@ -159,6 +162,8 @@ export interface AppRegistryEntry<TProps = unknown> {
   /** i18n key for the window title; falls back to `name` if omitted or untranslated */
   nameKey?: string;
   icon: string;
+  /** Omitted for applications shared by every culture profile. */
+  locales?: Array<'en' | 'zh'>;
   window?: {
     width?: number;
     height?: number;

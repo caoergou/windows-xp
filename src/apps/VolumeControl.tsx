@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
 import { getVolume, setVolume, getMuted, setMuted } from '../utils/soundManager';
 
@@ -8,7 +9,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 12px;
 `;
 
@@ -83,6 +84,7 @@ const Label = styled.label`
 `;
 
 const VolumeControl = () => {
+  const { t } = useTranslation();
   const [volume, setVolumeState] = useState<number>(getVolume());
   const [muted, setMutedState] = useState<boolean>(getMuted());
 
@@ -109,7 +111,9 @@ const VolumeControl = () => {
   return (
     <Container>
       <VolumeContainer>
-        <VolumeIcon><XPIcon name={getVolumeIcon()} size={24} /></VolumeIcon>
+        <VolumeIcon>
+          <XPIcon name={getVolumeIcon()} size={24} />
+        </VolumeIcon>
         <SliderContainer>
           <Slider
             type="range"
@@ -118,12 +122,12 @@ const VolumeControl = () => {
             value={muted ? 0 : volume}
             onChange={handleVolumeChange}
           />
-          <VolumeLabel>{muted ? '静音' : `${volume}%`}</VolumeLabel>
+          <VolumeLabel>{muted ? t('tray.mute') : `${volume}%`}</VolumeLabel>
         </SliderContainer>
       </VolumeContainer>
       <CheckboxContainer>
         <Checkbox type="checkbox" id="mute" checked={muted} onChange={handleMuteChange} />
-        <Label htmlFor="mute">静音(&M)</Label>
+        <Label htmlFor="mute">{t('controlPanel.soundSettings.mute')}</Label>
       </CheckboxContainer>
     </Container>
   );

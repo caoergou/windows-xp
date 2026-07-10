@@ -7,7 +7,12 @@ import { useModal } from '../../context/ModalContext';
 import { APP_REGISTRY, getAppDisplayName } from '../../registry/apps';
 import { sounds } from '../../utils/soundManager';
 import { defaultPlugin } from '../../apps/BrowserPlugins';
-import { getStartMenuApps } from '../../data/culture';
+import {
+  getBrowserCultureProfile,
+  getStartMenuProfile,
+  normalizeCultureLang,
+} from '../../data/culture';
+import { getSystemPathTitle } from '../../data/systemPaths';
 import { WindowState } from '../../types';
 import { safeLocalStorage, getStorageKey, canUseDOM } from '../../utils/storage';
 import StartButton from './StartButton';
@@ -15,6 +20,7 @@ import StartMenu from './StartMenu';
 import TaskList from './TaskList';
 import SystemTray from './SystemTray';
 import TurnOffDialog from './TurnOffDialog';
+import ContextMenu from '../ContextMenu';
 
 const TaskbarContainer = styled.div`
   position: absolute;
@@ -64,17 +70,36 @@ const Taskbar = () => {
     maximizeWindow,
     openWindow,
     closeWindow,
+    setWindowTitle,
   } = useWindowManager();
-  const startMenuApps = getStartMenuApps(i18n.language);
+  const startMenuProfile = getStartMenuProfile(i18n.language);
+  const cultureKey = normalizeCultureLang(i18n.language);
   const { logout, user } = useUserSession();
   const { showModal } = useModal();
   const [startOpen, setStartOpen] = useState<boolean>(false);
   const [showTurnOff, setShowTurnOff] = useState<boolean>(false);
   const [taskContextMenu, setTaskContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const [taskbarContextMenu, setTaskbarContextMenu] = useState<{ x: number; y: number } | null>(
+    null
+  );
   const [selectedWindow, setSelectedWindow] = useState<WindowState | null>(null);
   const startMenuRef = useRef<HTMLDivElement>(null);
   const startButtonRef = useRef<HTMLButtonElement>(null);
   const taskContextMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    windows.forEach(win => {
+      const app = APP_REGISTRY[win.appId];
+      if (app?.locales && !app.locales.includes(cultureKey)) {
+        closeWindow(win.id);
+        return;
+      }
+      if (app && !['Explorer', 'Notepad', 'FileProperties'].includes(win.appId)) {
+        const nextTitle = getAppDisplayName(app, t);
+        if (win.title !== nextTitle) setWindowTitle(win.id, nextTitle);
+      }
+    });
+  }, [closeWindow, cultureKey, setWindowTitle, t, windows]);
 
   const handleLogout = useCallback(() => {
     safeLocalStorage.removeItem(getStorageKey('open_windows'));
@@ -125,6 +150,14 @@ const Taskbar = () => {
     },
     [focusWindow]
   );
+
+  const handleTaskbarContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setTaskContextMenu(null);
+    setSelectedWindow(null);
+    setTaskbarContextMenu({ x: event.clientX, y: event.clientY });
+  }, []);
 
   const handleTaskMenuAction = useCallback(
     (action: string) => {
@@ -177,27 +210,20 @@ const Taskbar = () => {
   );
 
   const handleLaunch = useCallback(
-    (appName: string, pathOrKey?: string) => {
+    (appName: string, path?: string[]) => {
       setStartOpen(false);
       const ie = APP_REGISTRY.InternetExplorer;
       const explorer = APP_REGISTRY.Explorer;
 
-      if (appName === 'Internet Explorer') {
+      if (appName === 'InternetExplorer') {
+        const homepage = getBrowserCultureProfile(i18n.language).homepage;
         openWindow(
           'InternetExplorer',
           'Internet Explorer',
-          ie.restore({ url: 'http://www.hao123.com', plugin: defaultPlugin }),
+          ie.restore({ url: homepage, plugin: defaultPlugin }),
           ie.icon,
           { isMaximized: true }
         );
-      } else if (appName === 'QQ') {
-        const qq = APP_REGISTRY.QQLogin;
-        const existing = windows.find(w => w.appId === 'QQLogin');
-        if (existing) {
-          focusWindow(existing.id);
-        } else {
-          openWindow('QQLogin', 'QQ', qq.restore({}), 'qq', qq.window);
-        }
       } else if (appName === 'QQMail') {
         openWindow(
           'qqmail-browser',
@@ -207,21 +233,13 @@ const Taskbar = () => {
           { width: 1000, height: 700 }
         );
       } else if (appName === 'Explorer') {
-        if (!pathOrKey) return;
+        if (!path) return;
+        const title = getSystemPathTitle(path, t);
         openWindow(
           'Explorer',
-          pathOrKey,
-          explorer.restore({ initialPath: [pathOrKey] }),
+          title,
+          explorer.restore({ initialPath: path }),
           'folder',
-          explorer.defaultWindowProps
-        );
-      } else if (appName === 'Recycle Bin') {
-        if (!pathOrKey) return;
-        openWindow(
-          'Explorer',
-          pathOrKey,
-          explorer.restore({ initialPath: [pathOrKey] }),
-          'recycle_bin',
           explorer.defaultWindowProps
         );
       } else if (appName === 'RunDialog') {
@@ -234,20 +252,19 @@ const Taskbar = () => {
         );
       } else if (appName === 'HelpAndSupport') {
         const help = APP_REGISTRY.HelpAndSupport;
-        openWindow('HelpAndSupport', t('helpAndSupport.title'), help.restore({}), 'help', help.window);
+        openWindow(
+          'HelpAndSupport',
+          t('helpAndSupport.title'),
+          help.restore({}),
+          'help',
+          help.window
+        );
       } else if (appName === 'Search') {
         showModal(t('startMenu.search'), t('apps.comingSoon'), 'info');
+      } else if (appName === 'PrintersAndFaxes') {
+        showModal(t('startMenu.printersAndFaxes'), t('apps.comingSoon'), 'info');
       } else if (appName === 'AllPrograms') {
         showModal(t('startMenu.allPrograms'), t('apps.comingSoon'), 'info');
-      } else if (appName === 'DummyApp') {
-        const dummy = APP_REGISTRY.DummyApp;
-        openWindow(
-          dummy.id,
-          pathOrKey || dummy.name,
-          dummy.restore({ appName: pathOrKey }),
-          dummy.icon,
-          dummy.window
-        );
       } else if (appName in APP_REGISTRY) {
         const app = APP_REGISTRY[appName];
         const existing = windows.find(w => w.appId === app.id);
@@ -258,7 +275,7 @@ const Taskbar = () => {
         }
       }
     },
-    [openWindow, windows, focusWindow, t, showModal]
+    [openWindow, windows, focusWindow, t, showModal, i18n.language]
   );
 
   const performPowerAction = useCallback((state: 'shutdown' | 'restart') => {
@@ -295,7 +312,7 @@ const Taskbar = () => {
         isOpen={startOpen}
         menuRef={startMenuRef}
         userName={user.name}
-        startMenuApps={startMenuApps}
+        startMenuProfile={startMenuProfile}
         language={i18n.language}
         onLaunch={handleLaunch}
         onTurnOff={() => {
@@ -306,7 +323,12 @@ const Taskbar = () => {
         t={t}
       />
 
-      <TaskbarContainer data-testid="taskbar" onClick={() => setStartOpen(false)}>
+      <TaskbarContainer
+        data-testid="taskbar"
+        data-xp-context-boundary="true"
+        onClick={() => setStartOpen(false)}
+        onContextMenu={handleTaskbarContextMenu}
+      >
         <StartButton
           label={t('taskbar.start')}
           isActive={startOpen}
@@ -331,6 +353,37 @@ const Taskbar = () => {
         />
         <SystemTray />
       </TaskbarContainer>
+      <ContextMenu
+        visible={Boolean(taskbarContextMenu)}
+        x={taskbarContextMenu?.x || 0}
+        y={taskbarContextMenu?.y || 0}
+        onClose={() => setTaskbarContextMenu(null)}
+        menuItems={[
+          {
+            label: t('taskbar.context.toolbars'),
+            submenu: [{ label: t('taskbar.context.quickLaunch'), disabled: true }],
+          },
+          { type: 'separator' },
+          { label: t('taskbar.context.cascade'), disabled: windows.length === 0 },
+          { label: t('taskbar.context.tileHorizontally'), disabled: windows.length === 0 },
+          { label: t('taskbar.context.tileVertically'), disabled: windows.length === 0 },
+          {
+            label: t('taskbar.context.showDesktop'),
+            action: () =>
+              windows
+                .filter(window => !window.isMinimized)
+                .forEach(window => minimizeWindow(window.id)),
+          },
+          { type: 'separator' },
+          { label: t('taskbar.context.taskManager'), action: () => handleLaunch('TaskManager') },
+          { type: 'separator' },
+          { label: t('taskbar.context.lockTaskbar'), disabled: true },
+          {
+            label: t('taskbar.context.properties'),
+            action: () => showModal(t('taskbar.context.properties'), t('apps.comingSoon'), 'info'),
+          },
+        ]}
+      />
     </>
   );
 };

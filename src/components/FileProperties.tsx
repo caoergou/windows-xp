@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import { getSystemPathDisplay } from '../data/systemPaths';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useFileSystem } from '../context/FileSystemContext';
 import XPIcon from './XPIcon';
@@ -14,10 +15,10 @@ const WindowContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #ECE9D8;
+  background-color: #ece9d8;
   padding: 10px;
   box-sizing: border-box;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 11px;
 `;
 
@@ -29,14 +30,14 @@ const TabsContainer = styled.div`
 
 const Tab = styled.div`
   padding: 3px 6px;
-  border: 1px solid #919B9C;
-  border-bottom: 1px solid ${props => props.$active ? '#ECE9D8' : '#919B9C'};
-  background-color: ${props => props.$active ? '#ECE9D8' : '#ECE9D8'};
+  border: 1px solid #919b9c;
+  border-bottom: 1px solid ${props => (props.$active ? '#ECE9D8' : '#919B9C')};
+  background-color: ${props => (props.$active ? '#ECE9D8' : '#ECE9D8')};
   border-radius: 0;
   margin-right: 2px;
   cursor: pointer;
   position: relative;
-  z-index: ${props => props.$active ? 1 : 0};
+  z-index: ${props => (props.$active ? 1 : 0)};
 
   &:hover {
     background-color: #fff;
@@ -45,7 +46,7 @@ const Tab = styled.div`
 
 const TabContent = styled.div`
   flex: 1;
-  border: 1px solid #919B9C;
+  border: 1px solid #919b9c;
   background-color: #fff;
   padding: 15px;
   display: flex;
@@ -75,7 +76,7 @@ const SectionHeader = styled.div`
   margin-top: 10px;
   padding-bottom: 2px;
   border-bottom: 1px solid #eee;
-  color: #15428B;
+  color: #15428b;
 `;
 
 const ButtonRow = styled.div`
@@ -88,7 +89,7 @@ const ButtonRow = styled.div`
 const Button = styled.button`
   min-width: 75px;
   padding: 2px 10px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 11px;
 `;
 
@@ -99,7 +100,12 @@ interface FilePropertiesProps {
   windowId?: string;
 }
 
-const FileProperties: React.FC<FilePropertiesProps> = ({ fileItem, onClose, parentPath, windowId }) => {
+const FileProperties: React.FC<FilePropertiesProps> = ({
+  fileItem,
+  onClose,
+  parentPath,
+  windowId,
+}) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('general');
   const [exifData, setExifData] = useState<{
@@ -114,26 +120,25 @@ const FileProperties: React.FC<FilePropertiesProps> = ({ fileItem, onClose, pare
   const { closeWindow } = useWindowManager();
   const { getFileProperties } = useFileSystem();
 
-  const properties = fileItem
-    ? getFileProperties(parentPath || [], fileItem.name)
-    : null;
+  const properties = fileItem ? getFileProperties(parentPath || [], fileItem.name) : null;
 
   useEffect(() => {
     if (fileItem && fileItem.exifPath) {
       // Try to find the matching file in the glob results
-      const normalize = (path: string): string => path.replace(/^(\.\.\/|\.\/|src\/|@\/)/, '').replace(/\\/g, '/');
+      const normalize = (path: string): string =>
+        path.replace(/^(\.\.\/|\.\/|src\/|@\/)/, '').replace(/\\/g, '/');
       const target = normalize(fileItem.exifPath);
 
       const foundKey = Object.keys(exifFiles).find(key => {
-          return normalize(key).endsWith(target) || normalize(key) === target;
+        return normalize(key).endsWith(target) || normalize(key) === target;
       });
 
       if (foundKey && exifFiles[foundKey]) {
         setExifData(exifFiles[foundKey].default || exifFiles[foundKey]);
       }
     } else if (fileItem && fileItem.exifData) {
-        // Direct embedding support
-        setExifData(fileItem.exifData);
+      // Direct embedding support
+      setExifData(fileItem.exifData);
     }
   }, [fileItem]);
 
@@ -145,113 +150,130 @@ const FileProperties: React.FC<FilePropertiesProps> = ({ fileItem, onClose, pare
   return (
     <WindowContainer>
       <TabsContainer>
-        <Tab $active={activeTab === 'general'} onClick={() => setActiveTab('general')}>常规</Tab>
-        <Tab $active={activeTab === 'summary'} onClick={() => setActiveTab('summary')}>摘要</Tab>
+        <Tab $active={activeTab === 'general'} onClick={() => setActiveTab('general')}>
+          {t('fileProperties.general')}
+        </Tab>
+        <Tab $active={activeTab === 'summary'} onClick={() => setActiveTab('summary')}>
+          {t('fileProperties.summary')}
+        </Tab>
       </TabsContainer>
 
       <TabContent>
         {activeTab === 'general' && properties && (
           <>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-               {/* Icon */}
-               <div style={{ marginRight: 10 }}>
-                 <XPIcon name={properties.icon || (properties.type === 'folder' ? 'folder' : 'file')} size={32} />
-               </div>
-               <span style={{ fontWeight: 'bold' }}>{properties.name}</span>
+              {/* Icon */}
+              <div style={{ marginRight: 10 }}>
+                <XPIcon
+                  name={properties.icon || (properties.type === 'folder' ? 'folder' : 'file')}
+                  size={32}
+                />
+              </div>
+              <span style={{ fontWeight: 'bold' }}>{properties.name}</span>
             </div>
             <div style={{ borderTop: '1px solid #ccc', margin: '5px 0' }}></div>
             <PropertyRow>
-              <Label>文件类型:</Label>
-              <Value>{properties.type === 'folder' ? '文件夹' : '文件'}</Value>
+              <Label>{t('fileProperties.fileType')}:</Label>
+              <Value>
+                {t(properties.type === 'folder' ? 'explorer.types.folder' : 'explorer.types.file')}
+              </Value>
             </PropertyRow>
             <div style={{ borderTop: '1px solid #ccc', margin: '5px 0' }}></div>
             <PropertyRow>
-              <Label>位置:</Label>
-              <Value>{parentPath?.join('\\') || '桌面'}</Value>
+              <Label>{t('fileProperties.location')}:</Label>
+              <Value>
+                {parentPath?.length
+                  ? getSystemPathDisplay(parentPath, t)
+                  : t('fileProperties.desktop')}
+              </Value>
             </PropertyRow>
             <PropertyRow>
-              <Label>大小:</Label>
+              <Label>{t('fileProperties.size')}:</Label>
               <Value>{properties.size}</Value>
             </PropertyRow>
-             <div style={{ borderTop: '1px solid #ccc', margin: '5px 0' }}></div>
+            <div style={{ borderTop: '1px solid #ccc', margin: '5px 0' }}></div>
             <PropertyRow>
-              <Label>创建时间:</Label>
+              <Label>{t('fileProperties.created')}:</Label>
               <Value>{properties.created}</Value>
             </PropertyRow>
-             <PropertyRow>
-              <Label>修改时间:</Label>
+            <PropertyRow>
+              <Label>{t('fileProperties.modified')}:</Label>
               <Value>{properties.modified}</Value>
             </PropertyRow>
-             <PropertyRow>
-              <Label>访问时间:</Label>
+            <PropertyRow>
+              <Label>{t('fileProperties.accessed')}:</Label>
               <Value>{properties.accessed}</Value>
             </PropertyRow>
-             {properties.locked && (
+            {properties.locked && (
               <PropertyRow>
-                <Label>状态:</Label>
-                <Value>已加密</Value>
+                <Label>{t('fileProperties.status')}:</Label>
+                <Value>{t('fileProperties.encrypted')}</Value>
               </PropertyRow>
-             )}
-             {properties.broken && (
+            )}
+            {properties.broken && (
               <PropertyRow>
-                <Label>状态:</Label>
-                <Value>已损坏</Value>
+                <Label>{t('fileProperties.status')}:</Label>
+                <Value>{t('fileProperties.damaged')}</Value>
               </PropertyRow>
-             )}
+            )}
           </>
         )}
 
         {activeTab === 'summary' && (
           <>
-            <SectionHeader>图像</SectionHeader>
+            <SectionHeader>{t('fileProperties.image')}</SectionHeader>
             {exifData ? (
-                <>
-                    <PropertyRow>
-                    <Label>相机型号:</Label>
-                    <Value>{exifData.Model || 'Unknown'}</Value>
-                    </PropertyRow>
-                    <PropertyRow>
-                    <Label>制造商:</Label>
-                    <Value>{exifData.Make || 'Unknown'}</Value>
-                    </PropertyRow>
+              <>
+                <PropertyRow>
+                  <Label>{t('fileProperties.cameraModel')}:</Label>
+                  <Value>{exifData.Model || 'Unknown'}</Value>
+                </PropertyRow>
+                <PropertyRow>
+                  <Label>{t('fileProperties.manufacturer')}:</Label>
+                  <Value>{exifData.Make || 'Unknown'}</Value>
+                </PropertyRow>
 
-                    <SectionHeader>拍摄参数</SectionHeader>
-                    <PropertyRow>
-                    <Label>光圈值:</Label>
-                    <Value>{exifData.FNumber ? `f/${exifData.FNumber}` : 'N/A'}</Value>
-                    </PropertyRow>
-                    <PropertyRow>
-                    <Label>曝光时间:</Label>
-                    <Value>{exifData.ExposureTime ? `${exifData.ExposureTime} 秒` : 'N/A'}</Value>
-                    </PropertyRow>
-                    <PropertyRow>
-                    <Label>ISO 速度:</Label>
-                    <Value>{exifData.ISOSpeedRatings || 'N/A'}</Value>
-                    </PropertyRow>
-                    <PropertyRow>
-                    <Label>焦距:</Label>
-                    <Value>{exifData.FocalLength ? `${exifData.FocalLength} mm` : 'N/A'}</Value>
-                    </PropertyRow>
+                <SectionHeader>{t('fileProperties.shootingParameters')}</SectionHeader>
+                <PropertyRow>
+                  <Label>{t('fileProperties.aperture')}:</Label>
+                  <Value>{exifData.FNumber ? `f/${exifData.FNumber}` : 'N/A'}</Value>
+                </PropertyRow>
+                <PropertyRow>
+                  <Label>{t('fileProperties.exposureTime')}:</Label>
+                  <Value>
+                    {exifData.ExposureTime
+                      ? t('fileProperties.seconds', { value: exifData.ExposureTime })
+                      : 'N/A'}
+                  </Value>
+                </PropertyRow>
+                <PropertyRow>
+                  <Label>{t('fileProperties.isoSpeed')}:</Label>
+                  <Value>{exifData.ISOSpeedRatings || 'N/A'}</Value>
+                </PropertyRow>
+                <PropertyRow>
+                  <Label>{t('fileProperties.focalLength')}:</Label>
+                  <Value>{exifData.FocalLength ? `${exifData.FocalLength} mm` : 'N/A'}</Value>
+                </PropertyRow>
 
-                     <SectionHeader>来源</SectionHeader>
-                     <PropertyRow>
-                    <Label>拍摄日期:</Label>
-                    <Value>{exifData.DateTimeOriginal || 'Unknown'}</Value>
-                    </PropertyRow>
-                </>
+                <SectionHeader>{t('fileProperties.origin')}</SectionHeader>
+                <PropertyRow>
+                  <Label>{t('fileProperties.dateTaken')}:</Label>
+                  <Value>{exifData.DateTimeOriginal || 'Unknown'}</Value>
+                </PropertyRow>
+              </>
             ) : (
-                <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
-                    无可用摘要信息
-                </div>
+              <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                {t('fileProperties.noSummary')}
+              </div>
             )}
           </>
         )}
       </TabContent>
 
       <ButtonRow>
-          <Button onClick={handleClose}>{t('common.ok')}</Button>
-          <Button onClick={handleClose}>{t('common.cancel')}</Button>
-          <Button disabled>{t('common.apply')}</Button>
+        <Button onClick={handleClose}>{t('common.ok')}</Button>
+        <Button onClick={handleClose}>{t('common.cancel')}</Button>
+        <Button disabled>{t('common.apply')}</Button>
       </ButtonRow>
     </WindowContainer>
   );

@@ -37,9 +37,16 @@ export interface StartMenuApp extends CulturalItem {
   icon: string;
 }
 
+export interface StartMenuProfile {
+  pinned: StartMenuApp[];
+  recent: StartMenuApp[];
+}
+
 /** 规范化语言代码为文化包 key */
-export const normalizeCultureLang = (lang: string): string => {
-  if (!lang) return 'zh';
+export type CultureKey = 'en' | 'zh';
+
+export const normalizeCultureLang = (lang: string): CultureKey => {
+  if (!lang) return 'en';
   return lang.startsWith('zh') ? 'zh' : 'en';
 };
 

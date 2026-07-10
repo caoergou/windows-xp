@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import IEToolbar from '../../components/Explorer/IEToolbar';
 import IEAddressBar from '../../components/Explorer/IEAddressBar';
 import HelpAndSupport from '../HelpAndSupport';
-import { BROWSER_BLACKLIST } from '../BrowserPlugins';
+import { BROWSER_BLACKLIST, defaultPlugin } from '../BrowserPlugins';
 import { InternetExplorerProps } from './types';
-import { DEFAULT_HOMEPAGE } from './constants';
+import { getBrowserCultureProfile } from '../../data/culture';
 import { useBrowserHistory } from './hooks/useBrowserHistory';
 import { useBrowsingHistory } from './hooks/useBrowsingHistory';
 import { useFavorites } from './hooks/useFavorites';
@@ -20,10 +20,11 @@ import AddFavoriteModal from './components/AddFavoriteModal';
 const InternetExplorer: React.FC<InternetExplorerProps> = ({
   url: initialUrl,
   html: initialHtml,
-  plugin,
+  plugin = defaultPlugin,
 }) => {
   const { openWindow } = useWindowManager();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const homepage = getBrowserCultureProfile(i18n.language).homepage;
 
   const openNewIE = useCallback(
     (newUrl: string) => {
@@ -47,14 +48,14 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
     goForward,
     pushErrorEntry,
   } = useBrowserHistory({
-    initialUrl: initialUrl || DEFAULT_HOMEPAGE,
+    initialUrl: initialUrl || homepage,
     initialHtml: initialHtml || null,
   });
 
   const { browsingHistory, addToHistory, clearHistory } = useBrowsingHistory();
   const { filteredFavorites, addFavorite, deleteFavorite } = useFavorites();
 
-  const [inputUrl, setInputUrl] = useState(initialUrl || DEFAULT_HOMEPAGE);
+  const [inputUrl, setInputUrl] = useState(initialUrl || homepage);
   const [showHistory, setShowHistory] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showAddFavorite, setShowAddFavorite] = useState(false);
@@ -106,8 +107,8 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
   }, []);
 
   const handleHome = useCallback(() => {
-    navigateTo(DEFAULT_HOMEPAGE);
-  }, [navigateTo]);
+    navigateTo(homepage);
+  }, [homepage, navigateTo]);
 
   const handleHelp = useCallback(() => {
     openWindow(
@@ -143,8 +144,8 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
 
   const handleClearCache = useCallback(() => {
     clearHistory();
-    navigateTo(DEFAULT_HOMEPAGE);
-  }, [clearHistory, navigateTo]);
+    navigateTo(homepage);
+  }, [clearHistory, homepage, navigateTo]);
 
   const handleContentLoad = useCallback(() => {
     setIsLoading(false);
@@ -178,14 +179,8 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
         showHistory={showHistory}
         isLoading={isLoading}
       />
-      <IEAddressBar
-        value={inputUrl}
-        onChange={e => setInputUrl(e.target.value)}
-        onGo={handleGo}
-      />
-      <BrowserChrome
-        statusBar={<StatusBar isLoading={isLoading} statusText={statusText} />}
-      >
+      <IEAddressBar value={inputUrl} onChange={e => setInputUrl(e.target.value)} onGo={handleGo} />
+      <BrowserChrome statusBar={<StatusBar isLoading={isLoading} statusText={statusText} />}>
         {showHistory && (
           <HistoryPanel
             history={browsingHistory}

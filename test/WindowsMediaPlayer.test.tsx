@@ -11,27 +11,27 @@ describe('WindowsMediaPlayer', () => {
 
   it('toggles play and pause', async () => {
     render(<WindowsMediaPlayer src="/audio/sample.mp3" />);
-    const playBtn = screen.getByTitle('播放');
+    const playBtn = screen.getByTitle('Play');
 
     fireEvent.click(playBtn);
     await waitFor(() => {
-      expect(screen.getByTitle('暂停')).toBeInTheDocument();
+      expect(screen.getByTitle('Pause')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTitle('暂停'));
+    fireEvent.click(screen.getByTitle('Pause'));
     await waitFor(() => {
-      expect(screen.getByTitle('播放')).toBeInTheDocument();
+      expect(screen.getByTitle('Play')).toBeInTheDocument();
     });
   });
 
   it('stops playback', async () => {
     render(<WindowsMediaPlayer src="/audio/sample.mp3" />);
-    fireEvent.click(screen.getByTitle('播放'));
-    await waitFor(() => screen.getByTitle('暂停'));
+    fireEvent.click(screen.getByTitle('Play'));
+    await waitFor(() => screen.getByTitle('Pause'));
 
-    fireEvent.click(screen.getByTitle('停止'));
+    fireEvent.click(screen.getByTitle('Stop'));
     await waitFor(() => {
-      expect(screen.getByTitle('播放')).toBeInTheDocument();
+      expect(screen.getByTitle('Play')).toBeInTheDocument();
     });
   });
 });

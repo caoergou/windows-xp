@@ -17,14 +17,14 @@ const PopupContainer = styled.div`
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
   padding: 7px 24px 7px 8px;
   z-index: 1000;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 11px;
   display: flex;
   align-items: center;
   gap: 7px;
   transform: none;
-  opacity: ${props => props.$visible ? '1' : '0'};
-  visibility: ${props => props.$visible ? 'visible' : 'hidden'};
+  opacity: ${props => (props.$visible ? '1' : '0')};
+  visibility: ${props => (props.$visible ? 'visible' : 'hidden')};
   transition: opacity 0.12s linear;
 
   &::after {
@@ -88,7 +88,7 @@ const CloseButton = styled.button`
 `;
 
 const AntivirusPopup = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -104,9 +104,13 @@ const AntivirusPopup = () => {
     setVisible(false);
   };
 
+  if (!i18n.language.startsWith('zh')) return null;
+
   return (
     <PopupContainer $visible={visible}>
-      <Icon><XPIcon name="360safe" size={32} /></Icon>
+      <Icon>
+        <XPIcon name="360safe" size={32} />
+      </Icon>
       <Message>
         <Title>{t('tray.safeGuardReminder')}</Title>
         <Description>{t('tray.safeGuardStatus')}</Description>
