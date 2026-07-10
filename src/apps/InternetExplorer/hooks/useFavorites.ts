@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FavoriteItem } from '../types';
 import { safeLocalStorage, getStorageKey } from '../../../utils/storage';
+import { useCulture } from '../../../context/CultureContext';
 import { normalizeCultureLang } from '../../../data/culture';
 
 const STORAGE_KEY = 'ie_favorites';
@@ -41,7 +42,7 @@ const getDefaultFavorites = (lang: string): FavoriteItem[] => {
 
 export const useFavorites = () => {
   const { i18n } = useTranslation();
-  const cultureKey = normalizeCultureLang(i18n.language);
+  const { cultureKey } = useCulture();
   const storageKey = getStorageKey(`${STORAGE_KEY}_${cultureKey}`);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
 

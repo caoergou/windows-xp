@@ -1,4 +1,5 @@
 export * from './types';
+export * from './packages';
 export * from './desktopShortcuts';
 export * from './stickyNotes';
 export * from './startMenu';

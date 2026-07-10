@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import userConfig from '../data/user_config.json';
 import { safeLocalStorage, getStorageKey } from '../utils/storage';
 
@@ -72,7 +72,7 @@ export const UserSessionProvider: React.FC<{
     }
   }, [autoLogin]);
 
-  const login = (inputPassword: string): boolean => {
+  const login = useCallback((inputPassword: string): boolean => {
     if (inputPassword === password) {
       setIsLoggedIn(true);
       safeLocalStorage.setItem(getStorageKey('logged_in'), 'true');
@@ -80,22 +80,22 @@ export const UserSessionProvider: React.FC<{
       return true;
     }
     return false;
-  };
+  }, [password]);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setIsLoggedIn(false);
     safeLocalStorage.setItem(getStorageKey('power_state'), 'logout');
-  };
+  }, []);
 
-  const setWallpaper = (id: string) => {
+  const setWallpaper = useCallback((id: string) => {
     setWallpaperState(id);
     safeLocalStorage.setItem(WALLPAPER_KEY, id);
-  };
+  }, []);
 
-  const setScreensaverEnabled = (enabled: boolean) => {
+  const setScreensaverEnabled = useCallback((enabled: boolean) => {
     setScreensaverEnabledState(enabled);
     safeLocalStorage.setItem(SCREENSAVER_KEY, String(enabled));
-  };
+  }, []);
 
   const contextValue: UserSessionContextType = {
     isLoggedIn,

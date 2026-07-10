@@ -6,7 +6,7 @@ import { xpScrollbarStyles } from '../../theme';
 import { APP_REGISTRY } from '../../registry/apps';
 import { sounds } from '../../utils/soundManager';
 import StartMenuFlyout from './StartMenuFlyout';
-import { normalizeCultureLang, StartMenuProfile } from '../../data/culture';
+import { StartMenuProfile } from '../../data/culture';
 import { SYSTEM_PATHS } from '../../data/systemPaths';
 
 const StartMenuContainer = styled.div`
@@ -247,7 +247,7 @@ interface StartMenuProps {
   menuRef: React.RefObject<HTMLDivElement | null>;
   userName: string;
   startMenuProfile: StartMenuProfile;
-  language: string;
+  cultureKey: string;
   onLaunch: (appName: string, path?: string[]) => void;
   onTurnOff: () => void;
   onLogout: () => void;
@@ -261,14 +261,13 @@ const StartMenu: React.FC<StartMenuProps> = ({
   menuRef,
   userName,
   startMenuProfile,
-  language,
+  cultureKey,
   onLaunch,
   onTurnOff,
   onLogout,
   t,
 }) => {
   const [flyoutOpen, setFlyoutOpen] = useState(false);
-  const cultureKey = normalizeCultureLang(language);
 
   const launchWithSound = useCallback(
     (appName: string, path?: string[]) => {

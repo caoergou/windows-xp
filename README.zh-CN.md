@@ -109,6 +109,24 @@ const customFS = {
 
 详细使用和 API 参考请查看 [USAGE.md](USAGE.md)。
 
+## 📦 包导出
+
+除了主入口 `WindowsXP`，包还提供多个子路径导出，方便你只拿需要的部分搭建自己的 XP 风格界面：
+
+```jsx
+// 完整的 bundled 体验
+import { WindowsXP } from '@caoergou/windows-xp';
+
+// 按需引入
+import { Button, Window, Taskbar } from '@caoergou/windows-xp/components';
+import { Notepad, Minesweeper } from '@caoergou/windows-xp/apps';
+import { useWindowManager, useFileSystem, useApp, useCulture, useAppRegistry } from '@caoergou/windows-xp/hooks';
+import { xpScrollbarStyles } from '@caoergou/windows-xp/theme';
+import { APP_REGISTRY } from '@caoergou/windows-xp/registry';
+```
+
+你也可以通过自定义[文化包](USAGE.md#custom-culture-packages)和[应用程序](USAGE.md#custom-applications)来扩展这个模拟器。
+
 ## 🎨 内置应用程序
 
 ### 完整实现

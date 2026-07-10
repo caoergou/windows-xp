@@ -1,25 +1,55 @@
 {
   "name": "@caoergou/windows-xp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A faithful recreation of Windows XP desktop in React - Relive the millennium era with authentic Y2K aesthetics",
-  "main": "dist/windows-xp.umd.js",
-  "module": "dist/windows-xp.es.js",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist",
     "README.md",
+    "README.zh-CN.md",
+    "USAGE.md",
     "LICENSE"
   ],
   "sideEffects": [
-    "*.css"
+    "*.css",
+    "src/lib/index.tsx",
+    "src/i18n/index.ts"
   ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/windows-xp.es.js",
-      "require": "./dist/windows-xp.umd.js"
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs.js"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./components": {
+      "types": "./dist/components.d.ts",
+      "import": "./dist/components.es.js",
+      "require": "./dist/components.cjs.js"
+    },
+    "./apps": {
+      "types": "./dist/apps.d.ts",
+      "import": "./dist/apps.es.js",
+      "require": "./dist/apps.cjs.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks.d.ts",
+      "import": "./dist/hooks.es.js",
+      "require": "./dist/hooks.cjs.js"
+    },
+    "./theme": {
+      "types": "./dist/theme.d.ts",
+      "import": "./dist/theme.es.js",
+      "require": "./dist/theme.cjs.js"
+    },
+    "./registry": {
+      "types": "./dist/registry.d.ts",
+      "import": "./dist/registry.es.js",
+      "require": "./dist/registry.cjs.js"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "dev": "vite",
@@ -28,13 +58,15 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
+    "test:smoke": "vitest run test/basic.test.tsx test/lib-exports.test.tsx test/WindowsXPProps.test.tsx",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\""
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\"",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run test -- --run && npm run build:lib"
   },
   "keywords": [
     "windows-xp",
@@ -62,18 +94,33 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "dependencies": {
+    "immer": "^11.1.11"
+  },
   "peerDependencies": {
     "i18next": "^25.0.0",
-    "immer": "^10.0.0 || ^11.0.0",
-    "lucide-react": "^0.400.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-draggable": "^4.4.0",
     "react-i18next": "^16.0.0",
-    "react-old-icons": "^1.0.0",
     "react-resizable": "^3.0.0",
     "styled-components": "^5.0.0 || ^6.0.0",
     "xp.css": "^0.2.0"
+  },
+  "peerDependenciesMeta": {
+    "i18next": {
+      "optional": false
+    },
+    "react-i18next": {
+      "optional": false
+    },
+    "xp.css": {
+      "optional": true
+    }
+  },
+  "overrides": {
+    "@types/react": "$@types/react",
+    "@types/react-dom": "$@types/react-dom"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
@@ -90,15 +137,12 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "happy": "^1.0.2",
     "i18next": "^25.8.13",
-    "immer": "^11.1.11",
     "jsdom": "^27.3.0",
-    "lucide-react": "^0.556.0",
     "prettier": "^3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-draggable": "^4.4.6",
     "react-i18next": "^16.5.4",
-    "react-old-icons": "^1.0.2",
     "react-resizable": "^3.0.5",
     "styled-components": "^6.1.1",
     "typescript": "^5.9.3",

@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useModal } from '../context/ModalContext';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useUserSession } from '../context/UserSessionContext';
 import { useTray, TrayItem } from '../context/TrayContext';
+import { useWindowId } from '../context/WindowIdContext';
 import { sounds } from '../utils/soundManager';
 import { FileNode } from '../types';
 
@@ -19,38 +20,52 @@ import { FileNode } from '../types';
  *     await api.dialog.alert({ title: '提示', message: '你好' });
  *   }
  */
-export function useApp(windowId: string) {
-  const {
-    openWindow, closeWindow, minimizeWindow, maximizeWindow, setWindowTitle,
-    setWindowBadge, setWindowProgress, flashWindow,
-  } = useWindowManager();
+export function useApp(windowId?: string) {
+  const contextWindowId = useWindowId();
+  const resolvedWindowId = windowId ?? contextWindowId ?? '';
 
-  const { dialog } = useModal();
-  const { getFile, checkAccess } = useFileSystem();
-  const { user, logout } = useUserSession();
-  const { register, unregister, update } = useTray();
+  const windowManager = useWindowManager();
+  const windowManagerRef = useRef(windowManager);
+  windowManagerRef.current = windowManager;
 
-  const trayId = `app-tray-${windowId}`;
+  const modal = useModal();
+  const modalRef = useRef(modal);
+  modalRef.current = modal;
+
+  const fileSystem = useFileSystem();
+  const fileSystemRef = useRef(fileSystem);
+  fileSystemRef.current = fileSystem;
+
+  const userSession = useUserSession();
+  const userSessionRef = useRef(userSession);
+  userSessionRef.current = userSession;
+
+  const tray = useTray();
+  const trayRef = useRef(tray);
+  trayRef.current = tray;
+
+  const trayId = `app-tray-${resolvedWindowId}`;
 
   return useMemo(() => ({
     // ── 当前窗口控制 ────────────────────────────────────────────────────────
     window: {
-      id:          windowId,
-      setTitle:    (title: string)  => setWindowTitle(windowId, title),
-      close:       ()       => closeWindow(windowId),
-      minimize:    ()       => minimizeWindow(windowId),
-      maximize:    ()       => maximizeWindow(windowId),
+      id:          resolvedWindowId,
+      setTitle:    (title: string)  => windowManagerRef.current.setWindowTitle(resolvedWindowId, title),
+      close:       ()       => windowManagerRef.current.closeWindow(resolvedWindowId),
+      minimize:    ()       => windowManagerRef.current.minimizeWindow(resolvedWindowId),
+      maximize:    ()       => windowManagerRef.current.maximizeWindow(resolvedWindowId),
       // 任务栏指示器
-      setBadge:    (value: string | number | null)  => setWindowBadge(windowId, value),
-      setProgress: (pct: number | null)    => setWindowProgress(windowId, pct),
-      flash:       ()       => flashWindow(windowId),
+      setBadge:    (value: string | number | null)  => windowManagerRef.current.setWindowBadge(resolvedWindowId, value),
+      setProgress: (pct: number | null)    => windowManagerRef.current.setWindowProgress(resolvedWindowId, pct),
+      flash:       ()       => windowManagerRef.current.flashWindow(resolvedWindowId),
     },
 
     // ── 打开新窗口（与 WindowManagerContext.openWindow 签名相同）────────────
-    openWindow,
+    openWindow: (...args: Parameters<typeof windowManager.openWindow>) =>
+      windowManagerRef.current.openWindow(...args),
 
     // ── Promise-based 对话框 ─────────────────────────────────────────────
-    dialog,
+    dialog: modalRef.current.dialog,
 
     // ── 声音 ────────────────────────────────────────────────────────────────
     sound: {
@@ -59,30 +74,23 @@ export function useApp(windowId: string) {
 
     // ── 文件系统（只读）──────────────────────────────────────────────────
     fs: {
-      readFile:    (path: string[]) => getFile(path),
-      readDir:     (path: string[]) => (getFile(path) as { children?: Record<string, FileNode> } | null)?.children ?? null,
-      checkAccess,
+      readFile:    (path: string[]) => fileSystemRef.current.getFile(path),
+      readDir:     (path: string[]) => (fileSystemRef.current.getFile(path) as { children?: Record<string, FileNode> } | null)?.children ?? null,
+      checkAccess: fileSystemRef.current.checkAccess,
     },
 
     // ── 用户会话 ─────────────────────────────────────────────────────────
     session: {
-      user:   user?.name,
-      logout,
+      user:   userSessionRef.current.user?.name,
+      logout: () => userSessionRef.current.logout(),
     },
 
     // ── 系统托盘 ─────────────────────────────────────────────────────────
     tray: {
-      register:   (config: Omit<TrayItem, 'id'>)  => register(trayId, config),
-      unregister: ()        => unregister(trayId),
-      update:     (updates: Partial<Omit<TrayItem, 'id'>>) => update(trayId, updates),
+      register:   (config: Omit<TrayItem, 'id'>)  => trayRef.current.register(trayId, config),
+      unregister: ()        => trayRef.current.unregister(trayId),
+      update:     (updates: Partial<Omit<TrayItem, 'id'>>) => trayRef.current.update(trayId, updates),
     },
-  }), [
-    windowId,
-    setWindowTitle, closeWindow, minimizeWindow, maximizeWindow,
-    setWindowBadge, setWindowProgress, flashWindow,
-    openWindow, dialog,
-    getFile, checkAccess,
-    user?.name, logout,
-    register, unregister, update, trayId,
-  ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [resolvedWindowId, trayId]);
 }

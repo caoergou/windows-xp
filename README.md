@@ -109,6 +109,24 @@ const customFS = {
 
 For detailed usage and API reference, see [USAGE.md](USAGE.md).
 
+## 📦 Package Exports
+
+Besides the main `WindowsXP` component, the package exposes focused subpath imports so you can build your own XP-style UI:
+
+```jsx
+// Main bundled experience
+import { WindowsXP } from '@caoergou/windows-xp';
+
+// Pick only what you need
+import { Button, Window, Taskbar } from '@caoergou/windows-xp/components';
+import { Notepad, Minesweeper } from '@caoergou/windows-xp/apps';
+import { useWindowManager, useFileSystem, useApp, useCulture, useAppRegistry } from '@caoergou/windows-xp/hooks';
+import { xpScrollbarStyles } from '@caoergou/windows-xp/theme';
+import { APP_REGISTRY } from '@caoergou/windows-xp/registry';
+```
+
+You can also extend the simulator with custom [culture packages](USAGE.md#custom-culture-packages) and [applications](USAGE.md#custom-applications).
+
 ## 🎨 Built-in Applications
 
 ### Fully Implemented
