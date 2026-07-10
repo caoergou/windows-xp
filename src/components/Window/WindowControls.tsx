@@ -1,7 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import windowControlsSprite from '../../assets/images/window/window-controls-sprite.png';
+import minimizeButton from '../../assets/images/window/luna/minimize.png';
+import minimizeButtonHover from '../../assets/images/window/luna/minimize-hover.png';
+import minimizeButtonActive from '../../assets/images/window/luna/minimize-active.png';
+import maximizeButton from '../../assets/images/window/luna/maximize.png';
+import maximizeButtonHover from '../../assets/images/window/luna/maximize-hover.png';
+import maximizeButtonActive from '../../assets/images/window/luna/maximize-active.png';
+import restoreButton from '../../assets/images/window/luna/unmaximize.png';
+import restoreButtonHover from '../../assets/images/window/luna/unmaximize-hover.png';
+import restoreButtonActive from '../../assets/images/window/luna/unmaximize-active.png';
+import closeButton from '../../assets/images/window/luna/close.png';
+import closeButtonHover from '../../assets/images/window/luna/close-hover.png';
+import closeButtonActive from '../../assets/images/window/luna/close-active.png';
 
 export const TitleControls = styled.div<{ $isFocus?: boolean }>`
   opacity: ${({ $isFocus }) => ($isFocus ? 1 : 0.6)};
@@ -18,15 +29,14 @@ export const TitleControls = styled.div<{ $isFocus?: boolean }>`
 `;
 
 export const BaseButton = styled.button`
-  width: 22px;
-  height: 22px;
-  min-width: 22px;
-  min-height: 22px;
-  max-width: 22px;
-  max-height: 22px;
+  width: 21px;
+  height: 21px;
+  min-width: 21px;
+  min-height: 21px;
+  max-width: 21px;
+  max-height: 21px;
   box-sizing: border-box;
-  border: 1px solid #fff;
-  border-radius: 3px;
+  border: 0;
   margin-right: 1px;
   padding: 0;
   display: flex;
@@ -36,72 +46,53 @@ export const BaseButton = styled.button`
   cursor: default;
   position: relative;
   flex-shrink: 0;
-  overflow: hidden;
+  overflow: visible;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 21px 21px;
+`;
 
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url(${windowControlsSprite});
-    background-repeat: no-repeat;
-    background-size: 90px 22px;
-    pointer-events: none;
-  }
+const ImageWindowControl = styled(BaseButton)<{
+  $normal?: string;
+  $hover?: string;
+  $active?: string;
+}>`
+  background-image: url(${({ $normal }) => $normal ?? 'none'});
 
   &:hover {
-    filter: brightness(120%);
+    background-image: url(${({ $hover, $normal }) => $hover ?? $normal ?? 'none'});
   }
 
   &:active {
-    filter: brightness(90%);
+    background-image: url(${({ $active, $normal }) => $active ?? $normal ?? 'none'});
   }
 `;
 
-const BlueWindowControl = styled(BaseButton)`
-  box-shadow: inset 0 -1px 2px 1px #4646ff;
-  background-image: radial-gradient(
-    circle at 90% 90%,
-    #0054e9 0%,
-    #2263d5 55%,
-    #4479e4 70%,
-    #a3bbec 90%,
-    white 100%
-  );
-`;
+export const MinimizeBtn = styled(ImageWindowControl).attrs({
+  $normal: minimizeButton,
+  $hover: minimizeButtonHover,
+  $active: minimizeButtonActive,
+})``;
 
-export const MinimizeBtn = styled(BlueWindowControl)`
-  &::after {
-    background-position: 0 0;
-  }
-`;
+export const MaximizeBtn = styled(ImageWindowControl).attrs({
+  $normal: maximizeButton,
+  $hover: maximizeButtonHover,
+  $active: maximizeButtonActive,
+})``;
 
-export const MaximizeBtn = styled(BlueWindowControl)`
-  &::after {
-    background-position: -22px 0;
-  }
-`;
+export const RestoreBtn = styled(ImageWindowControl).attrs({
+  $normal: restoreButton,
+  $hover: restoreButtonHover,
+  $active: restoreButtonActive,
+})``;
 
-export const RestoreBtn = styled(BlueWindowControl)`
-  &::after {
-    background-position: -45px 0;
-  }
-`;
-
-export const CloseBtn = styled(BaseButton)`
-  box-shadow: inset 0 -1px 2px 1px #da4600;
-  background-image: radial-gradient(
-    circle at 90% 90%,
-    #cc4600 0%,
-    #dc6527 55%,
-    #cd7546 70%,
-    #ffccb2 90%,
-    white 100%
-  );
+export const CloseBtn = styled(ImageWindowControl).attrs({
+  $normal: closeButton,
+  $hover: closeButtonHover,
+  $active: closeButtonActive,
+})`
   margin-right: 0;
-
-  &::after {
-    background-position: -67px 0;
-  }
 `;
 
 interface WindowControlsProps {
