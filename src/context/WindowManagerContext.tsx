@@ -114,7 +114,12 @@ export const WindowManagerProvider: React.FC<{
       }
     }
 
-    const id = Date.now().toString();
+    // Date.now() collides when several windows open in the same millisecond
+    // (multi-select Enter, restore bursts) - #81.
+    const id =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
     const minWidth = props.minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH;
     const minHeight = props.minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT;

@@ -122,7 +122,7 @@ const MenuRow = ({
           <XPIcon name={item.icon} size={16} />
         </div>
       )}
-      {item.label}
+      <span className="menu-label">{item.label}</span>
       {item.shortcut && <span className="shortcut">{item.shortcut}</span>}
       {hasSubmenu && (
         <SubMenuIndicator>

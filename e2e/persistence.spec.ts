@@ -103,19 +103,54 @@ test.describe('Persistence across reload', () => {
     expect(Math.abs(after.y - before.y)).toBeLessThan(10);
   });
 
-  test.fixme(
-    'start-menu-launched Internet Explorer keeps its page after reload (#81: componentProps are not persisted on this launch path)',
-    async () => {
-      // Blocked on #81: Taskbar launch paths put url/initialPath only into the
-      // rendered JSX, not into componentProps, so a reload restores a blank IE.
-    }
-  );
+  test('start-menu-launched Internet Explorer keeps its page after reload (#81)', async ({
+    page,
+  }) => {
+    await loginPreservingStorage(page);
 
-  test.fixme(
-    'newly created empty folder survives reload (#81: structural changes are not persisted)',
-    async () => {
-      // Blocked on #81: persistFs only serializes nodes with content, so an
-      // empty folder disappears after refresh.
-    }
-  );
+    await page.locator('[data-testid="start-button"]').click();
+    await page
+      .locator('[data-testid="start-menu"]')
+      .getByText('Internet Explorer')
+      .first()
+      .click();
+
+    const address = page.locator('[data-testid="ie-address-input"]');
+    await expect(address).toBeVisible();
+    const urlBefore = await address.inputValue();
+    expect(urlBefore).toContain('http');
+
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    await dismissScreensaver(page);
+
+    // The window restores WITH its url (componentProps persisted, #81) - a
+    // blank IE would show an empty address bar.
+    const restoredAddress = page.locator('[data-testid="ie-address-input"]');
+    await expect(restoredAddress).toBeVisible({ timeout: 10000 });
+    expect(await restoredAddress.inputValue()).toBe(urlBefore);
+  });
+
+  test('newly created empty folder survives reload (#81)', async ({ page }) => {
+    await loginPreservingStorage(page);
+
+    // Right-click the desktop background and create a folder via New > Folder.
+    await page
+      .locator('[data-testid="desktop"]')
+      .click({ button: 'right', position: { x: 700, y: 500 } });
+    await page.getByText('New', { exact: true }).first().hover();
+    await page.getByText('Folder', { exact: true }).first().click();
+    // Commit the inline rename if one opened.
+    await page.keyboard.press('Enter');
+
+    const folderIcon = page.locator('[data-english-testid="desktop-icon-New Folder"]');
+    await expect(folderIcon).toBeVisible();
+
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    await dismissScreensaver(page);
+
+    // Structural persistence (#81): the empty folder is still on the desktop.
+    await expect(folderIcon).toBeVisible({ timeout: 10000 });
+  });
 });

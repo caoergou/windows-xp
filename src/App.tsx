@@ -12,7 +12,10 @@ import XPIcon from './components/XPIcon';
 import MobileWarning from './components/MobileWarning';
 import windowsIcon from './assets/icons/windows.svg';
 import { TIME } from './constants';
-import { safeLocalStorage, getStorageKey, canUseDOM } from './utils/storage';
+import { safeLocalStorage, getStorageKey, canUseDOM, STORAGE_ERROR_EVENT } from './utils/storage';
+import { FS_NOTICE_EVENT } from './context/FileSystemContext/hooks/useFileOperations';
+import type { FsNoticeDetail } from './context/FileSystemContext/hooks/useFileOperations';
+import { useModal } from './context/ModalContext';
 import { getSavedLanguage } from './utils/language';
 
 const Container = styled.div`
@@ -157,6 +160,36 @@ function App({
   disableScreenSaver,
 }: AppProps = {}) {
   const { t } = useTranslation();
+  const { dialog } = useModal();
+
+  // Surface persistence problems as XP dialogs instead of silent console
+  // errors (#81): localStorage quota exceeded, recycle-bin restore fallback.
+  useEffect(() => {
+    if (!canUseDOM) return;
+    const onStorageError = () => {
+      void dialog.alert({
+        title: t('storage.errorTitle'),
+        message: t('storage.quotaExceeded'),
+        type: 'warning',
+      });
+    };
+    const onFsNotice = (event: Event) => {
+      const detail = (event as CustomEvent<FsNoticeDetail>).detail;
+      if (detail?.type === 'restore-fallback') {
+        void dialog.alert({
+          title: t('recycleBinNotices.restoreFallbackTitle'),
+          message: t('recycleBinNotices.restoreFallbackMessage', { name: detail.name }),
+          type: 'info',
+        });
+      }
+    };
+    window.addEventListener(STORAGE_ERROR_EVENT, onStorageError);
+    window.addEventListener(FS_NOTICE_EVENT, onFsNotice);
+    return () => {
+      window.removeEventListener(STORAGE_ERROR_EVENT, onStorageError);
+      window.removeEventListener(FS_NOTICE_EVENT, onFsNotice);
+    };
+  }, [dialog, t]);
 
   useEffect(() => {
     const language = getSavedLanguage(initialLanguage || 'en');

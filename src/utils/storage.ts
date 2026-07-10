@@ -28,6 +28,9 @@ export const setStoragePrefix = (prefix: string): void => {
         'Storage is currently process-wide, so instances will share the most recently mounted prefix.'
     );
   }
+  if (normalized !== storagePrefix) {
+    resetDBConnection();
+  }
   storagePrefix = normalized;
   prefixAssigned = true;
 };
@@ -49,7 +52,7 @@ const getRecycleBinKey = (): string => `${storagePrefix}fs_recycle_bin`;
 interface FileMetadata {
   path: string[];
   name: string;
-  type: 'file' | 'folder';
+  type: 'file' | 'folder' | string;
   icon?: string;
   locked?: boolean;
   password?: string;
@@ -63,6 +66,8 @@ interface FileMetadata {
 
 interface FileSystemMetadata {
   files: Record<string, FileMetadata>;
+  /** Tombstoned path keys: built-in nodes the user deleted or renamed away. */
+  deleted?: string[];
   version: number;
   lastModified: number;
 }
@@ -70,8 +75,24 @@ interface FileSystemMetadata {
 interface RecycleBinItem {
   item: FileNode;
   originalPath: string[];
+  /** Display name at deletion time; the bin key may be suffixed for uniqueness (#81). */
+  originalName?: string;
   deletedAt: number;
 }
+
+/**
+ * Name of the DOM event dispatched (once per session) when persistent storage
+ * writes fail, e.g. the localStorage quota is exceeded. The desktop listens
+ * and surfaces an XP-style dialog (issue #81).
+ */
+export const STORAGE_ERROR_EVENT = 'windows-xp:storage-error';
+
+let storageErrorNotified = false;
+const notifyStorageError = (error: unknown): void => {
+  if (storageErrorNotified || typeof window === 'undefined') return;
+  storageErrorNotified = true;
+  window.dispatchEvent(new CustomEvent(STORAGE_ERROR_EVENT, { detail: { error } }));
+};
 
 /** True when running in a browser-like environment. */
 export const canUseDOM =
@@ -94,6 +115,7 @@ export const safeLocalStorage = {
       localStorage.setItem(key, value);
     } catch (e) {
       console.error('Failed to write localStorage:', e);
+      notifyStorageError(e);
     }
   },
   removeItem: (key: string): void => {
@@ -109,16 +131,31 @@ export const safeLocalStorage = {
 // IndexedDB may be undefined in non-browser environments (e.g. jsdom, SSR)
 const idb = typeof indexedDB !== 'undefined' ? indexedDB : null;
 
-// Initialize IndexedDB
+// One connection per (prefix) lifetime instead of one per operation (#81).
+let dbPromise: Promise<IDBDatabase | null> | null = null;
+let dbPromisePrefix: string | null = null;
+
+/** @internal Reset the cached connection (used when the prefix changes). */
+export const resetDBConnection = (): void => {
+  dbPromise = null;
+  dbPromisePrefix = null;
+};
+
+// Initialize (or reuse) the IndexedDB connection
 function initDB(): Promise<IDBDatabase | null> {
-  return new Promise((resolve, reject) => {
+  if (dbPromise && dbPromisePrefix === storagePrefix) return dbPromise;
+  dbPromisePrefix = storagePrefix;
+  dbPromise = new Promise((resolve, reject) => {
     if (!idb) {
       resolve(null);
       return;
     }
     const request = idb.open(getDBName(), DB_VERSION);
 
-    request.onerror = () => reject(request.error);
+    request.onerror = () => {
+      dbPromise = null;
+      reject(request.error);
+    };
     request.onsuccess = () => resolve(request.result);
 
     request.onupgradeneeded = (event) => {
@@ -128,6 +165,7 @@ function initDB(): Promise<IDBDatabase | null> {
       }
     };
   });
+  return dbPromise;
 }
 
 // Save file content to IndexedDB

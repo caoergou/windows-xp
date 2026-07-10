@@ -218,7 +218,9 @@ const Taskbar = () => {
           'Internet Explorer',
           ie.restore({ url: homepage, plugin: defaultPlugin }),
           ie.icon,
-          { isMaximized: true }
+          // componentProps must carry the serializable launch state or the
+          // window restores blank after a refresh (#81).
+          { isMaximized: true, componentProps: { url: homepage } }
         );
       } else if (appName === 'QQMail') {
         openWindow(
@@ -226,7 +228,7 @@ const Taskbar = () => {
           'QQ邮箱',
           ie.restore({ url: 'http://mail.qq.com', plugin: defaultPlugin }),
           ie.icon,
-          { width: 1000, height: 700 }
+          { width: 1000, height: 700, componentProps: { url: 'http://mail.qq.com' } }
         );
       } else if (appName === 'Explorer') {
         if (!path) return;
@@ -236,7 +238,7 @@ const Taskbar = () => {
           title,
           explorer.restore({ initialPath: path }),
           'folder',
-          explorer.defaultWindowProps
+          { ...explorer.defaultWindowProps, componentProps: { initialPath: path } }
         );
       } else if (appName === 'RunDialog') {
         openWindow(

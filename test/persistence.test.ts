@@ -289,13 +289,109 @@ describe('persistence.ts: persistFs and loadPersistedFileSystem', () => {
     await expect(getFileContent(['wipe.txt'])).resolves.toBeNull();
   });
 
-  it.todo(
-    '#81: 空文件夹结构不持久化 — persistFs 只保存带 content 的文件，用户新建的空文件夹刷新后丢失，' +
-      '且嵌套在用户文件夹里的文件在 loadPersistedFileSystem 中会因中间目录缺失而被错误挂到最近存在的祖先目录下'
-  );
+  it('#81 fixed: 用户新建的空文件夹与嵌套文件在刷新后完整保留', async () => {
+    const defaultFs = {
+      root: {
+        type: 'folder',
+        name: 'root',
+        children: {},
+      } as unknown as FileNode,
+    };
+    // User creates 我的项目/笔记.txt (folder + nested file)
+    const currentFs = {
+      root: {
+        type: 'folder',
+        name: 'root',
+        children: {
+          我的项目: {
+            type: 'folder',
+            name: '我的项目',
+            children: {
+              '笔记.txt': { type: 'file', name: '笔记.txt', content: 'hello' },
+            },
+          },
+          空文件夹: { type: 'folder', name: '空文件夹', children: {} },
+        },
+      } as unknown as FileNode,
+    };
 
-  it.todo(
-    '#81: 删除内置文件刷新后复活 — 删除 filesystem.json 自带的文件不会记录 tombstone，' +
-      'loadPersistedFileSystem 从默认树克隆起步，刷新后被删除的内置文件重新出现'
-  );
+    await persistFs(currentFs, true, { defaultFs });
+    const { root } = await loadPersistedFileSystem(defaultFs);
+
+    const folder = isContainerNode(root) ? root.children['我的项目'] : undefined;
+    if (!folder) throw new Error('user folder was not restored');
+    expect(folder.type).toBe('folder');
+    const nested = isContainerNode(folder) ? folder.children?.['笔记.txt'] : undefined;
+    if (!nested) throw new Error('nested file was not restored');
+    expect(isFileContentNode(nested) ? nested.content : null).toBe('hello');
+    // The nested file must live under its folder, NOT relocate to root (#81).
+    expect(isContainerNode(root) ? root.children['笔记.txt'] : null).toBeFalsy();
+
+    const empty = isContainerNode(root) ? root.children['空文件夹'] : undefined;
+    if (!empty) throw new Error('empty folder was not restored');
+    expect(empty.type).toBe('folder');
+  });
+
+  it('#81 fixed: 持久化条目的父目录缺失时被跳过而不是挂到根目录', async () => {
+    const defaultFs = {
+      root: { type: 'folder', name: 'root', children: {} } as unknown as FileNode,
+    };
+    // Simulate stale metadata pointing into a folder that no longer exists,
+    // without folder metadata for it (legacy v1 data shape).
+    await saveFileContent(['ghost-dir', 'orphan.txt'], 'orphan');
+    saveMetadata({
+      files: {
+        'ghost-dir/orphan.txt': {
+          path: ['ghost-dir', 'orphan.txt'],
+          name: 'orphan.txt',
+          type: 'file',
+          modifiedAt: Date.now(),
+        } as FileMetadata,
+      },
+      version: 2,
+      lastModified: Date.now(),
+    });
+
+    const { root } = await loadPersistedFileSystem(defaultFs);
+    // Neither attached at root nor anywhere else.
+    expect(isContainerNode(root) ? root.children['orphan.txt'] : null).toBeFalsy();
+    expect(isContainerNode(root) ? root.children['ghost-dir'] : null).toBeFalsy();
+  });
+
+  it('#81 fixed: 删除内置文件会记录 tombstone，刷新后不再复活', async () => {
+    const defaultFs = {
+      root: {
+        type: 'folder',
+        name: 'root',
+        children: {
+          'builtin.txt': { type: 'file', name: 'builtin.txt', content: 'factory' },
+          docs: {
+            type: 'folder',
+            name: 'docs',
+            children: {
+              'manual.txt': { type: 'file', name: 'manual.txt', content: 'rtfm' },
+            },
+          },
+        },
+      } as unknown as FileNode,
+    };
+    // User deleted builtin.txt and docs/manual.txt
+    const currentFs = {
+      root: {
+        type: 'folder',
+        name: 'root',
+        children: {
+          docs: { type: 'folder', name: 'docs', children: {} },
+        },
+      } as unknown as FileNode,
+    };
+
+    await persistFs(currentFs, true, { defaultFs });
+    const { root } = await loadPersistedFileSystem(defaultFs);
+
+    expect(isContainerNode(root) ? root.children['builtin.txt'] : null).toBeFalsy();
+    const docs = isContainerNode(root) ? root.children['docs'] : undefined;
+    if (!docs) throw new Error('docs folder missing');
+    expect(isContainerNode(docs) ? docs.children?.['manual.txt'] : null).toBeFalsy();
+  });
 });
