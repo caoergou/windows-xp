@@ -1,35 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-
-/**
- * Dogfood end-to-end tests for the Windows XP nostalgia simulator.
- *
- * These tests exercise the user-facing features that make the project
- * interesting as a demo: login, desktop icons, Start menu, IE portal,
- * QQ login easter egg, and the nostalgic Chinese apps.
- *
- * The tests run in Chinese locale (?lang=zh) because the most distinctive
- * 2000s cultural apps (QQ, 360, 迅雷, 暴风影音, 酷狗音乐) are only wired
- * up as real apps in the Chinese cultural package.
- */
-
-const DEFAULT_PASSWORD = 'forthe2000s';
-
-async function login(page: Page) {
-  await page.goto('./?lang=zh');
-  await page.waitForLoadState('networkidle');
-
-  // Robustly detect login screen vs. already-logged-in desktop.
-  const passwordInput = page.locator('input[type="password"]');
-  try {
-    await passwordInput.waitFor({ state: 'visible', timeout: 10000 });
-    await passwordInput.fill(DEFAULT_PASSWORD);
-    await page.keyboard.press('Enter');
-  } catch {
-    // Already at desktop, no password field present.
-  }
-
-  await page.waitForSelector('[data-testid="taskbar"]', { timeout: 20000 });
-}
+import { login } from './helpers/login';
 
 async function openStartMenu(page: Page) {
   const startBtn = page.locator('[data-testid="start-button"]');
@@ -42,8 +12,9 @@ async function closeAllWindows(page: Page) {
   const closeButtons = page.locator('[data-testid="window-close"], .window-close, [title="关闭"], [title="Close"]');
   let attempts = 0;
   while ((await closeButtons.count()) > 0 && attempts < 10) {
-    await closeButtons.first().click();
-    await page.waitForTimeout(100);
+    const firstClose = closeButtons.first();
+    await firstClose.click();
+    await expect(firstClose).toBeDetached({ timeout: 5000 });
     attempts += 1;
   }
 }
@@ -51,7 +22,7 @@ async function closeAllWindows(page: Page) {
 test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(60000);
-    await login(page);
+    await login(page, { lang: 'zh' });
   });
 
   test.afterEach(async ({ page }) => {
@@ -59,15 +30,15 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
   });
 
   test('desktop loads with essential icons', async ({ page }) => {
-    await expect(page.locator('[data-testid="desktop-icon-Internet Explorer"]')).toBeVisible();
-    await expect(page.locator('[data-testid="desktop-icon-Notepad"]')).toBeVisible();
-    await expect(page.locator('[data-testid="desktop-icon-QQ"]')).toBeVisible();
+    await expect(page.locator('[data-english-testid="desktop-icon-Internet Explorer"]')).toBeVisible();
+    await expect(page.locator('[data-english-testid="desktop-icon-Notepad"]')).toBeVisible();
+    await expect(page.locator('[data-english-testid="desktop-icon-QQ"]')).toBeVisible();
 
     // Chinese cultural shortcuts
-    await expect(page.locator('[data-testid="desktop-icon-360安全卫士"]')).toBeVisible();
-    await expect(page.locator('[data-testid="desktop-icon-暴风影音"]')).toBeVisible();
-    await expect(page.locator('[data-testid="desktop-icon-迅雷"]')).toBeVisible();
-    await expect(page.locator('[data-testid="desktop-icon-酷狗音乐"]')).toBeVisible();
+    await expect(page.locator('[data-english-testid="desktop-icon-360安全卫士"]')).toBeVisible();
+    await expect(page.locator('[data-english-testid="desktop-icon-暴风影音"]')).toBeVisible();
+    await expect(page.locator('[data-english-testid="desktop-icon-迅雷"]')).toBeVisible();
+    await expect(page.locator('[data-english-testid="desktop-icon-酷狗音乐"]')).toBeVisible();
   });
 
   test('Start menu contains culture-aware apps', async ({ page }) => {
@@ -87,7 +58,7 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
   });
 
   test('IE opens archive hao123 portal by default', async ({ page }) => {
-    const ieIcon = page.locator('[data-testid="desktop-icon-Internet Explorer"]');
+    const ieIcon = page.locator('[data-english-testid="desktop-icon-Internet Explorer"]');
     await expect(ieIcon).toBeVisible();
     await ieIcon.dblclick();
 
@@ -100,7 +71,7 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
   });
 
   test('IE favorites sidebar shows 2000s memories', async ({ page }) => {
-    const ieIcon = page.locator('[data-testid="desktop-icon-Internet Explorer"]');
+    const ieIcon = page.locator('[data-english-testid="desktop-icon-Internet Explorer"]');
     await ieIcon.dblclick();
 
     // Open favorites via the toolbar button (text is hardcoded Chinese in current UI)
@@ -112,7 +83,7 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
   });
 
   test('QQ login shows captcha and version-too-old easter egg', async ({ page }) => {
-    const qqIcon = page.locator('[data-testid="desktop-icon-QQ"]');
+    const qqIcon = page.locator('[data-english-testid="desktop-icon-QQ"]');
     await qqIcon.dblclick();
 
     // QQ login window appears
@@ -172,7 +143,7 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
   });
 
   test('Baofeng Player opens with playlist', async ({ page }) => {
-    const baofengIcon = page.locator('[data-testid="desktop-icon-暴风影音"]');
+    const baofengIcon = page.locator('[data-english-testid="desktop-icon-暴风影音"]');
     await expect(baofengIcon).toBeVisible();
     await baofengIcon.dblclick();
 
@@ -181,14 +152,14 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
   });
 
   test('Kugou Music opens and can play songs', async ({ page }) => {
-    const kugouIcon = page.locator('[data-testid="desktop-icon-酷狗音乐"]');
+    const kugouIcon = page.locator('[data-english-testid="desktop-icon-酷狗音乐"]');
     await expect(kugouIcon).toBeVisible();
     await kugouIcon.dblclick();
 
     await expect(page.locator('text=酷狗音乐').first()).toBeVisible();
 
-    // Play button (triangle icon)
-    const playBtn = page.locator('button').filter({ hasText: '▶' }).first();
+    // Play button in the bottom control bar
+    const playBtn = page.locator('button[title="播放/暂停"]').first();
     await playBtn.click();
 
     // Status bar shows "正在播放"

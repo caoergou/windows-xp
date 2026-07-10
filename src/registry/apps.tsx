@@ -294,7 +294,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     name:   '控制面板',
     nameKey: 'startMenu.controlPanel',
     icon:   'controlpanel',
-    window: { width: 600, height: 400 },
+    window: { width: 700, height: 520 },
     lifecycle: {},
     restore: restoreApp(ControlPanel),
   },

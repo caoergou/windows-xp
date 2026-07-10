@@ -18,6 +18,48 @@
     "stretch": "拉伸",
     "comingSoon": "此标签页仅用于显示。"
   },
+  "controlPanel": {
+    "title": "控制面板",
+    "display": "显示",
+    "soundAndAudio": "声音和音频设备",
+    "mouse": "鼠标",
+    "back": "返回",
+    "ok": "确定",
+    "apply": "应用(A)",
+    "cancel": "取消",
+    "displaySettings": {
+      "wallpaper": "壁纸：",
+      "resolution": "屏幕分辨率：",
+      "screensaver": "屏幕保护程序：",
+      "screensaverNone": "(无)",
+      "screensaverLogo": "Windows XP 标志",
+      "preview": "预览"
+    },
+    "soundSettings": {
+      "volume": "设备音量",
+      "mute": "静音(&M)",
+      "soundScheme": "声音方案",
+      "programEvents": "程序事件：",
+      "play": "播放",
+      "events": {
+        "startup": "Windows 启动",
+        "shutdown": "Windows 关机",
+        "error": "关键性停止",
+        "ding": "默认响声",
+        "exclamation": "感叹号",
+        "notify": "通知",
+        "menuCommand": "菜单命令",
+        "minimize": "最小化",
+        "restore": "还原",
+        "recycle": "清空回收站"
+      }
+    },
+    "mouseSettings": {
+      "pointerSpeed": "指针速度：",
+      "doubleClickSpeed": "双击速度：",
+      "pointerTrails": "显示指针踪迹"
+    }
+  },
   "startMenu": {
     "allPrograms": "所有程序",
     "myDocuments": "我的文档",
@@ -54,8 +96,18 @@
   },
   "calendar": {
     "monthNames": [
-      "一月", "二月", "三月", "四月", "五月", "六月",
-      "七月", "八月", "九月", "十月", "十一月", "十二月"
+      "一月",
+      "二月",
+      "三月",
+      "四月",
+      "五月",
+      "六月",
+      "七月",
+      "八月",
+      "九月",
+      "十月",
+      "十一月",
+      "十二月"
     ],
     "weekdays": ["日", "一", "二", "三", "四", "五", "六"],
     "today": "今天"
@@ -148,6 +200,22 @@
     "messenger": "MSN Messenger",
     "outlook": "Outlook Express",
     "comingSoon": "此功能正在开发中，敬请期待！"
+  },
+  "networkConnections": {
+    "title": "网络连接",
+    "localConnection": "本地连接",
+    "wirelessConnection": "无线网络连接",
+    "connected": "已连接",
+    "disconnected": "未连接",
+    "local": "本地",
+    "wireless": "无线",
+    "statusTitle": "本地连接状态",
+    "status": "状态",
+    "duration": "持续时间",
+    "sent": "已发送",
+    "received": "已接收",
+    "close": "关闭",
+    "bytes": "{{value}} 字节"
   },
   "errorBoundary": {
     "title": "应用程序出错",

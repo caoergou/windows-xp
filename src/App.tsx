@@ -156,7 +156,7 @@ function App({
     }
   }, [initialLanguage]);
 
-  const { isLoggedIn } = useUserSession();
+  const { isLoggedIn, screensaverEnabled } = useUserSession();
   const { windows, activeWindowId, closeWindow, focusWindow } = useWindowManager();
   const [bootPhase, setBootPhase] = useState<BootPhase>(() => getInitialBootPhase(skipBoot));
   const [screenSaverFading, setScreenSaverFading] = useState(false);
@@ -250,7 +250,7 @@ function App({
 
   // Idle detection: trigger screensaver after timeout
   useEffect(() => {
-    if (disableScreenSaver || bootPhase !== 'RUNNING' || !isLoggedIn || !canUseDOM) return undefined;
+    if (disableScreenSaver || !screensaverEnabled || bootPhase !== 'RUNNING' || !isLoggedIn || !canUseDOM) return undefined;
 
     let timeoutId: ReturnType<typeof setTimeout>;
     const resetTimer = () => {
@@ -268,7 +268,7 @@ function App({
       clearTimeout(timeoutId);
       events.forEach(event => window.removeEventListener(event, resetTimer));
     };
-  }, [bootPhase, isLoggedIn, disableScreenSaver]);
+  }, [bootPhase, isLoggedIn, disableScreenSaver, screensaverEnabled]);
 
   const handleBootComplete = () => {
     safeLocalStorage.setItem(getStorageKey('first_boot_done'), 'true');

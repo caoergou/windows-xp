@@ -18,6 +18,48 @@
     "stretch": "Stretch",
     "comingSoon": "This tab is for display only."
   },
+  "controlPanel": {
+    "title": "Control Panel",
+    "display": "Display",
+    "soundAndAudio": "Sounds and Audio Devices",
+    "mouse": "Mouse",
+    "back": "Back",
+    "ok": "OK",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "displaySettings": {
+      "wallpaper": "Wallpaper:",
+      "resolution": "Screen resolution:",
+      "screensaver": "Screen saver:",
+      "screensaverNone": "(None)",
+      "screensaverLogo": "Windows XP logo",
+      "preview": "Preview"
+    },
+    "soundSettings": {
+      "volume": "Device volume",
+      "mute": "Mute(&M)",
+      "soundScheme": "Sound scheme",
+      "programEvents": "Program events:",
+      "play": "Play",
+      "events": {
+        "startup": "Windows Startup",
+        "shutdown": "Windows Shutdown",
+        "error": "Critical Stop",
+        "ding": "Default Beep",
+        "exclamation": "Exclamation",
+        "notify": "Notify",
+        "menuCommand": "Menu Command",
+        "minimize": "Minimize",
+        "restore": "Restore",
+        "recycle": "Empty Recycle Bin"
+      }
+    },
+    "mouseSettings": {
+      "pointerSpeed": "Pointer speed:",
+      "doubleClickSpeed": "Double-click speed:",
+      "pointerTrails": "Show pointer trails"
+    }
+  },
   "startMenu": {
     "allPrograms": "All Programs",
     "myDocuments": "My Documents",
@@ -60,8 +102,18 @@
   },
   "calendar": {
     "monthNames": [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
     ],
     "weekdays": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
     "today": "Today"
@@ -154,6 +206,22 @@
     "messenger": "MSN Messenger",
     "outlook": "Outlook Express",
     "comingSoon": "This feature is coming soon!"
+  },
+  "networkConnections": {
+    "title": "Network Connections",
+    "localConnection": "Local Connection",
+    "wirelessConnection": "Wireless Network Connection",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "local": "Local",
+    "wireless": "Wireless",
+    "statusTitle": "Local Connection Status",
+    "status": "Status",
+    "duration": "Duration",
+    "sent": "Sent",
+    "received": "Received",
+    "close": "Close",
+    "bytes": "{{value}} bytes"
   },
   "errorBoundary": {
     "title": "Application Error",

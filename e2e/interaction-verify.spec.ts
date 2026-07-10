@@ -4,59 +4,40 @@
  */
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import { login } from './helpers/login';
 
-const BASE = 'http://localhost:5174/windows-xp/';
 const OUT = path.join('test-results', 'visual-verify');
-
-async function skipToDesktop(page: import('@playwright/test').Page) {
-  await page.goto(BASE);
-  await page.evaluate(() => {
-    localStorage.setItem('xp_first_boot_done', 'true');
-    localStorage.setItem('xp_logged_in', 'true');
-    localStorage.setItem('xp_power_state', 'running');
-  });
-  await page.reload();
-  await page.waitForLoadState('networkidle');
-
-  const mobileBtn = page.getByRole('button', { name: 'Continue to Desktop' });
-  if (await mobileBtn.isVisible().catch(() => false)) {
-    await mobileBtn.click();
-  }
-
-  // Dismiss screensaver (logged-in users land on screensaver first)
-  const viewport = page.viewportSize() ?? { width: 1280, height: 720 };
-  await page.mouse.click(viewport.width / 2, viewport.height / 2);
-  await page.waitForTimeout(700);
-
-  await page.waitForSelector('[data-testid="desktop-icon-我的电脑"]', { timeout: 8000 });
-}
 
 test.describe('Interaction visual verification', () => {
   test('desktop icons have no shortcut overlay', async ({ page }) => {
-    await skipToDesktop(page);
+    await login(page);
     await page.screenshot({ path: path.join(OUT, '01-desktop-icons.png') });
 
-    const iconKeys = ['我的电脑', 'Calculator', 'Internet Explorer', 'QQ'];
-    for (const key of iconKeys) {
-      const icon = page.locator(`[data-testid="desktop-icon-${key}"]`);
+    const englishIds = ['my-computer', 'Calculator', 'Internet Explorer', 'QQ'];
+    for (const id of englishIds) {
+      const icon = page.locator(`[data-english-testid="desktop-icon-${id}"]`);
       await expect(icon.locator('.icon-wrapper svg')).toHaveCount(0);
     }
   });
 
   test('window drag does not show desktop selection box', async ({ page }) => {
-    await skipToDesktop(page);
+    await login(page);
 
-    await page.locator('[data-testid="desktop-icon-Calculator"]').dblclick();
-    await page.waitForSelector('.title-bar', { timeout: 5000 });
-    await page.screenshot({ path: path.join(OUT, '02-calculator-open.png') });
+    const calcIcon = page.locator('[data-english-testid="desktop-icon-Calculator"]');
+    await calcIcon.dblclick();
 
     const titleBar = page.locator('.xp-window .title-bar').first();
+    await expect(titleBar).toBeVisible();
+    await page.screenshot({ path: path.join(OUT, '02-calculator-open.png') });
+
     const box = await titleBar.boundingBox();
     expect(box).toBeTruthy();
 
+    /* eslint-disable @typescript-eslint/no-non-null-assertion -- box is asserted above */
     await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
     await page.mouse.down();
     await page.mouse.move(box!.x + box!.width / 2 + 150, box!.y + box!.height / 2 + 100, { steps: 10 });
+    /* eslint-enable @typescript-eslint/no-non-null-assertion */
     await page.screenshot({ path: path.join(OUT, '03-during-window-drag.png') });
 
     const selectionBoxVisible = await page.evaluate(() => {
@@ -78,18 +59,19 @@ test.describe('Interaction visual verification', () => {
   });
 
   test('desktop box selection still works on background', async ({ page }) => {
-    await skipToDesktop(page);
+    await login(page);
 
-    const viewport = page.viewportSize()!;
-    const startX = 30;
+    // Start on empty desktop background to the right of the icon grid and drag
+    // left/down over the icons so the selection box intersects them.
+    const startX = 300;
     const startY = 60;
-    const endX = 220;
+    const endX = 30;
     const endY = 420;
 
     await page.mouse.move(startX, startY);
     await page.mouse.down();
     await page.mouse.move(endX, endY, { steps: 8 });
-    await page.waitForTimeout(100);
+    await page.waitForSelector('[data-testid="desktop-selection-box"]', { state: 'visible', timeout: 2000 });
     await page.screenshot({ path: path.join(OUT, '05-during-desktop-select.png') });
 
     const selectionBoxVisible = await page.evaluate(() => {

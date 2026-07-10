@@ -7,6 +7,8 @@ interface UserSessionContextType {
   user: { name: string; avatar: string };
   wallpaper: string;
   setWallpaper: (wallpaper: string) => void;
+  screensaverEnabled: boolean;
+  setScreensaverEnabled: (enabled: boolean) => void;
   login: (password: string) => boolean;
   logout: () => void;
 }
@@ -38,6 +40,7 @@ const getInitialLoginState = (autoLogin?: boolean): boolean => {
 };
 
 const WALLPAPER_KEY = getStorageKey('wallpaper');
+const SCREENSAVER_KEY = getStorageKey('screensaver_enabled');
 
 export const UserSessionProvider: React.FC<{
   children: React.ReactNode;
@@ -53,6 +56,10 @@ export const UserSessionProvider: React.FC<{
   const [wallpaper, setWallpaperState] = useState<string>(() =>
     safeLocalStorage.getItem(WALLPAPER_KEY) || 'Bliss'
   );
+  const [screensaverEnabled, setScreensaverEnabledState] = useState<boolean>(() => {
+    const stored = safeLocalStorage.getItem(SCREENSAVER_KEY);
+    return stored === null ? true : stored === 'true';
+  });
 
   useEffect(() => {
     setUser(prev => ({ ...prev, name: username }));
@@ -85,11 +92,18 @@ export const UserSessionProvider: React.FC<{
     safeLocalStorage.setItem(WALLPAPER_KEY, id);
   };
 
+  const setScreensaverEnabled = (enabled: boolean) => {
+    setScreensaverEnabledState(enabled);
+    safeLocalStorage.setItem(SCREENSAVER_KEY, String(enabled));
+  };
+
   const contextValue: UserSessionContextType = {
     isLoggedIn,
     user,
     wallpaper,
     setWallpaper,
+    screensaverEnabled,
+    setScreensaverEnabled,
     login,
     logout
   };

@@ -131,6 +131,17 @@ const BOX_SELECT_IGNORE = [
 
 const SYSTEM_ICON_KEYS = new Set(['我的电脑', '我的文档', '回收站', '网上邻居']);
 
+const SYSTEM_ICON_ENGLISH_IDS: Record<string, string> = {
+  '我的电脑': 'my-computer',
+  '我的文档': 'my-documents',
+  '回收站': 'recycle-bin',
+  '网上邻居': 'network-neighborhood',
+};
+
+const getEnglishTestId = (key: string, item: FileNode): string => {
+  return SYSTEM_ICON_ENGLISH_IDS[key] || item.name;
+};
+
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
   const { wallpaper } = useUserSession();
@@ -571,6 +582,7 @@ const Desktop: React.FC = () => {
               }}
               $selected={selectedIcons.has(key)}
               data-testid={`desktop-icon-${key}`}
+              data-english-testid={`desktop-icon-${getEnglishTestId(key, item)}`}
               className="desktop-icon-selectable"
               data-icon-key={key}
               title={displayName}
@@ -610,6 +622,7 @@ const Desktop: React.FC = () => {
 
       {isSelecting && (
         <SelectionBox
+          data-testid="desktop-selection-box"
           $left={Math.min(selectionStart.x, selectionEnd.x)}
           $top={Math.min(selectionStart.y, selectionEnd.y)}
           $width={Math.abs(selectionEnd.x - selectionStart.x)}
