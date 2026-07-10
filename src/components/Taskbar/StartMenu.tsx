@@ -251,6 +251,7 @@ interface StartMenuProps {
   menuRef: React.RefObject<HTMLDivElement | null>;
   userName: string;
   startMenuApps: StartMenuApp[];
+  language: string;
   onLaunch: (appName: string, pathOrKey?: string) => void;
   onTurnOff: () => void;
   onLogout: () => void;
@@ -264,12 +265,14 @@ const StartMenu: React.FC<StartMenuProps> = ({
   menuRef,
   userName,
   startMenuApps,
+  language,
   onLaunch,
   onTurnOff,
   onLogout,
   t,
 }) => {
   const [flyoutOpen, setFlyoutOpen] = useState(false);
+  const isChineseLocale = language?.startsWith('zh');
 
   const launchWithSound = useCallback(
     (appName: string, pathOrKey?: string) => {
@@ -319,10 +322,12 @@ const StartMenu: React.FC<StartMenuProps> = ({
             <XPIcon name="ie" size={24} className="menu-icon" />
             <span>{t('startMenu.apps.internetExplorer')}</span>
           </MenuItem>
-          <MenuItem onClick={() => launchWithSound('QQ')}>
-            <XPIcon name="qq" size={24} className="menu-icon" />
-            <span>{t('startMenu.apps.qq')}</span>
-          </MenuItem>
+          {isChineseLocale && (
+            <MenuItem onClick={() => launchWithSound('QQ')}>
+              <XPIcon name="qq" size={24} className="menu-icon" />
+              <span>{t('startMenu.apps.qq')}</span>
+            </MenuItem>
+          )}
           <MenuSeparator />
           {startMenuApps.map(app => (
             <MenuItem

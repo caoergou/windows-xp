@@ -296,6 +296,7 @@ const Taskbar = () => {
         menuRef={startMenuRef}
         userName={user.name}
         startMenuApps={startMenuApps}
+        language={i18n.language}
         onLaunch={handleLaunch}
         onTurnOff={() => {
           setStartOpen(false);

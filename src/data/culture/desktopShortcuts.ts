@@ -9,6 +9,7 @@ import { DesktopShortcut } from './types';
  */
 const DESKTOP_SHORTCUTS_BY_LOCALE: Record<string, DesktopShortcut[]> = {
   zh: [
+    { id: 'qq', name: 'QQ', app: 'QQLogin', icon: 'qq' },
     { id: '360safe', name: '360安全卫士', app: 'SafeGuard360', icon: '360safe' },
     { id: 'baofeng', name: '暴风影音', app: 'BaofengPlayer', icon: 'baofeng' },
     { id: 'thunder', name: '迅雷', app: 'Thunder', icon: 'thunder' },

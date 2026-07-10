@@ -202,6 +202,19 @@
         "icon": "recycle_bin",
         "children": {}
       },
+      "网上邻居": {
+        "type": "folder",
+        "name": "网上邻居",
+        "icon": "network",
+        "children": {
+          "整个网络": {
+            "type": "folder",
+            "name": "整个网络",
+            "icon": "network_connections",
+            "children": {}
+          }
+        }
+      },
       "Internet Explorer": {
         "type": "app_shortcut",
         "name": "Internet Explorer",
@@ -220,12 +233,6 @@
         "name": "Calculator",
         "app": "Calculator",
         "icon": "calculator"
-      },
-      "QQ": {
-        "type": "app_shortcut",
-        "name": "QQ",
-        "app": "QQLogin",
-        "icon": "qq"
       },
       "Microsoft Paint": {
         "type": "app_shortcut",
