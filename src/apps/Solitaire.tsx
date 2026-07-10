@@ -18,7 +18,7 @@ import {
   getTopCard,
   RANK_LABELS,
   SUIT_SYMBOLS,
-} from '../lib/solitaire';
+} from './solitaireLogic';
 
 const CARD_WIDTH = 71;
 const CARD_HEIGHT = 96;

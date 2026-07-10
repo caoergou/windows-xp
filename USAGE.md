@@ -250,10 +250,11 @@ The component comes with default Windows XP styling via `xp.css`. You can overri
 The stylesheet is fully scoped: every xp.css rule is rewritten at build time under `:where(.windows-xp-root, .windows-xp-portal)`, so importing it cannot restyle your host page's `body`, buttons or form controls:
 
 ```jsx
-import '@caoergou/windows-xp/style.css';        // full demo experience
-// or
-import '@caoergou/windows-xp/dist/style.css';  // scoped to .windows-xp-root
+import '@caoergou/windows-xp/style.css';
 ```
+
+(`@caoergou/windows-xp/dist/style.css` resolves to the same file and is kept
+as an alias for backwards compatibility - there is exactly one stylesheet.)
 
 ## Features
 

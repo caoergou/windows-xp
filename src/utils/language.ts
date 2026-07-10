@@ -1,15 +1,14 @@
 import { getStorageKey, safeLocalStorage } from './storage';
 
+/** Locales that ship with the library. Custom culture packages may register
+ * additional codes (see USAGE.md), so language values are plain strings. */
 export type SupportedLanguage = 'en' | 'zh';
 
-const isSupportedLanguage = (value: string | null): value is SupportedLanguage =>
-  value === 'en' || value === 'zh';
-
-export const getSavedLanguage = (fallback: SupportedLanguage = 'en'): SupportedLanguage => {
+export const getSavedLanguage = (fallback = 'en'): string => {
   const saved = safeLocalStorage.getItem(getStorageKey('language'));
-  return isSupportedLanguage(saved) ? saved : fallback;
+  return saved || fallback;
 };
 
-export const saveLanguage = (language: SupportedLanguage): void => {
+export const saveLanguage = (language: string): void => {
   safeLocalStorage.setItem(getStorageKey('language'), language);
 };

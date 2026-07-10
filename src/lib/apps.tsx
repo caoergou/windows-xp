@@ -6,8 +6,6 @@
  * @example
  * ```tsx
  * import { Minesweeper } from '@caoergou/windows-xp/apps';
- * // or
- * import { Minesweeper } from '@caoergou/windows-xp/apps/Minesweeper';
  * ```
  */
 

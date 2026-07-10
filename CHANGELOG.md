@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed (docs/API alignment, #75)
+
+- README(+zh) component example imported a non-existent `Button`; now uses
+  real exports (`Window`, `Taskbar`, `XPIcon`).
+- Removed the JSDoc example advertising a `/apps/Minesweeper` subpath that
+  is not declared in `exports`.
+- `language` prop widened from `'en' | 'zh'` to `string`: the documented
+  custom-culture path (`language="ja"` + culture package) now type-checks;
+  built-ins remain en/zh with English fallback for missing keys.
+- USAGE.md claimed `style.css` and `dist/style.css` were two different
+  stylesheets (full vs scoped); there is exactly one (scoped) file. Docs
+  corrected and `./dist/style.css` added to `exports` as a compat alias so
+  the previously documented path resolves under strict resolvers.
+- Moved Solitaire game logic out of `src/lib/` (reserved for package entry
+  points) to `src/apps/solitaireLogic.ts`.
+- Added `test/doc-examples.test.ts`: extracts every
+  `import ... from '@caoergou/windows-xp[/subpath]'` in README/USAGE code
+  blocks and asserts the names really are exported - docs can no longer
+  drift from the API silently (it caught the zh README `Button` on its
+  first run).
+
 ### Changed (dependencies, #74)
 
 - Peer dependencies reduced from 8 to 3: only `react` (^18 || ^19, verified

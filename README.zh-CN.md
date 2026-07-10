@@ -120,7 +120,7 @@ const customFS = {
 import { WindowsXP } from '@caoergou/windows-xp';
 
 // 按需引入
-import { Button, Window, Taskbar } from '@caoergou/windows-xp/components';
+import { Window, Taskbar, XPIcon } from '@caoergou/windows-xp/components';
 import { Notepad, Minesweeper } from '@caoergou/windows-xp/apps';
 import { useWindowManager, useFileSystem, useApp, useCulture, useAppRegistry } from '@caoergou/windows-xp/hooks';
 import { xpScrollbarStyles } from '@caoergou/windows-xp/theme';

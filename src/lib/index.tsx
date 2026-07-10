@@ -11,8 +11,12 @@ export interface WindowsXPProps {
   username?: string;
   /** Default password for authentication. */
   password?: string;
-  /** Initial language (`'en'` or `'zh'`). */
-  language?: 'en' | 'zh';
+  /**
+   * Initial language. `'en'` and `'zh'` ship built-in; any other code
+   * (e.g. `'ja'`) requires a matching culture package that provides `i18n`
+   * resources - missing keys fall back to English.
+   */
+  language?: string;
   /** Custom file system structure merged on top of the defaults. */
   customFileSystem?: Record<string, FileNode>;
   /** Custom culture packages that extend or override the built-in en/zh cultures. */
