@@ -183,20 +183,24 @@
 
 ### K.1 Design Token 基准表（收敛目标）
 
-> 已确认的权威值如下；标"待测量"的以真实 XP 截图逐像素测量后回填，**不允许拍脑袋**。全部值最终落地为 `src/theme` 导出。
+> **每个值必须带出处**，只允许三种：① XP Luna 默认系统色（Control Panel\Colors 注册表值，见参考资料的系统色对照表）；② xp.css 产物实测（`node_modules/xp.css/dist/XP.css` 内的拟合值——注意 Luna 标题栏原版是位图，xp.css 的渐变是对位图的拟合）；③ 真实 XP 截图逐像素测量。**"待核查"= 现值出处不明，禁止再扩散使用**。全部值最终落地为 `src/theme` 导出。
 
-| Token | 值 | 来源 |
+| Token | 值 | 出处与证据 |
 |-------|-----|------|
-| `surface`（窗口/对话框底色） | `#ECE9D8` | AGENTS.md，已验证 |
-| `titlebar.active` | `linear-gradient(→, #0997FF, #0053EE)` | AGENTS.md |
-| `titlebar.inactive` | `linear-gradient(→, #7A96DF, #5A7ACF)` | AGENTS.md |
-| `border.button` | `#003C74` | AGENTS.md |
-| `highlight`（选中/菜单） | `#316AC5` | AGENTS.md |
-| `tooltip.bg` | `#FFFFE1` | XP 系统值 |
-| `desktop.fallback`（无壁纸底色） | `#3A6EA5` | XP 默认桌面色 |
-| `font.ui` | `Tahoma 11px`（en）/ `SimSun 12px`（zh） | XP 8pt/9pt 换算 |
-| `font.titlebar` | `Trebuchet MS bold` | #35 结论 |
-| `metrics.titlebarHeight` / `windowBorder` / `scrollbarWidth` / `taskbarHeight` | 待测量 | 真实 XP 截图测量后回填 |
+| `surface`（窗口/对话框底色） | `#ECE9D8` | ✅ 双源：系统色 ButtonFace = RGB(236,233,216)；xp.css `.surface`/`.window`/`button` 同值 |
+| `highlight`（选中/菜单，白字前景） | `#316AC5` | ✅ 系统色 Highlight = RGB(49,106,197) |
+| `text.disabled`（禁用文字） | `#ACA899` | ✅ 系统色 GrayText 与 ButtonShadow 均为 RGB(172,168,153) |
+| `tooltip.bg` | `#FFFFE1` | ✅ 系统色 InfoWindow = RGB(255,255,225) |
+| `window.bg`（输入区/列表底） | `#FFFFFF` | ✅ 系统色 Window |
+| `desktop.fallback`(无壁纸底色) | `#004E98` | ✅ 系统色 Desktop = RGB(0,78,152)。**勘误**：本表曾写 `#3A6EA5`，那是 Windows 2000 的桌面蓝，非 XP Luna |
+| `titlebar.active` | `linear-gradient(180deg, #0997FF, #0053EE 8%, #0050EE 40%, #0066FF 88%, #0066FF 93%, #005BFF 95%, #003DD7 96%, #003DD7)` | ✅ xp.css `title-bar` 实测。**勘误**：旧 AGENTS.md 的 `to right` 双色简化版方向就是错的（Luna 是垂直渐变） |
+| `titlebar.activeSolid` / `gradient`（经典绘制场合） | `#0054E3` / `#3D95FF` | ✅ 系统色 ActiveTitle / GradientActiveTitle |
+| `titlebar.inactive` | `#7A96DF → ?` | 🔍 待核查：`#7A96DF` 与系统色 InactiveTitle 吻合；现用第二段 `#5A7ACF` 出处不明（系统色 GradientInactiveTitle 为 `#9DB9EB`），xp.css 无非激活样式，需截图测量定值 |
+| `border.button` | `#003C74` | 🔍 待核查：xp.css 中未找到，需从按钮控件截图验证 |
+| `titlebar` 度量 | 高 21px + padding 3px、顶部圆角 8px/7px、字号 13px、text-shadow `1px 1px #0F1089`、边框 `#0831D9`/`#001EA0`、控制按钮 21×21px | ✅ xp.css `title-bar` 实测（最终以截图仲裁） |
+| `font.ui` | `Tahoma 11px`（en）/ `SimSun 12px`（zh） | ✅ XP 8pt/9pt 换算；中文宋体优先（雅黑系 Vista+） |
+| `font.titlebar` | `Trebuchet MS` bold | ✅ xp.css 实测 + #35 结论 |
+| `metrics.windowBorder` / `scrollbarWidth` / `taskbarHeight` | 待测量 | 真实 XP 截图测量后回填 |
 
 ### K.2 截图基线清单（Playwright `toHaveScreenshot`）
 
@@ -233,7 +237,8 @@
 
 ## 参考资料
 
-- [XP.css](https://botoxparty.github.io/XP.css/) / [ShizukuIchi/winXP](https://github.com/ShizukuIchi/winXP) —— 视觉与交互参考实现
+- [XP.css](https://botoxparty.github.io/XP.css/) / [ShizukuIchi/winXP](https://github.com/ShizukuIchi/winXP) —— 视觉与交互参考实现（本项目已安装 xp.css，产物可直接查证：`node_modules/xp.css/dist/XP.css`）
+- [Windows System Colours by OS (zaxbux gist)](https://gist.github.com/zaxbux/64b5a88e2e390fb8f8d24eb1736f71e0) / [Windows System Colours Reference (quppa.net)](https://www.quppa.net/syscol/) —— 各版本 Windows 系统色对照（K.1 系统色出处）
 - [When Is Each Sound From A Windows Sound Scheme Played? (Digital Citizen)](https://www.digitalcitizen.life/when-each-sound-windows-sound-scheme-played/) —— 声音事件触发时机
 - [List of Windows sounds (Microsoft Wiki)](https://microsoft.fandom.com/wiki/List_of_Windows_sounds) / [Internet Archive: ALL Windows XP Sounds](https://archive.org/details/windowsxpstartup_201910) —— XP 默认方案音源与事件清单
 - 最终仲裁：Windows XP SP3 虚拟机实测
