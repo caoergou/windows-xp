@@ -12,6 +12,11 @@ module.exports = defineConfig({
     baseURL: 'http://localhost:5173/windows-xp/',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // Allow overriding the browser binary in sandboxed environments where
+    // downloading browsers is not possible (e.g. PW_CHROMIUM_PATH=/opt/pw-browsers/chromium)
+    ...(process.env.PW_CHROMIUM_PATH
+      ? { launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH } }
+      : {}),
   },
 
   projects: [
