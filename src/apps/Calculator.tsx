@@ -68,6 +68,7 @@ const Key = styled.button<{
   $disabled?: boolean;
 }>`
   min-width: 0;
+  min-height: 0;
   height: ${BTN_H}px;
   padding: 0;
   margin: 0;
@@ -76,29 +77,40 @@ const Key = styled.button<{
   font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   line-height: 1;
   outline: none;
-  border: 1px solid;
-  border-color: #ffffff #808080 #808080 #ffffff;
-  background: #d4d0c8;
   grid-column: ${p => (p.$span ? `span ${p.$span}` : 'auto')};
 
+  /* Luna themed button, matching xp.css exactly (#99): the previous
+     #d4d0c8 + two-tone 1px border was the Windows 2000 look. */
+  box-sizing: border-box;
+  border: 1px solid #003c74;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
+  box-shadow: none;
+
   color: ${p => {
-    if (p.$disabled) return '#808080';
+    if (p.$disabled) return '#aca899';
     if (p.$variant === 'clear' || p.$variant === 'mem' || p.$variant === 'op') return '#cc0000';
     if (p.$variant === 'fn') return '#000080';
     return '#000000';
   }};
 
+  &:hover:not(:disabled) {
+    box-shadow:
+      inset -1px 1px #fff0cf,
+      inset 1px 2px #fdd889,
+      inset -2px 2px #fbc761,
+      inset 2px -2px #e5a01a;
+  }
+
   &:active:not(:disabled) {
-    border-color: #808080 #ffffff #ffffff #808080;
-    background: #c0c0c0;
-    box-shadow: inset 1px 1px 0 #808080;
-    padding-top: 1px;
-    padding-left: 1px;
+    box-shadow: none;
+    background: linear-gradient(180deg, #cdcac3, #e3e3db 8%, #e5e5de 94%, #f2f2f1);
   }
 
   &:disabled {
-    background: #d4d0c8;
-    text-shadow: 1px 1px 0 #ffffff;
+    background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
+    border-color: #c9c2b8;
+    text-shadow: none;
   }
 `;
 
