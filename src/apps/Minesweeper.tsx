@@ -1,5 +1,14 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import {
+  XPMenuBar as SharedMenuBar,
+  XPMenuBarItem as SharedMenuButton,
+  XPMenuSlot as SharedMenuSlot,
+  XPMenuDropdown as SharedDropdown,
+  XPMenuDropdownItem as SharedDropdownItem,
+  XPMenuSeparator as SharedMenuSeparator,
+  XPMenuMark as SharedMenuMark,
+} from '../components/XPMenuBar';
 import { useTranslation } from 'react-i18next';
 import { useWindowManager } from '../context/WindowManagerContext';
 import empty from '../assets/games/minesweeper/empty.png';
@@ -220,84 +229,10 @@ const Wrap = styled.div`
   }
 `;
 
-const MenuBar = styled.div`
-  display: flex;
-  height: 20px;
-  padding-left: 2px;
-  background: #ece9d8;
-`;
-
-const MenuSlot = styled.div`
-  position: relative;
-`;
-
-const MenuButton = styled.button<{ $active: boolean }>`
-  height: 20px;
-  min-width: 0;
-  min-height: 20px;
-  padding: 0 6px;
-  border: 0;
-  color: ${props => (props.$active ? '#fff' : '#000')};
-  background: ${props => (props.$active ? '#0a246a' : 'transparent')};
-  font: inherit;
-  line-height: 20px;
-  cursor: default;
-
-  &:hover {
-    color: #fff;
-    background: #0a246a;
-  }
-`;
-
-const Dropdown = styled.div`
-  position: absolute;
-  z-index: 20;
-  top: 20px;
-  left: 0;
-  min-width: 154px;
-  padding: 2px;
-  border: 1px solid #808080;
-  background: #fff;
-  box-shadow: 2px 2px 1px #646464;
-`;
-
-const DropdownItem = styled.button`
-  display: grid;
-  grid-template-columns: 16px 1fr;
-  width: 100%;
-  min-height: 18px;
-  padding: 0 5px 0 1px;
-  border: 0;
-  color: #000;
-  background: transparent;
-  font: inherit;
-  line-height: 18px;
-  text-align: left;
-  white-space: nowrap;
-  cursor: default;
-
-  &:hover {
-    color: #fff;
-    background: #0a246a;
-  }
-`;
-
-const MenuMark = styled.span`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
 const MenuCheck = styled.img`
   width: 7px;
   height: 7px;
   image-rendering: pixelated;
-`;
-
-const MenuSeparator = styled.div`
-  height: 1px;
-  margin: 3px 1px;
-  background: #808080;
 `;
 
 const GamePanel = styled.section`
@@ -750,53 +685,53 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
         event.stopPropagation();
       }}
     >
-      <MenuBar ref={menuRef}>
-        <MenuSlot>
-          <MenuButton
+      <SharedMenuBar ref={menuRef}>
+        <SharedMenuSlot>
+          <SharedMenuButton
             type="button"
             $active={openMenu === 'game'}
             onClick={() => setOpenMenu(current => (current === 'game' ? null : 'game'))}
           >
             {t('minesweeper.menu.game')}
-          </MenuButton>
+          </SharedMenuButton>
           {openMenu === 'game' && (
-            <Dropdown role="menu">
-              <DropdownItem type="button" role="menuitem" onClick={resetGame}>
-                <MenuMark />
+            <SharedDropdown role="menu">
+              <SharedDropdownItem type="button" role="menuitem" onClick={resetGame}>
+                <SharedMenuMark />
                 {t('minesweeper.menuItems.new')}
-              </DropdownItem>
-              <MenuSeparator />
+              </SharedDropdownItem>
+              <SharedMenuSeparator />
               {difficultyKeys.map(option => (
-                <DropdownItem
+                <SharedDropdownItem
                   key={option}
                   type="button"
                   role="menuitemradio"
                   aria-checked={difficulty === option}
                   onClick={() => selectDifficulty(option)}
                 >
-                  <MenuMark>{difficulty === option && <MenuCheck src={checked} alt="" />}</MenuMark>
+                  <SharedMenuMark>{difficulty === option && <MenuCheck src={checked} alt="" />}</SharedMenuMark>
                   {t(`minesweeper.menuItems.${option}`)}
-                </DropdownItem>
+                </SharedDropdownItem>
               ))}
-              <MenuSeparator />
-              <DropdownItem type="button" role="menuitem" onClick={exitGame}>
-                <MenuMark />
+              <SharedMenuSeparator />
+              <SharedDropdownItem type="button" role="menuitem" onClick={exitGame}>
+                <SharedMenuMark />
                 {t('minesweeper.menuItems.exit')}
-              </DropdownItem>
-            </Dropdown>
+              </SharedDropdownItem>
+            </SharedDropdown>
           )}
-        </MenuSlot>
-        <MenuSlot>
-          <MenuButton
+        </SharedMenuSlot>
+        <SharedMenuSlot>
+          <SharedMenuButton
             type="button"
             $active={openMenu === 'help'}
             onClick={() => setOpenMenu(current => (current === 'help' ? null : 'help'))}
           >
             {t('minesweeper.menu.help')}
-          </MenuButton>
+          </SharedMenuButton>
           {openMenu === 'help' && (
-            <Dropdown role="menu">
-              <DropdownItem
+            <SharedDropdown role="menu">
+              <SharedDropdownItem
                 type="button"
                 role="menuitem"
                 onClick={() => {
@@ -804,13 +739,13 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
                   setOpenMenu(null);
                 }}
               >
-                <MenuMark />
+                <SharedMenuMark />
                 {t('minesweeper.menuItems.about')}
-              </DropdownItem>
-            </Dropdown>
+              </SharedDropdownItem>
+            </SharedDropdown>
           )}
-        </MenuSlot>
-      </MenuBar>
+        </SharedMenuSlot>
+      </SharedMenuBar>
 
       <GamePanel>
         <ScoreBar>

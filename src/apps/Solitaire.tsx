@@ -4,6 +4,14 @@ import { useTranslation } from 'react-i18next';
 import styled, { css } from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import {
+  XPMenuBar,
+  XPMenuBarItem,
+  XPMenuSlot,
+  XPMenuDropdown,
+  XPMenuDropdownItem,
+  XPMenuMark,
+} from '../components/XPMenuBar';
+import {
   type Card,
   type GameState,
   type PileLocation,
@@ -38,33 +46,6 @@ const Wrap = styled.div`
   color: #ffffff;
   overflow: auto;
   position: relative;
-`;
-
-const MenuBar = styled.div`
-  background: #d4d0c8;
-  padding: 2px 8px;
-  margin-bottom: 0;
-  color: #000000;
-  display: flex;
-  gap: 12px;
-  border: 0;
-  border-bottom: 1px solid #808080;
-  flex-shrink: 0;
-`;
-
-const MenuItem = styled.button`
-  background: transparent;
-  border: none;
-  color: #000000;
-  font-size: 12px;
-  font-family: inherit;
-  cursor: pointer;
-  padding: 2px 6px;
-
-  &:hover {
-    background: #0a2463;
-    color: #ffffff;
-  }
 `;
 
 const TopArea = styled.div`
@@ -235,7 +216,8 @@ interface DragState {
 
 const Solitaire = ({ windowId }: { windowId?: string }) => {
   const { t, i18n } = useTranslation();
-  const { setWindowTitle } = useWindowManager();
+  const { setWindowTitle, closeWindow } = useWindowManager();
+  const [openMenu, setOpenMenu] = useState<'game' | 'help' | null>(null);
   const [gameState, setGameState] = useState<GameState>(() => dealGame());
   const [drag, setDrag] = useState<DragState | null>(null);
   const [won, setWon] = useState(false);
@@ -244,6 +226,17 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
   const tableauRefs = useRef<(HTMLDivElement | null)[]>([]);
   const stockRef = useRef<HTMLDivElement>(null);
   const wasteRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onDocMouseDown = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener('mousedown', onDocMouseDown);
+    return () => document.removeEventListener('mousedown', onDocMouseDown);
+  }, []);
 
   useEffect(() => {
     setWon(checkWin(gameState.foundations));
@@ -461,10 +454,60 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
 
   return (
     <Wrap ref={wrapRef}>
-      <MenuBar>
-        <MenuItem onClick={resetGame}>{t('solitaire.menu.game')}</MenuItem>
-        <MenuItem>{t('solitaire.menu.help')}</MenuItem>
-      </MenuBar>
+      <XPMenuBar ref={menuRef}>
+        <XPMenuSlot>
+          <XPMenuBarItem
+            type="button"
+            $active={openMenu === 'game'}
+            onClick={() => setOpenMenu(cur => (cur === 'game' ? null : 'game'))}
+          >
+            {t('solitaire.menu.game')}
+          </XPMenuBarItem>
+          {openMenu === 'game' && (
+            <XPMenuDropdown role="menu">
+              <XPMenuDropdownItem
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  resetGame();
+                  setOpenMenu(null);
+                }}
+              >
+                <XPMenuMark />
+                {t('solitaire.menuItems.new')}
+              </XPMenuDropdownItem>
+              <XPMenuDropdownItem
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setOpenMenu(null);
+                  if (windowId) closeWindow(windowId);
+                }}
+              >
+                <XPMenuMark />
+                {t('solitaire.menuItems.exit')}
+              </XPMenuDropdownItem>
+            </XPMenuDropdown>
+          )}
+        </XPMenuSlot>
+        <XPMenuSlot>
+          <XPMenuBarItem
+            type="button"
+            $active={openMenu === 'help'}
+            onClick={() => setOpenMenu(cur => (cur === 'help' ? null : 'help'))}
+          >
+            {t('solitaire.menu.help')}
+          </XPMenuBarItem>
+          {openMenu === 'help' && (
+            <XPMenuDropdown role="menu">
+              <XPMenuDropdownItem type="button" role="menuitem" onClick={() => setOpenMenu(null)}>
+                <XPMenuMark />
+                {t('solitaire.menuItems.about')}
+              </XPMenuDropdownItem>
+            </XPMenuDropdown>
+          )}
+        </XPMenuSlot>
+      </XPMenuBar>
 
       <TopArea>
         <StockArea>
