@@ -18,8 +18,7 @@ const Container = styled.div`
 
 const MenuBar = styled.div`
   height: 20px;
-  background: linear-gradient(to bottom, #f0f0f0 0%, #e0e0e0 100%);
-  border-bottom: 1px solid #808080;
+  background: #ece9d8;
   display: flex;
   align-items: center;
   padding: 0 2px;

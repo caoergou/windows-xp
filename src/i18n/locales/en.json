@@ -679,6 +679,11 @@
     "menu": {
       "game": "Game(G)",
       "help": "Help(H)"
+    },
+    "menuItems": {
+      "new": "New Game",
+      "exit": "Exit",
+      "about": "About Solitaire"
     }
   },
   "mediaPlayer": {

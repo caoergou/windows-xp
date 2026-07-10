@@ -673,6 +673,11 @@
     "menu": {
       "game": "游戏(G)",
       "help": "帮助(H)"
+    },
+    "menuItems": {
+      "new": "开局(D)",
+      "exit": "退出(X)",
+      "about": "关于纸牌"
     }
   },
   "mediaPlayer": {

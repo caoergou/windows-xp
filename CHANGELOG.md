@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed (menu-bar consistency, #99)
+
+- Added shared `XPMenuBar` primitives (`src/components/XPMenuBar.tsx`) and
+  migrated Solitaire, Minesweeper and Notepad onto them. The three apps
+  previously hand-rolled menu bars with three different backgrounds
+  (`#d4d0c8` / `#ece9d8` / `#f0f0f0` gradient) and highlight colors; they
+  now share one canonical XP look (surface `#ECE9D8`, highlight `#316AC5`,
+  no hard divider) sourced from FIDELITY.md §K.1. Solitaire's Game/Help
+  menu — the most visibly off — is fully rewritten with real dropdowns.
+
 ### Added (event bus + imperative control, #76)
 
 - `onEvent` prop on `<WindowsXP/>`: a single typed stream of everything that
