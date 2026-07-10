@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (event bus + imperative control, #76)
+
+- `onEvent` prop on `<WindowsXP/>`: a single typed stream of everything that
+  happens inside the desktop - `app:launch`/`app:close`,
+  `window:focus`/`minimize`/`maximize`/`restore`,
+  `file:open`/`create`/`delete`/`rename`/`restore`/`unlock`,
+  `session:login`/`logout`/`boot-complete`/`shutdown`, and `cmd:exec`.
+  Exported `XPEvent` union, `XPEventType`, `XPEventListener`.
+- Imperative handle via `ref` (`XPHandle`): `openApp`, `openFile`,
+  `closeWindow`, `showAlert`, `reset`. `<WindowsXP/>` is now a
+  `forwardRef` component.
+- `useXPEvents(listener)` / `useXPEventBus()` hooks for subscribing from
+  inside the tree (custom apps) without prop-drilling.
+- This is the foundation for the scenario system (#84): host code and
+  scenario scripts observe progress and drive the desktop through the same
+  bus + handle.
+
 ### Changed (type-safety debt, #82)
 
 - Removed every `@ts-nocheck` from `src/` (11 files) and fixed all 94 real

@@ -2,6 +2,8 @@ import React from 'react';
 import { AppProviders } from '../components/AppProviders';
 import { FileNode, AppRegistryEntry } from '../types';
 import { CulturePackage } from '../data/culture';
+import type { XPEventListener } from '../events';
+import type { XPHandle } from '../components/XPBridge';
 import '../i18n';
 import 'xp.css/dist/XP.css';
 import '../scoped.css';
@@ -45,6 +47,8 @@ export interface WindowsXPProps {
   disableGlobalShortcuts?: boolean;
   /** Disable the idle screensaver. */
   disableScreenSaver?: boolean;
+  /** Subscribe to desktop events (app launches, file opens, session, cmd...). */
+  onEvent?: XPEventListener;
 }
 
 /**
@@ -62,22 +66,26 @@ export interface WindowsXPProps {
  * }
  * ```
  */
-export const WindowsXP: React.FC<WindowsXPProps> = ({
-  username = 'User',
-  password = 'forthe2000s',
-  language = 'en',
-  customFileSystem = null,
-  cultures,
-  apps,
-  skipBoot = false,
-  autoLogin = false,
-  storagePrefix,
-  mode = 'fullscreen',
-  disableContextMenuBlock,
-  disableDevToolsBlock,
-  disableGlobalShortcuts,
-  disableScreenSaver,
-}) => {
+export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function WindowsXP(
+  {
+    username = 'User',
+    password = 'forthe2000s',
+    language = 'en',
+    customFileSystem = null,
+    cultures,
+    apps,
+    skipBoot = false,
+    autoLogin = false,
+    storagePrefix,
+    mode = 'fullscreen',
+    disableContextMenuBlock,
+    disableDevToolsBlock,
+    disableGlobalShortcuts,
+    disableScreenSaver,
+    onEvent,
+  },
+  ref
+) {
   const embedded = mode === 'embedded';
   return (
     <AppProviders
@@ -90,13 +98,15 @@ export const WindowsXP: React.FC<WindowsXPProps> = ({
       skipBoot={skipBoot}
       autoLogin={autoLogin}
       storagePrefix={storagePrefix}
+      onEvent={onEvent}
+      handleRef={ref}
       disableContextMenuBlock={disableContextMenuBlock ?? embedded}
       disableDevToolsBlock={disableDevToolsBlock ?? embedded}
       disableGlobalShortcuts={disableGlobalShortcuts ?? embedded}
       disableScreenSaver={disableScreenSaver ?? embedded}
     />
   );
-};
+});
 
 // Re-export providers for advanced composition.
 export { AppProviders } from '../components/AppProviders';
@@ -138,3 +148,6 @@ export type {
   MenuItem,
 } from '../types';
 export type { CulturePackage } from '../data/culture';
+export type { XPEvent, XPEventType, XPEventListener } from '../events';
+export type { XPHandle } from '../components/XPBridge';
+export { useXPEvents, useXPEventBus } from '../context/EventBusContext';

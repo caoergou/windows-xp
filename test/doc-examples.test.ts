@@ -37,15 +37,18 @@ interface DocImport {
 const collectDocImports = (): DocImport[] => {
   const results: DocImport[] = [];
   const importRe =
-    /import\s*(?:type\s*)?\{([^}]+)\}\s*from\s*['"]@caoergou\/windows-xp(\/[\w-]+)?['"]/g;
+    /import\s*(type\s*)?\{([^}]+)\}\s*from\s*['"]@caoergou\/windows-xp(\/[\w-]+)?['"]/g;
   for (const file of DOC_FILES) {
     const content = readFileSync(join(__dirname, '..', file), 'utf8');
     for (const match of content.matchAll(importRe)) {
-      const names = match[1]
+      // `import type { ... }` references type-only exports with no runtime
+      // binding, so they can't be verified against the module's value exports.
+      if (match[1]) continue;
+      const names = match[2]
         .split(',')
-        .map(name => name.trim().split(/\s+as\s+/)[0].trim())
+        .map(name => name.trim().replace(/^type\s+/, '').split(/\s+as\s+/)[0].trim())
         .filter(Boolean);
-      results.push({ file, subpath: match[2] ?? '', names });
+      results.push({ file, subpath: match[3] ?? '', names });
     }
   }
   return results;

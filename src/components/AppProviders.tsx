@@ -11,10 +11,18 @@ import { AppRegistryProvider, useAppRegistry } from '../context/AppRegistryConte
 import { CultureProvider, useCulture } from '../context/CultureContext';
 import { FileNode, AppRegistryEntry } from '../types';
 import { CulturePackage } from '../data/culture';
+import { EventBusProvider } from '../context/EventBusContext';
+import { XPEventBridge, XPImperativeApi, type XPHandle } from './XPBridge';
+import { XPEventBus } from '../events';
+import type { XPEventListener } from '../events';
 import { setStoragePrefix } from '../utils/storage';
 import { getSavedLanguage } from '../utils/language';
 
 export interface AppProvidersProps {
+  /** Subscribe to desktop events (#76). */
+  onEvent?: XPEventListener;
+  /** Imperative handle for driving the desktop programmatically (#76). */
+  handleRef?: React.Ref<XPHandle>;
   username?: string;
   password?: string;
   language?: string;
@@ -31,6 +39,8 @@ export interface AppProvidersProps {
 }
 
 const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
+  onEvent,
+  handleRef,
   username,
   password,
   language,
@@ -45,6 +55,9 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
 }) => {
   // Configure storage namespace synchronously before any context reads/writes storage.
   setStoragePrefix(storagePrefix || 'xp_');
+
+  // One event bus per desktop instance (#76).
+  const busRef = useMemo(() => new XPEventBus(), []);
 
   const { i18n } = useTranslation();
   const { culture, cultureKey, setCultureByLang } = useCulture();
@@ -74,28 +87,32 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
 
   // 用户传入的 customFileSystem 优先级高于文化包
   return (
-    <UserSessionProvider username={username} password={password} autoLogin={autoLogin}>
-      <FileSystemProvider
-        customFileSystem={customFileSystem}
-        cultureFileSystem={culturalShortcuts}
-        cultureKey={cultureKey}
-      >
-        <WindowManagerProvider registry={registry}>
-          <TrayProvider>
-            <ModalProvider>
-              <App
-                initialLanguage={language}
-                skipBoot={skipBoot}
-                disableContextMenuBlock={disableContextMenuBlock}
-                disableDevToolsBlock={disableDevToolsBlock}
-                disableGlobalShortcuts={disableGlobalShortcuts}
-                disableScreenSaver={disableScreenSaver}
-              />
-            </ModalProvider>
-          </TrayProvider>
-        </WindowManagerProvider>
-      </FileSystemProvider>
-    </UserSessionProvider>
+    <EventBusProvider bus={busRef}>
+      <XPEventBridge onEvent={onEvent} />
+      <UserSessionProvider username={username} password={password} autoLogin={autoLogin}>
+        <FileSystemProvider
+          customFileSystem={customFileSystem}
+          cultureFileSystem={culturalShortcuts}
+          cultureKey={cultureKey}
+        >
+          <WindowManagerProvider registry={registry}>
+            <TrayProvider>
+              <ModalProvider>
+                <XPImperativeApi ref={handleRef} storagePrefix={storagePrefix} />
+                <App
+                  initialLanguage={language}
+                  skipBoot={skipBoot}
+                  disableContextMenuBlock={disableContextMenuBlock}
+                  disableDevToolsBlock={disableDevToolsBlock}
+                  disableGlobalShortcuts={disableGlobalShortcuts}
+                  disableScreenSaver={disableScreenSaver}
+                />
+              </ModalProvider>
+            </TrayProvider>
+          </WindowManagerProvider>
+        </FileSystemProvider>
+      </UserSessionProvider>
+    </EventBusProvider>
   );
 };
 

@@ -3,6 +3,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../context/FileSystemContext';
+import { useXPEventBus } from '../context/EventBusContext';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useUserSession } from '../context/UserSessionContext';
 import Taskbar from './Taskbar';
@@ -148,6 +149,7 @@ const Desktop: React.FC = () => {
   const { fs, moveFile, deleteFile, renameFile, createFile, copyToClipboard, cutFile, pasteFile, clipboard } = useFileSystem();
   const rootChildren = (fs.root as RootNode).children;
   const { windows, openWindow } = useWindowManager();
+  const bus = useXPEventBus();
   const { showModal, showConfirm, showInput } = useModal();
 
   const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; iconKey: string | null }>({ visible: false, x: 0, y: 0, iconKey: null });
@@ -289,6 +291,7 @@ const Desktop: React.FC = () => {
 
   const handleIconDoubleClick = (key: string, item: FileItem) => {
     const resolved = resolveFileOpen(key, item);
+    bus.emit({ type: 'file:open', path: [key], name: item.name, nodeType: item.type, app: (item as { app?: string }).app });
     const displayName = getFileDisplayName(key, item, t);
     if (!resolved) {
       showModal(

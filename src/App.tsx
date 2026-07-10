@@ -16,6 +16,7 @@ import { safeLocalStorage, getStorageKey, canUseDOM, STORAGE_ERROR_EVENT } from 
 import { FS_NOTICE_EVENT } from './context/FileSystemContext/hooks/useFileOperations';
 import type { FsNoticeDetail } from './context/FileSystemContext/hooks/useFileOperations';
 import { useModal } from './context/ModalContext';
+import { useXPEventBus } from './context/EventBusContext';
 import { getSavedLanguage } from './utils/language';
 
 const Container = styled.div`
@@ -161,9 +162,19 @@ function App({
 }: AppProps = {}) {
   const { t } = useTranslation();
   const { dialog } = useModal();
+  const bus = useXPEventBus();
 
   // Surface persistence problems as XP dialogs instead of silent console
   // errors (#81): localStorage quota exceeded, recycle-bin restore fallback.
+  const bootCompleteEmittedRef = React.useRef(false);
+  useEffect(() => {
+    if (bootCompleteEmittedRef.current) return;
+    if (bootPhase === 'RUNNING' && isLoggedIn) {
+      bootCompleteEmittedRef.current = true;
+      bus.emit({ type: 'session:boot-complete' });
+    }
+  });
+
   useEffect(() => {
     if (!canUseDOM) return;
     const onStorageError = () => {
