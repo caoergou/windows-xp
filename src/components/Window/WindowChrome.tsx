@@ -4,17 +4,25 @@ import { WindowState } from '../../types';
 import { WINDOW_DEFAULTS } from '../../constants';
 import XPIcon from '../XPIcon';
 
-export const WindowContainer = styled.div<{ $isFocus?: boolean; $minWidth?: number; $minHeight?: number }>`
+export const WindowContainer = styled.div<{
+  $isFocus?: boolean;
+  $minWidth?: number;
+  $minHeight?: number;
+}>`
   box-sizing: border-box;
   position: absolute;
   display: flex;
   flex-direction: column;
   min-height: ${({ $minHeight }) => $minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT}px;
   min-width: ${({ $minWidth }) => $minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH}px;
-  background-color: ${({ $isFocus }) => ($isFocus ? '#0831d9' : '#6582f5')};
+  background-color: #ece9d8;
+  box-shadow: ${({ $isFocus }) =>
+    $isFocus
+      ? 'inset -1px -1px #00138c, inset 1px 1px #0831d9, inset -2px -2px #001ea0, inset 2px 2px #166aee, inset -3px -3px #003bda, inset 3px 3px #0855dd'
+      : 'inset -1px -1px #4f648f, inset 1px 1px #7a96df, inset -2px -2px #5a74b9, inset 2px 2px #9aafe5'};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  padding: 3px;
+  padding: 0 0 3px;
 
   .react-resizable-handle {
     z-index: 1000;
@@ -23,19 +31,23 @@ export const WindowContainer = styled.div<{ $isFocus?: boolean; $minWidth?: numb
 `;
 
 export const TitleBar = styled.div<{ $isFocus?: boolean }>`
-  height: 25px;
-  min-height: 25px;
-  max-height: 25px;
+  box-sizing: border-box;
+  height: 28px;
+  min-height: 28px;
+  max-height: 28px;
   background: ${({ $isFocus }) =>
     $isFocus
-      ? 'linear-gradient(to bottom,#0058ee 0%,#3593ff 4%,#288eff 6%,#127dff 8%,#036ffc 10%,#0262ee 14%,#0057e5 20%,#0054e3 24%,#0055eb 56%,#005bf5 66%,#026afe 76%,#0062ef 86%,#0052d6 92%,#0040ab 94%,#003092 100%)'
+      ? 'linear-gradient(to bottom, #0997ff 0%, #0053ee 8%, #0050ee 40%, #0066ff 88%, #0066ff 93%, #005bff 95%, #003dd7 96%, #003dd7 100%)'
       : 'linear-gradient(to bottom, #7697e7 0%,#7e9ee3 3%,#94afe8 6%,#97b4e9 8%,#82a5e4 14%,#7c9fe2 17%,#7996de 25%,#7b99e1 56%,#82a9e9 81%,#80a5e7 89%,#7b96e1 94%,#7a93df 97%,#abbae3 100%)'};
+  border-top: 1px solid ${({ $isFocus }) => ($isFocus ? '#0831d9' : '#6d86c7')};
+  border-left: 1px solid ${({ $isFocus }) => ($isFocus ? '#0831d9' : '#6d86c7')};
+  border-right: 1px solid ${({ $isFocus }) => ($isFocus ? '#001ea0' : '#536da8')};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 3px 0 5px;
+  padding: 3px 5px 3px 3px;
   cursor: default;
   user-select: none;
   position: relative;
@@ -85,7 +97,7 @@ const TitleText = styled.div`
   align-items: center;
   pointer-events: none;
   padding-right: 5px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -107,6 +119,7 @@ export const WindowBody = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
+  margin: 0 3px;
 `;
 
 interface WindowChromeProps {
@@ -138,6 +151,7 @@ const WindowChrome: React.FC<WindowChromeProps> = ({
 
   return (
     <WindowContainer
+      data-xp-context-boundary="true"
       $isFocus={isFocused}
       $minWidth={minWidth}
       $minHeight={minHeight}

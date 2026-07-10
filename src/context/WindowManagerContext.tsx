@@ -55,6 +55,14 @@ export const WindowManagerProvider: React.FC<{
   const activeWindowIdRef = useRef(activeWindowId);
   const [zIndexCounter, setZIndexCounter] = useState(10000);
 
+  useEffect(() => {
+    if (activeWindowId || windows.length === 0) return;
+    const topWindow = windows.reduce((top, current) =>
+      current.zIndex > top.zIndex ? current : top
+    );
+    setActiveWindowId(topWindow.id);
+  }, [activeWindowId, windows]);
+
   // Keep ref in sync so focusWindow can read the latest value inside setWindows
   useEffect(() => {
     activeWindowIdRef.current = activeWindowId;

@@ -9,6 +9,7 @@ import SafeGuard360 from '../apps/SafeGuard360';
 import Calculator from '../apps/Calculator';
 import HelpAndSupport from '../apps/HelpAndSupport';
 import RunDialog from '../apps/RunDialog';
+import TaskManager from '../apps/TaskManager';
 const CommandPrompt = React.lazy(() => import('../apps/CommandPrompt'));
 import VolumeControl from '../apps/VolumeControl';
 import NetworkConnections from '../apps/NetworkConnections';
@@ -21,7 +22,13 @@ const Thunder = React.lazy(() => import('../apps/Thunder'));
 const BaofengPlayer = React.lazy(() => import('../apps/BaofengPlayer'));
 const KugouMusic = React.lazy(() => import('../apps/KugouMusic'));
 const WPSOffice = React.lazy(() => import('../apps/WPSOffice'));
-import { AppRegistryEntry, AppAssociation, FileNode, isFileContentNode, isAppShortcutNode } from '../types';
+import {
+  AppRegistryEntry,
+  AppAssociation,
+  FileNode,
+  isFileContentNode,
+  isAppShortcutNode,
+} from '../types';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
@@ -52,7 +59,7 @@ const DummyAppContainer = styled.div`
   align-items: center;
   justify-content: center;
   background: white;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   text-align: center;
   padding: 20px;
 `;
@@ -84,11 +91,11 @@ const DummyAppComponent: React.FC<DummyAppProps> = ({ appName = '此应用' }) =
   const { t } = useTranslation();
   return (
     <DummyAppContainer>
-      <IconWrapper><XPIcon name="alert" size={64} /></IconWrapper>
+      <IconWrapper>
+        <XPIcon name="alert" size={64} />
+      </IconWrapper>
       <Title>{appName}</Title>
-      <Message>
-        {t('apps.comingSoon', '此功能正在开发中，敬请期待！')}
-      </Message>
+      <Message>{t('apps.comingSoon', '此功能正在开发中，敬请期待！')}</Message>
     </DummyAppContainer>
   );
 };
@@ -120,9 +127,8 @@ export const getAppDisplayName = (def: AppRegistryEntry, t: TFunction): string =
  *   restore(props)      — 从已保存的 componentProps 重建 JSX（localStorage 恢复时）
  */
 export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
-
   Explorer: {
-    id:   'Explorer',
+    id: 'Explorer',
     name: '文件资源管理器',
     icon: 'folder',
     window: { width: 720, height: 500 },
@@ -132,7 +138,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   },
 
   InternetExplorer: {
-    id:   'InternetExplorer',
+    id: 'InternetExplorer',
     name: 'Internet Explorer',
     icon: 'ie',
     window: { isMaximized: true },
@@ -155,7 +161,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   },
 
   Notepad: {
-    id:   'Notepad',
+    id: 'Notepad',
     name: '记事本',
     nameKey: 'apps.notepad',
     icon: 'file',
@@ -174,7 +180,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   },
 
   PhotoViewer: {
-    id:   'PhotoViewer',
+    id: 'PhotoViewer',
     name: '图片查看器',
     nameKey: 'photoViewer.title',
     icon: 'image',
@@ -183,14 +189,17 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       {
         appField: 'PhotoViewer',
-        getProps: (item: FileNode) => ({ src: isFileContentNode(item) ? item.content : undefined, fileItem: item }),
+        getProps: (item: FileNode) => ({
+          src: isFileContentNode(item) ? item.content : undefined,
+          fileItem: item,
+        }),
       },
     ],
     restore: restoreApp(PhotoViewer),
   },
 
   FileProperties: {
-    id:   'FileProperties',
+    id: 'FileProperties',
     name: '属性',
     icon: 'properties',
     window: { width: 380, height: 420, resizable: false },
@@ -199,111 +208,115 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   },
 
   QQLogin: {
-    id:     'QQLogin',
-    name:   'QQ',
+    id: 'QQLogin',
+    name: 'QQ',
     nameKey: 'qq.title',
-    icon:   'qq',
+    icon: 'qq',
+    locales: ['zh'],
     window: { width: 320, height: 380, resizable: false, singleton: true },
     lifecycle: {},
-    associations: [
-      { appField: 'QQLogin', getProps: () => ({}) },
-    ],
+    associations: [{ appField: 'QQLogin', getProps: () => ({}) }],
     restore: restoreApp(QQLogin),
   },
 
   SafeGuard360: {
-    id:     'SafeGuard360',
-    name:   '360 Safe Guard',
+    id: 'SafeGuard360',
+    name: '360 Safe Guard',
     nameKey: 'safeGuard360.title',
-    icon:   '360safe',
+    icon: '360safe',
+    locales: ['zh'],
     window: { width: 500, height: 360, resizable: false, singleton: true },
     lifecycle: {},
-    associations: [
-      { appField: 'SafeGuard360', getProps: () => ({}) },
-    ],
+    associations: [{ appField: 'SafeGuard360', getProps: () => ({}) }],
     restore: restoreApp(SafeGuard360),
   },
 
   Calculator: {
-    id:     'Calculator',
-    name:   '计算器',
+    id: 'Calculator',
+    name: '计算器',
     nameKey: 'apps.calculator',
-    icon:   'calculator',
+    icon: 'calculator',
     window: { width: 208, height: 196, resizable: false, singleton: true },
     lifecycle: {},
-    associations: [
-      { appField: 'Calculator', getProps: () => ({}) },
-    ],
+    associations: [{ appField: 'Calculator', getProps: () => ({}) }],
     restore: restoreApp(Calculator),
   },
 
   HelpAndSupport: {
-    id:     'HelpAndSupport',
-    name:   '帮助和支持',
+    id: 'HelpAndSupport',
+    name: '帮助和支持',
     nameKey: 'helpAndSupport.title',
-    icon:   'help',
+    icon: 'help',
     window: { width: 600, height: 400 },
     lifecycle: {},
-    associations: [
-      { appField: 'HelpAndSupport', getProps: () => ({}) },
-    ],
+    associations: [{ appField: 'HelpAndSupport', getProps: () => ({}) }],
     restore: restoreApp(HelpAndSupport),
   },
 
   RunDialog: {
-    id:     'RunDialog',
-    name:   '运行',
-    icon:   'run',
+    id: 'RunDialog',
+    name: '运行',
+    icon: 'run',
     window: { width: 400, height: 120, resizable: false, singleton: true },
     lifecycle: {},
     restore: restoreApp(RunDialog),
   },
 
+  TaskManager: {
+    id: 'TaskManager',
+    name: 'Windows Task Manager',
+    nameKey: 'taskManager.title',
+    icon: 'computer',
+    window: { width: 520, height: 390, minWidth: 400, minHeight: 280, singleton: true },
+    lifecycle: {},
+    restore: restoreApp(TaskManager),
+  },
+
   CommandPrompt: {
-    id:     'CommandPrompt',
-    name:   '命令提示符',
+    id: 'CommandPrompt',
+    name: '命令提示符',
     nameKey: 'apps.commandPrompt',
-    icon:   'cmd',
+    icon: 'cmd',
     window: { width: 600, height: 400 },
     lifecycle: {},
     restore: restoreApp(CommandPrompt),
   },
 
   VolumeControl: {
-    id:     'VolumeControl',
-    name:   '音量控制',
+    id: 'VolumeControl',
+    name: '音量控制',
     nameKey: 'apps.volumeControl',
-    icon:   'volume',
+    icon: 'volume',
     window: { width: 280, height: 120, resizable: false, singleton: true },
     lifecycle: {},
     restore: restoreApp(VolumeControl),
   },
 
   NetworkConnections: {
-    id:     'NetworkConnections',
-    name:   '网络连接',
+    id: 'NetworkConnections',
+    name: '网络连接',
     nameKey: 'apps.networkConnections',
-    icon:   'network',
+    icon: 'network',
     window: { width: 400, height: 300 },
     lifecycle: {},
     restore: restoreApp(NetworkConnections),
   },
 
   ControlPanel: {
-    id:     'ControlPanel',
-    name:   '控制面板',
+    id: 'ControlPanel',
+    name: '控制面板',
     nameKey: 'startMenu.controlPanel',
-    icon:   'controlpanel',
+    icon: 'controlpanel',
     window: { width: 700, height: 520 },
     lifecycle: {},
     restore: restoreApp(ControlPanel),
   },
 
   MicrosoftPaint: {
-    id:     'MicrosoftPaint',
-    name:   '画图',
+    id: 'MicrosoftPaint',
+    name: '画图',
     nameKey: 'apps.paint',
-    icon:   'paint',
+    icon: 'paint',
     window: { width: 700, height: 500 },
     lifecycle: {},
     associations: [
@@ -319,37 +332,33 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   },
 
   Minesweeper: {
-    id:     'Minesweeper',
-    name:   '扫雷',
+    id: 'Minesweeper',
+    name: '扫雷',
     nameKey: 'apps.minesweeper',
-    icon:   'minesweeper',
+    icon: 'minesweeper',
     // The game measures its panel and resizes the window to fit the current difficulty.
     window: { width: 170, height: 260, minWidth: 170, resizable: false, singleton: true },
     lifecycle: {},
-    associations: [
-      { appField: 'Minesweeper', getProps: () => ({}) },
-    ],
+    associations: [{ appField: 'Minesweeper', getProps: () => ({}) }],
     restore: restoreApp(Minesweeper),
   },
 
   Solitaire: {
-    id:     'Solitaire',
-    name:   '纸牌',
+    id: 'Solitaire',
+    name: '纸牌',
     nameKey: 'apps.solitaire',
-    icon:   'solitaire',
+    icon: 'solitaire',
     window: { width: 700, height: 520, resizable: true, singleton: true },
     lifecycle: {},
-    associations: [
-      { appField: 'Solitaire', getProps: () => ({}) },
-    ],
+    associations: [{ appField: 'Solitaire', getProps: () => ({}) }],
     restore: restoreApp(Solitaire),
   },
 
   WindowsMediaPlayer: {
-    id:     'WindowsMediaPlayer',
-    name:   'Windows Media Player',
+    id: 'WindowsMediaPlayer',
+    name: 'Windows Media Player',
     nameKey: 'apps.mediaPlayer',
-    icon:   'media',
+    icon: 'media',
     window: { width: 520, height: 420 },
     lifecycle: {},
     associations: [
@@ -377,59 +386,55 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   },
 
   Thunder: {
-    id:     'Thunder',
-    name:   '迅雷',
+    id: 'Thunder',
+    name: '迅雷',
     nameKey: 'thunder.title',
-    icon:   'thunder',
+    icon: 'thunder',
+    locales: ['zh'],
     window: { width: 560, height: 400 },
     lifecycle: {},
-    associations: [
-      { appField: 'Thunder', getProps: () => ({}) },
-    ],
+    associations: [{ appField: 'Thunder', getProps: () => ({}) }],
     restore: restoreApp(Thunder),
   },
 
   KugouMusic: {
-    id:     'KugouMusic',
-    name:   '酷狗音乐',
+    id: 'KugouMusic',
+    name: '酷狗音乐',
     nameKey: 'kugouMusic.title',
-    icon:   'kugou',
+    icon: 'kugou',
+    locales: ['zh'],
     window: { width: 520, height: 400, resizable: true, singleton: true },
     lifecycle: {},
-    associations: [
-      { appField: 'KugouMusic', getProps: () => ({}) },
-    ],
+    associations: [{ appField: 'KugouMusic', getProps: () => ({}) }],
     restore: restoreApp(KugouMusic),
   },
 
   BaofengPlayer: {
-    id:     'BaofengPlayer',
-    name:   '暴风影音',
+    id: 'BaofengPlayer',
+    name: '暴风影音',
     nameKey: 'baofengPlayer.title',
-    icon:   'baofeng',
+    icon: 'baofeng',
+    locales: ['zh'],
     window: { width: 600, height: 450, resizable: true, singleton: true },
     lifecycle: {},
-    associations: [
-      { appField: 'BaofengPlayer', getProps: () => ({}) },
-    ],
+    associations: [{ appField: 'BaofengPlayer', getProps: () => ({}) }],
     restore: restoreApp(BaofengPlayer),
   },
 
   WPSOffice: {
-    id:     'WPSOffice',
-    name:   'WPS Office',
+    id: 'WPSOffice',
+    name: 'WPS Office',
     nameKey: 'wpsOffice.title',
-    icon:   'wps',
+    icon: 'wps',
+    locales: ['zh'],
     window: { width: 720, height: 520, resizable: true, singleton: true },
     lifecycle: {},
-    associations: [
-      { appField: 'WPSOffice', getProps: () => ({}) },
-    ],
+    associations: [{ appField: 'WPSOffice', getProps: () => ({}) }],
     restore: restoreApp(WPSOffice),
   },
 
   DummyApp: {
-    id:   'DummyApp',
+    id: 'DummyApp',
     name: '应用',
     icon: 'app_window',
     window: { width: 350, height: 250, resizable: false, singleton: false },
@@ -442,12 +447,15 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
 };
 
 // ── 按 appField 建立快速查找表（避免遍历）──────────────────────────────────
-const _assocByField = Object.values(APP_REGISTRY).reduce((acc, def) => {
-  for (const assoc of (def.associations || [])) {
-    if (assoc.appField) acc[assoc.appField] = { def, assoc };
-  }
-  return acc;
-  }, {} as Record<string, { def: AppRegistryEntry; assoc: AppAssociation }>);
+const _assocByField = Object.values(APP_REGISTRY).reduce(
+  (acc, def) => {
+    for (const assoc of def.associations || []) {
+      if (assoc.appField) acc[assoc.appField] = { def, assoc };
+    }
+    return acc;
+  },
+  {} as Record<string, { def: AppRegistryEntry; assoc: AppAssociation }>
+);
 
 /**
  * resolveFileOpen — 将文件系统节点解析为可直接传给 openWindow() 的参数对象。
@@ -463,22 +471,19 @@ export const resolveFileOpen = (key: string, item: FileNode) => {
     const def = APP_REGISTRY.Explorer;
     const componentProps = { initialPath: [key] };
     return {
-      appId:       'Explorer',
-      component:   def.restore(componentProps),
-      icon:        item.icon || def.icon,
+      appId: 'Explorer',
+      component: def.restore(componentProps),
+      icon: item.icon || def.icon,
       windowProps: {
         ..._buildWindowProps(def),
-        componentProps  // 显式传递 componentProps 用于持久化
+        componentProps, // 显式传递 componentProps 用于持久化
       },
     };
   }
 
   // app_shortcut / file → 按 appField 查注册表
-  const appField = item.type === 'app_shortcut'
-    ? item.app
-    : item.type === 'file'
-      ? item.app
-      : undefined;
+  const appField =
+    item.type === 'app_shortcut' ? item.app : item.type === 'file' ? item.app : undefined;
   if (!appField) return null;
 
   const entry = _assocByField[appField];
@@ -488,12 +493,12 @@ export const resolveFileOpen = (key: string, item: FileNode) => {
   const componentProps = assoc.getProps(item);
 
   return {
-    appId:       def.id,
-    component:   def.restore(componentProps),
-    icon:        item.icon || def.icon,
+    appId: def.id,
+    component: def.restore(componentProps),
+    icon: item.icon || def.icon,
     windowProps: {
       ..._buildWindowProps(def),
-      componentProps  // 显式传递 componentProps 用于持久化
+      componentProps, // 显式传递 componentProps 用于持久化
     },
   };
 };
@@ -503,7 +508,7 @@ function _buildWindowProps(def: AppRegistryEntry) {
   return {
     ...(def.window || {}),
     // 传递 lifecycle 回调，供 WindowManagerContext 在适当时机调用
-    onOpen:  def.lifecycle?.onOpen  || null,
+    onOpen: def.lifecycle?.onOpen || null,
     onClose: def.lifecycle?.onClose || null,
     onFocus: def.lifecycle?.onFocus || null,
   };

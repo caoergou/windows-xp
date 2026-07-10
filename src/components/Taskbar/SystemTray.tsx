@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useTray } from '../../context/TrayContext';
 import { useWindowManager } from '../../context/WindowManagerContext';
 import SystemClock from '../SystemClock';
-import LanguageSwitcher from '../LanguageSwitcher';
 import VolumePopup from '../VolumePopup';
 import XPIcon from '../XPIcon';
 import NetworkConnections from '../../apps/NetworkConnections';
@@ -133,7 +132,6 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
       >
         <XPIcon name="network" size={16} color="white" />
       </TrayIconWrapper>
-      <LanguageSwitcher />
       <SystemClock />
     </SystemTrayContainer>
   );

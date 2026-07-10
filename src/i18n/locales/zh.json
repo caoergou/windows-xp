@@ -27,6 +27,26 @@
     "ok": "确定",
     "apply": "应用(A)",
     "cancel": "取消",
+    "categories": {
+      "addRemovePrograms": "添加或删除程序",
+      "appearance": "外观和主题",
+      "dateTime": "日期和时间",
+      "display": "显示",
+      "folderOptions": "文件夹选项",
+      "fonts": "字体",
+      "keyboard": "键盘",
+      "mouse": "鼠标",
+      "network": "网络连接",
+      "userAccounts": "用户账户",
+      "sound": "声音和音频设备",
+      "system": "系统"
+    },
+    "systemLanguage": {
+      "title": "语言设置",
+      "label": "系统语言：",
+      "restartTitle": "重新启动 Windows",
+      "restartMessage": "Windows 必须重新启动才能应用新语言。是否立即重启？"
+    },
     "displaySettings": {
       "wallpaper": "壁纸：",
       "resolution": "屏幕分辨率：",
@@ -64,6 +84,7 @@
     "allPrograms": "所有程序",
     "myDocuments": "我的文档",
     "myComputer": "我的电脑",
+    "myPictures": "我的图片",
     "myMusic": "我的音乐",
     "controlPanel": "控制面板",
     "printersAndFaxes": "打印机和传真",
@@ -85,7 +106,36 @@
     }
   },
   "taskbar": {
-    "start": "开始"
+    "start": "开始",
+    "context": {
+      "toolbars": "工具栏",
+      "quickLaunch": "快速启动",
+      "cascade": "层叠窗口",
+      "tileHorizontally": "横向平铺窗口",
+      "tileVertically": "纵向平铺窗口",
+      "showDesktop": "显示桌面",
+      "taskManager": "任务管理器",
+      "lockTaskbar": "锁定任务栏",
+      "properties": "属性"
+    }
+  },
+  "taskManager": {
+    "title": "Windows 任务管理器",
+    "applications": "应用程序",
+    "processes": "进程",
+    "performance": "性能",
+    "task": "任务",
+    "status": "状态",
+    "running": "正在运行",
+    "switchTo": "切换至",
+    "endTask": "结束任务",
+    "menu": {
+      "file": "文件",
+      "options": "选项",
+      "view": "查看",
+      "windows": "窗口",
+      "help": "帮助"
+    }
   },
   "tray": {
     "volume": "音量",
@@ -131,6 +181,43 @@
     "search": "搜索",
     "folders": "文件夹",
     "address": "地址",
+    "upload": "上传文件",
+    "objectCount": "{{count}} 个对象",
+    "groups": {
+      "hardDisks": "硬盘驱动器",
+      "removableStorage": "有可移动存储的设备",
+      "other": "其他"
+    },
+    "path": { "localDisk": "本地磁盘 ({{drive}})", "opticalDrive": "DVD/CD-RW 驱动器 ({{drive}})" },
+    "types": {
+      "folder": "文件夹",
+      "localDisk": "本地磁盘",
+      "opticalDrive": "CD 驱动器",
+      "file": "文件",
+      "systemFolder": "系统文件夹"
+    },
+    "sidebar": {
+      "systemTasks": "系统任务",
+      "otherPlaces": "其他位置",
+      "details": "详细信息",
+      "viewSystemInfo": "查看系统信息",
+      "addRemovePrograms": "添加/删除程序",
+      "changeSettings": "更改设置",
+      "expand": "展开",
+      "collapse": "收起"
+    },
+    "errors": {
+      "pathNotFound": "Windows 找不到该路径。",
+      "damaged": "磁盘或文件已损坏，无法打开。"
+    },
+    "password": { "title": "输入密码", "message": "此文件夹已加密，请输入密码访问。" },
+    "recycleBin": {
+      "restore": "还原",
+      "empty": "清空回收站",
+      "emptyTitle": "清空回收站",
+      "emptyConfirm": "确定要永久删除回收站中的所有项目吗？",
+      "emptyMessage": "回收站是空的。"
+    },
     "menuItems": {
       "newWindow": "新建窗口(N)",
       "close": "关闭(C)",
@@ -223,6 +310,9 @@
     "details": "查看详细信息"
   },
   "notepad": {
+    "untitled": "无标题",
+    "untitledFile": "未命名.txt",
+    "cursorPosition": "第 {{line}} 行，第 {{column}} 列",
     "menu": {
       "file": "文件(F)",
       "edit": "编辑(E)",
@@ -239,6 +329,7 @@
       "print": "打印(P)...",
       "exit": "退出(X)",
       "undo": "撤销(U)",
+      "redo": "恢复(R)",
       "cut": "剪切(T)",
       "copy": "复制(C)",
       "paste": "粘贴(P)",
@@ -251,7 +342,23 @@
       "font": "字体(F)...",
       "statusBar": "状态栏(S)",
       "help": "查看帮助(V)",
-      "about": "关于记事本(A)..."
+      "about": "关于记事本(A)...",
+      "download": "下载到本地..."
+    },
+    "dialogs": {
+      "unsavedChanges": "文件已修改，是否保存更改？",
+      "openTitle": "打开",
+      "openPrompt": "请输入文件路径，例如：我的文档\\readme.txt",
+      "fileNotFound": "找不到文件。",
+      "cannotOpenFolder": "无法打开文件夹。",
+      "unsupportedType": "无法读取此文件类型。",
+      "fileExists": "文件 \"{{name}}\" 已存在。是否覆盖？",
+      "saveTitle": "保存",
+      "readOnly": "文件是只读的。",
+      "saveAsTitle": "另存为",
+      "saveAsPrompt": "请输入文件名和路径，例如：我的文档\\newfile.txt",
+      "pathNotFound": "路径不存在。",
+      "invalidPath": "无效的路径。"
     },
     "find": {
       "title": "查找",
@@ -303,6 +410,7 @@
     "file": "文件"
   },
   "common": {
+    "error": "错误",
     "ok": "确定",
     "cancel": "取消",
     "deleteConfirmTitle": "确认删除",
@@ -548,10 +656,18 @@
     }
   },
   "solitaire": {
+    "won": "胜利！",
     "menu": {
       "game": "游戏(G)",
       "help": "帮助(H)"
     }
+  },
+  "mediaPlayer": {
+    "play": "播放",
+    "pause": "暂停",
+    "stop": "停止",
+    "playing": "正在播放",
+    "stopped": "已停止"
   },
   "thunder": {
     "title": "迅雷 5",
@@ -594,11 +710,42 @@
     "statusReady": "准备就绪"
   },
   "photoViewer": {
-    "title": "图片查看器",
+    "title": "Windows 图片和传真查看器",
     "noImageSelected": "未选择图片",
-    "view": "查看"
+    "view": "查看",
+    "viewProperties": "查看属性",
+    "ready": "就绪"
+  },
+  "fileProperties": {
+    "general": "常规",
+    "summary": "摘要",
+    "fileType": "文件类型",
+    "location": "位置",
+    "desktop": "桌面",
+    "size": "大小",
+    "created": "创建时间",
+    "modified": "修改时间",
+    "accessed": "访问时间",
+    "status": "状态",
+    "encrypted": "已加密",
+    "damaged": "已损坏",
+    "image": "图像",
+    "cameraModel": "相机型号",
+    "manufacturer": "制造商",
+    "shootingParameters": "拍摄参数",
+    "aperture": "光圈值",
+    "exposureTime": "曝光时间",
+    "seconds": "{{value}} 秒",
+    "isoSpeed": "ISO 速度",
+    "focalLength": "焦距",
+    "origin": "来源",
+    "dateTaken": "拍摄日期",
+    "noSummary": "无可用摘要信息"
   },
   "paint": {
+    "untitled": "无标题",
+    "untitledFile": "未命名.png",
+    "clear": "清空",
     "menu": {
       "file": "文件(F)",
       "edit": "编辑(E)",
@@ -622,6 +769,22 @@
       "statusBar": "状态栏(S)",
       "helpTopics": "帮助主题(H)",
       "about": "关于画图(A)..."
+    },
+    "dialogs": {
+      "loadFailed": "无法加载图片。",
+      "unsavedChanges": "文件已修改，是否保存更改？",
+      "openTitle": "打开",
+      "openPrompt": "请输入图片路径，例如：我的文档\\我的图片\\image.png",
+      "fileNotFound": "找不到文件。",
+      "cannotOpenFolder": "无法打开文件夹。",
+      "unsupportedType": "无法读取此文件类型。",
+      "saveTitle": "保存",
+      "readOnly": "文件是只读的。",
+      "saveAsTitle": "另存为",
+      "saveAsPrompt": "请输入文件名和路径：",
+      "pathNotFound": "路径不存在。",
+      "invalidPath": "无效的路径。",
+      "fileExists": "文件 \"{{name}}\" 已存在。是否覆盖？"
     }
   },
   "wpsOffice": {
@@ -685,6 +848,36 @@
       "internet": "Internet Explorer",
       "applications": "应用程序",
       "settings": "系统设置"
+    },
+    "content": {
+      "welcome": {
+        "title": "欢迎使用 Windows XP 帮助和支持中心",
+        "body": "欢迎使用 Windows XP 模拟器。这个经典桌面环境完全运行在浏览器中。\n\n您可以浏览文件系统、访问网页、运行应用并使用熟悉的 Windows XP 控件。"
+      },
+      "gettingStarted": {
+        "title": "入门指南",
+        "body": "请尝试以下常用操作：\n\n1. 双击桌面图标打开应用\n2. 使用开始菜单查找程序\n3. 拖动标题栏移动窗口\n4. 调整支持缩放的窗口\n5. 使用任务栏管理打开的窗口"
+      },
+      "desktop": {
+        "title": "桌面介绍",
+        "body": "Windows XP 桌面包含：\n\n- 代表程序、文件夹和文件的图标\n- 显示窗口与通知图标的任务栏\n- 访问程序和系统功能的开始菜单\n- 可配置的桌面背景"
+      },
+      "explorer": {
+        "title": "文件资源管理器",
+        "body": "文件资源管理器用于管理文件和文件夹。\n\n您可以浏览目录、创建和重命名项目、将文件移入回收站并查看属性。"
+      },
+      "internet": {
+        "title": "Internet Explorer",
+        "body": "Internet Explorer 是内置网页浏览器。\n\n可使用地址栏、导航按钮、浏览历史、收藏夹和主页按钮访问可用网页。"
+      },
+      "applications": {
+        "title": "应用程序",
+        "body": "中文桌面包含记事本、画图、计算器、扫雷、纸牌、Internet Explorer，以及 QQ、360 安全卫士、迅雷、WPS Office 等本地时代应用。"
+      },
+      "settings": {
+        "title": "系统设置",
+        "body": "可从开始菜单打开控制面板，调整显示、声音、鼠标和系统设置。更改系统语言后需要重新启动 Windows。"
+      }
     }
   },
   "mobileWarning": {

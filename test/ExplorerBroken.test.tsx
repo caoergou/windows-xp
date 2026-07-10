@@ -90,7 +90,7 @@ test('Opening a broken folder shows error message', async () => {
 
   // Check for error modal
   await waitFor(() => {
-     const errorMsg = screen.queryByText(/磁盘文件损坏/);
+     const errorMsg = screen.queryByText(/disk or file is damaged/i);
      expect(errorMsg).toBeInTheDocument();
   }, { timeout: 1000 }).catch(() => {
      throw new Error("Expected error message not found!");
@@ -121,7 +121,7 @@ test('Opening a broken file shows error message', async () => {
     fireEvent.doubleClick(brokenFileWrapper); // Click the wrapper
 
     await waitFor(() => {
-       const errorMsg = screen.queryByText(/磁盘文件损坏/);
+       const errorMsg = screen.queryByText(/disk or file is damaged/i);
        expect(errorMsg).toBeInTheDocument();
     }, { timeout: 1000 }).catch(() => {
         throw new Error("Expected error message not found!");

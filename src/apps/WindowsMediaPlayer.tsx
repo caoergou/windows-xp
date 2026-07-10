@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
 
 const Wrap = styled.div`
@@ -10,7 +11,7 @@ const Wrap = styled.div`
   flex-direction: column;
   padding: 6px;
   box-sizing: border-box;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 12px;
   user-select: none;
   color: #ffffff;
@@ -116,8 +117,13 @@ const Bar = styled.div<{ $height: number; $delay: number; $isPlaying: boolean }>
   animation-delay: ${p => p.$delay}s;
 
   @keyframes pulse {
-    0%, 100% { height: ${p => p.$height}%; }
-    50% { height: ${p => Math.min(p.$height + 30, 100)}%; }
+    0%,
+    100% {
+      height: ${p => p.$height}%;
+    }
+    50% {
+      height: ${p => Math.min(p.$height + 30, 100)}%;
+    }
   }
 `;
 
@@ -161,7 +167,11 @@ interface WindowsMediaPlayerProps {
   src?: string;
 }
 
-const WindowsMediaPlayer = ({ windowId: _windowId, src = DEFAULT_SRC }: WindowsMediaPlayerProps) => {
+const WindowsMediaPlayer = ({
+  windowId: _windowId,
+  src = DEFAULT_SRC,
+}: WindowsMediaPlayerProps) => {
+  const { t } = useTranslation();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -281,10 +291,13 @@ const WindowsMediaPlayer = ({ windowId: _windowId, src = DEFAULT_SRC }: WindowsM
       <TitleBar>
         <Title>Windows Media Player</Title>
         <PlayerControls>
-          <ControlBtn onClick={stopPlayback} title="停止">
+          <ControlBtn onClick={stopPlayback} title={t('mediaPlayer.stop')}>
             <XPIcon name="media_stop" size={16} />
           </ControlBtn>
-          <ControlBtn onClick={togglePlay} title={isPlaying ? '暂停' : '播放'}>
+          <ControlBtn
+            onClick={togglePlay}
+            title={isPlaying ? t('mediaPlayer.pause') : t('mediaPlayer.play')}
+          >
             <XPIcon name={isPlaying ? 'media_pause' : 'media_play'} size={16} />
           </ControlBtn>
         </PlayerControls>
@@ -321,7 +334,9 @@ const WindowsMediaPlayer = ({ windowId: _windowId, src = DEFAULT_SRC }: WindowsM
         </AlbumArt>
         <TrackDetails>
           <TrackTitle>{trackTitle}</TrackTitle>
-          <TrackArtist>{isPlaying ? '正在播放' : '已停止'}</TrackArtist>
+          <TrackArtist>
+            {isPlaying ? t('mediaPlayer.playing') : t('mediaPlayer.stopped')}
+          </TrackArtist>
         </TrackDetails>
       </TrackInfo>
     </Wrap>

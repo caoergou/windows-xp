@@ -9,6 +9,9 @@ import {
   RecycleBinItem,
 } from './utils/persistence';
 import { useFileOperations } from './hooks/useFileOperations';
+import { getAllCultureShortcutNames } from '../../data/culture';
+
+const CULTURE_SHORTCUT_NAMES = new Set(getAllCultureShortcutNames());
 
 interface RecycleBinManifestEntry {
   file: string;
@@ -145,12 +148,20 @@ export const useFileSystem = (): FileSystemContextType => {
 export const FileSystemProvider: React.FC<{
   children: React.ReactNode;
   customFileSystem?: Record<string, FileNode>;
-}> = ({ children, customFileSystem }) => {
+  cultureFileSystem?: Record<string, FileNode>;
+  cultureKey?: string;
+}> = ({ children, customFileSystem, cultureFileSystem, cultureKey = 'en' }) => {
   const customFsRef = useRef(customFileSystem);
+  const cultureFsRef = useRef(cultureFileSystem);
+  customFsRef.current = customFileSystem;
+  cultureFsRef.current = cultureFileSystem;
 
-  const [fs, setFs] = useState<{ root: FileNode }>(
-    mergeCustomFileSystem(fileSystemWithRecycleBin, customFileSystem)
-  );
+  const withConfiguredLayers = useCallback((base: { root: FileNode }) => {
+    const withCustom = mergeCustomFileSystem(base, customFsRef.current);
+    return mergeCustomFileSystem(withCustom, cultureFsRef.current);
+  }, []);
+
+  const [fs, setFs] = useState<{ root: FileNode }>(withConfiguredLayers(fileSystemWithRecycleBin));
   const [clipboard, setClipboard] = useState<ClipboardItem | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const recycleBinRef = useRef<Record<string, RecycleBinItem>>({ ...presetRecycleBinRef });
@@ -164,8 +175,10 @@ export const FileSystemProvider: React.FC<{
 
         // Re-attach preset recycle-bin metadata for any preset items still present.
         // This keeps restore working when no persisted recycle-bin state exists yet.
-        const currentRecycleBin = (root as any).children?.['回收站'];
-        if (isContainerNode(currentRecycleBin)) {
+        const currentRecycleBin = isContainerNode(root)
+          ? root.children['回收站']
+          : undefined;
+        if (currentRecycleBin && isContainerNode(currentRecycleBin)) {
           for (const fileName of Object.keys(presetRecycleBinRef)) {
             if (currentRecycleBin.children?.[fileName] && !recycleBinRef.current[fileName]) {
               recycleBinRef.current[fileName] = presetRecycleBinRef[fileName];
@@ -173,17 +186,35 @@ export const FileSystemProvider: React.FC<{
           }
         }
 
-        setFs(mergeCustomFileSystem({ root }, customFsRef.current));
+        setFs(withConfiguredLayers({ root }));
       } catch (e) {
         console.error('Failed to load persisted data:', e);
-        setFs(mergeCustomFileSystem(fileSystemWithRecycleBin, customFsRef.current));
+        setFs(withConfiguredLayers(fileSystemWithRecycleBin));
       } finally {
         setIsLoaded(true);
       }
     };
 
     loadPersistedData();
-  }, []);
+  }, [withConfiguredLayers]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    setFs(current => {
+      if (!isContainerNode(current.root)) return current;
+      const children = Object.fromEntries(
+        Object.entries(current.root.children).filter(
+          ([key, node]) => !node.managedByCulture && !CULTURE_SHORTCUT_NAMES.has(key)
+        )
+      );
+      return {
+        root: {
+          ...current.root,
+          children: { ...children, ...cultureFsRef.current },
+        },
+      };
+    });
+  }, [cultureKey, isLoaded]);
 
   const doPersistFs = useCallback(
     async (newFs: { root: FileNode }) => {
@@ -303,11 +334,12 @@ export const FileSystemProvider: React.FC<{
   }, [fs, doPersistFs]);
 
   const resetToDefault = useCallback(() => {
-    setFs(fileSystemWithRecycleBin);
+    const next = withConfiguredLayers(fileSystemWithRecycleBin);
+    setFs(next);
     recycleBinRef.current = {};
     saveRecycleBin({});
-    doPersistFs(fileSystemWithRecycleBin);
-  }, [doPersistFs]);
+    doPersistFs(next);
+  }, [doPersistFs, withConfiguredLayers]);
 
   const uploadTextFile = useCallback(
     (parentPath: string[], fileName: string, content: string) => {

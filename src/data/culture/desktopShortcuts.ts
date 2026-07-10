@@ -16,12 +16,14 @@ const DESKTOP_SHORTCUTS_BY_LOCALE: Record<string, DesktopShortcut[]> = {
     { id: 'wps', name: 'WPS Office', app: 'WPSOffice', icon: 'wps' },
     { id: 'kugou', name: '酷狗音乐', app: 'KugouMusic', icon: 'kugou' },
   ],
+  // Only expose applications with a real implementation and an authentic icon.
   en: [
-    { id: 'norton', name: 'Norton AntiVirus', app: 'DummyApp', icon: '360safe' },
-    { id: 'winamp', name: 'Winamp', app: 'DummyApp', icon: 'baofeng' },
-    { id: 'utorrent', name: 'uTorrent', app: 'DummyApp', icon: 'thunder' },
-    { id: 'office', name: 'Microsoft Office', app: 'DummyApp', icon: 'wps' },
-    { id: 'itunes', name: 'iTunes', app: 'DummyApp', icon: 'kugou' },
+    {
+      id: 'media-player',
+      name: 'Windows Media Player',
+      app: 'WindowsMediaPlayer',
+      icon: 'media_player',
+    },
   ],
 };
 
@@ -41,7 +43,20 @@ export const getDesktopShortcutNodes = (lang: string): Record<string, FileNode> 
         name: s.name,
         app: s.app,
         icon: s.icon,
+        managedByCulture: true,
+        cultureId: s.id,
       } as FileNode,
     ])
   );
 };
+
+export const getAllCultureShortcutNames = (): string[] => [
+  ...Object.values(DESKTOP_SHORTCUTS_BY_LOCALE).flatMap(shortcuts =>
+    shortcuts.map(shortcut => shortcut.name)
+  ),
+  'Norton AntiVirus',
+  'Winamp',
+  'uTorrent',
+  'Microsoft Office',
+  'iTunes',
+];

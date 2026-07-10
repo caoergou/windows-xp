@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useApp } from '../hooks/useApp';
-import { resolveFileOpen } from '../registry/apps';
 import XPIcon from '../components/XPIcon';
 import { getFileIconName } from '../utils/fileIcon';
 import ExplorerSidebar from '../components/Explorer/ExplorerSidebar';
@@ -15,66 +14,73 @@ import FileProperties from '../components/FileProperties';
 import { xpScrollbarStyles } from '../theme';
 import { FileNode } from '../types';
 import { getFileDisplayName } from '../utils/fileDisplayName';
+import {
+  getSystemPathDisplay,
+  getSystemPathTitle,
+  resolveSystemPathDisplay,
+} from '../data/systemPaths';
 
 const Container = styled.div`
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 `;
 
 const MainContent = styled.div`
-    flex: 1;
-    display: flex;
-    overflow: hidden;
+  flex: 1;
+  display: flex;
+  overflow: hidden;
 `;
 
 const FileArea = styled.div`
-    flex: 1;
-    background: white;
-    padding: 10px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    ${xpScrollbarStyles}
+  flex: 1;
+  background: white;
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  ${xpScrollbarStyles}
 `;
 
 const GroupHeader = styled.div`
-    font-weight: bold;
-    font-size: 11px;
-    color: #15428B;
-    border-bottom: 1px solid #c6d3f7;
-    padding-bottom: 2px;
-    margin-bottom: 5px;
-    margin-top: 10px;
+  font-weight: bold;
+  font-size: 11px;
+  color: #15428b;
+  border-bottom: 1px solid #c6d3f7;
+  padding-bottom: 2px;
+  margin-bottom: 5px;
+  margin-top: 10px;
 
-    &:first-child {
-        margin-top: 0;
-    }
+  &:first-child {
+    margin-top: 0;
+  }
 `;
 
 const IconsGrid = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
 `;
 
 const FileItem = styled.div`
-    width: 250px; /* List view style often seen in My Computer */
-    display: flex;
-    align-items: center;
-    padding: 3px;
-    cursor: pointer;
-    border: 1px solid transparent;
+  width: 250px; /* List view style often seen in My Computer */
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  cursor: pointer;
+  border: 1px solid transparent;
 
-    &:hover {
-        background-color: #E8F4FF;
-        border: 1px solid #C0DEFF;
-    }
+  &:hover {
+    background-color: #e8f4ff;
+    border: 1px solid #c0deff;
+  }
 
-    ${props => props.selected && `
+  ${props =>
+    props.selected &&
+    `
         background-color: #316AC5;
         color: white;
         border: 1px dotted #fff;
@@ -87,469 +93,578 @@ const FileItem = styled.div`
 `;
 
 const IconWrapper = styled.div`
-    margin-right: 5px;
-    position: relative;
-    flex-shrink: 0;
+  margin-right: 5px;
+  position: relative;
+  flex-shrink: 0;
 `;
 
 const FileInfo = styled.div`
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 `;
 
 const FileName = styled.span`
-    font-size: 11px;
-    font-weight: ${props => props.$isDrive ? 'bold' : 'normal'};
+  font-size: 11px;
+  font-weight: ${props => (props.$isDrive ? 'bold' : 'normal')};
 `;
 
 const FileType = styled.span`
-    font-size: 10px;
-    color: #666;
-    ${props => props.selected && `color: #eee;`}
+  font-size: 10px;
+  color: #666;
+  ${props => props.selected && `color: #eee;`}
 `;
 
 const StatusBar = styled.div`
-    height: 20px;
-    background: #ECE9D8;
-    border-top: 1px solid #D0D0D0;
-    display: flex;
-    align-items: center;
-    padding: 0 5px;
-    font-size: 11px;
-    color: #000;
+  height: 20px;
+  background: #ece9d8;
+  border-top: 1px solid #d0d0d0;
+  display: flex;
+  align-items: center;
+  padding: 0 5px;
+  font-size: 11px;
+  color: #000;
 `;
 
+const isOpticalDrive = (key: string) => /DVD|CD-RW|CD-ROM/i.test(key);
+
 const EmptyRecycleBinMessage = styled.div`
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #808080;
-    font-size: 12px;
-    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-    gap: 10px;
-    user-select: none;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #808080;
+  font-size: 12px;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  gap: 10px;
+  user-select: none;
 `;
 
 // windowId 由 Window.tsx 通过 cloneElement 自动注入
 interface ExplorerProps {
-    initialPath?: string[];
-    windowId?: string;
+  initialPath?: string[];
+  windowId?: string;
 }
 
 const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
-    const { t } = useTranslation();
-    const { getFile, createFile, renameFile, deleteFile, cutFile, pasteFile, clipboard, emptyRecycleBin, restoreFromRecycleBin, moveFile, copyToClipboard, uploadTextFile } = useFileSystem();
-    const api = useApp(windowId);
+  const { t } = useTranslation();
+  const {
+    getFile,
+    createFile,
+    renameFile,
+    deleteFile,
+    cutFile,
+    pasteFile,
+    clipboard,
+    emptyRecycleBin,
+    restoreFromRecycleBin,
+    moveFile,
+    copyToClipboard,
+    uploadTextFile,
+  } = useFileSystem();
+  const api = useApp(windowId);
 
-    const [history, setHistory] = useState<string[][]>([initialPath]);
-    const [historyIndex, setHistoryIndex] = useState(0);
-    const [selectedItem, setSelectedItem] = useState<{ name: string; type: FileNode['type'] } | null>(null);
-    const [address, setAddress] = useState<string>(initialPath.join('\\'));
-    const [dragOver, setDragOver] = useState<string | null>(null);
-    const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; targetItem: { key: string; item: FileNode } | null }>({
-        visible: false,
-        x: 0,
-        y: 0,
-        targetItem: null
+  const [history, setHistory] = useState<string[][]>([initialPath]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+  const [selectedItem, setSelectedItem] = useState<{ name: string; type: FileNode['type'] } | null>(
+    null
+  );
+  const [address, setAddress] = useState<string>(initialPath.join('\\'));
+  const [dragOver, setDragOver] = useState<string | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    targetItem: { key: string; item: FileNode } | null;
+  }>({
+    visible: false,
+    x: 0,
+    y: 0,
+    targetItem: null,
+  });
+
+  const currentPath = history[historyIndex];
+  const currentFolder = getFile(currentPath);
+
+  // Keep address bar in sync when navigating
+  useEffect(() => {
+    setAddress(getSystemPathDisplay(currentPath, t));
+  }, [currentPath, t]);
+
+  useEffect(() => {
+    api.window.setTitle(getSystemPathTitle(currentPath, t));
+  }, [api.window, currentPath, t]);
+
+  const handleAddressGo = () => {
+    const parts = resolveSystemPathDisplay(address, t);
+    const target = getFile(parts);
+    if (target) {
+      handleNavigateToPath(parts);
+    }
+  };
+
+  const handleNavigate = async (name: string) => {
+    const newPath = [...currentPath, name];
+    const target = getFile(newPath);
+
+    if (!target) {
+      await api.dialog.alert({
+        title: t('common.error'),
+        message: t('explorer.errors.pathNotFound'),
+        type: 'error',
+      });
+      return;
+    }
+
+    if (target.broken) {
+      await api.dialog.alert({
+        title: t('common.error'),
+        message: t('explorer.errors.damaged'),
+        type: 'error',
+      });
+      return;
+    }
+
+    if (target.locked) {
+      const success = await api.dialog.password({
+        title: t('explorer.password.title'),
+        message: t('explorer.password.message'),
+        hint: target.hint || '',
+        correctPassword: target.password,
+      });
+      if (!success) return;
+    }
+
+    if (target.type === 'folder' || target.type === 'root') {
+      const newHistory = history.slice(0, historyIndex + 1);
+      newHistory.push(newPath);
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+      setSelectedItem(null);
+    } else if (target.type === 'file' || target.type === 'app_shortcut') {
+      // Load associations on demand to avoid a static Explorer <-> app registry cycle.
+      const { resolveFileOpen } = await import('../registry/apps');
+      const resolved = resolveFileOpen(name, target);
+      if (resolved) {
+        api.openWindow(
+          resolved.appId,
+          getFileDisplayName(name, target, t),
+          resolved.component,
+          resolved.icon,
+          resolved.windowProps
+        );
+      }
+    }
+  };
+
+  const handleBack = () => {
+    if (historyIndex > 0) {
+      setHistoryIndex(historyIndex - 1);
+      setSelectedItem(null);
+    }
+  };
+
+  const handleForward = () => {
+    if (historyIndex < history.length - 1) {
+      setHistoryIndex(historyIndex + 1);
+      setSelectedItem(null);
+    }
+  };
+
+  const handleUp = () => {
+    if (currentPath.length > 0) {
+      const newPath = [...currentPath];
+      newPath.pop();
+      const newHistory = history.slice(0, historyIndex + 1);
+      newHistory.push(newPath);
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+      setSelectedItem(null);
+    }
+  };
+
+  const handleNavigateToPath = (path: string[]) => {
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(path);
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+    setSelectedItem(null);
+  };
+
+  if (!currentFolder) return <div>{t('explorer.errors.pathNotFound')}</div>;
+
+  // Grouping Logic for "My Computer" (Root or Explicit 'My Computer' path)
+  const isRoot =
+    currentPath.length === 0 || (currentPath.length === 1 && currentPath[0] === '我的电脑');
+
+  const renderContent = () => {
+    if (!currentFolder.children) return null;
+
+    const children = Object.entries(currentFolder.children);
+
+    if (isRoot) {
+      const drives: { key: string; item: FileNode }[] = [];
+      const removableDrives: { key: string; item: FileNode }[] = [];
+      const others: { key: string; item: FileNode }[] = [];
+
+      children.forEach(([key, item]) => {
+        if (
+          item.type === 'drive' ||
+          item.icon === 'drive' ||
+          key.includes('Drive') ||
+          key.includes('Disk')
+        ) {
+          if (isOpticalDrive(key)) {
+            removableDrives.push({ key, item });
+          } else {
+            drives.push({ key, item });
+          }
+        } else {
+          others.push({ key, item });
+        }
+      });
+
+      // If we have drives, we assume this is the "My Computer" view-like structure
+      if (drives.length > 0) {
+        return (
+          <>
+            <GroupHeader>{t('explorer.groups.hardDisks')}</GroupHeader>
+            <IconsGrid>{drives.map(({ key, item }) => renderFileItem(key, item))}</IconsGrid>
+
+            {removableDrives.length > 0 && (
+              <>
+                <GroupHeader>{t('explorer.groups.removableStorage')}</GroupHeader>
+                <IconsGrid>
+                  {removableDrives.map(({ key, item }) => renderFileItem(key, item))}
+                </IconsGrid>
+              </>
+            )}
+
+            {others.length > 0 && (
+              <>
+                <GroupHeader>{t('explorer.groups.other')}</GroupHeader>
+                <IconsGrid>{others.map(({ key, item }) => renderFileItem(key, item))}</IconsGrid>
+              </>
+            )}
+          </>
+        );
+      }
+    }
+
+    // Standard Folder View
+    return <IconsGrid>{children.map(([key, item]) => renderFileItem(key, item))}</IconsGrid>;
+  };
+
+  const handleContextMenu = (e: React.MouseEvent, key: string, item: FileNode) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedItem({ name: getFileDisplayName(key, item, t), type: item?.type });
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      targetItem: item ? { key, item } : null,
     });
+  };
 
-    const currentPath = history[historyIndex];
-    const currentFolder = getFile(currentPath);
+  const closeContextMenu = () => {
+    setContextMenu({ visible: false, x: 0, y: 0, targetItem: null });
+  };
 
-    // Keep address bar in sync when navigating
-    useEffect(() => {
-        setAddress(currentPath.join('\\'));
-    }, [currentPath]);
+  const handleCreateFile = (type = 'file') => {
+    const fileName =
+      type === 'folder' ? t('desktop.newFolderName') : t('desktop.newTextDocumentName');
+    createFile(currentPath, fileName, type);
+    closeContextMenu();
+  };
 
-    const handleAddressGo = () => {
-        const parts = address.split('\\').filter(p => p.trim() !== '');
-        const target = getFile(parts);
-        if (target) {
-            handleNavigateToPath(parts);
-        }
-    };
-
-    const handleNavigate = async (name: string) => {
-        const newPath = [...currentPath, name];
-        const target = getFile(newPath);
-
-        if (!target) {
-            await api.dialog.alert({ title: '错误', message: '找不到路径。', type: 'error' });
-            return;
-        }
-
-        if (target.broken) {
-            await api.dialog.alert({ title: '错误', message: '因为磁盘文件损坏无法打开', type: 'error' });
-            return;
-        }
-
-        if (target.locked) {
-            const success = await api.dialog.password({
-                title: '输入密码',
-                message: '此文件夹已加密，请输入密码访问。',
-                hint: target.hint || '',
-                correctPassword: target.password,
-            });
-            if (!success) return;
-        }
-
-        if (target.type === 'folder' || target.type === 'root') {
-            const newHistory = history.slice(0, historyIndex + 1);
-            newHistory.push(newPath);
-            setHistory(newHistory);
-            setHistoryIndex(newHistory.length - 1);
-            setSelectedItem(null);
-        } else if (target.type === 'file' || target.type === 'app_shortcut') {
-            const resolved = resolveFileOpen(name, target);
-            if (resolved) {
-                api.openWindow(resolved.appId, getFileDisplayName(name, target, t), resolved.component, resolved.icon, resolved.windowProps);
-            }
-        }
-    };
-
-    const handleBack = () => {
-        if (historyIndex > 0) {
-            setHistoryIndex(historyIndex - 1);
-            setSelectedItem(null);
-        }
-    };
-
-    const handleForward = () => {
-        if (historyIndex < history.length - 1) {
-            setHistoryIndex(historyIndex + 1);
-            setSelectedItem(null);
-        }
-    };
-
-    const handleUp = () => {
-        if (currentPath.length > 0) {
-            const newPath = [...currentPath];
-            newPath.pop();
-            const newHistory = history.slice(0, historyIndex + 1);
-            newHistory.push(newPath);
-            setHistory(newHistory);
-            setHistoryIndex(newHistory.length - 1);
-            setSelectedItem(null);
-        }
-    };
-
-    const handleNavigateToPath = (path: string[]) => {
-        const newHistory = history.slice(0, historyIndex + 1);
-        newHistory.push(path);
-        setHistory(newHistory);
-        setHistoryIndex(newHistory.length - 1);
-        setSelectedItem(null);
-    };
-
-    if (!currentFolder) return <div>找不到路径</div>;
-
-    // Grouping Logic for "My Computer" (Root or Explicit 'My Computer' path)
-    const isRoot = currentPath.length === 0 || (currentPath.length === 1 && currentPath[0] === '我的电脑');
-
-    const renderContent = () => {
-        if (!currentFolder.children) return null;
-
-        const children = Object.entries(currentFolder.children);
-
-        if (isRoot) {
-            const drives: { key: string; item: FileNode }[] = [];
-            const others: { key: string; item: FileNode }[] = [];
-
-            children.forEach(([key, item]) => {
-                if (item.type === 'drive' || item.icon === 'drive' || key.includes('Drive') || key.includes('Disk')) {
-                    drives.push({ key, item });
-                } else {
-                    others.push({ key, item });
-                }
-            });
-
-            // If we have drives, we assume this is the "My Computer" view-like structure
-            if (drives.length > 0) {
-                return (
-                    <>
-                        <GroupHeader>硬盘</GroupHeader>
-                        <IconsGrid>
-                            {drives.map(({ key, item }) => renderFileItem(key, item))}
-                        </IconsGrid>
-
-                        {others.length > 0 && (
-                            <>
-                                <GroupHeader>其他</GroupHeader>
-                                <IconsGrid>
-                                    {others.map(({ key, item }) => renderFileItem(key, item))}
-                                </IconsGrid>
-                            </>
-                        )}
-                    </>
-                );
-            }
-        }
-
-        // Standard Folder View
-        return (
-             <IconsGrid>
-                 {children.map(([key, item]) => renderFileItem(key, item))}
-             </IconsGrid>
-        );
-    };
-
-    const handleContextMenu = (e: React.MouseEvent, key: string, item: FileNode) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setSelectedItem({ name: getFileDisplayName(key, item, t), type: item?.type });
-        setContextMenu({ visible: true, x: e.clientX, y: e.clientY, targetItem: item ? { key, item } : null });
-    };
-
-    const closeContextMenu = () => {
-        setContextMenu({ visible: false, x: 0, y: 0, targetItem: null });
-    };
-
-    const handleCreateFile = (type = 'file') => {
-        const fileName = type === 'folder' ? '新建文件夹' : '新建文本文档.txt';
-        createFile(currentPath, fileName, type);
-        closeContextMenu();
-    };
-
-    const handleDelete = () => {
-        if (contextMenu.targetItem) {
-            const displayName = getFileDisplayName(contextMenu.targetItem.key, contextMenu.targetItem.item, t);
-            api.dialog.confirm({
-                title: '确认删除',
-                message: `确定要删除 "${displayName}" 吗？`,
-                type: 'warning'
-            }).then(confirmed => {
-                if (confirmed) {
-                    deleteFile(currentPath, contextMenu.targetItem.key);
-                    closeContextMenu();
-                }
-            });
-        }
-    };
-
-    const handleRename = () => {
-        if (contextMenu.targetItem) {
-            api.dialog.prompt({
-                title: '重命名',
-                message: '请输入新名称：',
-                defaultValue: contextMenu.targetItem.item.name
-            }).then(newName => {
-                if (newName && newName.trim() !== '') {
-                    renameFile(currentPath, contextMenu.targetItem.key, newName.trim());
-                    closeContextMenu();
-                }
-            });
-        }
-    };
-
-    const handleCopy = () => {
-        if (contextMenu.targetItem) {
-            copyToClipboard(currentPath, contextMenu.targetItem.key);
+  const handleDelete = () => {
+    if (contextMenu.targetItem) {
+      const displayName = getFileDisplayName(
+        contextMenu.targetItem.key,
+        contextMenu.targetItem.item,
+        t
+      );
+      api.dialog
+        .confirm({
+          title: t('common.deleteConfirmTitle'),
+          message: t('common.deleteConfirmSingle', { name: displayName }),
+          type: 'warning',
+        })
+        .then(confirmed => {
+          if (confirmed) {
+            deleteFile(currentPath, contextMenu.targetItem.key);
             closeContextMenu();
-        }
-    };
-
-    const handleUpload = () => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.txt,.md,.json,.js,.ts,.jsx,.tsx,.css,.html,.xml,.csv';
-        input.onchange = (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const content = event.target?.result as string;
-                    uploadTextFile(currentPath, file.name, content);
-                    closeContextMenu();
-                };
-                reader.readAsText(file);
-            }
-        };
-        input.click();
-        closeContextMenu();
-    };
-
-    const handleCut = () => {
-        if (contextMenu.targetItem) {
-            cutFile(currentPath, contextMenu.targetItem.key);
-            closeContextMenu();
-        }
-    };
-
-    const handlePaste = () => {
-        const success = pasteFile(currentPath);
-        if (success) {
-            closeContextMenu();
-        }
-    };
-
-    const handleProperties = () => {
-        if (contextMenu.targetItem) {
-            const displayName = getFileDisplayName(contextMenu.targetItem.key, contextMenu.targetItem.item, t);
-            const componentProps = {
-                fileItem: contextMenu.targetItem.item,
-                parentPath: currentPath
-            };
-            api.openWindow(
-                'FileProperties',
-                t('common.propertiesTitle', { name: displayName }),
-                <FileProperties {...componentProps} />,
-                'properties',
-                { componentProps }  // 显式传递 componentProps 用于持久化
-            );
-            closeContextMenu();
-        }
-    };
-
-    const isInRecycleBin = currentPath.length === 1 && currentPath[0] === '回收站';
-
-    const handleEmptyRecycleBin = () => {
-        api.dialog.confirm({
-            title: '清空回收站',
-            message: '确定要永久删除回收站中的所有项目吗？',
-            type: 'warning'
-        }).then(confirmed => {
-            if (confirmed) {
-                emptyRecycleBin();
-                closeContextMenu();
-            }
+          }
         });
-    };
+    }
+  };
 
-    const handleRestoreFromRecycleBin = () => {
-        if (contextMenu.targetItem) {
-            restoreFromRecycleBin(contextMenu.targetItem.key);
+  const handleRename = () => {
+    if (contextMenu.targetItem) {
+      api.dialog
+        .prompt({
+          title: t('common.renameTitle'),
+          message: t('common.renamePrompt'),
+          defaultValue: contextMenu.targetItem.item.name,
+        })
+        .then(newName => {
+          if (newName && newName.trim() !== '') {
+            renameFile(currentPath, contextMenu.targetItem.key, newName.trim());
             closeContextMenu();
+          }
+        });
+    }
+  };
+
+  const handleCopy = () => {
+    if (contextMenu.targetItem) {
+      copyToClipboard(currentPath, contextMenu.targetItem.key);
+      closeContextMenu();
+    }
+  };
+
+  const handleUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.txt,.md,.json,.js,.ts,.jsx,.tsx,.css,.html,.xml,.csv';
+    input.onchange = e => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = event => {
+          const content = event.target?.result as string;
+          uploadTextFile(currentPath, file.name, content);
+          closeContextMenu();
+        };
+        reader.readAsText(file);
+      }
+    };
+    input.click();
+    closeContextMenu();
+  };
+
+  const handleCut = () => {
+    if (contextMenu.targetItem) {
+      cutFile(currentPath, contextMenu.targetItem.key);
+      closeContextMenu();
+    }
+  };
+
+  const handlePaste = () => {
+    const success = pasteFile(currentPath);
+    if (success) {
+      closeContextMenu();
+    }
+  };
+
+  const handleProperties = () => {
+    if (contextMenu.targetItem) {
+      const displayName = getFileDisplayName(
+        contextMenu.targetItem.key,
+        contextMenu.targetItem.item,
+        t
+      );
+      const componentProps = {
+        fileItem: contextMenu.targetItem.item,
+        parentPath: currentPath,
+      };
+      api.openWindow(
+        'FileProperties',
+        t('common.propertiesTitle', { name: displayName }),
+        <FileProperties {...componentProps} />,
+        'properties',
+        { componentProps } // 显式传递 componentProps 用于持久化
+      );
+      closeContextMenu();
+    }
+  };
+
+  const isInRecycleBin = currentPath.length === 1 && currentPath[0] === '回收站';
+
+  const handleEmptyRecycleBin = () => {
+    api.dialog
+      .confirm({
+        title: t('explorer.recycleBin.emptyTitle'),
+        message: t('explorer.recycleBin.emptyConfirm'),
+        type: 'warning',
+      })
+      .then(confirmed => {
+        if (confirmed) {
+          emptyRecycleBin();
+          closeContextMenu();
         }
-    };
+      });
+  };
 
-    const recycleBinMenuItems = [
-        { label: '还原', action: handleRestoreFromRecycleBin, disabled: !contextMenu.targetItem },
-        { type: 'separator' },
-        { label: '清空回收站', action: handleEmptyRecycleBin },
-        { type: 'separator' },
-        { label: '属性', action: handleProperties, disabled: !contextMenu.targetItem }
-    ];
+  const handleRestoreFromRecycleBin = () => {
+    if (contextMenu.targetItem) {
+      restoreFromRecycleBin(contextMenu.targetItem.key);
+      closeContextMenu();
+    }
+  };
 
-    const menuItems = isInRecycleBin ? recycleBinMenuItems : [
-        { label: '新建文件夹', action: () => handleCreateFile('folder') },
-        { label: '新建文本文档', action: () => handleCreateFile('file') },
-        { type: 'separator' },
-        { label: '上传文件', action: handleUpload },
-        { type: 'separator' },
-        { label: '复制', action: handleCopy, disabled: !contextMenu.targetItem },
-        { label: '剪切', action: handleCut, disabled: !contextMenu.targetItem },
-        { label: '粘贴', action: handlePaste, disabled: !clipboard },
-        { type: 'separator' },
-        { label: '重命名', action: handleRename, disabled: !contextMenu.targetItem },
-        { label: '删除', action: handleDelete, disabled: !contextMenu.targetItem },
-        { type: 'separator' },
-        { label: '属性', action: handleProperties, disabled: !contextMenu.targetItem }
-    ];
+  const recycleBinMenuItems = [
+    {
+      label: t('explorer.recycleBin.restore'),
+      action: handleRestoreFromRecycleBin,
+      disabled: !contextMenu.targetItem,
+    },
+    { type: 'separator' },
+    { label: t('explorer.recycleBin.empty'), action: handleEmptyRecycleBin },
+    { type: 'separator' },
+    {
+      label: t('contextMenu.properties'),
+      action: handleProperties,
+      disabled: !contextMenu.targetItem,
+    },
+  ];
 
-    const handleDragStart = (e: React.DragEvent, key: string) => {
-        e.dataTransfer.setData('text/plain', key);
-        e.dataTransfer.effectAllowed = 'move';
-    };
+  const menuItems = isInRecycleBin
+    ? recycleBinMenuItems
+    : [
+        { label: t('contextMenu.newFolder'), action: () => handleCreateFile('folder') },
+        { label: t('contextMenu.newTextDocument'), action: () => handleCreateFile('file') },
+        { type: 'separator' },
+        { label: t('explorer.upload'), action: handleUpload },
+        { type: 'separator' },
+        { label: t('contextMenu.copy'), action: handleCopy, disabled: !contextMenu.targetItem },
+        { label: t('contextMenu.cut'), action: handleCut, disabled: !contextMenu.targetItem },
+        { label: t('contextMenu.paste'), action: handlePaste, disabled: !clipboard },
+        { type: 'separator' },
+        { label: t('contextMenu.rename'), action: handleRename, disabled: !contextMenu.targetItem },
+        { label: t('contextMenu.delete'), action: handleDelete, disabled: !contextMenu.targetItem },
+        { type: 'separator' },
+        {
+          label: t('contextMenu.properties'),
+          action: handleProperties,
+          disabled: !contextMenu.targetItem,
+        },
+      ];
 
-    const handleDropOnFolder = (e: React.DragEvent, targetKey: string, targetItem: FileNode) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setDragOver(null);
-        if (targetItem.type !== 'folder') return;
-        const srcKey = e.dataTransfer.getData('text/plain');
-        if (!srcKey || srcKey === targetKey) return;
-        moveFile(currentPath, srcKey, [...currentPath, targetKey]);
-    };
+  const handleDragStart = (e: React.DragEvent, key: string) => {
+    e.dataTransfer.setData('text/plain', key);
+    e.dataTransfer.effectAllowed = 'move';
+  };
 
-    const renderFileItem = (key: string, item: FileNode) => {
-        const displayName = getFileDisplayName(key, item, t);
-        const isSelected = selectedItem && selectedItem.name === displayName;
+  const handleDropOnFolder = (e: React.DragEvent, targetKey: string, targetItem: FileNode) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(null);
+    if (targetItem.type !== 'folder') return;
+    const srcKey = e.dataTransfer.getData('text/plain');
+    if (!srcKey || srcKey === targetKey) return;
+    moveFile(currentPath, srcKey, [...currentPath, targetKey]);
+  };
 
-        return (
-            <FileItem
-                key={key}
-                data-testid={`file-item-${key}`}
-                onDoubleClick={() => handleNavigate(key)}
-                onClick={() => setSelectedItem({ name: displayName, type: item.type })}
-                onContextMenu={(e) => handleContextMenu(e, key, item)}
-                selected={isSelected}
-                draggable
-                onDragStart={(e) => handleDragStart(e, key)}
-                onDragOver={(e) => { if (item.type === 'folder') { e.preventDefault(); setDragOver(key); } }}
-                onDragLeave={() => setDragOver(null)}
-                onDrop={(e) => handleDropOnFolder(e, key, item)}
-                style={dragOver === key && item.type === 'folder' ? { background: '#C1D2EE', border: '1px dashed #316AC5' } : undefined}
-            >
-                <IconWrapper>
-                    <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={32} />
-                </IconWrapper>
-                <FileInfo>
-                    <FileName $isDrive={isRoot && (item.type === 'drive' || item.icon === 'drive')}>
-                        {displayName}
-                        {item.locked && (
-                          <svg width="10" height="10" viewBox="0 0 10 10" style={{ marginLeft: '5px', flexShrink: 0 }}>
-                            <rect x="1" y="4" width="8" height="5" rx="1" fill="#666" />
-                            <path d="M2.5 4V2.5a2.5 2.5 0 0 1 5 0V4" stroke="#666" strokeWidth="1.2" fill="none" />
-                          </svg>
-                        )}
-                    </FileName>
-                    {isRoot && (item.type === 'drive' || item.icon === 'drive') && <FileType selected={isSelected}>本地磁盘</FileType>}
-                </FileInfo>
-            </FileItem>
-        );
-    };
+  const renderFileItem = (key: string, item: FileNode) => {
+    const displayName = getFileDisplayName(key, item, t);
+    const isSelected = selectedItem && selectedItem.name === displayName;
 
     return (
-        <Container onContextMenu={(e) => {
+      <FileItem
+        key={key}
+        data-testid={`file-item-${key}`}
+        onDoubleClick={() => handleNavigate(key)}
+        onClick={() => setSelectedItem({ name: displayName, type: item.type })}
+        onContextMenu={e => handleContextMenu(e, key, item)}
+        selected={isSelected}
+        draggable
+        onDragStart={e => handleDragStart(e, key)}
+        onDragOver={e => {
+          if (item.type === 'folder') {
             e.preventDefault();
-            e.stopPropagation();
-            setSelectedItem(null);
-            setContextMenu({ visible: true, x: e.clientX, y: e.clientY, targetItem: null });
-        }}>
-            <ExplorerToolbar
-                onBack={handleBack}
-                onForward={handleForward}
-                onUp={handleUp}
-                canGoBack={historyIndex > 0}
-                canGoForward={historyIndex < history.length - 1}
-                canGoUp={currentPath.length > 0}
-            />
-            <AddressBar
-                address={address}
-                onAddressChange={setAddress}
-                onGo={handleAddressGo}
-            />
-            <MainContent>
-                <ExplorerSidebar
-                    currentPath={currentPath}
-                    currentItem={selectedItem}
-                    onNavigate={handleNavigateToPath}
+            setDragOver(key);
+          }
+        }}
+        onDragLeave={() => setDragOver(null)}
+        onDrop={e => handleDropOnFolder(e, key, item)}
+        style={
+          dragOver === key && item.type === 'folder'
+            ? { background: '#C1D2EE', border: '1px dashed #316AC5' }
+            : undefined
+        }
+      >
+        <IconWrapper>
+          <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={32} />
+        </IconWrapper>
+        <FileInfo>
+          <FileName $isDrive={isRoot && (item.type === 'drive' || item.icon === 'drive')}>
+            {displayName}
+            {item.locked && (
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 10 10"
+                style={{ marginLeft: '5px', flexShrink: 0 }}
+              >
+                <rect x="1" y="4" width="8" height="5" rx="1" fill="#666" />
+                <path
+                  d="M2.5 4V2.5a2.5 2.5 0 0 1 5 0V4"
+                  stroke="#666"
+                  strokeWidth="1.2"
+                  fill="none"
                 />
-                <FileArea>
-                    {isInRecycleBin && Object.keys(currentFolder.children || {}).length === 0 ? (
-                        <EmptyRecycleBinMessage>
-                            <XPIcon name="recycle_bin" size={48} />
-                            <span>回收站是空的。</span>
-                        </EmptyRecycleBinMessage>
-                    ) : (
-                        renderContent()
-                    )}
-                </FileArea>
-            </MainContent>
-            <StatusBar>
-                {Object.keys(currentFolder.children || {}).length} 个对象
-            </StatusBar>
-            <ContextMenu
-                visible={contextMenu.visible}
-                x={contextMenu.x}
-                y={contextMenu.y}
-                onClose={closeContextMenu}
-                menuItems={menuItems}
-            />
-        </Container>
+              </svg>
+            )}
+          </FileName>
+          {isRoot && (item.type === 'drive' || item.icon === 'drive') && (
+            <FileType selected={isSelected}>
+              {t(isOpticalDrive(key) ? 'explorer.types.opticalDrive' : 'explorer.types.localDisk')}
+            </FileType>
+          )}
+        </FileInfo>
+      </FileItem>
     );
+  };
+
+  return (
+    <Container
+      onContextMenu={e => {
+        e.preventDefault();
+        e.stopPropagation();
+        setSelectedItem(null);
+        setContextMenu({ visible: true, x: e.clientX, y: e.clientY, targetItem: null });
+      }}
+    >
+      <ExplorerToolbar
+        onBack={handleBack}
+        onForward={handleForward}
+        onUp={handleUp}
+        canGoBack={historyIndex > 0}
+        canGoForward={historyIndex < history.length - 1}
+        canGoUp={currentPath.length > 0}
+      />
+      <AddressBar address={address} onAddressChange={setAddress} onGo={handleAddressGo} />
+      <MainContent>
+        <ExplorerSidebar
+          currentPath={currentPath}
+          currentItem={selectedItem}
+          onNavigate={handleNavigateToPath}
+        />
+        <FileArea>
+          {isInRecycleBin && Object.keys(currentFolder.children || {}).length === 0 ? (
+            <EmptyRecycleBinMessage>
+              <XPIcon name="recycle_bin" size={48} />
+              <span>{t('explorer.recycleBin.emptyMessage')}</span>
+            </EmptyRecycleBinMessage>
+          ) : (
+            renderContent()
+          )}
+        </FileArea>
+      </MainContent>
+      <StatusBar>
+        {t('explorer.objectCount', { count: Object.keys(currentFolder.children || {}).length })}
+      </StatusBar>
+      <ContextMenu
+        visible={contextMenu.visible}
+        x={contextMenu.x}
+        y={contextMenu.y}
+        onClose={closeContextMenu}
+        menuItems={menuItems}
+      />
+    </Container>
+  );
 };
 
 export default Explorer;

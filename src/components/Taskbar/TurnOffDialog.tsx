@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import standbyIcon from '../../assets/icons/xp/standby.png';
 import shutdownIcon from '../../assets/icons/xp/shutdown_action.png';
 import restartIcon from '../../assets/icons/xp/restart.png';
 
@@ -10,7 +9,8 @@ const TurnOffOverlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, #0058e6 0%, #003399 100%);
+  background: rgba(45, 45, 45, 0.58);
+  backdrop-filter: grayscale(45%) brightness(72%);
   z-index: 20000;
   display: flex;
   flex-direction: column;
@@ -30,7 +30,7 @@ const TurnOffContent = styled.div`
 
 const Header = styled.div`
   color: white;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 
   h2 {
     margin: 0 0 8px 0;
@@ -50,6 +50,39 @@ const Actions = styled.div`
   justify-content: center;
   align-items: flex-start;
   width: 100%;
+`;
+
+const StandbyIcon = styled.div`
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border: 1px solid #b57000;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #ffd94a 0%, #e9a500 100%);
+  box-shadow: inset 1px 1px 1px rgba(255, 255, 255, 0.8);
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+  }
+
+  &::before {
+    width: 25px;
+    height: 25px;
+    left: 11px;
+    top: 10px;
+    background: #fff;
+  }
+
+  &::after {
+    width: 22px;
+    height: 22px;
+    left: 18px;
+    top: 6px;
+    background: #f4bb17;
+  }
 `;
 
 const ActionButton = styled.div<{ $disabled?: boolean }>`
@@ -77,7 +110,11 @@ const ActionButton = styled.div<{ $disabled?: boolean }>`
     /* Authentic XP shutdown-dialog button look: subtle raised border */
     border-radius: 6px;
     border: 1px solid rgba(255, 255, 255, 0.25);
-    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.25),
       0 4px 12px rgba(0, 0, 0, 0.35);
@@ -92,7 +129,7 @@ const ActionButton = styled.div<{ $disabled?: boolean }>`
   span {
     font-size: 14px;
     color: white;
-    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+    font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   }
 `;
 
@@ -102,7 +139,7 @@ const CancelButton = styled.button`
   right: 40px;
   padding: 4px 24px;
   font-size: 12px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   background: #f0f0f0;
   border: 1px solid #999;
   cursor: pointer;
@@ -153,7 +190,7 @@ const TurnOffDialog: React.FC<TurnOffDialogProps> = ({
         <Actions>
           <ActionButton $disabled>
             <div className="action-icon">
-              <img src={standbyIcon} alt={standbyLabel} />
+              <StandbyIcon role="img" aria-label={standbyLabel} />
             </div>
             <span>{standbyLabel}</span>
           </ActionButton>

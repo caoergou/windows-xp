@@ -10,13 +10,13 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #EEF3FA;
+  background-color: #eef3fa;
 `;
 
 const Toolbar = styled.div`
   height: 36px;
-  background: linear-gradient(to bottom, #F9FCFD 0%, #DDECFD 100%);
-  border-bottom: 1px solid #A0B2C8;
+  background: linear-gradient(to bottom, #f9fcfd 0%, #ddecfd 100%);
+  border-bottom: 1px solid #a0b2c8;
   display: flex;
   align-items: center;
   padding: 0 10px;
@@ -36,13 +36,13 @@ const StyledImage = styled.img`
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 `;
 
 const InfoBar = styled.div`
   height: 24px;
-  background-color: #EEF3FA;
-  border-top: 1px solid #A0B2C8;
+  background-color: #eef3fa;
+  border-top: 1px solid #a0b2c8;
   display: flex;
   align-items: center;
   padding: 0 10px;
@@ -59,10 +59,10 @@ const ToolbarButton = styled.button`
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 
   &:hover {
-    border: 1px solid #A0B2C8;
+    border: 1px solid #a0b2c8;
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 2px;
   }
@@ -100,10 +100,10 @@ const PhotoViewer = ({ src, fileItem, windowId }: PhotoViewerProps) => {
       const def = APP_REGISTRY.FileProperties;
       api.openWindow(
         `properties-${fileItem.name}-${Date.now()}`,
-        `${fileItem.name} 属性`,
+        t('common.propertiesTitle', { name: fileItem.name }),
         def.restore({ fileItem }),
         def.icon,
-        def.window,
+        def.window
       );
     }
   };
@@ -111,26 +111,24 @@ const PhotoViewer = ({ src, fileItem, windowId }: PhotoViewerProps) => {
   return (
     <Container>
       <Toolbar>
-         <span style={{ fontSize: '11px', marginRight: 'auto', fontWeight: 'bold', color: '#333' }}>
-             Windows 图片和传真查看器
-         </span>
-         {fileItem && (
-             <ToolbarButton onClick={handleProperties} title="查看属性">
-                 <span style={{ fontSize: '14px' }}>ℹ️</span>
-                 属性
-             </ToolbarButton>
-         )}
+        <span style={{ fontSize: '11px', marginRight: 'auto', fontWeight: 'bold', color: '#333' }}>
+          {t('photoViewer.title')}
+        </span>
+        {fileItem && (
+          <ToolbarButton onClick={handleProperties} title={t('photoViewer.viewProperties')}>
+            <span style={{ fontSize: '14px' }}>ℹ️</span>
+            {t('contextMenu.properties')}
+          </ToolbarButton>
+        )}
       </Toolbar>
       <Content>
         {imageSrc ? (
-            <StyledImage src={imageSrc} alt={t('photoViewer.view')} draggable={false} />
+          <StyledImage src={imageSrc} alt={t('photoViewer.view')} draggable={false} />
         ) : (
-            <div>{t('photoViewer.noImageSelected')}</div>
+          <div>{t('photoViewer.noImageSelected')}</div>
         )}
       </Content>
-      <InfoBar>
-        {src ? src.split('/').pop() : 'Ready'}
-      </InfoBar>
+      <InfoBar>{src ? src.split('/').pop() : t('photoViewer.ready')}</InfoBar>
     </Container>
   );
 };

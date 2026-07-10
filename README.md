@@ -40,7 +40,7 @@ This project is a nostalgic tribute to that era — the early 2000s internet, wh
 - 🎵 **XP Sounds** - Authentic startup, shutdown, and UI sound effects via Web Audio API
 - ♻️ **Recycle Bin** - Delete and restore files with full functionality
 - 🖱️ **Context Menus** - Right-click menus throughout the interface
-- 🌍 **Bilingual Support** - English and Chinese language support
+- 🌍 **Culture Profiles** - English and Chinese use distinct desktops, Start menus, browser homepages, and application sets
 - 🎮 **Classic Games** - Minesweeper and Solitaire included
 
 ## 📦 Installation

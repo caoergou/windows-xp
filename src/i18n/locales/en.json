@@ -27,6 +27,26 @@
     "ok": "OK",
     "apply": "Apply",
     "cancel": "Cancel",
+    "categories": {
+      "addRemovePrograms": "Add or Remove Programs",
+      "appearance": "Appearance and Themes",
+      "dateTime": "Date and Time",
+      "display": "Display",
+      "folderOptions": "Folder Options",
+      "fonts": "Fonts",
+      "keyboard": "Keyboard",
+      "mouse": "Mouse",
+      "network": "Network Connections",
+      "userAccounts": "User Accounts",
+      "sound": "Sounds and Audio Devices",
+      "system": "System"
+    },
+    "systemLanguage": {
+      "title": "Language settings",
+      "label": "System language:",
+      "restartTitle": "Restart Windows",
+      "restartMessage": "Windows must restart to apply the new language. Restart now?"
+    },
     "displaySettings": {
       "wallpaper": "Wallpaper:",
       "resolution": "Screen resolution:",
@@ -64,6 +84,7 @@
     "allPrograms": "All Programs",
     "myDocuments": "My Documents",
     "myComputer": "My Computer",
+    "myPictures": "My Pictures",
     "myMusic": "My Music",
     "controlPanel": "Control Panel",
     "printersAndFaxes": "Printers and Faxes",
@@ -91,7 +112,36 @@
     }
   },
   "taskbar": {
-    "start": "Start"
+    "start": "Start",
+    "context": {
+      "toolbars": "Toolbars",
+      "quickLaunch": "Quick Launch",
+      "cascade": "Cascade Windows",
+      "tileHorizontally": "Tile Windows Horizontally",
+      "tileVertically": "Tile Windows Vertically",
+      "showDesktop": "Show the Desktop",
+      "taskManager": "Task Manager",
+      "lockTaskbar": "Lock the Taskbar",
+      "properties": "Properties"
+    }
+  },
+  "taskManager": {
+    "title": "Windows Task Manager",
+    "applications": "Applications",
+    "processes": "Processes",
+    "performance": "Performance",
+    "task": "Task",
+    "status": "Status",
+    "running": "Running",
+    "switchTo": "Switch To",
+    "endTask": "End Task",
+    "menu": {
+      "file": "File",
+      "options": "Options",
+      "view": "View",
+      "windows": "Windows",
+      "help": "Help"
+    }
   },
   "tray": {
     "volume": "Volume",
@@ -137,6 +187,49 @@
     "search": "Search",
     "folders": "Folders",
     "address": "Address",
+    "upload": "Upload File",
+    "objectCount": "{{count}} object(s)",
+    "groups": {
+      "hardDisks": "Hard Disk Drives",
+      "removableStorage": "Devices with Removable Storage",
+      "other": "Other"
+    },
+    "path": {
+      "localDisk": "Local Disk ({{drive}})",
+      "opticalDrive": "DVD/CD-RW Drive ({{drive}})"
+    },
+    "types": {
+      "folder": "File Folder",
+      "localDisk": "Local Disk",
+      "opticalDrive": "CD Drive",
+      "file": "File",
+      "systemFolder": "System Folder"
+    },
+    "sidebar": {
+      "systemTasks": "System Tasks",
+      "otherPlaces": "Other Places",
+      "details": "Details",
+      "viewSystemInfo": "View system information",
+      "addRemovePrograms": "Add or remove programs",
+      "changeSettings": "Change a setting",
+      "expand": "Expand",
+      "collapse": "Collapse"
+    },
+    "errors": {
+      "pathNotFound": "Windows cannot find this path.",
+      "damaged": "The disk or file is damaged and cannot be opened."
+    },
+    "password": {
+      "title": "Enter Password",
+      "message": "This folder is encrypted. Enter the password to open it."
+    },
+    "recycleBin": {
+      "restore": "Restore",
+      "empty": "Empty Recycle Bin",
+      "emptyTitle": "Empty Recycle Bin",
+      "emptyConfirm": "Are you sure you want to permanently delete all items in the Recycle Bin?",
+      "emptyMessage": "The Recycle Bin is empty."
+    },
     "menuItems": {
       "newWindow": "New Window(N)",
       "close": "Close(C)",
@@ -229,6 +322,9 @@
     "details": "View details"
   },
   "notepad": {
+    "untitled": "Untitled",
+    "untitledFile": "Untitled.txt",
+    "cursorPosition": "Ln {{line}}, Col {{column}}",
     "menu": {
       "file": "File(F)",
       "edit": "Edit(E)",
@@ -245,6 +341,7 @@
       "print": "Print(P)...",
       "exit": "Exit(X)",
       "undo": "Undo(U)",
+      "redo": "Redo(R)",
       "cut": "Cut(T)",
       "copy": "Copy(C)",
       "paste": "Paste(P)",
@@ -257,7 +354,23 @@
       "font": "Font(F)...",
       "statusBar": "Status Bar(S)",
       "help": "View Help(V)",
-      "about": "About Notepad(A)..."
+      "about": "About Notepad(A)...",
+      "download": "Download to Local Disk..."
+    },
+    "dialogs": {
+      "unsavedChanges": "The text in the file has changed. Do you want to save the changes?",
+      "openTitle": "Open",
+      "openPrompt": "Enter a file path, for example: My Documents\\readme.txt",
+      "fileNotFound": "The file could not be found.",
+      "cannotOpenFolder": "This folder cannot be opened.",
+      "unsupportedType": "Notepad cannot read this file type.",
+      "fileExists": "The file \"{{name}}\" already exists. Do you want to replace it?",
+      "saveTitle": "Save",
+      "readOnly": "This file is read-only.",
+      "saveAsTitle": "Save As",
+      "saveAsPrompt": "Enter a file name and path, for example: My Documents\\newfile.txt",
+      "pathNotFound": "The path does not exist.",
+      "invalidPath": "The path is invalid."
     },
     "find": {
       "title": "Find",
@@ -309,6 +422,7 @@
     "file": "File"
   },
   "common": {
+    "error": "Error",
     "ok": "OK",
     "cancel": "Cancel",
     "deleteConfirmTitle": "Confirm Delete",
@@ -554,10 +668,18 @@
     }
   },
   "solitaire": {
+    "won": "You won!",
     "menu": {
       "game": "Game(G)",
       "help": "Help(H)"
     }
+  },
+  "mediaPlayer": {
+    "play": "Play",
+    "pause": "Pause",
+    "stop": "Stop",
+    "playing": "Now playing",
+    "stopped": "Stopped"
   },
   "thunder": {
     "title": "Thunder 5",
@@ -600,11 +722,42 @@
     "statusReady": "Ready"
   },
   "photoViewer": {
-    "title": "Photo Viewer",
+    "title": "Windows Picture and Fax Viewer",
     "noImageSelected": "No image selected",
-    "view": "View"
+    "view": "View",
+    "viewProperties": "View properties",
+    "ready": "Ready"
+  },
+  "fileProperties": {
+    "general": "General",
+    "summary": "Summary",
+    "fileType": "Type of file",
+    "location": "Location",
+    "desktop": "Desktop",
+    "size": "Size",
+    "created": "Created",
+    "modified": "Modified",
+    "accessed": "Accessed",
+    "status": "Status",
+    "encrypted": "Encrypted",
+    "damaged": "Damaged",
+    "image": "Image",
+    "cameraModel": "Camera model",
+    "manufacturer": "Manufacturer",
+    "shootingParameters": "Shooting parameters",
+    "aperture": "Aperture",
+    "exposureTime": "Exposure time",
+    "seconds": "{{value}} seconds",
+    "isoSpeed": "ISO speed",
+    "focalLength": "Focal length",
+    "origin": "Origin",
+    "dateTaken": "Date taken",
+    "noSummary": "No summary information is available"
   },
   "paint": {
+    "untitled": "Untitled",
+    "untitledFile": "Untitled.png",
+    "clear": "Clear",
     "menu": {
       "file": "File(F)",
       "edit": "Edit(E)",
@@ -628,6 +781,22 @@
       "statusBar": "Status Bar(S)",
       "helpTopics": "Help Topics(H)",
       "about": "About Paint(A)..."
+    },
+    "dialogs": {
+      "loadFailed": "The image could not be loaded.",
+      "unsavedChanges": "The image has changed. Do you want to save the changes?",
+      "openTitle": "Open",
+      "openPrompt": "Enter an image path, for example: My Documents\\My Pictures\\image.png",
+      "fileNotFound": "The file could not be found.",
+      "cannotOpenFolder": "This folder cannot be opened.",
+      "unsupportedType": "Paint cannot read this file type.",
+      "saveTitle": "Save",
+      "readOnly": "This file is read-only.",
+      "saveAsTitle": "Save As",
+      "saveAsPrompt": "Enter a file name and path:",
+      "pathNotFound": "The path does not exist.",
+      "invalidPath": "The path is invalid.",
+      "fileExists": "The file \"{{name}}\" already exists. Do you want to replace it?"
     }
   },
   "wpsOffice": {
@@ -685,6 +854,36 @@
       "internet": "Internet Explorer",
       "applications": "Applications",
       "settings": "System Settings"
+    },
+    "content": {
+      "welcome": {
+        "title": "Welcome to Windows XP Help and Support Center",
+        "body": "Welcome to the Windows XP simulator. This classic desktop environment runs entirely in your browser.\n\nYou can explore the file system, browse the web, run applications, and use familiar Windows XP controls."
+      },
+      "gettingStarted": {
+        "title": "Getting Started",
+        "body": "Try these common tasks:\n\n1. Double-click a desktop icon to open it\n2. Use the Start menu to find programs\n3. Drag a title bar to move a window\n4. Resize supported windows\n5. Use the taskbar to manage open windows"
+      },
+      "desktop": {
+        "title": "Desktop Introduction",
+        "body": "The Windows XP desktop contains:\n\n- Icons for programs, folders, and files\n- A taskbar for open windows and notification icons\n- The Start menu for programs and system features\n- A configurable desktop background"
+      },
+      "explorer": {
+        "title": "File Explorer",
+        "body": "File Explorer manages files and folders.\n\nYou can browse folders, create and rename items, move files to the Recycle Bin, and view properties."
+      },
+      "internet": {
+        "title": "Internet Explorer",
+        "body": "Internet Explorer is the built-in web browser.\n\nUse the address bar, navigation buttons, browsing history, favorites, and the Home button to browse available pages."
+      },
+      "applications": {
+        "title": "Applications",
+        "body": "The English desktop includes classic system tools such as Notepad, Paint, Calculator, Windows Media Player, Minesweeper, Solitaire, Internet Explorer, and File Explorer."
+      },
+      "settings": {
+        "title": "System Settings",
+        "body": "Open Control Panel from the Start menu to change display, sound, mouse, and system settings. Language changes are applied after Windows restarts."
+      }
     }
   },
   "mobileWarning": {

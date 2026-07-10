@@ -292,7 +292,11 @@ const Desktop: React.FC = () => {
     const resolved = resolveFileOpen(key, item);
     const displayName = getFileDisplayName(key, item, t);
     if (!resolved) {
-      showModal(displayName, `找不到文件 "${displayName}"。\n请确认文件名是否正确，然后再试一次。`, 'error');
+      showModal(
+        t('errors.fileNotFound'),
+        t('errors.fileNotFoundMessage', { name: displayName }),
+        'error'
+      );
       return;
     }
     openWindow(resolved.appId, displayName, resolved.component, resolved.icon, resolved.windowProps);
@@ -333,6 +337,8 @@ const Desktop: React.FC = () => {
   };
 
   const handleContextMenu = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-xp-context-boundary="true"]')) return;
     e.preventDefault();
     setContextMenu({ visible: true, x: e.clientX, y: e.clientY, iconKey: null });
   };

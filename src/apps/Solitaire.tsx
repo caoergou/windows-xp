@@ -520,7 +520,7 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
         </TableauArea>
       </GameArea>
 
-      {won && <WinMessage>胜利！</WinMessage>}
+      {won && <WinMessage>{t('solitaire.won')}</WinMessage>}
 
       {drag &&
         createPortal(

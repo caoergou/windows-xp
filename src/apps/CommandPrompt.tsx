@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useApp } from '../hooks/useApp';
 import { isFileContentNode, isContainerNode, FileNode } from '../types';
@@ -9,7 +10,7 @@ const DRIVE_ROOT = ['root', '我的电脑', '本地磁盘 (C:)'] as const;
 const PROTECTED_FOLDERS = ['Windows', 'WINDOWS', 'Program Files'];
 
 const Container = styled.div`
-  font-family: "Perfect DOS VGA 437 Win", "Lucida Console", "Courier New", monospace;
+  font-family: 'Perfect DOS VGA 437 Win', 'Lucida Console', 'Courier New', monospace;
   font-size: 12px;
   background: #000000;
   color: #c0c0c0;
@@ -76,11 +77,16 @@ interface CommandPromptProps {
 }
 
 const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
-  const { getFile, createFolder, deleteFolder, renameNode, copyFile, deleteFile } = useFileSystem();
-  const api = useApp(windowId);
-  const [output, setOutput] = useState<string>(
+  const { i18n } = useTranslation();
+  const isChinese = i18n.language === 'zh';
+  const localize = (english: string, chinese: string) => (isChinese ? chinese : english);
+  const banner = localize(
+    'Microsoft Windows XP [Version 5.1.2600]\n(C) Copyright 1985-2001 Microsoft Corp.\n\n',
     'Microsoft Windows XP [版本 5.1.2600]\n(C) 版权所有 1985-2001 Microsoft Corp.\n\n'
   );
+  const { getFile, createFolder, deleteFolder, renameNode, copyFile, deleteFile } = useFileSystem();
+  const api = useApp(windowId);
+  const [output, setOutput] = useState<string>(banner);
   const [input, setInput] = useState<string>('');
   const [currentPath, setCurrentPath] = useState<string[]>([...DRIVE_ROOT]);
   const [history, setHistory] = useState<CommandHistory[]>([]);
@@ -113,9 +119,9 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
   const formatDate = () => {
     const now = new Date();
     return (
-      now.toLocaleDateString('zh-CN') +
+      now.toLocaleDateString(isChinese ? 'zh-CN' : 'en-US') +
       '  ' +
-      now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+      now.toLocaleTimeString(isChinese ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit' })
     );
   };
 
@@ -125,10 +131,39 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
 
     const [command, ...args] = parseCmdArgs(trimmed);
     const lowerCmd = command.toLowerCase();
+    const syntaxError = localize('The syntax of the command is incorrect.\n', '语法不正确。\n');
+    const pathNotFound = localize(
+      'The system cannot find the path specified.\n',
+      '系统找不到指定的路径。\n'
+    );
+    const fileNotFound = localize(
+      'The system cannot find the file specified.\n',
+      '系统找不到指定的文件。\n'
+    );
+    const accessDenied = localize('Access is denied.\n', '拒绝访问。\n');
 
     switch (lowerCmd) {
       case 'help':
-        return `有关某个命令的详细信息，请键入 HELP 命令名
+        return localize(
+          `For more information on a specific command, type HELP command-name
+CLS         Clears the screen.
+COPY        Copies one or more files to another location.
+DATE        Displays or sets the date.
+DEL         Deletes one or more files.
+DIR         Displays a list of files and subdirectories.
+ECHO        Displays messages, or turns command echoing on or off.
+EXIT        Quits the CMD.EXE program.
+HELP        Provides Help information for Windows commands.
+MD          Creates a directory.
+PING        Tests a network connection.
+RD          Removes a directory.
+REN         Renames a file.
+TIME        Displays or sets the system time.
+TREE        Graphically displays the directory structure.
+TYPE        Displays the contents of a text file.
+VER         Displays the Windows version.
+VOL         Displays a disk volume label and serial number.`,
+          `有关某个命令的详细信息，请键入 HELP 命令名
 CLS         清除屏幕。
 COPY        将至少一个文件复制到另一个位置。
 DATE        显示或设置日期。
@@ -145,44 +180,56 @@ TIME        显示或设置系统时间。
 TREE        以图形显示驱动器或路径的目录结构。
 TYPE        显示文本文件的内容。
 VER         显示 Windows 版本。
-VOL         显示磁盘卷标和序列号。`;
+VOL         显示磁盘卷标和序列号。`
+        );
 
       case 'cls':
         return '__CLEAR__';
 
       case 'ver':
-        return '\nMicrosoft Windows XP [版本 5.1.2600]\n';
+        return localize(
+          '\nMicrosoft Windows XP [Version 5.1.2600]\n',
+          '\nMicrosoft Windows XP [版本 5.1.2600]\n'
+        );
 
       case 'date': {
         const now = new Date();
         const days = ['日', '一', '二', '三', '四', '五', '六'];
-        return `当前日期是: ${now.toLocaleDateString('zh-CN')} 星期${days[now.getDay()]}`;
+        return isChinese
+          ? `当前日期是: ${now.toLocaleDateString('zh-CN')} 星期${days[now.getDay()]}`
+          : `The current date is: ${now.toLocaleDateString('en-US')}`;
       }
 
       case 'time': {
         const now = new Date();
-        return `当前时间是: ${now.toLocaleTimeString('zh-CN')}`;
+        return localize(
+          `The current time is: ${now.toLocaleTimeString('en-US')}`,
+          `当前时间是: ${now.toLocaleTimeString('zh-CN')}`
+        );
       }
 
       case 'vol':
-        return ' 驱动器 C 中的卷是 Windows\n 卷的序列号是 0C5E-1D5A\n';
+        return localize(
+          ' Volume in drive C is Windows\n Volume Serial Number is 0C5E-1D5A\n',
+          ' 驱动器 C 中的卷是 Windows\n 卷的序列号是 0C5E-1D5A\n'
+        );
 
       case 'dir': {
         const targetPath = args[0] ? resolvePath(args[0]) : currentPath;
         const folder = getFile(targetPath);
 
         if (!folder || folder.type === 'file') {
-          return '找不到文件\n';
+          return localize('File Not Found\n', '找不到文件\n');
         }
 
         if (!('children' in folder)) {
-          return '找不到文件\n';
+          return localize('File Not Found\n', '找不到文件\n');
         }
 
         const entries = Object.entries(folder.children);
         const displayPath = targetPath.slice(DRIVE_ROOT.length);
         const dirLabel = displayPath.length ? `C:\\${displayPath.join('\\')}` : 'C:\\';
-        let result = `\n ${dirLabel} 的目录\n\n`;
+        let result = localize(`\n Directory of ${dirLabel}\n\n`, `\n ${dirLabel} 的目录\n\n`);
 
         let fileCount = 0;
         let dirCount = 0;
@@ -201,8 +248,14 @@ VOL         显示磁盘卷标和序列号。`;
           }
         }
 
-        result += `             ${fileCount} 个文件    ${formatSize(totalSize)} 字节\n`;
-        result += `             ${dirCount} 个目录  可用字节\n`;
+        result += localize(
+          `             ${fileCount} File(s)    ${formatSize(totalSize)} bytes\n`,
+          `             ${fileCount} 个文件    ${formatSize(totalSize)} 字节\n`
+        );
+        result += localize(
+          `             ${dirCount} Dir(s)\n`,
+          `             ${dirCount} 个目录  可用字节\n`
+        );
         return result;
       }
 
@@ -229,7 +282,7 @@ VOL         显示磁盘卷标和序列号。`;
         const folder = getFile(newPath);
 
         if (!folder || folder.type === 'file' || !('children' in folder)) {
-          return `系统找不到指定的路径。\n`;
+          return pathNotFound;
         }
 
         setCurrentPath(newPath);
@@ -238,22 +291,25 @@ VOL         显示磁盘卷标和序列号。`;
 
       case 'type': {
         if (!args[0]) {
-          return '语法不正确。\n';
+          return syntaxError;
         }
 
         const filePath = resolvePath(args[0]);
         const file = getFile(filePath);
 
         if (!file) {
-          return `系统找不到指定的文件 - ${args[0]}\n`;
+          return localize(
+            `The system cannot find the file specified - ${args[0]}\n`,
+            `系统找不到指定的文件 - ${args[0]}\n`
+          );
         }
 
         if (file.type === 'folder') {
-          return `拒绝访问。\n`;
+          return accessDenied;
         }
 
         if (!isFileContentNode(file) || file.content === undefined) {
-          return `无法读取此文件类型。\n`;
+          return localize('This file type cannot be read.\n', '无法读取此文件类型。\n');
         }
 
         return (file.content || '') + '\n';
@@ -261,7 +317,7 @@ VOL         显示磁盘卷标和序列号。`;
 
       case 'echo': {
         if (!args.length) {
-          return 'ECHO 处于打开状态。\n';
+          return localize('ECHO is on.\n', 'ECHO 处于打开状态。\n');
         }
         return args.join(' ') + '\n';
       }
@@ -269,7 +325,7 @@ VOL         显示磁盘卷标和序列号。`;
       case 'md':
       case 'mkdir': {
         if (!args[0]) {
-          return '语法不正确。\n';
+          return syntaxError;
         }
 
         const targetPath = resolvePath(args[0]);
@@ -277,20 +333,20 @@ VOL         显示磁盘卷标和序列号。`;
         const folderName = targetPath[targetPath.length - 1];
 
         if (!folderName) {
-          return '语法不正确。\n';
+          return syntaxError;
         }
 
         const parent = getFile(parentPath);
         if (!parent || !isContainerNode(parent)) {
-          return '系统找不到指定的路径。\n';
+          return pathNotFound;
         }
 
         if (parent.locked) {
-          return '拒绝访问。\n';
+          return accessDenied;
         }
 
         if (getFile(targetPath)) {
-          return '子目录或文件 已存在。\n';
+          return localize('A subdirectory or file already exists.\n', '子目录或文件 已存在。\n');
         }
 
         createFolder(parentPath, folderName);
@@ -300,7 +356,7 @@ VOL         显示磁盘卷标和序列号。`;
       case 'rd':
       case 'rmdir': {
         if (!args[0]) {
-          return '语法不正确。\n';
+          return syntaxError;
         }
 
         const targetPath = resolvePath(args[0]);
@@ -310,11 +366,11 @@ VOL         显示磁盘卷标和序列号。`;
         const parent = getFile(parentPath);
 
         if (!folder) {
-          return '系统找不到指定的文件。\n';
+          return fileNotFound;
         }
 
         if (folder.type !== 'folder') {
-          return '目录名称无效。\n';
+          return localize('The directory name is invalid.\n', '目录名称无效。\n');
         }
 
         if (
@@ -322,11 +378,11 @@ VOL         显示磁盘卷标和序列号。`;
           parent?.locked ||
           (PROTECTED_FOLDERS.includes(folderName) && parentPath.length === DRIVE_ROOT.length)
         ) {
-          return '拒绝访问。\n';
+          return accessDenied;
         }
 
         if (isContainerNode(folder) && Object.keys(folder.children || {}).length > 0) {
-          return '目录不是空的。\n';
+          return localize('The directory is not empty.\n', '目录不是空的。\n');
         }
 
         deleteFolder(parentPath, folderName);
@@ -336,7 +392,7 @@ VOL         显示磁盘卷标和序列号。`;
       case 'ren':
       case 'rename': {
         if (args.length < 2) {
-          return '语法不正确。\n';
+          return syntaxError;
         }
 
         const sourcePath = resolvePath(args[0]);
@@ -346,11 +402,11 @@ VOL         显示磁盘卷标和序列号。`;
         const source = getFile(sourcePath);
 
         if (!source) {
-          return '系统找不到指定的文件。\n';
+          return fileNotFound;
         }
 
         if (/[\\/]/.test(targetName)) {
-          return '语法不正确。\n';
+          return syntaxError;
         }
 
         if (
@@ -359,20 +415,23 @@ VOL         显示磁盘卷标和序列号。`;
             PROTECTED_FOLDERS.includes(sourceName) &&
             parentPath.length === DRIVE_ROOT.length)
         ) {
-          return '拒绝访问。\n';
+          return accessDenied;
         }
 
         const parent = getFile(parentPath);
         if (!parent || !isContainerNode(parent)) {
-          return '系统找不到指定的路径。\n';
+          return pathNotFound;
         }
 
         if (parent.locked) {
-          return '拒绝访问。\n';
+          return accessDenied;
         }
 
         if (parent.children?.[targetName]) {
-          return '当文件已存在时，无法创建该文件。\n';
+          return localize(
+            'A file with the same name already exists.\n',
+            '当文件已存在时，无法创建该文件。\n'
+          );
         }
 
         renameNode(parentPath, sourceName, targetName);
@@ -381,7 +440,7 @@ VOL         显示磁盘卷标和序列号。`;
 
       case 'copy': {
         if (args.length < 2) {
-          return '语法不正确。\n';
+          return syntaxError;
         }
 
         const sourcePath = resolvePath(args[0]);
@@ -392,11 +451,11 @@ VOL         显示磁盘卷标和序列号。`;
         const sourceParentNode = getFile(sourceParent);
 
         if (!source) {
-          return '系统找不到指定的文件。\n';
+          return fileNotFound;
         }
 
         if (source.type === 'folder' || sourceParentNode?.locked) {
-          return '拒绝访问。\n';
+          return accessDenied;
         }
 
         let destParent: string[];
@@ -413,20 +472,20 @@ VOL         显示磁盘卷标和序列号。`;
 
         const destParentNode = getFile(destParent);
         if (!destParentNode || !isContainerNode(destParentNode)) {
-          return '系统找不到指定的路径。\n';
+          return pathNotFound;
         }
 
         if (destParentNode.locked || destParentNode.children?.[destName]) {
-          return '拒绝访问。\n';
+          return accessDenied;
         }
 
         copyFile(sourceParent, sourceName, destParent, destName);
-        return '        1 个文件已被复制。\n';
+        return localize('        1 file(s) copied.\n', '        1 个文件已被复制。\n');
       }
 
       case 'del': {
         if (!args[0]) {
-          return '语法不正确。\n';
+          return syntaxError;
         }
 
         const targetPath = resolvePath(args[0]);
@@ -436,11 +495,11 @@ VOL         显示磁盘卷标和序列号。`;
         const parent = getFile(parentPath);
 
         if (!target) {
-          return '系统找不到指定的文件。\n';
+          return fileNotFound;
         }
 
         if (target.type === 'folder' || parent?.locked) {
-          return '拒绝访问。\n';
+          return accessDenied;
         }
 
         deleteFile(parentPath, fileName);
@@ -452,7 +511,7 @@ VOL         显示磁盘卷标和序列号。`;
         const folder = getFile(targetPath);
 
         if (!folder || !isContainerNode(folder)) {
-          return '系统找不到指定的路径。\n';
+          return pathNotFound;
         }
 
         const buildTree = (node: FileNode, prefix: string): string => {
@@ -472,12 +531,18 @@ VOL         显示磁盘卷标和序列号。`;
 
         const displayPath = targetPath.slice(DRIVE_ROOT.length);
         const label = displayPath.length ? `C:\\${displayPath.join('\\')}` : 'C:\\';
-        return `文件夹 PATH 列表\n卷序列号为 0C5E-1D5A\n${label}\n${buildTree(folder, '')}`;
+        return localize(
+          `Folder PATH listing\nVolume serial number is 0C5E-1D5A\n${label}\n${buildTree(folder, '')}`,
+          `文件夹 PATH 列表\n卷序列号为 0C5E-1D5A\n${label}\n${buildTree(folder, '')}`
+        );
       }
 
       case 'ping': {
         if (!args[0]) {
-          return '用法: ping [-t] [-a] [-n count] [-l size] destination\n';
+          return localize(
+            'Usage: ping [-t] [-a] [-n count] [-l size] destination\n',
+            '用法: ping [-t] [-a] [-n count] [-l size] destination\n'
+          );
         }
         const host = args[0];
         return (
@@ -499,7 +564,10 @@ VOL         显示磁盘卷标和序列号。`;
       case 'ipconfig':
         return (
           `\nWindows IP Configuration\n\n` +
-          `Ethernet adapter 本地连接:\n\n` +
+          localize(
+            'Ethernet adapter Local Area Connection:\n\n',
+            'Ethernet adapter 本地连接:\n\n'
+          ) +
           `   Connection-specific DNS Suffix  . : \n` +
           `   IP Address. . . . . . . . . . . . : 192.168.1.100\n` +
           `   Subnet Mask. . . . . . . . . . . . : 255.255.255.0\n` +
@@ -507,7 +575,10 @@ VOL         显示磁盘卷标和序列号。`;
         );
 
       default:
-        return `'${command}' 不是内部或外部命令，也不是可运行的程序或批处理文件。\n`;
+        return localize(
+          `'${command}' is not recognized as an internal or external command, operable program or batch file.\n`,
+          `'${command}' 不是内部或外部命令，也不是可运行的程序或批处理文件。\n`
+        );
     }
   };
 
@@ -524,9 +595,7 @@ VOL         显示磁盘卷标和序列号。`;
       const result = executeCommand(command);
 
       if (result === '__CLEAR__') {
-        setOutput(
-          'Microsoft Windows XP [版本 5.1.2600]\n(C) 版权所有 1985-2001 Microsoft Corp.\n\n'
-        );
+        setOutput(banner);
       } else if (result === '__EXIT__') {
         setOutput(prev => prev + prompt + command + '\n');
         api.window.close();

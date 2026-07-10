@@ -15,7 +15,10 @@ const LinkItem = ({ href, children, onNav }: LinkItemProps) => (
   <a
     href={href}
     style={{ color: '#1843C5', textDecoration: 'none', fontSize: 12 }}
-    onClick={(e) => { e.preventDefault(); onNav && onNav(href); }}
+    onClick={e => {
+      e.preventDefault();
+      onNav && onNav(href);
+    }}
   >
     {children}
   </a>
@@ -28,7 +31,7 @@ const PageWrap = styled.div`
   height: 100%;
   overflow-y: auto;
   background: #f5f5f5;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 12px;
   color: #333;
 `;
@@ -46,14 +49,26 @@ const Logo = styled.div`
   font-weight: bold;
   color: white;
   letter-spacing: -1px;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
 
-  .h { color: #FF4444; }
-  .a { color: #FFAA00; }
-  .o { color: #66CC00; }
-  .one { color: white; }
-  .two { color: #FF4444; }
-  .three { color: #FFAA00; }
+  .h {
+    color: #ff4444;
+  }
+  .a {
+    color: #ffaa00;
+  }
+  .o {
+    color: #66cc00;
+  }
+  .one {
+    color: white;
+  }
+  .two {
+    color: #ff4444;
+  }
+  .three {
+    color: #ffaa00;
+  }
 `;
 
 const SearchBox = styled.div`
@@ -84,7 +99,9 @@ const SearchBox = styled.div`
     font-size: 13px;
     font-weight: bold;
 
-    &:hover { background: #e05500; }
+    &:hover {
+      background: #e05500;
+    }
   }
 `;
 
@@ -106,12 +123,14 @@ const NavTab = styled.div<{ $active: boolean }>`
   padding: 5px 12px;
   font-size: 12px;
   cursor: pointer;
-  border-bottom: 2px solid ${p => p.$active ? '#003399' : 'transparent'};
-  color: ${p => p.$active ? '#003399' : '#555'};
-  font-weight: ${p => p.$active ? 'bold' : 'normal'};
+  border-bottom: 2px solid ${p => (p.$active ? '#003399' : 'transparent')};
+  color: ${p => (p.$active ? '#003399' : '#555')};
+  font-weight: ${p => (p.$active ? 'bold' : 'normal')};
   margin-bottom: -2px;
 
-  &:hover { color: #003399; }
+  &:hover {
+    color: #003399;
+  }
 `;
 
 const ContentArea = styled.div`
@@ -163,9 +182,50 @@ const BottomBanner = styled.div`
   align-items: center;
 `;
 
+const MsnHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  color: #fff;
+  background: #1f5aa6;
+  border-bottom: 4px solid #ef8b1e;
+`;
+
+const MsnLogo = styled.div`
+  font:
+    bold 26px Arial,
+    sans-serif;
+`;
+
+const MsnColumns = styled.div`
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+  padding: 10px;
+`;
+
+const MsnPanel = styled.div`
+  border: 1px solid #8ba8c8;
+  background: #fff;
+
+  h2 {
+    margin: 0;
+    padding: 5px 8px;
+    color: #174a86;
+    background: #dce8f5;
+    font-size: 13px;
+  }
+
+  div {
+    padding: 8px;
+    line-height: 2;
+  }
+`;
+
 const now = new Date();
-const dateStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 星期${'日一二三四五六'[now.getDay()]}`;
-const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 星期${'日一二三四五六'[now.getDay()]}`;
+const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
 const TABS = ['网址导航', '网购专区', '影音娱乐', '旅游出行', '资讯新闻'];
 
@@ -179,52 +239,163 @@ interface CategoryData {
 
 const CATEGORIES: CategoryData[] = [
   {
-    title: '搜索引擎', color: '#c00', bg: '#fff0f0', tcol: '#c00',
-    links: [['百度','http://www.baidu.com'],['谷歌','http://www.google.com'],['搜狗','http://www.sogou.com'],['必应','http://www.bing.com'],['雅虎','http://www.yahoo.com.cn']]
+    title: '搜索引擎',
+    color: '#c00',
+    bg: '#fff0f0',
+    tcol: '#c00',
+    links: [
+      ['百度', 'http://www.baidu.com'],
+      ['谷歌', 'http://www.google.com'],
+      ['搜狗', 'http://www.sogou.com'],
+      ['必应', 'http://www.bing.com'],
+      ['雅虎', 'http://www.yahoo.com.cn'],
+    ],
   },
   {
-    title: '常用邮箱', color: '#006600', bg: '#f0fff0', tcol: '#006600',
-    links: [['QQ邮箱','http://mail.qq.com'],['163邮箱','http://mail.163.com'],['126邮箱','http://mail.126.com'],['新浪邮箱','http://mail.sina.com.cn'],['Gmail','http://mail.google.com']]
+    title: '常用邮箱',
+    color: '#006600',
+    bg: '#f0fff0',
+    tcol: '#006600',
+    links: [
+      ['QQ邮箱', 'http://mail.qq.com'],
+      ['163邮箱', 'http://mail.163.com'],
+      ['126邮箱', 'http://mail.126.com'],
+      ['新浪邮箱', 'http://mail.sina.com.cn'],
+      ['Gmail', 'http://mail.google.com'],
+    ],
   },
   {
-    title: '购物网站', color: '#cc6600', bg: '#fff8f0', tcol: '#cc6600',
-    links: [['淘宝网','http://www.taobao.com'],['天猫','http://www.tmall.com'],['京东商城','http://www.jd.com'],['当当网','http://www.dangdang.com'],['拍拍网','http://www.paipai.com'],['亚马逊','http://www.amazon.cn']]
+    title: '购物网站',
+    color: '#cc6600',
+    bg: '#fff8f0',
+    tcol: '#cc6600',
+    links: [
+      ['淘宝网', 'http://www.taobao.com'],
+      ['天猫', 'http://www.tmall.com'],
+      ['京东商城', 'http://www.jd.com'],
+      ['当当网', 'http://www.dangdang.com'],
+      ['拍拍网', 'http://www.paipai.com'],
+      ['亚马逊', 'http://www.amazon.cn'],
+    ],
   },
   {
-    title: '视频影音', color: '#7700cc', bg: '#f8f0ff', tcol: '#7700cc',
-    links: [['优酷','http://www.youku.com'],['土豆网','http://www.tudou.com'],['爱奇艺','http://www.iqiyi.com'],['搜狐视频','http://tv.sohu.com'],['乐视网','http://www.letv.com'],['暴风影音','http://www.baofeng.com']]
+    title: '视频影音',
+    color: '#7700cc',
+    bg: '#f8f0ff',
+    tcol: '#7700cc',
+    links: [
+      ['优酷', 'http://www.youku.com'],
+      ['土豆网', 'http://www.tudou.com'],
+      ['爱奇艺', 'http://www.iqiyi.com'],
+      ['搜狐视频', 'http://tv.sohu.com'],
+      ['乐视网', 'http://www.letv.com'],
+      ['暴风影音', 'http://www.baofeng.com'],
+    ],
   },
   {
-    title: '新闻门户', color: '#003399', bg: '#eef3fc', tcol: '#003399',
-    links: [['新浪','http://www.sina.com.cn'],['网易','http://www.163.com'],['搜狐','http://www.sohu.com'],['腾讯','http://www.qq.com'],['凤凰网','http://www.ifeng.com'],['人民网','http://www.people.com.cn']]
+    title: '新闻门户',
+    color: '#003399',
+    bg: '#eef3fc',
+    tcol: '#003399',
+    links: [
+      ['新浪', 'http://www.sina.com.cn'],
+      ['网易', 'http://www.163.com'],
+      ['搜狐', 'http://www.sohu.com'],
+      ['腾讯', 'http://www.qq.com'],
+      ['凤凰网', 'http://www.ifeng.com'],
+      ['人民网', 'http://www.people.com.cn'],
+    ],
   },
   {
-    title: '社交网络', color: '#cc0066', bg: '#fff0f6', tcol: '#cc0066',
-    links: [['QQ空间','http://qzone.qq.com'],['人人网','http://www.renren.com'],['微博','http://www.weibo.com'],['开心网','http://www.kaixin001.com'],['豆瓣','http://www.douban.com']]
+    title: '社交网络',
+    color: '#cc0066',
+    bg: '#fff0f6',
+    tcol: '#cc0066',
+    links: [
+      ['QQ空间', 'http://qzone.qq.com'],
+      ['人人网', 'http://www.renren.com'],
+      ['微博', 'http://www.weibo.com'],
+      ['开心网', 'http://www.kaixin001.com'],
+      ['豆瓣', 'http://www.douban.com'],
+    ],
   },
   {
-    title: '音乐欣赏', color: '#006666', bg: '#f0ffff', tcol: '#006666',
-    links: [['酷狗音乐','http://www.kugou.com'],['QQ音乐','http://y.qq.com'],['虾米音乐','http://www.xiami.com'],['酷我音乐','http://www.kuwo.cn'],['百度音乐','http://music.baidu.com']]
+    title: '音乐欣赏',
+    color: '#006666',
+    bg: '#f0ffff',
+    tcol: '#006666',
+    links: [
+      ['酷狗音乐', 'http://www.kugou.com'],
+      ['QQ音乐', 'http://y.qq.com'],
+      ['虾米音乐', 'http://www.xiami.com'],
+      ['酷我音乐', 'http://www.kuwo.cn'],
+      ['百度音乐', 'http://music.baidu.com'],
+    ],
   },
   {
-    title: '游戏娱乐', color: '#336600', bg: '#f0fff0', tcol: '#336600',
-    links: [['腾讯游戏','http://games.qq.com'],['4399小游戏','http://www.4399.com'],['7k7k小游戏','http://www.7k7k.com'],['17173','http://www.17173.com'],['第九城市','http://www.the9.com']]
+    title: '游戏娱乐',
+    color: '#336600',
+    bg: '#f0fff0',
+    tcol: '#336600',
+    links: [
+      ['腾讯游戏', 'http://games.qq.com'],
+      ['4399小游戏', 'http://www.4399.com'],
+      ['7k7k小游戏', 'http://www.7k7k.com'],
+      ['17173', 'http://www.17173.com'],
+      ['第九城市', 'http://www.the9.com'],
+    ],
   },
   {
-    title: '旅游出行', color: '#8800aa', bg: '#fdf0ff', tcol: '#8800aa',
-    links: [['12306铁路','http://www.12306.cn'],['携程旅行','http://www.ctrip.com'],['去哪儿','http://www.qunar.com'],['艺龙','http://www.elong.com'],['驴妈妈','http://www.lvmama.com']]
+    title: '旅游出行',
+    color: '#8800aa',
+    bg: '#fdf0ff',
+    tcol: '#8800aa',
+    links: [
+      ['12306铁路', 'http://www.12306.cn'],
+      ['携程旅行', 'http://www.ctrip.com'],
+      ['去哪儿', 'http://www.qunar.com'],
+      ['艺龙', 'http://www.elong.com'],
+      ['驴妈妈', 'http://www.lvmama.com'],
+    ],
   },
   {
-    title: '网上银行', color: '#8B0000', bg: '#fff5f5', tcol: '#8B0000',
-    links: [['支付宝','http://www.alipay.com'],['工商银行','http://www.icbc.com.cn'],['建设银行','http://www.ccb.com'],['招商银行','http://www.cmbchina.com'],['农业银行','http://www.abchina.com']]
+    title: '网上银行',
+    color: '#8B0000',
+    bg: '#fff5f5',
+    tcol: '#8B0000',
+    links: [
+      ['支付宝', 'http://www.alipay.com'],
+      ['工商银行', 'http://www.icbc.com.cn'],
+      ['建设银行', 'http://www.ccb.com'],
+      ['招商银行', 'http://www.cmbchina.com'],
+      ['农业银行', 'http://www.abchina.com'],
+    ],
   },
   {
-    title: '论坛社区', color: '#555500', bg: '#fffef0', tcol: '#555500',
-    links: [['百度贴吧','http://tieba.baidu.com'],['天涯社区','http://www.tianya.cn'],['猫扑','http://www.mop.com'],['西祠胡同','http://www.xici.net'],['知乎','http://www.zhihu.com']]
+    title: '论坛社区',
+    color: '#555500',
+    bg: '#fffef0',
+    tcol: '#555500',
+    links: [
+      ['百度贴吧', 'http://tieba.baidu.com'],
+      ['天涯社区', 'http://www.tianya.cn'],
+      ['猫扑', 'http://www.mop.com'],
+      ['西祠胡同', 'http://www.xici.net'],
+      ['知乎', 'http://www.zhihu.com'],
+    ],
   },
   {
-    title: '实用工具', color: '#005555', bg: '#f0fffe', tcol: '#005555',
-    links: [['天气预报','http://weather.com.cn'],['百度地图','http://map.baidu.com'],['谷歌地图','http://maps.google.cn'],['百度翻译','http://fanyi.baidu.com'],['在线词典','http://dict.baidu.com']]
+    title: '实用工具',
+    color: '#005555',
+    bg: '#f0fffe',
+    tcol: '#005555',
+    links: [
+      ['天气预报', 'http://weather.com.cn'],
+      ['百度地图', 'http://map.baidu.com'],
+      ['谷歌地图', 'http://maps.google.cn'],
+      ['百度翻译', 'http://fanyi.baidu.com'],
+      ['在线词典', 'http://dict.baidu.com'],
+    ],
   },
 ];
 
@@ -233,7 +404,6 @@ interface Hao123PageProps {
   onOpenNew?: (url: string) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for future whitelist restoration
 function Hao123Page({ onNavigate, onOpenNew }: Hao123PageProps) {
   const handleLink = onOpenNew || onNavigate;
   const [activeTab, setActiveTab] = useState(0);
@@ -274,7 +444,9 @@ function Hao123Page({ onNavigate, onOpenNew }: Hao123PageProps) {
 
       <NavTabs>
         {TABS.map((t, i) => (
-          <NavTab key={t} $active={activeTab === i} onClick={() => setActiveTab(i)}>{t}</NavTab>
+          <NavTab key={t} $active={activeTab === i} onClick={() => setActiveTab(i)}>
+            {t}
+          </NavTab>
         ))}
       </NavTabs>
 
@@ -289,11 +461,15 @@ function Hao123Page({ onNavigate, onOpenNew }: Hao123PageProps) {
       <ContentArea>
         {CATEGORIES.map(cat => (
           <Category key={cat.title} $color={cat.color}>
-            <CatHeader $bg={cat.bg} $color={cat.tcol}>{cat.title}</CatHeader>
+            <CatHeader $bg={cat.bg} $color={cat.tcol}>
+              {cat.title}
+            </CatHeader>
             <CatLinks>
               {cat.links.map(([name, url], i) => (
                 <span key={name}>
-                  <LinkItem href={url} onNav={handleLink}>{name}</LinkItem>
+                  <LinkItem href={url} onNav={handleLink}>
+                    {name}
+                  </LinkItem>
                   {i < cat.links.length - 1 && <Dot>·</Dot>}
                 </span>
               ))}
@@ -309,17 +485,65 @@ function Hao123Page({ onNavigate, onOpenNew }: Hao123PageProps) {
   );
 }
 
+function MsnPage({ onNavigate }: { onNavigate: (url: string) => void }) {
+  const links: Array<[string, string]> = [
+    ['MSN News', 'http://www.msn.com/news'],
+    ['Hotmail', 'http://www.hotmail.com'],
+    ['MSN Messenger', 'http://messenger.msn.com'],
+    ['Weather', 'http://weather.msn.com'],
+    ['Encarta', 'http://encarta.msn.com'],
+    ['MSNBC', 'http://www.msnbc.com'],
+  ];
+
+  return (
+    <PageWrap>
+      <MsnHeader>
+        <MsnLogo>MSN</MsnLogo>
+        <span>Welcome to MSN</span>
+      </MsnHeader>
+      <MsnColumns>
+        <MsnPanel>
+          <h2>Today on MSN</h2>
+          <div>
+            {links.map(([label, href]) => (
+              <React.Fragment key={href}>
+                <LinkItem href={href} onNav={onNavigate}>
+                  {label}
+                </LinkItem>
+                <br />
+              </React.Fragment>
+            ))}
+          </div>
+        </MsnPanel>
+        <MsnPanel>
+          <h2>Sign in</h2>
+          <div>Check your Hotmail inbox and see who is online in Messenger.</div>
+        </MsnPanel>
+      </MsnColumns>
+    </PageWrap>
+  );
+}
+
 // ─── 白名单 ───────────────────────────────────────────────────────────────────
 // 白名单内的 URL 使用自定义渲染，不走 Wayback Machine。
 // 暂时清空；需要恢复时取消下方注释即可。
 export const BROWSER_WHITELIST = [
-  // {
-  //   match: (url) => {
-  //     const u = url.toLowerCase().replace(/\/$/, '');
-  //     return u === 'http://www.hao123.com' || u === 'http://hao123.com';
-  //   },
-  //   render: (navigateTo, openNewWindow) => <Hao123Page onNavigate={navigateTo} onOpenNew={openNewWindow} />,
-  // },
+  {
+    match: (url: string) => {
+      const normalized = url.toLowerCase().replace(/\/$/, '');
+      return normalized === 'http://www.hao123.com' || normalized === 'http://hao123.com';
+    },
+    render: (navigateTo: (url: string) => void, openNewWindow: (url: string) => void) => (
+      <Hao123Page onNavigate={navigateTo} onOpenNew={openNewWindow} />
+    ),
+  },
+  {
+    match: (url: string) => {
+      const normalized = url.toLowerCase().replace(/\/$/, '');
+      return normalized === 'http://www.msn.com' || normalized === 'http://msn.com';
+    },
+    render: (navigateTo: (url: string) => void) => <MsnPage onNavigate={navigateTo} />,
+  },
 ];
 
 // ─── 黑名单 ───────────────────────────────────────────────────────────────────
@@ -330,7 +554,11 @@ export const BROWSER_BLACKLIST = [
 
 // ─── Plugin entry point ───────────────────────────────────────────────────────
 
-export const defaultPlugin = (url: string, navigateTo: (url: string) => void, openNewWindow: (url: string) => void) => {
+export const defaultPlugin = (
+  url: string,
+  navigateTo: (url: string) => void,
+  openNewWindow: (url: string) => void
+) => {
   if (!url) return null;
 
   for (const entry of BROWSER_WHITELIST) {

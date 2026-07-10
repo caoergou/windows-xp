@@ -25,7 +25,7 @@ export const TitleControls = styled.div<{ $isFocus?: boolean }>`
   margin-right: 0;
   z-index: 1;
   flex-shrink: 0;
-  gap: 0;
+  gap: 2px;
 `;
 
 export const BaseButton = styled.button`
@@ -37,7 +37,7 @@ export const BaseButton = styled.button`
   max-height: 21px;
   box-sizing: border-box;
   border: 0;
-  margin-right: 1px;
+  margin-right: 0;
   padding: 0;
   display: flex;
   justify-content: center;

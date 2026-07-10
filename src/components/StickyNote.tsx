@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { APP_REGISTRY } from '../registry/apps';
 import { getStickyNote } from '../data/culture';
+import { SYSTEM_PATHS } from '../data/systemPaths';
 
 const NoteContainer = styled.div`
   position: absolute;
@@ -12,11 +13,15 @@ const NoteContainer = styled.div`
   width: 210px;
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
   padding: 14px 14px 12px;
-  box-shadow: 2px 2px 10px rgba(0,0,0,0.3), inset 0 0 40px rgba(255,255,255,0.3);
+  box-shadow:
+    2px 2px 10px rgba(0, 0, 0, 0.3),
+    inset 0 0 40px rgba(255, 255, 255, 0.3);
   transform: rotate(-2deg);
   font-family: 'Comic Sans MS', 'SimSun', '微软雅黑', cursive, sans-serif;
   cursor: default;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   z-index: 100;
   user-select: none;
 
@@ -28,13 +33,15 @@ const NoteContainer = styled.div`
     transform: translateX(-50%);
     width: 70px;
     height: 20px;
-    background: rgba(255,255,255,0.45);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    background: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   }
 
   &:hover {
     transform: rotate(0deg) scale(1.02);
-    box-shadow: 3px 3px 15px rgba(0,0,0,0.35), inset 0 0 40px rgba(255,255,255,0.3);
+    box-shadow:
+      3px 3px 15px rgba(0, 0, 0, 0.35),
+      inset 0 0 40px rgba(255, 255, 255, 0.3);
   }
 `;
 
@@ -56,7 +63,9 @@ const CloseBtn = styled.span`
   cursor: pointer;
   line-height: 1;
   padding: 0 2px;
-  &:hover { color: #92400e; }
+  &:hover {
+    color: #92400e;
+  }
 `;
 
 const NoteContent = styled.div`
@@ -79,7 +88,7 @@ const StickyNote = () => {
     openWindow(
       'Explorer',
       docsPath,
-      APP_REGISTRY.Explorer.restore({ initialPath: [docsPath] }),
+      APP_REGISTRY.Explorer.restore({ initialPath: [...SYSTEM_PATHS.myDocuments] }),
       'documents',
       APP_REGISTRY.Explorer.window
     );
@@ -91,10 +100,9 @@ const StickyNote = () => {
         {stickyNote.title}
         <CloseBtn onClick={() => setVisible(false)}>×</CloseBtn>
       </NoteTitle>
-      <NoteContent
-        style={{ cursor: 'pointer' }}
-        onDoubleClick={handleOpenDocuments}
-      >{stickyNote.content.replace('{{docsPath}}', docsPath)}</NoteContent>
+      <NoteContent style={{ cursor: 'pointer' }} onDoubleClick={handleOpenDocuments}>
+        {stickyNote.content.replace('{{docsPath}}', docsPath)}
+      </NoteContent>
     </NoteContainer>
   );
 };

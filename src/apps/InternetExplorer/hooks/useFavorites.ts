@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FavoriteItem } from '../types';
 import { safeLocalStorage, getStorageKey } from '../../../utils/storage';
+import { normalizeCultureLang } from '../../../data/culture';
 
 const STORAGE_KEY = 'ie_favorites';
 
@@ -34,46 +35,54 @@ const DEFAULT_FAVORITES_BY_LOCALE: Record<string, FavoriteItem[]> = {
 };
 
 const getDefaultFavorites = (lang: string): FavoriteItem[] => {
-  const normalizedLang = lang?.startsWith('zh') ? 'zh' : 'en';
+  const normalizedLang = normalizeCultureLang(lang);
   return DEFAULT_FAVORITES_BY_LOCALE[normalizedLang] ?? DEFAULT_FAVORITES_BY_LOCALE.zh;
 };
 
 export const useFavorites = () => {
   const { i18n } = useTranslation();
+  const cultureKey = normalizeCultureLang(i18n.language);
+  const storageKey = getStorageKey(`${STORAGE_KEY}_${cultureKey}`);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
 
   useEffect(() => {
     try {
-      const saved = safeLocalStorage.getItem(getStorageKey(STORAGE_KEY));
+      const saved = safeLocalStorage.getItem(storageKey);
       if (saved) {
         setFavorites(JSON.parse(saved));
       } else {
         const defaults = getDefaultFavorites(i18n.language);
         setFavorites(defaults);
-        safeLocalStorage.setItem(getStorageKey(STORAGE_KEY), JSON.stringify(defaults));
+        safeLocalStorage.setItem(storageKey, JSON.stringify(defaults));
       }
     } catch (e) {
       console.error('Failed to load favorites:', e);
     }
-  }, [i18n.language]);
+  }, [i18n.language, storageKey]);
 
-  const addFavorite = useCallback((name: string, url: string) => {
-    if (!name || !url) return;
-    setFavorites(prev => {
-      const updated = [...prev, { name, url }];
-      safeLocalStorage.setItem(getStorageKey(STORAGE_KEY), JSON.stringify(updated));
-      return updated;
-    });
-  }, []);
+  const addFavorite = useCallback(
+    (name: string, url: string) => {
+      if (!name || !url) return;
+      setFavorites(prev => {
+        const updated = [...prev, { name, url }];
+        safeLocalStorage.setItem(storageKey, JSON.stringify(updated));
+        return updated;
+      });
+    },
+    [storageKey]
+  );
 
-  const deleteFavorite = useCallback((index: number) => {
-    setFavorites(prev => {
-      const updated = [...prev];
-      updated.splice(index, 1);
-      safeLocalStorage.setItem(getStorageKey(STORAGE_KEY), JSON.stringify(updated));
-      return updated;
-    });
-  }, []);
+  const deleteFavorite = useCallback(
+    (index: number) => {
+      setFavorites(prev => {
+        const updated = [...prev];
+        updated.splice(index, 1);
+        safeLocalStorage.setItem(storageKey, JSON.stringify(updated));
+        return updated;
+      });
+    },
+    [storageKey]
+  );
 
   const filteredFavorites = favorites.filter(
     item => !item.locales || item.locales.includes(i18n.language?.startsWith('zh') ? 'zh' : 'en')

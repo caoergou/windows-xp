@@ -6,8 +6,11 @@ import { xpScrollbarStyles } from '../../theme';
 import { APP_REGISTRY } from '../../registry/apps';
 import { sounds } from '../../utils/soundManager';
 import StartMenuFlyout from './StartMenuFlyout';
+import { normalizeCultureLang, StartMenuProfile } from '../../data/culture';
+import { SYSTEM_PATHS } from '../../data/systemPaths';
 
 const StartMenuContainer = styled.div`
+  box-sizing: border-box;
   position: absolute;
   bottom: 30px;
   left: 0;
@@ -24,6 +27,7 @@ const StartMenuContainer = styled.div`
 `;
 
 const StartHeader = styled.div`
+  box-sizing: border-box;
   position: relative;
   align-self: flex-start;
   display: flex;
@@ -94,6 +98,7 @@ const StartHeader = styled.div`
 `;
 
 const StartBody = styled.div`
+  box-sizing: border-box;
   display: flex;
   min-height: 220px;
   max-height: calc(100vh - 84px);
@@ -109,17 +114,13 @@ const OrangeLine = styled.div`
   right: 0;
   top: 0;
   height: 2px;
-  background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0) 0%,
-    #da884a 50%,
-    rgba(0, 0, 0, 0) 100%
-  );
+  background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #da884a 50%, rgba(0, 0, 0, 0) 100%);
   z-index: 1;
 `;
 
 const StartLeft = styled.div`
-  width: 190px;
+  box-sizing: border-box;
+  width: 50%;
   background: #fff;
   padding: 6px 5px 0;
   overflow-y: auto;
@@ -127,7 +128,8 @@ const StartLeft = styled.div`
 `;
 
 const StartRight = styled.div`
-  width: 190px;
+  box-sizing: border-box;
+  width: 50%;
   background: #cbe3ff;
   border-left: solid rgba(58, 58, 255, 0.37) 1px;
   padding: 6px 5px 5px;
@@ -191,6 +193,7 @@ const RightMenuSeparator = styled(MenuSeparator)`
 `;
 
 const StartFooter = styled.div`
+  box-sizing: border-box;
   display: flex;
   align-self: flex-end;
   align-items: center;
@@ -239,20 +242,13 @@ const StartFooter = styled.div`
   }
 `;
 
-interface StartMenuApp {
-  id: string;
-  nameKey: string;
-  icon: string;
-  action: string;
-}
-
 interface StartMenuProps {
   isOpen: boolean;
   menuRef: React.RefObject<HTMLDivElement | null>;
   userName: string;
-  startMenuApps: StartMenuApp[];
+  startMenuProfile: StartMenuProfile;
   language: string;
-  onLaunch: (appName: string, pathOrKey?: string) => void;
+  onLaunch: (appName: string, path?: string[]) => void;
   onTurnOff: () => void;
   onLogout: () => void;
   t: TFunction;
@@ -264,7 +260,7 @@ const StartMenu: React.FC<StartMenuProps> = ({
   isOpen,
   menuRef,
   userName,
-  startMenuApps,
+  startMenuProfile,
   language,
   onLaunch,
   onTurnOff,
@@ -272,19 +268,22 @@ const StartMenu: React.FC<StartMenuProps> = ({
   t,
 }) => {
   const [flyoutOpen, setFlyoutOpen] = useState(false);
-  const isChineseLocale = language?.startsWith('zh');
+  const cultureKey = normalizeCultureLang(language);
 
   const launchWithSound = useCallback(
-    (appName: string, pathOrKey?: string) => {
+    (appName: string, path?: string[]) => {
       sounds.menuCommand();
-      onLaunch(appName, pathOrKey);
+      onLaunch(appName, path);
     },
     [onLaunch]
   );
 
   const allProgramsApps = useMemo(
-    () => Object.values(APP_REGISTRY).filter(app => !INTERNAL_APPS.has(app.id)),
-    []
+    () =>
+      Object.values(APP_REGISTRY).filter(
+        app => !INTERNAL_APPS.has(app.id) && (!app.locales || app.locales.includes(cultureKey))
+      ),
+    [cultureKey]
   );
 
   if (!isOpen) return null;
@@ -304,6 +303,24 @@ const StartMenu: React.FC<StartMenuProps> = ({
       <StartBody>
         <OrangeLine />
         <StartLeft>
+          {startMenuProfile.pinned.map(app => (
+            <MenuItem key={app.id} onClick={() => launchWithSound(app.action)}>
+              <XPIcon name={app.icon} size={24} className="menu-icon" />
+              <span>{t(app.nameKey)}</span>
+            </MenuItem>
+          ))}
+          <MenuSeparator />
+          {startMenuProfile.recent.map(app => (
+            <MenuItem
+              key={app.id}
+              data-testid={`start-menu-${app.id}`}
+              onClick={() => launchWithSound(app.action)}
+            >
+              <XPIcon name={app.icon} size={24} className="menu-icon" />
+              <span>{t(app.nameKey)}</span>
+            </MenuItem>
+          ))}
+          <MenuSeparator />
           <MenuItem
             data-testid="start-menu-all-programs"
             onMouseEnter={() => setFlyoutOpen(true)}
@@ -317,55 +334,30 @@ const StartMenu: React.FC<StartMenuProps> = ({
               </svg>
             </MenuArrow>
           </MenuItem>
-          <MenuSeparator />
-          <MenuItem onClick={() => launchWithSound('Internet Explorer')}>
-            <XPIcon name="ie" size={24} className="menu-icon" />
-            <span>{t('startMenu.apps.internetExplorer')}</span>
-          </MenuItem>
-          {isChineseLocale && (
-            <MenuItem onClick={() => launchWithSound('QQ')}>
-              <XPIcon name="qq" size={24} className="menu-icon" />
-              <span>{t('startMenu.apps.qq')}</span>
-            </MenuItem>
-          )}
-          <MenuSeparator />
-          {startMenuApps.map(app => (
-            <MenuItem
-              key={app.id}
-              data-testid={`start-menu-${app.id}`}
-              onClick={() =>
-                launchWithSound(app.action, app.action === 'DummyApp' ? t(app.nameKey) : undefined)
-              }
-            >
-              <XPIcon name={app.icon} size={24} className="menu-icon" />
-              <span>{t(app.nameKey)}</span>
-            </MenuItem>
-          ))}
-          <MenuSeparator />
-          <MenuItem onClick={() => launchWithSound('RunDialog')}>
-            <XPIcon name="run" size={24} className="menu-icon" />
-            <span>{t('startMenu.run')}</span>
-          </MenuItem>
         </StartLeft>
         <StartRight>
-          <RightMenuItem onClick={() => launchWithSound('Explorer', t('startMenu.myDocuments'))}>
+          <RightMenuItem onClick={() => launchWithSound('Explorer', [...SYSTEM_PATHS.myDocuments])}>
             <XPIcon name="documents" size={24} className="menu-icon" />
             <span>{t('startMenu.myDocuments')}</span>
           </RightMenuItem>
-          <RightMenuItem onClick={() => launchWithSound('Explorer', t('startMenu.myComputer'))}>
-            <XPIcon name="computer" size={24} className="menu-icon" />
-            <span>{t('startMenu.myComputer')}</span>
+          <RightMenuItem onClick={() => launchWithSound('Explorer', [...SYSTEM_PATHS.myPictures])}>
+            <XPIcon name="image" size={24} className="menu-icon" />
+            <span>{t('startMenu.myPictures')}</span>
           </RightMenuItem>
-          <RightMenuItem onClick={() => launchWithSound('Explorer', t('startMenu.myMusic'))}>
+          <RightMenuItem onClick={() => launchWithSound('Explorer', [...SYSTEM_PATHS.myMusic])}>
             <XPIcon name="folder" size={24} className="menu-icon" />
             <span>{t('startMenu.myMusic')}</span>
+          </RightMenuItem>
+          <RightMenuItem onClick={() => launchWithSound('Explorer', [...SYSTEM_PATHS.myComputer])}>
+            <XPIcon name="computer" size={24} className="menu-icon" />
+            <span>{t('startMenu.myComputer')}</span>
           </RightMenuItem>
           <RightMenuSeparator />
           <RightMenuItem onClick={() => launchWithSound('ControlPanel')}>
             <XPIcon name="control_panel" size={24} className="menu-icon" />
             <span>{t('startMenu.controlPanel')}</span>
           </RightMenuItem>
-          <RightMenuItem onClick={() => launchWithSound('DummyApp', t('startMenu.printersAndFaxes'))}>
+          <RightMenuItem onClick={() => launchWithSound('PrintersAndFaxes')}>
             <XPIcon name="printer" size={24} className="menu-icon" />
             <span>{t('startMenu.printersAndFaxes')}</span>
           </RightMenuItem>
@@ -378,10 +370,9 @@ const StartMenu: React.FC<StartMenuProps> = ({
             <XPIcon name="help" size={24} className="menu-icon" />
             <span>{t('startMenu.help')}</span>
           </RightMenuItem>
-          <RightMenuSeparator />
-          <RightMenuItem onClick={() => launchWithSound('Recycle Bin', t('desktop.recycleBin'))}>
-            <XPIcon name="recycle_bin" size={24} className="menu-icon" />
-            <span>{t('desktop.recycleBin')}</span>
+          <RightMenuItem onClick={() => launchWithSound('RunDialog')}>
+            <XPIcon name="run" size={24} className="menu-icon" />
+            <span>{t('startMenu.run')}</span>
           </RightMenuItem>
         </StartRight>
       </StartBody>

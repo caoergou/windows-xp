@@ -13,6 +13,7 @@ import MobileWarning from './components/MobileWarning';
 import windowsIcon from './assets/icons/windows.svg';
 import { TIME } from './constants';
 import { safeLocalStorage, getStorageKey, canUseDOM } from './utils/storage';
+import { getSavedLanguage } from './utils/language';
 
 const Container = styled.div`
   width: 100%;
@@ -42,7 +43,7 @@ const ScreenSaverContainer = styled.div<{ $fading: boolean }>`
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  animation: ${props => props.$fading ? fadeOut : 'none'} 0.5s ease-out forwards;
+  animation: ${props => (props.$fading ? fadeOut : 'none')} 0.5s ease-out forwards;
 `;
 
 const FloatingLogo = styled.img`
@@ -81,7 +82,7 @@ const AltTabOverlay = styled.div`
 const AltTabTitle = styled.div`
   color: #000;
   font-size: 11px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 `;
 
 const AltTabItems = styled.div`
@@ -97,15 +98,15 @@ const AltTabItem = styled.div<{ $active: boolean }>`
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  border: 2px solid ${props => props.$active ? '#316AC5' : 'transparent'};
-  background: ${props => props.$active ? '#e5e5e5' : 'transparent'};
+  border: 2px solid ${props => (props.$active ? '#316AC5' : 'transparent')};
+  background: ${props => (props.$active ? '#e5e5e5' : 'transparent')};
   cursor: pointer;
   min-width: 70px;
 
   span {
     color: #000;
     font-size: 11px;
-    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+    font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
     text-align: center;
     max-width: 90px;
     overflow: hidden;
@@ -122,7 +123,12 @@ const getInitialBootPhase = (skipBoot?: boolean): BootPhase => {
   const firstBootDone = safeLocalStorage.getItem(getStorageKey('first_boot_done'));
   const powerState = safeLocalStorage.getItem(getStorageKey('power_state'));
 
-  if (!firstBootDone || powerState === 'shutdown' || powerState === 'restart' || powerState === 'logout') {
+  if (
+    !firstBootDone ||
+    powerState === 'shutdown' ||
+    powerState === 'restart' ||
+    powerState === 'logout'
+  ) {
     return 'BOOTING';
   }
 
@@ -151,9 +157,8 @@ function App({
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (initialLanguage && i18n.language !== initialLanguage) {
-      i18n.changeLanguage(initialLanguage);
-    }
+    const language = getSavedLanguage(initialLanguage || 'en');
+    if (i18n.language !== language) i18n.changeLanguage(language);
   }, [initialLanguage]);
 
   const { isLoggedIn, screensaverEnabled } = useUserSession();
@@ -236,7 +241,15 @@ function App({
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [activeWindowId, altTabVisible, altTabIndex, windows, closeWindow, focusWindow, disableDevToolsBlock]);
+  }, [
+    activeWindowId,
+    altTabVisible,
+    altTabIndex,
+    windows,
+    closeWindow,
+    focusWindow,
+    disableDevToolsBlock,
+  ]);
 
   const dismissScreenSaver = useCallback(() => {
     if (bootPhase === 'SCREENSAVER' && !screenSaverFading) {
@@ -248,9 +261,22 @@ function App({
     }
   }, [bootPhase, screenSaverFading]);
 
+  useEffect(() => {
+    if (bootPhase !== 'SCREENSAVER' || !canUseDOM) return undefined;
+    window.addEventListener('keydown', dismissScreenSaver);
+    return () => window.removeEventListener('keydown', dismissScreenSaver);
+  }, [bootPhase, dismissScreenSaver]);
+
   // Idle detection: trigger screensaver after timeout
   useEffect(() => {
-    if (disableScreenSaver || !screensaverEnabled || bootPhase !== 'RUNNING' || !isLoggedIn || !canUseDOM) return undefined;
+    if (
+      disableScreenSaver ||
+      !screensaverEnabled ||
+      bootPhase !== 'RUNNING' ||
+      !isLoggedIn ||
+      !canUseDOM
+    )
+      return undefined;
 
     let timeoutId: ReturnType<typeof setTimeout>;
     const resetTimer = () => {
@@ -300,8 +326,10 @@ function App({
       <MobileWarning />
       {bootPhase === 'BOOTING' ? (
         <BootScreen onComplete={handleBootComplete} />
+      ) : isLoggedIn ? (
+        <Desktop />
       ) : (
-        isLoggedIn ? <Desktop /> : <LoginScreen />
+        <LoginScreen />
       )}
       {altTabVisible && windows.length > 0 && (
         <AltTabOverlay>
@@ -321,9 +349,7 @@ function App({
               </AltTabItem>
             ))}
           </AltTabItems>
-          {windows[altTabIndex] && (
-            <AltTabTitle>{windows[altTabIndex].title}</AltTabTitle>
-          )}
+          {windows[altTabIndex] && <AltTabTitle>{windows[altTabIndex].title}</AltTabTitle>}
         </AltTabOverlay>
       )}
     </Container>

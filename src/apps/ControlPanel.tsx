@@ -16,10 +16,14 @@ import systemIcon from '../assets/icons/control-panel/system.png';
 import DisplaySettings from './ControlPanel/DisplaySettings';
 import SoundSettings from './ControlPanel/SoundSettings';
 import MouseSettings from './ControlPanel/MouseSettings';
+import { useApp } from '../hooks/useApp';
+import { canUseDOM, getStorageKey, safeLocalStorage } from '../utils/storage';
+import { getSavedLanguage, saveLanguage, SupportedLanguage } from '../utils/language';
+import { sounds } from '../utils/soundManager';
 
 const Container = styled.div`
   padding: 16px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 12px;
   height: 100%;
   background: #ece9d8;
@@ -55,7 +59,9 @@ const CategoryItem = styled.div<{ $selected?: boolean }>`
     border: 1px solid #c0deff;
   }
 
-  ${props => props.$selected && `
+  ${props =>
+    props.$selected &&
+    `
     background-color: #316ac5;
     color: white;
     border: 1px dotted #fff;
@@ -77,7 +83,7 @@ const CategoryIcon = styled.img`
 
 const CategoryName = styled.div<{ $selected?: boolean }>`
   font-size: 11px;
-  color: ${props => props.$selected ? '#ffffff' : '#000000'};
+  color: ${props => (props.$selected ? '#ffffff' : '#000000')};
 `;
 
 const BackButton = styled.button`
@@ -88,50 +94,101 @@ const BackButton = styled.button`
   border: 1px solid #003c74;
   background: linear-gradient(180deg, #ffffff 0%, #ecebe5 86%, #d8d0c4 100%);
   cursor: pointer;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 
   &:hover {
-    box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a;
+    box-shadow:
+      inset -1px 1px #fff0cf,
+      inset 1px 2px #fdd889,
+      inset -2px 2px #fbc761,
+      inset 2px -2px #e5a01a;
+  }
+`;
+
+const SystemSettings = styled.div`
+  width: 100%;
+  max-width: 460px;
+  border: 1px solid #919b9c;
+  background: #fff;
+  padding: 14px;
+
+  h4 {
+    margin: 0 0 12px;
+    color: #003399;
+    font-size: 13px;
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  select {
+    min-width: 180px;
+    height: 23px;
+    font:
+      11px Tahoma,
+      'Microsoft YaHei',
+      sans-serif;
   }
 `;
 
 interface Category {
-  name: string;
   icon: string;
   id: string;
 }
 
-type SubPage = 'display' | 'sound' | 'mouse' | null;
+type SubPage = 'display' | 'sound' | 'mouse' | 'system' | null;
 
-const ControlPanel = () => {
-  const { t } = useTranslation();
+const ControlPanel = ({ windowId }: { windowId?: string }) => {
+  const { t, i18n } = useTranslation();
+  const api = useApp(windowId || '');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [subPage, setSubPage] = useState<SubPage>(null);
 
   const categories: Category[] = [
-    { name: '添加或删除程序', icon: addRemoveProgramsIcon, id: 'addRemovePrograms' },
-    { name: '外观和主题', icon: appearanceIcon, id: 'appearance' },
-    { name: '日期和时间', icon: dateTimeIcon, id: 'dateTime' },
-    { name: '显示', icon: displayIcon, id: 'display' },
-    { name: '文件夹选项', icon: folderOptionsIcon, id: 'folderOptions' },
-    { name: '字体', icon: fontsIcon, id: 'fonts' },
-    { name: '键盘', icon: keyboardIcon, id: 'keyboard' },
-    { name: '鼠标', icon: mouseIcon, id: 'mouse' },
-    { name: '网络连接', icon: networkIcon, id: 'network' },
-    { name: '用户账户', icon: userAccountsIcon, id: 'userAccounts' },
-    { name: '声音和音频设备', icon: soundIcon, id: 'sound' },
-    { name: '系统', icon: systemIcon, id: 'system' },
+    { icon: addRemoveProgramsIcon, id: 'addRemovePrograms' },
+    { icon: appearanceIcon, id: 'appearance' },
+    { icon: dateTimeIcon, id: 'dateTime' },
+    { icon: displayIcon, id: 'display' },
+    { icon: folderOptionsIcon, id: 'folderOptions' },
+    { icon: fontsIcon, id: 'fonts' },
+    { icon: keyboardIcon, id: 'keyboard' },
+    { icon: mouseIcon, id: 'mouse' },
+    { icon: networkIcon, id: 'network' },
+    { icon: userAccountsIcon, id: 'userAccounts' },
+    { icon: soundIcon, id: 'sound' },
+    { icon: systemIcon, id: 'system' },
   ];
 
   const handleCategoryClick = (category: Category) => {
-    setSelectedCategory(category.name);
+    setSelectedCategory(category.id);
     if (category.id === 'display') {
       setSubPage('display');
     } else if (category.id === 'sound') {
       setSubPage('sound');
     } else if (category.id === 'mouse') {
       setSubPage('mouse');
+    } else if (category.id === 'system') {
+      setSubPage('system');
     }
+  };
+
+  const handleLanguageChange = async (language: SupportedLanguage) => {
+    if (language === getSavedLanguage(i18n.language === 'zh' ? 'zh' : 'en')) return;
+    const confirmed = await api.dialog.confirm({
+      title: t('controlPanel.systemLanguage.restartTitle'),
+      message: t('controlPanel.systemLanguage.restartMessage'),
+      type: 'question',
+    });
+    if (!confirmed) return;
+
+    saveLanguage(language);
+    safeLocalStorage.removeItem(getStorageKey('open_windows'));
+    safeLocalStorage.setItem(getStorageKey('power_state'), 'restart');
+    sounds.shutdown();
+    if (canUseDOM) setTimeout(() => window.location.reload(), 600);
   };
 
   const handleBack = () => {
@@ -147,6 +204,23 @@ const ControlPanel = () => {
         return <SoundSettings onBack={handleBack} />;
       case 'mouse':
         return <MouseSettings onBack={handleBack} />;
+      case 'system':
+        return (
+          <SystemSettings>
+            <h4>{t('controlPanel.systemLanguage.title')}</h4>
+            <label>
+              <span>{t('controlPanel.systemLanguage.label')}</span>
+              <select
+                aria-label={t('controlPanel.systemLanguage.label')}
+                value={getSavedLanguage(i18n.language === 'zh' ? 'zh' : 'en')}
+                onChange={event => handleLanguageChange(event.target.value as SupportedLanguage)}
+              >
+                <option value="en">English</option>
+                <option value="zh">简体中文</option>
+              </select>
+            </label>
+          </SystemSettings>
+        );
       default:
         return null;
     }
@@ -168,11 +242,13 @@ const ControlPanel = () => {
         {categories.map((category, index) => (
           <CategoryItem
             key={index}
-            $selected={selectedCategory === category.name}
+            $selected={selectedCategory === category.id}
             onClick={() => handleCategoryClick(category)}
           >
-            <CategoryIcon src={category.icon} alt={category.name} />
-            <CategoryName $selected={selectedCategory === category.name}>{category.name}</CategoryName>
+            <CategoryIcon src={category.icon} alt={t(`controlPanel.categories.${category.id}`)} />
+            <CategoryName $selected={selectedCategory === category.id}>
+              {t(`controlPanel.categories.${category.id}`)}
+            </CategoryName>
           </CategoryItem>
         ))}
       </CategoryGrid>
