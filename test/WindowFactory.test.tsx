@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { restoreComponent } from '../src/utils/WindowFactory';
 import { useWindowManager } from '../src/context/WindowManagerContext';
@@ -193,8 +193,14 @@ describe('WindowManagerContext — persistence to localStorage', () => {
   });
 
   it('serializes open windows, keeping componentProps and stripping component/functions', () => {
+    vi.useFakeTimers();
     renderWithProviders(<PersistenceHarness />, onlyWindowManager);
     fireEvent.click(screen.getByText('open calc'));
+    // Persistence is debounced (#80); advance past the window.
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+    vi.useRealTimers();
 
     const raw = localStorage.getItem(STORAGE_KEY);
     expect(raw).not.toBeNull();
@@ -263,7 +269,13 @@ describe('WindowManagerContext — persistence to localStorage', () => {
       ])
     );
 
+    vi.useFakeTimers();
     renderWithProviders(<PersistenceHarness />, onlyWindowManager);
+    // Persistence is debounced (#80); advance so the rewrite lands.
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+    vi.useRealTimers();
 
     // Calculator (registry match) and legacy Explorer (initialPath heuristic) survive;
     // the unknown app restores to null and is filtered out.
