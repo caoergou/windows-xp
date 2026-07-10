@@ -5,22 +5,39 @@ import XPIcon from './XPIcon';
 
 const PopupContainer = styled.div`
   position: fixed;
-  bottom: 35px;
-  right: 10px;
-  background: white;
-  border: 1px solid #0055ea;
-  border-radius: 3px;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-  padding: 10px;
+  bottom: 33px;
+  right: 8px;
+  width: 242px;
+  min-height: 50px;
+  box-sizing: border-box;
+  background: #ffffe1;
+  border: 1px solid #7f9db9;
+  border-radius: 2px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+  padding: 7px 24px 7px 8px;
   z-index: 1000;
   font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  transform: translateY(${props => props.$visible ? '0' : '100%'});
+  gap: 7px;
+  transform: none;
   opacity: ${props => props.$visible ? '1' : '0'};
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  visibility: ${props => props.$visible ? 'visible' : 'hidden'};
+  transition: opacity 0.12s linear;
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: 29px;
+    bottom: -8px;
+    width: 12px;
+    height: 12px;
+    background: #ffffe1;
+    border-right: 1px solid #7f9db9;
+    border-bottom: 1px solid #7f9db9;
+    transform: rotate(45deg);
+  }
 `;
 
 const Icon = styled.div`
@@ -35,22 +52,32 @@ const Message = styled.div`
 const Title = styled.div`
   font-weight: bold;
   margin-bottom: 2px;
+  color: #003399;
 `;
 
 const Description = styled.div`
   font-size: 11px;
-  color: #666;
+  color: #333;
 `;
 
 const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 14px;
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  font-family: Tahoma, sans-serif;
+  font-size: 12px;
+  line-height: 12px;
   cursor: pointer;
-  color: #666;
+  color: #404040;
 
   &:hover {
-    color: #000;
+    background: #e5e5c5;
+    border-color: #aca899;
   }
 `;
 

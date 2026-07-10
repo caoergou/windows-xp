@@ -181,20 +181,6 @@ const MenuArrow = styled.span`
   color: #666;
 `;
 
-const SearchBox = styled.div`
-  padding: 5px 6px 6px;
-  margin-top: auto;
-`;
-
-const SearchInput = styled.input`
-  width: 100%;
-  padding: 2px 4px;
-  border: 1px solid #7f9db9;
-  font-size: 11px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  box-sizing: border-box;
-`;
-
 const RightMenuSeparator = styled(MenuSeparator)`
   background: linear-gradient(
     to right,
@@ -355,13 +341,6 @@ const StartMenu: React.FC<StartMenuProps> = ({
             <XPIcon name="run" size={24} className="menu-icon" />
             <span>{t('startMenu.run')}</span>
           </MenuItem>
-          <SearchBox>
-            <SearchInput
-              type="text"
-              placeholder={t('startMenu.searchPlaceholder', 'Search')}
-              readOnly
-            />
-          </SearchBox>
         </StartLeft>
         <StartRight>
           <RightMenuItem onClick={() => launchWithSound('Explorer', t('startMenu.myDocuments'))}>

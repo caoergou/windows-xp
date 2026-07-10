@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import windowControlsSprite from '../../assets/images/window/window-controls-sprite.png';
 
 export const TitleControls = styled.div<{ $isFocus?: boolean }>`
   opacity: ${({ $isFocus }) => ($isFocus ? 1 : 0.6)};
@@ -35,6 +36,17 @@ export const BaseButton = styled.button`
   cursor: default;
   position: relative;
   flex-shrink: 0;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url(${windowControlsSprite});
+    background-repeat: no-repeat;
+    background-size: 90px 22px;
+    pointer-events: none;
+  }
 
   &:hover {
     filter: brightness(120%);
@@ -45,7 +57,7 @@ export const BaseButton = styled.button`
   }
 `;
 
-export const MinimizeBtn = styled(BaseButton)`
+const BlueWindowControl = styled(BaseButton)`
   box-shadow: inset 0 -1px 2px 1px #4646ff;
   background-image: radial-gradient(
     circle at 90% 90%,
@@ -55,88 +67,23 @@ export const MinimizeBtn = styled(BaseButton)`
     #a3bbec 90%,
     white 100%
   );
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 4px;
-    top: 13px;
-    height: 3px;
-    width: 8px;
-    background-color: white;
-    pointer-events: none;
-  }
 `;
 
-export const MaximizeBtn = styled(BaseButton)`
-  box-shadow: inset 0 -1px 2px 1px #4646ff;
-  background-image: radial-gradient(
-    circle at 90% 90%,
-    #0054e9 0%,
-    #2263d5 55%,
-    #4479e4 70%,
-    #a3bbec 90%,
-    white 100%
-  );
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    display: block;
-    left: 4px;
-    top: 4px;
-    box-shadow:
-      inset 0 3px white,
-      inset 0 0 0 1px white;
-    height: 12px;
-    width: 12px;
-    pointer-events: none;
-  }
-`;
-
-export const RestoreBtn = styled(BaseButton)`
-  box-shadow: inset 0 -1px 2px 1px #4646ff;
-  background-image: radial-gradient(
-    circle at 90% 90%,
-    #0054e9 0%,
-    #2263d5 55%,
-    #4479e4 70%,
-    #a3bbec 90%,
-    white 100%
-  );
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    display: block;
-    left: 7px;
-    top: 4px;
-    box-shadow:
-      inset 0 2px white,
-      inset 0 0 0 1px white;
-    height: 8px;
-    width: 8px;
-    pointer-events: none;
-  }
-
+export const MinimizeBtn = styled(BlueWindowControl)`
   &::after {
-    content: '';
-    position: absolute;
-    display: block;
-    left: 4px;
-    top: 7px;
-    box-shadow:
-      inset 0 2px white,
-      inset 0 0 0 1px white,
-      1px -1px #136dff;
-    height: 8px;
-    width: 8px;
-    background-color: #136dff;
-    pointer-events: none;
+    background-position: 0 0;
+  }
+`;
+
+export const MaximizeBtn = styled(BlueWindowControl)`
+  &::after {
+    background-position: -22px 0;
+  }
+`;
+
+export const RestoreBtn = styled(BlueWindowControl)`
+  &::after {
+    background-position: -45px 0;
   }
 `;
 
@@ -150,31 +97,10 @@ export const CloseBtn = styled(BaseButton)`
     #ffccb2 90%,
     white 100%
   );
-  overflow: hidden;
   margin-right: 0;
 
-  &::before {
-    content: '';
-    position: absolute;
-    left: 9px;
-    top: 2px;
-    transform: rotate(45deg);
-    height: 16px;
-    width: 2px;
-    background-color: white;
-    pointer-events: none;
-  }
-
   &::after {
-    content: '';
-    position: absolute;
-    left: 9px;
-    top: 2px;
-    transform: rotate(-45deg);
-    height: 16px;
-    width: 2px;
-    background-color: white;
-    pointer-events: none;
+    background-position: -67px 0;
   }
 `;
 
