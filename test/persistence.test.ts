@@ -1,0 +1,301 @@
+// fake-indexeddb/auto must be imported BEFORE storage.ts so that the
+// module-level `indexedDB` capture in storage.ts sees the fake factory.
+import 'fake-indexeddb/auto';
+import { describe, it, expect, beforeEach } from 'vitest';
+import {
+  setStoragePrefix,
+  getStoragePrefix,
+  getStorageKey,
+  saveFileContent,
+  getFileContent,
+  deleteFileContent,
+  saveMetadata,
+  getMetadata,
+  saveRecycleBin,
+  getRecycleBin,
+  clearAllStorage,
+} from '../src/utils/storage';
+import type { FileMetadata, RecycleBinItem } from '../src/utils/storage';
+import {
+  loadPersistedFileSystem,
+  persistFs,
+} from '../src/context/FileSystemContext/utils/persistence';
+import type { FileNode, FolderNode, FileContentNode } from '../src/types';
+import { isContainerNode, isFileContentNode } from '../src/types';
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+const makeFile = (name: string, content?: string): FileContentNode => ({
+  type: 'file',
+  name,
+  content,
+  app: 'Notepad',
+});
+
+const makeDefaultFs = (): { root: FileNode } => ({
+  root: {
+    type: 'folder',
+    name: 'root',
+    children: {
+      回收站: { type: 'folder', name: '回收站', icon: 'recycle_bin', children: {} },
+      docs: {
+        type: 'folder',
+        name: 'docs',
+        children: {
+          'readme.txt': makeFile('readme.txt', 'default readme'),
+        },
+      } as FolderNode,
+    },
+  } as FolderNode,
+});
+
+const getNode = (fs: { root: FileNode }, path: string[]): FileNode | null => {
+  let current: FileNode = fs.root;
+  for (const part of path) {
+    if (isContainerNode(current) && current.children?.[part]) {
+      current = current.children[part];
+    } else {
+      return null;
+    }
+  }
+  return current;
+};
+
+const sampleMetadata = (pathKey: string, name: string): Record<string, FileMetadata> => ({
+  [pathKey]: {
+    path: pathKey.split('/'),
+    name,
+    type: 'file',
+    app: 'Notepad',
+    modifiedAt: Date.now(),
+  },
+});
+
+// Each test gets its own storage prefix, which isolates both the IndexedDB
+// database name and the localStorage keys without needing to rebuild the
+// fake IndexedDB factory (storage.ts captures the factory at module load).
+let prefixCounter = 0;
+
+beforeEach(() => {
+  localStorage.clear();
+  setStoragePrefix(`ptest${++prefixCounter}`);
+});
+
+// ---------------------------------------------------------------------------
+// storage.ts — file content in IndexedDB
+// ---------------------------------------------------------------------------
+
+describe('storage.ts: IndexedDB file content', () => {
+  it('roundtrips saveFileContent -> getFileContent', async () => {
+    await saveFileContent(['docs', 'readme.txt'], 'hello world');
+    await expect(getFileContent(['docs', 'readme.txt'])).resolves.toBe('hello world');
+  });
+
+  it('returns null for content that was never saved', async () => {
+    await expect(getFileContent(['nope', 'missing.txt'])).resolves.toBeNull();
+  });
+
+  it('overwrites existing content on re-save (put semantics)', async () => {
+    await saveFileContent(['a.txt'], 'v1');
+    await saveFileContent(['a.txt'], 'v2');
+    await expect(getFileContent(['a.txt'])).resolves.toBe('v2');
+  });
+
+  it('deleteFileContent removes stored content', async () => {
+    await saveFileContent(['gone.txt'], 'bye');
+    await deleteFileContent(['gone.txt']);
+    await expect(getFileContent(['gone.txt'])).resolves.toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// storage.ts — metadata / recycle bin in localStorage
+// ---------------------------------------------------------------------------
+
+describe('storage.ts: localStorage metadata and recycle bin', () => {
+  it('roundtrips saveMetadata -> getMetadata via the prefixed localStorage key', () => {
+    const metadata = {
+      files: sampleMetadata('docs/readme.txt', 'readme.txt'),
+      version: 1,
+      lastModified: Date.now(),
+    };
+    saveMetadata(metadata);
+
+    const raw = localStorage.getItem(`${getStoragePrefix()}fs_metadata`);
+    expect(raw).not.toBeNull();
+    expect(getMetadata()).toEqual(metadata);
+  });
+
+  it('getMetadata returns null when absent or corrupt', () => {
+    expect(getMetadata()).toBeNull();
+    localStorage.setItem(getStorageKey('fs_metadata'), '{not-valid-json');
+    expect(getMetadata()).toBeNull();
+  });
+
+  it('roundtrips saveRecycleBin -> getRecycleBin', () => {
+    const items: Record<string, RecycleBinItem> = {
+      'old.txt': {
+        item: makeFile('old.txt', 'trashed'),
+        originalPath: ['docs'],
+        deletedAt: 123456,
+      },
+    };
+    saveRecycleBin(items);
+    expect(localStorage.getItem(`${getStoragePrefix()}fs_recycle_bin`)).not.toBeNull();
+    expect(getRecycleBin()).toEqual(items);
+  });
+
+  it('keeps content in IndexedDB only and metadata in localStorage only', async () => {
+    await saveFileContent(['secret.txt'], 'SECRET_CONTENT_MARKER');
+    saveMetadata({
+      files: sampleMetadata('secret.txt', 'secret.txt'),
+      version: 1,
+      lastModified: Date.now(),
+    });
+
+    // The file body must never leak into localStorage...
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i) as string;
+      expect(localStorage.getItem(key)).not.toContain('SECRET_CONTENT_MARKER');
+    }
+    // ...while metadata lives in localStorage and content in IndexedDB.
+    expect(getMetadata()?.files['secret.txt']?.name).toBe('secret.txt');
+    await expect(getFileContent(['secret.txt'])).resolves.toBe('SECRET_CONTENT_MARKER');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// storagePrefix isolation
+// ---------------------------------------------------------------------------
+
+describe('storage.ts: storagePrefix', () => {
+  it('normalizes the prefix with a trailing underscore and drives getStorageKey', () => {
+    setStoragePrefix('myapp');
+    expect(getStoragePrefix()).toBe('myapp_');
+    expect(getStorageKey('fs_metadata')).toBe('myapp_fs_metadata');
+
+    setStoragePrefix('other_');
+    expect(getStoragePrefix()).toBe('other_');
+  });
+
+  it('isolates IndexedDB database and localStorage keys per prefix', async () => {
+    setStoragePrefix('tenant_a');
+    await saveFileContent(['file.txt'], 'content of A');
+    saveMetadata({
+      files: sampleMetadata('file.txt', 'file.txt'),
+      version: 1,
+      lastModified: Date.now(),
+    });
+
+    setStoragePrefix('tenant_b');
+    // Different DB name and different localStorage key => nothing visible.
+    await expect(getFileContent(['file.txt'])).resolves.toBeNull();
+    expect(getMetadata()).toBeNull();
+    await saveFileContent(['file.txt'], 'content of B');
+
+    setStoragePrefix('tenant_a');
+    await expect(getFileContent(['file.txt'])).resolves.toBe('content of A');
+    expect(getMetadata()?.files['file.txt']).toBeDefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// persistence.ts — persistFs / loadPersistedFileSystem
+// ---------------------------------------------------------------------------
+
+describe('persistence.ts: persistFs and loadPersistedFileSystem', () => {
+  it('persistFs is a no-op before the initial load completes (isLoaded=false)', async () => {
+    await persistFs(makeDefaultFs(), false);
+    expect(getMetadata()).toBeNull();
+    await expect(getFileContent(['docs', 'readme.txt'])).resolves.toBeNull();
+  });
+
+  it('merges persisted edits back into the default tree on load', async () => {
+    const fs = makeDefaultFs();
+    const readme = getNode(fs, ['docs', 'readme.txt']);
+    if (!readme || !isFileContentNode(readme)) throw new Error('expected file node');
+    readme.content = 'edited by user';
+
+    await persistFs(fs, true);
+    const { root } = await loadPersistedFileSystem(makeDefaultFs());
+
+    const merged = getNode({ root }, ['docs', 'readme.txt']);
+    if (!merged || !isFileContentNode(merged)) throw new Error('expected file node');
+    expect(merged.content).toBe('edited by user');
+  });
+
+  it('recreates user-created files (absent from defaults) with their metadata', async () => {
+    const fs = makeDefaultFs();
+    if (!isContainerNode(fs.root)) throw new Error('expected container root');
+    fs.root.children['notes.txt'] = makeFile('notes.txt', 'my notes');
+
+    await persistFs(fs, true);
+    const { root } = await loadPersistedFileSystem(makeDefaultFs());
+
+    const restored = getNode({ root }, ['notes.txt']);
+    if (!restored || !isFileContentNode(restored)) throw new Error('expected file node');
+    expect(restored.content).toBe('my notes');
+    expect(restored.app).toBe('Notepad');
+    // Metadata went to localStorage, content to IndexedDB.
+    expect(getMetadata()?.files['notes.txt']).toBeDefined();
+    await expect(getFileContent(['notes.txt'])).resolves.toBe('my notes');
+  });
+
+  it('replaces recycle bin children from the saved recycle bin and returns its ref', async () => {
+    const binItems: Record<string, RecycleBinItem> = {
+      'trashed.txt': {
+        item: makeFile('trashed.txt', 'in the bin'),
+        originalPath: ['docs'],
+        deletedAt: 42,
+      },
+    };
+    saveRecycleBin(binItems);
+
+    const { root, recycleBinRef } = await loadPersistedFileSystem(makeDefaultFs());
+    const bin = getNode({ root }, ['回收站']);
+    if (!bin || !isContainerNode(bin)) throw new Error('expected recycle bin folder');
+    expect(Object.keys(bin.children)).toEqual(['trashed.txt']);
+    expect(recycleBinRef['trashed.txt']?.originalPath).toEqual(['docs']);
+  });
+
+  it('leaves default recycle bin contents alone when nothing was persisted', async () => {
+    const defaults = makeDefaultFs();
+    const defaultBin = getNode(defaults, ['回收站']);
+    if (!defaultBin || !isContainerNode(defaultBin)) throw new Error('expected folder');
+    defaultBin.children['preset.txt'] = makeFile('preset.txt', 'preset');
+
+    const { root, recycleBinRef } = await loadPersistedFileSystem(defaults);
+    expect(getNode({ root }, ['回收站', 'preset.txt'])).not.toBeNull();
+    expect(recycleBinRef).toEqual({});
+  });
+
+  it('clearAllStorage wipes metadata, recycle bin and file contents', async () => {
+    await saveFileContent(['wipe.txt'], 'wipe me');
+    saveMetadata({
+      files: sampleMetadata('wipe.txt', 'wipe.txt'),
+      version: 1,
+      lastModified: Date.now(),
+    });
+    saveRecycleBin({
+      'wipe.txt': { item: makeFile('wipe.txt'), originalPath: [], deletedAt: 1 },
+    });
+
+    await clearAllStorage();
+
+    expect(getMetadata()).toBeNull();
+    expect(getRecycleBin()).toBeNull();
+    await expect(getFileContent(['wipe.txt'])).resolves.toBeNull();
+  });
+
+  it.todo(
+    '#81: 空文件夹结构不持久化 — persistFs 只保存带 content 的文件，用户新建的空文件夹刷新后丢失，' +
+      '且嵌套在用户文件夹里的文件在 loadPersistedFileSystem 中会因中间目录缺失而被错误挂到最近存在的祖先目录下'
+  );
+
+  it.todo(
+    '#81: 删除内置文件刷新后复活 — 删除 filesystem.json 自带的文件不会记录 tombstone，' +
+      'loadPersistedFileSystem 从默认树克隆起步，刷新后被删除的内置文件重新出现'
+  );
+});
