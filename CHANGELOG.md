@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Package size reduced from 17.2MB to 3.0MB (#72):
+  - Library build now extracts referenced assets into `dist/assets/` as real
+    files via `@laynezh/vite-plugin-lib-assets` instead of inlining everything
+    as base64 into JS chunks (largest chunk: 11.5MB -> 0.4MB). Wallpapers and
+    audio are now fetched on demand at runtime instead of shipping in the
+    initial JS payload.
+  - Optimized source assets: control-panel icons resized from 1024px to 96px
+    (rendered at 48px), all icons palette-quantized, wallpapers capped at
+    1280px width with mozjpeg q80 (`src/assets`: 12MB -> 4.2MB).
+- Added `npm run size:check` size guard, wired into `prepublishOnly`, to
+  prevent the package from regressing toward base64-inlined bloat.
+- Playwright config now honors `PW_CHROMIUM_PATH` for sandboxed environments
+  with a preinstalled Chromium.
+
 ## [0.2.0] - 2026-07-10
 
 ### Added

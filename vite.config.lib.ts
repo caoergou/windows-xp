@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
+import libAssetsPlugin from '@laynezh/vite-plugin-lib-assets';
 import path from 'path';
 
 const peerDeps = [
@@ -17,6 +18,13 @@ const peerDeps = [
 export default defineConfig({
   plugins: [
     react(),
+    // Vite lib mode inlines every asset as base64 into the JS chunks
+    // (assetsInlineLimit is ignored), which bloated the package to 17MB.
+    // This plugin extracts referenced assets into dist/assets/ as real files.
+    libAssetsPlugin({
+      limit: 1024 * 4, // inline only tiny assets (<4KB)
+      outputPath: 'assets',
+    }),
     dts({
       insertTypesEntry: true,
       rollupTypes: false,
