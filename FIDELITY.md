@@ -1,7 +1,7 @@
 # FIDELITY.md — Windows XP 行为仿真质量清单
 
 > 本文件是 issue #87 的核心交付物，与 `AGENTS.md` 互补：
-> **AGENTS.md 管"长得像不像"（视觉规范：颜色、字体、阴影），本文件管"用起来像不像"（行为、交互、动画、声音）。**
+> **AGENTS.md 是开发时的视觉规范速查（怎么写才对），本文件是质量基线与验收清单（现在差多少、怎么验收）**——行为条目靠人工比对 + e2e 转正，视觉条目靠 design token + 截图基线自动化验收（见 §K）。
 >
 > 仲裁基准：真实 Windows XP SP3（Luna 默认主题、默认视觉效果、默认声音方案）。有争议时以真实 XP 虚拟机的录屏/实测为准，参考实现可对照 [ShizukuIchi/winXP](https://github.com/ShizukuIchi/winXP) 与 [XP.css](https://botoxparty.github.io/XP.css/)。
 
@@ -157,6 +157,60 @@
 | ANM-04 | 字体渲染：像素感（非现代抗锯齿），UI 字体 Tahoma 8pt | — | ✅ | 视觉项，见 AGENTS.md；web 端以像素字体近似 |
 | ANM-05 | 屏保：空闲触发、动一下即退出；XP 内置多款（变幻线/三维管道/字幕等） | ⭐⭐ | 🟡 | 已有单款 logo 浮动屏保；多款化见 #13 |
 
+## K. 视觉样式（STY）
+
+> 样式与行为的验收方式不同：**样式应当被自动化**。路线是三层——
+> ① **Token 化**：把 Luna 的色值/字体/尺寸收敛为 `src/theme` 中的具名 token，消灭散落的内联魔法值；
+> ② **截图基线**：现有 e2e 已在截图但只存档不断言（`e2e/interaction-verify.spec.ts`），升级为 Playwright `toHaveScreenshot()` 基线断言，样式回归自动报警；
+> ③ **对照审计**：与真实 XP 截图 side-by-side 比对（#35 已完成一轮，其结论直接吸收为本节初始打分）。
+
+| ID | XP 基准 | 感知度 | 状态 | 备注 |
+|----|--------|:---:|:---:|------|
+| STY-01 | 窗口 chrome：Luna 蓝渐变标题栏、顶部圆角、粗边框、贴图控制按钮 | ⭐⭐⭐ | ✅ | #35 已审计修正一轮（去现代阴影、Trebuchet MS 标题字体） |
+| STY-02 | **中文 UI 字体为宋体（SimSun）优先**——雅黑是 Vista 之后的字体，XP 时代中文界面是宋体 9pt | ⭐⭐⭐ | 🟡 | 代码字体栈已正确（`Tahoma, SimSun, Microsoft YaHei`）；**AGENTS.md §常用 XP 字体 写的是 YaHei 优先，与代码矛盾且不保真，需修正**（本次一并修） |
+| STY-03 | 字体声明 token 化：同一 font-family 内联重复 30+ 处，无统一出口 | — | ❌ | 收敛进 `src/theme`；这是截图基线的前置（改一处即全局生效） |
+| STY-04 | 表单控件（按钮/输入框/复选框/单选/下拉）的 normal/hover/active/disabled 四态 | ⭐⭐⭐ | ✅ | xp.css 提供；组件库化（#78）时逐控件复核 |
+| STY-05 | disabled 文字的经典浮雕效果（灰字 + 1px 白色右下偏移） | ⭐ | 🔍 | |
+| STY-06 | Luna 滚动条（浅蓝立体滑块、箭头按钮三态） | ⭐⭐⭐ | 🟡 | `src/theme/index.ts` 已有样式导出；应用覆盖面待核查（哪些滚动区域还是原生滚动条） |
+| STY-07 | 菜单样式：高亮 `#316AC5` 白字、左侧图标列、分隔线、菜单阴影 | ⭐⭐⭐ | 🔍 | 开始菜单/右键菜单/应用菜单栏统一核查 |
+| STY-08 | 列表/文件选中高亮 `#316AC5` + 白字；失焦后变灰高亮 | ⭐⭐ | 🔍 | "失焦变灰"最易被忽略 |
+| STY-09 | 焦点虚线框（1px 点线 marching ants） | ⭐⭐ | ❌ | 与 DLG-04 同一批实现 |
+| STY-10 | 任务栏/开始按钮渐变与贴图 | ⭐⭐⭐ | ✅ | #35 已修正（winXP 渐变、authentic start.png） |
+| STY-11 | 图标使用规范：48px（桌面）/ 32px（大图标）/ 16px（标题栏、菜单、任务栏）各就各位，不做非原生缩放 | ⭐⭐ | 🔍 | 资产库丰富（5.2MB），核查取用尺寸 |
+| STY-12 | 桌面图标/文字阴影、快捷方式箭头 | ⭐⭐⭐ | ✅ | 规范见 AGENTS.md §3/§4 |
+| STY-13 | IE6 chrome（绿色前进后退、#ECE9D8、状态栏） | ⭐⭐⭐ | ✅ | 规范见 AGENTS.md §2 |
+| STY-14 | tooltip 黄底样式 | ⭐⭐ | 🔍 | = CUR-03，统一组件解决 |
+
+### K.1 Design Token 基准表（收敛目标）
+
+> 已确认的权威值如下；标"待测量"的以真实 XP 截图逐像素测量后回填，**不允许拍脑袋**。全部值最终落地为 `src/theme` 导出。
+
+| Token | 值 | 来源 |
+|-------|-----|------|
+| `surface`（窗口/对话框底色） | `#ECE9D8` | AGENTS.md，已验证 |
+| `titlebar.active` | `linear-gradient(→, #0997FF, #0053EE)` | AGENTS.md |
+| `titlebar.inactive` | `linear-gradient(→, #7A96DF, #5A7ACF)` | AGENTS.md |
+| `border.button` | `#003C74` | AGENTS.md |
+| `highlight`（选中/菜单） | `#316AC5` | AGENTS.md |
+| `tooltip.bg` | `#FFFFE1` | XP 系统值 |
+| `desktop.fallback`（无壁纸底色） | `#3A6EA5` | XP 默认桌面色 |
+| `font.ui` | `Tahoma 11px`（en）/ `SimSun 12px`（zh） | XP 8pt/9pt 换算 |
+| `font.titlebar` | `Trebuchet MS bold` | #35 结论 |
+| `metrics.titlebarHeight` / `windowBorder` / `scrollbarWidth` / `taskbarHeight` | 待测量 | 真实 XP 截图测量后回填 |
+
+### K.2 截图基线清单（Playwright `toHaveScreenshot`）
+
+首批 8 个基准画面，任何样式 PR 跑视觉回归：
+
+1. 空桌面（图标 + 任务栏 + 开始按钮）
+2. 开始菜单展开（双栏全貌）
+3. 标准窗口（激活 + 非激活各一，含标题栏三按钮）
+4. 模态对话框（含默认按钮描边）
+5. Explorer（侧栏 + 工具栏 + 文件列表）
+6. IE 窗口（工具栏 + 地址栏 + 状态栏）
+7. 右键菜单展开
+8. 关机对话框
+
 ---
 
 ## 浏览器环境的现实约束（🚫 条目的统一说明)
@@ -173,8 +227,9 @@
 ## 修复批次（与 #87 对齐）
 
 - **第一批（感知度 ⭐⭐⭐ 且 ❌）**：WIN-03 最小化动画、DSK-03/04/05 + EXP-04 键盘操作、DLG-01 模态行为、WIN-12 层叠/平铺、KBD-03 Ctrl+Esc、TSK-04 任务栏分组
-- **第二批**：SND-03~08 声音接线、TSK-08 BalloonTip 组件化、DLG-02~04、EXP-02 详细信息视图、CUR-02/03
-- **持续**：全部 🔍 条目的核查转正（每次核查附截图或 e2e）
+- **样式基线批（可与第一批并行，是后续所有样式工作的地基）**：STY-03 字体 token 化 → K.1 token 表落地 `src/theme` → K.2 八个截图基线上 CI → 修正 AGENTS.md 字体条目（STY-02）
+- **第二批**：SND-03~08 声音接线、TSK-08 BalloonTip 组件化、DLG-02~04、EXP-02 详细信息视图、CUR-02/03、STY-09 焦点虚线框
+- **持续**：全部 🔍 条目的核查转正（每次核查附截图或 e2e；样式类 🔍 一律以截图基线形式转正）
 
 ## 参考资料
 
