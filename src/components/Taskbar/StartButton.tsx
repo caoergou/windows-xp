@@ -70,7 +70,7 @@ const StartText = styled.span`
 interface StartButtonProps {
   label: string;
   isActive: boolean;
-  buttonRef: React.RefObject<HTMLButtonElement | null>;
+  buttonRef: React.RefObject<HTMLButtonElement>;
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 

@@ -5,15 +5,18 @@ import libAssetsPlugin from '@laynezh/vite-plugin-lib-assets';
 import { xpCssScopePlugin } from './vite.xp-css-scope';
 import path from 'path';
 
-const peerDeps = [
+// Kept out of the bundle: true peers (host-shared) plus regular dependencies,
+// which npm installs for the consumer and their bundler resolves/dedupes.
+// xp.css is intentionally NOT external - its CSS is compiled (and scoped)
+// into dist/style.css so consumers don't need to install it.
+const externals = [
   'react',
   'react-dom',
+  'styled-components',
   'i18next',
   'react-draggable',
   'react-i18next',
   'react-resizable',
-  'styled-components',
-  'xp.css',
 ];
 
 export default defineConfig({
@@ -53,7 +56,7 @@ export default defineConfig({
       fileName: (format, entryName) => `${entryName}.${format}.js`,
     },
     rollupOptions: {
-      external: [...peerDeps, 'react/jsx-runtime'],
+      external: [...externals, 'react/jsx-runtime'],
       output: {
         globals: {
           react: 'React',
@@ -63,7 +66,6 @@ export default defineConfig({
           'react-i18next': 'ReactI18next',
           'react-resizable': 'ReactResizable',
           'styled-components': 'styled',
-          'xp.css': 'XPCss',
         },
       },
     },

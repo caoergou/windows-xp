@@ -49,6 +49,8 @@
 npm install @caoergou/windows-xp
 ```
 
+仅需三个 peer 依赖：`react`（18 或 19）、`react-dom`、`styled-components` v6——其余全部自动安装。
+
 ## 🚀 快速开始
 
 ```jsx
