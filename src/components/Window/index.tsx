@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { useWindowManager } from '../../context/WindowManagerContext';
+import { useWindowManagerActions, useActiveWindowId } from '../../context/WindowManagerContext';
 import { WindowIdProvider } from '../../context/WindowIdContext';
 import { sounds } from '../../utils/soundManager';
 import { WindowState } from '../../types';
@@ -14,15 +14,13 @@ interface WindowProps {
 }
 
 const Window: React.FC<WindowProps> = ({ windowState }) => {
-  const {
-    closeWindow,
-    minimizeWindow,
-    maximizeWindow,
-    resizeWindow,
-    focusWindow,
-    moveWindow,
-    activeWindowId,
-  } = useWindowManager();
+  // Narrow subscriptions (#80): actions are referentially stable and the
+  // active id changes only when focus moves, so with React.memo a drag or
+  // update of one window no longer re-renders the others - our data arrives
+  // via the windowState prop.
+  const { closeWindow, minimizeWindow, maximizeWindow, resizeWindow, focusWindow, moveWindow } =
+    useWindowManagerActions();
+  const activeWindowId = useActiveWindowId();
 
   const {
     id,

@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed (WindowManager performance, #80)
+
+- WindowManagerContext split into three contexts (window list / active id /
+  actions): interacting with one window no longer re-renders every other
+  window, the taskbar and the desktop. `<Window/>` now subscribes only to
+  the stable actions and the active id; its own data arrives via props, so
+  `React.memo` finally takes effect. New hooks `useWindowManagerActions()`
+  and `useActiveWindowId()`; `useWindowManager()` keeps the merged API.
+- All window actions are referentially stable (ref-mirrored state); side
+  effects (onFocus/onClose, z-index bookkeeping) moved out of setState
+  updaters - StrictMode no longer double-fires them.
+- Window-list persistence to localStorage is debounced (300ms, flushed on
+  beforeunload/unmount): drag/focus bursts write once instead of per event.
+- Fixed: minimizing a background window no longer steals focus from the
+  active one; the auto-focus fallback no longer re-activates a window the
+  user just minimized; flashWindow timers restart cleanly and are cleared
+  on close/unmount.
+
 ### Fixed (persistence correctness, #81)
 
 - Structural changes now persist: user-created folders (including empty
