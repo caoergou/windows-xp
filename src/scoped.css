@@ -35,6 +35,16 @@
 }
 
 /*
+ * Scope marker for content rendered into document.body via createPortal
+ * (context menus, dialog overlays). Carries the XP font stack because portals
+ * do not inherit from .windows-xp-root, and re-enters the xp.css scope (see
+ * vite.xp-css-scope.ts).
+ */
+.windows-xp-portal {
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+}
+
+/*
  * XP.css applies a blue inset glow on button:focus, which persists after mouse
  * clicks and feels like a "selected" state. Real Windows XP only shows:
  * - momentary sunken border while the mouse is held (:active)

@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- `mode="embedded"` prop (#73): one switch that makes `<WindowsXP/>` a
+  well-behaved guest in a host app - right-click block, devtools block,
+  global shortcuts and the idle screensaver are disabled by default.
+  Individual `disable*` props still override.
+
+### Changed
+
+- All xp.css rules are now scoped under
+  `:where(.windows-xp-root, .windows-xp-portal)` at build time (#73):
+  importing `style.css` can no longer restyle the host page's `body`,
+  buttons or form controls. Portal-rendered content (context menus,
+  Notepad dialogs, Solitaire drag overlay) carries the
+  `.windows-xp-portal` scope marker.
+- The library no longer initializes the global i18next singleton at module
+  load (#73); it only uses its own isolated instance, so it cannot conflict
+  with a host app's i18next setup.
+- `setStoragePrefix` now warns once when two instances set conflicting
+  prefixes on the same page (full per-instance isolation still tracked in
+  #73).
+
 ### Changed
 
 - Package size reduced from 17.2MB to 3.0MB (#72):
