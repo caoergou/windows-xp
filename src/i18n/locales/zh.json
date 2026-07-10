@@ -159,7 +159,15 @@
       "十一月",
       "十二月"
     ],
-    "weekdays": ["日", "一", "二", "三", "四", "五", "六"],
+    "weekdays": [
+      "日",
+      "一",
+      "二",
+      "三",
+      "四",
+      "五",
+      "六"
+    ],
     "today": "今天"
   },
   "window": {
@@ -188,7 +196,10 @@
       "removableStorage": "有可移动存储的设备",
       "other": "其他"
     },
-    "path": { "localDisk": "本地磁盘 ({{drive}})", "opticalDrive": "DVD/CD-RW 驱动器 ({{drive}})" },
+    "path": {
+      "localDisk": "本地磁盘 ({{drive}})",
+      "opticalDrive": "DVD/CD-RW 驱动器 ({{drive}})"
+    },
     "types": {
       "folder": "文件夹",
       "localDisk": "本地磁盘",
@@ -210,7 +221,10 @@
       "pathNotFound": "Windows 找不到该路径。",
       "damaged": "磁盘或文件已损坏，无法打开。"
     },
-    "password": { "title": "输入密码", "message": "此文件夹已加密，请输入密码访问。" },
+    "password": {
+      "title": "输入密码",
+      "message": "此文件夹已加密，请输入密码访问。"
+    },
     "recycleBin": {
       "restore": "还原",
       "empty": "清空回收站",
@@ -434,7 +448,6 @@
     "errorTitle": "Windows XP",
     "errorMessage": "Windows 找不到文件 '{{command}}'。请确认文件名是否正确，然后再试一次。"
   },
-
   "altTab": {
     "switchWindow": "切换窗口"
   },
@@ -832,12 +845,6 @@
       "paused": "已暂停"
     }
   },
-  "window": {
-    "minimize": "最小化",
-    "maximize": "最大化",
-    "restore": "还原",
-    "close": "关闭"
-  },
   "helpAndSupport": {
     "title": "帮助和支持中心",
     "topics": {
@@ -884,5 +891,13 @@
     "title": "检测到移动设备",
     "message": "Windows XP 模拟器在桌面或笔记本电脑上体验最佳。在移动设备上，界面和功能可能会受到限制。",
     "continue": "继续访问桌面版"
+  },
+  "storage": {
+    "errorTitle": "Windows XP",
+    "quotaExceeded": "磁盘空间不足，无法保存你的更改。请清空回收站或删除一些文件释放空间，否则最近的更改可能在重新启动后丢失。"
+  },
+  "recycleBinNotices": {
+    "restoreFallbackTitle": "回收站",
+    "restoreFallbackMessage": "\"{{name}}\"的原始文件夹已不存在，已将其还原到桌面。"
   }
 }

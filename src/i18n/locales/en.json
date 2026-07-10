@@ -165,7 +165,15 @@
       "November",
       "December"
     ],
-    "weekdays": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+    "weekdays": [
+      "Su",
+      "Mo",
+      "Tu",
+      "We",
+      "Th",
+      "Fr",
+      "Sa"
+    ],
     "today": "Today"
   },
   "window": {
@@ -446,7 +454,6 @@
     "errorTitle": "Windows XP",
     "errorMessage": "Windows cannot find '{{command}}'. Make sure you typed the name correctly, and then try again."
   },
-
   "altTab": {
     "switchWindow": "Switch windows"
   },
@@ -890,5 +897,13 @@
     "title": "Mobile Device Detected",
     "message": "This Windows XP Simulator is best experienced on a desktop or laptop computer. The interface and functionality may be limited on mobile devices.",
     "continue": "Continue to Desktop"
+  },
+  "storage": {
+    "errorTitle": "Windows XP",
+    "quotaExceeded": "There is not enough space to save your changes. Free some space by emptying the Recycle Bin or deleting files, or your latest changes may be lost after a restart."
+  },
+  "recycleBinNotices": {
+    "restoreFallbackTitle": "Recycle Bin",
+    "restoreFallbackMessage": "The original folder of \"{{name}}\" no longer exists. It has been restored to the Desktop."
   }
 }

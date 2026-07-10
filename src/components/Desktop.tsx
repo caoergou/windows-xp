@@ -555,6 +555,7 @@ const Desktop: React.FC = () => {
   return (
     <DesktopContainer
       ref={containerRef}
+      data-testid="desktop"
       $bgUrl={desktopBg}
       onContextMenu={handleContextMenu}
       onClick={(e) => {

@@ -116,10 +116,73 @@ describe('recycle bin', () => {
     expect(result.current.getFile(['doomed.txt'])).toBeNull();
   });
 
-  it.todo(
-    '#81: 回收站中同名文件互相覆盖 — 先删除 a/f.txt 再删除 b/f.txt 时，' +
-      '回收站以文件名为 key，前者被后者覆盖且 originalPath 丢失'
-  );
+  it('#81 fixed: 回收站同名文件各自保留，并还原到各自的原路径', () => {
+    const { result } = renderHook(() => useFileSystem(), { wrapper });
+
+    act(() => {
+      result.current.createFile([], 'dirA', 'folder');
+      result.current.createFile([], 'dirB', 'folder');
+    });
+    act(() => {
+      result.current.createFile(['dirA'], 'f.txt', 'file', { content: 'from A' });
+      result.current.createFile(['dirB'], 'f.txt', 'file', { content: 'from B' });
+    });
+    act(() => {
+      result.current.deleteFile(['dirA'], 'f.txt');
+    });
+    act(() => {
+      result.current.deleteFile(['dirB'], 'f.txt');
+    });
+
+    // Both entries live in the bin under distinct keys.
+    const bin = result.current.getFile(['回收站']);
+    const binChildren =
+      bin && 'children' in bin ? (bin.children as Record<string, unknown>) : {};
+    const keys = Object.keys(binChildren).filter(k => k.startsWith('f.txt'));
+    expect(keys).toHaveLength(2);
+
+    // Restore both; each returns to its own folder.
+    act(() => {
+      keys.forEach(key => result.current.restoreFromRecycleBin(key));
+    });
+    const restoredA = result.current.getFile(['dirA', 'f.txt']);
+    const restoredB = result.current.getFile(['dirB', 'f.txt']);
+    expect(restoredA).toBeDefined();
+    expect(restoredB).toBeDefined();
+    expect((restoredA as { content?: string })?.content).toBe('from A');
+    expect((restoredB as { content?: string })?.content).toBe('from B');
+  });
+
+  it('#81 fixed: 粘贴到不存在的目标返回 false 且不清空剪切板', () => {
+    const { result } = renderHook(() => useFileSystem(), { wrapper });
+
+    act(() => {
+      result.current.createFile([], 'victim.txt', 'file', { content: 'precious' });
+    });
+    act(() => {
+      result.current.cutFile([], 'victim.txt');
+    });
+
+    let pasted: boolean | undefined;
+    act(() => {
+      pasted = result.current.pasteFile(['no-such-folder']);
+    });
+    expect(pasted).toBe(false);
+    // File untouched, clipboard retained for a valid retry.
+    expect(result.current.getFile(['victim.txt'])).not.toBeNull();
+    expect(result.current.clipboard).not.toBeNull();
+
+    // A valid paste afterwards still works.
+    act(() => {
+      result.current.createFile([], 'target', 'folder');
+    });
+    act(() => {
+      pasted = result.current.pasteFile(['target']);
+    });
+    expect(pasted).toBe(true);
+    expect(result.current.getFile(['target', 'victim.txt'])).not.toBeNull();
+    expect(result.current.getFile(['victim.txt'])).toBeNull();
+  });
 });
 
 // ---------------------------------------------------------------------------

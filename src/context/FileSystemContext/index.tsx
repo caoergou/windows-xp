@@ -8,6 +8,7 @@ import {
   saveRecycleBin,
   RecycleBinItem,
 } from './utils/persistence';
+import type { PersistChanges } from './hooks/useFileOperations';
 import { useFileOperations } from './hooks/useFileOperations';
 import { getAllCultureShortcutNames } from '../../data/culture';
 
@@ -216,12 +217,63 @@ export const FileSystemProvider: React.FC<{
     });
   }, [cultureKey, isLoaded]);
 
+  // Debounced, diff-aware persistence (#81): operations landing within the
+  // window are coalesced into one write; ops report their dirty/removed
+  // content paths so only touched files hit IndexedDB.
+  const isLoadedRef = useRef(isLoaded);
+  isLoadedRef.current = isLoaded;
+  const pendingPersistRef = useRef<{
+    fs: { root: FileNode } | null;
+    dirty: Set<string> | null; // null = an op requested a full content rewrite
+    removed: Set<string>;
+    timer: ReturnType<typeof setTimeout> | null;
+  }>({ fs: null, dirty: new Set(), removed: new Set(), timer: null });
+
+  const flushPersist = useCallback(() => {
+    const pending = pendingPersistRef.current;
+    if (pending.timer) {
+      clearTimeout(pending.timer);
+      pending.timer = null;
+    }
+    if (!pending.fs) return;
+    const fsToPersist = pending.fs;
+    const dirty = pending.dirty;
+    const removed = [...pending.removed];
+    pending.fs = null;
+    pending.dirty = new Set();
+    pending.removed = new Set();
+    void persistFs(fsToPersist, isLoadedRef.current, {
+      defaultFs: fileSystemWithRecycleBin,
+      dirtyContentPaths: dirty ? [...dirty].map(key => key.split('/')) : undefined,
+      removedContentPaths: removed.map(key => key.split('/')),
+    });
+  }, []);
+
   const doPersistFs = useCallback(
-    async (newFs: { root: FileNode }) => {
-      await persistFs(newFs, isLoaded);
+    (newFs: { root: FileNode }, changes?: PersistChanges) => {
+      const pending = pendingPersistRef.current;
+      pending.fs = newFs;
+      if (!changes?.dirty) {
+        pending.dirty = null; // full rewrite requested
+      } else if (pending.dirty) {
+        changes.dirty.forEach(path => pending.dirty?.add(path.join('/')));
+      }
+      changes?.removed?.forEach(path => pending.removed.add(path.join('/')));
+      if (pending.timer) clearTimeout(pending.timer);
+      pending.timer = setTimeout(flushPersist, 300);
     },
-    [isLoaded]
+    [flushPersist]
   );
+
+  // Flush pending writes when the page goes away or the provider unmounts.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.addEventListener('beforeunload', flushPersist);
+    return () => {
+      window.removeEventListener('beforeunload', flushPersist);
+      flushPersist();
+    };
+  }, [flushPersist]);
 
   const fileOperations = useFileOperations(setFs, doPersistFs, recycleBinRef);
 
@@ -267,13 +319,13 @@ export const FileSystemProvider: React.FC<{
 
   const pasteFile = useCallback(
     (destinationPath: string[]): boolean => {
-      const didPaste = fileOperations.pasteFile(destinationPath, clipboard);
+      const didPaste = fileOperations.pasteFile(destinationPath, clipboard, fs);
       if (didPaste && clipboard?.type === 'cut') {
         setClipboard(null);
       }
       return didPaste;
     },
-    [clipboard, fileOperations]
+    [clipboard, fileOperations, fs]
   );
 
   const searchFiles = useCallback(

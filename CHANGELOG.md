@@ -4,6 +4,40 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed (persistence correctness, #81)
+
+- Structural changes now persist: user-created folders (including empty
+  ones), nested files, and renames survive a refresh. Deleting a built-in
+  file records a deletion tombstone, so it no longer resurrects on reload.
+- Files inside user-created folders no longer relocate to the root on
+  reload: persisted entries whose parent folder is gone are skipped with a
+  warning instead of being re-attached to the nearest ancestor.
+- Recycle bin entries are keyed uniquely: deleting `a/f.txt` then `b/f.txt`
+  keeps both items with their own original paths. Restoring an item whose
+  original folder no longer exists falls back to the desktop and tells the
+  user via an XP dialog instead of silently mis-placing it.
+- `pasteFile` validates the destination (and source) before mutating: a
+  paste into a missing folder now returns `false` and keeps the cut
+  clipboard intact instead of "losing" the file.
+- Start-menu launch paths (Internet Explorer, QQMail, Explorer) now store
+  their serializable launch state in `componentProps`, so those windows
+  restore with their page/path after a refresh instead of coming back blank.
+- Window ids use `crypto.randomUUID()` - `Date.now()` collided when several
+  windows opened in the same millisecond.
+- localStorage quota errors now surface as an XP warning dialog (once per
+  session) instead of a silent console error.
+
+### Changed (persistence performance, #81)
+
+- Filesystem persistence is debounced (300ms, flushed on unload/unmount)
+  and diff-aware: operations report their dirty/removed content paths and
+  only those files are written to IndexedDB, instead of rewriting every
+  file on every operation. The IndexedDB connection is opened once and
+  reused instead of once per operation.
+- Persisted metadata is now a diff against the default filesystem
+  (user/edited nodes + deletion tombstones, schema v2) rather than a dump
+  of every content file.
+
 ### Added (test coverage, #83)
 
 - Core-path test suites (unit tests 174 -> 245, +5 tracked todos), the

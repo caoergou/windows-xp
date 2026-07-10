@@ -5,9 +5,36 @@ import { sounds } from '../../../utils/soundManager';
 import { FileNode, isContainerNode, ClipboardItem } from '../../../types';
 import { saveRecycleBin, RecycleBinItem } from '../utils/persistence';
 
+/**
+ * Content paths touched by an operation. `dirty` limits IndexedDB writes to
+ * the listed files; omitting `changes` entirely requests a full content
+ * rewrite (used by subtree operations like move/copy). See persistFs (#81).
+ */
+export interface PersistChanges {
+  dirty?: string[][];
+  removed?: string[][];
+}
+
+/**
+ * DOM event dispatched for user-facing filesystem notices (e.g. a recycle-bin
+ * item restored to the desktop because its original folder is gone). The App
+ * shell listens and shows an XP dialog.
+ */
+export const FS_NOTICE_EVENT = 'windows-xp:fs-notice';
+
+export interface FsNoticeDetail {
+  type: 'restore-fallback';
+  name: string;
+}
+
+const dispatchFsNotice = (detail: FsNoticeDetail): void => {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent(FS_NOTICE_EVENT, { detail }));
+};
+
 export const useFileOperations = (
   setFs: React.Dispatch<React.SetStateAction<{ root: FileNode }>>,
-  doPersistFs: (fs: { root: FileNode }) => Promise<void>,
+  doPersistFs: (fs: { root: FileNode }, changes?: PersistChanges) => void,
   recycleBinRef: React.MutableRefObject<Record<string, RecycleBinItem>>
 ) => {
   const updateFile = useCallback(
@@ -25,7 +52,9 @@ export const useFileOperations = (
           }
           Object.assign(current, updates);
         });
-        doPersistFs(newFs);
+        const contentChanged =
+          (updates as Partial<FileNode> & { content?: string }).content !== undefined;
+        doPersistFs(newFs, { dirty: contentChanged ? [path] : [] });
         return newFs;
       });
     },
@@ -61,7 +90,7 @@ export const useFileOperations = (
             ...properties,
           } as FileNode;
         });
-        doPersistFs(newFs);
+        doPersistFs(newFs, { dirty: [[...parentPath, fileName]] });
         return newFs;
       });
     },
@@ -86,7 +115,10 @@ export const useFileOperations = (
           delete current.children[oldName];
           current.children[newName] = { ...file, name: newName } as FileNode;
         });
-        doPersistFs(newFs);
+        doPersistFs(newFs, {
+          dirty: [[...parentPath, newName]],
+          removed: [[...parentPath, oldName]],
+        });
         return newFs;
       });
     },
@@ -118,7 +150,7 @@ export const useFileOperations = (
           if (!isContainerNode(folder) || Object.keys(folder.children || {}).length > 0) return;
           delete current.children[folderName];
         });
-        doPersistFs(newFs);
+        doPersistFs(newFs, { dirty: [], removed: [[...parentPath, folderName]] });
         return newFs;
       });
     },
@@ -136,6 +168,7 @@ export const useFileOperations = (
     (parentPath: string[], fileName: string) => {
       sounds.recycle();
       setFs(prevFs => {
+        let deletedBinKey: string | null = null;
         const newFs = produce(prevFs, draft => {
           if (!isContainerNode(draft.root)) return;
           let current: any = draft.root;
@@ -155,13 +188,22 @@ export const useFileOperations = (
             if (!recycleBin.children) {
               recycleBin.children = {};
             }
-            recycleBin.children[fileName] = file;
+            // Unique bin key so deleting a/f.txt then b/f.txt keeps BOTH
+            // entries and their original paths (#81).
+            let binKey = fileName;
+            let suffix = 2;
+            while (recycleBin.children[binKey] || recycleBinRef.current[binKey]) {
+              binKey = `${fileName} (${suffix++})`;
+            }
+            recycleBin.children[binKey] = file;
+            deletedBinKey = binKey;
           }
         });
 
         const movedFile = (() => {
+          if (!deletedBinKey) return null;
           let current = newFs.root;
-          const path = ['回收站', fileName];
+          const path = ['回收站', deletedBinKey];
           for (const part of path) {
             if (isContainerNode(current) && current.children?.[part]) {
               current = current.children[part];
@@ -172,15 +214,16 @@ export const useFileOperations = (
           return current;
         })();
 
-        if (movedFile) {
-          recycleBinRef.current[fileName] = {
+        if (movedFile && deletedBinKey) {
+          recycleBinRef.current[deletedBinKey] = {
             item: movedFile,
             originalPath: parentPath,
+            originalName: fileName,
             deletedAt: Date.now(),
           };
           saveRecycleBin(recycleBinRef.current);
         }
-        doPersistFs(newFs);
+        doPersistFs(newFs, { dirty: [], removed: [[...parentPath, fileName]] });
         return newFs;
       });
     },
@@ -286,8 +329,29 @@ export const useFileOperations = (
     item.fileNames?.length ? item.fileNames : [item.fileName];
 
   const pasteFile = useCallback(
-    (destinationPath: string[], clipboard: ClipboardItem | null): boolean => {
+    (destinationPath: string[], clipboard: ClipboardItem | null, fs?: { root: FileNode }): boolean => {
       if (!clipboard) return false;
+
+      // Validate up front: the old implementation bailed silently inside
+      // produce but still returned true, clearing a cut clipboard while the
+      // file stayed put (#81).
+      if (fs) {
+        const nodeAt = (path: string[]): FileNode | null => {
+          let current: FileNode = fs.root;
+          for (const part of path) {
+            if (isContainerNode(current) && current.children?.[part]) {
+              current = current.children[part];
+            } else {
+              return null;
+            }
+          }
+          return current;
+        };
+        const destination = nodeAt(destinationPath);
+        if (!destination || !isContainerNode(destination)) return false;
+        const source = nodeAt(clipboard.sourcePath);
+        if (!source || !isContainerNode(source)) return false;
+      }
 
       const names = getClipboardFileNames(clipboard);
 
@@ -361,20 +425,28 @@ export const useFileOperations = (
   }, [setFs, doPersistFs, recycleBinRef]);
 
   const restoreFromRecycleBin = useCallback(
-    (fileName: string) => {
+    (binKey: string) => {
       setFs(prevFs => {
-        const binItem = recycleBinRef.current[fileName];
+        const binItem = recycleBinRef.current[binKey];
+        let restoredDegraded = false;
         const newFs = produce(prevFs, draft => {
           if (!isContainerNode(draft.root)) return;
           const recycleBin = (draft.root as any).children?.['回收站'];
-          if (!recycleBin || !isContainerNode(recycleBin) || !recycleBin.children?.[fileName])
+          if (!recycleBin || !isContainerNode(recycleBin) || !recycleBin.children?.[binKey])
             return;
 
+          // Strict walk: if any segment of the original path is gone, restore
+          // to the desktop root and tell the user instead of silently
+          // dropping the item into a wrong ancestor (#81).
           let targetParent: any = draft.root;
           if (binItem?.originalPath?.length > 0) {
             for (const part of binItem.originalPath) {
               if (isContainerNode(targetParent) && targetParent.children?.[part]) {
                 targetParent = targetParent.children[part];
+              } else {
+                targetParent = draft.root;
+                restoredDegraded = true;
+                break;
               }
             }
           }
@@ -383,12 +455,28 @@ export const useFileOperations = (
             if (!targetParent.children) {
               targetParent.children = {};
             }
-            targetParent.children[fileName] = recycleBin.children[fileName];
+            const originalName = binItem?.originalName ?? binKey;
+            let targetName = originalName;
+            let suffix = 2;
+            while (targetParent.children[targetName]) {
+              targetName = `${originalName} (${suffix++})`;
+            }
+            const restoredNode = recycleBin.children[binKey];
+            targetParent.children[targetName] = {
+              ...restoredNode,
+              name: originalName,
+            } as FileNode;
           }
-          delete recycleBin.children[fileName];
+          delete recycleBin.children[binKey];
         });
-        delete recycleBinRef.current[fileName];
+        delete recycleBinRef.current[binKey];
         saveRecycleBin(recycleBinRef.current);
+        if (restoredDegraded && binItem) {
+          dispatchFsNotice({
+            type: 'restore-fallback',
+            name: binItem.originalName ?? binKey,
+          });
+        }
         doPersistFs(newFs);
         return newFs;
       });

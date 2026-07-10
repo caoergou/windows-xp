@@ -132,6 +132,7 @@ const IEAddressBar: React.FC<IEAddressBarProps> = ({ value, onChange, onGo }) =>
                 </IconWrapper>
                 <Input
                     type="text"
+                    data-testid="ie-address-input"
                     value={value}
                     onChange={onChange}
                     onKeyDown={(e) => e.key === 'Enter' && onGo?.()}
