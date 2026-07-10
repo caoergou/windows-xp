@@ -1,0 +1,244 @@
+# FIDELITY.md — Windows XP 行为仿真质量清单
+
+> 本文件是 issue #87 的核心交付物，与 `AGENTS.md` 互补：
+> **AGENTS.md 是开发时的视觉规范速查（怎么写才对），本文件是质量基线与验收清单（现在差多少、怎么验收）**——行为条目靠人工比对 + e2e 转正，视觉条目靠 design token + 截图基线自动化验收（见 §K）。
+>
+> 仲裁基准：真实 Windows XP SP3（Luna 默认主题、默认视觉效果、默认声音方案）。有争议时以真实 XP 虚拟机的录屏/实测为准，参考实现可对照 [ShizukuIchi/winXP](https://github.com/ShizukuIchi/winXP) 与 [XP.css](https://botoxparty.github.io/XP.css/)。
+
+## 使用规则
+
+1. **任何修改 UI 交互的 PR，必须对照本清单更新对应条目的状态列**；新增交互先在此登记基准行为。
+2. 状态取值（只允许以下五种）：
+   - ✅ 已还原 —— 与真实 XP 行为一致（有测试或人工比对记录）
+   - 🟡 部分 —— 存在但细节/覆盖面有差距
+   - ❌ 未实现
+   - 🔍 待核查 —— 可能已实现，尚未与真实 XP 比对确认
+   - 🚫 浏览器限制 —— 浏览器/OS 截获，无法原样实现（需提供替代方案并在文档注明）
+3. 感知度 = 用户注意到差异的概率，决定修复优先级：
+   - ⭐⭐⭐ 肌肉记忆级（每次使用都会碰到）
+   - ⭐⭐ 常见（一次会话内大概率碰到）
+   - ⭐ 细节（刻意对比才会发现）
+4. **修复优先级 = 感知度 ⭐⭐⭐ 且状态 ❌ 的条目优先**，其次是 ⭐⭐⭐/🟡 与 ⭐⭐/❌。
+5. 🔍 条目的转正流程：与真实 XP 比对 → 补 e2e 或截图记录 → 改为 ✅/🟡/❌。
+
+---
+
+## A. 开机 / 登录 / 关机（BOOT）
+
+| ID | XP 基准行为 | 感知度 | 状态 | 备注 |
+|----|------------|:---:|:---:|------|
+| BOOT-01 | 黑屏 + XP logo + 循环滚动的蓝色进度块 | ⭐⭐⭐ | ✅ | `BootScreen.tsx` |
+| BOOT-02 | 欢迎屏幕：蓝色渐变背景、用户磁贴列表、点击磁贴后出现密码框与绿色箭头按钮 | ⭐⭐⭐ | 🔍 | `LoginScreen.tsx` 已有，细节（磁贴 hover 高亮、布局）待比对 |
+| BOOT-03 | 密码错误：磁贴下方出现提示（"是否忘记了密码？"），不弹系统对话框 | ⭐⭐ | 🔍 | |
+| BOOT-04 | 登录成功播放 logon 音；注销播放 logoff 音；关机播放 shutdown 音 | ⭐⭐⭐ | ✅ | 音频已接入 soundManager |
+| BOOT-05 | "关闭计算机"对话框：待机（黄）/ 关闭（红）/ 重新启动（绿）三按钮；**弹出时桌面其余部分渐变为灰度** | ⭐⭐⭐ | 🟡 | `TurnOffDialog.tsx` 有对话框；灰度渐变待核查/实现 |
+| BOOT-06 | 注销对话框：切换用户 / 注销 双按钮，同样灰度背景 | ⭐⭐ | 🔍 | |
+| BOOT-07 | 登录后短暂"正在加载个人设置…"过渡 | ⭐ | ❌ | 低优先级氛围项 |
+
+## B. 桌面（DSK）
+
+| ID | XP 基准行为 | 感知度 | 状态 | 备注 |
+|----|------------|:---:|:---:|------|
+| DSK-01 | 单击选中（图标蓝色覆盖 + 文字反白），双击打开 | ⭐⭐⭐ | ✅ | |
+| DSK-02 | 鼠标拖出半透明蓝色橡皮筋框选，可多选 | ⭐⭐⭐ | ✅ | `Desktop.tsx:255-288`；触屏不可用（见 CUR-04） |
+| DSK-03 | **F2 对选中图标 inline 重命名** | ⭐⭐⭐ | ❌ | #87 第一批 |
+| DSK-04 | **Del 将选中项放入回收站**，弹确认框"确实要把 X 放入回收站吗？" | ⭐⭐⭐ | ❌ | 右键删除已有；键盘路径缺失。#87 第一批 |
+| DSK-05 | **方向键在图标间移动选择焦点，Enter 打开，Ctrl+A 全选** | ⭐⭐⭐ | ❌ | 图标目前是无 tabIndex 的 `div`（`Desktop.tsx:580`）。#87 第一批 |
+| DSK-06 | 图标可自由拖放摆位（XP 默认"自动排列"关、"对齐到网格"开） | ⭐⭐ | 🔍 | 拖 icon 到文件夹已有；自由摆位/网格对齐待核查 |
+| DSK-07 | 桌面右键菜单：排列图标 / 刷新 / 粘贴 / 新建（文件夹、快捷方式、文本文档）/ 属性 | ⭐⭐⭐ | 🟡 | `ContextMenu` + `DesktopProperties` 已有，菜单项完整度待比对 |
+| DSK-08 | 拖动图标时显示半透明 ghost 跟随 | ⭐⭐ | 🔍 | |
+| DSK-09 | 图标视觉规范（阴影、快捷方式箭头） | — | ✅ | 视觉项，规范见 `AGENTS.md` §3/§4 |
+
+## C. 窗口（WIN）
+
+| ID | XP 基准行为 | 感知度 | 状态 | 备注 |
+|----|------------|:---:|:---:|------|
+| WIN-01 | 双击标题栏最大化/还原；不可调大小的窗口双击无效果 | ⭐⭐⭐ | 🟡 | 双击已有（`WindowChrome.tsx:165`）；非 resizable 分支待核查 |
+| WIN-02 | 最小化/最大化/关闭按钮的 normal/hover/active 三态 | ⭐⭐⭐ | ✅ | luna 贴图全套已接 |
+| WIN-03 | **最小化时窗口缩放动画飞向对应任务栏按钮；最大化/还原有展开动画**（XP 默认开启"最小化和最大化时显示窗口动画"） | ⭐⭐⭐ | ❌ | #87 第一批；建议在 #80 重构后实现 |
+| WIN-04 | 非激活窗口标题栏使用浅色渐变（色值见 AGENTS.md） | ⭐⭐⭐ | 🔍 | |
+| WIN-05 | 八方向边缘/角拉伸，对应方向的 resize 光标 | ⭐⭐ | 🔍 | react-resizable 默认仅右下角，需核查已启用的方向数 |
+| WIN-06 | 不可调大小窗口：最大化按钮禁用态、边缘无 resize 光标 | ⭐⭐ | 🔍 | |
+| WIN-07 | Alt+Space 打开系统菜单（还原/移动/大小/最小化/最大化/关闭），"移动"支持方向键移窗 | ⭐⭐ | ❌ | 也是"窗口拖丢了"的官方恢复手段，见 WIN-08 |
+| WIN-08 | XP 无边缘吸附、无拖到顶部最大化，窗口可拖出屏幕边缘 | ⭐⭐ | 🟡 | 当前行为恰好一致，但缺 WIN-07 的恢复手段；可选提供"标题栏始终可见"约束作为非仿真增强（默认关） |
+| WIN-09 | 需要注意的窗口任务栏按钮闪烁橙色（FlashWindow） | ⭐⭐ | 🟡 | `flashWindow` 机制已有；颜色/节奏待比对 |
+| WIN-10 | 最小化/还原播放对应系统音（XP 默认方案含"最小化/还原"事件） | ⭐ | 🔍 | `minimize.wav`/`restore.wav` 资产已有，接线待核查 |
+| WIN-11 | 点击窗口任意处置顶获得焦点 | ⭐⭐⭐ | ✅ | |
+| WIN-12 | 层叠窗口 / 横向平铺 / 纵向平铺（任务栏右键） | ⭐⭐ | ❌ | 菜单项存在但永久 disabled（`Taskbar/index.tsx:363-365`）。#87 第一批 |
+
+## D. 任务栏 / 开始菜单 / 托盘（TSK）
+
+| ID | XP 基准行为 | 感知度 | 状态 | 备注 |
+|----|------------|:---:|:---:|------|
+| TSK-01 | 开始按钮绿色渐变三态（normal/hover/pressed） | ⭐⭐⭐ | ✅ | spriteSheet 已接 |
+| TSK-02 | 开始菜单双栏：顶部用户头像条、左栏固定+常用程序、右栏系统位置、底部"所有程序"与注销/关机 | ⭐⭐⭐ | ✅ | 布局已经 #35 审计 |
+| TSK-03 | "所有程序"级联子菜单，hover 约 400ms 延迟展开 | ⭐⭐ | 🟡 | `StartMenuFlyout` 已有；展开延迟与嵌套行为待比对 |
+| TSK-04 | **同应用多窗口自动分组折叠为一个带数字和箭头的按钮**（XP 默认开启） | ⭐⭐⭐ | ❌ | 当前每窗口一按钮+横向滚动（`TaskList.tsx:100-115`），非 XP 行为。#87 |
+| TSK-05 | 任务栏按钮：激活态凹陷、非激活凸起；右键有 还原/移动/大小/最小化/最大化/关闭 菜单 | ⭐⭐ | 🔍 | |
+| TSK-06 | 时钟不显示秒；hover 显示完整日期 tooltip | ⭐⭐ | 🔍 | `SystemClock.tsx` |
+| TSK-07 | 托盘"隐藏不活动的图标"折叠箭头（chevron） | ⭐ | ❌ | 低优先级 |
+| TSK-08 | 托盘气球提示：浅黄圆角气泡 + 指向托盘的尾巴 + 右上角 X，自动淡出，弹出播 notify 音 | ⭐⭐ | 🟡 | `AntivirusPopup` 是气泡样式但非通用组件；应抽象为 `BalloonTip` 供复用（#78） |
+| TSK-09 | 任务栏右键菜单：工具栏 / 层叠窗口 / 平铺 / 显示桌面 / 任务管理器 / 锁定任务栏 / 属性 | ⭐⭐ | 🟡 | 菜单已有；层叠/平铺项 disabled（见 WIN-12） |
+| TSK-10 | 快速启动栏（XP 默认隐藏，可通过工具栏菜单开启） | ⭐ | ❌ | 低优先级 |
+| TSK-11 | "显示桌面"：一键最小化全部窗口，再点还原 | ⭐⭐ | 🔍 | |
+
+## E. 资源管理器（EXP）
+
+| ID | XP 基准行为 | 感知度 | 状态 | 备注 |
+|----|------------|:---:|:---:|------|
+| EXP-01 | 左侧蓝色任务面板（文件和文件夹任务 / 其它位置 / 详细信息，分组可折叠） | ⭐⭐⭐ | ✅ | `ExplorerSidebar.tsx` |
+| EXP-02 | 查看方式切换：缩略图 / 平铺 / 图标 / 列表 / 详细信息 | ⭐⭐ | ❌ | 当前单一视图；"详细信息"视图感知度最高 |
+| EXP-03 | **Backspace = 向上一级**（XP 特有，不是"后退"） | ⭐⭐ | ❌ | 老用户肌肉记忆 |
+| EXP-04 | F5 刷新 / F2 重命名 / Del 删除 在 Explorer 内可用 | ⭐⭐⭐ | ❌ | 与 DSK-03/04 同源，统一实现 |
+| EXP-05 | 剪切（Ctrl+X）的项目图标半透明显示 | ⭐⭐ | 🔍 | 剪贴板逻辑已有 |
+| EXP-06 | 重命名为 inline 编辑框（选中文件名不含扩展名） | ⭐⭐ | 🟡 | 重命名已有，交互方式待比对 |
+| EXP-07 | 拖放移动；按住 Ctrl 拖放为复制（光标带 + 号） | ⭐⭐ | 🟡 | 拖放移动已有；Ctrl 复制待核查 |
+| EXP-08 | 地址栏下拉显示路径历史 | ⭐ | 🔍 | |
+| EXP-09 | 状态栏显示对象数与选中项大小 | ⭐ | 🔍 | |
+| EXP-10 | 双击文件夹同窗口导航（默认），Back/Forward/Up 工具栏可用 | ⭐⭐⭐ | ✅ | |
+
+## F. 对话框与模态（DLG）
+
+| ID | XP 基准行为 | 感知度 | 状态 | 备注 |
+|----|------------|:---:|:---:|------|
+| DLG-01 | **模态对话框弹出时父窗口整体禁用；点击父窗口 → 对话框标题栏闪烁 + 播放 Default Beep（ding）** | ⭐⭐⭐ | ❌ | XP 标志性行为。#87 第一批 |
+| DLG-02 | 错误框弹出播 Critical Stop；警告框播 Exclamation；信息框播 Asterisk/notify | ⭐⭐⭐ | 🔍 | wav 资产齐全，需逐一核查 Modal 类型 → 声音的接线 |
+| DLG-03 | 默认按钮带加深边框，Enter 触发；Esc 等价"取消" | ⭐⭐ | 🔍 | |
+| DLG-04 | Tab/Shift+Tab 在控件间移动焦点，焦点控件显示虚线框 | ⭐⭐ | ❌ | 可访问性与仿真双收益 |
+| DLG-05 | 对话框相对父窗口居中弹出 | ⭐⭐ | 🔍 | |
+| DLG-06 | 消息框图标与 XP 原版一致（红圈白叉 / 黄三角叹号 / 蓝圈 i / 问号） | ⭐⭐ | 🔍 | |
+
+## G. 全局键盘（KBD）
+
+| ID | XP 基准行为 | 感知度 | 状态 | 备注 |
+|----|------------|:---:|:---:|------|
+| KBD-01 | Alt+Tab 切换器：灰色覆盖层、图标网格、蓝色选择框、底部窗口标题 | ⭐⭐⭐ | 🚫→🟡 | 浏览器/OS 截获 Alt+Tab（`App.tsx:215-238` 的 keyup 永远收不到）。替代方案：Alt+` 或可配置键位；覆盖层 UI 本身可先做 |
+| KBD-02 | Alt+F4 关闭当前窗口 | ⭐⭐⭐ | ✅ | 可被 `disableGlobalShortcuts` 关闭 |
+| KBD-03 | **Ctrl+Esc 打开开始菜单**（XP 原生快捷键，浏览器不截获，天然替代 Win 键） | ⭐⭐⭐ | ❌ | 性价比最高的键盘项 |
+| KBD-04 | Win / Win+D / Win+E / Win+R | ⭐⭐ | 🚫 | OS 保留。文档中注明替代键位（Ctrl+Esc；其余可自定义） |
+| KBD-05 | 菜单栏 Alt 加速键（Alt+F 打开"文件"；XP 默认按 Alt 前隐藏下划线） | ⭐ | ❌ | 低优先级 |
+| KBD-06 | 应用内标准快捷键（记事本 Ctrl+S/F/H、画图 Ctrl+Z 等） | ⭐⭐ | 🟡 | Notepad 部分已有；各 app 逐一登记 |
+
+## H. 鼠标 / 光标 / 提示（CUR）
+
+| ID | XP 基准行为 | 感知度 | 状态 | 备注 |
+|----|------------|:---:|:---:|------|
+| CUR-01 | 全套 XP 光标（箭头/手型/I 型/沙漏/移动/各方向 resize） | ⭐⭐⭐ | ✅ | `.cur` 资产已接入 |
+| CUR-02 | 启动应用瞬间显示"箭头+沙漏"忙碌光标 | ⭐⭐ | ❌ | 氛围项，成本低 |
+| CUR-03 | tooltip：浅黄 `#FFFFE1` 底、1px 黑边、Tahoma 8pt、约 500ms 延迟、淡入 | ⭐⭐ | 🔍 | 应做成统一组件（#78） |
+| CUR-04 | 触屏：框选/双击/右键长按等价操作 | ⭐⭐ | ❌ | 移动端仅有警告页（`MobileWarning.tsx`）；XP 本身无触屏，属"可用性"而非仿真，单独权衡 |
+
+## I. 声音事件映射（SND）
+
+> XP 默认方案的事件 → 本项目资产（`src/assets/audio/xp/`）→ 接线状态。资产已齐全，缺的是触发点。
+
+| ID | 系统事件 | XP 声音 | 本地资产 | 状态 | 触发点 |
+|----|---------|--------|---------|:---:|--------|
+| SND-01 | 启动 Windows | Startup | `startup.wav` | ✅ | 开机流程 |
+| SND-02 | 登录 / 注销 / 退出 Windows | Logon / Logoff / Shutdown | `logon/logoff/shutdown.wav` | ✅ | 会话流程 |
+| SND-03 | 严重错误（Critical Stop） | Critical Stop | `critical_stop.wav` | 🔍 | 错误类 Modal、BSOD 前奏 |
+| SND-04 | 警告（Exclamation） | Exclamation | `exclamation.wav` | 🔍 | 警告类 Modal |
+| SND-05 | 默认响声（Default Beep） | Ding | `ding.wav` | ❌ | 点击模态框的父窗口（依赖 DLG-01） |
+| SND-06 | 系统通知 | Notify | `notify.wav` | 🟡 | 气球提示（TSK-08） |
+| SND-07 | 清空回收站 | Recycle | `recycle.wav` | 🔍 | 回收站"清空"操作 |
+| SND-08 | 最小化 / 还原 | Minimize / Restore | `minimize/restore.wav` | 🔍 | 窗口最小化/还原（配合 WIN-03 动画） |
+| SND-09 | 菜单命令 | Menu Command | `menu_command.wav` | 🔍 | 菜单项点击（XP 默认方案含此事件，音量很轻） |
+| SND-10 | IE 导航点击（"开始导航"） | Start Navigation | ❌ 缺资产 | ❌ | IE 内点链接；低优先级 |
+
+## J. 动画与视觉效果（ANM）
+
+> XP 默认（"让 Windows 选择最佳设置"）：窗口最小化/最大化动画 **开**、菜单淡入 **开**、菜单阴影 **开**、拖动时显示窗口内容 **开**、字体平滑为"标准"（**ClearType 默认关**）。
+
+| ID | XP 基准行为 | 感知度 | 状态 | 备注 |
+|----|------------|:---:|:---:|------|
+| ANM-01 | 窗口最小化/最大化/还原动画 | ⭐⭐⭐ | ❌ | = WIN-03 |
+| ANM-02 | 菜单淡入 + 菜单阴影；子菜单展开延迟 | ⭐⭐ | 🔍 | 开始菜单/右键菜单统一核查 |
+| ANM-03 | 拖动窗口时实时显示内容（非线框） | ⭐⭐⭐ | ✅ | react-draggable 天然如此 |
+| ANM-04 | 字体渲染：像素感（非现代抗锯齿），UI 字体 Tahoma 8pt | — | ✅ | 视觉项，见 AGENTS.md；web 端以像素字体近似 |
+| ANM-05 | 屏保：空闲触发、动一下即退出；XP 内置多款（变幻线/三维管道/字幕等） | ⭐⭐ | 🟡 | 已有单款 logo 浮动屏保；多款化见 #13 |
+
+## K. 视觉样式（STY）
+
+> 样式与行为的验收方式不同：**样式应当被自动化**。路线是三层——
+> ① **Token 化**：把 Luna 的色值/字体/尺寸收敛为 `src/theme` 中的具名 token，消灭散落的内联魔法值；
+> ② **截图基线**：现有 e2e 已在截图但只存档不断言（`e2e/interaction-verify.spec.ts`），升级为 Playwright `toHaveScreenshot()` 基线断言，样式回归自动报警；
+> ③ **对照审计**：与真实 XP 截图 side-by-side 比对（#35 已完成一轮，其结论直接吸收为本节初始打分）。
+
+| ID | XP 基准 | 感知度 | 状态 | 备注 |
+|----|--------|:---:|:---:|------|
+| STY-01 | 窗口 chrome：Luna 蓝渐变标题栏、顶部圆角、粗边框、贴图控制按钮 | ⭐⭐⭐ | ✅ | #35 已审计修正一轮（去现代阴影、Trebuchet MS 标题字体） |
+| STY-02 | **中文 UI 字体为宋体（SimSun）优先**——雅黑是 Vista 之后的字体，XP 时代中文界面是宋体 9pt | ⭐⭐⭐ | 🟡 | 代码字体栈已正确（`Tahoma, SimSun, Microsoft YaHei`）；**AGENTS.md §常用 XP 字体 写的是 YaHei 优先，与代码矛盾且不保真，需修正**（本次一并修） |
+| STY-03 | 字体声明 token 化：同一 font-family 内联重复 30+ 处，无统一出口 | — | ❌ | 收敛进 `src/theme`；这是截图基线的前置（改一处即全局生效） |
+| STY-04 | 表单控件（按钮/输入框/复选框/单选/下拉）的 normal/hover/active/disabled 四态 | ⭐⭐⭐ | ✅ | xp.css 提供；组件库化（#78）时逐控件复核 |
+| STY-05 | disabled 文字的经典浮雕效果（灰字 + 1px 白色右下偏移） | ⭐ | 🔍 | |
+| STY-06 | Luna 滚动条（浅蓝立体滑块、箭头按钮三态） | ⭐⭐⭐ | 🟡 | `src/theme/index.ts` 已有样式导出；应用覆盖面待核查（哪些滚动区域还是原生滚动条） |
+| STY-07 | 菜单样式：高亮 `#316AC5` 白字、左侧图标列、分隔线、菜单阴影 | ⭐⭐⭐ | 🔍 | 开始菜单/右键菜单/应用菜单栏统一核查 |
+| STY-08 | 列表/文件选中高亮 `#316AC5` + 白字；失焦后变灰高亮 | ⭐⭐ | 🔍 | "失焦变灰"最易被忽略 |
+| STY-09 | 焦点虚线框（1px 点线 marching ants） | ⭐⭐ | ❌ | 与 DLG-04 同一批实现 |
+| STY-10 | 任务栏/开始按钮渐变与贴图 | ⭐⭐⭐ | ✅ | #35 已修正（winXP 渐变、authentic start.png） |
+| STY-11 | 图标使用规范：48px（桌面）/ 32px（大图标）/ 16px（标题栏、菜单、任务栏）各就各位，不做非原生缩放 | ⭐⭐ | 🔍 | 资产库丰富（5.2MB），核查取用尺寸 |
+| STY-12 | 桌面图标/文字阴影、快捷方式箭头 | ⭐⭐⭐ | ✅ | 规范见 AGENTS.md §3/§4 |
+| STY-13 | IE6 chrome（绿色前进后退、#ECE9D8、状态栏） | ⭐⭐⭐ | ✅ | 规范见 AGENTS.md §2 |
+| STY-14 | tooltip 黄底样式 | ⭐⭐ | 🔍 | = CUR-03，统一组件解决 |
+
+### K.1 Design Token 基准表（收敛目标）
+
+> **每个值必须带出处**，只允许三种：① XP Luna 默认系统色（Control Panel\Colors 注册表值，见参考资料的系统色对照表）；② xp.css 产物实测（`node_modules/xp.css/dist/XP.css` 内的拟合值——注意 Luna 标题栏原版是位图，xp.css 的渐变是对位图的拟合）；③ 真实 XP 截图逐像素测量。**"待核查"= 现值出处不明，禁止再扩散使用**。全部值最终落地为 `src/theme` 导出。
+
+| Token | 值 | 出处与证据 |
+|-------|-----|------|
+| `surface`（窗口/对话框底色） | `#ECE9D8` | ✅ 双源：系统色 ButtonFace = RGB(236,233,216)；xp.css `.surface`/`.window`/`button` 同值 |
+| `highlight`（选中/菜单，白字前景） | `#316AC5` | ✅ 系统色 Highlight = RGB(49,106,197) |
+| `text.disabled`（禁用文字） | `#ACA899` | ✅ 系统色 GrayText 与 ButtonShadow 均为 RGB(172,168,153) |
+| `tooltip.bg` | `#FFFFE1` | ✅ 系统色 InfoWindow = RGB(255,255,225) |
+| `window.bg`（输入区/列表底） | `#FFFFFF` | ✅ 系统色 Window |
+| `desktop.fallback`(无壁纸底色) | `#004E98` | ✅ 系统色 Desktop = RGB(0,78,152)。**勘误**：本表曾写 `#3A6EA5`，那是 Windows 2000 的桌面蓝，非 XP Luna |
+| `titlebar.active` | `linear-gradient(180deg, #0997FF, #0053EE 8%, #0050EE 40%, #0066FF 88%, #0066FF 93%, #005BFF 95%, #003DD7 96%, #003DD7)` | ✅ xp.css `title-bar` 实测。**勘误**：旧 AGENTS.md 的 `to right` 双色简化版方向就是错的（Luna 是垂直渐变） |
+| `titlebar.activeSolid` / `gradient`（经典绘制场合） | `#0054E3` / `#3D95FF` | ✅ 系统色 ActiveTitle / GradientActiveTitle |
+| `titlebar.inactive` | `#7A96DF → ?` | 🔍 待核查：`#7A96DF` 与系统色 InactiveTitle 吻合；现用第二段 `#5A7ACF` 出处不明（系统色 GradientInactiveTitle 为 `#9DB9EB`），xp.css 无非激活样式，需截图测量定值 |
+| `border.button` | `#003C74` | 🔍 待核查：xp.css 中未找到，需从按钮控件截图验证 |
+| `titlebar` 度量 | 高 21px + padding 3px、顶部圆角 8px/7px、字号 13px、text-shadow `1px 1px #0F1089`、边框 `#0831D9`/`#001EA0`、控制按钮 21×21px | ✅ xp.css `title-bar` 实测（最终以截图仲裁） |
+| `font.ui` | `Tahoma 11px`（en）/ `SimSun 12px`（zh） | ✅ XP 8pt/9pt 换算；中文宋体优先（雅黑系 Vista+） |
+| `font.titlebar` | `Trebuchet MS` bold | ✅ xp.css 实测 + #35 结论 |
+| `metrics.windowBorder` / `scrollbarWidth` / `taskbarHeight` | 待测量 | 真实 XP 截图测量后回填 |
+
+### K.2 截图基线清单（Playwright `toHaveScreenshot`）
+
+首批 8 个基准画面，任何样式 PR 跑视觉回归：
+
+1. 空桌面（图标 + 任务栏 + 开始按钮）
+2. 开始菜单展开（双栏全貌）
+3. 标准窗口（激活 + 非激活各一，含标题栏三按钮）
+4. 模态对话框（含默认按钮描边）
+5. Explorer（侧栏 + 工具栏 + 文件列表）
+6. IE 窗口（工具栏 + 地址栏 + 状态栏）
+7. 右键菜单展开
+8. 关机对话框
+
+---
+
+## 浏览器环境的现实约束（🚫 条目的统一说明)
+
+以下按键被浏览器或操作系统截获，**无法**原样仿真，处理原则是"提供 XP 原生就存在的替代路径优先，其次自定义键位，并在帮助中心（HelpAndSupport）内向用户说明"：
+
+| 被截获 | 替代方案 |
+|--------|---------|
+| Win 键 | **Ctrl+Esc**（XP 原生等价键，浏览器不截获）→ KBD-03 |
+| Alt+Tab | Alt+`（或可配置）；切换器覆盖层 UI 照常实现 → KBD-01 |
+| Win+D/E/R | 任务栏"显示桌面"、开始菜单、运行对话框的鼠标路径 + 可配置键位 |
+| F11 / Ctrl+W 等 | 不拦截，不模拟 |
+
+## 修复批次（与 #87 对齐）
+
+- **第一批（感知度 ⭐⭐⭐ 且 ❌）**：WIN-03 最小化动画、DSK-03/04/05 + EXP-04 键盘操作、DLG-01 模态行为、WIN-12 层叠/平铺、KBD-03 Ctrl+Esc、TSK-04 任务栏分组
+- **样式基线批（可与第一批并行，是后续所有样式工作的地基）**：STY-03 字体 token 化 → K.1 token 表落地 `src/theme` → K.2 八个截图基线上 CI → 修正 AGENTS.md 字体条目（STY-02）
+- **第二批**：SND-03~08 声音接线、TSK-08 BalloonTip 组件化、DLG-02~04、EXP-02 详细信息视图、CUR-02/03、STY-09 焦点虚线框
+- **持续**：全部 🔍 条目的核查转正（每次核查附截图或 e2e；样式类 🔍 一律以截图基线形式转正）
+
+## 参考资料
+
+- [XP.css](https://botoxparty.github.io/XP.css/) / [ShizukuIchi/winXP](https://github.com/ShizukuIchi/winXP) —— 视觉与交互参考实现（本项目已安装 xp.css，产物可直接查证：`node_modules/xp.css/dist/XP.css`）
+- [Windows System Colours by OS (zaxbux gist)](https://gist.github.com/zaxbux/64b5a88e2e390fb8f8d24eb1736f71e0) / [Windows System Colours Reference (quppa.net)](https://www.quppa.net/syscol/) —— 各版本 Windows 系统色对照（K.1 系统色出处）
+- [When Is Each Sound From A Windows Sound Scheme Played? (Digital Citizen)](https://www.digitalcitizen.life/when-each-sound-windows-sound-scheme-played/) —— 声音事件触发时机
+- [List of Windows sounds (Microsoft Wiki)](https://microsoft.fandom.com/wiki/List_of_Windows_sounds) / [Internet Archive: ALL Windows XP Sounds](https://archive.org/details/windowsxpstartup_201910) —— XP 默认方案音源与事件清单
+- 最终仲裁：Windows XP SP3 虚拟机实测
