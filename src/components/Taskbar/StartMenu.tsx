@@ -181,20 +181,6 @@ const MenuArrow = styled.span`
   color: #666;
 `;
 
-const SearchBox = styled.div`
-  padding: 5px 6px 6px;
-  margin-top: auto;
-`;
-
-const SearchInput = styled.input`
-  width: 100%;
-  padding: 2px 4px;
-  border: 1px solid #7f9db9;
-  font-size: 11px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  box-sizing: border-box;
-`;
-
 const RightMenuSeparator = styled(MenuSeparator)`
   background: linear-gradient(
     to right,
@@ -265,6 +251,7 @@ interface StartMenuProps {
   menuRef: React.RefObject<HTMLDivElement | null>;
   userName: string;
   startMenuApps: StartMenuApp[];
+  language: string;
   onLaunch: (appName: string, pathOrKey?: string) => void;
   onTurnOff: () => void;
   onLogout: () => void;
@@ -278,12 +265,14 @@ const StartMenu: React.FC<StartMenuProps> = ({
   menuRef,
   userName,
   startMenuApps,
+  language,
   onLaunch,
   onTurnOff,
   onLogout,
   t,
 }) => {
   const [flyoutOpen, setFlyoutOpen] = useState(false);
+  const isChineseLocale = language?.startsWith('zh');
 
   const launchWithSound = useCallback(
     (appName: string, pathOrKey?: string) => {
@@ -333,10 +322,12 @@ const StartMenu: React.FC<StartMenuProps> = ({
             <XPIcon name="ie" size={24} className="menu-icon" />
             <span>{t('startMenu.apps.internetExplorer')}</span>
           </MenuItem>
-          <MenuItem onClick={() => launchWithSound('QQ')}>
-            <XPIcon name="qq" size={24} className="menu-icon" />
-            <span>{t('startMenu.apps.qq')}</span>
-          </MenuItem>
+          {isChineseLocale && (
+            <MenuItem onClick={() => launchWithSound('QQ')}>
+              <XPIcon name="qq" size={24} className="menu-icon" />
+              <span>{t('startMenu.apps.qq')}</span>
+            </MenuItem>
+          )}
           <MenuSeparator />
           {startMenuApps.map(app => (
             <MenuItem
@@ -355,13 +346,6 @@ const StartMenu: React.FC<StartMenuProps> = ({
             <XPIcon name="run" size={24} className="menu-icon" />
             <span>{t('startMenu.run')}</span>
           </MenuItem>
-          <SearchBox>
-            <SearchInput
-              type="text"
-              placeholder={t('startMenu.searchPlaceholder', 'Search')}
-              readOnly
-            />
-          </SearchBox>
         </StartLeft>
         <StartRight>
           <RightMenuItem onClick={() => launchWithSound('Explorer', t('startMenu.myDocuments'))}>

@@ -4,13 +4,13 @@ import { WindowState } from '../../types';
 import { WINDOW_DEFAULTS } from '../../constants';
 import XPIcon from '../XPIcon';
 
-export const WindowContainer = styled.div<{ $isFocus?: boolean }>`
+export const WindowContainer = styled.div<{ $isFocus?: boolean; $minWidth?: number; $minHeight?: number }>`
   box-sizing: border-box;
   position: absolute;
   display: flex;
   flex-direction: column;
-  min-height: ${WINDOW_DEFAULTS.MIN_HEIGHT}px;
-  min-width: ${WINDOW_DEFAULTS.MIN_WIDTH}px;
+  min-height: ${({ $minHeight }) => $minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT}px;
+  min-width: ${({ $minWidth }) => $minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH}px;
   background-color: ${({ $isFocus }) => ($isFocus ? '#0831d9' : '#6582f5')};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
@@ -133,10 +133,14 @@ const WindowChrome: React.FC<WindowChromeProps> = ({
   style,
 }) => {
   const { title, icon } = windowState;
+  const minWidth = windowState.props.minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH;
+  const minHeight = windowState.props.minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT;
 
   return (
     <WindowContainer
       $isFocus={isFocused}
+      $minWidth={minWidth}
+      $minHeight={minHeight}
       className={className}
       style={style}
       onClick={onFocus}

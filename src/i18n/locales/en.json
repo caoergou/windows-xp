@@ -4,6 +4,7 @@
     "myDocuments": "My Documents",
     "recycleBin": "Recycle Bin",
     "internetExplorer": "Internet Explorer",
+    "networkNeighborhood": "My Network Places",
     "newFolderName": "New Folder",
     "newTextDocumentName": "New Text Document.txt",
     "propertiesTitle": "Display Properties"
@@ -53,7 +54,9 @@
   "tray": {
     "volume": "Volume",
     "mute": "Mute",
-    "networkConnected": "Network connected"
+    "networkConnected": "Network connected",
+    "safeGuardReminder": "360 Safe Guard Alert",
+    "safeGuardStatus": "Your computer is protected"
   },
   "calendar": {
     "monthNames": [
@@ -81,7 +84,28 @@
     "up": "Up",
     "search": "Search",
     "folders": "Folders",
-    "address": "Address"
+    "address": "Address",
+    "menuItems": {
+      "newWindow": "New Window(N)",
+      "close": "Close(C)",
+      "selectAll": "Select All(A)",
+      "refresh": "Refresh(R)",
+      "toolbars": "Toolbars(T)",
+      "statusBar": "Status Bar(B)",
+      "explorerBar": "Explorer Bar(E)",
+      "thumbnails": "Thumbnails(H)",
+      "tiles": "Tiles(S)",
+      "icons": "Icons(N)",
+      "list": "List(L)",
+      "details": "Details(D)",
+      "addToFavorites": "Add to Favorites(A)...",
+      "organizeFavorites": "Organize Favorites(O)...",
+      "mapNetworkDrive": "Map Network Drive(N)...",
+      "disconnectNetworkDrive": "Disconnect Network Drive(D)...",
+      "folderOptions": "Folder Options(O)...",
+      "helpTopics": "Help Topics(H)",
+      "aboutWindows": "About Windows(A)"
+    }
   },
   "contextMenu": {
     "open": "Open",
@@ -184,6 +208,28 @@
     "about": {
       "title": "About Notepad",
       "message": "Windows XP Notepad\nVersion 1.0\n\n© 2026 Windows XP Simulator"
+    }
+  },
+  "minesweeper": {
+    "menu": {
+      "game": "Game(G)",
+      "help": "Help(H)"
+    },
+    "menuItems": {
+      "new": "New(N)",
+      "beginner": "Beginner(B)",
+      "intermediate": "Intermediate(I)",
+      "expert": "Expert(E)",
+      "exit": "Exit(X)",
+      "about": "About Minesweeper(A)..."
+    },
+    "aria": {
+      "newGame": "New game"
+    },
+    "about": {
+      "title": "About Minesweeper",
+      "message": "Microsoft Minesweeper\nVersion 5.1",
+      "ok": "OK"
     }
   },
   "fileSystem": {
@@ -437,6 +483,12 @@
       "lastScan": "Last Scan",
       "never": "Never",
       "updateTime": "Definitions Date"
+    }
+  },
+  "solitaire": {
+    "menu": {
+      "game": "Game(G)",
+      "help": "Help(H)"
     }
   },
   "thunder": {

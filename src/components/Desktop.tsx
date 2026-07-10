@@ -15,10 +15,10 @@ import DesktopProperties from './DesktopProperties';
 import { resolveFileOpen } from '../registry/apps';
 import AntivirusPopup from './AntivirusPopup';
 import { useModal } from '../context/ModalContext';
-import StickyNote from './StickyNote';
 import { getWallpaperById } from '../data/wallpapers';
 import { FileItem, FileNode, MenuItem, RootNode, isContainerNode } from '../types';
 import { getFileIconName } from '../utils/fileIcon';
+import { getFileDisplayName } from '../utils/fileDisplayName';
 
 const DesktopContainer = styled.div<{ $bgUrl: string }>`
   width: 100%;
@@ -279,11 +279,12 @@ const Desktop: React.FC = () => {
 
   const handleIconDoubleClick = (key: string, item: FileItem) => {
     const resolved = resolveFileOpen(key, item);
+    const displayName = getFileDisplayName(key, item, t);
     if (!resolved) {
-      showModal(item.name, `找不到文件 "${item.name}"。\n请确认文件名是否正确，然后再试一次。`, 'error');
+      showModal(displayName, `找不到文件 "${displayName}"。\n请确认文件名是否正确，然后再试一次。`, 'error');
       return;
     }
-    openWindow(resolved.appId, item.name, resolved.component, resolved.icon, resolved.windowProps);
+    openWindow(resolved.appId, displayName, resolved.component, resolved.icon, resolved.windowProps);
   };
 
   const handleDragStart = (e: React.DragEvent, key: string) => {
@@ -343,7 +344,9 @@ const Desktop: React.FC = () => {
       ? getOperableKeys(Array.from(selectedIcons))
       : SYSTEM_ICON_KEYS.has(key) ? [] : [key];
 
-    const itemsToDelete = keysToDelete.map(k => rootChildren[k]).filter(Boolean);
+    const itemsToDelete = keysToDelete
+      .map(k => ({ key: k, item: rootChildren[k] }))
+      .filter(({ item }) => Boolean(item));
 
     if (itemsToDelete.length === 0) {
       closeContextMenu();
@@ -351,7 +354,7 @@ const Desktop: React.FC = () => {
     }
 
     const message = itemsToDelete.length === 1
-      ? t('common.deleteConfirmSingle', { name: itemsToDelete[0].name })
+      ? t('common.deleteConfirmSingle', { name: getFileDisplayName(itemsToDelete[0].key, itemsToDelete[0].item, t) })
       : t('common.deleteConfirmMultiple', { count: itemsToDelete.length });
 
     showConfirm(t('common.deleteConfirmTitle'), message, 'warning').then(confirmed => {
@@ -404,9 +407,10 @@ const Desktop: React.FC = () => {
   const handleIconProperties = (key: string) => {
     const item = rootChildren[key];
     if (!item) return;
+    const displayName = getFileDisplayName(key, item, t);
     openWindow(
       `properties-${key}`,
-      t('common.propertiesTitle', { name: item.name }),
+      t('common.propertiesTitle', { name: displayName }),
       <FileProperties fileItem={item} parentPath={[]} />,
       'properties'
     );
@@ -419,16 +423,6 @@ const Desktop: React.FC = () => {
       setIsRefreshing(false);
       setRefreshKey(prev => prev + 1);
     }, 100);
-  };
-
-  const translateIconName = (key: string, name: string) => {
-    const nameMap: Record<string, string> = {
-      '我的电脑': 'desktop.myComputer',
-      '我的文档': 'desktop.myDocuments',
-      '回收站': 'desktop.recycleBin',
-      'Internet Explorer': 'desktop.internetExplorer'
-    };
-    return nameMap[key] ? t(nameMap[key]) : name;
   };
 
   const generateUniqueName = (baseName: string) => {
@@ -564,6 +558,7 @@ const Desktop: React.FC = () => {
           const iconName = (key === '回收站' && isContainerNode(item) && item.children && Object.keys(item.children).length > 0)
             ? 'recycle_bin_full'
             : getFileIconName(item.name, item.type, item.icon);
+          const displayName = getFileDisplayName(key, item, t);
           return (
             <DesktopIcon
               key={key}
@@ -578,7 +573,7 @@ const Desktop: React.FC = () => {
               data-testid={`desktop-icon-${key}`}
               className="desktop-icon-selectable"
               data-icon-key={key}
-              title={item.name}
+              title={displayName}
               onClick={(e) => {
                 e.stopPropagation();
                 if (suppressClickClearRef.current) {
@@ -607,7 +602,7 @@ const Desktop: React.FC = () => {
               <div className="icon-wrapper">
                 <XPIcon name={iconName || 'app_window'} size={32} />
               </div>
-              <span className="icon-label">{translateIconName(key, item.name)}</span>
+              <span className="icon-label">{displayName}</span>
             </DesktopIcon>
           );
         })}
@@ -625,8 +620,6 @@ const Desktop: React.FC = () => {
       {windows.map(win => (
         <Window key={win.id} windowState={win} />
       ))}
-
-      <StickyNote />
 
       <Taskbar />
 

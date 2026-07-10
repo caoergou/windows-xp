@@ -25,3 +25,6 @@ dogfood-output-*/
 
 # XP research clones (local reference only, not part of the app)
 xp-research/
+
+# Chinese internet nostalgia research clones (local reference only)
+cn-net-research/

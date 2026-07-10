@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import styled, { css } from 'styled-components';
+import { useWindowManager } from '../context/WindowManagerContext';
 import {
   type Card,
   type GameState,
@@ -28,7 +30,7 @@ const Wrap = styled.div`
   background: #008000;
   display: flex;
   flex-direction: column;
-  padding: 6px;
+  padding: 0;
   box-sizing: border-box;
   font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
@@ -41,12 +43,13 @@ const Wrap = styled.div`
 const MenuBar = styled.div`
   background: #d4d0c8;
   padding: 2px 8px;
-  margin-bottom: 6px;
+  margin-bottom: 0;
   color: #000000;
   display: flex;
   gap: 12px;
-  border: 1px solid;
-  border-color: #ffffff #808080 #808080 #ffffff;
+  border: 0;
+  border-bottom: 1px solid #808080;
+  flex-shrink: 0;
 `;
 
 const MenuItem = styled.button`
@@ -230,7 +233,9 @@ interface DragState {
   bouncing: boolean;
 }
 
-const Solitaire = ({ windowId: _windowId }: { windowId?: string }) => {
+const Solitaire = ({ windowId }: { windowId?: string }) => {
+  const { t, i18n } = useTranslation();
+  const { setWindowTitle } = useWindowManager();
   const [gameState, setGameState] = useState<GameState>(() => dealGame());
   const [drag, setDrag] = useState<DragState | null>(null);
   const [won, setWon] = useState(false);
@@ -243,6 +248,10 @@ const Solitaire = ({ windowId: _windowId }: { windowId?: string }) => {
   useEffect(() => {
     setWon(checkWin(gameState.foundations));
   }, [gameState]);
+
+  useEffect(() => {
+    if (windowId) setWindowTitle(windowId, t('apps.solitaire'));
+  }, [i18n.language, setWindowTitle, t, windowId]);
 
   const resetGame = useCallback(() => {
     setGameState(dealGame());
@@ -453,8 +462,8 @@ const Solitaire = ({ windowId: _windowId }: { windowId?: string }) => {
   return (
     <Wrap ref={wrapRef}>
       <MenuBar>
-        <MenuItem onClick={resetGame}>游戏(G)</MenuItem>
-        <MenuItem>帮助(H)</MenuItem>
+        <MenuItem onClick={resetGame}>{t('solitaire.menu.game')}</MenuItem>
+        <MenuItem>{t('solitaire.menu.help')}</MenuItem>
       </MenuBar>
 
       <TopArea>

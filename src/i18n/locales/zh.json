@@ -4,6 +4,7 @@
     "myDocuments": "我的文档",
     "recycleBin": "回收站",
     "internetExplorer": "Internet Explorer",
+    "networkNeighborhood": "网上邻居",
     "newFolderName": "新建文件夹",
     "newTextDocumentName": "新建文本文档.txt",
     "propertiesTitle": "显示属性"
@@ -47,7 +48,9 @@
   "tray": {
     "volume": "音量",
     "mute": "静音",
-    "networkConnected": "网络已连接"
+    "networkConnected": "网络已连接",
+    "safeGuardReminder": "360安全卫士提醒",
+    "safeGuardStatus": "您的电脑安全状态良好"
   },
   "calendar": {
     "monthNames": [
@@ -75,7 +78,28 @@
     "up": "向上",
     "search": "搜索",
     "folders": "文件夹",
-    "address": "地址"
+    "address": "地址",
+    "menuItems": {
+      "newWindow": "新建窗口(N)",
+      "close": "关闭(C)",
+      "selectAll": "全选(A)",
+      "refresh": "刷新(R)",
+      "toolbars": "工具栏(T)",
+      "statusBar": "状态栏(B)",
+      "explorerBar": "浏览器栏(E)",
+      "thumbnails": "缩略图(H)",
+      "tiles": "平铺(S)",
+      "icons": "图标(N)",
+      "list": "列表(L)",
+      "details": "详细信息(D)",
+      "addToFavorites": "添加到收藏夹(A)...",
+      "organizeFavorites": "整理收藏夹(O)...",
+      "mapNetworkDrive": "映射网络驱动器(N)...",
+      "disconnectNetworkDrive": "断开网络驱动器(D)...",
+      "folderOptions": "文件夹选项(O)...",
+      "helpTopics": "帮助主题(H)",
+      "aboutWindows": "关于 Windows(A)"
+    }
   },
   "contextMenu": {
     "open": "打开",
@@ -178,6 +202,28 @@
     "about": {
       "title": "关于记事本",
       "message": "Windows XP 记事本\n版本 1.0\n\n© 2026 Windows XP 模拟器"
+    }
+  },
+  "minesweeper": {
+    "menu": {
+      "game": "游戏(G)",
+      "help": "帮助(H)"
+    },
+    "menuItems": {
+      "new": "新游戏(N)",
+      "beginner": "初级(B)",
+      "intermediate": "中级(I)",
+      "expert": "高级(E)",
+      "exit": "退出(X)",
+      "about": "关于扫雷(A)..."
+    },
+    "aria": {
+      "newGame": "新游戏"
+    },
+    "about": {
+      "title": "关于扫雷",
+      "message": "Microsoft 扫雷\n版本 5.1",
+      "ok": "确定"
     }
   },
   "fileSystem": {
@@ -431,6 +477,12 @@
       "lastScan": "上次体检",
       "never": "从未",
       "updateTime": "特征库日期"
+    }
+  },
+  "solitaire": {
+    "menu": {
+      "game": "游戏(G)",
+      "help": "帮助(H)"
     }
   },
   "thunder": {

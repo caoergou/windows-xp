@@ -16,6 +16,12 @@ const Wrap = styled.div`
   font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   user-select: none;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 `;
 
 const MenuBar = styled.div`
@@ -98,11 +104,14 @@ const Toolbar = styled.div`
   background: #d4d0c8;
   border: 1px solid;
   border-color: #ffffff #808080 #808080 #ffffff;
+  overflow: hidden;
+  box-sizing: border-box;
 `;
 
 const ToolBtn = styled.button`
   width: 28px;
   height: 28px;
+  flex: 0 0 28px;
   cursor: pointer;
   font-size: 12px;
   font-family: inherit;
@@ -128,14 +137,19 @@ const ToolBtn = styled.button`
 
 const ColorPicker = styled.div`
   display: flex;
-  gap: 4px;
+  gap: 2px;
   margin-left: auto;
   align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+  overflow: hidden;
 `;
 
 const ColorSwatch = styled.div<{ $color: string; $active: boolean }>`
   width: 24px;
   height: 24px;
+  flex: 0 0 24px;
+  box-sizing: border-box;
   border: 2px solid ${p => p.$active ? '#ff0000' : '#808080'};
   background: ${p => p.$color};
   cursor: pointer;
@@ -169,6 +183,7 @@ const DEFAULT_SAVE_DIR = ['我的文档', '我的图片'];
 
 const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: initialFilePath }: MicrosoftPaintProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const drawingSnapshotRef = useRef<ImageData | null>(null);
   const api = useApp(windowId);
   const { getFile, updateFile, createFile } = useFileSystem();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -266,8 +281,11 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
     ctx.lineJoin = 'round';
 
     if (currentTool === 'brush') {
+      drawingSnapshotRef.current = null;
       ctx.beginPath();
       ctx.moveTo(x, y);
+    } else {
+      drawingSnapshotRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
     }
   };
 
@@ -282,38 +300,31 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
 
     const ctx = canvas.getContext('2d');
 
+    ctx.strokeStyle = currentColor;
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
     if (currentTool === 'brush') {
       ctx.lineTo(x, y);
       ctx.stroke();
     } else if (currentTool === 'line') {
-      // 保存当前画布状态
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      // 清除画布
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      // 恢复之前的画布状态
-      ctx.putImageData(imageData, 0, 0);
-      // 绘制临时线条
+      if (drawingSnapshotRef.current) {
+        ctx.putImageData(drawingSnapshotRef.current, 0, 0);
+      }
       ctx.beginPath();
       ctx.moveTo(startPos.x, startPos.y);
       ctx.lineTo(x, y);
       ctx.stroke();
     } else if (currentTool === 'rectangle') {
-      // 保存当前画布状态
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      // 清除画布
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      // 恢复之前的画布状态
-      ctx.putImageData(imageData, 0, 0);
-      // 绘制临时矩形
+      if (drawingSnapshotRef.current) {
+        ctx.putImageData(drawingSnapshotRef.current, 0, 0);
+      }
       ctx.strokeRect(startPos.x, startPos.y, x - startPos.x, y - startPos.y);
     } else if (currentTool === 'circle') {
-      // 保存当前画布状态
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      // 清除画布
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      // 恢复之前的画布状态
-      ctx.putImageData(imageData, 0, 0);
-      // 绘制临时圆形
+      if (drawingSnapshotRef.current) {
+        ctx.putImageData(drawingSnapshotRef.current, 0, 0);
+      }
       const radius = Math.sqrt(Math.pow(x - startPos.x, 2) + Math.pow(y - startPos.y, 2));
       ctx.beginPath();
       ctx.arc(startPos.x, startPos.y, radius, 0, 2 * Math.PI);
@@ -325,6 +336,7 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
     if (isDrawing) {
       setIsModified(true);
     }
+    drawingSnapshotRef.current = null;
     setIsDrawing(false);
   };
 

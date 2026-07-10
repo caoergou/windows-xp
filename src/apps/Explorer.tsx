@@ -1,6 +1,7 @@
 // @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useApp } from '../hooks/useApp';
 import { resolveFileOpen } from '../registry/apps';
@@ -13,6 +14,7 @@ import ContextMenu from '../components/ContextMenu';
 import FileProperties from '../components/FileProperties';
 import { xpScrollbarStyles } from '../theme';
 import { FileNode } from '../types';
+import { getFileDisplayName } from '../utils/fileDisplayName';
 
 const Container = styled.div`
     width: 100%;
@@ -137,6 +139,7 @@ interface ExplorerProps {
 }
 
 const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
+    const { t } = useTranslation();
     const { getFile, createFile, renameFile, deleteFile, cutFile, pasteFile, clipboard, emptyRecycleBin, restoreFromRecycleBin, moveFile, copyToClipboard, uploadTextFile } = useFileSystem();
     const api = useApp(windowId);
 
@@ -172,6 +175,11 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
         const newPath = [...currentPath, name];
         const target = getFile(newPath);
 
+        if (!target) {
+            await api.dialog.alert({ title: '错误', message: '找不到路径。', type: 'error' });
+            return;
+        }
+
         if (target.broken) {
             await api.dialog.alert({ title: '错误', message: '因为磁盘文件损坏无法打开', type: 'error' });
             return;
@@ -196,7 +204,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
         } else if (target.type === 'file' || target.type === 'app_shortcut') {
             const resolved = resolveFileOpen(name, target);
             if (resolved) {
-                api.openWindow(resolved.appId, target.name, resolved.component, resolved.icon, resolved.windowProps);
+                api.openWindow(resolved.appId, getFileDisplayName(name, target, t), resolved.component, resolved.icon, resolved.windowProps);
             }
         }
     };
@@ -290,7 +298,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     const handleContextMenu = (e: React.MouseEvent, key: string, item: FileNode) => {
         e.preventDefault();
         e.stopPropagation();
-        setSelectedItem({ name: item?.name, type: item?.type });
+        setSelectedItem({ name: getFileDisplayName(key, item, t), type: item?.type });
         setContextMenu({ visible: true, x: e.clientX, y: e.clientY, targetItem: item ? { key, item } : null });
     };
 
@@ -306,9 +314,10 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
 
     const handleDelete = () => {
         if (contextMenu.targetItem) {
+            const displayName = getFileDisplayName(contextMenu.targetItem.key, contextMenu.targetItem.item, t);
             api.dialog.confirm({
                 title: '确认删除',
-                message: `确定要删除 "${contextMenu.targetItem.item.name}" 吗？`,
+                message: `确定要删除 "${displayName}" 吗？`,
                 type: 'warning'
             }).then(confirmed => {
                 if (confirmed) {
@@ -377,13 +386,14 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
 
     const handleProperties = () => {
         if (contextMenu.targetItem) {
+            const displayName = getFileDisplayName(contextMenu.targetItem.key, contextMenu.targetItem.item, t);
             const componentProps = {
                 fileItem: contextMenu.targetItem.item,
                 parentPath: currentPath
             };
             api.openWindow(
                 'FileProperties',
-                '属性',
+                t('common.propertiesTitle', { name: displayName }),
                 <FileProperties {...componentProps} />,
                 'properties',
                 { componentProps }  // 显式传递 componentProps 用于持久化
@@ -453,38 +463,43 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
         moveFile(currentPath, srcKey, [...currentPath, targetKey]);
     };
 
-    const renderFileItem = (key: string, item: FileNode) => (
-        <FileItem
-            key={key}
-            data-testid={`file-item-${key}`}
-            onDoubleClick={() => handleNavigate(key)}
-            onClick={() => setSelectedItem({ name: item.name, type: item.type })}
-            onContextMenu={(e) => handleContextMenu(e, key, item)}
-            selected={selectedItem && selectedItem.name === item.name}
-            draggable
-            onDragStart={(e) => handleDragStart(e, key)}
-            onDragOver={(e) => { if (item.type === 'folder') { e.preventDefault(); setDragOver(key); } }}
-            onDragLeave={() => setDragOver(null)}
-            onDrop={(e) => handleDropOnFolder(e, key, item)}
-            style={dragOver === key && item.type === 'folder' ? { background: '#C1D2EE', border: '1px dashed #316AC5' } : undefined}
-        >
-            <IconWrapper>
-                <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={32} />
-            </IconWrapper>
-            <FileInfo>
-                <FileName $isDrive={isRoot && (item.type === 'drive' || item.icon === 'drive')}>
-                    {item.name}
-                    {item.locked && (
-                      <svg width="10" height="10" viewBox="0 0 10 10" style={{ marginLeft: '5px', flexShrink: 0 }}>
-                        <rect x="1" y="4" width="8" height="5" rx="1" fill="#666" />
-                        <path d="M2.5 4V2.5a2.5 2.5 0 0 1 5 0V4" stroke="#666" strokeWidth="1.2" fill="none" />
-                      </svg>
-                    )}
-                </FileName>
-                {isRoot && (item.type === 'drive' || item.icon === 'drive') && <FileType selected={selectedItem && selectedItem.name === item.name}>本地磁盘</FileType>}
-            </FileInfo>
-        </FileItem>
-    );
+    const renderFileItem = (key: string, item: FileNode) => {
+        const displayName = getFileDisplayName(key, item, t);
+        const isSelected = selectedItem && selectedItem.name === displayName;
+
+        return (
+            <FileItem
+                key={key}
+                data-testid={`file-item-${key}`}
+                onDoubleClick={() => handleNavigate(key)}
+                onClick={() => setSelectedItem({ name: displayName, type: item.type })}
+                onContextMenu={(e) => handleContextMenu(e, key, item)}
+                selected={isSelected}
+                draggable
+                onDragStart={(e) => handleDragStart(e, key)}
+                onDragOver={(e) => { if (item.type === 'folder') { e.preventDefault(); setDragOver(key); } }}
+                onDragLeave={() => setDragOver(null)}
+                onDrop={(e) => handleDropOnFolder(e, key, item)}
+                style={dragOver === key && item.type === 'folder' ? { background: '#C1D2EE', border: '1px dashed #316AC5' } : undefined}
+            >
+                <IconWrapper>
+                    <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={32} />
+                </IconWrapper>
+                <FileInfo>
+                    <FileName $isDrive={isRoot && (item.type === 'drive' || item.icon === 'drive')}>
+                        {displayName}
+                        {item.locked && (
+                          <svg width="10" height="10" viewBox="0 0 10 10" style={{ marginLeft: '5px', flexShrink: 0 }}>
+                            <rect x="1" y="4" width="8" height="5" rx="1" fill="#666" />
+                            <path d="M2.5 4V2.5a2.5 2.5 0 0 1 5 0V4" stroke="#666" strokeWidth="1.2" fill="none" />
+                          </svg>
+                        )}
+                    </FileName>
+                    {isRoot && (item.type === 'drive' || item.icon === 'drive') && <FileType selected={isSelected}>本地磁盘</FileType>}
+                </FileInfo>
+            </FileItem>
+        );
+    };
 
     return (
         <Container onContextMenu={(e) => {

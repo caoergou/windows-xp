@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { useWindowManager } from '../../context/WindowManagerContext';
 import { sounds } from '../../utils/soundManager';
 import { WindowState } from '../../types';
+import { WINDOW_DEFAULTS } from '../../constants';
 import ErrorBoundary from '../ErrorBoundary';
 import WindowChrome from './WindowChrome';
 import WindowControls from './WindowControls';
@@ -67,6 +68,8 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
   const isResizable = windowProps?.resizable !== false;
   const currentWidth = width || 600;
   const currentHeight = height || 400;
+  const minWidth = windowProps?.minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH;
+  const minHeight = windowProps?.minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT;
   const isFocused = id === activeWindowId;
 
   // Inject windowId into the app component so it can access useApp(windowId)
@@ -128,6 +131,8 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
       top={top ?? 100}
       width={currentWidth}
       height={currentHeight}
+      minWidth={minWidth}
+      minHeight={minHeight}
       zIndex={zIndex}
       isResizable={isResizable}
       onFocus={handleFocus}
