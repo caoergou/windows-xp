@@ -92,7 +92,6 @@ interface FileSystemContextType {
   ) => void;
   createFolder: (parentPath: string[], folderName: string) => void;
   renameFile: (parentPath: string[], oldName: string, newName: string) => void;
-  renameNode: (parentPath: string[], oldName: string, newName: string) => void;
   deleteFile: (parentPath: string[], fileName: string) => void;
   deleteFolder: (parentPath: string[], folderName: string) => void;
   moveFile: (
@@ -427,7 +426,6 @@ export const FileSystemProvider: React.FC<{
     createFile: fileOperations.createFile,
     createFolder: fileOperations.createFolder,
     renameFile: fileOperations.renameFile,
-    renameNode: fileOperations.renameNode,
     deleteFile: fileOperations.deleteFile,
     deleteFolder: fileOperations.deleteFolder,
     copyFile: fileOperations.copyFile,

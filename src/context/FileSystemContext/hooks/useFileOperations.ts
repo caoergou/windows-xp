@@ -1,9 +1,29 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback } from 'react';
-import { produce } from 'immer';
+import { produce, current } from 'immer';
 import { sounds } from '../../../utils/soundManager';
 import { FileNode, isContainerNode, ClipboardItem } from '../../../types';
 import { saveRecycleBin, RecycleBinItem } from '../utils/persistence';
+
+type ContainerNode = Extract<FileNode, { children: Record<string, FileNode> }>;
+
+/**
+ * Walk to the container at `path` inside an immer draft (or plain tree).
+ * Returns null when any segment is missing or the target is not a container.
+ * This replaces nine hand-rolled copies of the same loop (#82).
+ */
+const getContainerAtPath = (root: FileNode, path: string[]): ContainerNode | null => {
+  let node: FileNode = root;
+  for (const part of path) {
+    if (isContainerNode(node) && node.children?.[part]) {
+      node = node.children[part];
+    } else {
+      return null;
+    }
+  }
+  return isContainerNode(node) ? node : null;
+};
+
+const RECYCLE_BIN_KEY = '回收站';
 
 /**
  * Content paths touched by an operation. `dirty` limits IndexedDB writes to
@@ -41,16 +61,11 @@ export const useFileOperations = (
     (path: string[], updates: Partial<FileNode>) => {
       setFs(prevFs => {
         const newFs = produce(prevFs, draft => {
-          if (!isContainerNode(draft.root)) return;
-          let current: any = draft.root;
-          for (const part of path) {
-            if (isContainerNode(current) && current.children?.[part]) {
-              current = current.children[part];
-            } else {
-              return;
-            }
-          }
-          Object.assign(current, updates);
+          const parent = getContainerAtPath(draft.root, path.slice(0, -1));
+          const name = path[path.length - 1];
+          const node = path.length === 0 ? draft.root : parent?.children[name];
+          if (!node) return;
+          Object.assign(node, updates);
         });
         const contentChanged =
           (updates as Partial<FileNode> & { content?: string }).content !== undefined;
@@ -70,20 +85,9 @@ export const useFileOperations = (
     ) => {
       setFs(prevFs => {
         const newFs = produce(prevFs, draft => {
-          if (!isContainerNode(draft.root)) return;
-          let current: any = draft.root;
-          for (const part of parentPath) {
-            if (isContainerNode(current) && current.children?.[part]) {
-              current = current.children[part];
-            } else {
-              return;
-            }
-          }
-          if (!isContainerNode(current)) return;
-          if (!current.children) {
-            current.children = {};
-          }
-          current.children[fileName] = {
+          const parent = getContainerAtPath(draft.root, parentPath);
+          if (!parent) return;
+          parent.children[fileName] = {
             type,
             name: fileName,
             ...(type === 'folder' ? { children: {} } : {}),
@@ -91,34 +95,6 @@ export const useFileOperations = (
           } as FileNode;
         });
         doPersistFs(newFs, { dirty: [[...parentPath, fileName]] });
-        return newFs;
-      });
-    },
-    [setFs, doPersistFs]
-  );
-
-  const renameFile = useCallback(
-    (parentPath: string[], oldName: string, newName: string) => {
-      setFs(prevFs => {
-        const newFs = produce(prevFs, draft => {
-          if (!isContainerNode(draft.root)) return;
-          let current: any = draft.root;
-          for (const part of parentPath) {
-            if (isContainerNode(current) && current.children?.[part]) {
-              current = current.children[part];
-            } else {
-              return;
-            }
-          }
-          if (!isContainerNode(current) || !current.children?.[oldName]) return;
-          const file = current.children[oldName];
-          delete current.children[oldName];
-          current.children[newName] = { ...file, name: newName } as FileNode;
-        });
-        doPersistFs(newFs, {
-          dirty: [[...parentPath, newName]],
-          removed: [[...parentPath, oldName]],
-        });
         return newFs;
       });
     },
@@ -136,19 +112,11 @@ export const useFileOperations = (
     (parentPath: string[], folderName: string) => {
       setFs(prevFs => {
         const newFs = produce(prevFs, draft => {
-          if (!isContainerNode(draft.root)) return;
-          let current: any = draft.root;
-          for (const part of parentPath) {
-            if (isContainerNode(current) && current.children?.[part]) {
-              current = current.children[part];
-            } else {
-              return;
-            }
-          }
-          if (!isContainerNode(current) || !current.children?.[folderName]) return;
-          const folder = current.children[folderName];
+          const parent = getContainerAtPath(draft.root, parentPath);
+          const folder = parent?.children[folderName];
+          if (!parent || !folder) return;
           if (!isContainerNode(folder) || Object.keys(folder.children || {}).length > 0) return;
-          delete current.children[folderName];
+          delete parent.children[folderName];
         });
         doPersistFs(newFs, { dirty: [], removed: [[...parentPath, folderName]] });
         return newFs;
@@ -157,11 +125,24 @@ export const useFileOperations = (
     [setFs, doPersistFs]
   );
 
-  const renameNode = useCallback(
+  const renameFile = useCallback(
     (parentPath: string[], oldName: string, newName: string) => {
-      renameFile(parentPath, oldName, newName);
+      setFs(prevFs => {
+        const newFs = produce(prevFs, draft => {
+          const parent = getContainerAtPath(draft.root, parentPath);
+          const file = parent?.children[oldName];
+          if (!parent || !file) return;
+          delete parent.children[oldName];
+          parent.children[newName] = { ...file, name: newName } as FileNode;
+        });
+        doPersistFs(newFs, {
+          dirty: [[...parentPath, newName]],
+          removed: [[...parentPath, oldName]],
+        });
+        return newFs;
+      });
     },
-    [renameFile]
+    [setFs, doPersistFs]
   );
 
   const deleteFile = useCallback(
@@ -170,24 +151,13 @@ export const useFileOperations = (
       setFs(prevFs => {
         let deletedBinKey: string | null = null;
         const newFs = produce(prevFs, draft => {
-          if (!isContainerNode(draft.root)) return;
-          let current: any = draft.root;
-          for (const part of parentPath) {
-            if (isContainerNode(current) && current.children?.[part]) {
-              current = current.children[part];
-            } else {
-              return;
-            }
-          }
-          if (!isContainerNode(current) || !current.children?.[fileName]) return;
-          const file = current.children[fileName];
-          delete current.children[fileName];
+          const parent = getContainerAtPath(draft.root, parentPath);
+          const file = parent?.children[fileName];
+          if (!parent || !file) return;
+          delete parent.children[fileName];
 
-          const recycleBin = (draft.root as any).children?.['回收站'];
-          if (recycleBin && isContainerNode(recycleBin)) {
-            if (!recycleBin.children) {
-              recycleBin.children = {};
-            }
+          const recycleBin = getContainerAtPath(draft.root, [RECYCLE_BIN_KEY]);
+          if (recycleBin) {
             // Unique bin key so deleting a/f.txt then b/f.txt keeps BOTH
             // entries and their original paths (#81).
             let binKey = fileName;
@@ -200,28 +170,18 @@ export const useFileOperations = (
           }
         });
 
-        const movedFile = (() => {
-          if (!deletedBinKey) return null;
-          let current = newFs.root;
-          const path = ['回收站', deletedBinKey];
-          for (const part of path) {
-            if (isContainerNode(current) && current.children?.[part]) {
-              current = current.children[part];
-            } else {
-              return null;
-            }
+        if (deletedBinKey) {
+          const recycleBin = getContainerAtPath(newFs.root, [RECYCLE_BIN_KEY]);
+          const movedFile = recycleBin?.children[deletedBinKey];
+          if (movedFile) {
+            recycleBinRef.current[deletedBinKey] = {
+              item: movedFile,
+              originalPath: parentPath,
+              originalName: fileName,
+              deletedAt: Date.now(),
+            };
+            saveRecycleBin(recycleBinRef.current);
           }
-          return current;
-        })();
-
-        if (movedFile && deletedBinKey) {
-          recycleBinRef.current[deletedBinKey] = {
-            item: movedFile,
-            originalPath: parentPath,
-            originalName: fileName,
-            deletedAt: Date.now(),
-          };
-          saveRecycleBin(recycleBinRef.current);
         }
         doPersistFs(newFs, { dirty: [], removed: [[...parentPath, fileName]] });
         return newFs;
@@ -239,37 +199,16 @@ export const useFileOperations = (
     ) => {
       setFs(prevFs => {
         const newFs = produce(prevFs, draft => {
-          if (!isContainerNode(draft.root)) return;
-          let sourceParent: any = draft.root;
-          for (const part of sourcePath) {
-            if (isContainerNode(sourceParent) && sourceParent.children?.[part]) {
-              sourceParent = sourceParent.children[part];
-            } else {
-              return;
-            }
-          }
+          const sourceParent = getContainerAtPath(draft.root, sourcePath);
+          const node = sourceParent?.children[fileName];
+          if (!sourceParent || !node) return;
+          const destinationParent = getContainerAtPath(draft.root, destinationPath);
+          if (!destinationParent) return;
 
-          if (!isContainerNode(sourceParent) || !sourceParent.children?.[fileName]) return;
-
-          let destinationParent: any = draft.root;
-          for (const part of destinationPath) {
-            if (isContainerNode(destinationParent) && destinationParent.children?.[part]) {
-              destinationParent = destinationParent.children[part];
-            } else {
-              return;
-            }
-          }
-
-          if (!isContainerNode(destinationParent)) return;
-          if (!destinationParent.children) {
-            destinationParent.children = {};
-          }
-
-          destinationParent.children[newName] = JSON.parse(
-            JSON.stringify(sourceParent.children[fileName])
-          );
-          destinationParent.children[newName].name = newName;
+          // Relocate the draft node instead of deep-copying it (#82): the old
+          // JSON.parse(JSON.stringify()) defeated immer's structural sharing.
           delete sourceParent.children[fileName];
+          destinationParent.children[newName] = { ...node, name: newName } as FileNode;
         });
         doPersistFs(newFs);
         return newFs;
@@ -287,36 +226,18 @@ export const useFileOperations = (
     ) => {
       setFs(prevFs => {
         const newFs = produce(prevFs, draft => {
-          if (!isContainerNode(draft.root)) return;
-          let sourceParent: any = draft.root;
-          for (const part of sourcePath) {
-            if (isContainerNode(sourceParent) && sourceParent.children?.[part]) {
-              sourceParent = sourceParent.children[part];
-            } else {
-              return;
-            }
-          }
+          const sourceParent = getContainerAtPath(draft.root, sourcePath);
+          const node = sourceParent?.children[fileName];
+          if (!sourceParent || !node) return;
+          const destinationParent = getContainerAtPath(draft.root, destinationPath);
+          if (!destinationParent) return;
 
-          if (!isContainerNode(sourceParent) || !sourceParent.children?.[fileName]) return;
-
-          let destinationParent: any = draft.root;
-          for (const part of destinationPath) {
-            if (isContainerNode(destinationParent) && destinationParent.children?.[part]) {
-              destinationParent = destinationParent.children[part];
-            } else {
-              return;
-            }
-          }
-
-          if (!isContainerNode(destinationParent)) return;
-          if (!destinationParent.children) {
-            destinationParent.children = {};
-          }
-
-          destinationParent.children[newName] = JSON.parse(
-            JSON.stringify(sourceParent.children[fileName])
-          );
-          destinationParent.children[newName].name = newName;
+          // A copy needs a real snapshot; immer's current() replaces the old
+          // JSON round-trip (#82).
+          destinationParent.children[newName] = {
+            ...current(node),
+            name: newName,
+          } as FileNode;
         });
         doPersistFs(newFs);
         return newFs;
@@ -329,28 +250,19 @@ export const useFileOperations = (
     item.fileNames?.length ? item.fileNames : [item.fileName];
 
   const pasteFile = useCallback(
-    (destinationPath: string[], clipboard: ClipboardItem | null, fs?: { root: FileNode }): boolean => {
+    (
+      destinationPath: string[],
+      clipboard: ClipboardItem | null,
+      fs?: { root: FileNode }
+    ): boolean => {
       if (!clipboard) return false;
 
       // Validate up front: the old implementation bailed silently inside
       // produce but still returned true, clearing a cut clipboard while the
       // file stayed put (#81).
       if (fs) {
-        const nodeAt = (path: string[]): FileNode | null => {
-          let current: FileNode = fs.root;
-          for (const part of path) {
-            if (isContainerNode(current) && current.children?.[part]) {
-              current = current.children[part];
-            } else {
-              return null;
-            }
-          }
-          return current;
-        };
-        const destination = nodeAt(destinationPath);
-        if (!destination || !isContainerNode(destination)) return false;
-        const source = nodeAt(clipboard.sourcePath);
-        if (!source || !isContainerNode(source)) return false;
+        if (!getContainerAtPath(fs.root, destinationPath)) return false;
+        if (!getContainerAtPath(fs.root, clipboard.sourcePath)) return false;
       }
 
       const names = getClipboardFileNames(clipboard);
@@ -359,36 +271,15 @@ export const useFileOperations = (
         const { sourcePath } = clipboard;
         setFs(prevFs => {
           const newFs = produce(prevFs, draft => {
-            if (!isContainerNode(draft.root)) return;
-            let sourceParent: any = draft.root;
-            for (const part of sourcePath) {
-              if (isContainerNode(sourceParent) && sourceParent.children?.[part]) {
-                sourceParent = sourceParent.children[part];
-              } else {
-                return;
-              }
-            }
-
-            let destinationParent: any = draft.root;
-            for (const part of destinationPath) {
-              if (isContainerNode(destinationParent) && destinationParent.children?.[part]) {
-                destinationParent = destinationParent.children[part];
-              } else {
-                return;
-              }
-            }
-
-            if (!isContainerNode(sourceParent) || !isContainerNode(destinationParent)) return;
-            if (!destinationParent.children) {
-              destinationParent.children = {};
-            }
+            const sourceParent = getContainerAtPath(draft.root, sourcePath);
+            const destinationParent = getContainerAtPath(draft.root, destinationPath);
+            if (!sourceParent || !destinationParent) return;
 
             for (const fileName of names) {
-              if (!sourceParent.children?.[fileName]) continue;
-              destinationParent.children[fileName] = JSON.parse(
-                JSON.stringify(sourceParent.children[fileName])
-              );
+              const node = sourceParent.children[fileName];
+              if (!node) continue;
               delete sourceParent.children[fileName];
+              destinationParent.children[fileName] = node;
             }
           });
           doPersistFs(newFs);
@@ -411,9 +302,8 @@ export const useFileOperations = (
   const emptyRecycleBin = useCallback(() => {
     setFs(prevFs => {
       const newFs = produce(prevFs, draft => {
-        if (!isContainerNode(draft.root)) return;
-        const recycleBin = (draft.root as any).children?.['回收站'];
-        if (recycleBin && isContainerNode(recycleBin)) {
+        const recycleBin = getContainerAtPath(draft.root, [RECYCLE_BIN_KEY]);
+        if (recycleBin) {
           recycleBin.children = {};
         }
       });
@@ -430,43 +320,35 @@ export const useFileOperations = (
         const binItem = recycleBinRef.current[binKey];
         let restoredDegraded = false;
         const newFs = produce(prevFs, draft => {
-          if (!isContainerNode(draft.root)) return;
-          const recycleBin = (draft.root as any).children?.['回收站'];
-          if (!recycleBin || !isContainerNode(recycleBin) || !recycleBin.children?.[binKey])
-            return;
+          const recycleBin = getContainerAtPath(draft.root, [RECYCLE_BIN_KEY]);
+          if (!recycleBin || !recycleBin.children[binKey]) return;
 
           // Strict walk: if any segment of the original path is gone, restore
           // to the desktop root and tell the user instead of silently
           // dropping the item into a wrong ancestor (#81).
-          let targetParent: any = draft.root;
+          let targetParent: ContainerNode | null = null;
           if (binItem?.originalPath?.length > 0) {
-            for (const part of binItem.originalPath) {
-              if (isContainerNode(targetParent) && targetParent.children?.[part]) {
-                targetParent = targetParent.children[part];
-              } else {
-                targetParent = draft.root;
-                restoredDegraded = true;
-                break;
-              }
+            targetParent = getContainerAtPath(draft.root, binItem.originalPath);
+            if (!targetParent) {
+              restoredDegraded = true;
             }
           }
+          if (!targetParent) {
+            targetParent = isContainerNode(draft.root) ? draft.root : null;
+          }
+          if (!targetParent) return;
 
-          if (isContainerNode(targetParent)) {
-            if (!targetParent.children) {
-              targetParent.children = {};
-            }
-            const originalName = binItem?.originalName ?? binKey;
-            let targetName = originalName;
-            let suffix = 2;
-            while (targetParent.children[targetName]) {
-              targetName = `${originalName} (${suffix++})`;
-            }
-            const restoredNode = recycleBin.children[binKey];
-            targetParent.children[targetName] = {
-              ...restoredNode,
-              name: originalName,
-            } as FileNode;
+          const originalName = binItem?.originalName ?? binKey;
+          let targetName = originalName;
+          let suffix = 2;
+          while (targetParent.children[targetName]) {
+            targetName = `${originalName} (${suffix++})`;
           }
+          const restoredNode = recycleBin.children[binKey];
+          targetParent.children[targetName] = {
+            ...restoredNode,
+            name: originalName,
+          } as FileNode;
           delete recycleBin.children[binKey];
         });
         delete recycleBinRef.current[binKey];
@@ -489,7 +371,6 @@ export const useFileOperations = (
     createFile,
     createFolder,
     renameFile,
-    renameNode,
     deleteFile,
     deleteFolder,
     moveFile,

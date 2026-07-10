@@ -1,4 +1,3 @@
-// @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import XPIcon from '../components/XPIcon';
@@ -411,7 +410,7 @@ function Hao123Page({ onNavigate, onOpenNew }: Hao123PageProps) {
 
   const handleSearch = () => {
     if (query.trim()) {
-      handleLink(`http://www.baidu.com/s?wd=${encodeURIComponent(query)}`);
+      handleLink?.(`http://www.baidu.com/s?wd=${encodeURIComponent(query)}`);
     }
   };
 

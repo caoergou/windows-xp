@@ -35,29 +35,24 @@ export const restoreComponent = (
   if (componentProps.src) {
     return registry.PhotoViewer?.restore(componentProps) ?? null;
   }
-  if (appId === 'HelpAndSupport') {
-    return registry.HelpAndSupport?.restore(componentProps) ?? null;
-  }
-  if (appId === 'RunDialog' || appId === 'run') {
-    return registry.RunDialog?.restore(componentProps) ?? null;
-  }
-  if (appId === 'CommandPrompt' || appId === 'cmd' || appId === 'Command Prompt') {
-    return registry.CommandPrompt?.restore(componentProps) ?? null;
-  }
-  if (appId === 'VolumeControl' || appId === 'volume') {
-    return registry.VolumeControl?.restore(componentProps) ?? null;
-  }
-  if (appId === 'NetworkConnections' || appId === 'network') {
-    return registry.NetworkConnections?.restore(componentProps) ?? null;
-  }
-  if (appId === 'ControlPanel' || appId === 'controlpanel') {
-    return registry.ControlPanel?.restore(componentProps) ?? null;
-  }
-  if (appId === 'MicrosoftPaint' || appId === 'paint' || appId === '画图') {
-    return registry.MicrosoftPaint?.restore(componentProps) ?? null;
-  }
-  if (appId === 'Minesweeper' || appId === 'minesweeper' || appId === '扫雷') {
-    return registry.Minesweeper?.restore(componentProps) ?? null;
+  // Legacy aliases from pre-registry persisted windows. Exact registry ids
+  // (e.g. 'RunDialog') never reach here - the registry match above wins -
+  // so only the alias spellings remain (#82 dead-branch cleanup).
+  const LEGACY_ALIASES: Record<string, string> = {
+    run: 'RunDialog',
+    cmd: 'CommandPrompt',
+    'Command Prompt': 'CommandPrompt',
+    volume: 'VolumeControl',
+    network: 'NetworkConnections',
+    controlpanel: 'ControlPanel',
+    paint: 'MicrosoftPaint',
+    画图: 'MicrosoftPaint',
+    minesweeper: 'Minesweeper',
+    扫雷: 'Minesweeper',
+  };
+  const aliasTarget = LEGACY_ALIASES[appId];
+  if (aliasTarget) {
+    return registry[aliasTarget]?.restore(componentProps) ?? null;
   }
 
   console.warn(`Unknown appId for restoration: ${appId}`, componentProps);

@@ -1,4 +1,3 @@
-// @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
@@ -6,10 +5,13 @@ import { getSystemPathDisplay } from '../data/systemPaths';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useFileSystem } from '../context/FileSystemContext';
 import XPIcon from './XPIcon';
-import { FileItem } from '../types';
+import { FileItem, ExifData } from '../types';
 
 // Load all EXIF data files eagerly
-const exifFiles = import.meta.glob('../data/photos/**/*.json', { eager: true });
+const exifFiles = import.meta.glob<ExifData & { default?: ExifData }>(
+  '../data/photos/**/*.json',
+  { eager: true }
+);
 
 const WindowContainer = styled.div`
   display: flex;
@@ -28,7 +30,7 @@ const TabsContainer = styled.div`
   padding-left: 2px;
 `;
 
-const Tab = styled.div`
+const Tab = styled.div<{ $active: boolean }>`
   padding: 3px 6px;
   border: 1px solid #919b9c;
   border-bottom: 1px solid ${props => (props.$active ? '#ECE9D8' : '#919B9C')};
@@ -108,15 +110,7 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
 }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('general');
-  const [exifData, setExifData] = useState<{
-    Model?: string;
-    Make?: string;
-    FNumber?: number;
-    ExposureTime?: number;
-    ISOSpeedRatings?: number;
-    FocalLength?: number;
-    DateTimeOriginal?: string;
-  } | null>(null);
+  const [exifData, setExifData] = useState<ExifData | null>(null);
   const { closeWindow } = useWindowManager();
   const { getFileProperties } = useFileSystem();
 

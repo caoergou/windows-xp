@@ -1,4 +1,3 @@
-// @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import XPIcon from '../XPIcon';
@@ -158,7 +157,15 @@ const Separator = styled.div`
 
 type MenuKey = 'file' | 'edit' | 'view' | 'favorites' | 'tools' | 'help' | null;
 
-const MENUS: Record<Exclude<MenuKey, null>, { labelKey: string; shortcut?: string; separator?: boolean; disabled?: boolean }[]> = {
+interface IEMenuEntry {
+    labelKey?: string;
+    label?: string;
+    shortcut?: string;
+    separator?: boolean;
+    disabled?: boolean;
+}
+
+const MENUS: Record<Exclude<MenuKey, null>, IEMenuEntry[]> = {
     file: [
         { labelKey: 'internetExplorer.menuitems.new', shortcut: 'Ctrl+N' },
         { labelKey: 'internetExplorer.menuitems.open', shortcut: 'Ctrl+O' },
@@ -235,12 +242,9 @@ const IEToolbar: React.FC<IEToolbarProps> = ({
     onSearch,
     onFavorites,
     onHistory,
-    _onPrint,
-    _onHelp,
     canBack = false,
     canForward = false,
     showFavorites = false,
-    _showHistory = false,
     isLoading = false
 }) => {
     const { t } = useTranslation();

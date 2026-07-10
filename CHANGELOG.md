@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed (type-safety debt, #82)
+
+- Removed every `@ts-nocheck` from `src/` (11 files) and fixed all 94 real
+  type errors they were hiding - with zero escape hatches (no `any`,
+  `@ts-ignore` or `@ts-expect-error`). Three of the files (Desktop,
+  PhotoViewer, QQLogin) had no errors at all and were suppressed for
+  nothing. A `guard:nocheck` script now fails CI if `@ts-nocheck`
+  reappears.
+- `useFileOperations` rewritten without `any` (was 15) or the file-level
+  eslint-disable: a single `getContainerAtPath` helper replaces nine
+  hand-rolled path-walk loops; move/cut relocate the immer draft node and
+  copy uses `current()` instead of `JSON.parse(JSON.stringify())`, so
+  structural sharing works again.
+- Removed the `renameNode` alias (callers use `renameFile`); collapsed
+  WindowFactory's unreachable legacy exact-id branches into an explicit
+  alias map.
+
+### Fixed (revealed by typing, #82)
+
+- Explorer delete/rename dialogs captured the context-menu target lazily:
+  if the menu state reset while the dialog was open, confirming threw (and
+  could act on the wrong item). The target is now captured up front.
+- Hao123 search crashed when neither `onOpenNew` nor `onNavigate` was
+  provided; now a safe no-op.
+- IEToolbar destructured non-existent prop names (`_onPrint`/`_onHelp`),
+  silently ignoring callers' `onPrint`/`onHelp`; dead bindings removed.
+- ContextMenu leaked non-transient `x`/`y` props as invalid DOM attributes.
+
 ### Changed (WindowManager performance, #80)
 
 - WindowManagerContext split into three contexts (window list / active id /
