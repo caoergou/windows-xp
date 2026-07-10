@@ -324,7 +324,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     nameKey: 'apps.minesweeper',
     icon:   'minesweeper',
     // The game measures its panel and resizes the window to fit the current difficulty.
-    window: { width: 300, height: 286, resizable: false, singleton: true },
+    window: { width: 170, height: 260, minWidth: 170, resizable: false, singleton: true },
     lifecycle: {},
     associations: [
       { appField: 'Minesweeper', getProps: () => ({}) },

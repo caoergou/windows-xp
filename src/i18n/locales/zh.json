@@ -180,6 +180,28 @@
       "message": "Windows XP 记事本\n版本 1.0\n\n© 2026 Windows XP 模拟器"
     }
   },
+  "minesweeper": {
+    "menu": {
+      "game": "游戏(G)",
+      "help": "帮助(H)"
+    },
+    "menuItems": {
+      "new": "新游戏(N)",
+      "beginner": "初级(B)",
+      "intermediate": "中级(I)",
+      "expert": "高级(E)",
+      "exit": "退出(X)",
+      "about": "关于扫雷(A)..."
+    },
+    "aria": {
+      "newGame": "新游戏"
+    },
+    "about": {
+      "title": "关于扫雷",
+      "message": "Microsoft 扫雷\n版本 5.1",
+      "ok": "确定"
+    }
+  },
   "fileSystem": {
     "name": "名称",
     "size": "大小",

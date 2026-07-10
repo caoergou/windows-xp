@@ -186,6 +186,28 @@
       "message": "Windows XP Notepad\nVersion 1.0\n\n© 2026 Windows XP Simulator"
     }
   },
+  "minesweeper": {
+    "menu": {
+      "game": "Game(G)",
+      "help": "Help(H)"
+    },
+    "menuItems": {
+      "new": "New(N)",
+      "beginner": "Beginner(B)",
+      "intermediate": "Intermediate(I)",
+      "expert": "Expert(E)",
+      "exit": "Exit(X)",
+      "about": "About Minesweeper(A)..."
+    },
+    "aria": {
+      "newGame": "New game"
+    },
+    "about": {
+      "title": "About Minesweeper",
+      "message": "Microsoft Minesweeper\nVersion 5.1",
+      "ok": "OK"
+    }
+  },
   "fileSystem": {
     "name": "Name",
     "size": "Size",
