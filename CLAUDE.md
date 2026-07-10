@@ -25,15 +25,28 @@ npm test         # Run tests
 
 ## Architecture
 
-### Context Providers (in `src/main.tsx`)
+### Context Providers (in `src/components/AppProviders.tsx`)
 
 ```
-UserSessionProvider
-└─ FileSystemProvider
-   └─ WindowManagerProvider
-      └─ App
-         └─ ModalProvider
+I18nextProvider
+└─ AppRegistryProvider
+   └─ CultureProvider
+      └─ CultureAwareProviders
+         ├─ UserSessionProvider
+         └─ FileSystemProvider
+            └─ WindowManagerProvider
+               └─ TrayProvider
+                  └─ ModalProvider
+                     └─ App
 ```
+
+- `AppRegistryProvider` — injectable app registry (`apps` prop) and `useAppRegistry()`.
+- `CultureProvider` — injectable culture packages (`cultures` prop) and `useCulture()`.
+- `UserSessionProvider` — login state, wallpaper, screensaver.
+- `FileSystemProvider` — virtual file system with persistence.
+- `WindowManagerProvider` — window lifecycle, z-index, focus.
+- `TrayProvider` — system tray icon registry.
+- `ModalProvider` — alert/confirm/prompt/password dialogs.
 
 ### Window Management (`src/context/WindowManagerContext.tsx`)
 
