@@ -106,8 +106,10 @@ export const WindowManagerProvider: React.FC<{
 
     const id = Date.now().toString();
 
-    const windowWidth = Math.max(props.width || WINDOW_DEFAULTS.WIDTH, WINDOW_DEFAULTS.MIN_WIDTH);
-    const windowHeight = Math.max(props.height || WINDOW_DEFAULTS.HEIGHT, WINDOW_DEFAULTS.MIN_HEIGHT);
+    const minWidth = props.minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH;
+    const minHeight = props.minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT;
+    const windowWidth = Math.max(props.width || WINDOW_DEFAULTS.WIDTH, minWidth);
+    const windowHeight = Math.max(props.height || WINDOW_DEFAULTS.HEIGHT, minHeight);
     const screenWidth = canUseDOM ? window.innerWidth : 1280;
     const screenHeight = canUseDOM ? Math.max(window.innerHeight - 30, WINDOW_DEFAULTS.MIN_HEIGHT) : 720;
 

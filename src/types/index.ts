@@ -123,6 +123,8 @@ export interface WindowProps {
   singleton?: boolean;
   width?: number;
   height?: number;
+  minWidth?: number;
+  minHeight?: number;
   left?: number;
   top?: number;
   isMaximized?: boolean;
@@ -160,6 +162,8 @@ export interface AppRegistryEntry<TProps = unknown> {
   window?: {
     width?: number;
     height?: number;
+    minWidth?: number;
+    minHeight?: number;
     singleton?: boolean;
     isMaximized?: boolean;
     resizable?: boolean;

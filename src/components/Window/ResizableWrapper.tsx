@@ -1,7 +1,6 @@
 import React from 'react';
 import Draggable from 'react-draggable';
 import { ResizableBox } from 'react-resizable';
-import { WINDOW_DEFAULTS } from '../../constants';
 import 'react-resizable/css/styles.css';
 
 interface ResizableWrapperProps {
@@ -10,6 +9,8 @@ interface ResizableWrapperProps {
   top: number;
   width: number;
   height: number;
+  minWidth: number;
+  minHeight: number;
   zIndex: number;
   isResizable: boolean;
   onFocus: () => void;
@@ -24,6 +25,8 @@ const ResizableWrapper: React.FC<ResizableWrapperProps> = ({
   top,
   width,
   height,
+  minWidth,
+  minHeight,
   zIndex,
   isResizable,
   onFocus,
@@ -63,7 +66,7 @@ const ResizableWrapper: React.FC<ResizableWrapperProps> = ({
         <ResizableBox
           width={width}
           height={height}
-          minConstraints={[WINDOW_DEFAULTS.MIN_WIDTH, WINDOW_DEFAULTS.MIN_HEIGHT]}
+          minConstraints={[minWidth, minHeight]}
           maxConstraints={[2000, 2000]}
           onResizeStart={(e) => e.stopPropagation()}
           onResizeStop={(_e, { size }) => {
