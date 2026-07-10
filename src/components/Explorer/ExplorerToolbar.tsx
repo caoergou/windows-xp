@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import XPIcon from '../XPIcon';
 
@@ -12,18 +13,63 @@ const MenuBar = styled.div`
     padding: 0 2px;
 `;
 
-const MenuBarItem = styled.div`
+const MenuBarItemWrapper = styled.div`
+    position: relative;
+`;
+
+const MenuBarItem = styled.button<{ $active?: boolean }>`
     padding: 1px 6px;
     font-size: 11px;
     font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     cursor: default;
     border: 1px solid transparent;
+    background: ${p => p.$active ? '#316AC5' : 'transparent'};
+    color: ${p => p.$active ? '#fff' : '#000'};
+    height: 18px;
 
     &:hover {
         background: #316AC5;
         color: white;
         border-color: #316AC5;
     }
+`;
+
+const DropdownMenu = styled.div`
+    position: absolute;
+    top: 18px;
+    left: 0;
+    min-width: 176px;
+    background: #ECE9D8;
+    border: 1px solid #808080;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.35);
+    padding: 2px;
+    z-index: 3000;
+`;
+
+const DropdownItem = styled.button<{ $disabled?: boolean }>`
+    width: 100%;
+    height: 20px;
+    padding: 0 22px 0 22px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: ${p => p.$disabled ? '#808080' : '#000'};
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+    font-size: 11px;
+    text-align: left;
+    white-space: nowrap;
+    cursor: ${p => p.$disabled ? 'default' : 'default'};
+
+    &:hover {
+        background: ${p => p.$disabled ? 'transparent' : '#316AC5'};
+        color: ${p => p.$disabled ? '#808080' : '#fff'};
+    }
+`;
+
+const DropdownSeparator = styled.div`
+    height: 1px;
+    background: #aca899;
+    border-bottom: 1px solid #fff;
+    margin: 3px 2px;
 `;
 
 /* ── 工具栏 ── */
@@ -124,7 +170,14 @@ const Separator = styled.div`
     margin: 0 2px;
 `;
 
-const MENU_ITEMS = ['文件(F)', '编辑(E)', '查看(V)', '收藏(A)', '工具(T)', '帮助(H)'];
+type ExplorerMenuKey = 'file' | 'edit' | 'view' | 'favorites' | 'tools' | 'help';
+
+type DropdownSeparatorEntry = { type: 'separator' };
+type DropdownActionEntry = { label: string; disabled?: boolean; action?: () => void };
+type DropdownEntry = DropdownSeparatorEntry | DropdownActionEntry;
+
+const isSeparatorEntry = (entry: DropdownEntry): entry is DropdownSeparatorEntry =>
+    (entry as DropdownSeparatorEntry).type === 'separator';
 
 interface ExplorerToolbarProps {
     onBack?: () => void;
@@ -140,11 +193,132 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
     onBack, onForward, onUp, onRefresh: _onRefresh,
     canGoBack = false, canGoForward = false, canGoUp = false
 }) => {
+    const { t } = useTranslation();
+    const menuRef = useRef<HTMLDivElement>(null);
+    const [openMenu, setOpenMenu] = useState<ExplorerMenuKey | null>(null);
+
+    useEffect(() => {
+        if (!openMenu) return;
+
+        const closeOnOutsideClick = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setOpenMenu(null);
+            }
+        };
+
+        document.addEventListener('mousedown', closeOnOutsideClick);
+        return () => document.removeEventListener('mousedown', closeOnOutsideClick);
+    }, [openMenu]);
+
+    const menus = useMemo<Array<{ key: ExplorerMenuKey; label: string; entries: DropdownEntry[] }>>(() => [
+        {
+            key: 'file',
+            label: `${t('explorer.file')}(F)`,
+            entries: [
+                { label: t('explorer.menuItems.newWindow'), disabled: true },
+                { type: 'separator' },
+                { label: t('contextMenu.delete'), disabled: true },
+                { label: t('contextMenu.rename'), disabled: true },
+                { type: 'separator' },
+                { label: t('contextMenu.properties'), disabled: true },
+                { label: t('explorer.menuItems.close'), action: () => setOpenMenu(null) },
+            ],
+        },
+        {
+            key: 'edit',
+            label: `${t('explorer.edit')}(E)`,
+            entries: [
+                { label: t('contextMenu.cut'), disabled: true },
+                { label: t('contextMenu.copy'), disabled: true },
+                { label: t('contextMenu.paste'), disabled: true },
+                { type: 'separator' },
+                { label: t('explorer.menuItems.selectAll'), disabled: true },
+            ],
+        },
+        {
+            key: 'view',
+            label: `${t('explorer.view')}(V)`,
+            entries: [
+                { label: t('explorer.menuItems.toolbars') },
+                { label: t('explorer.menuItems.statusBar') },
+                { label: t('explorer.menuItems.explorerBar') },
+                { type: 'separator' },
+                { label: t('explorer.menuItems.thumbnails') },
+                { label: t('explorer.menuItems.tiles') },
+                { label: t('explorer.menuItems.icons') },
+                { label: t('explorer.menuItems.list') },
+                { label: t('explorer.menuItems.details') },
+                { type: 'separator' },
+                { label: t('explorer.menuItems.refresh'), action: _onRefresh },
+            ],
+        },
+        {
+            key: 'favorites',
+            label: `${t('explorer.favorites')}(A)`,
+            entries: [
+                { label: t('explorer.menuItems.addToFavorites'), disabled: true },
+                { label: t('explorer.menuItems.organizeFavorites'), disabled: true },
+            ],
+        },
+        {
+            key: 'tools',
+            label: `${t('explorer.tools')}(T)`,
+            entries: [
+                { label: t('explorer.menuItems.mapNetworkDrive'), disabled: true },
+                { label: t('explorer.menuItems.disconnectNetworkDrive'), disabled: true },
+                { type: 'separator' },
+                { label: t('explorer.menuItems.folderOptions'), disabled: true },
+            ],
+        },
+        {
+            key: 'help',
+            label: `${t('explorer.help')}(H)`,
+            entries: [
+                { label: t('explorer.menuItems.helpTopics'), disabled: true },
+                { type: 'separator' },
+                { label: t('explorer.menuItems.aboutWindows'), disabled: true },
+            ],
+        },
+    ], [_onRefresh, t]);
+
     return (
         <>
-            <MenuBar>
-                {MENU_ITEMS.map(item => (
-                    <MenuBarItem key={item}>{item}</MenuBarItem>
+            <MenuBar ref={menuRef}>
+                {menus.map(menu => (
+                    <MenuBarItemWrapper key={menu.key}>
+                        <MenuBarItem
+                            type="button"
+                            $active={openMenu === menu.key}
+                            onClick={() => setOpenMenu(current => current === menu.key ? null : menu.key)}
+                        >
+                            {menu.label}
+                        </MenuBarItem>
+                        {openMenu === menu.key && (
+                            <DropdownMenu role="menu">
+                                {menu.entries.map((entry, index) => {
+                                    if (isSeparatorEntry(entry)) {
+                                        return <DropdownSeparator key={`separator-${index}`} />;
+                                    }
+
+                                    return (
+                                        <DropdownItem
+                                            key={`${entry.label}-${index}`}
+                                            type="button"
+                                            $disabled={entry.disabled}
+                                            disabled={entry.disabled}
+                                            onClick={() => {
+                                                if (entry.disabled) return;
+                                                entry.action?.();
+                                                setOpenMenu(null);
+                                            }}
+                                        >
+                                            {entry.label}
+                                        </DropdownItem>
+                                    );
+                                })}
+                            </DropdownMenu>
+                        )}
+                    </MenuBarItemWrapper>
                 ))}
             </MenuBar>
             <ToolbarContainer>

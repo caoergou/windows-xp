@@ -66,6 +66,13 @@ export const xpScrollbarStyles = css`
     display: block;
   }
 
+  &::-webkit-scrollbar-button:horizontal:start:increment,
+  &::-webkit-scrollbar-button:horizontal:end:decrement,
+  &::-webkit-scrollbar-button:vertical:start:increment,
+  &::-webkit-scrollbar-button:vertical:end:decrement {
+    display: none;
+  }
+
   &::-webkit-scrollbar-corner {
     background-color: ${COLORS.SURFACE};
   }
