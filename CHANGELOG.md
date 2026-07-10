@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed (dialog chrome consistency, #99)
+
+- All four dialogs (XPAlert, XPConfirm, PasswordDialog, XPInput) now reuse
+  the real window chrome pieces (WindowChrome's TitleBar + WindowContainer)
+  via new `XPDialogChrome` wrappers. Their title bars were a flat
+  HORIZONTAL `#0058EE -> #3593FF` gradient with a divergent frame -
+  visibly different from every window on screen, which uses the vertical
+  8-stop Luna gradient. Dialog chrome can no longer drift from window
+  chrome. Verified with component-level element screenshots.
+- Fidelity verification note: the minimize glyph's low-left dash placement
+  was audited against xp.css's pixel-traced SVG (dash at x=5-11, y=13-15
+  in the 21x21 button) - our Luna artwork matches pixel-for-pixel; the
+  "low" position is authentic XP design.
+
+### Changed (dialog chrome consistency, #99)
+
+- All four dialogs (XPAlert, XPConfirm, PasswordDialog, XPInput) now reuse
+  the real window chrome pieces (`WindowChrome`'s `TitleBar` +
+  `WindowContainer`) via new `XPDialogChrome` wrappers. Their title bars
+  were a flat HORIZONTAL `#0058EE -> #3593FF` gradient with a divergent
+  frame - visibly different from every window on screen, which uses the
+  vertical 8-stop Luna gradient. Dialog chrome can no longer drift from
+  window chrome. Verified with component-level element screenshots.
+
 ### Changed (micro-component visual consistency, #99)
 
 - New shared `XPButton` (exported from `/components`): value-for-value

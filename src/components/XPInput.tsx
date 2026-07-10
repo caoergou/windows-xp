@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { XPButton } from './XPButton';
 import { CloseBtn } from './Window/WindowControls';
+import { XPDialogWindow, XPDialogTitleText } from './XPDialogChrome';
+import { TitleBar as LunaTitleBar } from './Window/WindowChrome';
 import { useTranslation } from 'react-i18next';
 
 const Overlay = styled.div`
@@ -15,34 +17,6 @@ const Overlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-`;
-
-const AlertWindow = styled.div`
-  width: 345px;
-  background-color: #ECE9D8;
-  border: 3px solid #0055EA;
-  border-top-color: #3A93FF;
-  border-left-color: #0A65F5;
-  border-radius: 4px 4px 0 0;
-  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
-  display: flex;
-  flex-direction: column;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  box-sizing: border-box;
-`;
-
-const TitleBar = styled.div`
-  height: 24px;
-  background: linear-gradient(to bottom, #0997FF 0%, #0053EE 45%, #0046D5 100%);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1px 2px 2px 7px;
-  color: white;
-  font-weight: bold;
-  font-size: 12px;
-  text-shadow: 1px 1px #0F1089;
-  box-sizing: border-box;
 `;
 
 const ContentArea = styled.div`
@@ -114,11 +88,11 @@ const XPInput: React.FC<XPInputProps> = ({ title, message, defaultValue = '', on
 
     return (
         <Overlay onClick={(e) => { if(e.target === e.currentTarget) { /* block outside click */ } }}>
-            <AlertWindow>
-                <TitleBar>
-                    <span>{title}</span>
+            <XPDialogWindow>
+                <LunaTitleBar $isFocus className="title-bar">
+                    <XPDialogTitleText>{title}</XPDialogTitleText>
                     <CloseBtn onClick={onCancel} aria-label="Close" />
-                </TitleBar>
+                </LunaTitleBar>
                 <ContentArea>
                     <MessageRow>
                         <Message>{message}</Message>
@@ -134,7 +108,7 @@ const XPInput: React.FC<XPInputProps> = ({ title, message, defaultValue = '', on
                     <XPButton onClick={() => onOk(value)}>{t('common.ok')}</XPButton>
                     <XPButton onClick={onCancel}>{t('common.cancel')}</XPButton>
                 </ButtonArea>
-            </AlertWindow>
+            </XPDialogWindow>
         </Overlay>
     );
 };
