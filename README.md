@@ -123,7 +123,7 @@ For detailed usage and API reference, see [USAGE.md](USAGE.md).
 - 🔊 **Volume Control** - Volume settings
 
 ### Playable / Working Core
-- 💣 **Minesweeper** - Classic game (difficulty menu and best times coming soon)
+- 💣 **Minesweeper** - Classic game with difficulty menu, real XP sprites, and best-time tracking per difficulty
 
 ### Partial Functionality
 - 🎨 **Paint** - Brush, line, rectangle, circle drawing; save/load and advanced tools coming soon
@@ -158,9 +158,23 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- [xp.css](https://botoxparty.github.io/XP.css/) - Windows XP CSS framework
+- [xp.css](https://botoxparty.github.io/XP.css/) - Windows XP CSS framework and bundled retro fonts
 - [winXP](https://github.com/ShizukuIchi/winXP) - Inspiration
 - Microsoft - For creating the iconic Windows XP
+
+### Asset Sources
+
+This project uses assets extracted or derived from original Windows XP media and community preservation efforts **for educational and nostalgic purposes only**.
+
+- **System icons** - Based on the [XPIcons/XP](https://github.com/iconicX/XPIcons) collection and [react-xp](https://github.com/zyishai/react-xp), which preserve Windows XP shell icons at 48×48 and larger sizes.
+- **Wallpapers** - Official Windows XP default wallpapers (Bliss, Luna, etc.) and high-resolution community scans.
+- **Cursors** - Real Windows XP `.cur` / `.ani` cursor files and hand-redrawn SVG/PNG equivalents based on the XP pointer set.
+- **Sounds** - Original Windows XP WAV event sounds (startup, error, click, notify, etc.).
+- **Fonts** - `"Pixelated MS Sans Serif"` and `"Perfect DOS VGA 437 Win"` from the xp.css distribution; fallback to Tahoma and Microsoft YaHei / SimSun for CJK text.
+- **Minesweeper sprites** - Extracted from the Windows XP Minesweeper game files.
+- **Boot screen palette & animation behavior** - Referenced from [PlymouthXP](https://github.com/nulln/PlymouthXP) for the authentic Windows XP boot-screen color palette and progress-bar timing.
+
+All trademarks, icon designs, sound recordings, wallpapers, and sprite artwork remain the property of their respective owners. These assets are not covered by the project MIT license and are included solely to recreate the authentic Windows XP experience.
 
 
 <div align="center">

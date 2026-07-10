@@ -17,7 +17,7 @@ const Wrap = styled.div`
   flex-direction: column;
   padding: 4px;
   box-sizing: border-box;
-  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 11px;
   user-select: none;
   overflow: hidden;
@@ -73,7 +73,7 @@ const Key = styled.button<{
   margin: 0;
   cursor: ${p => (p.$disabled ? 'default' : 'pointer')};
   font-size: 11px;
-  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   line-height: 1;
   outline: none;
   border: 1px solid;

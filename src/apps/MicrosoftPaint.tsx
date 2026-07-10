@@ -13,7 +13,7 @@ const Wrap = styled.div`
   flex-direction: column;
   padding: 6px;
   box-sizing: border-box;
-  font-family: 'Microsoft YaHei', Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   user-select: none;
 `;
@@ -26,7 +26,7 @@ const MenuBar = styled.div`
   align-items: center;
   padding: 0 2px;
   font-size: 11px;
-  font-family: Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   flex-shrink: 0;
   margin: -6px -6px 6px -6px;
 `;
@@ -58,7 +58,7 @@ const DropdownMenu = styled.div`
   padding: 2px 0;
   z-index: 9999;
   font-size: 12px;
-  font-family: Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 `;
 
 const DropdownItem = styled.div<{ $disabled?: boolean }>`
@@ -642,10 +642,10 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
   };
 
   const tools = [
-    { id: 'brush', label: '🖌️' },
-    { id: 'line', label: '📏' },
-    { id: 'rectangle', label: '⬜' },
-    { id: 'circle', label: '⭕' }
+    { id: 'brush', label: 'brush' },
+    { id: 'line', label: 'line' },
+    { id: 'rectangle', label: 'rectangle' },
+    { id: 'circle', label: 'circle' }
   ];
 
   return (
@@ -684,11 +684,36 @@ const MicrosoftPaint = ({ windowId, src, fileName: initialFileName, filePath: in
             onClick={() => setCurrentTool(tool.id)}
             title={tool.id}
           >
-            {tool.label}
+            {tool.id === 'brush' && (
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path d="M2 14c0-2 1.5-4 3-5.5L10 3.5l2.5 2.5-5 5.5C6 13 4 14 2 14z" fill="currentColor" />
+                <path d="M10.5 2.5L13 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            )}
+            {tool.id === 'line' && (
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <line x1="2" y1="14" x2="14" y2="2" stroke="currentColor" strokeWidth="2" />
+              </svg>
+            )}
+            {tool.id === 'rectangle' && (
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <rect x="2" y="3" width="12" height="10" stroke="currentColor" strokeWidth="1.5" fill="none" />
+              </svg>
+            )}
+            {tool.id === 'circle' && (
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" fill="none" />
+              </svg>
+            )}
           </ToolBtn>
         ))}
         <ToolBtn onClick={clearCanvas} title="清空">
-          🗑️
+          <svg width="16" height="16" viewBox="0 0 16 16">
+            <rect x="2" y="4" width="12" height="10" rx="1" stroke="currentColor" strokeWidth="1.2" fill="none" />
+            <line x1="5" y1="2" x2="11" y2="2" stroke="currentColor" strokeWidth="1.2" />
+            <line x1="6" y1="7" x2="6" y2="11" stroke="currentColor" strokeWidth="1.2" />
+            <line x1="10" y1="7" x2="10" y2="11" stroke="currentColor" strokeWidth="1.2" />
+          </svg>
         </ToolBtn>
         <ColorPicker>
           {colors.map(color => (

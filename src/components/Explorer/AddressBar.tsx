@@ -19,7 +19,7 @@ const Label = styled.span`
     color: rgba(0, 0, 0, 0.5);
     padding: 5px;
     font-size: 11px;
-    font-family: Tahoma, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     white-space: nowrap;
     flex-shrink: 0;
 `;
@@ -43,7 +43,7 @@ const Input = styled.input`
     height: 100%;
     padding: 0 2px;
     font-size: 11px;
-    font-family: Tahoma, "Microsoft YaHei", sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     background: white;
     border: none;
     outline: none;
@@ -99,7 +99,7 @@ const GoButton = styled.button`
     box-shadow: none !important;
     cursor: pointer;
     font-size: 11px;
-    font-family: Tahoma, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     gap: 2px;
     line-height: 1;
 

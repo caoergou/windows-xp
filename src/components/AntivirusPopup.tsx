@@ -1,6 +1,7 @@
 // @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import XPIcon from './XPIcon';
 
 const PopupContainer = styled.div`
   position: fixed;
@@ -12,7 +13,7 @@ const PopupContainer = styled.div`
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   padding: 10px;
   z-index: 1000;
-  font-family: 'Tahoma', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   display: flex;
   align-items: center;
@@ -71,7 +72,7 @@ const AntivirusPopup = () => {
 
   return (
     <PopupContainer $visible={visible}>
-      <Icon>🛡️</Icon>
+      <Icon><XPIcon name="security_center" size={32} /></Icon>
       <Message>
         <Title>360安全卫士提醒</Title>
         <Description>您的电脑安全状态良好</Description>

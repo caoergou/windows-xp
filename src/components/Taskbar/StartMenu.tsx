@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import { TFunction } from 'i18next';
 import XPIcon from '../XPIcon';
 import { xpScrollbarStyles } from '../../theme';
 import { APP_REGISTRY } from '../../registry/apps';
+import { sounds } from '../../utils/soundManager';
 import StartMenuFlyout from './StartMenuFlyout';
 
 const StartMenuContainer = styled.div`
@@ -190,7 +191,7 @@ const SearchInput = styled.input`
   padding: 2px 4px;
   border: 1px solid #7f9db9;
   font-size: 11px;
-  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   box-sizing: border-box;
 `;
 
@@ -284,6 +285,14 @@ const StartMenu: React.FC<StartMenuProps> = ({
 }) => {
   const [flyoutOpen, setFlyoutOpen] = useState(false);
 
+  const launchWithSound = useCallback(
+    (appName: string, pathOrKey?: string) => {
+      sounds.menuCommand();
+      onLaunch(appName, pathOrKey);
+    },
+    [onLaunch]
+  );
+
   const allProgramsApps = useMemo(
     () => Object.values(APP_REGISTRY).filter(app => !INTERNAL_APPS.has(app.id)),
     []
@@ -313,14 +322,18 @@ const StartMenu: React.FC<StartMenuProps> = ({
           >
             <XPIcon name="programs" size={24} className="menu-icon" />
             <span>{t('startMenu.allPrograms')}</span>
-            <MenuArrow>▶</MenuArrow>
+            <MenuArrow>
+              <svg width="6" height="10" viewBox="0 0 6 10">
+                <path d="M0 0 L6 5 L0 10 Z" fill="currentColor" />
+              </svg>
+            </MenuArrow>
           </MenuItem>
           <MenuSeparator />
-          <MenuItem onClick={() => onLaunch('Internet Explorer')}>
+          <MenuItem onClick={() => launchWithSound('Internet Explorer')}>
             <XPIcon name="ie" size={24} className="menu-icon" />
             <span>{t('startMenu.apps.internetExplorer')}</span>
           </MenuItem>
-          <MenuItem onClick={() => onLaunch('QQ')}>
+          <MenuItem onClick={() => launchWithSound('QQ')}>
             <XPIcon name="qq" size={24} className="menu-icon" />
             <span>{t('startMenu.apps.qq')}</span>
           </MenuItem>
@@ -330,7 +343,7 @@ const StartMenu: React.FC<StartMenuProps> = ({
               key={app.id}
               data-testid={`start-menu-${app.id}`}
               onClick={() =>
-                onLaunch(app.action, app.action === 'DummyApp' ? t(app.nameKey) : undefined)
+                launchWithSound(app.action, app.action === 'DummyApp' ? t(app.nameKey) : undefined)
               }
             >
               <XPIcon name={app.icon} size={24} className="menu-icon" />
@@ -338,7 +351,7 @@ const StartMenu: React.FC<StartMenuProps> = ({
             </MenuItem>
           ))}
           <MenuSeparator />
-          <MenuItem onClick={() => onLaunch('RunDialog')}>
+          <MenuItem onClick={() => launchWithSound('RunDialog')}>
             <XPIcon name="run" size={24} className="menu-icon" />
             <span>{t('startMenu.run')}</span>
           </MenuItem>
@@ -351,38 +364,38 @@ const StartMenu: React.FC<StartMenuProps> = ({
           </SearchBox>
         </StartLeft>
         <StartRight>
-          <RightMenuItem onClick={() => onLaunch('Explorer', t('startMenu.myDocuments'))}>
+          <RightMenuItem onClick={() => launchWithSound('Explorer', t('startMenu.myDocuments'))}>
             <XPIcon name="documents" size={24} className="menu-icon" />
             <span>{t('startMenu.myDocuments')}</span>
           </RightMenuItem>
-          <RightMenuItem onClick={() => onLaunch('Explorer', t('startMenu.myComputer'))}>
+          <RightMenuItem onClick={() => launchWithSound('Explorer', t('startMenu.myComputer'))}>
             <XPIcon name="computer" size={24} className="menu-icon" />
             <span>{t('startMenu.myComputer')}</span>
           </RightMenuItem>
-          <RightMenuItem onClick={() => onLaunch('Explorer', t('startMenu.myMusic'))}>
+          <RightMenuItem onClick={() => launchWithSound('Explorer', t('startMenu.myMusic'))}>
             <XPIcon name="folder" size={24} className="menu-icon" />
             <span>{t('startMenu.myMusic')}</span>
           </RightMenuItem>
           <RightMenuSeparator />
-          <RightMenuItem onClick={() => onLaunch('ControlPanel')}>
+          <RightMenuItem onClick={() => launchWithSound('ControlPanel')}>
             <XPIcon name="control_panel" size={24} className="menu-icon" />
             <span>{t('startMenu.controlPanel')}</span>
           </RightMenuItem>
-          <RightMenuItem onClick={() => onLaunch('DummyApp', t('startMenu.printersAndFaxes'))}>
+          <RightMenuItem onClick={() => launchWithSound('DummyApp', t('startMenu.printersAndFaxes'))}>
             <XPIcon name="printer" size={24} className="menu-icon" />
             <span>{t('startMenu.printersAndFaxes')}</span>
           </RightMenuItem>
           <RightMenuSeparator />
-          <RightMenuItem onClick={() => onLaunch('Search')}>
+          <RightMenuItem onClick={() => launchWithSound('Search')}>
             <XPIcon name="search" size={24} className="menu-icon" />
             <span>{t('startMenu.search')}</span>
           </RightMenuItem>
-          <RightMenuItem onClick={() => onLaunch('HelpAndSupport')}>
+          <RightMenuItem onClick={() => launchWithSound('HelpAndSupport')}>
             <XPIcon name="help" size={24} className="menu-icon" />
             <span>{t('startMenu.help')}</span>
           </RightMenuItem>
           <RightMenuSeparator />
-          <RightMenuItem onClick={() => onLaunch('Recycle Bin', t('desktop.recycleBin'))}>
+          <RightMenuItem onClick={() => launchWithSound('Recycle Bin', t('desktop.recycleBin'))}>
             <XPIcon name="recycle_bin" size={24} className="menu-icon" />
             <span>{t('desktop.recycleBin')}</span>
           </RightMenuItem>
@@ -403,7 +416,7 @@ const StartMenu: React.FC<StartMenuProps> = ({
           apps={allProgramsApps}
           onLaunch={appId => {
             setFlyoutOpen(false);
-            onLaunch(appId);
+            launchWithSound(appId);
           }}
         />
       )}

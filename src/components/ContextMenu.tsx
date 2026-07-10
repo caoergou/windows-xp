@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useLayoutEffect, forwardRef, useCallback } fr
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import XPIcon from './XPIcon';
+import { sounds } from '../utils/soundManager';
 import { MenuItem } from '../types';
 
 const ContextMenuContainer = styled.div`
@@ -109,6 +110,7 @@ const MenuRow = ({
     <MenuItemComponent
       onClick={() => {
         if (!item.disabled && item.action && !hasSubmenu) {
+          sounds.menuCommand();
           item.action();
           onClose();
         }
@@ -122,7 +124,13 @@ const MenuRow = ({
       )}
       {item.label}
       {item.shortcut && <span className="shortcut">{item.shortcut}</span>}
-      {hasSubmenu && <SubMenuIndicator>▶</SubMenuIndicator>}
+      {hasSubmenu && (
+        <SubMenuIndicator>
+          <svg width="6" height="10" viewBox="0 0 6 10">
+            <path d="M0 0 L6 5 L0 10 Z" fill="currentColor" />
+          </svg>
+        </SubMenuIndicator>
+      )}
       {hasSubmenu && (
         <SubMenuContainer className="submenu">
           {item.submenu.map((subItem, subIndex) => (

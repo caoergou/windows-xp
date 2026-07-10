@@ -1,4 +1,18 @@
-// Web Audio API-based Windows XP sound effects
+// Windows XP sound effects: authentic WAV samples with Web Audio API fallback
+import startupUrl from '../assets/audio/xp/startup.wav';
+import shutdownUrl from '../assets/audio/xp/shutdown.wav';
+import logonUrl from '../assets/audio/xp/logon.wav';
+import logoffUrl from '../assets/audio/xp/logoff.wav';
+import criticalStopUrl from '../assets/audio/xp/critical_stop.wav';
+import errorUrl from '../assets/audio/xp/error.wav';
+import dingUrl from '../assets/audio/xp/ding.wav';
+import exclamationUrl from '../assets/audio/xp/exclamation.wav';
+import notifyUrl from '../assets/audio/xp/notify.wav';
+import menuCommandUrl from '../assets/audio/xp/menu_command.wav';
+import minimizeUrl from '../assets/audio/xp/minimize.wav';
+import restoreUrl from '../assets/audio/xp/restore.wav';
+import recycleUrl from '../assets/audio/xp/recycle.wav';
+
 let audioCtx: AudioContext | null = null;
 
 let globalVolume = 75;
@@ -48,70 +62,96 @@ const tone = (
   }
 };
 
+// Authentic Windows XP WAV samples (imported so Vite handles base URL/hashing)
+const audioCache: Record<string, HTMLAudioElement> = {};
+
+const playSample = (url: string) => {
+  if (isMuted) return;
+  if (!audioCache[url]) {
+    audioCache[url] = new Audio(url);
+  }
+  const audio = audioCache[url];
+  audio.volume = globalVolume / 100;
+  audio.currentTime = 0;
+  const playPromise = audio.play?.();
+  if (playPromise && typeof playPromise.catch === 'function') {
+    playPromise.catch((error) => {
+      console.warn('Sample playback failed:', error);
+    });
+  }
+};
+
 export const sounds = {
-  // Approximation of the Windows XP logon chord (E minor add9 arpeggio)
+  startup() {
+    playSample(startupUrl);
+  },
+  shutdown() {
+    playSample(shutdownUrl);
+  },
   logon() {
-    tone(329.6, 1.2, 'sine', 0.1, 0.0); // E4
-    tone(493.9, 1.2, 'sine', 0.08, 0.0); // B4
-    tone(523.3, 1.6, 'sine', 0.1, 0.15); // C5
-    tone(659.3, 1.6, 'sine', 0.1, 0.25); // E5
-    tone(987.8, 2.0, 'sine', 0.1, 0.45); // B5
-    tone(1046.5, 2.2, 'sine', 0.08, 0.6); // C6 sustain
+    playSample(logonUrl);
   },
-
-  // Windows XP Critical Stop: two descending tones
+  logoff() {
+    playSample(logoffUrl);
+  },
+  criticalStop() {
+    playSample(criticalStopUrl);
+  },
   error() {
-    tone(392, 0.18, 'square', 0.08, 0.0);
-    tone(262, 0.28, 'square', 0.08, 0.16);
+    playSample(errorUrl);
   },
-
-  // Windows XP Ding: bell-like single tone
   ding() {
-    tone(1047, 0.04, 'triangle', 0.35, 0.0);
-    tone(1047, 0.55, 'sine', 0.18, 0.04);
-    tone(1319, 0.25, 'sine', 0.06, 0.04);
+    playSample(dingUrl);
   },
-
-  // Windows XP Exclamation: ascending two-tone
   exclamation() {
-    tone(880, 0.12, 'sine', 0.2, 0.0);
-    tone(1175, 0.28, 'sine', 0.2, 0.1);
+    playSample(exclamationUrl);
   },
-
-  // Balloon / notification tray pop
   notify() {
-    tone(1047, 0.08, 'sine', 0.15, 0.0);
-    tone(1319, 0.18, 'sine', 0.15, 0.07);
+    playSample(notifyUrl);
+  },
+  menuCommand() {
+    playSample(menuCommandUrl);
+  },
+  minimize() {
+    playSample(minimizeUrl);
+  },
+  restore() {
+    playSample(restoreUrl);
+  },
+  recycle() {
+    playSample(recycleUrl);
   },
 
-  // Soft window-open sweep
+  // Window-open sweep (no authentic XP sample; keep synthesized)
   windowOpen() {
     tone(523, 0.07, 'sine', 0.1, 0.0);
     tone(659, 0.07, 'sine', 0.1, 0.04);
     tone(784, 0.12, 'sine', 0.1, 0.08);
   },
 
-  // QQ 经典敲门声：好友发来消息时的“咚咚”两声
+  // QQ 经典敲门声
   qqKnock() {
     tone(800, 0.04, 'sine', 0.12, 0.0);
     tone(600, 0.06, 'sine', 0.14, 0.12);
   },
 
-  // QQ 消息提示音：清脆的“叮”
+  // QQ 消息提示音
   qqMessage() {
     tone(1047, 0.05, 'triangle', 0.18, 0.0);
     tone(1319, 0.18, 'sine', 0.14, 0.04);
   },
 
-  // QQ 上线提示音：上扬的“叮咚”
+  // QQ 上线提示音
   qqOnline() {
     tone(880, 0.08, 'sine', 0.12, 0.0);
     tone(1175, 0.16, 'sine', 0.12, 0.08);
   },
+};
 
-  // Windows XP 关机/注销：低沉的下行提示音
-  shutdown() {
-    tone(262, 0.25, 'sine', 0.12, 0.0);
-    tone(196, 0.35, 'sine', 0.1, 0.18);
-  },
+// Backwards-compatible alias for code that expects a single `play(name)` helper
+export const play = (name: keyof typeof sounds) => {
+  const sound = sounds[name];
+  if (sound) {
+    sound();
+  }
 };

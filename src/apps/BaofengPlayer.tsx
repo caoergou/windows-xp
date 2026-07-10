@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import XPIcon from '../components/XPIcon';
 
 const pulse = keyframes`
   0%, 100% { opacity: 0.5; }
@@ -13,7 +14,7 @@ const Wrap = styled.div`
   display: flex;
   flex-direction: column;
   background: #1a1a1a;
-  font-family: 'Microsoft YaHei', '微软雅黑', Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   color: #eeeeee;
   user-select: none;
@@ -427,10 +428,10 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
 
           <ControlsBar>
             <ControlBtn onClick={togglePlay} title={isPlaying ? t('baofengPlayer.pause', '暂停') : t('baofengPlayer.play', '播放')}>
-              {isPlaying ? '⏸' : '▶'}
+              <XPIcon name={isPlaying ? 'media_pause' : 'media_play'} size={16} />
             </ControlBtn>
             <ControlBtn onClick={stop} title={t('baofengPlayer.stop', '停止')}>
-              ⏹
+              <XPIcon name="media_stop" size={16} />
             </ControlBtn>
 
             <ProgressArea>
@@ -444,7 +445,7 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
             </ProgressArea>
 
             <VolumeArea>
-              <span style={{ fontSize: '11px', color: '#aabbcc' }}>🔊</span>
+              <XPIcon name="volume_status" size={14} style={{ flexShrink: 0 }} />
               <VolumeSlider
                 type="range"
                 min="0"
@@ -455,7 +456,9 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
             </VolumeArea>
 
             <ControlBtn title={t('baofengPlayer.fullscreen', '全屏')}>
-              ⛶
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ color: '#aabbcc' }}>
+                <path d="M2 6V2h4M8 2h4v4M12 8v4H8M6 12H2V8" stroke="currentColor" strokeWidth="1.5" fill="none" />
+              </svg>
             </ControlBtn>
           </ControlsBar>
         </VideoArea>

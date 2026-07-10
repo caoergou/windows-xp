@@ -41,7 +41,7 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
   position: relative;
   font-weight: 700;
   font-size: 13px;
-  font-family: 'Trebuchet MS', 'Microsoft YaHei', sans-serif;
+  font-family: 'Trebuchet MS', 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   text-shadow: 1px 1px #000;
   color: white;
   flex-shrink: 0;
@@ -79,7 +79,7 @@ const TitleText = styled.div`
   color: white;
   font-weight: bold;
   font-size: 13px;
-  font-family: 'Trebuchet MS', 'Microsoft YaHei', sans-serif;
+  font-family: 'Trebuchet MS', 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   text-shadow: 1px 1px 1px black;
   display: flex;
   align-items: center;

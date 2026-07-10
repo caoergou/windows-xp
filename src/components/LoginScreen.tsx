@@ -99,20 +99,29 @@ const Input = styled.input`
 `;
 
 const GoButton = styled.button`
-    width: 30px;
-    height: 30px;
-    background: #009933;
-    border: 1px solid white;
+    width: 32px;
+    height: 28px;
+    background: linear-gradient(180deg, #37a856 0%, #2e9a4c 50%, #268f42 100%);
+    border: 1px solid #1f7a38;
     border-radius: 0;
-    color: white;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    box-shadow: 1px 1px 2px black;
-    
+    box-shadow:
+      inset 1px 1px 0 rgba(255, 255, 255, 0.4),
+      inset -1px -1px 0 rgba(0, 0, 0, 0.25),
+      1px 1px 2px rgba(0, 0, 0, 0.5);
+
     &:active {
-        box-shadow: inset 1px 1px 2px black;
+      background: linear-gradient(180deg, #268f42 0%, #2e9a4c 50%, #37a856 100%);
+      box-shadow:
+        inset 1px 1px 0 rgba(0, 0, 0, 0.25),
+        inset -1px -1px 0 rgba(255, 255, 255, 0.3);
     }
 `;
 
@@ -153,7 +162,7 @@ const ShutdownButton = styled.button`
     border-radius: 0;
     color: white;
     font-size: 12px;
-    font-family: Tahoma, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     padding: 4px 10px;
     cursor: pointer;
 

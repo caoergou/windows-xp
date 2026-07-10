@@ -81,7 +81,7 @@ const AltTabOverlay = styled.div`
 const AltTabTitle = styled.div`
   color: #000;
   font-size: 11px;
-  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 `;
 
 const AltTabItems = styled.div`
@@ -105,7 +105,7 @@ const AltTabItem = styled.div<{ $active: boolean }>`
   span {
     color: #000;
     font-size: 11px;
-    font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     text-align: center;
     max-width: 90px;
     overflow: hidden;

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import XPIcon from '../components/XPIcon';
 
 interface Song {
   id: string;
@@ -27,7 +28,7 @@ const Wrap = styled.div`
   display: flex;
   flex-direction: column;
   background: #f5f5f5;
-  font-family: 'Microsoft YaHei', '微软雅黑', Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   color: #333;
   user-select: none;
@@ -484,7 +485,11 @@ const KugouMusic: React.FC<KugouMusicProps> = () => {
               onDoubleClick={() => handleSongClick(index)}
             >
               <Cell $width={24} $align="center">
-                {currentIndex === index && isPlaying ? '▶' : index + 1}
+                {currentIndex === index && isPlaying ? (
+                  <XPIcon name="media_play" size={12} />
+                ) : (
+                  index + 1
+                )}
               </Cell>
               <Cell $flex={3}>{song.title}</Cell>
               <Cell $flex={2}>{song.artist}</Cell>
@@ -499,13 +504,13 @@ const KugouMusic: React.FC<KugouMusicProps> = () => {
       <Controls>
         <PlayButtons>
           <ControlBtn onClick={handlePrevious} title={t('kugouMusic.previous')}>
-            ⏮
+            <XPIcon name="media_previous" size={14} />
           </ControlBtn>
           <PlayBtn onClick={handlePlayPause} title={t('kugouMusic.playPause')}>
-            {isPlaying ? '⏸' : '▶'}
+            <XPIcon name={isPlaying ? 'media_pause' : 'media_play'} size={18} />
           </PlayBtn>
           <ControlBtn onClick={handleNext} title={t('kugouMusic.next')}>
-            ⏭
+            <XPIcon name="media_next" size={14} />
           </ControlBtn>
         </PlayButtons>
 
@@ -520,7 +525,7 @@ const KugouMusic: React.FC<KugouMusicProps> = () => {
         </ProgressArea>
 
         <VolumeArea title={t('kugouMusic.volume')}>
-          <span>🔊</span>
+          <XPIcon name="volume_status" size={14} style={{ flexShrink: 0 }} />
           <VolumeSlider
             type="range"
             min={0}

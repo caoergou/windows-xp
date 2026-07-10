@@ -1,34 +1,31 @@
 import React from 'react';
 import styled from 'styled-components';
-import startButtonImg from '../../assets/windowsIcons/start.png';
+import startButtonSprite from '../../assets/images/taskbar/startButton__spriteSheet.png';
 
-const StartButtonContainer = styled.button`
+const StartButtonContainer = styled.button<{ $isActive?: boolean }>`
   height: 30px;
-  width: 100px;
-  background: transparent;
+  width: 99px;
   border: none;
-  border-radius: 0;
   padding: 0;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-
-  img {
-    height: 100%;
-    width: auto;
-    display: block;
-  }
+  flex-shrink: 0;
+  background-color: transparent;
+  background-image: url(${startButtonSprite});
+  background-repeat: no-repeat;
+  background-size: 99px 90px;
+  background-position: 0 0;
 
   &:hover {
-    filter: brightness(1.05);
+    background-position: 0 -30px;
   }
 
   &:active,
   &.active {
-    filter: brightness(0.85);
+    background-position: 0 -60px;
+  }
+
+  &:focus {
+    outline: none;
   }
 `;
 
@@ -45,11 +42,10 @@ const StartButton: React.FC<StartButtonProps> = ({ label, isActive, buttonRef, o
     data-testid="start-button"
     onClick={onClick}
     className={isActive ? 'active' : ''}
+    $isActive={isActive}
     title={label}
     aria-label={label}
-  >
-    <img src={startButtonImg} alt={label} />
-  </StartButtonContainer>
+  />
 );
 
 export default StartButton;

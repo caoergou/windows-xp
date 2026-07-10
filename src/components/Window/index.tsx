@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import { useWindowManager } from '../../context/WindowManagerContext';
+import { sounds } from '../../utils/soundManager';
 import { WindowState } from '../../types';
 import ErrorBoundary from '../ErrorBoundary';
 import WindowChrome from './WindowChrome';
@@ -38,6 +39,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
   const handleMinimize = React.useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
+      sounds.minimize();
       minimizeWindow(id);
     },
     [minimizeWindow, id]
@@ -45,9 +47,12 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
   const handleMaximize = React.useCallback(
     (e?: React.MouseEvent) => {
       e?.stopPropagation();
+      if (isMaximized) {
+        sounds.restore();
+      }
       maximizeWindow(id);
     },
-    [maximizeWindow, id]
+    [maximizeWindow, id, isMaximized]
   );
   const handleClose = React.useCallback(
     (e: React.MouseEvent) => {

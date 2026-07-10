@@ -1,6 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import XPIcon from './XPIcon';
 
 const ErrorContainer = styled.div`
   width: 100%;
@@ -11,7 +12,7 @@ const ErrorContainer = styled.div`
   justify-content: center;
   background: #f0f0f0;
   padding: 20px;
-  font-family: Tahoma, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 `;
 
 const ErrorIcon = styled.div`
@@ -159,7 +160,7 @@ const ErrorBoundaryFallback: React.FC<{
 
   return (
     <ErrorContainer>
-      <ErrorIcon>⚠️</ErrorIcon>
+      <ErrorIcon><XPIcon name="dialog_error" size={48} /></ErrorIcon>
       <ErrorTitle>{t('errorBoundary.title', '应用程序出错')}</ErrorTitle>
       <ErrorMessage>
         {t('errorBoundary.message', '此应用遇到了问题，无法继续运行。')}

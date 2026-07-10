@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useWindowManager } from '../context/WindowManagerContext';
+import { useUserSession } from '../context/UserSessionContext';
 import Taskbar from './Taskbar';
 import Window from './Window';
 import ContextMenu from './ContextMenu';
@@ -15,8 +16,9 @@ import { resolveFileOpen } from '../registry/apps';
 import AntivirusPopup from './AntivirusPopup';
 import { useModal } from '../context/ModalContext';
 import StickyNote from './StickyNote';
-import desktopBg from '../assets/images/desktop_bg.jpg';
+import { getWallpaperById } from '../data/wallpapers';
 import { FileItem, FileNode, MenuItem, RootNode, isContainerNode } from '../types';
+import { getFileIconName } from '../utils/fileIcon';
 
 const DesktopContainer = styled.div<{ $bgUrl: string }>`
   width: 100%;
@@ -88,7 +90,7 @@ const DesktopIcon = styled.div<{ $selected?: boolean }>`
 
   .icon-label {
     font-size: 11px;
-    font-family: Tahoma, SimSun, Microsoft YaHei, sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     text-align: center;
     max-width: 100%;
     display: block;
@@ -131,6 +133,8 @@ const SYSTEM_ICON_KEYS = new Set(['我的电脑', '我的文档', '回收站', '
 
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
+  const { wallpaper } = useUserSession();
+  const desktopBg = getWallpaperById(wallpaper).src;
   const { fs, moveFile, deleteFile, renameFile, createFile, copyToClipboard, cutFile, pasteFile, clipboard } = useFileSystem();
   const rootChildren = (fs.root as RootNode).children;
   const { windows, openWindow } = useWindowManager();
@@ -452,7 +456,7 @@ const Desktop: React.FC = () => {
 
   const handleNewTextDocument = () => {
     const name = generateUniqueName(t('desktop.newTextDocumentName', 'New Text Document.txt'));
-    createFile([], name, 'file', { app: 'Notepad', icon: 'journal' });
+    createFile([], name, 'file', { app: 'Notepad', icon: 'txt' });
     closeContextMenu();
   };
 
@@ -476,7 +480,7 @@ const Desktop: React.FC = () => {
       label: t('contextMenu.new'),
       submenu: [
         { label: t('contextMenu.newFolder'), action: handleNewFolder, icon: 'folder' },
-        { label: t('contextMenu.newTextDocument'), action: handleNewTextDocument, icon: 'journal' },
+        { label: t('contextMenu.newTextDocument'), action: handleNewTextDocument, icon: 'txt' },
       ],
     },
     { type: 'separator' },
@@ -559,7 +563,7 @@ const Desktop: React.FC = () => {
         {Object.entries(desktopItems || {}).map(([key, item]: [string, FileNode]) => {
           const iconName = (key === '回收站' && isContainerNode(item) && item.children && Object.keys(item.children).length > 0)
             ? 'recycle_bin_full'
-            : item.icon;
+            : getFileIconName(item.name, item.type, item.icon);
           return (
             <DesktopIcon
               key={key}

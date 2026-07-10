@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback } from 'react';
 import { produce } from 'immer';
+import { sounds } from '../../../utils/soundManager';
 import { FileNode, isContainerNode, ClipboardItem } from '../../../types';
 import { saveRecycleBin, RecycleBinItem } from '../utils/persistence';
 
@@ -133,6 +134,7 @@ export const useFileOperations = (
 
   const deleteFile = useCallback(
     (parentPath: string[], fileName: string) => {
+      sounds.recycle();
       setFs(prevFs => {
         const newFs = produce(prevFs, draft => {
           if (!isContainerNode(draft.root)) return;

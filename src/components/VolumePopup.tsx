@@ -13,7 +13,7 @@ const Popup = styled.div`
   box-shadow: 2px 2px 0 #808080;
   padding: 10px;
   z-index: 30000;
-  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 11px;
   color: #000;
 `;

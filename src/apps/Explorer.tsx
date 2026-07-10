@@ -5,6 +5,7 @@ import { useFileSystem } from '../context/FileSystemContext';
 import { useApp } from '../hooks/useApp';
 import { resolveFileOpen } from '../registry/apps';
 import XPIcon from '../components/XPIcon';
+import { getFileIconName } from '../utils/fileIcon';
 import ExplorerSidebar from '../components/Explorer/ExplorerSidebar';
 import ExplorerToolbar from '../components/Explorer/ExplorerToolbar';
 import AddressBar from '../components/Explorer/AddressBar';
@@ -18,7 +19,7 @@ const Container = styled.div`
     height: 100%;
     display: flex;
     flex-direction: column;
-    font-family: Tahoma, "Microsoft YaHei", sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
 `;
 
 const MainContent = styled.div`
@@ -124,7 +125,7 @@ const EmptyRecycleBinMessage = styled.div`
     justify-content: center;
     color: #808080;
     font-size: 12px;
-    font-family: Tahoma, "Microsoft YaHei", sans-serif;
+    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     gap: 10px;
     user-select: none;
 `;
@@ -468,12 +469,17 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
             style={dragOver === key && item.type === 'folder' ? { background: '#C1D2EE', border: '1px dashed #316AC5' } : undefined}
         >
             <IconWrapper>
-                <XPIcon name={item.icon || (item.type === 'folder' ? 'folder' : 'file')} size={32} />
+                <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={32} />
             </IconWrapper>
             <FileInfo>
                 <FileName $isDrive={isRoot && (item.type === 'drive' || item.icon === 'drive')}>
                     {item.name}
-                    {item.locked && <span style={{ marginLeft: '5px', fontSize: '10px' }}>🔒</span>}
+                    {item.locked && (
+                      <svg width="10" height="10" viewBox="0 0 10 10" style={{ marginLeft: '5px', flexShrink: 0 }}>
+                        <rect x="1" y="4" width="8" height="5" rx="1" fill="#666" />
+                        <path d="M2.5 4V2.5a2.5 2.5 0 0 1 5 0V4" stroke="#666" strokeWidth="1.2" fill="none" />
+                      </svg>
+                    )}
                 </FileName>
                 {isRoot && (item.type === 'drive' || item.icon === 'drive') && <FileType selected={selectedItem && selectedItem.name === item.name}>本地磁盘</FileType>}
             </FileInfo>

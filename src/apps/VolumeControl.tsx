@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import XPIcon from '../components/XPIcon';
 import { getVolume, setVolume, getMuted, setMuted } from '../utils/soundManager';
 
 const Container = styled.div`
@@ -7,7 +8,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  font-family: Tahoma, Arial, sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
 `;
 
@@ -102,19 +103,13 @@ const VolumeControl = () => {
   };
 
   const getVolumeIcon = () => {
-    if (muted || volume === 0) {
-      return '🔇';
-    } else if (volume < 50) {
-      return '🔉';
-    } else {
-      return '🔊';
-    }
+    return muted || volume === 0 ? 'mute' : 'volume_status';
   };
 
   return (
     <Container>
       <VolumeContainer>
-        <VolumeIcon>{getVolumeIcon()}</VolumeIcon>
+        <VolumeIcon><XPIcon name={getVolumeIcon()} size={24} /></VolumeIcon>
         <SliderContainer>
           <Slider
             type="range"

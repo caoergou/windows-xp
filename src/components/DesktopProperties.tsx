@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
-import desktopBg from '../assets/images/desktop_bg.jpg';
+import { useUserSession } from '../context/UserSessionContext';
+import { WALLPAPERS, getWallpaperById } from '../data/wallpapers';
 
 const Container = styled.div`
   width: 360px;
   background: #ece9d8;
-  font-family: Tahoma, 'Microsoft YaHei', sans-serif;
+  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 11px;
   color: #000;
   display: flex;
@@ -39,10 +40,10 @@ const TabContent = styled.div`
   flex: 1;
 `;
 
-const Preview = styled.div`
+const Preview = styled.div<{ $bgUrl: string }>`
   width: 100%;
   height: 120px;
-  background-image: url(${desktopBg});
+  background-image: url(${props => props.$bgUrl});
   background-size: cover;
   background-position: center;
   border: 1px solid #7f9db9;
@@ -94,7 +95,15 @@ interface DesktopPropertiesProps {
 
 const DesktopProperties: React.FC<DesktopPropertiesProps> = ({ onClose }) => {
   const { t } = useTranslation();
+  const { wallpaper, setWallpaper } = useUserSession();
   const [activeTab, setActiveTab] = useState('desktop');
+  const [selected, setSelected] = useState(wallpaper);
+  const previewBg = getWallpaperById(selected).src;
+
+  const handleOk = () => {
+    setWallpaper(selected);
+    onClose?.();
+  };
 
   return (
     <Container>
@@ -112,11 +121,13 @@ const DesktopProperties: React.FC<DesktopPropertiesProps> = ({ onClose }) => {
       <TabContent>
         {activeTab === 'desktop' && (
           <>
-            <Preview />
+            <Preview $bgUrl={previewBg} />
             <Row>
               <Label>{t('desktopProperties.background', 'Background:')}</Label>
-              <Select defaultValue="bliss">
-                <option value="bliss">Bliss (Windows XP)</option>
+              <Select value={selected} onChange={(e) => setSelected(e.target.value)}>
+                {WALLPAPERS.map(w => (
+                  <option key={w.id} value={w.id}>{w.name}</option>
+                ))}
               </Select>
             </Row>
             <Row>
@@ -135,7 +146,7 @@ const DesktopProperties: React.FC<DesktopPropertiesProps> = ({ onClose }) => {
         )}
       </TabContent>
       <ButtonRow>
-        <Button onClick={onClose}>{t('common.ok')}</Button>
+        <Button onClick={handleOk}>{t('common.ok')}</Button>
         <Button onClick={onClose}>{t('common.cancel')}</Button>
       </ButtonRow>
     </Container>

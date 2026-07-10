@@ -5,6 +5,8 @@ import { safeLocalStorage, getStorageKey } from '../utils/storage';
 interface UserSessionContextType {
   isLoggedIn: boolean;
   user: { name: string; avatar: string };
+  wallpaper: string;
+  setWallpaper: (wallpaper: string) => void;
   login: (password: string) => boolean;
   logout: () => void;
 }
@@ -35,6 +37,8 @@ const getInitialLoginState = (autoLogin?: boolean): boolean => {
   return hasLoggedInBefore;
 };
 
+const WALLPAPER_KEY = getStorageKey('wallpaper');
+
 export const UserSessionProvider: React.FC<{
   children: React.ReactNode;
   username?: string;
@@ -46,6 +50,9 @@ export const UserSessionProvider: React.FC<{
     name: username,
     avatar: userConfig.avatar
   });
+  const [wallpaper, setWallpaperState] = useState<string>(() =>
+    safeLocalStorage.getItem(WALLPAPER_KEY) || 'Bliss'
+  );
 
   useEffect(() => {
     setUser(prev => ({ ...prev, name: username }));
@@ -73,9 +80,16 @@ export const UserSessionProvider: React.FC<{
     safeLocalStorage.setItem(getStorageKey('power_state'), 'logout');
   };
 
+  const setWallpaper = (id: string) => {
+    setWallpaperState(id);
+    safeLocalStorage.setItem(WALLPAPER_KEY, id);
+  };
+
   const contextValue: UserSessionContextType = {
     isLoggedIn,
     user,
+    wallpaper,
+    setWallpaper,
     login,
     logout
   };
