@@ -4,19 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-### Changed (dialog chrome consistency, #99)
+### Changed (text input consistency, #99)
 
-- All four dialogs (XPAlert, XPConfirm, PasswordDialog, XPInput) now reuse
-  the real window chrome pieces (WindowChrome's TitleBar + WindowContainer)
-  via new `XPDialogChrome` wrappers. Their title bars were a flat
-  HORIZONTAL `#0058EE -> #3593FF` gradient with a divergent frame -
-  visibly different from every window on screen, which uses the vertical
-  8-stop Luna gradient. Dialog chrome can no longer drift from window
-  chrome. Verified with component-level element screenshots.
-- Fidelity verification note: the minimize glyph's low-left dash placement
-  was audited against xp.css's pixel-traced SVG (dash at x=5-11, y=13-15
-  in the 21x21 button) - our Luna artwork matches pixel-for-pixel; the
-  "low" position is authentic XP design.
+- New shared `XPTextInput` (exported from `/components`): value-for-value
+  matched to xp.css's `input[type=text|password]` (border `#7f9db9`,
+  `#fff` background, 23px height, `3px 4px` padding, no focus outline -
+  real XP text boxes show no color-change ring, only the caret). XPInput
+  (21px tall, `2px 3px` padding), PasswordDialog (invented blue focus
+  outline + inset shadow + `border-radius: 1px`, none of which exist in
+  xp.css) and RunDialog (missing height/background) each diverged
+  slightly; all three now share the one field. RunDialog's OK/Cancel
+  buttons, previously a standalone flat gradient never migrated to
+  `XPButton` in the earlier button pass, are now on `XPButton` too.
+  Verified with component-level screenshots of all three dialogs
+  (Run, Enter Password, Rename).
 
 ### Changed (dialog chrome consistency, #99)
 
@@ -27,6 +28,10 @@ All notable changes to this project will be documented in this file.
   frame - visibly different from every window on screen, which uses the
   vertical 8-stop Luna gradient. Dialog chrome can no longer drift from
   window chrome. Verified with component-level element screenshots.
+- Fidelity verification note: the minimize glyph's low-left dash placement
+  was audited against xp.css's pixel-traced SVG (dash at x=5-11, y=13-15
+  in the 21x21 button) - our Luna artwork matches pixel-for-pixel; the
+  "low" position is authentic XP design.
 
 ### Changed (micro-component visual consistency, #99)
 

@@ -171,7 +171,7 @@
 | STY-01 | 窗口 chrome：Luna 蓝渐变标题栏、顶部圆角、粗边框、贴图控制按钮 | ⭐⭐⭐ | ✅ | #35 已审计修正一轮（去现代阴影、Trebuchet MS 标题字体） |
 | STY-02 | **中文 UI 字体为宋体（SimSun）优先**——雅黑是 Vista 之后的字体，XP 时代中文界面是宋体 9pt | ⭐⭐⭐ | 🟡 | 代码字体栈已正确（`Tahoma, SimSun, Microsoft YaHei`）；**AGENTS.md §常用 XP 字体 写的是 YaHei 优先，与代码矛盾且不保真，需修正**（本次一并修） |
 | STY-03 | 字体声明 token 化：同一 font-family 内联重复 30+ 处，无统一出口 | — | ❌ | 收敛进 `src/theme`；这是截图基线的前置（改一处即全局生效） |
-| STY-04 | 表单控件（按钮/输入框/复选框/单选/下拉）的 normal/hover/active/disabled 四态 | ⭐⭐⭐ | 🟡 | xp.css 提供，但多处组件手写偏离：已修 Calculator 按钮（原 Win2000 灰平面 → Luna 渐变+橙 hover）、4 个对话框按钮统一为共享 `XPButton`（xp.css 逐值对齐）、4 个对话框关闭钮从橙色渐变条统一为 Luna 贴图 `CloseBtn`、3 个应用菜单栏统一为 `XPMenuBar`（#99/PR #100）。其余控件（复选/单选/下拉/输入）待逐个复核 |
+| STY-04 | 表单控件（按钮/输入框/复选框/单选/下拉）的 normal/hover/active/disabled 四态 | ⭐⭐⭐ | 🟡 | xp.css 提供，但多处组件手写偏离：已修 Calculator 按钮（原 Win2000 灰平面 → Luna 渐变+橙 hover）、4 个对话框按钮统一为共享 `XPButton`（xp.css 逐值对齐）、4 个对话框关闭钮从橙色渐变条统一为 Luna 贴图 `CloseBtn`、3 个应用菜单栏统一为 `XPMenuBar`（#99/PR #100）、3 处对话框文本输入框统一为共享 `XPTextInput`（#99）。其余控件（复选/单选/下拉）待逐个复核 |
 | STY-05 | disabled 文字的经典浮雕效果（灰字 + 1px 白色右下偏移） | ⭐ | 🔍 | |
 | STY-06 | Luna 滚动条（浅蓝立体滑块、箭头按钮三态） | ⭐⭐⭐ | 🟡 | `src/theme/index.ts` 已有样式导出；应用覆盖面待核查（哪些滚动区域还是原生滚动条） |
 | STY-07 | 菜单样式：高亮 `#316AC5` 白字、左侧图标列、分隔线、菜单阴影 | ⭐⭐⭐ | 🔍 | 开始菜单/右键菜单/应用菜单栏统一核查 |
@@ -182,8 +182,8 @@
 | STY-12 | 桌面图标/文字阴影、快捷方式箭头 | ⭐⭐⭐ | ✅ | 规范见 AGENTS.md §3/§4 |
 | STY-13 | IE6 chrome（绿色前进后退、#ECE9D8、状态栏） | ⭐⭐⭐ | ✅ | 规范见 AGENTS.md §2 |
 | STY-14 | tooltip 黄底样式 | ⭐⭐ | 🔍 | = CUR-03，统一组件解决 |
-| STY-15 | 对话框 chrome 与窗口 chrome 完全一致（同款纵向 Luna 渐变标题栏、蓝色窗框、Luna 关闭钮） | ⭐⭐⭐ | ✅ | 曾为横向 `#0058EE→#3593FF` 渐变 + 独立窗框，4 个对话框各一份；已统一复用 `WindowChrome` 的 `TitleBar`/`WindowContainer`（`XPDialogChrome`），组件级截图确认与窗口一致 |
 | STY-15 | 对话框 chrome 与窗口 chrome 完全一致（同款纵向 Luna 渐变标题栏、蓝色窗框、Luna 关闭钮） | ⭐⭐⭐ | ✅ | 曾为横向 `#0058EE→#3593FF` 渐变 + 独立窗框，4 个对话框各一份；已统一复用 `WindowChrome` 的 `TitleBar`/`WindowContainer`（`XPDialogChrome`），组件级截图对照确认与窗口一致 |
+| STY-16 | 文本输入框（sunken 样式）：`#7f9db9` 单像素边框、`#fff` 底、23px 高、无 focus 高亮描边 | ⭐⭐ | ✅ | xp.css `input[type=text/password]` 逐值核对：XPInput（原 21px 高+2px 3px padding）、PasswordDialog（原多出 `border-radius:1px`+内阴影+发明的蓝色 focus 描边，无 XP 依据）、RunDialog（原缺 height/background，按钮也未接入 XPButton）三处分歧已统一为共享 `XPTextInput`；组件级截图核对三处（运行对话框、密码对话框、重命名对话框）视觉一致 |
 
 ### K.1 Design Token 基准表（收敛目标）
 

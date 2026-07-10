@@ -4,6 +4,7 @@ import { XPButton } from './XPButton';
 import { CloseBtn } from './Window/WindowControls';
 import { XPDialogWindow, XPDialogTitleText } from './XPDialogChrome';
 import { TitleBar as LunaTitleBar } from './Window/WindowChrome';
+import { XPTextInput } from './XPTextInput';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
@@ -45,20 +46,6 @@ const HintText = styled.div`
   color: #666;
   margin-top: 4px;
   font-style: italic;
-`;
-
-const PasswordInput = styled.input`
-  width: 100%;
-  height: 23px;
-  padding: 2px 5px;
-  border: 1px solid #7F9DB9;
-  border-radius: 1px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  font-size: 12px;
-  box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
-  box-sizing: border-box;
-
-  &:focus { outline: 1px solid #0055EA; outline-offset: -1px; }
 `;
 
 const ErrorText = styled.div`
@@ -137,7 +124,7 @@ const PasswordDialog = ({
             </div>
           </MessageRow>
           <div>
-            <PasswordInput
+            <XPTextInput
               ref={inputRef}
               type="password"
               value={password}

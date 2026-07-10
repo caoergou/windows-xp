@@ -17,6 +17,7 @@ export { default as TaskList } from '../components/Taskbar/TaskList';
 export { default as SystemTray } from '../components/Taskbar/SystemTray';
 export { default as XPIcon } from '../components/XPIcon';
 export { XPButton } from '../components/XPButton';
+export { XPTextInput } from '../components/XPTextInput';
 export {
   XPMenuBar,
   XPMenuBarItem,

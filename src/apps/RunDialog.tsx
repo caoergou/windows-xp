@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useApp } from '../hooks/useApp';
 import { APP_REGISTRY, getAppDisplayName } from '../registry/apps';
 import { defaultPlugin } from './BrowserPlugins';
+import { XPTextInput } from '../components/XPTextInput';
+import { XPButton } from '../components/XPButton';
 
 const Container = styled.div`
   padding: 16px;
@@ -25,40 +27,11 @@ const InputContainer = styled.div`
   align-items: center;
 `;
 
-const Input = styled.input`
-  flex: 1;
-  padding: 4px;
-  border: 1px solid #7f9db9;
-  font-size: 12px;
-
-  &:focus {
-    outline: none;
-    border-color: #000080;
-    box-shadow: 0 0 0 1px #000080;
-  }
-`;
-
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 8px;
   margin-top: 8px;
-`;
-
-const Button = styled.button`
-  padding: 4px 12px;
-  font-size: 12px;
-  background: linear-gradient(to bottom, #ffffff, #ece9d8);
-  border: 1px solid #7f9db9;
-  cursor: pointer;
-
-  &:hover {
-    background: linear-gradient(to bottom, #f0f0f0, #dcd9c9);
-  }
-
-  &:active {
-    background: linear-gradient(to bottom, #ece9d8, #ffffff);
-  }
 `;
 
 interface RunDialogProps {
@@ -152,7 +125,7 @@ const RunDialog = ({ windowId = '' }: RunDialogProps) => {
     <Container>
       <Label>{t('startMenu.run')}:</Label>
       <InputContainer>
-        <Input
+        <XPTextInput
           type="text"
           value={command}
           onChange={(e) => setCommand(e.target.value)}
@@ -162,8 +135,8 @@ const RunDialog = ({ windowId = '' }: RunDialogProps) => {
         />
       </InputContainer>
       <ButtonContainer>
-        <Button onClick={handleRun}>{t('common.ok', 'OK')}</Button>
-        <Button onClick={handleCancel}>{t('common.cancel', 'Cancel')}</Button>
+        <XPButton onClick={handleRun}>{t('common.ok', 'OK')}</XPButton>
+        <XPButton onClick={handleCancel}>{t('common.cancel', 'Cancel')}</XPButton>
       </ButtonContainer>
     </Container>
   );

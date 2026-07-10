@@ -4,6 +4,7 @@ import { XPButton } from './XPButton';
 import { CloseBtn } from './Window/WindowControls';
 import { XPDialogWindow, XPDialogTitleText } from './XPDialogChrome';
 import { TitleBar as LunaTitleBar } from './Window/WindowChrome';
+import { XPTextInput } from './XPTextInput';
 import { useTranslation } from 'react-i18next';
 
 const Overlay = styled.div`
@@ -38,17 +39,6 @@ const Message = styled.div`
   flex: 1;
   word-wrap: break-word;
   line-height: 18px;
-`;
-
-const InputField = styled.input`
-    width: 100%;
-    height: 21px;
-    box-sizing: border-box;
-    border: 1px solid #7F9DB9;
-    padding: 2px 3px;
-    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-    font-size: 12px;
-    background: #fff;
 `;
 
 const ButtonArea = styled.div`
@@ -97,7 +87,7 @@ const XPInput: React.FC<XPInputProps> = ({ title, message, defaultValue = '', on
                     <MessageRow>
                         <Message>{message}</Message>
                     </MessageRow>
-                    <InputField
+                    <XPTextInput
                         ref={inputRef}
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
