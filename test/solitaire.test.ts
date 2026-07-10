@@ -12,7 +12,7 @@ import {
   getMovableCards,
   getTopCard,
   isRed,
-} from '../src/lib/solitaire';
+} from '../src/apps/solitaireLogic';
 
 const card = (suit: Card['suit'], rank: number, faceUp = true): Card => ({
   id: `${suit}-${rank}`,

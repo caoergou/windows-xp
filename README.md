@@ -120,7 +120,7 @@ Besides the main `WindowsXP` component, the package exposes focused subpath impo
 import { WindowsXP } from '@caoergou/windows-xp';
 
 // Pick only what you need
-import { Button, Window, Taskbar } from '@caoergou/windows-xp/components';
+import { Window, Taskbar, XPIcon } from '@caoergou/windows-xp/components';
 import { Notepad, Minesweeper } from '@caoergou/windows-xp/apps';
 import { useWindowManager, useFileSystem, useApp, useCulture, useAppRegistry } from '@caoergou/windows-xp/hooks';
 import { xpScrollbarStyles } from '@caoergou/windows-xp/theme';

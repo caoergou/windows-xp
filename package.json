@@ -24,6 +24,7 @@
       "require": "./dist/index.cjs.js"
     },
     "./style.css": "./dist/style.css",
+    "./dist/style.css": "./dist/style.css",
     "./components": {
       "types": "./dist/components.d.ts",
       "import": "./dist/components.es.js",

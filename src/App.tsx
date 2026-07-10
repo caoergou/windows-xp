@@ -140,7 +140,7 @@ const getInitialBootPhase = (skipBoot?: boolean): BootPhase => {
 };
 
 export interface AppProps {
-  initialLanguage?: 'en' | 'zh';
+  initialLanguage?: string;
   skipBoot?: boolean;
   disableContextMenuBlock?: boolean;
   disableDevToolsBlock?: boolean;

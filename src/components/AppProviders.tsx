@@ -17,7 +17,7 @@ import { getSavedLanguage } from '../utils/language';
 export interface AppProvidersProps {
   username?: string;
   password?: string;
-  language?: 'en' | 'zh';
+  language?: string;
   customFileSystem?: Record<string, FileNode>;
   cultures?: CulturePackage[];
   apps?: AppRegistryEntry[];
