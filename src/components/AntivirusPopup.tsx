@@ -1,6 +1,7 @@
 // @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 
 const PopupContainer = styled.div`
@@ -41,7 +42,12 @@ const PopupContainer = styled.div`
 `;
 
 const Icon = styled.div`
-  font-size: 24px;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const Message = styled.div`
@@ -82,6 +88,7 @@ const CloseButton = styled.button`
 `;
 
 const AntivirusPopup = () => {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -99,10 +106,10 @@ const AntivirusPopup = () => {
 
   return (
     <PopupContainer $visible={visible}>
-      <Icon><XPIcon name="security_center" size={32} /></Icon>
+      <Icon><XPIcon name="360safe" size={32} /></Icon>
       <Message>
-        <Title>360安全卫士提醒</Title>
-        <Description>您的电脑安全状态良好</Description>
+        <Title>{t('tray.safeGuardReminder')}</Title>
+        <Description>{t('tray.safeGuardStatus')}</Description>
       </Message>
       <CloseButton onClick={handleClose}>×</CloseButton>
     </PopupContainer>

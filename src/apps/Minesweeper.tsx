@@ -199,6 +199,17 @@ const Wrap = styled.div`
   font-size: 11px;
   line-height: 1;
   user-select: none;
+  box-sizing: border-box;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  img {
+    image-rendering: pixelated;
+  }
 `;
 
 const MenuBar = styled.div`
@@ -284,6 +295,7 @@ const GamePanel = styled.section`
   border-top: 3px solid #f5f5f5;
   border-left: 3px solid #f5f5f5;
   background: #c0c0c0;
+  box-sizing: border-box;
 `;
 
 const ScoreBar = styled.div`
@@ -299,7 +311,7 @@ const ScoreBar = styled.div`
 
 const Counter = styled.div`
   display: flex;
-  width: 39px;
+  width: 40px;
   height: 24px;
   overflow: hidden;
   border-width: 0 1px 1px 0;
@@ -359,28 +371,44 @@ const Board = styled.div<{ $cols: number; $rows: number }>`
   border: 3px solid;
   border-color: #808080 #f5f5f5 #f5f5f5 #808080;
   background: #808080;
+  line-height: 0;
+  overflow: hidden;
 `;
 
 const Cell = styled.button<{ $covered: boolean }>`
   position: relative;
+  display: block;
   width: ${CELL_SIZE}px;
   height: ${CELL_SIZE}px;
+  margin: 0;
   padding: 0;
   border: 0;
   outline: 0;
-  background: transparent;
+  background: #c0c0c0;
+  appearance: none;
+  -webkit-appearance: none;
   cursor: default;
+  line-height: 0;
+`;
 
-  ${props => props.$covered && `
-    border: 2px solid;
-    border-color: #f5f5f5 #808080 #808080 #f5f5f5;
-    background: #c0c0c0;
-  `}
+const CoveredBackground = styled.span`
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: ${CELL_SIZE}px;
+  height: ${CELL_SIZE}px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #f5f5f5 #808080 #808080 #f5f5f5;
 `;
 
 const RevealedBackground = styled.span`
   position: absolute;
   inset: 0;
+  display: block;
+  width: ${CELL_SIZE}px;
+  height: ${CELL_SIZE}px;
+  background: #c0c0c0;
   border-top: 1px solid #808080;
   border-left: 1px solid #808080;
 `;
@@ -781,6 +809,7 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
                   if (status !== 'won' && status !== 'lost') setFace('smile');
                 }}
               >
+                {!isRevealed && <CoveredBackground />}
                 {isRevealed && <RevealedBackground />}
                 {icon && <CellIcon src={icon} alt="" draggable={false} />}
               </Cell>

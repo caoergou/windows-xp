@@ -16,45 +16,51 @@ const Overlay = styled.div`
 `;
 
 const AlertWindow = styled.div`
-  width: 350px;
+  width: 345px;
   background-color: #ECE9D8;
-  border: 1px solid #0055EA;
-  border-radius: 3px;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  border: 3px solid #0055EA;
+  border-top-color: #3A93FF;
+  border-left-color: #0A65F5;
+  border-radius: 4px 4px 0 0;
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
   font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  box-sizing: border-box;
 `;
 
 const TitleBar = styled.div`
-  height: 30px;
-  background: linear-gradient(to right, #0058EE 0%, #3593FF 100%);
+  height: 24px;
+  background: linear-gradient(to bottom, #0997FF 0%, #0053EE 45%, #0046D5 100%);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 5px;
+  padding: 1px 2px 2px 7px;
   color: white;
   font-weight: bold;
-  font-size: 13px;
-  text-shadow: 1px 1px 1px black;
-  border-radius: 2px 2px 0 0;
+  font-size: 12px;
+  text-shadow: 1px 1px #0F1089;
+  box-sizing: border-box;
 `;
 
 const CloseButton = styled.button`
   width: 21px;
   height: 21px;
-  background: linear-gradient(to bottom, #E79176, #DA5E42);
-  border: 1px solid white;
+  background:
+    linear-gradient(135deg, transparent 0 36%, #fff 36% 47%, transparent 47% 53%, #fff 53% 64%, transparent 64%),
+    linear-gradient(45deg, transparent 0 36%, #fff 36% 47%, transparent 47% 53%, #fff 53% 64%, transparent 64%),
+    linear-gradient(to bottom, #ffb49d 0%, #ef6f45 45%, #d83b17 100%);
+  border: 1px solid #fff;
   border-radius: 3px;
   color: white;
-  font-weight: bold;
-  font-size: 12px;
+  font-size: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   padding: 0;
   line-height: 1;
+  box-shadow: inset -1px -1px 0 #9b1b05;
 
   &:hover {
     filter: brightness(1.1);
@@ -67,10 +73,10 @@ const CloseButton = styled.button`
 `;
 
 const ContentArea = styled.div`
-  padding: 20px;
+  padding: 18px 14px 7px 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 9px;
 `;
 
 const MessageRow = styled.div`
@@ -84,22 +90,25 @@ const Message = styled.div`
   color: black;
   flex: 1;
   word-wrap: break-word;
+  line-height: 18px;
 `;
 
 const InputField = styled.input`
     width: 100%;
-    margin-top: 10px;
+    height: 21px;
+    box-sizing: border-box;
     border: 1px solid #7F9DB9;
-    padding: 3px;
+    padding: 2px 3px;
     font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
     font-size: 12px;
+    background: #fff;
 `;
 
 const ButtonArea = styled.div`
-  padding: 10px;
+  padding: 0 9px 9px;
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 8px;
 `;
 
 const XPButton = styled.button`
@@ -107,11 +116,11 @@ const XPButton = styled.button`
   height: 23px;
   background: #ECE9D8;
   border: 1px solid #003C74;
-  border-radius: 2px;
+  border-radius: 0;
   font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   cursor: pointer;
-  box-shadow: inset 1px 1px 0px white, 1px 1px 2px rgba(0,0,0,0.3);
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
 
   &:hover {
     box-shadow: inset 1px 1px 0px #F5F2E4, 1px 1px 2px rgba(0,0,0,0.3);
