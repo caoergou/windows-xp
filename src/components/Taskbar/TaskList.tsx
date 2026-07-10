@@ -76,7 +76,7 @@ interface TaskListProps {
   onTaskContextMenu: (e: React.MouseEvent, win: WindowState) => void;
   contextMenu: { x: number; y: number } | null;
   selectedWindow: WindowState | null;
-  contextMenuRef: React.RefObject<HTMLDivElement | null>;
+  contextMenuRef: React.RefObject<HTMLDivElement>;
   onCloseContextMenu: () => void;
   onTaskMenuAction: (action: string) => void;
   t: (key: string) => string;

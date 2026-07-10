@@ -49,6 +49,8 @@ This project is a nostalgic tribute to that era — the early 2000s internet, wh
 npm install @caoergou/windows-xp
 ```
 
+Peer dependencies: `react` (18 or 19), `react-dom`, `styled-components` v6 — everything else is installed automatically.
+
 ## 🚀 Quick Start
 
 ```jsx

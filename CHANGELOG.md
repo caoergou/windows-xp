@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed (dependencies, #74)
+
+- Peer dependencies reduced from 8 to 3: only `react` (^18 || ^19, verified
+  against React 19 by the full unit suite), `react-dom` and
+  `styled-components` (^6, the tested major). `react-draggable`,
+  `react-resizable`, `i18next` and `react-i18next` are implementation
+  details and moved to regular dependencies.
+- Dropped the `xp.css` peer dependency: its `external` entry never matched
+  the actual `xp.css/dist/XP.css` import, so the (scoped) CSS has always
+  been compiled into `dist/style.css` - installing the package separately
+  was pointless.
+- Aligned `@types/react`/`@types/react-dom` with the developed runtime
+  (v18) and fixed three React-19-style `RefObject<T | null>` prop types
+  that the correct typings surfaced.
+- Removed the no-op `peerDependenciesMeta` block.
+
 ### Added
 
 - `mode="embedded"` prop (#73): one switch that makes `<WindowsXP/>` a

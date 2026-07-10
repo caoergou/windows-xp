@@ -244,7 +244,7 @@ const StartFooter = styled.div`
 
 interface StartMenuProps {
   isOpen: boolean;
-  menuRef: React.RefObject<HTMLDivElement | null>;
+  menuRef: React.RefObject<HTMLDivElement>;
   userName: string;
   startMenuProfile: StartMenuProfile;
   cultureKey: string;

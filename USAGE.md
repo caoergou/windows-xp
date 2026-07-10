@@ -6,7 +6,7 @@
 npm install @caoergou/windows-xp
 ```
 
-> Peer dependencies: `react`, `react-dom`, `styled-components`, `react-draggable`, `react-resizable`, `i18next`, `react-i18next`. The package also bundles `immer` internally.
+> Peer dependencies: `react` (18 or 19), `react-dom` and `styled-components` (v6) — everything you almost certainly already have. All implementation details (`react-draggable`, `react-resizable`, `i18next`, `react-i18next`, `immer`) are regular dependencies installed automatically, and the XP theme CSS is compiled into `style.css`, so there is nothing else to install.
 
 ## Basic Usage
 
