@@ -1,10 +1,9 @@
-// @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 
-const PopupContainer = styled.div`
+const PopupContainer = styled.div<{ $visible: boolean }>`
   position: fixed;
   bottom: 33px;
   right: 8px;

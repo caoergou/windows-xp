@@ -1,4 +1,3 @@
-// @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
@@ -276,6 +275,17 @@ const DialogButton = styled.button`
 type MenuKey = 'file' | 'edit' | 'format' | 'view' | 'help' | null;
 type HistoryState = { content: string; selectionStart: number; selectionEnd: number };
 type DialogMode = 'find' | 'replace' | null;
+
+type NotepadMenuItem =
+  | { type: 'separator' }
+  | {
+      type?: undefined;
+      label: string;
+      action: () => void | Promise<void>;
+      shortcut?: string;
+      disabled?: boolean;
+      checked?: boolean;
+    };
 
 const MAX_HISTORY = 200;
 
@@ -979,7 +989,7 @@ const Notepad = ({
   const renderDropdown = (key: Exclude<MenuKey, null>) => {
     if (openMenu !== key) return null;
 
-    const fileMenuItems = [
+    const fileMenuItems: NotepadMenuItem[] = [
       { label: t('notepad.menuitems.new'), shortcut: 'Ctrl+N', action: handleNew },
       { label: t('notepad.menuitems.open'), shortcut: 'Ctrl+O', action: handleOpen },
       {
@@ -995,7 +1005,7 @@ const Notepad = ({
       { label: t('notepad.menuitems.exit'), action: handleExit },
     ];
 
-    const editMenuItems = [
+    const editMenuItems: NotepadMenuItem[] = [
       {
         label: t('notepad.menuitems.undo'),
         shortcut: 'Ctrl+Z',
@@ -1020,12 +1030,12 @@ const Notepad = ({
       { label: t('notepad.menuitems.selectAll'), shortcut: 'Ctrl+A', action: handleSelectAll },
     ];
 
-    const formatMenuItems = [
+    const formatMenuItems: NotepadMenuItem[] = [
       { label: t('notepad.menuitems.wrap'), action: handleToggleWrap, checked: wordWrap },
       { label: t('notepad.menuitems.font'), action: () => undefined, disabled: true },
     ];
 
-    const viewMenuItems = [
+    const viewMenuItems: NotepadMenuItem[] = [
       {
         label: t('notepad.menuitems.statusBar'),
         action: handleToggleStatusBar,
@@ -1033,13 +1043,13 @@ const Notepad = ({
       },
     ];
 
-    const helpMenuItems = [
+    const helpMenuItems: NotepadMenuItem[] = [
       { label: t('notepad.menuitems.help'), action: () => undefined, disabled: true },
       { type: 'separator' as const },
       { label: t('notepad.menuitems.about'), action: handleAbout },
     ];
 
-    const menuMap: Record<string, typeof fileMenuItems> = {
+    const menuMap: Record<string, NotepadMenuItem[]> = {
       file: fileMenuItems,
       edit: editMenuItems,
       format: formatMenuItems,

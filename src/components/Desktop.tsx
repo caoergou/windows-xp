@@ -1,4 +1,3 @@
-// @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 // TODO: refine Desktop types; disabled due to extensive styled-components / FileNode union issues
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import styled from 'styled-components';

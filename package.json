@@ -58,6 +58,8 @@
     "build:lib": "rm -rf dist && vite build --config vite.config.lib.ts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "typecheck:strict": "npm run typecheck && npm run guard:nocheck",
+    "guard:nocheck": "node -e \"const{execSync}=require('child_process');try{const out=execSync('grep -rn @ts-nocheck src',{encoding:'utf8'});console.error('FAIL: @ts-nocheck reappeared in src/ (#82):\\n'+out);process.exit(1)}catch(e){if(e.status===1){console.log('guard OK: no @ts-nocheck in src/')}else{throw e}}\"",
     "test": "vitest",
     "test:smoke": "vitest run test/basic.test.tsx test/lib-exports.test.tsx test/WindowsXPProps.test.tsx",
     "test:e2e": "playwright test",
@@ -68,7 +70,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\"",
     "size:check": "node scripts/check-size.mjs",
-    "prepublishOnly": "npm run lint && npm run typecheck && npm run test -- --run && npm run build:lib && npm run size:check"
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run guard:nocheck && npm run test -- --run && npm run build:lib && npm run size:check"
   },
   "keywords": [
     "windows-xp",

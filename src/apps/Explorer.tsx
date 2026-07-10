@@ -1,4 +1,3 @@
-// @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +11,7 @@ import AddressBar from '../components/Explorer/AddressBar';
 import ContextMenu from '../components/ContextMenu';
 import FileProperties from '../components/FileProperties';
 import { xpScrollbarStyles } from '../theme';
-import { FileNode } from '../types';
+import { FileNode, MenuItem, isContainerNode } from '../types';
 import { getFileDisplayName } from '../utils/fileDisplayName';
 import {
   getSystemPathDisplay,
@@ -65,7 +64,7 @@ const IconsGrid = styled.div`
   gap: 5px;
 `;
 
-const FileItem = styled.div`
+const FileItem = styled.div<{ $selected?: boolean }>`
   width: 250px; /* List view style often seen in My Computer */
   display: flex;
   align-items: center;
@@ -79,7 +78,7 @@ const FileItem = styled.div`
   }
 
   ${props =>
-    props.selected &&
+    props.$selected &&
     `
         background-color: #316AC5;
         color: white;
@@ -103,15 +102,15 @@ const FileInfo = styled.div`
   flex-direction: column;
 `;
 
-const FileName = styled.span`
+const FileName = styled.span<{ $isDrive?: boolean }>`
   font-size: 11px;
   font-weight: ${props => (props.$isDrive ? 'bold' : 'normal')};
 `;
 
-const FileType = styled.span`
+const FileType = styled.span<{ $selected?: boolean }>`
   font-size: 10px;
   color: #666;
-  ${props => props.selected && `color: #eee;`}
+  ${props => props.$selected && `color: #eee;`}
 `;
 
 const StatusBar = styled.div`
@@ -230,7 +229,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
         title: t('explorer.password.title'),
         message: t('explorer.password.message'),
         hint: target.hint || '',
-        correctPassword: target.password,
+        correctPassword: target.password ?? '',
       });
       if (!success) return;
     }
@@ -298,7 +297,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     currentPath.length === 0 || (currentPath.length === 1 && currentPath[0] === '我的电脑');
 
   const renderContent = () => {
-    if (!currentFolder.children) return null;
+    if (!isContainerNode(currentFolder)) return null;
 
     const children = Object.entries(currentFolder.children);
 
@@ -371,7 +370,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     setContextMenu({ visible: false, x: 0, y: 0, targetItem: null });
   };
 
-  const handleCreateFile = (type = 'file') => {
+  const handleCreateFile = (type: 'file' | 'folder' = 'file') => {
     const fileName =
       type === 'folder' ? t('desktop.newFolderName') : t('desktop.newTextDocumentName');
     createFile(currentPath, fileName, type);
@@ -379,12 +378,9 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
   };
 
   const handleDelete = () => {
-    if (contextMenu.targetItem) {
-      const displayName = getFileDisplayName(
-        contextMenu.targetItem.key,
-        contextMenu.targetItem.item,
-        t
-      );
+    const targetItem = contextMenu.targetItem;
+    if (targetItem) {
+      const displayName = getFileDisplayName(targetItem.key, targetItem.item, t);
       api.dialog
         .confirm({
           title: t('common.deleteConfirmTitle'),
@@ -393,7 +389,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
         })
         .then(confirmed => {
           if (confirmed) {
-            deleteFile(currentPath, contextMenu.targetItem.key);
+            deleteFile(currentPath, targetItem.key);
             closeContextMenu();
           }
         });
@@ -401,16 +397,17 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
   };
 
   const handleRename = () => {
-    if (contextMenu.targetItem) {
+    const targetItem = contextMenu.targetItem;
+    if (targetItem) {
       api.dialog
         .prompt({
           title: t('common.renameTitle'),
           message: t('common.renamePrompt'),
-          defaultValue: contextMenu.targetItem.item.name,
+          defaultValue: targetItem.item.name,
         })
         .then(newName => {
           if (newName && newName.trim() !== '') {
-            renameFile(currentPath, contextMenu.targetItem.key, newName.trim());
+            renameFile(currentPath, targetItem.key, newName.trim());
             closeContextMenu();
           }
         });
@@ -504,7 +501,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     }
   };
 
-  const recycleBinMenuItems = [
+  const recycleBinMenuItems: MenuItem[] = [
     {
       label: t('explorer.recycleBin.restore'),
       action: handleRestoreFromRecycleBin,
@@ -520,7 +517,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     },
   ];
 
-  const menuItems = isInRecycleBin
+  const menuItems: MenuItem[] = isInRecycleBin
     ? recycleBinMenuItems
     : [
         { label: t('contextMenu.newFolder'), action: () => handleCreateFile('folder') },
@@ -559,7 +556,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
 
   const renderFileItem = (key: string, item: FileNode) => {
     const displayName = getFileDisplayName(key, item, t);
-    const isSelected = selectedItem && selectedItem.name === displayName;
+    const isSelected = selectedItem !== null && selectedItem.name === displayName;
 
     return (
       <FileItem
@@ -568,7 +565,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
         onDoubleClick={() => handleNavigate(key)}
         onClick={() => setSelectedItem({ name: displayName, type: item.type })}
         onContextMenu={e => handleContextMenu(e, key, item)}
-        selected={isSelected}
+        $selected={isSelected}
         draggable
         onDragStart={e => handleDragStart(e, key)}
         onDragOver={e => {
@@ -609,7 +606,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
             )}
           </FileName>
           {isRoot && (item.type === 'drive' || item.icon === 'drive') && (
-            <FileType selected={isSelected}>
+            <FileType $selected={isSelected}>
               {t(isOpticalDrive(key) ? 'explorer.types.opticalDrive' : 'explorer.types.localDisk')}
             </FileType>
           )}
@@ -617,6 +614,10 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
       </FileItem>
     );
   };
+
+  const childCount = isContainerNode(currentFolder)
+    ? Object.keys(currentFolder.children).length
+    : 0;
 
   return (
     <Container
@@ -643,7 +644,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
           onNavigate={handleNavigateToPath}
         />
         <FileArea>
-          {isInRecycleBin && Object.keys(currentFolder.children || {}).length === 0 ? (
+          {isInRecycleBin && childCount === 0 ? (
             <EmptyRecycleBinMessage>
               <XPIcon name="recycle_bin" size={48} />
               <span>{t('explorer.recycleBin.emptyMessage')}</span>
@@ -654,7 +655,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
         </FileArea>
       </MainContent>
       <StatusBar>
-        {t('explorer.objectCount', { count: Object.keys(currentFolder.children || {}).length })}
+        {t('explorer.objectCount', { count: childCount })}
       </StatusBar>
       <ContextMenu
         visible={contextMenu.visible}

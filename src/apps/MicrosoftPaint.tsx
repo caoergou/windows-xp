@@ -1,4 +1,3 @@
-// @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
@@ -173,6 +172,16 @@ const Canvas = styled.canvas`
 
 type MenuKey = 'file' | 'edit' | 'view' | 'help' | null;
 
+type PaintMenuItem =
+  | { type: 'separator' }
+  | {
+      type?: undefined;
+      label: string;
+      action: () => void | Promise<void>;
+      shortcut?: string;
+      disabled?: boolean;
+    };
+
 interface MicrosoftPaintProps {
   windowId?: string;
   src?: string;
@@ -259,6 +268,7 @@ const MicrosoftPaint = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }, []);
@@ -270,6 +280,7 @@ const MicrosoftPaint = ({
     const img = new Image();
     img.onload = () => {
       const ctx = canvas.getContext('2d');
+      if (!ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0);
       setIsModified(false);
@@ -302,6 +313,7 @@ const MicrosoftPaint = ({
     setStartPos({ x, y });
 
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     ctx.strokeStyle = currentColor;
     ctx.lineWidth = lineWidth;
     ctx.lineCap = 'round';
@@ -326,6 +338,7 @@ const MicrosoftPaint = ({
     const y = e.clientY - rect.top;
 
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
     ctx.strokeStyle = currentColor;
     ctx.lineWidth = lineWidth;
@@ -371,6 +384,7 @@ const MicrosoftPaint = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     setIsModified(true);
@@ -380,6 +394,7 @@ const MicrosoftPaint = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     setCurrentFilePath(undefined);
@@ -646,7 +661,7 @@ const MicrosoftPaint = ({
   const renderDropdown = (key: Exclude<MenuKey, null>) => {
     if (openMenu !== key) return null;
 
-    const fileMenuItems = [
+    const fileMenuItems: PaintMenuItem[] = [
       { label: t('paint.menuitems.new'), shortcut: 'Ctrl+N', action: handleNew },
       { label: t('paint.menuitems.open'), shortcut: 'Ctrl+O', action: handleOpen },
       { label: t('paint.menuitems.save'), shortcut: 'Ctrl+S', action: handleSave },
@@ -655,7 +670,7 @@ const MicrosoftPaint = ({
       { label: t('paint.menuitems.exit'), action: handleExit },
     ];
 
-    const editMenuItems = [
+    const editMenuItems: PaintMenuItem[] = [
       {
         label: t('paint.menuitems.undo'),
         shortcut: 'Ctrl+Z',
@@ -696,19 +711,19 @@ const MicrosoftPaint = ({
       },
     ];
 
-    const viewMenuItems = [
+    const viewMenuItems: PaintMenuItem[] = [
       { label: t('paint.menuitems.toolbox'), action: () => undefined, disabled: true },
       { label: t('paint.menuitems.colorBox'), action: () => undefined, disabled: true },
       { label: t('paint.menuitems.statusBar'), action: () => undefined, disabled: true },
     ];
 
-    const helpMenuItems = [
+    const helpMenuItems: PaintMenuItem[] = [
       { label: t('paint.menuitems.helpTopics'), action: () => undefined, disabled: true },
       { type: 'separator' as const },
       { label: t('paint.menuitems.about'), action: () => undefined, disabled: true },
     ];
 
-    const menuMap: Record<string, typeof fileMenuItems> = {
+    const menuMap: Record<string, PaintMenuItem[]> = {
       file: fileMenuItems,
       edit: editMenuItems,
       view: viewMenuItems,

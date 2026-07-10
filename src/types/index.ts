@@ -2,6 +2,17 @@
 // 文件系统类型定义
 // ============================================================
 
+/** 照片 EXIF 元数据（用于属性对话框“摘要”页） */
+export interface ExifData {
+  Model?: string;
+  Make?: string;
+  FNumber?: number;
+  ExposureTime?: number;
+  ISOSpeedRatings?: number;
+  FocalLength?: number;
+  DateTimeOriginal?: string;
+}
+
 /** 基础文件节点 - 所有文件类型的共同属性 */
 interface BaseFileNode {
   name: string;
@@ -13,6 +24,10 @@ interface BaseFileNode {
   password?: string;
   broken?: boolean;
   hint?: string;
+  /** 指向 EXIF JSON 文件的路径（src/data/photos 下） */
+  exifPath?: string;
+  /** 直接内嵌的 EXIF 数据 */
+  exifData?: ExifData;
 }
 
 /** 根目录节点 */

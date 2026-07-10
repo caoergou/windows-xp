@@ -1,4 +1,3 @@
-// @ts-nocheck: temporary suppression of pre-existing type errors during incremental migration
 import React, { useEffect, useRef, useLayoutEffect, forwardRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
@@ -6,7 +5,7 @@ import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
 import { MenuItem } from '../types';
 
-const ContextMenuContainer = styled.div`
+const ContextMenuContainer = styled.div<{ $x: number; $y: number }>`
     position: fixed;
     background: #F0F0F0;
     border: 1px solid #000000;
@@ -15,11 +14,11 @@ const ContextMenuContainer = styled.div`
     z-index: 2147483647;
     min-width: 150px;
     font-size: 12px;
-    left: ${props => props.x}px;
-    top: ${props => props.y}px;
+    left: ${props => props.$x}px;
+    top: ${props => props.$y}px;
 `;
 
-const MenuItemComponent = styled.div`
+const MenuItemComponent = styled.div<{ $disabled?: boolean }>`
     padding: 3px 20px 3px 20px;
     cursor: default;
     display: flex;
@@ -104,7 +103,7 @@ const MenuRow = ({
     return <MenuSeparator />;
   }
 
-  const hasSubmenu = item.submenu && item.submenu.length > 0;
+  const hasSubmenu = !!item.submenu && item.submenu.length > 0;
 
   return (
     <MenuItemComponent
@@ -133,7 +132,7 @@ const MenuRow = ({
       )}
       {hasSubmenu && (
         <SubMenuContainer className="submenu">
-          {item.submenu.map((subItem, subIndex) => (
+          {item.submenu?.map((subItem, subIndex) => (
             <MenuRow
               key={subIndex}
               item={subItem}
@@ -147,7 +146,7 @@ const MenuRow = ({
 };
 
 const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(({ visible, x, y, onClose, menuItems }, ref) => {
-    const menuRef = useRef<HTMLDivElement>(null);
+    const menuRef = useRef<HTMLDivElement | null>(null);
 
     const setRef = useCallback((el: HTMLDivElement | null) => {
         menuRef.current = el;
@@ -216,7 +215,7 @@ const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(({ visible, x, 
     if (!visible) return null;
 
     return createPortal(
-        <ContextMenuContainer ref={setRef} x={x} y={y} className="windows-xp-portal">
+        <ContextMenuContainer ref={setRef} $x={x} $y={y} className="windows-xp-portal">
             {menuItems.map((item, index) => (
                 <MenuRow
                   key={index}

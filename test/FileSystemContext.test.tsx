@@ -138,7 +138,7 @@ describe('FileSystemContext', () => {
     });
 
     act(() => {
-      result.current.renameNode([], 'rename-me.txt', 'renamed.txt');
+      result.current.renameFile([], 'rename-me.txt', 'renamed.txt');
     });
 
     expect(result.current.fs.root.children['rename-me.txt']).toBeUndefined();

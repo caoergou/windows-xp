@@ -84,7 +84,7 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
     'Microsoft Windows XP [Version 5.1.2600]\n(C) Copyright 1985-2001 Microsoft Corp.\n\n',
     'Microsoft Windows XP [版本 5.1.2600]\n(C) 版权所有 1985-2001 Microsoft Corp.\n\n'
   );
-  const { getFile, createFolder, deleteFolder, renameNode, copyFile, deleteFile } = useFileSystem();
+  const { getFile, createFolder, deleteFolder, renameFile, copyFile, deleteFile } = useFileSystem();
   const api = useApp(windowId);
   const [output, setOutput] = useState<string>(banner);
   const [input, setInput] = useState<string>('');
@@ -434,7 +434,7 @@ VOL         显示磁盘卷标和序列号。`
           );
         }
 
-        renameNode(parentPath, sourceName, targetName);
+        renameFile(parentPath, sourceName, targetName);
         return '';
       }
 
