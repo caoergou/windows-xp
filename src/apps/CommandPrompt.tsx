@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../context/FileSystemContext';
+import { useXPEventBus } from '../context/EventBusContext';
 import { useApp } from '../hooks/useApp';
 import { isFileContentNode, isContainerNode, FileNode } from '../types';
 import { parseCmdArgs, resolveCmdPath } from '../utils/commandPath';
@@ -85,6 +86,7 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
     'Microsoft Windows XP [版本 5.1.2600]\n(C) 版权所有 1985-2001 Microsoft Corp.\n\n'
   );
   const { getFile, createFolder, deleteFolder, renameFile, copyFile, deleteFile } = useFileSystem();
+  const bus = useXPEventBus();
   const api = useApp(windowId);
   const [output, setOutput] = useState<string>(banner);
   const [input, setInput] = useState<string>('');
@@ -592,6 +594,7 @@ VOL         显示磁盘卷标和序列号。`
         setHistoryIndex(-1);
       }
 
+      bus.emit({ type: 'cmd:exec', command });
       const result = executeCommand(command);
 
       if (result === '__CLEAR__') {

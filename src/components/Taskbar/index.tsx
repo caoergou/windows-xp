@@ -11,6 +11,7 @@ import { defaultPlugin } from '../../apps/BrowserPlugins';
 import { getSystemPathTitle } from '../../data/systemPaths';
 import { WindowState } from '../../types';
 import { safeLocalStorage, getStorageKey, canUseDOM } from '../../utils/storage';
+import { useXPEventBus } from '../../context/EventBusContext';
 import StartButton from './StartButton';
 import StartMenu from './StartMenu';
 import TaskList from './TaskList';
@@ -58,6 +59,7 @@ const Divider = styled.div`
 
 const Taskbar = () => {
   const { t, i18n } = useTranslation();
+  const bus = useXPEventBus();
   const {
     windows,
     activeWindowId,
@@ -279,12 +281,13 @@ const Taskbar = () => {
   const performPowerAction = useCallback((state: 'shutdown' | 'restart') => {
     safeLocalStorage.removeItem(getStorageKey('open_windows'));
     safeLocalStorage.setItem(getStorageKey('power_state'), state);
+    bus.emit({ type: 'session:shutdown', mode: state });
     sounds.shutdown();
     if (canUseDOM) {
       // Give the shutdown sound a moment to start before the page reloads.
       setTimeout(() => window.location.reload(), 600);
     }
-  }, []);
+  }, [bus]);
 
   const handleLogoutWithSound = useCallback(() => {
     sounds.logoff();

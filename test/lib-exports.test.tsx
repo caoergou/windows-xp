@@ -18,7 +18,8 @@ import {
 describe('Library public API', () => {
   it('exports WindowsXP component', () => {
     expect(WindowsXP).toBeDefined();
-    expect(typeof WindowsXP).toBe('function');
+    // forwardRef components are exotic objects, not plain functions (#76).
+    expect(['function', 'object']).toContain(typeof WindowsXP);
   });
 
   it('exports providers', () => {

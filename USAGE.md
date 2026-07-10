@@ -375,6 +375,49 @@ function MyCustomComponent() {
 - Verify your file system structure matches the expected format
 - Check browser console for errors
 
+## Events and imperative control (#76)
+
+Subscribe to everything happening inside the desktop with `onEvent`, and drive
+it programmatically with a `ref` — the foundation for analytics, guided demos
+and the scenario system.
+
+```jsx
+import { useRef } from 'react';
+import { WindowsXP } from '@caoergou/windows-xp';
+import type { XPHandle, XPEvent } from '@caoergou/windows-xp';
+
+function App() {
+  const xp = useRef<XPHandle>(null);
+
+  return (
+    <>
+      <button onClick={() => xp.current?.openApp('Notepad')}>Open Notepad</button>
+      <WindowsXP
+        ref={xp}
+        autoLogin
+        onEvent={(e: XPEvent) => {
+          if (e.type === 'file:open') console.log('opened', e.path.join('/'));
+          if (e.type === 'cmd:exec') console.log('ran command', e.command);
+        }}
+      />
+    </>
+  );
+}
+```
+
+Emitted event types include: `app:launch` / `app:close`, `window:focus` /
+`window:minimize` / `window:maximize` / `window:restore`, `file:open` /
+`file:create` / `file:delete` / `file:rename` / `file:restore` /
+`file:unlock`, `session:login` / `session:logout` / `session:boot-complete` /
+`session:shutdown`, and `cmd:exec`. Each carries a typed payload (see the
+`XPEvent` union).
+
+The imperative `XPHandle` (via `ref`) exposes `openApp(appId, props?)`,
+`openFile(path)`, `closeWindow(id)`, `showAlert(title, message)` and `reset()`.
+
+Inside the tree (custom apps), use the `useXPEvents(listener)` hook to
+subscribe without prop-drilling.
+
 ## Embedding in a host app
 
 When `<WindowsXP />` is embedded inside an existing application, use `mode="embedded"` — it disables all global event interceptors (right-click block, devtools block, Alt+F4/Alt+Tab shortcuts, idle screensaver) in one switch. Pair it with a unique storage namespace:

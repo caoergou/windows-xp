@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../context/FileSystemContext';
+import { useXPEventBus } from '../context/EventBusContext';
 import { useApp } from '../hooks/useApp';
 import XPIcon from '../components/XPIcon';
 import { getFileIconName } from '../utils/fileIcon';
@@ -161,6 +162,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     copyToClipboard,
     uploadTextFile,
   } = useFileSystem();
+  const bus = useXPEventBus();
   const api = useApp(windowId);
 
   const [history, setHistory] = useState<string[][]>([initialPath]);
@@ -244,6 +246,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
       // Load associations on demand to avoid a static Explorer <-> app registry cycle.
       const { resolveFileOpen } = await import('../registry/apps');
       const resolved = resolveFileOpen(name, target);
+      bus.emit({ type: 'file:open', path: [...currentPath, name], name: target.name, nodeType: target.type, app: (target as { app?: string }).app });
       if (resolved) {
         api.openWindow(
           resolved.appId,

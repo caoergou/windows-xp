@@ -11,6 +11,7 @@ import {
 import type { PersistChanges } from './hooks/useFileOperations';
 import { useFileOperations } from './hooks/useFileOperations';
 import { getAllCultureShortcutNames } from '../../data/culture';
+import { useXPEventBus } from '../EventBusContext';
 
 const CULTURE_SHORTCUT_NAMES = new Set(getAllCultureShortcutNames());
 
@@ -274,7 +275,53 @@ export const FileSystemProvider: React.FC<{
     };
   }, [flushPersist]);
 
+  const bus = useXPEventBus();
   const fileOperations = useFileOperations(setFs, doPersistFs, recycleBinRef);
+
+  // Event-emitting wrappers (#76): mutations announce themselves on the bus.
+  const createFile = useCallback(
+    (
+      parentPath: string[],
+      fileName: string,
+      type: 'file' | 'folder' = 'file',
+      properties: Partial<FileNode> = {}
+    ) => {
+      fileOperations.createFile(parentPath, fileName, type, properties);
+      bus.emit({ type: 'file:create', path: [...parentPath, fileName], name: fileName, nodeType: type });
+    },
+    [fileOperations, bus]
+  );
+
+  const createFolderEmitting = useCallback(
+    (parentPath: string[], folderName: string) => {
+      createFile(parentPath, folderName, 'folder');
+    },
+    [createFile]
+  );
+
+  const deleteFile = useCallback(
+    (parentPath: string[], fileName: string) => {
+      fileOperations.deleteFile(parentPath, fileName);
+      bus.emit({ type: 'file:delete', path: [...parentPath, fileName], name: fileName });
+    },
+    [fileOperations, bus]
+  );
+
+  const renameFile = useCallback(
+    (parentPath: string[], oldName: string, newName: string) => {
+      fileOperations.renameFile(parentPath, oldName, newName);
+      bus.emit({ type: 'file:rename', path: parentPath, oldName, newName });
+    },
+    [fileOperations, bus]
+  );
+
+  const restoreFromRecycleBin = useCallback(
+    (binKey: string) => {
+      fileOperations.restoreFromRecycleBin(binKey);
+      bus.emit({ type: 'file:restore', name: binKey });
+    },
+    [fileOperations, bus]
+  );
 
   const getFile = useCallback(
     (path: string[]): FileNode | null => {
@@ -291,10 +338,17 @@ export const FileSystemProvider: React.FC<{
     [fs]
   );
 
-  const checkAccess = useCallback((node: FileNode, passwordInput: string): boolean => {
-    if (!node.locked) return true;
-    return node.password === passwordInput;
-  }, []);
+  const checkAccess = useCallback(
+    (node: FileNode, passwordInput: string): boolean => {
+      if (!node.locked) return true;
+      const granted = node.password === passwordInput;
+      if (granted) {
+        bus.emit({ type: 'file:unlock', name: node.name });
+      }
+      return granted;
+    },
+    [bus]
+  );
 
   const copyToClipboard = useCallback((sourcePath: string[], fileName: string | string[]) => {
     const fileNames = Array.isArray(fileName) ? fileName : [fileName];
@@ -423,17 +477,17 @@ export const FileSystemProvider: React.FC<{
     getFile,
     checkAccess,
     updateFile: fileOperations.updateFile,
-    createFile: fileOperations.createFile,
-    createFolder: fileOperations.createFolder,
-    renameFile: fileOperations.renameFile,
-    deleteFile: fileOperations.deleteFile,
+    createFile,
+    createFolder: createFolderEmitting,
+    renameFile,
+    deleteFile,
     deleteFolder: fileOperations.deleteFolder,
     copyFile: fileOperations.copyFile,
     copyToClipboard,
     cutFile,
     pasteFile,
     emptyRecycleBin: fileOperations.emptyRecycleBin,
-    restoreFromRecycleBin: fileOperations.restoreFromRecycleBin,
+    restoreFromRecycleBin,
     searchFiles,
     getFileProperties,
     moveFile: fileOperations.moveFile,

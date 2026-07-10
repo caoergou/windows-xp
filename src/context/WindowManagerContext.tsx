@@ -12,6 +12,7 @@ import { APP_REGISTRY } from '../registry/apps';
 import { WindowState, WindowProps, AppRegistryEntry } from '../types';
 import { WINDOW_DEFAULTS } from '../constants';
 import { safeLocalStorage, getStorageKey, canUseDOM } from '../utils/storage';
+import { useXPEventBus } from './EventBusContext';
 
 interface WindowManagerActions {
   openWindow: (
@@ -93,6 +94,7 @@ export const WindowManagerProvider: React.FC<{
   registry?: Record<string, AppRegistryEntry>;
   value?: Partial<WindowManagerContextType>;
 }> = ({ children, registry = APP_REGISTRY, value }) => {
+  const bus = useXPEventBus();
   const [windows, setWindows] = useState<WindowState[]>(() => {
     try {
       const saved = safeLocalStorage.getItem(getStorageKey('open_windows'));
@@ -199,6 +201,7 @@ export const WindowManagerProvider: React.FC<{
         // Side effects live OUTSIDE the setState updater (#80): under
         // StrictMode the old implementation invoked onFocus twice.
         win.onFocus?.(id);
+        bus.emit({ type: 'window:focus', windowId: id, appId: win.appId });
         const newZIndex =
           Math.max(...current.map(w => w.zIndex), WINDOW_DEFAULTS.INITIAL_Z_INDEX) + 1;
         zIndexRef.current = newZIndex;
@@ -217,7 +220,7 @@ export const WindowManagerProvider: React.FC<{
         );
       }
     },
-    [commitWindows, setActiveWindowId]
+    [commitWindows, setActiveWindowId, bus]
   );
 
   const openWindow = useCallback(
@@ -291,10 +294,11 @@ export const WindowManagerProvider: React.FC<{
       setActiveWindowId(id);
 
       props.onOpen?.(id);
+      bus.emit({ type: 'app:launch', appId, windowId: id, title });
 
       return id;
     },
-    [commitWindows, focusWindow, setActiveWindowId]
+    [commitWindows, focusWindow, setActiveWindowId, bus]
   );
 
   const closeWindow = useCallback(
@@ -312,6 +316,7 @@ export const WindowManagerProvider: React.FC<{
 
       const newWindows = current.filter(w => w.id !== id);
       commitWindows(() => newWindows);
+      bus.emit({ type: 'app:close', appId: win.appId, windowId: id });
       if (activeWindowIdRef.current === id) {
         if (newWindows.length > 0) {
           const top = newWindows.reduce((a, b) => (a.zIndex > b.zIndex ? a : b));
@@ -321,27 +326,37 @@ export const WindowManagerProvider: React.FC<{
         }
       }
     },
-    [commitWindows, setActiveWindowId]
+    [commitWindows, setActiveWindowId, bus]
   );
 
   const minimizeWindow = useCallback(
     (id: string) => {
+      const win = windowsRef.current.find(w => w.id === id);
       commitWindows(prev => prev.map(w => (w.id === id ? { ...w, isMinimized: true } : w)));
       // Only clear focus if the minimized window WAS the active one (#80).
       if (activeWindowIdRef.current === id) {
         setActiveWindowId(null);
       }
+      if (win) bus.emit({ type: 'window:minimize', windowId: id, appId: win.appId });
     },
-    [commitWindows, setActiveWindowId]
+    [commitWindows, setActiveWindowId, bus]
   );
 
   const maximizeWindow = useCallback(
     (id: string) => {
+      const win = windowsRef.current.find(w => w.id === id);
       commitWindows(prev =>
         prev.map(w => (w.id === id ? { ...w, isMaximized: !w.isMaximized } : w))
       );
+      if (win) {
+        bus.emit({
+          type: win.isMaximized ? 'window:restore' : 'window:maximize',
+          windowId: id,
+          appId: win.appId,
+        });
+      }
     },
-    [commitWindows]
+    [commitWindows, bus]
   );
 
   const resizeWindow = useCallback(

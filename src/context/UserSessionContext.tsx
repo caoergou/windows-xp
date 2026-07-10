@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { useXPEventBus } from './EventBusContext';
 import userConfig from '../data/user_config.json';
 import { safeLocalStorage, getStorageKey } from '../utils/storage';
 
@@ -72,20 +73,24 @@ export const UserSessionProvider: React.FC<{
     }
   }, [autoLogin]);
 
+  const bus = useXPEventBus();
+
   const login = useCallback((inputPassword: string): boolean => {
     if (inputPassword === password) {
       setIsLoggedIn(true);
       safeLocalStorage.setItem(getStorageKey('logged_in'), 'true');
       safeLocalStorage.setItem(getStorageKey('power_state'), 'running');
+      bus.emit({ type: 'session:login' });
       return true;
     }
     return false;
-  }, [password]);
+  }, [password, bus]);
 
   const logout = useCallback(() => {
     setIsLoggedIn(false);
     safeLocalStorage.setItem(getStorageKey('power_state'), 'logout');
-  }, []);
+    bus.emit({ type: 'session:logout' });
+  }, [bus]);
 
   const setWallpaper = useCallback((id: string) => {
     setWallpaperState(id);
