@@ -8,6 +8,7 @@ import { useApp } from '../hooks/useApp';
 import XPIcon from '../components/XPIcon';
 import { getFileIconName } from '../utils/fileIcon';
 import ExplorerSidebar from '../components/Explorer/ExplorerSidebar';
+import ExplorerFolderTree from '../components/Explorer/ExplorerFolderTree';
 import ExplorerToolbar from '../components/Explorer/ExplorerToolbar';
 import AddressBar from '../components/Explorer/AddressBar';
 import ContextMenu from '../components/ContextMenu';
@@ -242,6 +243,32 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
   const toggleSort = (key: 'name' | 'size' | 'type' | 'modified') =>
     setSort(prev => (prev.key === key ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' }));
 
+  // Folders tree pane (#120, EXP): toggled by the toolbar Folders button,
+  // persisted per instance. Replaces the blue task sidebar when on.
+  const foldersStorageKey = storage.key('explorer_folders');
+  const [showFolders, setShowFolders] = useState<boolean>(
+    () => storage.local.getItem(foldersStorageKey) === '1'
+  );
+  const toggleFolders = () =>
+    setShowFolders(prev => {
+      const next = !prev;
+      storage.local.setItem(foldersStorageKey, next ? '1' : '0');
+      return next;
+    });
+
+  // Address-bar history (#120, EXP-08): an MRU of visited paths, persisted per
+  // instance, surfaced in the address-bar dropdown.
+  const addrHistoryKey = storage.key('explorer_address_history');
+  const [addrHistory, setAddrHistory] = useState<string[][]>(() => {
+    try {
+      const raw = storage.local.getItem(addrHistoryKey);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? (parsed as string[][]) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [history, setHistory] = useState<string[][]>([initialPath]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [selectedItem, setSelectedItem] = useState<{
@@ -272,6 +299,21 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
   useEffect(() => {
     setAddress(getSystemPathDisplay(currentPath, t));
   }, [currentPath, t]);
+
+  // Record the visited path into the MRU history (deduped, most-recent first).
+  useEffect(() => {
+    const marker = currentPath.join(' ');
+    setAddrHistory(prev => {
+      const next = [currentPath, ...prev.filter(p => p.join(' ') !== marker)].slice(0, 12);
+      try {
+        storage.local.setItem(addrHistoryKey, JSON.stringify(next));
+      } catch {
+        /* storage unavailable — history stays in-memory only */
+      }
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPath]);
 
   useEffect(() => {
     api.window.setTitle(getSystemPathTitle(currentPath, t));
@@ -802,9 +844,26 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     ? Object.keys(currentFolder.children).length
     : 0;
 
-  // Explorer keyboard operations (#87 EXP-03/04): Backspace = up one level,
-  // F5 refresh, F2 rename / Delete on the selected item. Ignored while typing
-  // in the address bar.
+  // Child keys in the same order the list shows them (insertion order for the
+  // icon grid; the active sort for Details) — used for arrow-key selection.
+  const orderedKeys = (): string[] => {
+    if (!isContainerNode(currentFolder)) return [];
+    const entries = Object.entries(currentFolder.children);
+    if (viewMode !== 'details') return entries.map(([k]) => k);
+    const dir = sort.dir === 'asc' ? 1 : -1;
+    return [...entries]
+      .sort(([ka, a], [kb, b]) => {
+        if (sort.key === 'size') return ((nodeSizeBytes(a) ?? -1) - (nodeSizeBytes(b) ?? -1)) * dir;
+        if (sort.key === 'type') return nodeTypeLabel(a).localeCompare(nodeTypeLabel(b)) * dir;
+        return getFileDisplayName(ka, a, t).localeCompare(getFileDisplayName(kb, b, t)) * dir;
+      })
+      .map(([k]) => k);
+  };
+
+  // Explorer keyboard operations (#87 EXP-03/04 + #120): Backspace = up one
+  // level, F5 refresh, F2 rename / Delete on the selected item, Enter opens the
+  // selection, and arrows/Home/End move the selection. Ignored while typing in
+  // the address bar.
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
@@ -813,6 +872,12 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     const folder = isContainerNode(currentFolder) ? currentFolder : null;
     const selKey = selectedItem?.key;
     const selNode = selKey && folder ? folder.children[selKey] : undefined;
+
+    const selectByKey = (key: string) => {
+      const node = folder?.children[key];
+      if (!node) return;
+      setSelectedItem({ name: getFileDisplayName(key, node, t), type: node.type, key });
+    };
 
     if (e.key === 'Backspace') {
       if (currentPath.length > 0) {
@@ -832,6 +897,30 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
         e.preventDefault();
         handleDelete({ key: selKey, item: selNode });
       }
+    } else if (e.key === 'Enter') {
+      if (selKey && selNode) {
+        e.preventDefault();
+        handleNavigate(selKey);
+      }
+    } else if (
+      e.key === 'ArrowDown' ||
+      e.key === 'ArrowUp' ||
+      e.key === 'ArrowRight' ||
+      e.key === 'ArrowLeft' ||
+      e.key === 'Home' ||
+      e.key === 'End'
+    ) {
+      if (!folder) return;
+      const keys = orderedKeys();
+      if (keys.length === 0) return;
+      e.preventDefault();
+      const cur = selKey ? keys.indexOf(selKey) : -1;
+      let idx: number;
+      if (e.key === 'Home') idx = 0;
+      else if (e.key === 'End') idx = keys.length - 1;
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') idx = cur <= 0 ? 0 : cur - 1;
+      else idx = cur < 0 ? 0 : Math.min(cur + 1, keys.length - 1);
+      selectByKey(keys[idx]);
     }
   };
 
@@ -864,14 +953,31 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
         canGoUp={currentPath.length > 0}
         view={viewMode}
         onViewChange={changeView}
+        foldersOpen={showFolders}
+        onToggleFolders={toggleFolders}
       />
-      <AddressBar address={address} onAddressChange={setAddress} onGo={handleAddressGo} />
+      <AddressBar
+        address={address}
+        onAddressChange={setAddress}
+        onGo={handleAddressGo}
+        history={addrHistory.map(p => ({ label: getSystemPathDisplay(p, t), path: p }))}
+        onSelectHistory={handleNavigateToPath}
+      />
       <MainContent>
-        <ExplorerSidebar
-          currentPath={currentPath}
-          currentItem={selectedItem}
-          onNavigate={handleNavigateToPath}
-        />
+        {showFolders ? (
+          <ExplorerFolderTree
+            root={getFile([])}
+            currentPath={currentPath}
+            onNavigate={handleNavigateToPath}
+            onClose={toggleFolders}
+          />
+        ) : (
+          <ExplorerSidebar
+            currentPath={currentPath}
+            currentItem={selectedItem}
+            onNavigate={handleNavigateToPath}
+          />
+        )}
         <FileArea key={refreshKey} $flush={viewMode === 'details'}>
           {isInRecycleBin && childCount === 0 ? (
             <EmptyRecycleBinMessage>

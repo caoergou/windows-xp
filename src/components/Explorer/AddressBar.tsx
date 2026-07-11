@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import XPIcon from '../XPIcon';
 import { useTranslation } from 'react-i18next';
@@ -87,6 +87,48 @@ const GoIcon = styled.span`
   }
 `;
 
+const HistoryMenu = styled.ul`
+  position: absolute;
+  top: 100%;
+  left: -1px;
+  right: -1px;
+  margin: 0;
+  padding: 1px;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #7f9db9;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 4000;
+`;
+
+const HistoryItem = styled.li`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 18px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  color: #000;
+
+  &:hover,
+  &[data-active='true'] {
+    background: #316ac5;
+    color: #fff;
+  }
+`;
+
+const HistoryEmpty = styled.li`
+  padding: 3px 8px;
+  font-size: 11px;
+  color: #888;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+`;
+
 const GoButton = styled.button`
   display: flex;
   align-items: center;
@@ -113,18 +155,71 @@ const GoButton = styled.button`
   }
 `;
 
+/** A visited location for the address-bar history dropdown (#120, EXP-08). */
+export interface AddressHistoryEntry {
+  label: string;
+  path: string[];
+}
+
 interface AddressBarProps {
   address: string;
   onAddressChange?: (address: string) => void;
   onGo?: () => void;
+  /** Recently visited locations (most-recent first) for the dropdown. */
+  history?: AddressHistoryEntry[];
+  /** Navigate to a picked history entry. */
+  onSelectHistory?: (path: string[]) => void;
 }
 
-const AddressBar: React.FC<AddressBarProps> = ({ address, onAddressChange, onGo }) => {
+const AddressBar: React.FC<AddressBarProps> = ({
+  address,
+  onAddressChange,
+  onGo,
+  history = [],
+  onSelectHistory,
+}) => {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  // Close the dropdown on an outside click.
+  useEffect(() => {
+    if (!open) return undefined;
+    const handle = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handle);
+    return () => document.removeEventListener('mousedown', handle);
+  }, [open]);
+
+  const pick = (entry: AddressHistoryEntry) => {
+    setOpen(false);
+    setActiveIndex(-1);
+    onSelectHistory?.(entry.path);
+  };
+
+  const onListKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setOpen(false);
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex(i => Math.min(i + 1, history.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex(i => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter' && activeIndex >= 0 && history[activeIndex]) {
+      e.preventDefault();
+      pick(history[activeIndex]);
+    }
+  };
+
   return (
     <Bar>
       <Label>{t('explorer.address')}</Label>
-      <InputWrapper>
+      <InputWrapper ref={wrapRef}>
         <IconWrapper>
           <XPIcon name="folder" size={14} />
         </IconWrapper>
@@ -134,9 +229,45 @@ const AddressBar: React.FC<AddressBarProps> = ({ address, onAddressChange, onGo 
           onChange={e => onAddressChange?.(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && onGo?.()}
         />
-        <DropArrow>
+        <DropArrow
+          role="button"
+          aria-label={t('explorer.address')}
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          data-testid="address-history-toggle"
+          onClick={() => {
+            setActiveIndex(-1);
+            setOpen(o => !o);
+          }}
+        >
           <XPIcon name="dropdown" size={15} />
         </DropArrow>
+        {open && (
+          <HistoryMenu role="listbox" data-testid="address-history-menu" onKeyDown={onListKeyDown}>
+            {history.length === 0 ? (
+              <HistoryEmpty>—</HistoryEmpty>
+            ) : (
+              history.map((entry, i) => (
+                <HistoryItem
+                  key={entry.path.join('\\') || 'root'}
+                  role="option"
+                  aria-selected={i === activeIndex}
+                  data-active={i === activeIndex}
+                  data-testid={`address-history-item-${i}`}
+                  tabIndex={0}
+                  onMouseEnter={() => setActiveIndex(i)}
+                  onClick={() => pick(entry)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') pick(entry);
+                  }}
+                >
+                  <XPIcon name="folder" size={14} />
+                  <span>{entry.label}</span>
+                </HistoryItem>
+              ))
+            )}
+          </HistoryMenu>
+        )}
       </InputWrapper>
       <GoButton onClick={onGo}>
         <GoIcon>

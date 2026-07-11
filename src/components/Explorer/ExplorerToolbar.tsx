@@ -131,7 +131,7 @@ const NavDropArrow = styled.div`
 `;
 
 /* 普通工具按钮（搜索/文件夹/上） */
-const ToolBtn = styled.button<{ $disabled?: boolean }>`
+const ToolBtn = styled.button<{ $disabled?: boolean; $active?: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -140,8 +140,10 @@ const ToolBtn = styled.button<{ $disabled?: boolean }>`
   padding: 0 6px;
   font-size: 11px;
   font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
-  background: transparent;
-  border: 1px solid rgba(0, 0, 0, 0);
+  /* Pressed/toggled look (e.g. Folders pane active) — sunken XP toolbar button. */
+  background: ${p => (p.$active ? '#dedede' : 'transparent')};
+  border: 1px solid ${p => (p.$active ? 'rgb(185, 185, 185)' : 'rgba(0, 0, 0, 0)')};
+  box-shadow: ${p => (p.$active ? 'inset 0 -1px 1px rgba(255, 255, 255, 0.7)' : 'none')};
   border-radius: 3px;
   cursor: ${p => (p.$disabled ? 'default' : 'pointer')};
   opacity: ${p => (p.$disabled ? 0.7 : 1)};
@@ -197,6 +199,10 @@ interface ExplorerToolbarProps {
   view?: 'icons' | 'details';
   /** Switch the file-list view mode (#120). */
   onViewChange?: (mode: 'icons' | 'details') => void;
+  /** Whether the Folders tree pane is showing (#120). */
+  foldersOpen?: boolean;
+  /** Toggle the Folders tree pane (#120). */
+  onToggleFolders?: () => void;
 }
 
 const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
@@ -209,6 +215,8 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
   canGoUp = false,
   view = 'icons',
   onViewChange,
+  foldersOpen = false,
+  onToggleFolders,
 }) => {
   const { t } = useTranslation();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -387,8 +395,13 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
           {t('explorer.search')}
         </ToolBtn>
 
-        {/* 文件夹 */}
-        <ToolBtn title={t('explorer.folders')}>
+        {/* 文件夹 — toggles the Folders tree pane (#120) */}
+        <ToolBtn
+          title={t('explorer.folders')}
+          $active={foldersOpen}
+          aria-pressed={foldersOpen}
+          onClick={onToggleFolders}
+        >
           <XPIcon name="folder_open_toolbar" size={22} />
           {t('explorer.folders')}
         </ToolBtn>
