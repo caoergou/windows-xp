@@ -4,7 +4,7 @@ const InternetExplorer = React.lazy(() => import('../apps/InternetExplorer'));
 const Notepad = React.lazy(() => import('../apps/Notepad'));
 import PhotoViewer from '../apps/PhotoViewer';
 import FileProperties from '../components/FileProperties';
-import QQLogin from '../apps/QQLogin';
+import QQ from '../apps/QQ';
 import SafeGuard360 from '../apps/SafeGuard360';
 import Calculator from '../apps/Calculator';
 import HelpAndSupport from '../apps/HelpAndSupport';
@@ -207,16 +207,20 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     restore: restoreApp(FileProperties),
   },
 
-  QQLogin: {
-    id: 'QQLogin',
+  QQ: {
+    id: 'QQ',
     name: 'QQ',
     nameKey: 'qq.title',
     icon: 'qq',
     locales: ['zh'],
-    window: { width: 320, height: 400, resizable: false, singleton: true },
+    // Opens at the login size; the app resizes itself to the 202×600 buddy-list
+    // panel on successful login (one window that morphs across phases, #119).
+    // Fixed top so the window fits on screen both as the short login box and
+    // after it morphs into the 600px-tall buddy-list panel (#119).
+    window: { width: 352, height: 266, top: 40, minWidth: 190, minHeight: 200, resizable: false, singleton: true },
     lifecycle: {},
-    associations: [{ appField: 'QQLogin', getProps: () => ({}) }],
-    restore: restoreApp(QQLogin),
+    associations: [{ appField: 'QQ', getProps: () => ({}) }],
+    restore: restoreApp(QQ),
   },
 
   SafeGuard360: {

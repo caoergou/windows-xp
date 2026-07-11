@@ -55,6 +55,8 @@ login (default user `User`, password `forthe2000s`) → desktop.
 | `disableDevToolsBlock` | boolean | `false` | Allow F12 / Ctrl+Shift+I/J/C |
 | `disableGlobalShortcuts` | boolean | `false` | Disable Alt+F4 / Alt+Tab handling and the BSOD easter egg |
 | `disableScreenSaver` | boolean | `false` | Disable the idle screensaver |
+| `hourlyChime` | boolean | `false` | Play the classic 整点报时 chime on the hour (a culture package can enable it too) |
+| `idleThresholdMs` | number | `60000` | Inactivity threshold before `user:idle` fires |
 
 > **`apps` and `cultures` are reactive (#122).** Adding or removing an entry
 > after mount registers/updates it — the prop wins over a runtime
@@ -263,6 +265,15 @@ conventions live in [`docs/EVENTS.md`](docs/EVENTS.md).
 | `screensaver:start` | — | The screensaver started. |
 | `screensaver:stop` | — | The screensaver was dismissed. |
 | `notification:show` | `id`, `title`, `body?` | A tray notification balloon was shown. |
+| `notification:click` | `id` | A tray notification balloon was clicked. |
+| `time:hour` | `hour` | Fired on the top of each hour; `hour` is 0–23 (drives the 整点报时 chime). |
+| `time:fire` | `id` | A persisted schedule fired (delay elapsed or its `at` deadline passed, incl. while the page was closed). |
+| `user:idle` | `idleMs` | The user has been inactive for the idle threshold; `idleMs` is that threshold. |
+| `user:active` | — | The user resumed activity after being idle. |
+| `qq:login` | — | The player logged into QQ (the buddy-list panel opened). |
+| `qq:open` | `buddyId?` | The QQ client opened, or a specific buddy chat was opened (`buddyId`). |
+| `qq:online` | `buddyId`, `nickname` | A buddy came online. |
+| `qq:message` | `buddyId`, `direction`, `text` | A QQ message was sent or received; `direction` is 'incoming' (from the buddy) or 'outgoing' (from the player). |
 
 _Generated from `src/events.ts` by `npm run docs:events` — do not edit by hand._
 
@@ -277,6 +288,23 @@ _Generated from `src/events.ts` by `npm run docs:events` — do not edit by hand
 - `appearance`: `setWallpaper(idOrUrl)`, `setLanguage(lang)`
 - `windows`: `list()`, `focus(id)`, `minimize(id)`, `maximize(id)`, `restore(id)`
 - `sound.play(name)` and `emit(event)` (inject onto the same bus `onEvent` and scenario triggers read)
+- `schedule({ id?, delayMs?, at?, event? })` / `cancelSchedule(id)` — time-based
+  triggers (#130). A schedule fires a `time:fire` event (or a caller-supplied
+  `event`) after `delayMs` or at the `at` epoch-ms deadline. **Pending schedules
+  persist per instance and fire on the next load if the deadline passed while
+  the page was closed** ("compute elapsed effects at launch" — there is no
+  background execution). The same subsystem emits the wall-clock `time:hour`
+  and `user:idle` / `user:active` events on the bus.
+
+```jsx
+// Remind the player 90s after they lock a folder — survives a reload.
+ref.current.schedule({ id: 'hint', delayMs: 90_000,
+  event: { type: 'notification:show', id: 'hint', title: 'Psst… try 2003' } });
+```
+
+The classic hourly chime (整点报时) is an opt-in consumer of `time:hour`:
+`<WindowsXP hourlyChime />` (or a culture package's `hourlyChime: true`); it is
+off by default. `idleThresholdMs` tunes when `user:idle` fires (default 60000).
 
 `reset()` clears **both** storage layers (localStorage + IndexedDB file
 contents) for the instance's `storagePrefix`, then reloads. For save/load,

@@ -13,7 +13,9 @@ export { default as Explorer } from '../apps/Explorer';
 export { default as InternetExplorer } from '../apps/InternetExplorer';
 export { default as Notepad } from '../apps/Notepad';
 export { default as PhotoViewer } from '../apps/PhotoViewer';
-export { default as QQLogin } from '../apps/QQLogin';
+export { default as QQ } from '../apps/QQ';
+// Backwards-compatible alias: QQLogin is now the unified QQ Messenger app (#119).
+export { default as QQLogin } from '../apps/QQ';
 export { default as SafeGuard360 } from '../apps/SafeGuard360';
 export { default as Calculator } from '../apps/Calculator';
 export { default as HelpAndSupport } from '../apps/HelpAndSupport';

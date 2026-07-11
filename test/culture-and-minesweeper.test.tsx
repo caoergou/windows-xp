@@ -20,7 +20,7 @@ describe('culture profiles', () => {
     ]);
     expect(getDesktopShortcuts('en').some(item => item.app === 'DummyApp')).toBe(false);
 
-    expect(getStartMenuProfile('zh').pinned.map(item => item.action)).toContain('QQLogin');
+    expect(getStartMenuProfile('zh').pinned.map(item => item.action)).toContain('QQ');
     expect(getStartMenuProfile('en').pinned.map(item => item.action)).toContain(
       'WindowsMediaPlayer'
     );

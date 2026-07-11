@@ -5,6 +5,8 @@
  * 便签、开始菜单应用等）使用本模块按语言隔离为“文化包”。
  */
 
+import { QQProfile } from '../qq/types';
+
 export interface CulturalItem {
   /** 唯一标识 */
   id: string;
@@ -103,8 +105,12 @@ export interface CulturePackage {
   stickyNote?: StickyNoteContent;
   /** 登录后自动弹出的托盘气泡通知（#118） */
   startupNotification?: StartupNotification;
+  /** QQ Messenger 档案：好友 / 分组 / 脚本消息（#119），供 QQ 应用读取 */
+  qq?: QQProfile;
   /** 默认壁纸 URL */
   wallpaper?: string;
+  /** 整点报时：是否在 time:hour 播放经典报时音（默认关闭，#130） */
+  hourlyChime?: boolean;
 }
 
 /** 规范化语言代码为文化包 key */

@@ -83,7 +83,7 @@ const COMMAND_MAP: Record<string, string> = {
   volume: 'VolumeControl',
   network: 'NetworkConnections',
   networkconnections: 'NetworkConnections',
-  qq: 'QQLogin',
+  qq: 'QQ',
   help: 'HelpAndSupport',
   helpandsupport: 'HelpAndSupport',
 };

@@ -54,6 +54,8 @@ export function useApp(windowId?: string) {
       close:       ()       => windowManagerRef.current.closeWindow(resolvedWindowId),
       minimize:    ()       => windowManagerRef.current.minimizeWindow(resolvedWindowId),
       maximize:    ()       => windowManagerRef.current.maximizeWindow(resolvedWindowId),
+      resize:      (width: number, height: number) => windowManagerRef.current.resizeWindow(resolvedWindowId, width, height),
+      move:        (left: number, top: number) => windowManagerRef.current.moveWindow(resolvedWindowId, left, top),
       // 任务栏指示器
       setBadge:    (value: string | number | null)  => windowManagerRef.current.setWindowBadge(resolvedWindowId, value),
       setProgress: (pct: number | null)    => windowManagerRef.current.setWindowProgress(resolvedWindowId, pct),

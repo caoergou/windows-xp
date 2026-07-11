@@ -6,6 +6,7 @@ import { useModal } from '../context/ModalContext';
 import { useTray, type NotifyOptions } from '../context/TrayContext';
 import { useXPEventBus } from '../context/EventBusContext';
 import { useStorage } from '../context/StorageContext';
+import { useScheduler, type ScheduleOptions } from '../context/SchedulerContext';
 import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
 import { useAppRegistry } from '../context/AppRegistryContext';
 import { isContainerNode, isFileContentNode, type FileNode } from '../types';
@@ -15,6 +16,8 @@ import { XP_SNAPSHOT_VERSION, assertLoadableSnapshot, type XPSnapshot } from '..
 import { sounds, play as playSound } from '../utils/soundManager';
 import i18n from '../i18n';
 import type { XPEvent, XPEventListener } from '../events';
+import { qqStore } from '../apps/QQ/qqStore';
+import type { QQProfile } from '../data/qq/types';
 
 /** Filesystem actuation from outside the desktop (#115). Paths are absolute. */
 export interface XPFsApi {
@@ -67,6 +70,23 @@ export interface XPWindowsApi {
 }
 
 /**
+ * QQ Messenger actuation (#119) — lets a scenario/host drive the buddy chat:
+ * open the client (or a specific chat), have a buddy come online, or push an
+ * incoming message. Content otherwise flows from the culture package's `qq`
+ * profile; `loadProfile` replaces it at runtime.
+ */
+export interface XPQQApi {
+  /** Open the QQ client; with `buddyId`, also open (or focus) that chat window. */
+  open: (buddyId?: string) => string | null;
+  /** Deliver an incoming message from a buddy (typing/queueing handled by QQ). */
+  sendMessage: (buddyId: string, text: string) => void;
+  /** Bring a buddy online now (knock sound + tray blink + "上线了" balloon). */
+  bringOnline: (buddyId: string) => void;
+  /** Replace the live QQ profile (buddies/groups/scripts) and restart the session. */
+  loadProfile: (profile: QQProfile) => void;
+}
+
+/**
  * Imperative handle exposed via `ref` on <WindowsXP/> (#76, extended in #115):
  * lets the host drive the desktop programmatically (demos, tests, scenario
  * scripting). The five original top-level methods are kept for backward
@@ -91,12 +111,22 @@ export interface XPHandle {
   appearance: XPAppearanceApi;
   /** Window introspection + control. */
   windows: XPWindowsApi;
+  /** QQ Messenger actuation (#119). */
+  qq: XPQQApi;
   /** Play a named XP system sound. */
   sound: { play: (name: string) => void };
   /** Pop an XP tray balloon notification (#118). Returns the notification id. */
   notify: (options: NotifyOptions) => string;
   /** Inject an event onto the same bus `onEvent` and scenario triggers read. */
   emit: (event: XPEvent) => void;
+  /**
+   * Schedule an event to fire after a delay or at a wall-clock deadline (#130).
+   * Pending schedules persist per instance and fire on next load if the
+   * deadline passed while the page was closed. Returns the schedule id.
+   */
+  schedule: (options: ScheduleOptions) => string;
+  /** Cancel a pending schedule by id (#130). */
+  cancelSchedule: (id: string) => void;
   /** Capture the full desktop state as a portable, versioned snapshot (#117). */
   getSnapshot: () => XPSnapshot;
   /**
@@ -141,6 +171,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
     const { registry } = useAppRegistry();
     const bus = useXPEventBus();
     const storage = useStorage();
+    const { schedule, cancelSchedule } = useScheduler();
 
     useImperativeHandle(
       ref,
@@ -261,11 +292,67 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             restore: focusWindow,
           },
 
+          qq: {
+            open: buddyId => {
+              const def = registry.QQ ?? APP_REGISTRY.QQ;
+              if (!def) {
+                console.warn('[windows-xp] qq.open: QQ app is not registered');
+                return null;
+              }
+              const clientId = openWindow('QQ', def.name ?? 'QQ', def.restore({}), def.icon, {
+                ...(def.window ?? {}),
+                componentProps: {},
+              });
+              if (buddyId) {
+                const existing = windows.find(
+                  w =>
+                    w.appId === 'QQ' &&
+                    (w.componentProps as { buddyId?: string })?.buddyId === buddyId
+                );
+                if (existing) {
+                  focusWindow(existing.id);
+                } else {
+                  const buddy = qqStore.buddy(buddyId);
+                  openWindow(
+                    'QQ',
+                    buddy ? `与 ${buddy.nickname} 聊天中` : 'QQ',
+                    def.restore({ view: 'chat', buddyId }),
+                    def.icon,
+                    {
+                      width: 516,
+                      height: 476,
+                      resizable: false,
+                      componentProps: { view: 'chat', buddyId },
+                    }
+                  );
+                }
+                bus.emit({ type: 'qq:open', buddyId });
+              }
+              return clientId;
+            },
+            sendMessage: (buddyId, text) => {
+              if (!qqStore.receiveMessage(buddyId, text)) {
+                console.warn(
+                  `[windows-xp] qq.sendMessage: no buddy "${buddyId}" (open QQ / loadProfile first)`
+                );
+              }
+            },
+            bringOnline: buddyId =>
+              qqStore.bringOnline(buddyId, { announce: true, runScript: true }),
+            loadProfile: profile => {
+              qqStore.reset();
+              qqStore.start(profile);
+            },
+          },
+
           sound: { play: name => playSound(name as Parameters<typeof playSound>[0]) },
 
           notify,
 
           emit: event => bus.emit(event),
+
+          schedule: options => schedule(options),
+          cancelSchedule: id => cancelSchedule(id),
 
           getSnapshot: (): XPSnapshot => {
             let openWindows: unknown[] = [];
@@ -326,6 +413,8 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
         registry,
         bus,
         storage,
+        schedule,
+        cancelSchedule,
       ]
     );
 

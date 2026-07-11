@@ -12,6 +12,12 @@ import menuCommandUrl from '../assets/audio/xp/menu_command.wav';
 import minimizeUrl from '../assets/audio/xp/minimize.wav';
 import restoreUrl from '../assets/audio/xp/restore.wav';
 import recycleUrl from '../assets/audio/xp/recycle.wav';
+// Authentic QQ2006 sound effects (extracted from the original installer via
+// mengkunsoft/QQ2006 — see src/apps/QQ/assets/NOTICE.md). Wired into the QQ
+// Messenger (#119).
+import qqMessageUrl from '../assets/audio/qq/message.mp3';
+import qqOnlineUrl from '../assets/audio/qq/online.mp3';
+import qqSystemUrl from '../assets/audio/qq/system.mp3';
 
 let audioCtx: AudioContext | null = null;
 
@@ -135,16 +141,19 @@ export const sounds = {
     tone(600, 0.06, 'sine', 0.14, 0.12);
   },
 
-  // QQ 消息提示音
+  // QQ 消息提示音（原版 msg.wav：寻呼机"滴滴"）
   qqMessage() {
-    tone(1047, 0.05, 'triangle', 0.18, 0.0);
-    tone(1319, 0.18, 'sine', 0.14, 0.04);
+    playSample(qqMessageUrl);
   },
 
-  // QQ 上线提示音
+  // QQ 上线提示音（原版 Global.wav：敲门"咚咚"）
   qqOnline() {
-    tone(880, 0.08, 'sine', 0.12, 0.0);
-    tone(1175, 0.16, 'sine', 0.12, 0.08);
+    playSample(qqOnlineUrl);
+  },
+
+  // QQ 系统消息 / 加好友提示音（原版 system.wav："咳、咳"）
+  qqSystem() {
+    playSample(qqSystemUrl);
   },
 };
 

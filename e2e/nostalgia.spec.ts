@@ -82,30 +82,21 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
     await expect(page.locator('text=天涯社区').first()).toBeVisible();
   });
 
-  test('QQ login shows captcha and version-too-old easter egg', async ({ page }) => {
+  test('QQ login opens the buddy-list panel (#119)', async ({ page }) => {
     const qqIcon = page.locator('[data-english-testid="desktop-icon-QQ"]');
     await qqIcon.dblclick();
 
-    // QQ login window appears
-    await expect(page.locator('text=QQ 2007')).toBeVisible();
+    // QQ2006-style login window (banner + account/password, no captcha).
+    await expect(page.locator('[data-testid="qq-login"]')).toBeVisible();
+    await page.locator('[data-testid="qq-login-number"]').fill('10001');
 
-    // Fill account / password / captcha
-    await page.locator('input[placeholder*="QQ号"]').fill('123456');
-    await page.locator('input[placeholder*="密码"]').fill('fakepassword');
+    // Log in → loading strip → buddy-list panel.
+    await page.locator('[data-testid="qq-login-button"]').click();
+    await expect(page.locator('[data-testid="qq-loading"]')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="qq-panel"]')).toBeVisible({ timeout: 8000 });
 
-    // Captcha image is shown next to the input
-    const captchaText = await page.locator('div').filter({ hasText: /^[A-Z0-9]{4}$/ }).first().textContent();
-    const captcha = captchaText?.trim() || 'ABCD';
-    await page.locator('input[placeholder*="验证码"]').fill(captcha);
-
-    // Click login
-    await page.locator('button:has-text("登  录")').click();
-
-    // Loading state
-    await expect(page.locator('text=正在登录')).toBeVisible({ timeout: 5000 });
-
-    // Eventually the version-too-old alert appears
-    await expect(page.locator('text=版本过低')).toBeVisible({ timeout: 10000 });
+    // A grouped buddy from the culture profile is shown.
+    await expect(page.locator('[data-testid="qq-buddy-ahui"]')).toBeVisible();
   });
 
   test('360 Safe Guard can perform a scan', async ({ page }) => {

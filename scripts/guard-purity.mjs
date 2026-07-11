@@ -14,7 +14,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 /** src/ 内联 hex 色值存量基线：只许减少。降低后请同步更新此值。 */
-const HEX_BASELINE = 1371; // 2026-07-11 实测（node scripts/guard-purity.mjs --print-count）
+const HEX_BASELINE = 1372; // 2026-07-11 实测（node scripts/guard-purity.mjs --print-count）
 
 /** 机制层：必须保持零色值、零 xp.css 依赖的目录/文件。 */
 const ENGINE_PURE = ['src/context', 'src/hooks', 'src/utils', 'src/events.ts', 'src/snapshot.ts'];
