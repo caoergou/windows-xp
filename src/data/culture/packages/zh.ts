@@ -1,4 +1,5 @@
 import { CulturePackage } from '../types';
+import { defaultQQProfile } from '../../qq/defaultProfile';
 
 /**
  * 默认中文文化包：2000s 中国网民记忆。
@@ -10,8 +11,9 @@ export const zhCulture: CulturePackage = {
   browser: {
     homepage: 'http://www.hao123.com',
   },
+  qq: defaultQQProfile,
   desktopShortcuts: [
-    { id: 'qq', name: 'QQ', app: 'QQLogin', icon: 'qq' },
+    { id: 'qq', name: 'QQ', app: 'QQ', icon: 'qq' },
     { id: '360safe', name: '360安全卫士', app: 'SafeGuard360', icon: '360safe' },
     { id: 'baofeng', name: '暴风影音', app: 'BaofengPlayer', icon: 'baofeng' },
     { id: 'thunder', name: '迅雷', app: 'Thunder', icon: 'thunder' },
@@ -26,7 +28,7 @@ export const zhCulture: CulturePackage = {
         nameKey: 'startMenu.apps.internetExplorer',
         icon: 'ie',
       },
-      { id: 'qq', action: 'QQLogin', nameKey: 'startMenu.apps.qq', icon: 'qq' },
+      { id: 'qq', action: 'QQ', nameKey: 'startMenu.apps.qq', icon: 'qq' },
     ],
     recent: [
       { id: 'qqmail', action: 'QQMail', nameKey: 'startMenu.apps.qqMail', icon: 'email' },

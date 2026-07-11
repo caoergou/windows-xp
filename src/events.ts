@@ -95,7 +95,18 @@ export type XPEvent =
   /** The user has been inactive for the idle threshold; `idleMs` is that threshold. */
   | { type: 'user:idle'; idleMs: number }
   /** The user resumed activity after being idle. */
-  | { type: 'user:active' };
+  | { type: 'user:active' }
+  // ── qq: QQ Messenger (#119) ─────────────────────────────────────────────────
+  /** The player logged into QQ (the buddy-list panel opened). */
+  | { type: 'qq:login' }
+  /** The QQ client opened, or a specific buddy chat was opened (`buddyId`). */
+  | { type: 'qq:open'; buddyId?: string }
+  /** A buddy came online. */
+  | { type: 'qq:online'; buddyId: string; nickname: string }
+  /** A QQ message was sent or received; `direction` is 'incoming' (from the buddy) or 'outgoing' (from the player). */
+  | { type: 'qq:message'; buddyId: string; direction: 'incoming' | 'outgoing'; text: string }
+  /** The player sent a reply to a buddy (the puzzle-relevant "player answered" beat). */
+  | { type: 'qq:reply'; buddyId: string; text: string };
 
 export type XPEventType = XPEvent['type'];
 export type XPEventListener = (event: XPEvent) => void;

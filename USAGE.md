@@ -269,6 +269,11 @@ conventions live in [`docs/EVENTS.md`](docs/EVENTS.md).
 | `time:hour` | `hour` | Fired on the top of each hour; `hour` is 0–23 (drives the 整点报时 chime). |
 | `time:fire` | `id` | A persisted schedule fired (delay elapsed or its `at` deadline passed, incl. while the page was closed). |
 | `user:idle` | `idleMs` | The user has been inactive for the idle threshold; `idleMs` is that threshold. |
+| `user:active` | — | The user resumed activity after being idle. |
+| `qq:login` | — | The player logged into QQ (the buddy-list panel opened). |
+| `qq:open` | `buddyId?` | The QQ client opened, or a specific buddy chat was opened (`buddyId`). |
+| `qq:online` | `buddyId`, `nickname` | A buddy came online. |
+| `qq:message` | `buddyId`, `direction`, `text` | A QQ message was sent or received; `direction` is 'incoming' (from the buddy) or 'outgoing' (from the player). |
 
 _Generated from `src/events.ts` by `npm run docs:events` — do not edit by hand._
 
