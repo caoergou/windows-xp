@@ -52,6 +52,8 @@ export const zhCulture: CulturePackage = {
     titleKey: 'tray.safeGuardReminder',
     bodyKey: 'tray.safeGuardStatus',
     delay: 3000,
+    trayIcon: '360safe',
+    app: 'SafeGuard360',
   },
   stickyNote: {
     id: 'default',

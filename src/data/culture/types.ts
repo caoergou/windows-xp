@@ -67,6 +67,13 @@ export interface StartupNotification {
   delay?: number;
   /** 气泡显示时长（毫秒），0 表示常驻 */
   timeout?: number;
+  /**
+   * 常驻托盘图标（XPIcon key）。设置后会在托盘常驻该图标，气泡的尾巴对准它，
+   * 点击图标或气泡打开 {@link app}。留空则气泡从通知区域（右侧）弹出。
+   */
+  trayIcon?: string;
+  /** 点击托盘图标 / 气泡时打开的应用 ID（APP_REGISTRY key） */
+  app?: string;
 }
 
 /**

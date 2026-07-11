@@ -24,6 +24,12 @@ export interface NotifyOptions {
   timeout?: number;
   /** Called when the user clicks the balloon body. */
   onClick?: () => void;
+  /**
+   * Tray item id to anchor the balloon's tail to (a registered icon's id, or
+   * the built-in 'volume' / 'network'). The balloon points its tail at that
+   * icon, XP-style. Omit to anchor to the notification area (right side).
+   */
+  anchorId?: string;
 }
 
 interface ActiveNotification extends NotifyOptions {
@@ -56,19 +62,36 @@ export const useTray = (): TrayContextType => {
 };
 
 const DEFAULT_TIMEOUT = 9000;
+/** Taskbar height in px; the balloon floats entirely above it so the tail is not clipped. */
+const TASKBAR_HEIGHT = 30;
+/** Diamond tail size in px (see BalloonTip). */
+const TAIL_SIZE = 12;
+/** Fixed BalloonTip width in px (see BalloonTip). */
+const BALLOON_WIDTH = 242;
 
 const NotificationLayer = styled.div`
   position: fixed;
-  bottom: 33px;
-  right: 8px;
-  z-index: 2000;
+  /* Sit the whole bubble + tail above the taskbar (which has z-index max), so
+     the downward tail is never hidden behind it — its tip meets the tray. */
+  bottom: ${TASKBAR_HEIGHT + TAIL_SIZE / 2}px;
+  z-index: 2147483646;
 `;
 
+interface BalloonPosition {
+  /** Distance from the viewport's right edge to the bubble's right edge. */
+  right: number;
+  /** Distance from the bubble's right edge to the tail (px). */
+  tailOffset: number;
+}
+
+const FALLBACK_POSITION: BalloonPosition = { right: 8, tailOffset: 29 };
+
 /**
- * Renders the head of the notification queue as a fixed balloon above the
- * taskbar. On show it plays the notify sound (SND-06) and emits
+ * Renders the head of the notification queue as a fixed balloon that emanates
+ * from its tray icon. On show it plays the notify sound (SND-06) and emits
  * `notification:show`; auto-fades after the timeout; a click emits
- * `notification:click` and runs the caller's `onClick`.
+ * `notification:click` and runs the caller's `onClick`. The tail is anchored to
+ * the `anchorId` tray icon (measured from the DOM), XP-style.
  */
 const NotificationHost: React.FC<{
   queue: ActiveNotification[];
@@ -77,6 +100,34 @@ const NotificationHost: React.FC<{
   const bus = useXPEventBus();
   const current = queue[0];
   const shownRef = useRef<string | null>(null);
+  const [position, setPosition] = useState<BalloonPosition>(FALLBACK_POSITION);
+
+  // Anchor the tail to the target tray icon's centre (measured from the DOM).
+  React.useLayoutEffect(() => {
+    if (!current || typeof document === 'undefined') return;
+    if (!current.anchorId) {
+      setPosition(FALLBACK_POSITION);
+      return;
+    }
+    const el = document.querySelector<HTMLElement>(`[data-tray-id="${current.anchorId}"]`);
+    if (!el) {
+      setPosition(FALLBACK_POSITION);
+      return;
+    }
+    const rect = el.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const iconCenterX = rect.left + rect.width / 2;
+    // Right edge of the bubble measured from the viewport's right edge.
+    let right = Math.max(4, viewportWidth - (iconCenterX + FALLBACK_POSITION.tailOffset + TAIL_SIZE / 2));
+    // Keep the bubble fully on-screen.
+    right = Math.min(right, viewportWidth - BALLOON_WIDTH - 4);
+    right = Math.max(right, 4);
+    // Re-derive the tail offset so it still points at the icon after clamping.
+    const bubbleRightX = viewportWidth - right;
+    let tailOffset = bubbleRightX - iconCenterX - TAIL_SIZE / 2;
+    tailOffset = Math.min(Math.max(tailOffset, 10), BALLOON_WIDTH - 20);
+    setPosition({ right, tailOffset });
+  }, [current]);
 
   React.useEffect(() => {
     if (!current) {
@@ -103,11 +154,12 @@ const NotificationHost: React.FC<{
   if (!current) return null;
 
   return (
-    <NotificationLayer data-testid="notification-layer">
+    <NotificationLayer data-testid="notification-layer" style={{ right: position.right }}>
       <BalloonTip
         icon={current.icon}
         title={current.title}
         body={current.body}
+        tailOffset={position.tailOffset}
         onClose={() => onDismiss(current.id)}
         onClick={
           current.onClick
