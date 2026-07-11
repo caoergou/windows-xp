@@ -21,6 +21,7 @@
 4. **修复优先级 = 感知度 ⭐⭐⭐ 且状态 ❌ 的条目优先**，其次是 ⭐⭐⭐/🟡 与 ⭐⭐/❌。
 5. 🔍 条目的转正流程：与真实 XP 比对 → 补 e2e 或截图记录 → 改为 ✅/🟡/❌。
 6. **视觉审阅用组件级截图**：用 Playwright `locator.screenshot()` 只截目标组件（对话框、按钮、菜单栏本身），不要全屏截图——目标更聚焦，色值/渐变方向/圆角/边框的偏差一眼可辨。细到图标内部的像素位置，用 sharp 放大 8 倍并与 xp.css 的像素描摹 SVG 并排对照。
+7. **修复批次进度**：第一批（桌面键盘 + Ctrl+Esc）已完成（PR #111）；Explorer 键盘（EXP-03/04）已随 #87 第二批落地；剩余第二批（WIN-03 动画、DLG-01 模态、TSK-04 分组、SND-03~05 接线）继续在 #87 推进；Explorer 视图/目录树/地址栏历史独立为 #120；各键位的跨平台可实施性由 #132 的审计矩阵补充。
 
 ---
 
@@ -65,7 +66,7 @@
 | WIN-09 | 需要注意的窗口任务栏按钮闪烁橙色（FlashWindow） | ⭐⭐ | 🟡 | `flashWindow` 机制已有；颜色/节奏待比对 |
 | WIN-10 | 最小化/还原播放对应系统音（XP 默认方案含"最小化/还原"事件） | ⭐ | ✅ | 已接线：`Window/index.tsx:42`（min）/`:51`（restore）、`Taskbar/index.tsx:213/217` → `sounds.minimize()/restore()` |
 | WIN-11 | 点击窗口任意处置顶获得焦点 | ⭐⭐⭐ | ✅ | |
-| WIN-12 | 层叠窗口 / 横向平铺 / 纵向平铺（任务栏右键） | ⭐⭐ | ❌ | 菜单项存在但未接 action（`Taskbar/index.tsx:383-385`，仅在无窗口时 disabled）；需受控窗口定位，见 §末批次说明 |
+| WIN-12 | 层叠窗口 / 横向平铺 / 纵向平铺（任务栏右键） | ⭐⭐ | ❌ | 菜单项恢复为 disabled 直至实现（#121 修掉了"可点无效"的死点击，`Taskbar/index.tsx:383-388` 附实现前提注释：需受控窗口定位） |
 
 ## D. 任务栏 / 开始菜单 / 托盘（TSK）
 
@@ -88,7 +89,7 @@
 | ID | XP 基准行为 | 感知度 | 状态 | 备注 |
 |----|------------|:---:|:---:|------|
 | EXP-01 | 左侧蓝色任务面板（文件和文件夹任务 / 其它位置 / 详细信息，分组可折叠） | ⭐⭐⭐ | ✅ | `ExplorerSidebar.tsx` |
-| EXP-02 | 查看方式切换：缩略图 / 平铺 / 图标 / 列表 / 详细信息 | ⭐⭐ | ❌ | 当前单一视图；"详细信息"视图感知度最高 |
+| EXP-02 | 查看方式切换：缩略图 / 平铺 / 图标 / 列表 / 详细信息 | ⭐⭐ | ❌ | 当前单一视图；"详细信息"视图感知度最高。→ #120 |
 | EXP-03 | **Backspace = 向上一级**（XP 特有，不是"后退"） | ⭐⭐ | ✅ | Explorer Backspace → 上一级（#87 第二批） |
 | EXP-04 | F5 刷新 / F2 重命名 / Del 删除 在 Explorer 内可用 | ⭐⭐⭐ | ✅ | Explorer F5 刷新、F2 重命名、Del 删除选中项（#87 第二批） |
 | EXP-05 | 剪切（Ctrl+X）的项目图标半透明显示 | ⭐⭐ | 🔍 | 剪贴板逻辑已有 |
@@ -142,7 +143,7 @@
 | SND-05 | 默认响声（Default Beep） | Ding | `ding.wav` | ❌ | 点击模态框的父窗口（依赖 DLG-01） |
 | SND-06 | 系统通知 | Notify | `notify.wav` | 🟡 | 气球提示（TSK-08） |
 | SND-07 | 清空回收站 | Recycle | `recycle.wav` | ✅ | 删除文件时触发 `sounds.recycle()`（`useFileOperations.ts:152`） |
-| SND-08 | 最小化 / 还原 | Minimize / Restore | `minimize/restore.wav` | ✅ | `Window/index.tsx:42/51`、`Taskbar/index.tsx:213/217`（配合 WIN-03 动画） |
+| SND-08 | 最小化 / 还原 | Minimize / Restore | `minimize/restore.wav` | ✅ | `Window/index.tsx:42/51`、`Taskbar/index.tsx:213/217`；WIN-03 动画落地时同步校准时序 |
 | SND-09 | 菜单命令 | Menu Command | `menu_command.wav` | ✅ | 菜单项点击：`ContextMenu.tsx:112`、`Taskbar/index.tsx:203`、`StartMenu.tsx:274` |
 | SND-10 | IE 导航点击（"开始导航"） | Start Navigation | ❌ 缺资产 | ❌ | IE 内点链接；低优先级 |
 
@@ -168,7 +169,7 @@
 | ID | XP 基准 | 感知度 | 状态 | 备注 |
 |----|--------|:---:|:---:|------|
 | STY-01 | 窗口 chrome：Luna 蓝渐变标题栏、顶部圆角、粗边框、贴图控制按钮 | ⭐⭐⭐ | ✅ | #35 已审计修正一轮（去现代阴影、Trebuchet MS 标题字体） |
-| STY-02 | **中文 UI 字体为宋体（SimSun）优先**——雅黑是 Vista 之后的字体，XP 时代中文界面是宋体 9pt | ⭐⭐⭐ | ✅ | 代码字体栈正确（`Tahoma, SimSun, Microsoft YaHei`），AGENTS.md §2 也已改为"中文字体宋体优先（雅黑是 Vista+）"，两者一致 |
+| STY-02 | **中文 UI 字体为宋体（SimSun）优先**——雅黑是 Vista 之后的字体，XP 时代中文界面是宋体 9pt | ⭐⭐⭐ | ✅ | 代码字体栈正确（`Tahoma, SimSun, Microsoft YaHei`），与 AGENTS.md 红线条目一致；字体权威值以本文件 §K.1 为唯一出处 |
 | STY-03 | 字体声明 token 化：同一 font-family 内联重复 30+ 处，无统一出口 | — | ❌ | 收敛进 `src/theme`；这是截图基线的前置（改一处即全局生效） |
 | STY-04 | 表单控件（按钮/输入框/复选框/单选/下拉）的 normal/hover/active/disabled 四态 | ⭐⭐⭐ | 🟡 | xp.css 提供，但多处组件手写偏离：已修 Calculator 按钮（原 Win2000 灰平面 → Luna 渐变+橙 hover）、4 个对话框按钮统一为共享 `XPButton`（xp.css 逐值对齐）、4 个对话框关闭钮从橙色渐变条统一为 Luna 贴图 `CloseBtn`、3 个应用菜单栏统一为 `XPMenuBar`（#99/PR #100）、3 处对话框文本输入框统一为共享 `XPTextInput`（#99）、复选框统一为 `XPCheckbox`/`XPRadio`（STY-17）、下拉统一为 `XPSelect`（STY-18）、滑块统一为 `xpTrackbarStyles`（STY-19）。按钮四态基本收敛，剩余散落手写按钮（ControlPanel/Notepad/FileProperties 等）待并入 XPButton |
 | STY-05 | disabled 文字的经典浮雕效果（灰字 + 1px 白色右下偏移） | ⭐ | 🔍 | |
@@ -237,12 +238,15 @@
 | Win+D/E/R | 任务栏"显示桌面"、开始菜单、运行对话框的鼠标路径 + 可配置键位 |
 | F11 / Ctrl+W 等 | 不拦截，不模拟 |
 
-## 修复批次（与 #87 对齐）
+## 修复批次（与 #87 对齐，2026-07 更新）
 
-- **第一批（感知度 ⭐⭐⭐ 且 ❌）**：WIN-03 最小化动画、DSK-03/04/05 + EXP-04 键盘操作、DLG-01 模态行为、WIN-12 层叠/平铺、KBD-03 Ctrl+Esc、TSK-04 任务栏分组
-- **样式基线批（可与第一批并行，是后续所有样式工作的地基）**：STY-03 字体 token 化 → K.1 token 表落地 `src/theme` → K.2 八个截图基线上 CI → 修正 AGENTS.md 字体条目（STY-02）
-- **第二批**：SND-03~08 声音接线、TSK-08 BalloonTip 组件化、DLG-02~04、EXP-02 详细信息视图、CUR-02/03、STY-09 焦点虚线框
-- **持续**：全部 🔍 条目的核查转正（每次核查附截图或 e2e；样式类 🔍 一律以截图基线形式转正）
+- **✅ 第一批·键盘部分已完成**（PR #111）：DSK-03/04/05 桌面键盘 + KBD-03 Ctrl+Esc
+- **✅ Explorer 键盘已完成**（#87 第二批）：EXP-03 Backspace 上一级、EXP-04 F5/F2/Del；死菜单已由 #121 修复（层叠/平铺恢复 disabled 待 WIN-12 实现）
+- **第一批·剩余（感知度 ⭐⭐⭐ 且 ❌，继续在 #87）**：WIN-03 最小化/最大化动画、DLG-01 模态行为（父窗口禁用 + 闪烁 + ding）、TSK-04 任务栏分组、WIN-12 层叠/平铺实现
+- **Explorer 深化已独立为 #120**：EXP-02 详细信息视图（切换器）、EXP-08 地址栏历史下拉、目录树面板
+- **第二批（#87）**：SND-03~05 声音接线（criticalStop/exclamation 已定义但零调用方，DLG-02）、TSK-08 BalloonTip 组件化（→ #118）、DLG-03~04（与 #124 可访问性合并实施）、CUR-02
+- **样式基线批**：STY-03 token 化 → K.1 表落地 `src/theme`（与 #135 主题层第一接缝为同一份工作）→ K.2 整机画面基线补齐
+- **持续**：全部 🔍 条目的核查转正（每次核查附截图或 e2e；样式类 🔍 一律以截图基线形式转正）；KBD 各条的跨平台可实施性列由 #132 审计矩阵回填
 
 ## 参考资料
 

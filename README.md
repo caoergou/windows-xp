@@ -1,15 +1,15 @@
-# Windows XP Simulator 🖥️
+# Windows XP Desktop Engine 🖥️
 
 <div align="center">
 
-**A love letter to the 2000s internet — recreated as a React component**
+**An embeddable, scriptable Windows XP desktop for React — a nostalgic world you can fill with your own content, watch through events, and drive from code.**
 
 [![npm version](https://img.shields.io/npm/v/@caoergou/windows-xp.svg)](https://www.npmjs.com/package/@caoergou/windows-xp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
+[![React](https://img.shields.io/badge/React-18%20%7C%2019-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
-[Live Demo](https://eric.run.place/windows-xp/) | [Documentation](USAGE.md) | [Report Bug](https://github.com/caoergou/windows-xp/issues)
+[Live Demo](https://eric.run.place/windows-xp/) · [Usage Guide](USAGE.md) · [Roadmap](https://github.com/caoergou/windows-xp/issues/86) · [Report Bug](https://github.com/caoergou/windows-xp/issues)
 
 English | [简体中文](README.zh-CN.md)
 
@@ -17,244 +17,114 @@ English | [简体中文](README.zh-CN.md)
 
 ---
 
-## 🕰️ A Tribute to the 2000s Internet
+Remember the Luna-blue taskbar, the startup chime, the hours lost to Minesweeper? This project recreates that world in the browser — **not as a fixed demo page, but as a React component you own**: replace every file on the desktop with your content, subscribe to everything the user does, and script what happens next.
 
-Remember the sound of a dial-up modem connecting? The thrill of opening MSN Messenger, the bliss of a clean Luna desktop wallpaper, the hours lost to Minesweeper and Solitaire?
+> **Disclaimer:** An independent, fan-made recreation for nostalgic and educational purposes. Not affiliated with or endorsed by Microsoft Corporation. All trademarks belong to their respective owners.
 
-This project is a nostalgic tribute to that era — the early 2000s internet, when the web felt new, personal homepages were everywhere, and Windows XP was the backdrop to countless memories. Whether you grew up with it or just want to experience what it felt like, this component brings that world back to life in the browser.
-
-> **Disclaimer:** This project is an independent, fan-made recreation built purely for nostalgic and educational purposes. It is not affiliated with, endorsed by, or in any way connected to Microsoft Corporation or the Windows operating system. All trademarks belong to their respective owners.
-
----
-
-## ✨ Features
-
-- 🎨 **Authentic Y2K Aesthetic** - Pixel-perfect recreation of the iconic Windows XP Luna theme
-- 🪟 **Full Window Management** - Draggable, resizable windows with minimize/maximize/close
-- 📁 **Virtual File System** - Browse folders, open files, and manage a simulated filesystem
-- 🌐 **Internet Explorer** - Built-in browser with history and iframe rendering
-- 📝 **Rich Applications** - Notepad, Paint, Calculator, Minesweeper, Solitaire, Media Player, and more
-- ❓ **Help and Support Center** - Built-in help documentation with multiple topics
-- 🔐 **Complete Boot Flow** - Authentic boot screen, login system, and screensaver
-- 💾 **Persistent State** - Windows and session state saved to localStorage
-- 🎵 **XP Sounds** - Authentic startup, shutdown, and UI sound effects via Web Audio API
-- ♻️ **Recycle Bin** - Delete and restore files with full functionality
-- 🖱️ **Context Menus** - Right-click menus throughout the interface
-- 🌍 **Culture Profiles** - English and Chinese use distinct desktops, Start menus, browser homepages, and application sets
-- 🎮 **Classic Games** - Minesweeper and Solitaire included
-
-### It's an engine, not just a screenshot
-
-Beyond the desktop, `<WindowsXP>` is built to be embedded, scripted and extended:
-
-- 📡 **Event stream** — subscribe to everything happening inside the desktop with `onEvent` (`app:launch`, `file:open`, `cmd:exec`, `session:*`, …), the foundation for analytics, guided demos and the scenario system
-- 🎛️ **Imperative control** — drive the desktop from your app via a `ref` (`XPHandle`: `openApp`, `openFile`, `closeWindow`, `showAlert`, `reset`)
-- 🧩 **Embeddable** — `mode="embedded"` disables host-page hijacking (right-click/devtools blocks, global shortcuts, screensaver) in one switch; styles are scoped so nothing leaks onto your page
-- 🗂️ **Replaceable content** — bring your own filesystem (`customFileSystem` + `fileSystemMode`), wallpapers (`wallpapers`/`defaultWallpaper`), login `avatar`, `cultures` and `apps`
-- 🧱 **Standalone primitives** — import XP-styled React components (`XPButton`, `XPDialog`, `XPTabs`, …) with no providers, like xp.css but as controlled components
-
-## 📦 Installation
+## Quick Start
 
 ```bash
 npm install @caoergou/windows-xp
 ```
-
-Peer dependencies: `react` (18 or 19), `react-dom`, `styled-components` v6 — everything else is installed automatically.
-
-## 🚀 Quick Start
 
 ```jsx
 import { WindowsXP } from '@caoergou/windows-xp';
 import '@caoergou/windows-xp/style.css';
 
 function App() {
-  return <WindowsXP />;
+  return <WindowsXP autoLogin skipBoot />;
 }
 ```
 
-### Default Login Credentials
+Only three peer dependencies (`react` 18/19, `react-dom`, `styled-components` v6) — everything else, including the XP theme CSS, is bundled.
 
-- **Live Demo**: https://eric.run.place/windows-xp/
-  - Username: `User`
-  - Password: `forthe2000s`
+## Why this one?
 
-- **Using as a Component**: Customize via props
-  ```jsx
-  <WindowsXP username="Admin" password="yourpassword" />
-  ```
+Plenty of projects *look* like Windows XP. This one is built to be **used inside your product**:
 
-## 📖 Usage
+- 🧩 **Embeds without side effects** — every style is scoped under `.windows-xp-root` (your host page's buttons stay yours), `mode="embedded"` disables all global interceptors, and `storagePrefix` gives each instance fully isolated storage. Two desktops on one page just work.
+- 📡 **Everything is an event** — `onEvent` streams typed events for every user action: `file:open`, `app:launch`, `cmd:exec`, `session:login`, window lifecycle… Analytics, guided demos, and puzzle logic all hang off one prop.
+- 🎮 **Drive it from code** — the imperative `ref` handle (`XPHandle`) opens apps and files, reads/writes the filesystem, controls the session and wallpaper, and can snapshot the whole machine to a shareable JSON save (`getSnapshot`/`loadSnapshot`).
+- 📦 **Your world, not ours** — `customFileSystem` + `fileSystemMode="replace"` swap the entire desktop for your content; inject wallpapers, avatar, custom apps, and whole culture packages as props. Adding content never requires writing React.
+- 🧱 **A component library, too** — `XPButton`, `XPDialog`, `XPTabs`, `XPProgressBar` and friends work standalone with zero providers, matching xp.css value-for-value (see the [gallery](https://eric.run.place/windows-xp/?gallery)).
+- 🔍 **Fidelity as a discipline** — every visual and behavioral detail is audited against real XP SP3 in [FIDELITY.md](FIDELITY.md), with design tokens sourced and visual-regression baselines in CI. No "modernized" rounded corners here.
 
-### Basic Configuration
+## What people build with it
+
+| Scenario | The relevant pieces |
+|---|---|
+| **Portfolio / personal site** — your projects as desktop folders, About.txt in Notepad | `fileSystemMode="replace"`, custom apps, IE renders your deployed projects |
+| **Puzzle game / ARG** — locked folders, chat-log clues, a desktop that reacts to the player | `locked`/`password`/`broken` file attributes, `onEvent`, the [scenario system](https://github.com/caoergou/windows-xp/issues/84) (in progress) |
+| **Marketing / creative campaign** — a branded Y2K world (see A24's *Y2K* promo site for the genre) | embedded mode, content replacement, wallpaper/avatar injection |
+| **Nostalgia content site** — 2000s Chinese internet or Western Y2K, as data | culture packages (`cultures` prop) |
+| **Teaching sandbox** — a risk-free machine to demonstrate on | `skipBoot`/`autoLogin`, imperative handle, isolated storage |
+
+The full scenario-by-scenario design work lives in [`docs/USE-CASES.md`](docs/USE-CASES.md), [`docs/PUZZLE-DESIGN.md`](docs/PUZZLE-DESIGN.md) and [`docs/OS-PLATFORM-VISION.md`](docs/OS-PLATFORM-VISION.md).
+
+## Configuration at a glance
 
 ```jsx
 <WindowsXP
-  username="Admin"
-  password="mypassword"
-  language="en"
-  skipBoot={false}
-  autoLogin={false}
-  storagePrefix="xp_"
+  // identity & flow
+  username="Admin" password="hunter2" autoLogin skipBoot
+  // content
+  language="en" customFileSystem={myFs} fileSystemMode="replace"
+  wallpapers={[myWallpaper]} defaultWallpaper="my-wallpaper" avatar="/me.png"
+  cultures={[myCulture]} apps={[myApp]}
+  // host integration
+  mode="embedded" storagePrefix="myapp_xp_"
+  // observability
+  ref={xpRef} onEvent={(e) => console.log(e.type, e)}
 />
 ```
 
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `username` | `string` | `'User'` | Username shown on the login screen |
-| `password` | `string` | `'forthe2000s'` | Password for authentication |
-| `language` | `string` | `'en'` | Initial language (`'en'` or `'zh'`, or a custom culture locale) |
-| `customFileSystem` | `Record<string, FileNode>` | `null` | Files/folders to seed the desktop (see below) |
-| `fileSystemMode` | `'merge' \| 'replace'` | `'merge'` | Merge into the built-in filesystem, or replace it entirely |
-| `avatar` | `string` | – | Login avatar: an `XPIcon` id or an image URL |
-| `wallpapers` | `WallpaperItem[]` | – | Extra wallpapers selectable in Display properties |
-| `defaultWallpaper` | `string` | – | Initial wallpaper id or URL |
-| `cultures` | `CulturePackage[]` | – | Custom culture packages that extend/override `en`/`zh` |
-| `apps` | `AppRegistryEntry[]` | – | Custom applications that extend/override the registry |
-| `skipBoot` | `boolean` | `false` | Skip the boot screen on first load |
-| `autoLogin` | `boolean` | `false` | Log in automatically without the login screen |
-| `storagePrefix` | `string` | `'xp_'` | Per-instance namespace for localStorage / IndexedDB |
-| `mode` | `'fullscreen' \| 'embedded'` | `'fullscreen'` | `'embedded'` disables host-page hijacking by default |
-| `disableContextMenuBlock` | `boolean` | `mode==='embedded'` | Disable the global right-click block |
-| `disableDevToolsBlock` | `boolean` | `mode==='embedded'` | Disable the F12 / devtools-shortcut block |
-| `disableGlobalShortcuts` | `boolean` | `mode==='embedded'` | Disable Alt+F4 / Alt+Tab / BSOD easter egg |
-| `disableScreenSaver` | `boolean` | `mode==='embedded'` | Disable the idle screensaver |
-| `onEvent` | `(e: XPEvent) => void` | – | Listener for every desktop event (see below) |
-
-The component also accepts a `ref` (`XPHandle`) for imperative control. See [USAGE.md](USAGE.md) for the complete reference.
-
-### Events & imperative control
-
-```jsx
-import { useRef } from 'react';
-import { WindowsXP } from '@caoergou/windows-xp';
-import type { XPHandle, XPEvent } from '@caoergou/windows-xp';
-
-function App() {
-  const xp = useRef<XPHandle>(null);
-
-  return (
-    <>
-      <button onClick={() => xp.current?.openApp('Notepad')}>Open Notepad</button>
-      <WindowsXP
-        ref={xp}
-        autoLogin
-        onEvent={(e: XPEvent) => {
-          // Drive an ARG: unlock the next clue when a specific file is opened
-          if (e.type === 'file:open' && e.name === 'secret.txt') {
-            xp.current?.showAlert('You found it', 'The password is: bliss');
-          }
-          if (e.type === 'cmd:exec') console.log('ran command', e.command);
-        }}
-      />
-    </>
-  );
-}
-```
-
-### Custom File System
+Custom filesystem entries merge into the desktop root (top-level keys become desktop items):
 
 Top-level keys are merged into the desktop root — so put files and folders at the top level (do **not** wrap them in a `"Desktop"` folder):
 
 ```jsx
-const customFS = {
-  "MyApp.txt": {
-    "type": "file",
-    "name": "MyApp.txt",
-    "app": "Notepad",
-    "content": "Hello Windows XP!"
-  }
+const myFs = {
+  'ReadMe.txt': { type: 'file', name: 'ReadMe.txt', app: 'Notepad', content: 'Hello!' },
+  'Projects':   { type: 'folder', name: 'Projects', children: { /* … */ } },
 };
-
-<WindowsXP customFileSystem={customFS} />
 ```
 
-For detailed usage and API reference, see [USAGE.md](USAGE.md).
+Every prop, the event catalog, the `XPHandle` methods, culture-package authoring, and subpath imports (`/components`, `/apps`, `/hooks`, `/theme`, `/registry`) are documented in **[USAGE.md](USAGE.md)**.
 
-## 📦 Package Exports
+## Built-in applications
 
-Besides the main `WindowsXP` component, the package exposes focused subpath imports so you can build your own XP-style UI:
+**Complete:** Explorer (with keyboard support — F2/F5/Del, Backspace = up), Notepad (undo/find/replace/word-wrap/save), Paint (draws & saves into the virtual filesystem), Internet Explorer (history, favorites, era portals), Calculator, Minesweeper (XP sprites, best times), Solitaire (full rules & win detection), Command Prompt (real command set + easter eggs), Photo Viewer, Run dialog, Volume Control, Help and Support, Task Manager.
 
-```jsx
-// Main bundled experience
-import { WindowsXP } from '@caoergou/windows-xp';
+**Era apps (Chinese culture package):** QQ Login, 360 Safe Guard (with a working "threat scan" storyline), Thunder, Kugou Music, Baofeng Player, WPS Office.
 
-// Pick only what you need
-import { Window, Taskbar, XPIcon } from '@caoergou/windows-xp/components';
-import { Notepad, Minesweeper } from '@caoergou/windows-xp/apps';
-import { useWindowManager, useFileSystem, useApp, useCulture, useAppRegistry } from '@caoergou/windows-xp/hooks';
-import { xpScrollbarStyles } from '@caoergou/windows-xp/theme';
-import { APP_REGISTRY } from '@caoergou/windows-xp/registry';
-```
+**UI shells (present, intentionally shallow):** Windows Media Player (plays a bundled sample), Control Panel (display/sound/mouse applets), Network Connections.
 
-You can also extend the simulator with custom [culture packages](USAGE.md#custom-culture-packages) and [applications](USAGE.md#custom-applications).
+Plus the system itself: boot screen → login → desktop, Start menu, taskbar & tray, context menus, Recycle Bin, screensaver, BSOD (yes, you can trigger it — try `format c:`).
 
-## 🎨 Built-in Applications
+## Project direction
 
-### Fully Implemented
-- 📝 **Notepad** - Text editor with Undo/Redo, Find/Replace, Word Wrap, and save to the virtual filesystem
-- 🖼️ **Photo Viewer** - Image viewer
-- 🌐 **Internet Explorer** - Web browser with history and hao123 portal
-- 📁 **Explorer** - File manager with navigation and keyboard shortcuts (F2/F5/Del, Backspace = up)
-- 🧮 **Calculator** - Basic calculator
-- 🎨 **Paint** - Brush, line, rectangle, circle drawing; saves the canvas (data URL) into the virtual filesystem
-- 🃏 **Solitaire** - Full move logic, auto-flip, stock recycling, and win detection (unit-tested)
-- 💣 **Minesweeper** - Classic game with difficulty menu, real XP sprites, and best-time tracking per difficulty
-- 💬 **QQ Login** - QQ login dialog
-- ❓ **Help and Support** - Help center
-- 🏃 **Run Dialog** - Run command dialog with common XP commands
-- 🔊 **Volume Control** - Volume settings
+The roadmap lives in [issue #86](https://github.com/caoergou/windows-xp/issues/86): near-term — ship the engine APIs (events, imperative control, save/load) and the declarative **scenario system** so puzzle stories are pure JSON; long-term — [OS packages](docs/OS-PLATFORM-VISION.md): the engine decoupled from "XP" so Win98/Win7/Aqua-like and even **user-defined fictional systems** become installable packages.
 
-### Partial Functionality
-- 💻 **Command Prompt** - Basic commands work; `exit` closes the window
+## Contributing & docs
 
-### Basic UI (Limited Functionality)
-- 🎵 **Windows Media Player** - Media player UI with visualizations, no audio playback yet
-- ⚙️ **Control Panel** - System settings UI, applets not yet functional
-- 🖧 **Network Connections** - Network status UI
+| Doc | What's in it |
+|---|---|
+| [USAGE.md](USAGE.md) | Consumer API: props, events, ref, subpaths, authoring |
+| [FIDELITY.md](FIDELITY.md) | The XP-authenticity baseline: per-behavior scoring + design tokens |
+| [AGENTS.md](AGENTS.md) / [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Principles & code rules for contributors |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Workflow, checks, PR expectations |
+| [docs/](docs/) | Design & analysis: use cases, puzzle design, platform vision |
 
-## 🛠️ Tech Stack
+## Tech stack & support
 
-- **React 18** - UI framework with hooks
-- **TypeScript 5** - Type-safe development
-- **styled-components** - CSS-in-JS styling solution
-- **xp.css** - Windows XP theme library
-- **react-draggable** - Window dragging
-- **react-resizable** - Window resizing
-- **i18next** - Internationalization
+React 18/19 · TypeScript 5 · styled-components 6 · xp.css (build-time scoped) · react-draggable/-resizable · i18next (isolated instance). Browsers: Chrome/Edge 90+, Firefox 88+, Safari 14+.
 
-## 🌐 Browser Support
+## License & acknowledgments
 
-- Chrome/Edge 90+
-- Firefox 88+
-- Safari 14+
+MIT — see [LICENSE](LICENSE). Built on the shoulders of [xp.css](https://botoxparty.github.io/XP.css/), inspired by [winXP](https://github.com/ShizukuIchi/winXP).
 
-## 📝 License
-
-MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [xp.css](https://botoxparty.github.io/XP.css/) - Windows XP CSS framework and bundled retro fonts
-- [winXP](https://github.com/ShizukuIchi/winXP) - Inspiration
-- Microsoft - For creating the iconic Windows XP
-
-### Asset Sources
-
-This project uses assets extracted or derived from original Windows XP media and community preservation efforts **for educational and nostalgic purposes only**.
-
-- **System icons** - Based on the [XPIcons/XP](https://github.com/iconicX/XPIcons) collection and [react-xp](https://github.com/zyishai/react-xp), which preserve Windows XP shell icons at 48×48 and larger sizes.
-- **Wallpapers** - Official Windows XP default wallpapers (Bliss, Luna, etc.) and high-resolution community scans.
-- **Cursors** - Real Windows XP `.cur` / `.ani` cursor files and hand-redrawn SVG/PNG equivalents based on the XP pointer set.
-- **Sounds** - Original Windows XP WAV event sounds (startup, error, click, notify, etc.).
-- **Fonts** - `"Pixelated MS Sans Serif"` and `"Perfect DOS VGA 437 Win"` from the xp.css distribution; fallback to Tahoma and Microsoft YaHei / SimSun for CJK text.
-- **Minesweeper sprites** - Extracted from the Windows XP Minesweeper game files.
-- **Boot screen palette & animation behavior** - Referenced from [PlymouthXP](https://github.com/nulln/PlymouthXP) for the authentic Windows XP boot-screen color palette and progress-bar timing.
-
-All trademarks, icon designs, sound recordings, wallpapers, and sprite artwork remain the property of their respective owners. These assets are not covered by the project MIT license and are included solely to recreate the authentic Windows XP experience.
-
+**Assets:** system icons ([XPIcons](https://github.com/iconicX/XPIcons), [react-xp](https://github.com/zyishai/react-xp)), official XP wallpapers, real `.cur` cursors, original XP event sounds, xp.css fonts, Minesweeper sprites, and boot-screen timing referenced from [PlymouthXP](https://github.com/nulln/PlymouthXP) are used **for educational and nostalgic purposes only**, remain the property of their respective owners, and are not covered by the MIT license.
 
 <div align="center">
-Made with &#10084;&#65039; and nostalgia for the millennium era
+Made with ❤️ and nostalgia for the millennium era
 </div>

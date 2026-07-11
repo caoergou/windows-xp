@@ -4,7 +4,9 @@
 
 ## 项目定位
 
-一个**可嵌入、可定制、可编剧的 Windows XP 桌面引擎 npm 包**（`@caoergou/windows-xp`），不只是一次性的模拟器页面。目标场景：个人主页外壳、品牌营销页、网页解谜游戏、怀旧内容站、教学沙盒。
+一个**可嵌入、可定制、可编剧的 Windows XP 桌面引擎 npm 包**（`@caoergou/windows-xp`），不只是一次性的模拟器页面。目标场景：个人主页外壳、品牌营销页、网页解谜游戏、怀旧内容站、教学沙盒（逐场景需求推导见 `docs/USE-CASES.md`）。
+
+平台级远景（#143 RFC，`docs/OS-PLATFORM-VISION.md`）：引擎与"XP"逐步解耦，OS 本身成为可定义的包——XP 是第一个也是默认的 OS 包。在此之前，保真第一的原则不变。
 
 ## 三大核心原则（按优先级）
 
@@ -16,11 +18,16 @@
 
 | 你想知道… | 去这里 |
 |-----------|--------|
+| 使用方 API：props、事件、ref、子路径导入、内容/文化包编写 | `USAGE.md` |
 | 架构、目录结构、开发命令、如何加应用/文件 | `CLAUDE.md` |
 | 某个视觉/交互在真实 XP 里长什么样、现在差多少、颜色字体的**权威 token 值** | `FIDELITY.md`（§K.1 token 表，每个值带出处） |
 | 代码怎么写：组件规范、质量红线、i18n、彩蛋政策、提交前检查清单 | `docs/DEVELOPMENT.md` |
 | 工作流：如何跑检查、发 PR | `CONTRIBUTING.md` |
-| 路线图与任务拆分 | GitHub issue #86（Roadmap） |
+| 路线图与任务拆分 | GitHub issue #86（Roadmap）+ #143（平台化 RFC） |
+| 五个使用场景各需要什么（博客/营销/游戏/怀旧/教学） | `docs/USE-CASES.md` |
+| 解谜游戏的机制→事件→编排推导 | `docs/PUZZLE-DESIGN.md` |
+| 多 OS / 自定义 OS 的平台化架构 | `docs/OS-PLATFORM-VISION.md` |
+| 2026-07 全面审计（现状、缺口、issue 索引） | `docs/PROJECT-ANALYSIS-2026-07.md` |
 
 ## 十条最常犯的红线（速查）
 

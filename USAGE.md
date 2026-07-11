@@ -1,4 +1,9 @@
-# Windows XP Component - Usage Guide
+# Windows XP Desktop Engine — Usage Guide
+
+The complete consumer reference for `@caoergou/windows-xp`. If you're new,
+read top to bottom: install → configure → inject content → observe & drive →
+embed. Contributors: architecture lives in `CLAUDE.md`, code rules in
+`docs/DEVELOPMENT.md`, the fidelity baseline in `FIDELITY.md`.
 
 ## Installation
 
@@ -6,223 +11,155 @@
 npm install @caoergou/windows-xp
 ```
 
-> Peer dependencies: `react` (18 or 19), `react-dom` and `styled-components` (v6) — everything you almost certainly already have. All implementation details (`react-draggable`, `react-resizable`, `i18next`, `react-i18next`, `immer`) are regular dependencies installed automatically, and the XP theme CSS is compiled into `style.css`, so there is nothing else to install.
+Peer dependencies: `react` (18 or 19), `react-dom`, and `styled-components`
+(v6) — everything you almost certainly already have. All implementation
+details (`react-draggable`, `react-resizable`, `i18next`, `react-i18next`,
+`immer`) are regular dependencies installed automatically, and the XP theme
+CSS is compiled into `style.css`, so there is nothing else to install.
 
-## Basic Usage
+## Quick start
 
 ```jsx
 import { WindowsXP } from '@caoergou/windows-xp';
 import '@caoergou/windows-xp/style.css';
 
 function App() {
-  return <WindowsXP />;
+  return <WindowsXP autoLogin skipBoot />;
 }
 ```
 
-## Props
+Without `autoLogin`/`skipBoot` you get the full experience: boot screen →
+login (default user `User`, password `forthe2000s`) → desktop.
 
-The `WindowsXP` component accepts the following props:
+## Props reference
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `username` | string | `'User'` | Default username for login screen |
-| `password` | string | `'forthe2000s'` | Default password for authentication |
-| `language` | string | `'en'` | Initial language (`'en'` or `'zh'`) |
-| `customFileSystem` | object | `null` | Custom file system structure (see below) |
-| `fileSystemMode` | `'merge'` \| `'replace'` | `'merge'` | Merge `customFileSystem` into the built-in tree, or replace it entirely |
-| `avatar` | string | – | Login avatar: an `XPIcon` id or an image URL |
-| `wallpapers` | `WallpaperItem[]` | – | Extra wallpapers selectable in Display properties |
-| `defaultWallpaper` | string | – | Initial wallpaper id or URL |
-| `cultures` | `CulturePackage[]` | `[]` | Custom culture packages that extend/override built-in `en`/`zh` |
-| `apps` | `AppRegistryEntry[]` | `[]` | Custom applications that extend/override built-in registry |
-| `skipBoot` | boolean | `false` | Skip boot screen on first load |
-| `autoLogin` | boolean | `false` | Automatically login without showing login screen |
-| `storagePrefix` | string | `'xp_'` | Namespace prefix for localStorage / IndexedDB |
-| `mode` | `'fullscreen'` \| `'embedded'` | `'fullscreen'` | `'embedded'` disables all host-page hijacking (right-click/devtools blocks, global shortcuts, screensaver) by default |
-| `disableContextMenuBlock` | boolean | `false` | Disable the global right-click menu block |
-| `disableDevToolsBlock` | boolean | `false` | Disable blocking of F12 / Ctrl+Shift+I/J/C |
-| `disableGlobalShortcuts` | boolean | `false` | Disable Alt+F4 / Alt+Tab / BSOD easter egg |
+| `username` | string | `'User'` | Login screen username |
+| `password` | string | `'forthe2000s'` | Login password |
+| `avatar` | string | built-in | Login/user avatar — an `XPIcon` id or an image URL |
+| `language` | string | `'en'` | Initial language (`'en'` or `'zh'`; other codes need a culture package providing `i18n` resources) |
+| `skipBoot` | boolean | `false` | Skip the boot screen on first load |
+| `autoLogin` | boolean | `false` | Skip the login screen |
+| `customFileSystem` | object | `null` | Your filesystem nodes (see Content) — applied at mount |
+| `fileSystemMode` | `'merge'` \| `'replace'` | `'merge'` | `'replace'` keeps only OS scaffolding; your content becomes the entire desktop |
+| `wallpapers` | `Wallpaper[]` | `[]` | Custom wallpapers, merged over the built-in list (custom wins by id) |
+| `defaultWallpaper` | string | built-in | Initial wallpaper — a wallpaper id or a direct image URL |
+| `cultures` | `CulturePackage[]` | `[]` | Culture packages extending/overriding built-in `en`/`zh` |
+| `apps` | `AppRegistryEntry[]` | `[]` | Custom applications merged over the built-in registry |
+| `onEvent` | `(e: XPEvent) => void` | — | Subscribe to every desktop event (see Events) |
+| `ref` | `Ref<XPHandle>` | — | Imperative control handle (see Events) |
+| `mode` | `'fullscreen'` \| `'embedded'` | `'fullscreen'` | `'embedded'` disables all host-page hijacking in one switch |
+| `storagePrefix` | string | `'xp_'` | Storage namespace — each instance is fully isolated |
+| `disableContextMenuBlock` | boolean | `false` | Allow the browser's right-click menu |
+| `disableDevToolsBlock` | boolean | `false` | Allow F12 / Ctrl+Shift+I/J/C |
+| `disableGlobalShortcuts` | boolean | `false` | Disable Alt+F4 / Alt+Tab handling and the BSOD easter egg |
 | `disableScreenSaver` | boolean | `false` | Disable the idle screensaver |
-| `onEvent` | `(e: XPEvent) => void` | – | Listener called for every desktop event (see [Events and imperative control](#events-and-imperative-control-76)) |
 
-## Examples
+> **Content props are mount-time.** `customFileSystem`, `cultures`, and `apps`
+> are read when the instance mounts; changing them later has no effect
+> (runtime registration hooks exist for advanced cases — see Custom
+> Applications). Reactivity is tracked in issue #122.
 
-### Custom Login Credentials
+## Content: make the desktop yours
 
-```jsx
-<WindowsXP
-  username="Admin"
-  password="mypassword123"
-/>
-```
+### Custom file system
 
-### Chinese Language
-
-```jsx
-<WindowsXP language="zh" />
-```
-
-### Skip Boot and Auto Login
-
-```jsx
-<WindowsXP
-  skipBoot={true}
-  autoLogin={true}
-/>
-```
-
-### Custom File System
-
-You can provide a custom file system structure. Top-level keys are merged into the root file system (which appears on the desktop):
+Top-level keys merge directly into the desktop root — a top-level key IS a
+desktop item:
 
 ```jsx
 const myFileSystem = {
-  "MyApp.lnk": {
-    "type": "app_shortcut",
-    "name": "MyApp.lnk",
-    "app": "Notepad",
-    "icon": "journal"
+  'ReadMe.txt': {
+    type: 'file',
+    name: 'ReadMe.txt',
+    app: 'Notepad',
+    content: 'Welcome to my desktop!',
   },
-  "MyFolder": {
-    "type": "folder",
-    "name": "MyFolder",
-    "children": {
-      "Document.txt": {
-        "type": "file",
-        "name": "Document.txt",
-        "app": "Notepad",
-        "content": "This is a document inside a folder."
-      }
-    }
-  }
+  'My Projects': {
+    type: 'folder',
+    name: 'My Projects',
+    children: {
+      'Project A.txt': { type: 'file', name: 'Project A.txt', app: 'Notepad', content: '…' },
+    },
+  },
+  'MyApp.lnk': { type: 'app_shortcut', name: 'MyApp.lnk', app: 'Calculator', icon: 'calculator' },
 };
 
 <WindowsXP customFileSystem={myFileSystem} />
 ```
 
-### File System Structure
+**Node shape** — `type` (`'file' | 'folder' | 'app_shortcut'`), `name`,
+optional `icon` (an `XPIcon` id), `app` (which registered app opens it),
+`content` (for files), `children` (for folders), and the puzzle attributes
+`locked`, `password`, `broken`.
 
-Each file or folder in the file system follows this structure:
+**File-type → app associations:** `Notepad` (text), `PhotoViewer` (images),
+`InternetExplorer` (html/url), `WindowsMediaPlayer` (audio/video).
 
-**Folder:**
-```json
-{
-  "type": "folder",
-  "name": "Folder Name",
-  "children": {
-    // nested files and folders
-  }
-}
-```
+**Merge vs replace.** The default `'merge'` overlays your nodes on the stock
+desktop. `fileSystemMode="replace"` keeps only OS scaffolding (Recycle Bin +
+an empty My Computer) and drops built-in shortcuts, preset content, and
+culture shortcuts — your `customFileSystem` becomes the whole world. That's
+the mode for portfolios, campaigns, and custom games.
 
-**File:**
-```json
-{
-  "type": "file",
-  "name": "File.txt",
-  "icon": "text",
-  "app": "Notepad",
-  "content": "File content here"
-}
-```
-
-**Supported file types:**
-- `Notepad` - Text files (.txt)
-- `PhotoViewer` - Image files (.jpg, .png, .gif, .bmp)
-- `InternetExplorer` - HTML files (.html, .htm)
-- `WindowsMediaPlayer` - Media files (.mp3, .wav, .avi, .wmv)
-
-## Subpath Imports
-
-For smaller bundles, import only what you need:
+### Wallpapers & avatar
 
 ```jsx
-// Full desktop (largest bundle)
-import { WindowsXP } from '@caoergou/windows-xp';
-
-// Individual applications
-import { Minesweeper } from '@caoergou/windows-xp/apps';
-
-// UI primitives
-import { Window, Desktop, Taskbar, XPIcon } from '@caoergou/windows-xp/components';
-
-// Hooks and providers
-import { useWindowManager, useFileSystem, useAppRegistry, useCulture } from '@caoergou/windows-xp/hooks';
-
-// Theme tokens
-import { COLORS, xpButtonStyles } from '@caoergou/windows-xp/theme';
-
-// App registry helpers
-import { APP_REGISTRY } from '@caoergou/windows-xp/registry';
+<WindowsXP
+  wallpapers={[{ id: 'brand', name: 'Brand', src: '/brand-wallpaper.jpg' }]}
+  defaultWallpaper="brand"          // or a direct URL: "https://…/bg.jpg"
+  avatar="/me.png"                  // or an XPIcon id
+/>
 ```
 
-> When using subpath imports, make sure the components are still rendered inside the providers exported from `@caoergou/windows-xp`.
+Custom wallpapers appear in Display Settings alongside the built-ins.
+A culture package can also declare its default via `CulturePackage.wallpaper`
+(the `defaultWallpaper` prop wins).
 
-## Standalone UI Primitives (no providers)
+### Culture packages
 
-The `@caoergou/windows-xp/components` entry ships a set of **zero-dependency
-primitives** you can drop anywhere — no `<WindowsXP>`, no providers, no context —
-to build XP-styled UI (like [xp.css](https://botoxparty.github.io/XP.css/), but
-as controlled React components). They match the xp.css spec value-for-value.
-
-Standalone primitives: `XPButton`, `XPTextInput`, `XPCheckbox`, `XPRadio`,
-`XPSelect`, `XPProgressBar`, `XPTooltip`, `XPGroupBox`, `XPStatusBar`
-(+ `XPStatusBarField`), `XPTabs`, `XPMenuBar` (family), `XPIcon`, and `XPDialog`.
+A culture package defines a complete regional/era experience: desktop
+shortcuts, Start menu, browser homepage, sticky note, and i18n resources.
+Built-ins: `zh` (2005–2007 Chinese internet) and `en` (Western 2000s).
 
 ```jsx
-import { XPDialog, XPButton } from '@caoergou/windows-xp/components';
-import '@caoergou/windows-xp/style.css';
+const jpRetroCulture = {
+  id: 'jp-retro',
+  displayName: '日本 2000s',
+  locales: ['ja', 'ja-JP'],
+  browser: { homepage: 'http://www.yahoo.co.jp' },
+  desktopShortcuts: [
+    { id: 'nicovideo', name: 'ニコニコ動画', app: 'NicoVideoPlayer', icon: 'nico' },
+  ],
+  startMenu: {
+    pinned: [{ id: 'ie', action: 'InternetExplorer', nameKey: 'startMenu.apps.internetExplorer', icon: 'ie' }],
+    recent: [{ id: 'notepad', action: 'Notepad', nameKey: 'apps.notepad', icon: 'file' }],
+  },
+  stickyNote: { id: 'default', title: 'メモ', content: 'カスタム文化包のテスト' },
+  i18n: {
+    ja: {
+      'startMenu.apps.internetExplorer': 'Internet Explorer',
+      'apps.notepad': 'メモ帳',
+    },
+  },
+};
 
-// A classic XP message box — no providers required.
-function SaveDialog({ onSave, onDiscard, onCancel }) {
-  return (
-    <XPDialog
-      title="Notepad"
-      icon="alert_warning"
-      modal
-      onClose={onCancel}
-      footer={
-        <>
-          <XPButton onClick={onSave}>Yes</XPButton>
-          <XPButton onClick={onDiscard}>No</XPButton>
-          <XPButton onClick={onCancel}>Cancel</XPButton>
-        </>
-      }
-    >
-      The text in the Untitled file has changed. Do you want to save the changes?
-    </XPDialog>
-  );
-}
+<WindowsXP language="ja" cultures={[jpRetroCulture]} />
 ```
 
-Other primitives are equally self-contained:
+Notes for third-language packages: UI strings fall back to English for any
+key you don't provide in `i18n`; Start-menu items resolve names through
+`nameKey` only, so provide those keys. (Authoring validation and a
+`defineCulture()` helper are tracked in #129.)
 
-```jsx
-import {
-  XPGroupBox,
-  XPCheckbox,
-  XPTabs,
-  XPProgressBar,
-  XPStatusBar,
-  XPStatusBarField,
-} from '@caoergou/windows-xp/components';
-```
-
-> **Two layers.** The primitives above are standalone. The *system* components
-> (`Window`, `Taskbar`, `Desktop`, `StartMenu`, `FileProperties`, …) are wired to
-> the desktop's context and must be rendered inside the providers from
-> `@caoergou/windows-xp` (or `AppProviders`). See the component gallery route
-> (`?gallery`) for every primitive rendered in isolation.
-
-## Custom Applications
-
-Register your own XP-style application so it can be opened from the desktop, start menu, or programmatically, and restored after refresh:
+### Custom applications
 
 ```jsx
 import { WindowsXP, useWindowManager, useApp } from '@caoergou/windows-xp';
 
 function MyApp() {
-  const { window } = useApp(); // window.id is injected automatically
+  const { window } = useApp(); // window.id injected automatically
   return <div>Hello from window {window.id}!</div>;
 }
 
@@ -236,7 +173,6 @@ const myApp = {
 
 function Host() {
   const { openWindow } = useWindowManager();
-
   return (
     <>
       <button onClick={() => openWindow('MyApp', 'My App', <MyApp />, 'app_window')}>
@@ -248,199 +184,21 @@ function Host() {
 }
 ```
 
-## Custom Culture Packages
+Rules that matter:
 
-Culture packages let you define a complete regional/era desktop experience: desktop shortcuts, start menu, browser homepage, sticky note, and i18n resources.
+- **`restore` props must be JSON-serializable.** They persist to storage so
+  windows can be rebuilt after refresh — functions, elements, and class
+  instances silently vanish. Pass data, react to it inside the component.
+- Add `associations: [{ appField: 'MyApp', getProps: (item) => ({ /* … */ }) }]`
+  if filesystem nodes should open with your app (`node.app === 'MyApp'`).
+- Add `nameKey` for a translated display name; `name` is the fallback.
+- A `defineApp()` factory that simplifies this is tracked in #128.
 
-```jsx
-import { WindowsXP } from '@caoergou/windows-xp';
+## Events and imperative control
 
-const jpRetroCulture = {
-  id: 'jp-retro',
-  displayName: '日本 2000s',
-  locales: ['ja', 'ja-JP'],
-  browser: { homepage: 'http://www.yahoo.co.jp' },
-  desktopShortcuts: [
-    { id: 'nicovideo', name: 'ニコニコ動画', app: 'NicoVideoPlayer', icon: 'nico' },
-  ],
-  startMenu: {
-    pinned: [
-      { id: 'ie', action: 'InternetExplorer', nameKey: 'startMenu.apps.internetExplorer', icon: 'ie' },
-    ],
-    recent: [
-      { id: 'notepad', action: 'Notepad', nameKey: 'apps.notepad', icon: 'file' },
-    ],
-  },
-  stickyNote: {
-    id: 'default',
-    title: 'メモ',
-    content: 'これはカスタム文化包のテストです',
-  },
-  i18n: {
-    ja: {
-      'startMenu.apps.internetExplorer': 'Internet Explorer',
-      'apps.notepad': 'Notepad',
-    },
-  },
-};
-
-<WindowsXP language="ja" cultures={[jpRetroCulture]} />
-```
-
-## Styling
-
-The component comes with default Windows XP styling via `xp.css`. You can override styles using CSS:
-
-```css
-/* Customize taskbar color */
-.taskbar {
-  background: linear-gradient(to bottom, #245EDC 0%, #3E87EB 10%, #245EDC 100%);
-}
-
-/* Customize window title bar */
-.window-title-bar {
-  background: linear-gradient(to bottom, #0997FF 0%, #0053EE 100%);
-}
-
-/* Customize desktop background */
-.desktop {
-  background-image: url('/path/to/your/background.jpg');
-}
-```
-
-The stylesheet is fully scoped: every xp.css rule is rewritten at build time under `:where(.windows-xp-root, .windows-xp-portal)`, so importing it cannot restyle your host page's `body`, buttons or form controls:
-
-```jsx
-import '@caoergou/windows-xp/style.css';
-```
-
-(`@caoergou/windows-xp/dist/style.css` resolves to the same file and is kept
-as an alias for backwards compatibility - there is exactly one stylesheet.)
-
-## Features
-
-### Window Management
-- ✅ Drag windows by title bar
-- ✅ Resize windows from edges and corners
-- ✅ Minimize, maximize, and close buttons
-- ✅ Window focus management (click to bring to front)
-- ✅ Persistent window state (saved to localStorage)
-
-### File System
-- ✅ Virtual file system with folders and files
-- ✅ Navigate through folders
-- ✅ Open files with associated applications
-- ✅ Right-click context menus
-- ✅ File properties dialog
-- ✅ Recycle Bin functionality
-
-### Built-in Applications
-
-#### Fully Implemented
-- 📝 **Notepad** - Text editor
-- 🖼️ **Photo Viewer** - Image viewer
-- 🌐 **Internet Explorer** - Web browser with history
-- 📁 **Explorer** - File manager
-- 🎨 **Paint** - Drawing application
-- 🧮 **Calculator** - Basic calculator
-- 💣 **Minesweeper** - Classic game
-- 🃏 **Solitaire** - Card game
-- 🔊 **Volume Control** - Volume settings
-- 🏃 **Run Dialog** - Run command dialog
-- ❓ **Help and Support** - Help center
-- 💬 **QQ Login** - QQ login dialog
-
-#### Basic UI (Limited Functionality)
-- 🎵 **Windows Media Player** - Media player UI with visualizations
-- ⚙️ **Control Panel** - System settings UI
-- 💻 **Command Prompt** - Terminal emulator with basic commands
-- 🖧 **Network Connections** - Network status UI
-
-### System Features
-- 🔐 Boot screen and login system
-- 🖥️ Desktop with icons and shortcuts
-- 📊 Taskbar with Start menu
-- 🕐 System clock
-- 🔊 Volume control
-- 🌍 Language switcher (English/Chinese)
-- 💤 Screensaver
-- 🔌 Shutdown/Restart/Logout options
-
-## API Reference
-
-### Context Providers
-
-The component internally uses several React Context providers:
-
-- `AppRegistryProvider` - Manages the application registry
-- `CultureProvider` - Manages active culture package
-- `UserSessionProvider` - Manages user authentication and session
-- `FileSystemProvider` - Manages virtual file system state
-- `WindowManagerProvider` - Manages open windows and their state
-- `ModalProvider` - Manages modal dialogs (alerts, confirms, prompts)
-
-### Custom Hooks
-
-If you're extending the component, you can use these hooks:
-
-```jsx
-import {
-  useAppRegistry,
-  useCulture,
-  useFileSystem,
-  useWindowManager,
-  useUserSession,
-  useApp,
-} from '@caoergou/windows-xp';
-
-function MyCustomComponent() {
-  const { registry, registerApp } = useAppRegistry();
-  const { culture, setCulture } = useCulture();
-  const { openFile, deleteFile } = useFileSystem();
-  const { openWindow, closeWindow } = useWindowManager();
-  const { isLoggedIn, login, logout } = useUserSession();
-  const app = useApp(); // only valid inside a window
-
-  // Your custom logic here
-}
-```
-
-## Browser Support
-
-- ✅ Chrome/Edge 90+
-- ✅ Firefox 88+
-- ✅ Safari 14+
-- ⚠️ Internet Explorer not supported
-
-## Performance Tips
-
-1. **Use subpath imports** - Import only the apps/components you need
-2. **Limit open windows** - Too many open windows can impact performance
-3. **Use production build** - Always use the production build for deployment
-4. **Lazy load applications** - Applications are lazy-loaded by default
-5. **Clear localStorage** - Periodically clear localStorage if state becomes corrupted
-
-## Troubleshooting
-
-### Windows not persisting after refresh
-- Check that localStorage is enabled in your browser
-- Ensure you're not in private/incognito mode
-- Custom apps must be passed to the `apps` prop every render so restoration can find them
-
-### Styling conflicts
-- Make sure to import the CSS file: `import '@caoergou/windows-xp/style.css'`
-- For embedded usage, the component root has the `.windows-xp-root` class
-- Check for CSS conflicts with your existing styles
-
-### Custom file system not working
-- Verify your file system structure matches the expected format
-- Check browser console for errors
-
-## Events and imperative control (#76)
-
-Subscribe to everything happening inside the desktop with `onEvent`, and drive
-it programmatically with a `ref` — the foundation for analytics, guided demos
-and the scenario system.
+Subscribe to everything happening inside the desktop with `onEvent`, and
+drive it programmatically with a `ref` — the foundation for analytics,
+guided demos, and the scenario system (#84).
 
 ```jsx
 import { useRef } from 'react';
@@ -466,16 +224,18 @@ function App() {
 }
 ```
 
-Emitted event types include: `app:launch` / `app:close`, `window:focus` /
-`window:minimize` / `window:maximize` / `window:restore`, `file:open` /
-`file:create` / `file:delete` / `file:rename` / `file:restore` /
-`file:unlock`, `session:login` / `session:logout` / `session:boot-complete` /
-`session:shutdown`, and `cmd:exec`. Each carries a typed payload (see the
-`XPEvent` union).
+**Event types** (typed payloads on the `XPEvent` union):
+`app:launch` / `app:close` · `window:focus` / `window:minimize` /
+`window:maximize` / `window:restore` · `file:open` / `file:create` /
+`file:delete` / `file:rename` / `file:restore` / `file:unlock` ·
+`session:login` / `session:logout` / `session:boot-complete` /
+`session:shutdown` · `cmd:exec`. (Coverage expansion — content edits,
+move/copy, password failures, IE navigation — is tracked in #116; naming
+conventions and timers in #130.)
 
-The imperative `XPHandle` (via `ref`) exposes the top-level `openApp(appId, props?)`,
-`openFile(path)`, `closeWindow(id)`, `showAlert(title, message)` and `reset()`,
-plus grouped actuation APIs (#115):
+**The `XPHandle`** (via `ref`) exposes the top-level `openApp(appId, props?)`,
+`openFile(path)`, `closeWindow(id)`, `showAlert(title, message)` and
+`reset()`, plus grouped actuation APIs (#115):
 
 - `fs`: `readFile(path)`, `writeFile(path, content)`, `createFile(path, node?)`, `deleteFile(path)`, `getNode(path)`, `exists(path)`, `unlockNode(path)`
 - `session`: `login(password?)`, `logout()`, `shutdown()`, `restart()`
@@ -484,10 +244,23 @@ plus grouped actuation APIs (#115):
 - `sound.play(name)` and `emit(event)` (inject onto the same bus `onEvent` and scenario triggers read)
 
 `reset()` clears **both** storage layers (localStorage + IndexedDB file
-contents) for the instance's `storagePrefix`, then reloads.
+contents) for the instance's `storagePrefix`, then reloads. For save/load,
+see "Save / load a snapshot" below.
 
-Inside the tree (custom apps), use the `useXPEvents(listener)` hook to
-subscribe without prop-drilling.
+**Inside the tree** (custom apps), subscribe without prop-drilling:
+
+```jsx
+import { useXPEvents } from '@caoergou/windows-xp';
+
+function EventLogger() {
+  useXPEvents((e) => {
+    if (e.type === 'file:open') {
+      /* react to the world */
+    }
+  });
+  return null;
+}
+```
 
 ### Driving the desktop from the host
 
@@ -571,60 +344,163 @@ import with a `try/catch` and surface a "please update" message.
 
 ## Embedding in a host app
 
-When `<WindowsXP />` is embedded inside an existing application, use `mode="embedded"` — it disables all global event interceptors (right-click block, devtools block, Alt+F4/Alt+Tab shortcuts, idle screensaver) in one switch. Pair it with a unique storage namespace:
-
 ```jsx
 <WindowsXP mode="embedded" storagePrefix="myapp_xp_" />
 ```
 
-Individual `disable*` props still work and override the mode defaults, e.g. `mode="embedded" disableScreenSaver={false}` keeps the screensaver while staying otherwise non-intrusive.
-
-The stylesheet never leaks: all XP styles are scoped under `.windows-xp-root` (and `.windows-xp-portal` for context menus/dialogs), so your host app's controls keep their own look.
-
-Note on storage: `storagePrefix` gives each instance a fully isolated storage namespace (#95) — you can mount several `<WindowsXP>` instances on one page with different prefixes and their windows, filesystem and session state stay independent.
-
-Note on i18n: the library uses its own isolated i18next instance and never initializes the global singleton, so it cannot conflict with your app's i18next setup. If you render standalone components from `@caoergou/windows-xp/components` without `<WindowsXP/>`/`<AppProviders/>`, wrap them in an `I18nextProvider` bound to the exported instance:
-
-```jsx
-import { I18nextProvider } from 'react-i18next';
-import { AppProviders } from '@caoergou/windows-xp';
-// AppProviders already includes the provider; for bare components use your own i18next instance.
-```
+- **`mode="embedded"`** disables all global interceptors (right-click block,
+  devtools block, Alt+F4/Alt+Tab, idle screensaver) in one switch. Individual
+  `disable*` props override the mode defaults, e.g.
+  `mode="embedded" disableScreenSaver={false}` keeps the screensaver.
+- **Styles never leak.** Every xp.css rule is rewritten at build time under
+  `:where(.windows-xp-root, .windows-xp-portal)` — importing `style.css`
+  cannot restyle your host page's body, buttons, or form controls.
+- **Storage is per-instance.** Each `<WindowsXP/>` gets an isolated storage
+  handle namespaced by `storagePrefix` (its own localStorage keys + its own
+  IndexedDB connection). Two instances with different prefixes on one page
+  keep fully separate filesystems, windows, and login state.
+- **i18n is isolated.** The library runs its own i18next instance and never
+  initializes the global singleton, so it cannot conflict with your app's
+  i18next setup.
 
 ## SSR / Next.js
 
-The desktop is a browser-only experience: it reads `localStorage`, plays audio,
-measures the viewport and drives long-running timers. The library is written to
-be **safe to _import_ during SSR** (no `window`/`document` access at module
-scope), but it should only be **rendered on the client**. In the Next.js App or
-Pages Router, load it with `next/dynamic` and `ssr: false`:
+The library is SSR-safe at module scope (no top-level `window`/storage
+access), but the component is deeply client-side — render it client-only:
 
 ```jsx
-'use client';
+// Next.js (app or pages router)
 import dynamic from 'next/dynamic';
-import '@caoergou/windows-xp/style.css';
 
 const WindowsXP = dynamic(
-  () => import('@caoergou/windows-xp').then(m => m.WindowsXP),
+  () => import('@caoergou/windows-xp').then((m) => m.WindowsXP),
   { ssr: false }
 );
+```
 
-export default function Page() {
-  return <WindowsXP autoLogin />;
+Import `@caoergou/windows-xp/style.css` globally as usual. For Astro/Vite
+SSR setups, the equivalent client-only island wrapper applies.
+
+## Subpath imports & standalone primitives
+
+For smaller bundles, import only what you need:
+
+```jsx
+// Full desktop (largest bundle)
+import { WindowsXP } from '@caoergou/windows-xp';
+
+// Individual applications
+import { Minesweeper } from '@caoergou/windows-xp/apps';
+
+// UI building blocks
+import { Window, Desktop, Taskbar, XPIcon } from '@caoergou/windows-xp/components';
+
+// Hooks and providers
+import { useWindowManager, useFileSystem, useAppRegistry, useCulture } from '@caoergou/windows-xp/hooks';
+
+// Theme tokens
+import { COLORS, xpButtonStyles, xpScrollbarStyles } from '@caoergou/windows-xp/theme';
+
+// App registry helpers
+import { APP_REGISTRY, resolveFileOpen, getAppDisplayName } from '@caoergou/windows-xp/registry';
+```
+
+> System components (`Window`, `Taskbar`, `Desktop`, …) are wired to the
+> desktop's contexts and must render inside the providers exported from the
+> root entry (or `AppProviders`). The primitives below need nothing.
+
+### Standalone UI primitives (no providers)
+
+`@caoergou/windows-xp/components` ships **zero-dependency primitives** you can
+drop anywhere — no `<WindowsXP>`, no providers — to build XP-styled UI (like
+[xp.css](https://botoxparty.github.io/XP.css/), but as controlled React
+components, matching the xp.css spec value-for-value):
+
+`XPButton`, `XPTextInput`, `XPCheckbox`, `XPRadio`, `XPSelect`,
+`XPProgressBar`, `XPTooltip`, `XPGroupBox`, `XPStatusBar` (+
+`XPStatusBarField`), `XPTabs`, `XPMenuBar` (family), `XPIcon`, `XPDialog`.
+
+```jsx
+import { XPDialog, XPButton } from '@caoergou/windows-xp/components';
+import '@caoergou/windows-xp/style.css';
+
+// A classic XP message box — no providers required.
+function SaveDialog({ onSave, onDiscard, onCancel }) {
+  return (
+    <XPDialog
+      title="Notepad"
+      icon="alert_warning"
+      modal
+      onClose={onCancel}
+      footer={
+        <>
+          <XPButton onClick={onSave}>Yes</XPButton>
+          <XPButton onClick={onDiscard}>No</XPButton>
+          <XPButton onClick={onCancel}>Cancel</XPButton>
+        </>
+      }
+    >
+      The text in the Untitled file has changed. Do you want to save the changes?
+    </XPDialog>
+  );
 }
 ```
 
-This skips server rendering for the component (avoiding hydration mismatches
-from client-only state) while still letting the rest of your page render on the
-server. The same pattern applies to any SSR framework — render `<WindowsXP>`
-only after mount (e.g. behind an `useEffect`/`mounted` guard).
+```jsx
+import {
+  XPGroupBox,
+  XPCheckbox,
+  XPTabs,
+  XPProgressBar,
+  XPStatusBar,
+  XPStatusBarField,
+} from '@caoergou/windows-xp/components';
+```
 
-## License
+See every primitive rendered in isolation at the component gallery route:
+append `?gallery` to the demo URL.
 
-MIT
+## Styling
 
-## Support
+The stylesheet is fully scoped (see Embedding). To customize beyond the
+supported props, standard CSS targeting the scoped classes works:
 
-For issues, questions, or contributions, visit:
-- GitHub: [https://github.com/caoergou/windows-xp](https://github.com/caoergou/windows-xp)
-- Issues: [https://github.com/caoergou/windows-xp/issues](https://github.com/caoergou/windows-xp/issues)
+```css
+.windows-xp-root .taskbar {
+  /* … */
+}
+```
+
+Prefer the supported surfaces first (wallpapers, culture packages, theme
+tokens from `/theme`) — class names are not a stable API. A proper theme
+layer is tracked in #135.
+
+## Performance
+
+- Use subpath imports when you don't need the full desktop.
+- `skipBoot` + `autoLogin` give the fastest time-to-desktop for embeds.
+- Applications lazy-load by default; the published package is ~3 MB with the
+  largest chunk ~0.4 MB.
+
+## Troubleshooting
+
+**Windows don't persist after refresh** — check localStorage is available
+(not blocked/incognito). Custom apps must be registered (via the `apps` prop
+at mount) so restoration can find their `restore` function; `componentProps`
+must be JSON-serializable or they're dropped.
+
+**Two instances interfere** — give each a distinct `storagePrefix`.
+
+**Styling conflicts** — ensure `style.css` is imported; the component root is
+`.windows-xp-root` (portals use `.windows-xp-portal`). The scoped stylesheet
+cannot leak out; if your host styles leak *in*, scope them away from those
+two classes.
+
+**Custom file system not appearing** — top-level keys merge into the desktop
+root (don't wrap them in a `"Desktop"` folder); remember content props are
+mount-time.
+
+## License & support
+
+MIT — see [LICENSE](LICENSE).
+Issues & questions: [github.com/caoergou/windows-xp/issues](https://github.com/caoergou/windows-xp/issues)
