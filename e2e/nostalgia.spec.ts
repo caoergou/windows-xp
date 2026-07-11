@@ -124,8 +124,11 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
     // Scanning overlay
     await expect(page.locator('text=/正在体检/').first()).toBeVisible({ timeout: 5000 });
 
-    // Result appears
-    await expect(page.locator('text=/您的电脑很安全/').first()).toBeVisible({ timeout: 15000 });
+    // The #85 gag: the scan "finds" real files masquerading as trojans, then
+    // offers to clean them. Clean, and the reassuring result appears.
+    await expect(page.locator('text=/发现 .* 个木马程序/').first()).toBeVisible({ timeout: 15000 });
+    await page.locator('[data-testid="safe-guard-clean-button"]').click();
+    await expect(page.locator('text=/木马已清除/').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('Thunder download manager shows default tasks', async ({ page }) => {

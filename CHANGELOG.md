@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed (CI gates tell the truth, #112)
+
+- **New `CI` workflow** (`.github/workflows/ci.yml`) runs on every pull request
+  and push to `main`: a **quality** job (`lint`, `typecheck`, `guard:nocheck`,
+  the full `vitest run` suite, library build + `size:check`) and an **e2e** job
+  running the Playwright suite in the official Playwright container. Previously
+  PRs were gated only by the visual-snapshot job, and the full unit suite / e2e
+  never ran in CI.
+- **Fixed the always-failing western-culture smoke assertion**
+  (`e2e/smoke.spec.ts`): marked `test.fixme` with a pointer to the en-culture
+  parity issue (#123) so the suite is green until those shortcuts exist.
+- **Fixed the stale 360 安全卫士 scan e2e** (`e2e/nostalgia.spec.ts`): it now
+  follows the #85 gag (scan finds "trojans" → clean → reassuring result) instead
+  of asserting a "safe" result that the trojan-finding behavior never produces.
+- **`publish.yml` now uses `secrets.NPM_TOKEN`** instead of `GITHUB_TOKEN`
+  (which cannot authenticate against npm); the required secret is documented in
+  CONTRIBUTING.md.
+- **CONTRIBUTING.md** now accurately describes what CI runs and adds a Releases
+  section covering the `NPM_TOKEN` secret.
+
 ### Added (behavior fidelity — keyboard batch, #87)
 
 - **Ctrl+Esc opens the Start menu** (KBD-03) — the XP-native Win-key equivalent

@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  quality:
+    name: Lint / typecheck / unit / size
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run guard:nocheck
+      - name: Unit tests (full suite)
+        run: npx vitest run
+      - name: Library build (for size guard)
+        run: npm run build:lib
+      - run: npm run size:check
+
+  e2e:
+    name: End-to-end (Playwright)
+    runs-on: ubuntu-latest
+    # Official Playwright image so the bundled Chromium build and fonts match
+    # what the specs were written against (same pattern as visual.yml).
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-jammy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Run e2e suite
+        run: npm run test:e2e
+        env:
+          CI: 'true'
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
