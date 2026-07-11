@@ -56,7 +56,8 @@
     "build:lib": "rm -rf dist && vite build --config vite.config.lib.ts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "typecheck:strict": "npm run typecheck && npm run guard:nocheck",
+    "typecheck:strict": "npm run typecheck && npm run guard:nocheck && npm run guard:purity",
+    "guard:purity": "node scripts/guard-purity.mjs",
     "guard:nocheck": "node -e \"const{execSync}=require('child_process');try{const out=execSync('grep -rn @ts-nocheck src',{encoding:'utf8'});console.error('FAIL: @ts-nocheck reappeared in src/ (#82):\\n'+out);process.exit(1)}catch(e){if(e.status===1){console.log('guard OK: no @ts-nocheck in src/')}else{throw e}}\"",
     "test": "vitest",
     "test:smoke": "vitest run test/basic.test.tsx test/lib-exports.test.tsx test/WindowsXPProps.test.tsx",
@@ -72,7 +73,7 @@
     "size:check": "node scripts/check-size.mjs",
     "docs:events": "node scripts/gen-events-doc.mjs",
     "docs:events:check": "node scripts/gen-events-doc.mjs --check",
-    "prepublishOnly": "npm run lint && npm run typecheck && npm run guard:nocheck && npm run test -- --run && npm run build:lib && npm run size:check"
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run guard:nocheck && npm run guard:purity && npm run test -- --run && npm run build:lib && npm run size:check"
   },
   "keywords": [
     "windows-xp",

@@ -41,6 +41,8 @@
 8. 面向用户的文案一律 i18n key，禁止硬编码中英文
 9. 声音走 `soundManager` 的事件映射，禁止 `new Audio`
 10. 改交互/样式的 PR 必须同步更新 `FIDELITY.md` 对应条目状态
+11. **机制与"XP 的样子"分层**（#143 预备）：引擎目录（`context`/`hooks`/`utils`/`events.ts`/`snapshot.ts`）禁止出现颜色字面量、xp.css 依赖和 XP 专属 chrome 假设——`guard:purity` 在 CI 强制
+12. 内联 hex 色值存量**只减不增**（`guard:purity` 棘轮计数）；新应用菜单只传结构化数据给 `XPMenuBar`，不自绘菜单 DOM（为 #128 `menus:` 迁移留路）
 
 ## 参考资源
 

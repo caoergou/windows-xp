@@ -20,6 +20,7 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run guard:nocheck
+      - run: npm run guard:purity
       - name: Unit tests (full suite)
         run: npx vitest run
       - name: Library build (for size guard)

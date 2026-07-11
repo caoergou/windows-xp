@@ -47,7 +47,37 @@
   3. **合法**：不使用受版权保护的音视频/图像资产（已有资产除外，新增需确认来源）
   4. **时代正确**：内容锚定 2000s（参考 2005–2007 中文互联网语境），不出现穿越时代的梗
 
-## 七、提交前检查清单
+## 七、引擎纯净性与平台化预备（#143）
+
+> 背景：#143 RFC 计划让 OS 成为可定义的包，XP 是第一个也是默认的 OS 包（全景见
+> `docs/OS-PLATFORM-VISION.md`）。**现在不建平台，但每个 PR 不许扩大"XP 专属
+> 代码渗入引擎"的面积**——否则 Phase B（shell 契约）的手术成本逐 PR 上涨。
+> 护栏：`npm run guard:purity`（CI 强制），规则速查在 `AGENTS.md` 红线 11/12。
+
+- **分层自问**：写代码前先问这段是"机制"（窗口生命周期、FS、事件、存储——将来
+  原样成为引擎）还是"XP 的样子"（Luna 色、chrome、XP 文案、xp.css 类名）。机制
+  层文件（`src/context`、`src/hooks`、`src/utils`、`src/events.ts`、
+  `src/snapshot.ts`）出现后者即违规，`guard:purity` 会挡下
+- **色值棘轮**：src/ 存量内联 hex（基线见 `scripts/guard-purity.mjs`）只减不增；
+  新代码引用 `COLORS`（`src/constants.ts`）/ FIDELITY §K.1 token。还债进度即
+  #135 Phase A / STY-03 的进度，降到基线以下就下调基线锁住战果
+- **xp.css 只在入口挂载**（`src/main.tsx`、`src/lib/index.tsx`），组件不直接
+  import 皮肤表
+- **菜单只声明**：新应用把菜单以结构化数据传给 `XPMenuBar`，不手写菜单 DOM；
+  #128 落地后迁移为 `defineApp` 的 `menus:` 字段（OS 包届时决定渲染位置——
+  窗口内 vs 全局菜单栏）
+- **应用引用留角色余地**：内容数据引用应用走 registry 关联（`resolveFileOpen`），
+  不在代码里散布对具体 appId 的分支判断，为 `appRoles`（files/editor/browser/
+  terminal）间接层留位
+- **行为语义不外溢**：不在窗口机制之外写死 XP 行为假设（如动画目标直接查
+  taskbar DOM、"最小化 = 任务栏按钮"散布在多处）——这些将来是
+  `BehaviorProfile` 的枚举决策
+- **快捷键不散落**：#132 中央 keymap 建成前不新增独立 hotkey 监听（本就撞
+  红线 3）；`Ctrl` 假设将来是 OS 包的 `primaryModifier` 输入
+- **文档标注适用域**：FIDELITY.md 与视觉红线的效力范围是"XP 包"而非引擎，
+  新文档写明 scope，Phase B 时免全文重扫
+
+## 八、提交前检查清单
 
 - [ ] `npm run typecheck && npm run lint && npm test -- --run` 全绿
 - [ ] 涉及交互/样式：已对照并更新 `FIDELITY.md` 对应条目状态
