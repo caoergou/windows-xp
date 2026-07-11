@@ -17,6 +17,112 @@ npm run preview  # Preview production build
 npm test         # Run tests
 ```
 
+## Visual Verification (REQUIRED for every UI change)
+
+Visual fidelity is a first-class deliverable of this project, not a nice-to-have.
+**Any change that touches rendered UI must be verified by looking at a real
+screenshot** — never "assume it looks right" from the code alone. Reading the diff
+tells you what you changed; only a screenshot tells you what the user sees. When a
+change is subtle (spacing, borders, gradients, flush edges, sort arrows, icon
+alignment), the screenshot is the *only* reliable signal.
+
+The behavioural e2e assertions (`toBeVisible`, `getByText`) confirm the DOM exists;
+they do **not** confirm it looks like Windows XP. Do both: assert behaviour in a
+spec, and eyeball a screenshot.
+
+### How to capture a component screenshot
+
+The e2e stack (Playwright + a pre-installed Chromium at `PW_CHROMIUM_PATH`, e.g.
+`/opt/pw-browsers/chromium`) is already wired for this. For a one-off screenshot,
+write a standalone script and read the PNG back with the file-reading tool.
+
+1. Start the dev server: `npm run dev` (serves `http://localhost:5173/windows-xp/`;
+   Vite may fall back to `5174` if `5173` is taken — check the startup log).
+2. Write a script **inside the repo tree** (so Node resolves `playwright` from
+   `node_modules`; a scratchpad path will fail with `ERR_MODULE_NOT_FOUND`). Delete
+   it afterwards so it never gets committed.
+3. Save the PNG to the scratchpad dir, then open it with the Read tool and inspect
+   it against the checklist below — in **both** `en` and `zh`.
+
+```js
+// _shot.mjs  — run from repo root: `node _shot.mjs`, then `rm _shot.mjs`
+import { chromium } from 'playwright';
+
+const BASE = 'http://localhost:5173/windows-xp/';
+const OUT = '<your scratchpad dir>';
+const PW = 'forthe2000s'; // e2e/helpers/login.ts LOGIN_PASSWORD
+
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+
+async function shot(lang, file) {
+  const page = await browser.newPage({ viewport: { width: 1024, height: 768 } });
+  // Skip the boot animation so we land on the login screen quickly.
+  await page.addInitScript(() => {
+    localStorage.clear();
+    localStorage.setItem('xp_first_boot_done', 'true');
+    localStorage.setItem('xp_power_state', 'running');
+  });
+  await page.goto(`${BASE}?lang=${lang}`, { waitUntil: 'networkidle' });
+
+  // Log in (default password), then wait for the desktop.
+  const pw = page.locator('input[type="password"]').first();
+  await pw.waitFor({ state: 'visible', timeout: 10000 });
+  await pw.fill(PW);
+  await page.keyboard.press('Enter');
+  await page.waitForSelector('[data-testid="taskbar"]', { timeout: 20000 });
+
+  // Drive the UI to the exact state you want to inspect. Stable selectors:
+  //   desktop icons  → [data-english-testid="desktop-icon-<english-name>"]
+  //   file items     → [data-testid="file-item-<key>"]
+  //   toolbar btns   → button[title="<translated title>"]
+  await page.locator('[data-english-testid="desktop-icon-my-documents"]').dblclick();
+  await page.waitForSelector('[data-testid="file-item-readme.txt"]');
+
+  await page.screenshot({ path: `${OUT}/${file}` });        // full frame
+  // For a single component, screenshot the locator instead:
+  //   await page.locator('.xp-window').screenshot({ path: ... });
+  await page.close();
+}
+
+await shot('en', 'view-en.png');
+await shot('zh', 'view-zh.png');
+await browser.close();
+```
+
+Tips: use `page.locator(sel).screenshot()` to crop to one window/component; bump
+`viewport` for tall content; `page.waitForTimeout(400)` after opening a menu so
+animations settle; language is set with the `?lang=en|zh` query param.
+
+### XP-style detail checklist
+
+Inspect every screenshot against these — a change is not "done" until it passes.
+The authoritative behaviour/visual baseline is `FIDELITY.md` (✅/🟡/❌ per feature);
+this list is the recurring per-change eyeball pass.
+
+- **Luna chrome** — title bars use the blue Luna gradient with the correct
+  glossy highlight; the min/max/close buttons are the real XP glyphs, red close
+  button on the right; window borders are the ~3px Luna blue, not flat 1px.
+- **Flush & spacing** — panels/toolbars/list headers sit *flush* against their
+  container edges (no stray padding gaps, e.g. a Details header must touch the
+  address bar). Match XP's tight paddings; don't invent whitespace.
+- **Typography** — Tahoma-style UI font; no oversized/undersized text; menu
+  mnemonics render as `File(F)` etc. where the locale uses them.
+- **Gradients & fills** — column headers, buttons and selected rows use the pale
+  blue XP gradients (not flat grey); selection highlight is XP blue `#316AC5`-ish.
+- **Icons** — correct 16px/32px/48px XP icons, crisp (not stretched), aligned to
+  the text baseline; folder vs file vs app icons are right.
+- **Affordances** — sort arrows (▲/▼) on the active Details column; hover states
+  on toolbar buttons; disabled menu items greyed, not clickable no-ops.
+- **i18n parity** — capture `en` AND `zh`. No untranslated raw filesystem keys
+  leaking into the UI (e.g. a Chinese folder key showing in the English desktop),
+  no clipped/overflowing labels, dates/sizes formatted per locale. China-only
+  culture apps (QQ, 360, 迅雷, …) stay Chinese-only — do not add English for them.
+- **Pixel realism** — compare against real XP references when unsure; prefer
+  value-for-value matching of xp.css over eyeballed approximations.
+
+If a screenshot reveals a defect, fix it and re-capture before committing. Record
+what you verified (and attach/inspect the PNG) so the check is auditable.
+
 ## Tech Stack
 
 - **Framework**: React 18 + Vite 5
