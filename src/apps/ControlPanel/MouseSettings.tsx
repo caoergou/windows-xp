@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import { XPCheckbox } from '../../components/XPCheckbox';
+import { xpTrackbarStyles } from '../../theme';
 
 const Container = styled.div`
   display: flex;
@@ -49,49 +51,8 @@ const Value = styled.div`
 `;
 
 const Slider = styled.input`
-  -webkit-appearance: none;
   width: 100%;
-  height: 6px;
-  background: linear-gradient(to bottom, #ffffff, #ece9d8);
-  border: 1px solid #7f9db9;
-  outline: none;
-
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    background: linear-gradient(to bottom, #ffffff, #ece9d8);
-    border: 1px solid #7f9db9;
-    cursor: pointer;
-
-    &:hover {
-      background: linear-gradient(to bottom, #f0f0f0, #dcd9c9);
-    }
-  }
-
-  &::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    background: linear-gradient(to bottom, #ffffff, #ece9d8);
-    border: 1px solid #7f9db9;
-    cursor: pointer;
-  }
-`;
-
-const CheckboxContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const Checkbox = styled.input`
-  width: 13px;
-  height: 13px;
-  cursor: pointer;
-`;
-
-const CheckboxLabel = styled.label`
-  cursor: pointer;
+  ${xpTrackbarStyles}
 `;
 
 const ButtonRow = styled.div`
@@ -161,17 +122,12 @@ const MouseSettings: React.FC<MouseSettingsProps> = ({ onBack }) => {
       </GroupBox>
       <GroupBox>
         <GroupTitle>{t('controlPanel.mouseSettings.pointerTrails', 'Show pointer trails')}</GroupTitle>
-        <CheckboxContainer>
-          <Checkbox
-            type="checkbox"
-            id="cp-pointer-trails"
-            checked={pointerTrails}
-            onChange={(e) => setPointerTrails(e.target.checked)}
-          />
-          <CheckboxLabel htmlFor="cp-pointer-trails">
-            {t('controlPanel.mouseSettings.pointerTrails', 'Show pointer trails')}
-          </CheckboxLabel>
-        </CheckboxContainer>
+        <XPCheckbox
+          id="cp-pointer-trails"
+          checked={pointerTrails}
+          onChange={(e) => setPointerTrails(e.target.checked)}
+          label={t('controlPanel.mouseSettings.pointerTrails', 'Show pointer trails')}
+        />
       </GroupBox>
       <ButtonRow>
         <Button onClick={onBack}>{t('controlPanel.ok', 'OK')}</Button>

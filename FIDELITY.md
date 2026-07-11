@@ -171,7 +171,7 @@
 | STY-01 | 窗口 chrome：Luna 蓝渐变标题栏、顶部圆角、粗边框、贴图控制按钮 | ⭐⭐⭐ | ✅ | #35 已审计修正一轮（去现代阴影、Trebuchet MS 标题字体） |
 | STY-02 | **中文 UI 字体为宋体（SimSun）优先**——雅黑是 Vista 之后的字体，XP 时代中文界面是宋体 9pt | ⭐⭐⭐ | 🟡 | 代码字体栈已正确（`Tahoma, SimSun, Microsoft YaHei`）；**AGENTS.md §常用 XP 字体 写的是 YaHei 优先，与代码矛盾且不保真，需修正**（本次一并修） |
 | STY-03 | 字体声明 token 化：同一 font-family 内联重复 30+ 处，无统一出口 | — | ❌ | 收敛进 `src/theme`；这是截图基线的前置（改一处即全局生效） |
-| STY-04 | 表单控件（按钮/输入框/复选框/单选/下拉）的 normal/hover/active/disabled 四态 | ⭐⭐⭐ | 🟡 | xp.css 提供，但多处组件手写偏离：已修 Calculator 按钮（原 Win2000 灰平面 → Luna 渐变+橙 hover）、4 个对话框按钮统一为共享 `XPButton`（xp.css 逐值对齐）、4 个对话框关闭钮从橙色渐变条统一为 Luna 贴图 `CloseBtn`、3 个应用菜单栏统一为 `XPMenuBar`（#99/PR #100）、3 处对话框文本输入框统一为共享 `XPTextInput`（#99）。其余控件（复选/单选/下拉）待逐个复核 |
+| STY-04 | 表单控件（按钮/输入框/复选框/单选/下拉）的 normal/hover/active/disabled 四态 | ⭐⭐⭐ | 🟡 | xp.css 提供，但多处组件手写偏离：已修 Calculator 按钮（原 Win2000 灰平面 → Luna 渐变+橙 hover）、4 个对话框按钮统一为共享 `XPButton`（xp.css 逐值对齐）、4 个对话框关闭钮从橙色渐变条统一为 Luna 贴图 `CloseBtn`、3 个应用菜单栏统一为 `XPMenuBar`（#99/PR #100）、3 处对话框文本输入框统一为共享 `XPTextInput`（#99）、复选框统一为 `XPCheckbox`/`XPRadio`（STY-17）、下拉统一为 `XPSelect`（STY-18）、滑块统一为 `xpTrackbarStyles`（STY-19）。按钮四态基本收敛，剩余散落手写按钮（ControlPanel/Notepad/FileProperties 等）待并入 XPButton |
 | STY-05 | disabled 文字的经典浮雕效果（灰字 + 1px 白色右下偏移） | ⭐ | 🔍 | |
 | STY-06 | Luna 滚动条（浅蓝立体滑块、箭头按钮三态） | ⭐⭐⭐ | 🟡 | `src/theme/index.ts` 已有样式导出；应用覆盖面待核查（哪些滚动区域还是原生滚动条） |
 | STY-07 | 菜单样式：高亮 `#316AC5` 白字、左侧图标列、分隔线、菜单阴影 | ⭐⭐⭐ | 🔍 | 开始菜单/右键菜单/应用菜单栏统一核查 |
@@ -184,6 +184,9 @@
 | STY-14 | tooltip 黄底样式 | ⭐⭐ | 🔍 | = CUR-03，统一组件解决 |
 | STY-15 | 对话框 chrome 与窗口 chrome 完全一致（同款纵向 Luna 渐变标题栏、蓝色窗框、Luna 关闭钮） | ⭐⭐⭐ | ✅ | 曾为横向 `#0058EE→#3593FF` 渐变 + 独立窗框，4 个对话框各一份；已统一复用 `WindowChrome` 的 `TitleBar`/`WindowContainer`（`XPDialogChrome`），组件级截图对照确认与窗口一致 |
 | STY-16 | 文本输入框（sunken 样式）：`#7f9db9` 单像素边框、`#fff` 底、23px 高、无 focus 高亮描边 | ⭐⭐ | ✅ | xp.css `input[type=text/password]` 逐值核对：XPInput（原 21px 高+2px 3px padding）、PasswordDialog（原多出 `border-radius:1px`+内阴影+发明的蓝色 focus 描边，无 XP 依据）、RunDialog（原缺 height/background，按钮也未接入 XPButton）三处分歧已统一为共享 `XPTextInput`；组件级截图核对三处（运行对话框、密码对话框、重命名对话框）视觉一致 |
+| STY-17 | 复选框/单选框：13px sunken 白底方框 + 7px 勾选贴图；单选 12px sunken 圆 + 4px 圆点 | ⭐⭐ | ✅ | **原生 `<input type=checkbox>` 被 xp.css 全局规则 `opacity:0;position:fixed` 隐藏**（它靠相邻 `input+label::before` 重绘，而 app 标记多不满足该结构）——静音开关、QQ「记住密码/自动登录/隐身登录」等复选框在屏幕上**完全不可见**。新增自绘的共享 `XPCheckbox`/`XPRadio`（逐值取自 xp.css `--border-field` + `checkmark.svg`/`radio-*.svg`），不依赖兄弟结构，处处一致可见。迁移 VolumePopup、VolumeControl、ControlPanel 声音/鼠标、QQ 登录；组件级截图确认 |
+| STY-18 | 下拉框（combobox）：`#7f9db9` sunken 白字段 + 右侧米色凸起下拉钮 + 黑箭头贴图 | ⭐⭐ | ✅ | 原生 `<select>`（ControlPanel 语言、DisplaySettings 壁纸/分辨率/屏保、DesktopProperties 背景/位置）渲染宿主 OS 控件，与 XP Luna combobox 无关。统一为共享 `XPSelect`（xp.css `select` 逐值：`button-down.svg` 米色钮 + 箭头），截图确认 |
+| STY-19 | 轨道条（trackbar/slider）：2px sunken 黑槽 + 11×21 Luna 尖头滑块贴图 | ⭐⭐ | ✅ | 原为 16px 方形/圆形灰滑块（浏览器味），与 XP 尖头 trackbar 无关。新增共享 `xpTrackbarStyles`（`src/theme`，逐值取自 xp.css `input[type=range]` + `indicator-horizontal.svg`）；迁移 VolumeControl/VolumePopup/声音/鼠标四处。**坑**：需 `!important` 覆盖 xp.css 元素选择器（`input[type=range]::-webkit-slider-thumb` 特指度更高），否则默认滑块从贴图透明角露出绿色 |
 
 ### K.1 Design Token 基准表（收敛目标）
 
@@ -196,7 +199,7 @@
 | `text.disabled`（禁用文字） | `#ACA899` | ✅ 系统色 GrayText 与 ButtonShadow 均为 RGB(172,168,153) |
 | `tooltip.bg` | `#FFFFE1` | ✅ 系统色 InfoWindow = RGB(255,255,225) |
 | `window.bg`（输入区/列表底） | `#FFFFFF` | ✅ 系统色 Window |
-| `desktop.fallback`(无壁纸底色) | `#004E98` | ✅ 系统色 Desktop = RGB(0,78,152)。**勘误**：本表曾写 `#3A6EA5`，那是 Windows 2000 的桌面蓝，非 XP Luna |
+| `desktop.fallback`(无壁纸底色) | `#004E98` | ✅ 系统色 Desktop = RGB(0,78,152)。**勘误**：本表曾写 `#3A6EA5`，那是 Windows 2000 的桌面蓝，非 XP Luna。**代码已修**：`constants.ts` `DESKTOP_BACKGROUND` 与 `Desktop.tsx` 底色由 `#3A6EA5` → `#004E98`（#99） |
 | `titlebar.active` | `linear-gradient(180deg, #0997FF, #0053EE 8%, #0050EE 40%, #0066FF 88%, #0066FF 93%, #005BFF 95%, #003DD7 96%, #003DD7)` | ✅ xp.css `title-bar` 实测。**勘误**：旧 AGENTS.md 的 `to right` 双色简化版方向就是错的（Luna 是垂直渐变） |
 | `titlebar.activeSolid` / `gradient`（经典绘制场合） | `#0054E3` / `#3D95FF` | ✅ 系统色 ActiveTitle / GradientActiveTitle |
 | `titlebar.inactive` | `#7A96DF → ?` | 🔍 待核查：`#7A96DF` 与系统色 InactiveTitle 吻合；现用第二段 `#5A7ACF` 出处不明（系统色 GradientInactiveTitle 为 `#9DB9EB`），xp.css 无非激活样式，需截图测量定值 |

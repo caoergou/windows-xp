@@ -51,7 +51,7 @@ export const COLORS = {
     'linear-gradient(to bottom,#0058ee 0%,#3593ff 4%,#288eff 6%,#127dff 8%,#036ffc 10%,#0262ee 14%,#0057e5 20%,#0054e3 24%,#0055eb 56%,#005bf5 66%,#026afe 76%,#0062ef 86%,#0052d6 92%,#0040ab 94%,#003092 100%)',
   WINDOW_TITLE_INACTIVE:
     'linear-gradient(to bottom, #7697e7 0%,#7e9ee3 3%,#94afe8 6%,#97b4e9 8%,#82a5e4 14%,#7c9fe2 17%,#7996de 25%,#7b99e1 56%,#82a9e9 81%,#80a5e7 89%,#7b96e1 94%,#7a93df 97%,#abbae3 100%)',
-  DESKTOP_BACKGROUND: '#3A6EA5',
+  DESKTOP_BACKGROUND: '#004E98',
   TASKBAR_HEIGHT: 30,
   TITLE_BAR_HEIGHT: 25,
   MENU_ITEM_HEIGHT: 22,

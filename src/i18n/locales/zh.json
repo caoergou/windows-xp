@@ -444,9 +444,11 @@
     "incorrectError": "密码错误，请重试"
   },
   "runDialog": {
-    "placeholder": "输入要运行的程序、文件夹、文档或 Internet 资源的名称...",
-    "errorTitle": "Windows XP",
-    "errorMessage": "Windows 找不到文件 '{{command}}'。请确认文件名是否正确，然后再试一次。"
+    "description": "键入程序、文件夹、文档或 Internet 资源的名称，Windows 将为您打开它。",
+    "open": "打开(O)：",
+    "browse": "浏览(B)...",
+    "errorTitle": "运行",
+    "errorMessage": "Windows 找不到 \"{{command}}\"。请确保输入的名称正确，然后重试。"
   },
   "altTab": {
     "switchWindow": "切换窗口"
@@ -619,7 +621,7 @@
     "title": "QQ",
     "login": {
       "accountLabel": "QQ号：",
-      "accountPlaceholder": "QQ号/手机号/邮箱",
+      "accountPlaceholder": "QQ号码",
       "passwordLabel": "密  码：",
       "passwordPlaceholder": "请输入密码",
       "captchaLabel": "验证码：",

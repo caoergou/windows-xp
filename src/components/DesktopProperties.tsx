@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
+import { XPSelect } from './XPSelect';
 import { useUserSession } from '../context/UserSessionContext';
 import { WALLPAPERS, getWallpaperById } from '../data/wallpapers';
 
@@ -62,10 +63,8 @@ const Label = styled.div`
   color: #333;
 `;
 
-const Select = styled.select`
+const Select = styled(XPSelect)`
   flex: 1;
-  font-size: 11px;
-  padding: 2px;
 `;
 
 const ButtonRow = styled.div`

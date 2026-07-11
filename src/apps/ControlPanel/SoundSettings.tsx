@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../../components/XPIcon';
+import { XPCheckbox } from '../../components/XPCheckbox';
+import { xpTrackbarStyles } from '../../theme';
 import { getVolume, setVolume, getMuted, setMuted, sounds } from '../../utils/soundManager';
 
 const Container = styled.div`
@@ -44,33 +46,8 @@ const SliderContainer = styled.div`
 `;
 
 const Slider = styled.input`
-  -webkit-appearance: none;
   width: 100%;
-  height: 6px;
-  background: linear-gradient(to bottom, #ffffff, #ece9d8);
-  border: 1px solid #7f9db9;
-  outline: none;
-
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    background: linear-gradient(to bottom, #ffffff, #ece9d8);
-    border: 1px solid #7f9db9;
-    cursor: pointer;
-
-    &:hover {
-      background: linear-gradient(to bottom, #f0f0f0, #dcd9c9);
-    }
-  }
-
-  &::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    background: linear-gradient(to bottom, #ffffff, #ece9d8);
-    border: 1px solid #7f9db9;
-    cursor: pointer;
-  }
+  ${xpTrackbarStyles}
 `;
 
 const VolumeLabel = styled.div`
@@ -80,20 +57,7 @@ const VolumeLabel = styled.div`
 `;
 
 const CheckboxContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
   margin-top: 8px;
-`;
-
-const Checkbox = styled.input`
-  width: 13px;
-  height: 13px;
-  cursor: pointer;
-`;
-
-const Label = styled.label`
-  cursor: pointer;
 `;
 
 const EventList = styled.div`
@@ -227,8 +191,12 @@ const SoundSettings: React.FC<SoundSettingsProps> = ({ onBack }) => {
           </SliderContainer>
         </VolumeContainer>
         <CheckboxContainer>
-          <Checkbox type="checkbox" id="cp-mute" checked={muted} onChange={handleMuteChange} />
-          <Label htmlFor="cp-mute">{t('controlPanel.soundSettings.mute', 'Mute(&M)')}</Label>
+          <XPCheckbox
+            id="cp-mute"
+            checked={muted}
+            onChange={handleMuteChange}
+            label={t('controlPanel.soundSettings.mute', 'Mute(&M)')}
+          />
         </CheckboxContainer>
       </GroupBox>
       <GroupBox>

@@ -450,8 +450,10 @@
     "incorrectError": "Incorrect password. Please try again."
   },
   "runDialog": {
-    "placeholder": "Enter the name of a program, folder, document, or Internet resource...",
-    "errorTitle": "Windows XP",
+    "description": "Type the name of a program, folder, document, or Internet resource, and Windows will open it for you.",
+    "open": "Open:",
+    "browse": "Browse...",
+    "errorTitle": "Run",
     "errorMessage": "Windows cannot find '{{command}}'. Make sure you typed the name correctly, and then try again."
   },
   "altTab": {
@@ -625,7 +627,7 @@
     "title": "QQ",
     "login": {
       "accountLabel": "QQ Number:",
-      "accountPlaceholder": "QQ/Phone/Email",
+      "accountPlaceholder": "QQ Number",
       "passwordLabel": "Password:",
       "passwordPlaceholder": "Enter password",
       "captchaLabel": "Captcha:",
