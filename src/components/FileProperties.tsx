@@ -108,13 +108,30 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
   parentPath,
   windowId,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('general');
   const [exifData, setExifData] = useState<ExifData | null>(null);
   const { closeWindow } = useWindowManager();
   const { getFileProperties } = useFileSystem();
 
   const properties = fileItem ? getFileProperties(parentPath || [], fileItem.name) : null;
+
+  // Localize the raw values the filesystem layer returns (#121): size as a
+  // byte/object count and the XP-era date, both formatted for the active locale.
+  const sizeDisplay = properties
+    ? properties.childCount !== null
+      ? t('fileProperties.objectCount', { count: properties.childCount })
+      : t('fileProperties.bytes', { count: properties.sizeBytes })
+    : '';
+  const formatDate = (iso: string) => {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return new Intl.DateTimeFormat(i18n.language, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(d);
+  };
 
   useEffect(() => {
     if (fileItem && fileItem.exifPath) {
@@ -183,20 +200,20 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
             </PropertyRow>
             <PropertyRow>
               <Label>{t('fileProperties.size')}:</Label>
-              <Value>{properties.size}</Value>
+              <Value>{sizeDisplay}</Value>
             </PropertyRow>
             <div style={{ borderTop: '1px solid #ccc', margin: '5px 0' }}></div>
             <PropertyRow>
               <Label>{t('fileProperties.created')}:</Label>
-              <Value>{properties.created}</Value>
+              <Value>{formatDate(properties.created)}</Value>
             </PropertyRow>
             <PropertyRow>
               <Label>{t('fileProperties.modified')}:</Label>
-              <Value>{properties.modified}</Value>
+              <Value>{formatDate(properties.modified)}</Value>
             </PropertyRow>
             <PropertyRow>
               <Label>{t('fileProperties.accessed')}:</Label>
-              <Value>{properties.accessed}</Value>
+              <Value>{formatDate(properties.accessed)}</Value>
             </PropertyRow>
             {properties.locked && (
               <PropertyRow>
