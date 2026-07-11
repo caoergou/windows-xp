@@ -178,6 +178,8 @@ Filed as #112–#125 (rounds 1–3), plus #128–#135 from the owner-feedback ro
 | #137 | P1 | Blog content pipeline: MarkdownViewer + manifest adapter + SEO/RSS pattern | S2 flagship tutorial |
 | #138 | P2 | Persistence modes (`local`/`session`/`none`) | S3 campaigns, S5 classrooms |
 | #139 | P2 | Branded boot & login (logo/text/sound/tile overrides) | S3 "first five seconds" |
+| #141 | P2 | Guided lesson engine: anchors, spotlight, Watch/Try/Do, `lesson:*` events | S5 teaching core |
+| #142 | P2 | Teaching content kit: setup wizard, install lifecycle, assertable settings | S5 content + PUZZLE F2 |
 
 The use-case derivations behind #136–#139 (and the #119 reply-provider comment)
 live in `docs/USE-CASES.md`; the game-scenario derivation behind #134 v2 lives

@@ -131,14 +131,52 @@ period sites in IE (✅, expanded by scenario-injectable pages, PUZZLE-DESIGN C3
 No new engine requirements beyond what S1–S3 derive; this scenario is content
 authorship riding on #123/#129/#134.
 
-## S5. Teaching / AI-demo sandbox
+## S5. Teaching sandbox (hand-holding tutorials: install / use / configure)
 
-Jobs: deterministic resets (🔶 #115 `reset()` fix), seeded states
-(🔶 #117 `initialSnapshot`), scripted walkthroughs (✅ L0 handle; 🔶 #134 L2
-builder), observation (✅ `onEvent`), isolation (✅ storagePrefix; R3's
-`persistence:'none'` is the missing piece for kiosk/classroom machines).
-One nice-to-have, not filed: a guided-tour overlay (step highlights) — build as
-a custom app when needed; #128 makes that cheap. No dedicated issue warranted.
+### How this is done today (reference categories)
+
+Two mature industries define the pattern space:
+
+- **Digital adoption platforms** (WalkMe / Whatfix / Userpilot): in-place
+  teaching via spotlights, beacons/hotspots, tooltips, checklists, progress
+  indicators, and **action-driven steps** — the tour advances when the user
+  actually performs the action, with branching on behavior. Their core
+  technical burden is *detecting what the user did* via DOM heuristics.
+- **Software-training simulation** (the ERP/enterprise-training
+  **Watch–Try–Do** methodology, built with Captivate/Storyline-class tools):
+  demonstrate the flow (Watch), let the learner repeat with hints (Try), then
+  assess unaided (Do) — all inside a **risk-free simulated environment**, with
+  SCORM/xAPI progress reporting to an LMS.
+
+### Why this engine has an unfair advantage
+
+1. **The action-detection problem is already solved**: every user action is a
+   typed event on the bus (`app:launch`, `file:create`, `cmd:exec`, …) — the
+   event system doubles as the training-verification engine, no DOM heuristics.
+2. **The simulation is the product**: a fake desktop is the canonical
+   "risk-free sandbox"; resets are free (#115 `reset()`, R3
+   `persistence:'none'`, #117 seeded snapshots).
+3. **Period-authentic pedagogy**: XP's own Help and Support Center (already an
+   app here) had "Show me" demonstrations — Watch mode is diegetic.
+
+### Jobs-to-be-done → engine reality
+
+| Job | Today | Verdict |
+|---|---|---|
+| Author a lesson as data, no React | scenario runtime planned | 🔶 #141 lesson schema over #84 |
+| Point at UI ("click Start") with spotlight/beacon that tracks windows | nothing | 🔶 #141 anchor registry + overlays |
+| Advance only when the learner really did it; hints on stall; block/undo wrong turns | event bus ✅, gating 🔶 | 🔶 #141 (expect patterns, hint ladders, nudge/shield/undo) |
+| Demonstrate first (ghost cursor), then practice, then assess | imperative handle 🔶 #115 | 🔶 #141 Watch/Try/Do modes |
+| Teach *installing* software (wizard, download flow, uninstall) | no installer anything | 🔶 #142 SetupWizard + `installer` node + Add/Remove applet |
+| Verify by *result*, not click order (`exists`, `settingEquals`) | FS predicates 🔶 #116/#84 | 🔶 #142 assertable app settings + `ui:action` events |
+| Report progress to an LMS | `onEvent` ✅ | 🔶 #141 `lesson:*` events + xAPI mapping doc |
+| Every learner starts identical; kiosk machines | — | 🔶 #138 (`persistence:'none'`) + #117 |
+| Link a student to lesson 3 step 2 | — | 🔶 #136 (`?lesson=` deep links) |
+
+Derived issues: **#141** (guided lesson engine — lessons-as-data, anchors,
+spotlight, Watch/Try/Do, `lesson:*` events) and **#142** (teaching content kit —
+data-driven setup wizard shared with PUZZLE-DESIGN F2, observable install
+lifecycle, assertable settings, flagship "Get New Software" lesson pack).
 
 ---
 
@@ -151,6 +189,8 @@ a custom app when needed; #128 makes that cheap. No dedicated issue warranted.
 | R3 | `persistence: 'local' \| 'session' \| 'none'` | S2, S3, S5 | S |
 | R4 | Branded boot & login (logo/text/sound/tile overrides) | S3, S2 personalization | S–M |
 | R5 | `openExternal` action + `link:external` event | S3 conversions, S2 outbound links | XS |
+| R6 | Guided lesson engine (anchors, spotlight, Watch/Try/Do, `lesson:*`) → #141 | S5 core | L |
+| R7 | Teaching content kit (setup wizard, install lifecycle, assertable settings) → #142 | S5 content, S1 (F2 wizard) | M–L |
 | — | #119 pluggable reply provider (AI buddy) | S3 (A24 pattern), S1 hint channel | comment on #119 |
 | — | Analytics adapter recipe + campaign performance checklist + fetch-then-mount content ops | S2, S3 | docs (USAGE), fold into R1/R2 issues |
 
