@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (component library primitives, closes #78)
+
+- **Standalone `XPDialog`**: a provider-free, XP-styled dialog (Luna title bar +
+  icon + close, optional `modal` overlay and `footer` buttons) that reuses the
+  real window chrome. Composes a classic XP message box from `<XPDialog>` +
+  `<XPButton>` with no `<WindowsXP>` and no providers.
+- **New zero-dependency primitives**: `XPGroupBox` (grooved fieldset + legend),
+  `XPStatusBar` / `XPStatusBarField`, and `XPTabs` (controlled or uncontrolled),
+  all value-for-value from xp.css. Together with the primitives added earlier
+  (`XPButton`, `XPTextInput`, `XPCheckbox`, `XPRadio`, `XPSelect`,
+  `XPProgressBar`, `XPTooltip`, `XPMenuBar`) this fills out the "usable like
+  xp.css" component set.
+- **Gallery covers the primitives**: the `?gallery` route now renders group box,
+  tabs, standalone dialog and status bar too, each with a committed
+  visual-regression baseline (13 total).
+- **Docs**: new USAGE "Standalone UI Primitives (no providers)" section that
+  spells out the two layers (standalone primitives vs. provider-backed system
+  components) with a real `XPDialog` + `XPButton` example; the doc-examples test
+  validates every documented import against the real exports.
+
 ### Added (activated easter eggs, closes #85)
 
 - **CMD easter-egg commands**: `matrix` (green "wake up, Neo" screen), `color`

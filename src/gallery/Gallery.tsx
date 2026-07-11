@@ -7,6 +7,10 @@ import { XPSelect } from '../components/XPSelect';
 import { XPProgressBar } from '../components/XPProgressBar';
 import { XPTooltip } from '../components/XPTooltip';
 import { XPMenuBar, XPMenuBarItem } from '../components/XPMenuBar';
+import { XPGroupBox } from '../components/XPGroupBox';
+import { XPStatusBar, XPStatusBarField } from '../components/XPStatusBar';
+import { XPTabs } from '../components/XPTabs';
+import { XPDialog } from '../components/XPDialog';
 import { xpTrackbarStyles } from '../theme';
 
 /**
@@ -170,6 +174,57 @@ const Gallery: React.FC = () => {
             <XPMenuBarItem>View</XPMenuBarItem>
             <XPMenuBarItem>Help</XPMenuBarItem>
           </XPMenuBar>
+        </Section>
+
+        <Section data-testid="gallery-groupbox">
+          <Title>Group box — XPGroupBox</Title>
+          <XPGroupBox label="Options">
+            <Row style={{ marginBottom: 0 }}>
+              <XPCheckbox checked readOnly label="Enable feature" />
+              <XPTextInput defaultValue="value" style={{ width: 120 }} />
+            </Row>
+          </XPGroupBox>
+        </Section>
+
+        <Section data-testid="gallery-tabs">
+          <Title>Tabs — XPTabs</Title>
+          <XPTabs
+            defaultActiveId="general"
+            tabs={[
+              { id: 'general', label: 'General', content: 'General settings panel.' },
+              { id: 'advanced', label: 'Advanced', content: 'Advanced settings panel.' },
+              { id: 'about', label: 'About', content: 'About this program.' },
+            ]}
+          />
+        </Section>
+
+        <Section data-testid="gallery-dialog">
+          <Title>Dialog — XPDialog (standalone, no providers)</Title>
+          <XPDialog
+            title="Notepad"
+            icon="alert_warning"
+            width={320}
+            footer={
+              <>
+                <XPButton>Yes</XPButton>
+                <XPButton>No</XPButton>
+                <XPButton>Cancel</XPButton>
+              </>
+            }
+          >
+            The text in the Untitled file has changed.
+            <br />
+            Do you want to save the changes?
+          </XPDialog>
+        </Section>
+
+        <Section data-testid="gallery-statusbar">
+          <Title>Status bar — XPStatusBar</Title>
+          <XPStatusBar>
+            <XPStatusBarField>Ready</XPStatusBarField>
+            <XPStatusBarField>Ln 1, Col 1</XPStatusBarField>
+            <XPStatusBarField>100%</XPStatusBarField>
+          </XPStatusBar>
         </Section>
       </Page>
     </div>
