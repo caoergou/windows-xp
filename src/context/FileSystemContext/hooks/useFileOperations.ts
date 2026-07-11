@@ -2,7 +2,8 @@ import { useCallback } from 'react';
 import { produce, current } from 'immer';
 import { sounds } from '../../../utils/soundManager';
 import { FileNode, isContainerNode, ClipboardItem } from '../../../types';
-import { saveRecycleBin, RecycleBinItem } from '../utils/persistence';
+import { RecycleBinItem } from '../utils/persistence';
+import { useStorage } from '../../StorageContext';
 
 type ContainerNode = Extract<FileNode, { children: Record<string, FileNode> }>;
 
@@ -57,6 +58,7 @@ export const useFileOperations = (
   doPersistFs: (fs: { root: FileNode }, changes?: PersistChanges) => void,
   recycleBinRef: React.MutableRefObject<Record<string, RecycleBinItem>>
 ) => {
+  const storage = useStorage();
   const updateFile = useCallback(
     (path: string[], updates: Partial<FileNode>) => {
       setFs(prevFs => {
@@ -180,14 +182,14 @@ export const useFileOperations = (
               originalName: fileName,
               deletedAt: Date.now(),
             };
-            saveRecycleBin(recycleBinRef.current);
+            storage.saveRecycleBin(recycleBinRef.current);
           }
         }
         doPersistFs(newFs, { dirty: [], removed: [[...parentPath, fileName]] });
         return newFs;
       });
     },
-    [setFs, doPersistFs, recycleBinRef]
+    [setFs, doPersistFs, recycleBinRef, storage]
   );
 
   const moveFile = useCallback(
@@ -311,8 +313,8 @@ export const useFileOperations = (
       return newFs;
     });
     recycleBinRef.current = {};
-    saveRecycleBin({});
-  }, [setFs, doPersistFs, recycleBinRef]);
+    storage.saveRecycleBin({});
+  }, [setFs, doPersistFs, recycleBinRef, storage]);
 
   const restoreFromRecycleBin = useCallback(
     (binKey: string) => {
@@ -352,7 +354,7 @@ export const useFileOperations = (
           delete recycleBin.children[binKey];
         });
         delete recycleBinRef.current[binKey];
-        saveRecycleBin(recycleBinRef.current);
+        storage.saveRecycleBin(recycleBinRef.current);
         if (restoredDegraded && binItem) {
           dispatchFsNotice({
             type: 'restore-fallback',
@@ -363,7 +365,7 @@ export const useFileOperations = (
         return newFs;
       });
     },
-    [setFs, doPersistFs, recycleBinRef]
+    [setFs, doPersistFs, recycleBinRef, storage]
   );
 
   return {

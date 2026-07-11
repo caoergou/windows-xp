@@ -11,7 +11,8 @@ import { restoreComponent } from '../utils/WindowFactory';
 import { APP_REGISTRY } from '../registry/apps';
 import { WindowState, WindowProps, AppRegistryEntry } from '../types';
 import { WINDOW_DEFAULTS } from '../constants';
-import { safeLocalStorage, getStorageKey, canUseDOM } from '../utils/storage';
+import { canUseDOM } from '../utils/storage';
+import { useStorage } from './StorageContext';
 import { useXPEventBus } from './EventBusContext';
 
 interface WindowManagerActions {
@@ -95,9 +96,10 @@ export const WindowManagerProvider: React.FC<{
   value?: Partial<WindowManagerContextType>;
 }> = ({ children, registry = APP_REGISTRY, value }) => {
   const bus = useXPEventBus();
+  const storage = useStorage();
   const [windows, setWindows] = useState<WindowState[]>(() => {
     try {
-      const saved = safeLocalStorage.getItem(getStorageKey('open_windows'));
+      const saved = storage.local.getItem(storage.key('open_windows'));
       if (saved) {
         const parsed: WindowState[] = JSON.parse(saved);
         const restored = parsed
@@ -170,8 +172,8 @@ export const WindowManagerProvider: React.FC<{
         ...rest
       }) => rest
     );
-    safeLocalStorage.setItem(getStorageKey('open_windows'), JSON.stringify(windowsToSave));
-  }, []);
+    storage.local.setItem(storage.key('open_windows'), JSON.stringify(windowsToSave));
+  }, [storage]);
 
   useEffect(() => {
     windowsRef.current = windows;

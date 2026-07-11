@@ -12,7 +12,8 @@ import XPIcon from './components/XPIcon';
 import MobileWarning from './components/MobileWarning';
 import windowsIcon from './assets/icons/windows.svg';
 import { TIME } from './constants';
-import { safeLocalStorage, getStorageKey, canUseDOM, STORAGE_ERROR_EVENT } from './utils/storage';
+import { canUseDOM, STORAGE_ERROR_EVENT, type Storage } from './utils/storage';
+import { useStorage } from './context/StorageContext';
 import { FS_NOTICE_EVENT } from './context/FileSystemContext/hooks/useFileOperations';
 import type { FsNoticeDetail } from './context/FileSystemContext/hooks/useFileOperations';
 import { useModal } from './context/ModalContext';
@@ -121,11 +122,11 @@ const AltTabItem = styled.div<{ $active: boolean }>`
 
 type BootPhase = 'BOOTING' | 'RUNNING' | 'SCREENSAVER';
 
-const getInitialBootPhase = (skipBoot?: boolean): BootPhase => {
+const getInitialBootPhase = (storage: Storage, skipBoot?: boolean): BootPhase => {
   if (skipBoot) return 'RUNNING';
 
-  const firstBootDone = safeLocalStorage.getItem(getStorageKey('first_boot_done'));
-  const powerState = safeLocalStorage.getItem(getStorageKey('power_state'));
+  const firstBootDone = storage.local.getItem(storage.key('first_boot_done'));
+  const powerState = storage.local.getItem(storage.key('power_state'));
 
   if (
     !firstBootDone ||
@@ -136,7 +137,7 @@ const getInitialBootPhase = (skipBoot?: boolean): BootPhase => {
     return 'BOOTING';
   }
 
-  if (safeLocalStorage.getItem(getStorageKey('logged_in')) === 'true') {
+  if (storage.local.getItem(storage.key('logged_in')) === 'true') {
     return 'SCREENSAVER';
   }
 
@@ -163,6 +164,7 @@ function App({
   const { t } = useTranslation();
   const { dialog } = useModal();
   const bus = useXPEventBus();
+  const storage = useStorage();
 
   // Surface persistence problems as XP dialogs instead of silent console
   // errors (#81): localStorage quota exceeded, recycle-bin restore fallback.
@@ -209,7 +211,7 @@ function App({
 
   const { isLoggedIn, screensaverEnabled } = useUserSession();
   const { windows, activeWindowId, closeWindow, focusWindow } = useWindowManager();
-  const [bootPhase, setBootPhase] = useState<BootPhase>(() => getInitialBootPhase(skipBoot));
+  const [bootPhase, setBootPhase] = useState<BootPhase>(() => getInitialBootPhase(storage, skipBoot));
   const [screenSaverFading, setScreenSaverFading] = useState(false);
   const [altTabVisible, setAltTabVisible] = useState(false);
   const [altTabIndex, setAltTabIndex] = useState(0);
@@ -344,8 +346,8 @@ function App({
   }, [bootPhase, isLoggedIn, disableScreenSaver, screensaverEnabled]);
 
   const handleBootComplete = () => {
-    safeLocalStorage.setItem(getStorageKey('first_boot_done'), 'true');
-    safeLocalStorage.setItem(getStorageKey('power_state'), 'running');
+    storage.local.setItem(storage.key('first_boot_done'), 'true');
+    storage.local.setItem(storage.key('power_state'), 'running');
     setBootPhase('RUNNING');
   };
 

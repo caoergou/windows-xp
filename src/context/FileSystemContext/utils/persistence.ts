@@ -1,14 +1,5 @@
 import { FileNode, isContainerNode, isFileContentNode } from '../../../types';
-import {
-  saveFileContent,
-  getFileContent,
-  deleteFileContent,
-  saveMetadata,
-  getMetadata,
-  saveRecycleBin,
-  getRecycleBin,
-} from '../../../utils/storage';
-import type { FileMetadata, RecycleBinItem } from '../../../utils/storage';
+import type { FileMetadata, RecycleBinItem, Storage } from '../../../utils/storage';
 
 const RECYCLE_BIN_KEY = '回收站';
 
@@ -63,10 +54,11 @@ const nodeMetadata = (node: FileNode, pathParts: string[]): FileMetadata => {
  * contents from IndexedDB -> restore the recycle bin.
  */
 export const loadPersistedFileSystem = async (
+  storage: Storage,
   defaultFileSystem: { root: FileNode }
 ): Promise<{ root: FileNode; recycleBinRef: Record<string, RecycleBinItem> }> => {
-  const metadata = getMetadata();
-  const savedRecycleBin = getRecycleBin();
+  const metadata = storage.getMetadata();
+  const savedRecycleBin = storage.getRecycleBin();
 
   const mergedFs: { root: FileNode } = JSON.parse(JSON.stringify(defaultFileSystem));
 
@@ -101,7 +93,7 @@ export const loadPersistedFileSystem = async (
 
     const fileName = pathParts[pathParts.length - 1];
     const isFolder = fileMeta.type === 'folder';
-    const content = isFolder ? null : await getFileContent(pathParts);
+    const content = isFolder ? null : await storage.getFileContent(pathParts);
 
     const { path: _path, modifiedAt: _modifiedAt, ...restMeta } = fileMeta as FileMetadata &
       Record<string, unknown>;
@@ -163,6 +155,7 @@ const shouldSkipPersist = (node: FileNode): boolean =>
   Boolean((node as { managedByCulture?: boolean }).managedByCulture);
 
 export const persistFs = async (
+  storage: Storage,
   newFs: { root: FileNode },
   isLoaded: boolean,
   options: PersistOptions = {}
@@ -208,7 +201,7 @@ export const persistFs = async (
           files[key] = nodeMetadata(node, path);
           if (isFileContentNode(node) && node.content !== undefined) {
             if (!dirtyKeys || dirtyKeys.has(key)) {
-              contentWrites.push(saveFileContent(path, node.content));
+              contentWrites.push(storage.saveFileContent(path, node.content));
             }
           }
         }
@@ -253,11 +246,11 @@ export const persistFs = async (
     }
 
     for (const path of removedContentPaths ?? []) {
-      contentWrites.push(deleteFileContent(path));
+      contentWrites.push(storage.deleteFileContent(path));
     }
 
     await Promise.all(contentWrites);
-    saveMetadata({
+    storage.saveMetadata({
       files,
       deleted,
       version: 2,
@@ -268,5 +261,4 @@ export const persistFs = async (
   }
 };
 
-export { saveRecycleBin, getRecycleBin };
 export type { RecycleBinItem };

@@ -14,6 +14,7 @@ import {
   saveRecycleBin,
   getRecycleBin,
   clearAllStorage,
+  getDefaultStorage,
 } from '../src/utils/storage';
 import type { FileMetadata, RecycleBinItem } from '../src/utils/storage';
 import {
@@ -207,7 +208,7 @@ describe('storage.ts: storagePrefix', () => {
 
 describe('persistence.ts: persistFs and loadPersistedFileSystem', () => {
   it('persistFs is a no-op before the initial load completes (isLoaded=false)', async () => {
-    await persistFs(makeDefaultFs(), false);
+    await persistFs(getDefaultStorage(), makeDefaultFs(), false);
     expect(getMetadata()).toBeNull();
     await expect(getFileContent(['docs', 'readme.txt'])).resolves.toBeNull();
   });
@@ -218,8 +219,8 @@ describe('persistence.ts: persistFs and loadPersistedFileSystem', () => {
     if (!readme || !isFileContentNode(readme)) throw new Error('expected file node');
     readme.content = 'edited by user';
 
-    await persistFs(fs, true);
-    const { root } = await loadPersistedFileSystem(makeDefaultFs());
+    await persistFs(getDefaultStorage(), fs, true);
+    const { root } = await loadPersistedFileSystem(getDefaultStorage(), makeDefaultFs());
 
     const merged = getNode({ root }, ['docs', 'readme.txt']);
     if (!merged || !isFileContentNode(merged)) throw new Error('expected file node');
@@ -231,8 +232,8 @@ describe('persistence.ts: persistFs and loadPersistedFileSystem', () => {
     if (!isContainerNode(fs.root)) throw new Error('expected container root');
     fs.root.children['notes.txt'] = makeFile('notes.txt', 'my notes');
 
-    await persistFs(fs, true);
-    const { root } = await loadPersistedFileSystem(makeDefaultFs());
+    await persistFs(getDefaultStorage(), fs, true);
+    const { root } = await loadPersistedFileSystem(getDefaultStorage(), makeDefaultFs());
 
     const restored = getNode({ root }, ['notes.txt']);
     if (!restored || !isFileContentNode(restored)) throw new Error('expected file node');
@@ -253,7 +254,7 @@ describe('persistence.ts: persistFs and loadPersistedFileSystem', () => {
     };
     saveRecycleBin(binItems);
 
-    const { root, recycleBinRef } = await loadPersistedFileSystem(makeDefaultFs());
+    const { root, recycleBinRef } = await loadPersistedFileSystem(getDefaultStorage(), makeDefaultFs());
     const bin = getNode({ root }, ['回收站']);
     if (!bin || !isContainerNode(bin)) throw new Error('expected recycle bin folder');
     expect(Object.keys(bin.children)).toEqual(['trashed.txt']);
@@ -266,7 +267,7 @@ describe('persistence.ts: persistFs and loadPersistedFileSystem', () => {
     if (!defaultBin || !isContainerNode(defaultBin)) throw new Error('expected folder');
     defaultBin.children['preset.txt'] = makeFile('preset.txt', 'preset');
 
-    const { root, recycleBinRef } = await loadPersistedFileSystem(defaults);
+    const { root, recycleBinRef } = await loadPersistedFileSystem(getDefaultStorage(), defaults);
     expect(getNode({ root }, ['回收站', 'preset.txt'])).not.toBeNull();
     expect(recycleBinRef).toEqual({});
   });
@@ -315,8 +316,8 @@ describe('persistence.ts: persistFs and loadPersistedFileSystem', () => {
       } as unknown as FileNode,
     };
 
-    await persistFs(currentFs, true, { defaultFs });
-    const { root } = await loadPersistedFileSystem(defaultFs);
+    await persistFs(getDefaultStorage(), currentFs, true, { defaultFs });
+    const { root } = await loadPersistedFileSystem(getDefaultStorage(), defaultFs);
 
     const folder = isContainerNode(root) ? root.children['我的项目'] : undefined;
     if (!folder) throw new Error('user folder was not restored');
@@ -352,7 +353,7 @@ describe('persistence.ts: persistFs and loadPersistedFileSystem', () => {
       lastModified: Date.now(),
     });
 
-    const { root } = await loadPersistedFileSystem(defaultFs);
+    const { root } = await loadPersistedFileSystem(getDefaultStorage(), defaultFs);
     // Neither attached at root nor anywhere else.
     expect(isContainerNode(root) ? root.children['orphan.txt'] : null).toBeFalsy();
     expect(isContainerNode(root) ? root.children['ghost-dir'] : null).toBeFalsy();
@@ -386,8 +387,8 @@ describe('persistence.ts: persistFs and loadPersistedFileSystem', () => {
       } as unknown as FileNode,
     };
 
-    await persistFs(currentFs, true, { defaultFs });
-    const { root } = await loadPersistedFileSystem(defaultFs);
+    await persistFs(getDefaultStorage(), currentFs, true, { defaultFs });
+    const { root } = await loadPersistedFileSystem(getDefaultStorage(), defaultFs);
 
     expect(isContainerNode(root) ? root.children['builtin.txt'] : null).toBeFalsy();
     const docs = isContainerNode(root) ? root.children['docs'] : undefined;

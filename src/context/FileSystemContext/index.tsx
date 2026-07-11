@@ -5,13 +5,13 @@ import { FileNode, ClipboardItem, isContainerNode, isFileContentNode } from '../
 import {
   loadPersistedFileSystem,
   persistFs,
-  saveRecycleBin,
   RecycleBinItem,
 } from './utils/persistence';
 import type { PersistChanges } from './hooks/useFileOperations';
 import { useFileOperations } from './hooks/useFileOperations';
 import { getAllCultureShortcutNames } from '../../data/culture';
 import { useXPEventBus } from '../EventBusContext';
+import { useStorage } from '../StorageContext';
 
 const CULTURE_SHORTCUT_NAMES = new Set(getAllCultureShortcutNames());
 
@@ -152,6 +152,7 @@ export const FileSystemProvider: React.FC<{
   cultureFileSystem?: Record<string, FileNode>;
   cultureKey?: string;
 }> = ({ children, customFileSystem, cultureFileSystem, cultureKey = 'en' }) => {
+  const storage = useStorage();
   const customFsRef = useRef(customFileSystem);
   const cultureFsRef = useRef(cultureFileSystem);
   customFsRef.current = customFileSystem;
@@ -171,7 +172,7 @@ export const FileSystemProvider: React.FC<{
     const loadPersistedData = async () => {
       try {
         const { root, recycleBinRef: savedRecycleBinRef } =
-          await loadPersistedFileSystem(fileSystemWithRecycleBin);
+          await loadPersistedFileSystem(storage, fileSystemWithRecycleBin);
         recycleBinRef.current = savedRecycleBinRef;
 
         // Re-attach preset recycle-bin metadata for any preset items still present.
@@ -197,7 +198,7 @@ export const FileSystemProvider: React.FC<{
     };
 
     loadPersistedData();
-  }, [withConfiguredLayers]);
+  }, [withConfiguredLayers, storage]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -242,12 +243,12 @@ export const FileSystemProvider: React.FC<{
     pending.fs = null;
     pending.dirty = new Set();
     pending.removed = new Set();
-    void persistFs(fsToPersist, isLoadedRef.current, {
+    void persistFs(storage, fsToPersist, isLoadedRef.current, {
       defaultFs: fileSystemWithRecycleBin,
       dirtyContentPaths: dirty ? [...dirty].map(key => key.split('/')) : undefined,
       removedContentPaths: removed.map(key => key.split('/')),
     });
-  }, []);
+  }, [storage]);
 
   const doPersistFs = useCallback(
     (newFs: { root: FileNode }, changes?: PersistChanges) => {
@@ -442,9 +443,9 @@ export const FileSystemProvider: React.FC<{
     const next = withConfiguredLayers(fileSystemWithRecycleBin);
     setFs(next);
     recycleBinRef.current = {};
-    saveRecycleBin({});
+    storage.saveRecycleBin({});
     doPersistFs(next);
-  }, [doPersistFs, withConfiguredLayers]);
+  }, [doPersistFs, withConfiguredLayers, storage]);
 
   const uploadTextFile = useCallback(
     (parentPath: string[], fileName: string, content: string) => {

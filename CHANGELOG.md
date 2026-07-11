@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed (per-instance storage isolation, closes #95)
+
+- Storage is no longer a process-wide global. `createStorage(prefix)` builds an
+  isolated `Storage` handle (its own namespaced keys + private IndexedDB
+  connection); a new `StorageProvider` / `useStorage()` distributes one handle
+  per `<WindowsXP/>` instance. Two instances with different `storagePrefix`
+  values on the same page now keep fully separate file systems, windows, and
+  login state.
+- Migrated the stateful consumers off the module-level storage functions to
+  `useStorage()`: FileSystem (context, persistence helpers, file operations),
+  WindowManager, UserSession, App boot flow, Taskbar, LoginScreen, Control
+  Panel, and the IE history/favorites hooks. `persistFs` / `loadPersistedFileSystem`
+  now take an explicit `storage` handle.
+- The module-level functions (`getStorageKey`, `safeLocalStorage`,
+  `saveFileContent`, …) remain as a backward-compatible facade over a default
+  instance, so single-instance apps and non-React callers are unchanged.
+  `useStorage()` falls back to that default when no `StorageProvider` is present.
+- New `test/storageIsolation.test.tsx` proves two prefixes never share
+  localStorage keys, metadata, recycle bin, or IndexedDB content, and that
+  `useStorage()` is provider-scoped.
+
 ### Added (public type exports, closes #79)
 
 - The entry point now re-exports every `CulturePackage` sub-type

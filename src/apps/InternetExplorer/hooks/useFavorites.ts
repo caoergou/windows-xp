@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FavoriteItem } from '../types';
-import { safeLocalStorage, getStorageKey } from '../../../utils/storage';
+import { useStorage } from '../../../context/StorageContext';
 import { useCulture } from '../../../context/CultureContext';
 import { normalizeCultureLang } from '../../../data/culture';
 
@@ -42,35 +42,36 @@ const getDefaultFavorites = (lang: string): FavoriteItem[] => {
 
 export const useFavorites = () => {
   const { i18n } = useTranslation();
+  const storage = useStorage();
   const { cultureKey } = useCulture();
-  const storageKey = getStorageKey(`${STORAGE_KEY}_${cultureKey}`);
+  const storageKey = storage.key(`${STORAGE_KEY}_${cultureKey}`);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
 
   useEffect(() => {
     try {
-      const saved = safeLocalStorage.getItem(storageKey);
+      const saved = storage.local.getItem(storageKey);
       if (saved) {
         setFavorites(JSON.parse(saved));
       } else {
         const defaults = getDefaultFavorites(i18n.language);
         setFavorites(defaults);
-        safeLocalStorage.setItem(storageKey, JSON.stringify(defaults));
+        storage.local.setItem(storageKey, JSON.stringify(defaults));
       }
     } catch (e) {
       console.error('Failed to load favorites:', e);
     }
-  }, [i18n.language, storageKey]);
+  }, [i18n.language, storageKey, storage]);
 
   const addFavorite = useCallback(
     (name: string, url: string) => {
       if (!name || !url) return;
       setFavorites(prev => {
         const updated = [...prev, { name, url }];
-        safeLocalStorage.setItem(storageKey, JSON.stringify(updated));
+        storage.local.setItem(storageKey, JSON.stringify(updated));
         return updated;
       });
     },
-    [storageKey]
+    [storageKey, storage]
   );
 
   const deleteFavorite = useCallback(
@@ -78,11 +79,11 @@ export const useFavorites = () => {
       setFavorites(prev => {
         const updated = [...prev];
         updated.splice(index, 1);
-        safeLocalStorage.setItem(storageKey, JSON.stringify(updated));
+        storage.local.setItem(storageKey, JSON.stringify(updated));
         return updated;
       });
     },
-    [storageKey]
+    [storageKey, storage]
   );
 
   const filteredFavorites = favorites.filter(

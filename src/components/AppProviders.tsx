@@ -12,6 +12,7 @@ import { CultureProvider, useCulture } from '../context/CultureContext';
 import { FileNode, AppRegistryEntry } from '../types';
 import { CulturePackage } from '../data/culture';
 import { EventBusProvider } from '../context/EventBusContext';
+import { StorageProvider } from '../context/StorageContext';
 import { XPEventBridge, XPImperativeApi, type XPHandle } from './XPBridge';
 import { XPEventBus } from '../events';
 import type { XPEventListener } from '../events';
@@ -87,7 +88,8 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
 
   // 用户传入的 customFileSystem 优先级高于文化包
   return (
-    <EventBusProvider bus={busRef}>
+    <StorageProvider prefix={storagePrefix || 'xp_'}>
+      <EventBusProvider bus={busRef}>
       <XPEventBridge onEvent={onEvent} />
       <UserSessionProvider username={username} password={password} autoLogin={autoLogin}>
         <FileSystemProvider
@@ -112,7 +114,8 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
           </WindowManagerProvider>
         </FileSystemProvider>
       </UserSessionProvider>
-    </EventBusProvider>
+      </EventBusProvider>
+    </StorageProvider>
   );
 };
 

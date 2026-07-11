@@ -18,7 +18,8 @@ import DisplaySettings from './ControlPanel/DisplaySettings';
 import SoundSettings from './ControlPanel/SoundSettings';
 import MouseSettings from './ControlPanel/MouseSettings';
 import { useApp } from '../hooks/useApp';
-import { canUseDOM, getStorageKey, safeLocalStorage } from '../utils/storage';
+import { canUseDOM } from '../utils/storage';
+import { useStorage } from '../context/StorageContext';
 import { getSavedLanguage, saveLanguage, SupportedLanguage } from '../utils/language';
 import { sounds } from '../utils/soundManager';
 
@@ -145,6 +146,7 @@ type SubPage = 'display' | 'sound' | 'mouse' | 'system' | null;
 const ControlPanel = ({ windowId }: { windowId?: string }) => {
   const { t, i18n } = useTranslation();
   const api = useApp(windowId || '');
+  const storage = useStorage();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [subPage, setSubPage] = useState<SubPage>(null);
 
@@ -186,8 +188,8 @@ const ControlPanel = ({ windowId }: { windowId?: string }) => {
     if (!confirmed) return;
 
     saveLanguage(language);
-    safeLocalStorage.removeItem(getStorageKey('open_windows'));
-    safeLocalStorage.setItem(getStorageKey('power_state'), 'restart');
+    storage.local.removeItem(storage.key('open_windows'));
+    storage.local.setItem(storage.key('power_state'), 'restart');
     sounds.shutdown();
     if (canUseDOM) setTimeout(() => window.location.reload(), 600);
   };
