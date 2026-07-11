@@ -1,250 +1,27 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import ContextMenu from '../components/ContextMenu';
-import { XPDialogFrame } from '../components/XPDialogChrome';
-
-import { useApp } from '../hooks/useApp';
-import { useFileSystem } from '../context/FileSystemContext';
-import { isContainerNode, isFileContentNode } from '../types';
-
-const Container = styled.div`
-  width: 100%;
-  height: 100%;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-`;
-
-const MenuBar = styled.div`
-  height: 20px;
-  background: #ece9d8;
-  display: flex;
-  align-items: center;
-  padding: 0 2px;
-  font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
-  flex-shrink: 0;
-`;
-
-const MenuItemWrapper = styled.div`
-  position: relative;
-`;
-
-const MenuItem = styled.div<{ $active?: boolean }>`
-  padding: 2px 8px;
-  cursor: pointer;
-  background: ${p => (p.$active ? '#316AC5' : 'transparent')};
-  color: ${p => (p.$active ? 'white' : 'inherit')};
-
-  &:hover {
-    background: #316ac5;
-    color: white;
-  }
-`;
-
-const DropdownMenu = styled.div`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  min-width: 160px;
-  background: #f0f0f0;
-  border: 1px solid #000;
-  box-shadow: 2px 2px 0px #808080;
-  padding: 2px 0;
-  z-index: 9999;
-  font-size: 12px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
-`;
-
-const DropdownItem = styled.div<{ $disabled?: boolean; $checked?: boolean }>`
-  padding: 3px 24px 3px 24px;
-  cursor: ${p => (p.$disabled ? 'default' : 'pointer')};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: ${p => (p.$disabled ? '#A0A0A0' : '#000')};
-  position: relative;
-  white-space: nowrap;
-
-  &:hover {
-    background: ${p => (p.$disabled ? 'transparent' : '#316AC5')};
-    color: ${p => (p.$disabled ? '#A0A0A0' : 'white')};
-  }
-
-  .shortcut {
-    margin-left: 24px;
-    font-size: 11px;
-    color: inherit;
-    opacity: 0.8;
-  }
-
-  &::before {
-    content: ${p => (p.$checked ? "'✓'" : "'\\00a0'")};
-    position: absolute;
-    left: 6px;
-    width: 12px;
-    text-align: center;
-    font-size: 11px;
-  }
-`;
-
-const DropdownSeparator = styled.div`
-  height: 1px;
-  background: #808080;
-  margin: 3px 2px;
-`;
-
-const EditorArea = styled.div`
-  flex: 1;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-`;
-
-const TextArea = styled.textarea<{ $wordWrap: boolean }>`
-  width: 100%;
-  height: 100%;
-  border: none;
-  resize: none;
-  font-family: 'Lucida Console', monospace;
-  font-size: 14px;
-  padding: 5px;
-  outline: none;
-  background: white;
-  white-space: ${p => (p.$wordWrap ? 'pre-wrap' : 'pre')};
-  word-wrap: ${p => (p.$wordWrap ? 'break-word' : 'normal')};
-  overflow-wrap: ${p => (p.$wordWrap ? 'break-word' : 'normal')};
-  overflow-x: ${p => (p.$wordWrap ? 'hidden' : 'auto')};
-`;
-
-const StatusBar = styled.div`
-  height: 20px;
-  background: #ece9d8;
-  border-top: 1px solid #808080;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0 8px;
-  font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
-  flex-shrink: 0;
-`;
-
-const StatusBarSection = styled.div`
-  border-left: 1px solid #808080;
-  padding: 0 8px;
-`;
-
-const DialogOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0);
-  z-index: 99999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const DialogContent = styled.div`
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-
-const DialogRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const DialogLabel = styled.label`
-  width: 70px;
-  font-size: 12px;
-  text-align: right;
-`;
-
-const DialogInput = styled.input`
-  flex: 1;
-  border: 1px solid #7f9db9;
-  padding: 3px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
-  font-size: 12px;
-`;
-
-const DialogButtonArea = styled.div`
-  padding: 10px 16px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-`;
-
-const DialogButton = styled.button`
-  min-width: 75px;
-  height: 23px;
-  background: #ece9d8;
-  border: 1px solid #003c74;
-  border-radius: 2px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
-  font-size: 12px;
-  cursor: pointer;
-  box-shadow:
-    inset 1px 1px 0px white,
-    1px 1px 2px rgba(0, 0, 0, 0.3);
-
-  &:hover {
-    box-shadow:
-      inset 1px 1px 0px #f5f2e4,
-      1px 1px 2px rgba(0, 0, 0, 0.3);
-  }
-
-  &:active {
-    box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.2);
-    padding-top: 1px;
-    padding-left: 1px;
-  }
-
-  &:focus {
-    outline: 1px dotted black;
-    outline-offset: -4px;
-  }
-
-  &:disabled {
-    color: #808080;
-    cursor: default;
-  }
-`;
-
-type MenuKey = 'file' | 'edit' | 'format' | 'view' | 'help' | null;
-type HistoryState = { content: string; selectionStart: number; selectionEnd: number };
-type DialogMode = 'find' | 'replace' | null;
-
-type NotepadMenuItem =
-  | { type: 'separator' }
-  | {
-      type?: undefined;
-      label: string;
-      action: () => void | Promise<void>;
-      shortcut?: string;
-      disabled?: boolean;
-      checked?: boolean;
-    };
-
-const MAX_HISTORY = 200;
-
-interface NotepadProps {
-  content?: string;
-  readOnly?: boolean;
-  windowId?: string;
-  filePath?: string[];
-  fileName?: string;
-}
+import ContextMenu from '../../components/ContextMenu';
+import { useApp } from '../../hooks/useApp';
+import { useFileSystem } from '../../context/FileSystemContext';
+import { isContainerNode, isFileContentNode } from '../../types';
+import {
+  Container,
+  MenuBar,
+  MenuItemWrapper,
+  MenuItem,
+  DropdownMenu,
+  DropdownItem,
+  DropdownSeparator,
+  EditorArea,
+  TextArea,
+  StatusBar,
+  StatusBarSection,
+} from './styled';
+import { MAX_HISTORY } from './constants';
+import { getCursorPosition, findNextIndex, countOccurrences, replaceAll, equalsIgnoreCase } from './logic';
+import FindReplaceDialog from './components/FindReplaceDialog';
+import type { MenuKey, HistoryState, DialogMode, NotepadMenuItem, NotepadProps } from './types';
 
 const Notepad = ({
   content: initialContent = '',
@@ -343,12 +120,7 @@ const Notepad = ({
   const updateCursorPosition = useCallback(() => {
     const ta = textareaRef.current;
     if (!ta) return;
-    const cursor = ta.selectionStart;
-    const textBefore = content.slice(0, cursor);
-    const line = textBefore.split('\n').length;
-    const lastNewline = textBefore.lastIndexOf('\n');
-    const col = cursor - (lastNewline === -1 ? 0 : lastNewline + 1) + 1;
-    setCursorPos({ line, col });
+    setCursorPos(getCursorPosition(content, ta.selectionStart));
   }, [content]);
 
   const setTextareaSelection = (start: number, end: number) => {
@@ -544,18 +316,10 @@ const Notepad = ({
 
   const findNext = (query: string, startIndexRef: React.MutableRefObject<number>): boolean => {
     if (!query) return false;
-    const idx = content.indexOf(query, startIndexRef.current);
+    const idx = findNextIndex(content, query, startIndexRef.current);
     if (idx !== -1) {
       setTextareaSelection(idx, idx + query.length);
       startIndexRef.current = idx + query.length;
-      textareaRef.current?.focus();
-      return true;
-    }
-    // Wrap around to beginning once
-    const idx2 = content.indexOf(query, 0);
-    if (idx2 !== -1) {
-      setTextareaSelection(idx2, idx2 + query.length);
-      startIndexRef.current = idx2 + query.length;
       textareaRef.current?.focus();
       return true;
     }
@@ -588,7 +352,7 @@ const Notepad = ({
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
     const selected = content.substring(start, end);
-    if (selected === replaceQuery) {
+    if (equalsIgnoreCase(selected, replaceQuery)) {
       const newValue = content.substring(0, start) + replaceWith + content.substring(end);
       pushHistory();
       setContent(newValue);
@@ -610,8 +374,7 @@ const Notepad = ({
 
   const handleReplaceAll = () => {
     if (!replaceQuery || replaceQuery === replaceWith) return;
-    const parts = content.split(replaceQuery);
-    const count = parts.length - 1;
+    const count = countOccurrences(content, replaceQuery);
     if (count <= 0) {
       api.dialog.alert({
         title: t('notepad.replace.title'),
@@ -620,7 +383,7 @@ const Notepad = ({
       });
       return;
     }
-    const newValue = parts.join(replaceWith);
+    const newValue = replaceAll(content, replaceQuery, replaceWith);
     pushHistory();
     setContent(newValue);
     setIsModified(true);
@@ -1129,111 +892,6 @@ const Notepad = ({
     setDialogMode(null);
     setTimeout(() => textareaRef.current?.focus(), 0);
   };
-
-  const renderFindDialog = () => {
-    if (dialogMode !== 'find') return null;
-    return createPortal(
-      <DialogOverlay className="windows-xp-portal" onMouseDown={e => e.stopPropagation()}>
-        <XPDialogFrame title={t('notepad.find.title')} onClose={closeDialog} width={340}>
-          <DialogContent>
-            <DialogRow>
-              <DialogLabel>{t('notepad.find.findWhat')}</DialogLabel>
-              <DialogInput
-                ref={findInputRef}
-                value={findQuery}
-                onChange={e => {
-                  setFindQuery(e.target.value);
-                  findStartIndexRef.current = 0;
-                }}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleFindNext();
-                  }
-                  if (e.key === 'Escape') {
-                    e.preventDefault();
-                    closeDialog();
-                  }
-                }}
-              />
-            </DialogRow>
-          </DialogContent>
-          <DialogButtonArea>
-            <DialogButton onClick={handleFindNext} disabled={!findQuery}>
-              {t('notepad.find.findNext')}
-            </DialogButton>
-            <DialogButton onClick={closeDialog}>{t('common.cancel')}</DialogButton>
-          </DialogButtonArea>
-        </XPDialogFrame>
-      </DialogOverlay>,
-      document.body
-    );
-  };
-
-  const renderReplaceDialog = () => {
-    if (dialogMode !== 'replace') return null;
-    return createPortal(
-      <DialogOverlay className="windows-xp-portal" onMouseDown={e => e.stopPropagation()}>
-        <XPDialogFrame title={t('notepad.replace.title')} onClose={closeDialog} width={360}>
-          <DialogContent>
-            <DialogRow>
-              <DialogLabel>{t('notepad.replace.findWhat')}</DialogLabel>
-              <DialogInput
-                ref={replaceFindInputRef}
-                value={replaceQuery}
-                onChange={e => {
-                  setReplaceQuery(e.target.value);
-                  replaceStartIndexRef.current = 0;
-                }}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleReplaceFindNext();
-                  }
-                  if (e.key === 'Escape') {
-                    e.preventDefault();
-                    closeDialog();
-                  }
-                }}
-              />
-            </DialogRow>
-            <DialogRow>
-              <DialogLabel>{t('notepad.replace.replaceWith')}</DialogLabel>
-              <DialogInput
-                value={replaceWith}
-                onChange={e => setReplaceWith(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Escape') {
-                    e.preventDefault();
-                    closeDialog();
-                  }
-                }}
-              />
-            </DialogRow>
-          </DialogContent>
-          <DialogButtonArea>
-            <DialogButton onClick={handleReplaceFindNext} disabled={!replaceQuery}>
-              {t('notepad.find.findNext')}
-            </DialogButton>
-            <DialogButton onClick={handleReplace} disabled={!replaceQuery}>
-              {t('notepad.replace.replace')}
-            </DialogButton>
-            <DialogButton
-              onClick={handleReplaceAll}
-              disabled={!replaceQuery || replaceQuery === replaceWith}
-            >
-              {t('notepad.replace.replaceAll')}
-            </DialogButton>
-            <DialogButton onClick={closeDialog}>{t('common.cancel')}</DialogButton>
-          </DialogButtonArea>
-        </XPDialogFrame>
-      </DialogOverlay>,
-      document.body
-    );
-  };
-
   return (
     <Container
       ref={menuRef}
@@ -1304,8 +962,28 @@ const Notepad = ({
         />,
         document.body
       )}
-      {renderFindDialog()}
-      {renderReplaceDialog()}
+      <FindReplaceDialog
+        mode={dialogMode}
+        onClose={closeDialog}
+        findInputRef={findInputRef}
+        replaceFindInputRef={replaceFindInputRef}
+        findQuery={findQuery}
+        setFindQuery={setFindQuery}
+        resetFindIndex={() => {
+          findStartIndexRef.current = 0;
+        }}
+        replaceQuery={replaceQuery}
+        setReplaceQuery={setReplaceQuery}
+        resetReplaceIndex={() => {
+          replaceStartIndexRef.current = 0;
+        }}
+        replaceWith={replaceWith}
+        setReplaceWith={setReplaceWith}
+        onFindNext={handleFindNext}
+        onReplaceFindNext={handleReplaceFindNext}
+        onReplace={handleReplace}
+        onReplaceAll={handleReplaceAll}
+      />
     </Container>
   );
 };
