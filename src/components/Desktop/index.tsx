@@ -1,145 +1,24 @@
-// TODO: refine Desktop types; disabled due to extensive styled-components / FileNode union issues
+// Desktop shell — icons, box-selection, context menus, window host (#163/A split).
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { useFileSystem } from '../context/FileSystemContext';
-import { useXPEventBus } from '../context/EventBusContext';
-import { useWindowManager } from '../context/WindowManagerContext';
-import { useUserSession } from '../context/UserSessionContext';
-import Taskbar from './Taskbar';
-import Window from './Window';
-import ContextMenu from './ContextMenu';
-import XPIcon from './XPIcon';
-import FileProperties from './FileProperties';
-import DesktopProperties from './DesktopProperties';
-import { resolveFileOpen } from '../registry/apps';
-import StartupNotifier from './StartupNotifier';
-import { useModal } from '../context/ModalContext';
-import { FileItem, FileNode, MenuItem, RootNode, isContainerNode } from '../types';
-import { getFileIconName } from '../utils/fileIcon';
-import { getFileDisplayName } from '../utils/fileDisplayName';
-
-const DesktopContainer = styled.div<{ $bgUrl: string }>`
-  width: 100%;
-  height: 100%;
-  background-color: #004E98;
-  background-image: url(${props => props.$bgUrl});
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  overflow: hidden;
-`;
-
-const SelectionBox = styled.div<{ $left: number; $top: number; $width: number; $height: number }>`
-  position: absolute;
-  left: ${props => props.$left}px;
-  top: ${props => props.$top}px;
-  width: ${props => props.$width}px;
-  height: ${props => props.$height}px;
-  border: 1px dotted #fff;
-  background-color: rgba(49, 106, 197, 0.3);
-  pointer-events: none;
-  z-index: 1000;
-  box-sizing: border-box;
-`;
-
-const IconGrid = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  height: calc(100% - 30px);
-  padding: 10px;
-  gap: 0px;
-  align-content: flex-start;
-`;
-
-const DesktopIcon = styled.div<{ $selected?: boolean }>`
-  width: 80px;
-  height: 80px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  padding: 4px 2px;
-  margin: 2px;
-  border: 1px solid transparent;
-  color: white;
-  position: relative;
-  box-sizing: border-box;
-  user-select: none;
-  -webkit-user-select: none;
-
-  ${props => props.$selected && `
-    background-color: rgba(49, 106, 197, 0.55);
-    border: 1px dotted rgba(255, 255, 255, 0.9);
-  `}
-
-  &:hover {
-    ${props => !props.$selected && `
-      background-color: rgba(49, 106, 197, 0.3);
-      border: 1px dotted rgba(255, 255, 255, 0.5);
-    `}
-  }
-
-  .icon-wrapper {
-    position: relative;
-    margin-bottom: 4px;
-    filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.7));
-  }
-
-  .icon-label {
-    font-size: 11px;
-    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-    text-align: center;
-    max-width: 100%;
-    display: block;
-    width: fit-content;
-    margin: 0 auto;
-    overflow: hidden;
-    word-break: break-word;
-    line-height: 1.2;
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    padding: 0 1px;
-    user-select: none;
-    -webkit-user-select: none;
-    pointer-events: none;
-
-    &::selection {
-      background: transparent;
-    }
-
-    ${props => props.$selected && `
-      color: #ffffff;
-      text-shadow: none;
-    `}
-  }
-`;
-
-// Elements that must not trigger desktop box-selection
-const BOX_SELECT_IGNORE = [
-  '.desktop-icon-selectable',
-  '[data-testid^="desktop-icon-"]',
-  '[role="button"]',
-  '.xp-window',
-  '.title-bar',
-  '.react-resizable-handle',
-  '.sticky-note',
-  '.xp-alert',
-].join(', ');
-
-const SYSTEM_ICON_KEYS = new Set(['我的电脑', '我的文档', '回收站', '网上邻居']);
-
-const SYSTEM_ICON_ENGLISH_IDS: Record<string, string> = {
-  '我的电脑': 'my-computer',
-  '我的文档': 'my-documents',
-  '回收站': 'recycle-bin',
-  '网上邻居': 'network-neighborhood',
-};
-
-const getEnglishTestId = (key: string, item: FileNode): string => {
-  return SYSTEM_ICON_ENGLISH_IDS[key] || item.name;
-};
+import { useFileSystem } from '../../context/FileSystemContext';
+import { useXPEventBus } from '../../context/EventBusContext';
+import { useWindowManager } from '../../context/WindowManagerContext';
+import { useUserSession } from '../../context/UserSessionContext';
+import Taskbar from '../Taskbar';
+import Window from '../Window';
+import ContextMenu from '../ContextMenu';
+import XPIcon from '../XPIcon';
+import FileProperties from '../FileProperties';
+import DesktopProperties from '../DesktopProperties';
+import { resolveFileOpen } from '../../registry/apps';
+import StartupNotifier from '../StartupNotifier';
+import { useModal } from '../../context/ModalContext';
+import { FileItem, FileNode, MenuItem, RootNode, isContainerNode } from '../../types';
+import { getFileIconName } from '../../utils/fileIcon';
+import { getFileDisplayName } from '../../utils/fileDisplayName';
+import { DesktopContainer, SelectionBox, IconGrid, DesktopIcon } from './styled';
+import { BOX_SELECT_IGNORE, SYSTEM_ICON_KEYS, getEnglishTestId } from './constants';
 
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
