@@ -108,7 +108,7 @@ const ButtonRow = styled.div`
   justify-content: flex-end;
   gap: 8px;
   padding-top: 8px;
-  border-top: 1px solid #d4d0c8;
+  border-top: 1px solid #ece9d8;
 `;
 
 const Button = styled.button`

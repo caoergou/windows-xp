@@ -37,7 +37,7 @@ const CalendarHeader = styled.div`
   font-weight: bold;
   margin-bottom: 6px;
   padding-bottom: 4px;
-  border-bottom: 1px solid #d4d0c8;
+  border-bottom: 1px solid #ece9d8;
 `;
 
 const WeekdayRow = styled.div`

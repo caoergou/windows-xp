@@ -45,7 +45,7 @@ const ControlBtn = styled.button`
   border: 1px solid;
   border-color: #ffffff #808080 #808080 #ffffff;
   outline: none;
-  background: #d4d0c8;
+  background: #ece9d8;
   display: flex;
   align-items: center;
   justify-content: center;

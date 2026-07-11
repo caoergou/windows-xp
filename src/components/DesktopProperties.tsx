@@ -18,13 +18,13 @@ const Container = styled.div`
 
 const Tabs = styled.div`
   display: flex;
-  border-bottom: 1px solid #d4d0c8;
+  border-bottom: 1px solid #ece9d8;
   background: #f0f0f0;
 `;
 
 const Tab = styled.button<{ $active?: boolean }>`
   padding: 4px 12px;
-  border: 1px solid #d4d0c8;
+  border: 1px solid #ece9d8;
   border-bottom: none;
   background: ${props => (props.$active ? '#ece9d8' : '#f8f8f8')};
   cursor: pointer;
@@ -72,7 +72,7 @@ const ButtonRow = styled.div`
   justify-content: flex-end;
   gap: 8px;
   padding: 10px 12px;
-  border-top: 1px solid #d4d0c8;
+  border-top: 1px solid #ece9d8;
   background: #f0f0f0;
 `;
 

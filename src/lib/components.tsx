@@ -20,6 +20,8 @@ export { XPButton } from '../components/XPButton';
 export { XPTextInput } from '../components/XPTextInput';
 export { XPCheckbox, XPRadio } from '../components/XPCheckbox';
 export { XPSelect } from '../components/XPSelect';
+export { XPProgressBar } from '../components/XPProgressBar';
+export { XPTooltip } from '../components/XPTooltip';
 export {
   XPMenuBar,
   XPMenuBarItem,

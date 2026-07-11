@@ -15,6 +15,7 @@ playwright-report/
 tmp/
 *.png
 !src/**/*.png
+!e2e-visual/**/*.png
 *.yml
 !.github/**/*.yml
 

@@ -127,7 +127,7 @@
 |----|------------|:---:|:---:|------|
 | CUR-01 | 全套 XP 光标（箭头/手型/I 型/沙漏/移动/各方向 resize） | ⭐⭐⭐ | ✅ | `.cur` 资产已接入 |
 | CUR-02 | 启动应用瞬间显示"箭头+沙漏"忙碌光标 | ⭐⭐ | ❌ | 氛围项，成本低 |
-| CUR-03 | tooltip：浅黄 `#FFFFE1` 底、1px 黑边、Tahoma 8pt、约 500ms 延迟、淡入 | ⭐⭐ | 🔍 | 应做成统一组件（#78） |
+| CUR-03 | tooltip：浅黄 `#FFFFE1` 底、1px 黑边、Tahoma 8pt、约 500ms 延迟、淡入 | ⭐⭐ | ✅ | 已做成统一组件 `XPTooltip`（= STY-14，#99） |
 | CUR-04 | 触屏：框选/双击/右键长按等价操作 | ⭐⭐ | ❌ | 移动端仅有警告页（`MobileWarning.tsx`）；XP 本身无触屏，属"可用性"而非仿真，单独权衡 |
 
 ## I. 声音事件映射（SND）
@@ -181,7 +181,8 @@
 | STY-11 | 图标使用规范：48px（桌面）/ 32px（大图标）/ 16px（标题栏、菜单、任务栏）各就各位，不做非原生缩放 | ⭐⭐ | 🔍 | 资产库丰富（5.2MB），核查取用尺寸 |
 | STY-12 | 桌面图标/文字阴影、快捷方式箭头 | ⭐⭐⭐ | ✅ | 规范见 AGENTS.md §3/§4 |
 | STY-13 | IE6 chrome（绿色前进后退、#ECE9D8、状态栏） | ⭐⭐⭐ | ✅ | 规范见 AGENTS.md §2 |
-| STY-14 | tooltip 黄底样式 | ⭐⭐ | 🔍 | = CUR-03，统一组件解决 |
+| STY-14 | tooltip 黄底样式 | ⭐⭐ | ✅ | 共享 `XPTooltip`：`#FFFFE1` 底、1px 黑边、Tahoma 11px、~500ms 延迟、淡入，body portal 防裁剪。gallery 登记；广泛替换 `title=` 为渐进采用 |
+| STY-20 | 进度条：白色圆角槽（1px `#686868`、radius 4px、14px 高）+ Luna 绿分段填充 | ⭐⭐ | ✅ | 共享 `XPProgressBar`，逐值取自 xp.css `progress`（绿色纵向渐变 + 重复白色分段）。gallery 登记；替换散落自绘进度条为渐进采用 |
 | STY-15 | 对话框 chrome 与窗口 chrome 完全一致（同款纵向 Luna 渐变标题栏、蓝色窗框、Luna 关闭钮） | ⭐⭐⭐ | ✅ | 曾为横向 `#0058EE→#3593FF` 渐变 + 独立窗框，4 个对话框各一份；已统一复用 `WindowChrome` 的 `TitleBar`/`WindowContainer`（`XPDialogChrome`），组件级截图对照确认与窗口一致 |
 | STY-16 | 文本输入框（sunken 样式）：`#7f9db9` 单像素边框、`#fff` 底、23px 高、无 focus 高亮描边 | ⭐⭐ | ✅ | xp.css `input[type=text/password]` 逐值核对：XPInput（原 21px 高+2px 3px padding）、PasswordDialog（原多出 `border-radius:1px`+内阴影+发明的蓝色 focus 描边，无 XP 依据）、RunDialog（原缺 height/background，按钮也未接入 XPButton）三处分歧已统一为共享 `XPTextInput`；组件级截图核对三处（运行对话框、密码对话框、重命名对话框）视觉一致 |
 | STY-17 | 复选框/单选框：13px sunken 白底方框 + 7px 勾选贴图；单选 12px sunken 圆 + 4px 圆点 | ⭐⭐ | ✅ | **原生 `<input type=checkbox>` 被 xp.css 全局规则 `opacity:0;position:fixed` 隐藏**（它靠相邻 `input+label::before` 重绘，而 app 标记多不满足该结构）——静音开关、QQ「记住密码/自动登录/隐身登录」等复选框在屏幕上**完全不可见**。新增自绘的共享 `XPCheckbox`/`XPRadio`（逐值取自 xp.css `--border-field` + `checkmark.svg`/`radio-*.svg`），不依赖兄弟结构，处处一致可见。迁移 VolumePopup、VolumeControl、ControlPanel 声音/鼠标、QQ 登录；组件级截图确认 |
@@ -211,7 +212,9 @@
 
 ### K.2 截图基线清单（Playwright `toHaveScreenshot`）
 
-首批 8 个基准画面，任何样式 PR 跑视觉回归：
+**✅ 已落地（#99）**：微组件 gallery（`?gallery` 路由，`src/gallery/Gallery.tsx`）逐组件渲染全部共享原件，`e2e-visual/gallery.spec.ts` 用 `toHaveScreenshot` 锁定 9 个基线（整页 + 8 个分区：按钮/输入/复选单选/下拉/滑块/进度条/tooltip/菜单栏）。独立配置 `playwright.visual.config.ts`（不干扰行为 e2e），CI 走官方 Playwright 容器 `mcr.microsoft.com/playwright:v1.57.0-jammy`（Chromium + 字体与 `-linux` 基线一致），workflow `.github/workflows/visual.yml`。基线重生成：`npm run test:visual:update`。
+
+后续可补的整机画面基线（第二批，非本 issue 验收必需）：
 
 1. 空桌面（图标 + 任务栏 + 开始按钮）
 2. 开始菜单展开（双栏全貌）

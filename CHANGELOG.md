@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (micro-component gallery + visual-regression CI, closes #99)
+
+- **Micro-component gallery** (`?gallery` route, `src/gallery/Gallery.tsx`):
+  renders every shared XP primitive (buttons, text inputs, checkbox/radio,
+  combobox, trackbar, progress bar, tooltip, menu bar) on one page — the
+  deterministic surface for screenshot comparison, and a component catalog
+  that also serves #78.
+- **Visual-regression baselines in CI** (the #99 acceptance gate): new
+  `e2e-visual/gallery.spec.ts` locks 9 `toHaveScreenshot` baselines (full page
+  + 8 sections) via a dedicated `playwright.visual.config.ts` (isolated from
+  the behavioural e2e suite). A new `.github/workflows/visual.yml` runs it in
+  the official Playwright container (`mcr.microsoft.com/playwright:v1.57.0-jammy`)
+  so Chromium + fonts match the committed `-linux` baselines. Regenerate with
+  `npm run test:visual:update`.
+- **`XPTooltip`** (exported from `/components`): the XP yellow tooltip
+  (`#FFFFE1`, 1px black border, Tahoma, ~500ms delay, fade-in) rendered into a
+  body portal so it is never clipped. Replaces browser-native `title=` where
+  the authentic look is wanted (adoption incremental).
+- **`XPProgressBar`** (exported from `/components`): the Luna progress bar,
+  value-for-value from xp.css `progress` — white rounded trough (1px `#686868`,
+  radius 4px, 14px) with the segmented green fill.
+
+### Changed (palette sweep, #99)
+
+- Replaced the Windows 2000 gray `#d4d0c8` with XP Luna `#ECE9D8` across
+  Microsoft Paint (toolbar/palette), Windows Media Player, the taskbar clock's
+  calendar, Desktop Properties, and the Control Panel Display/Mouse/Sound
+  dividers. (Minesweeper/Solitaire keep the classic 3D gray by design.)
+
 ### Fixed (QQ login + Run dialog fidelity, #99)
 
 - **QQ login header penguin was clipped and inconsistent.** The blue banner

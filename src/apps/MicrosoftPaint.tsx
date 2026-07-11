@@ -8,7 +8,7 @@ import { isContainerNode, isFileContentNode } from '../types';
 const Wrap = styled.div`
   width: 100%;
   height: 100%;
-  background: #d4d0c8;
+  background: #ece9d8;
   display: flex;
   flex-direction: column;
   padding: 6px;
@@ -101,7 +101,7 @@ const Toolbar = styled.div`
   gap: 4px;
   margin-bottom: 6px;
   padding: 4px;
-  background: #d4d0c8;
+  background: #ece9d8;
   border: 1px solid;
   border-color: #ffffff #808080 #808080 #ffffff;
   overflow: hidden;
@@ -118,7 +118,7 @@ const ToolBtn = styled.button`
   border: 1px solid;
   border-color: #ffffff #808080 #808080 #ffffff;
   outline: none;
-  background: #d4d0c8;
+  background: #ece9d8;
   display: flex;
   align-items: center;
   justify-content: center;
