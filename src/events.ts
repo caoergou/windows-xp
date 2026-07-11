@@ -28,7 +28,10 @@ export type XPEvent =
   | { type: 'session:boot-complete' }
   | { type: 'session:shutdown'; mode: 'shutdown' | 'restart' | 'logout' }
   // Command prompt
-  | { type: 'cmd:exec'; command: string };
+  | { type: 'cmd:exec'; command: string }
+  // Tray notifications (#118)
+  | { type: 'notification:show'; id: string; title: string; body?: string }
+  | { type: 'notification:click'; id: string };
 
 export type XPEventType = XPEvent['type'];
 export type XPEventListener = (event: XPEvent) => void;

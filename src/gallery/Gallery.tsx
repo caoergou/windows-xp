@@ -6,6 +6,7 @@ import { XPCheckbox, XPRadio } from '../components/XPCheckbox';
 import { XPSelect } from '../components/XPSelect';
 import { XPProgressBar } from '../components/XPProgressBar';
 import { XPTooltip } from '../components/XPTooltip';
+import { BalloonTip } from '../components/BalloonTip';
 import { XPMenuBar, XPMenuBarItem } from '../components/XPMenuBar';
 import { XPGroupBox } from '../components/XPGroupBox';
 import { XPStatusBar, XPStatusBarField } from '../components/XPStatusBar';
@@ -163,6 +164,24 @@ const Gallery: React.FC = () => {
             <XPTooltip text="Hover tooltip works too">
               <XPButton>Hover me</XPButton>
             </XPTooltip>
+          </Row>
+        </Section>
+
+        <Section data-testid="gallery-balloon">
+          <Title>Tray balloon — BalloonTip</Title>
+          <Row style={{ paddingBottom: 12 }}>
+            <BalloonTip
+              icon="360safe"
+              title="360 Safe Guard Alert"
+              body="Your computer is protected"
+              onClose={() => undefined}
+            />
+            <BalloonTip
+              icon="network"
+              title="Local Area Connection"
+              body="Speed: 100.0 Mbps"
+              showTail={false}
+            />
           </Row>
         </Section>
 
