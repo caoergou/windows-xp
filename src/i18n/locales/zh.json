@@ -159,15 +159,7 @@
       "十一月",
       "十二月"
     ],
-    "weekdays": [
-      "日",
-      "一",
-      "二",
-      "三",
-      "四",
-      "五",
-      "六"
-    ],
+    "weekdays": ["日", "一", "二", "三", "四", "五", "六"],
     "today": "今天"
   },
   "window": {
@@ -662,7 +654,11 @@
     "scan": {
       "quickScan": "电脑体检",
       "scanning": "正在体检…",
-      "resultSafe": "您的电脑很安全，请继续保持！"
+      "resultSafe": "您的电脑很安全，请继续保持！",
+      "threatsFound": "发现 {{count}} 个木马程序！",
+      "threatPrefix": "木马",
+      "cleanButton": "立即清除",
+      "cleaned": "木马已清除，您的电脑现在很安全！"
     },
     "footer": {
       "lastScan": "上次体检",

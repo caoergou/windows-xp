@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (activated easter eggs, closes #85)
+
+- **CMD easter-egg commands**: `matrix` (green "wake up, Neo" screen), `color`
+  (real XP console recolor), `telnet towel.blinkenlights.nl` (Star Wars ASCII),
+  and `format c:` (crashes to the BSOD). `COLOR`/`FORMAT`/`TELNET` are listed in
+  `help` so they're discoverable.
+- **Run dialog hidden commands**: `winver` (About Windows dialog), `sol` /
+  `winmine` (Solitaire / Minesweeper), `bsod`, and `format` (access denied).
+- **BSOD is now reachable in-game and fake-reboots**: `format c:` (CMD) and
+  `bsod` (Run) trigger it via a DOM event; clicking the blue screen restarts the
+  machine (marks a restart + replays the boot sequence) instead of just
+  vanishing.
+- **Windows Media Player works out of the box**: the default source pointed at a
+  non-existent `/audio/sample.mp3` (also ignoring the base URL). Replaced with a
+  bundled, synthesized no-copyright chime imported as a hashed asset.
+- **360 Safe Guard "found threats" story**: the scan now "discovers" real
+  filesystem entries as fake trojans and offers a Clean button that removes
+  them; the panel scrolls so the list/button are always reachable.
+- **IE nostalgia page**: `http://www.4399.com` renders a period mini-games
+  portal, linked from the hao123 homepage's new "休闲游戏" section.
+- Covered by `test/bootAndShortcuts` (BSOD reboot) and new `e2e/nostalgia`
+  specs (winver, `format c:`→BSOD→reboot, 360 scan→clean).
+
 ### Added (fully replaceable content, closes #77)
 
 - **`fileSystemMode="replace"`**: keeps only OS scaffolding (Recycle Bin + an

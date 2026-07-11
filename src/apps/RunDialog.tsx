@@ -5,6 +5,7 @@ import { useApp } from '../hooks/useApp';
 import { APP_REGISTRY, getAppDisplayName } from '../registry/apps';
 import { defaultPlugin } from './BrowserPlugins';
 import { SYSTEM_PATHS } from '../data/systemPaths';
+import { triggerBsod } from '../utils/easterEggs';
 import { XPTextInput } from '../components/XPTextInput';
 import { XPButton } from '../components/XPButton';
 import XPIcon from '../components/XPIcon';
@@ -66,7 +67,9 @@ const COMMAND_MAP: Record<string, string> = {
   mspaint: 'MicrosoftPaint',
   paint: 'MicrosoftPaint',
   solitaire: 'Solitaire',
+  sol: 'Solitaire',
   minesweeper: 'Minesweeper',
+  winmine: 'Minesweeper',
   wmplayer: 'WindowsMediaPlayer',
   wmp: 'WindowsMediaPlayer',
   windowsmediaplayer: 'WindowsMediaPlayer',
@@ -99,6 +102,36 @@ const RunDialog = ({ windowId = '' }: RunDialogProps) => {
     }
 
     const lower = trimmed.toLowerCase();
+
+    // Hidden classic commands (#85).
+    if (lower === 'winver') {
+      api.dialog.alert({
+        title: t('runDialog.winverTitle', 'About Windows'),
+        message: t('runDialog.winverMessage', {
+          defaultValue:
+            'Microsoft Windows XP\nVersion 5.1 (Build 2600.xpsp_sp3)\nCopyright © 1985-2001 Microsoft Corp.',
+        }),
+        type: 'info',
+      });
+      api.window.close();
+      return;
+    }
+    if (lower === 'bsod') {
+      api.window.close();
+      triggerBsod();
+      return;
+    }
+    // The real Run box refuses format with an access-denied error.
+    if (lower === 'format' || lower.startsWith('format ')) {
+      api.dialog.alert({
+        title: t('runDialog.errorTitle'),
+        message: t('runDialog.formatDenied', {
+          defaultValue: 'Access is denied. Formatting the system drive is not permitted.',
+        }),
+        type: 'error',
+      });
+      return;
+    }
 
     // URL: open in Internet Explorer
     if (lower.startsWith('http://') || lower.startsWith('https://')) {

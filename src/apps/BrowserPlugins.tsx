@@ -292,6 +292,18 @@ const CATEGORIES: CategoryData[] = [
     ],
   },
   {
+    title: '休闲游戏',
+    color: '#e65c00',
+    bg: '#fff7e6',
+    tcol: '#e65c00',
+    links: [
+      ['4399小游戏', 'http://www.4399.com'],
+      ['7k7k', 'http://www.7k7k.com'],
+      ['QQ游戏', 'http://qqgame.qq.com'],
+      ['联众', 'http://www.ourgame.com'],
+    ],
+  },
+  {
     title: '新闻门户',
     color: '#003399',
     bg: '#eef3fc',
@@ -523,10 +535,76 @@ function MsnPage({ onNavigate }: { onNavigate: (url: string) => void }) {
   );
 }
 
+// 4399 小游戏——2000 年代中文互联网的课后回忆（#85 怀旧页）。
+function Game4399Page() {
+  const games = ['黄金矿工', '合金弹头', '连连看', '泡泡堂', '造梦西游', '奥特曼打怪兽', '双人闯关', '植物大战僵尸'];
+  return (
+    <PageWrap style={{ background: '#fff7e6' }}>
+      <div
+        style={{
+          background: 'linear-gradient(to bottom, #ff9d2e, #ff7b00)',
+          color: '#fff',
+          padding: '10px 14px',
+          fontSize: 22,
+          fontWeight: 'bold',
+          fontStyle: 'italic',
+        }}
+      >
+        4399<span style={{ fontSize: 13, fontWeight: 'normal' }}> 小游戏 · 在线玩</span>
+      </div>
+      <div style={{ padding: 14 }}>
+        <h2 style={{ fontSize: 15, color: '#e65c00', margin: '0 0 10px' }}>热门小游戏排行榜</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+          {games.map((g, i) => (
+            <div
+              key={g}
+              style={{
+                border: '1px solid #ffcc80',
+                borderRadius: 4,
+                background: '#fff',
+                padding: '10px 6px',
+                textAlign: 'center',
+                cursor: 'pointer',
+                fontSize: 12,
+              }}
+            >
+              <div
+                style={{
+                  height: 44,
+                  background: `hsl(${(i * 43) % 360}, 70%, 85%)`,
+                  borderRadius: 3,
+                  marginBottom: 6,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 22,
+                }}
+              >
+                🎮
+              </div>
+              <div style={{ color: '#0000cc', textDecoration: 'underline' }}>{g}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 14, fontSize: 11, color: '#999' }}>
+          Copyright © 2009 4399.com 版权所有
+        </div>
+      </div>
+    </PageWrap>
+  );
+}
+
 // ─── 白名单 ───────────────────────────────────────────────────────────────────
 // 白名单内的 URL 使用自定义渲染，不走 Wayback Machine。
 // 暂时清空；需要恢复时取消下方注释即可。
 export const BROWSER_WHITELIST = [
+  {
+    match: (url: string) => {
+      const normalized = url.toLowerCase().replace(/\/$/, '');
+      return normalized === 'http://www.4399.com' || normalized === 'http://4399.com';
+    },
+    render: () => <Game4399Page />,
+  },
   {
     match: (url: string) => {
       const normalized = url.toLowerCase().replace(/\/$/, '');
