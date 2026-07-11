@@ -18,6 +18,8 @@ export { default as SystemTray } from '../components/Taskbar/SystemTray';
 export { default as XPIcon } from '../components/XPIcon';
 export { XPButton } from '../components/XPButton';
 export { XPTextInput } from '../components/XPTextInput';
+export { XPCheckbox, XPRadio } from '../components/XPCheckbox';
+export { XPSelect } from '../components/XPSelect';
 export {
   XPMenuBar,
   XPMenuBarItem,

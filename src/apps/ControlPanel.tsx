@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import { XPSelect } from '../components/XPSelect';
 import addRemoveProgramsIcon from '../assets/icons/control-panel/add_remove_programs.png';
 import appearanceIcon from '../assets/icons/control-panel/appearance.png';
 import dateTimeIcon from '../assets/icons/control-panel/date_time.png';
@@ -210,14 +211,14 @@ const ControlPanel = ({ windowId }: { windowId?: string }) => {
             <h4>{t('controlPanel.systemLanguage.title')}</h4>
             <label>
               <span>{t('controlPanel.systemLanguage.label')}</span>
-              <select
+              <XPSelect
                 aria-label={t('controlPanel.systemLanguage.label')}
                 value={getSavedLanguage(i18n.language === 'zh' ? 'zh' : 'en')}
                 onChange={event => handleLanguageChange(event.target.value as SupportedLanguage)}
               >
                 <option value="en">English</option>
                 <option value="zh">简体中文</option>
-              </select>
+              </XPSelect>
             </label>
           </SystemSettings>
         );

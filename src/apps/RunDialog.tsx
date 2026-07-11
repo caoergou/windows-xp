@@ -4,34 +4,54 @@ import { useTranslation } from 'react-i18next';
 import { useApp } from '../hooks/useApp';
 import { APP_REGISTRY, getAppDisplayName } from '../registry/apps';
 import { defaultPlugin } from './BrowserPlugins';
+import { SYSTEM_PATHS } from '../data/systemPaths';
 import { XPTextInput } from '../components/XPTextInput';
 import { XPButton } from '../components/XPButton';
+import XPIcon from '../components/XPIcon';
 
 const Container = styled.div`
-  padding: 16px;
+  padding: 11px 9px 9px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 11px;
   font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  font-size: 12px;
+  font-size: 11px;
 `;
 
-const Label = styled.label`
-  font-weight: bold;
-  margin-bottom: 4px;
-`;
-
-const InputContainer = styled.div`
+/* Icon + descriptive text, mirroring the real XP Run dialog header. */
+const Prompt = styled.div`
   display: flex;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 10px;
+`;
+
+const PromptText = styled.div`
+  font-size: 11px;
+  line-height: 1.35;
+  color: #000;
+  padding-top: 2px;
+`;
+
+/* "Open:" label sitting inline with the combobox, left-aligned label column. */
+const InputRow = styled.div`
+  display: flex;
   align-items: center;
+  gap: 8px;
+`;
+
+const OpenLabel = styled.label`
+  flex-shrink: 0;
+`;
+
+const Field = styled(XPTextInput)`
+  flex: 1;
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 7px;
+  margin-top: 4px;
 `;
 
 interface RunDialogProps {
@@ -104,14 +124,27 @@ const RunDialog = ({ windowId = '' }: RunDialogProps) => {
 
     // Unknown command — show error instead of pretending to open a path
     api.dialog.alert({
-      title: t('runDialog.errorTitle', 'Windows XP'),
-      message: t('runDialog.errorMessage', { command: trimmed, defaultValue: `Windows cannot find '{{command}}'. Make sure you typed the name correctly, and then try again.` }),
+      title: t('runDialog.errorTitle'),
+      message: t('runDialog.errorMessage', { command: trimmed }),
       type: 'error',
     });
   };
 
   const handleCancel = () => {
     api?.window.close();
+  };
+
+  // Browse opens the file explorer at My Computer, matching XP's file picker entry point.
+  const handleBrowse = () => {
+    if (!api) return;
+    const def = APP_REGISTRY.Explorer;
+    api.openWindow(
+      'Explorer',
+      getAppDisplayName(def, t),
+      def.restore({ initialPath: [...SYSTEM_PATHS.myComputer] }),
+      def.icon,
+      def.window
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -123,20 +156,26 @@ const RunDialog = ({ windowId = '' }: RunDialogProps) => {
 
   return (
     <Container>
-      <Label>{t('startMenu.run')}:</Label>
-      <InputContainer>
-        <XPTextInput
+      <Prompt>
+        <XPIcon name="run" size={32} />
+        <PromptText>{t('runDialog.description')}</PromptText>
+      </Prompt>
+      <InputRow>
+        <OpenLabel htmlFor="run-open">{t('runDialog.open')}</OpenLabel>
+        <Field
+          id="run-open"
           type="text"
           value={command}
           onChange={(e) => setCommand(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={t('runDialog.placeholder', 'Enter the name of a program, folder, document, or Internet resource...')}
+          data-testid="run-dialog-input"
           autoFocus
         />
-      </InputContainer>
+      </InputRow>
       <ButtonContainer>
         <XPButton onClick={handleRun}>{t('common.ok', 'OK')}</XPButton>
         <XPButton onClick={handleCancel}>{t('common.cancel', 'Cancel')}</XPButton>
+        <XPButton onClick={handleBrowse}>{t('runDialog.browse')}</XPButton>
       </ButtonContainer>
     </Container>
   );

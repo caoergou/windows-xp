@@ -4,6 +4,63 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed (QQ login + Run dialog fidelity, #99)
+
+- **QQ login header penguin was clipped and inconsistent.** The blue banner
+  drew a crude hand-rolled SVG penguin (52x62) bottom-aligned in an
+  `overflow:hidden` header that flex-compressed to 51px, cutting the penguin's
+  entire head off. Replaced with the real `qq.png` icon (the same asset the
+  avatar and loading spinner already use), `flex-shrink:0` header, and bumped
+  the window to 400px tall so the footer stops clipping.
+- **QQ 2007 login placeholder was anachronistic** ("QQ号/手机号/邮箱" /
+  "QQ/Phone/Email"). QQ 2007 only supported QQ-number login; phone/email
+  came years later. Now "QQ号码" / "QQ Number".
+- **Run dialog rebuilt to the authentic XP layout.** It was a bare bold
+  "运行...:" label (the Start-menu string with its ellipsis leaking in) + input
+  + OK/Cancel, with the descriptive text stuffed into the placeholder and no
+  `runDialog.*` i18n keys (all inline defaults). Now: the run icon + real
+  description line, an "打开(O):" combobox row, and OK / Cancel / Browse
+  buttons (Browse opens Explorer at My Computer). Added the missing
+  `runDialog.description/open/browse/errorTitle/errorMessage` keys to zh/en.
+
+### Changed (checkbox / radio consistency, #99)
+
+- New shared `XPCheckbox` / `XPRadio` (exported from `/components`). xp.css
+  ships a global `input[type=checkbox]{opacity:0;position:fixed}` that hides
+  the native control and repaints it via an adjacent `input + label` sibling;
+  the app's markup rarely matched that structure, so those checkboxes were
+  **completely invisible** (the volume mute toggle, the QQ remember/auto/
+  invisible-login row, Control Panel mute/pointer-trails). The new components
+  draw the 13px sunken white box + 7px checkmark bitmap (and the 12px radio
+  circle + dot) themselves, value-for-value from xp.css, so they render
+  identically regardless of surrounding DOM. Migrated VolumePopup,
+  VolumeControl, ControlPanel Sound/Mouse settings, and QQ login.
+
+### Changed (combobox consistency, #99)
+
+- New shared `XPSelect` (exported from `/components`). Native `<select>`
+  elements (ControlPanel system language, Display settings wallpaper/
+  resolution/screensaver, Desktop Properties background/position) rendered
+  the host-OS dropdown. `XPSelect` matches xp.css's `select`: a `#7f9db9`
+  sunken white field with the beige raised drop-button + black arrow bitmap.
+
+### Changed (trackbar / slider consistency, #99)
+
+- New shared `xpTrackbarStyles` (in `src/theme`). The volume and Control
+  Panel sliders used flat 16px square thumbs; now they render the XP Luna
+  trackbar (2px sunken groove + pointed 11x21 indicator), value-for-value
+  from xp.css's `input[type=range]`. Note: the thumb rule needs `!important`
+  to beat xp.css's higher-specificity `input[type=range]::-webkit-slider-thumb`,
+  otherwise the browser's default thumb leaks green through the indicator's
+  transparent corners. Migrated VolumeControl, VolumePopup, Sound/Mouse.
+
+### Changed (palette, #99)
+
+- Desktop fallback background corrected from `#3A6EA5` (the Windows 2000
+  desktop blue) to `#004E98` (XP Luna Desktop system color) in
+  `constants.ts` and `Desktop.tsx` - the exact errata flagged in
+  FIDELITY.md K.1.
+
 ### Changed (text input consistency, #99)
 
 - New shared `XPTextInput` (exported from `/components`): value-for-value

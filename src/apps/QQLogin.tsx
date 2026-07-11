@@ -5,6 +5,7 @@ import { useApp } from '../hooks/useApp';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useTray } from '../context/TrayContext';
 import XPIcon from '../components/XPIcon';
+import { XPCheckbox } from '../components/XPCheckbox';
 
 // ─── 样式 ─────────────────────────────────────────────────────────────────────
 
@@ -53,13 +54,14 @@ const Wrap = styled.div<{ $shake?: boolean }>`
 
 const Header = styled.div`
   background: linear-gradient(to bottom, #4a90d9 0%, #3a7bd5 50%, #2a6bc5 100%);
-  padding: 16px 14px 12px;
+  padding: 12px 14px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 10px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 
   &::before {
     content: '';
@@ -80,39 +82,17 @@ const Header = styled.div`
   }
 `;
 
-const Penguin = () => (
-  <svg width="52" height="62" viewBox="0 0 52 62" fill="none">
-    {/* 身体 */}
-    <ellipse cx="26" cy="38" rx="18" ry="22" fill="#1a1a1a"/>
-    {/* 腹部 */}
-    <ellipse cx="26" cy="40" rx="11" ry="14" fill="#f5f0e8"/>
-    {/* 头 */}
-    <circle cx="26" cy="17" r="14" fill="#1a1a1a"/>
-    {/* 脸 */}
-    <ellipse cx="26" cy="19" rx="9" ry="8" fill="#f5f0e8"/>
-    {/* 眼睛 */}
-    <circle cx="22" cy="16" r="3" fill="white"/>
-    <circle cx="30" cy="16" r="3" fill="white"/>
-    <circle cx="22.8" cy="16.5" r="1.5" fill="#1a1a1a"/>
-    <circle cx="30.8" cy="16.5" r="1.5" fill="#1a1a1a"/>
-    {/* 高光 */}
-    <circle cx="21.5" cy="15.5" r="1" fill="#ffffff"/>
-    <circle cx="29.5" cy="15.5" r="1" fill="#ffffff"/>
-    {/* 嘴 */}
-    <ellipse cx="26" cy="22" rx="4" ry="2.5" fill="#f0a020"/>
-    {/* 翅膀 */}
-    <ellipse cx="9" cy="38" rx="5" ry="11" fill="#1a1a1a" transform="rotate(-10 9 38)"/>
-    <ellipse cx="43" cy="38" rx="5" ry="11" fill="#1a1a1a" transform="rotate(10 43 38)"/>
-    {/* 脚 */}
-    <ellipse cx="20" cy="58" rx="6" ry="3" fill="#f0a020"/>
-    <ellipse cx="32" cy="58" rx="6" ry="3" fill="#f0a020"/>
-    {/* 围巾/领结 */}
-    <rect x="19" y="28" width="14" height="4" rx="2" fill="#e8001c"/>
-    {/* 围巾细节 */}
-    <rect x="18" y="27" width="2" height="6" fill="#c00"/>
-    <rect x="32" y="27" width="2" height="6" fill="#c00"/>
-  </svg>
-);
+const HeaderLogo = styled.div`
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+
+  img {
+    display: block;
+  }
+`;
 
 const HeaderText = styled.div`
   color: white;
@@ -194,22 +174,12 @@ const FieldRow = styled.div`
 
 const CheckRow = styled.div`
   display: flex;
-  gap: 16px;
-  padding-left: 50px;
+  gap: 12px;
+  justify-content: center;
 
   label {
-    display: flex;
-    align-items: center;
-    gap: 4px;
     color: #444;
-    cursor: pointer;
     text-shadow: 1px 1px 1px rgba(255,255,255,0.5);
-
-    input[type="checkbox"] {
-      width: 13px;
-      height: 13px;
-      cursor: pointer;
-    }
   }
 `;
 
@@ -440,7 +410,9 @@ const QQLogin = ({ windowId }: QQLoginProps) => {
         </LoadingOverlay>
       )}
       <Header>
-        <Penguin />
+        <HeaderLogo>
+          <XPIcon name="qq" size={44} />
+        </HeaderLogo>
         <HeaderText>
           <div className="title">QQ 2007</div>
           <div className="version">版本 7.0.0.8228</div>
@@ -491,18 +463,21 @@ const QQLogin = ({ windowId }: QQLoginProps) => {
         </FieldRow>
 
         <CheckRow>
-          <label>
-            <input type="checkbox" checked={rememberPwd} onChange={e => setRememberPwd(e.target.checked)} />
-            {t('qq.login.rememberPassword')}
-          </label>
-          <label>
-            <input type="checkbox" checked={autoLogin} onChange={e => setAutoLogin(e.target.checked)} />
-            {t('qq.login.autoLogin')}
-          </label>
-          <label>
-            <input type="checkbox" checked={invisibleLogin} onChange={e => setInvisibleLogin(e.target.checked)} />
-            {t('qq.login.invisibleLogin')}
-          </label>
+          <XPCheckbox
+            checked={rememberPwd}
+            onChange={e => setRememberPwd(e.target.checked)}
+            label={t('qq.login.rememberPassword')}
+          />
+          <XPCheckbox
+            checked={autoLogin}
+            onChange={e => setAutoLogin(e.target.checked)}
+            label={t('qq.login.autoLogin')}
+          />
+          <XPCheckbox
+            checked={invisibleLogin}
+            onChange={e => setInvisibleLogin(e.target.checked)}
+            label={t('qq.login.invisibleLogin')}
+          />
         </CheckRow>
 
         <Divider />

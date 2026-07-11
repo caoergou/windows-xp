@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { getVolume, setVolume, getMuted, setMuted } from '../utils/soundManager';
+import { XPCheckbox } from './XPCheckbox';
+import { xpTrackbarStyles } from '../theme';
 
 const Popup = styled.div`
   position: absolute;
@@ -26,37 +28,8 @@ const Row = styled.div`
 `;
 
 const Slider = styled.input`
-  -webkit-appearance: none;
   flex: 1;
-  height: 6px;
-  background: linear-gradient(to bottom, #ffffff, #ece9d8);
-  border: 1px solid #7f9db9;
-  outline: none;
-
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
-    background: linear-gradient(to bottom, #ffffff, #ece9d8);
-    border: 1px solid #7f9db9;
-    cursor: pointer;
-  }
-
-  &::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    background: linear-gradient(to bottom, #ffffff, #ece9d8);
-    border: 1px solid #7f9db9;
-    cursor: pointer;
-  }
-`;
-
-const MuteRow = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  user-select: none;
+  ${xpTrackbarStyles}
 `;
 
 interface VolumePopupProps {
@@ -109,10 +82,7 @@ const VolumePopup: React.FC<VolumePopupProps> = ({ onClose }) => {
         />
         <span>{muted ? 0 : volume}%</span>
       </Row>
-      <MuteRow>
-        <input type="checkbox" checked={muted} onChange={handleMuteChange} />
-        <span>{t('tray.mute')}</span>
-      </MuteRow>
+      <XPCheckbox checked={muted} onChange={handleMuteChange} label={t('tray.mute')} />
     </Popup>
   );
 };

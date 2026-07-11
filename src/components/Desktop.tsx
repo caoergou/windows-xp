@@ -23,7 +23,7 @@ import { getFileDisplayName } from '../utils/fileDisplayName';
 const DesktopContainer = styled.div<{ $bgUrl: string }>`
   width: 100%;
   height: 100%;
-  background-color: #3A6EA5;
+  background-color: #004E98;
   background-image: url(${props => props.$bgUrl});
   background-size: cover;
   background-position: center;
