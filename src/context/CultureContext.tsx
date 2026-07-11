@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+} from 'react';
 import {
   CulturePackage,
   resolveCulture,
@@ -78,6 +85,19 @@ export const CultureProvider: React.FC<CultureProviderProps> = ({
       return [...filtered, pkg];
     });
   }, []);
+
+  // Re-merge when the set of `cultures` prop ids changes so packages added
+  // after mount take effect; runtime-registered packages (in state) are
+  // preserved and the prop wins on id collision (#122).
+  const userCulturesKey = (userCultures ?? []).map(c => c.id).join('|');
+  useEffect(() => {
+    setCultures(prev => {
+      const byId = new Map(prev.map(p => [p.id, p]));
+      (userCultures ?? []).forEach(pkg => byId.set(pkg.id, pkg));
+      return Array.from(byId.values());
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userCulturesKey]);
 
   const setCulture = useCallback((id: string) => {
     setCultureId(id);

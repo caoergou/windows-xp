@@ -6,7 +6,7 @@ import { useUserSession } from '../context/UserSessionContext';
 import { useTray, TrayItem } from '../context/TrayContext';
 import { useWindowId } from '../context/WindowIdContext';
 import { sounds } from '../utils/soundManager';
-import { FileNode } from '../types';
+import { FileNode, isContainerNode } from '../types';
 
 /**
  * useApp(windowId) — App 组件与系统交互的唯一入口。
@@ -72,11 +72,31 @@ export function useApp(windowId?: string) {
       play: (name: string) => (sounds as Record<string, (() => void) | undefined>)[name]?.(),
     },
 
-    // ── 文件系统（只读）──────────────────────────────────────────────────
+    // ── 文件系统（读 + 写）────────────────────────────────────────────────
+    // Write access mirrors the imperative XPHandle.fs surface (#115/#122) so a
+    // custom app can persist files through the sanctioned `useApp` API without
+    // reaching into `useFileSystem` internals.
     fs: {
       readFile:    (path: string[]) => fileSystemRef.current.getFile(path),
       readDir:     (path: string[]) => (fileSystemRef.current.getFile(path) as { children?: Record<string, FileNode> } | null)?.children ?? null,
       checkAccess: fileSystemRef.current.checkAccess,
+      writeFile:   (path: string[], content: string) => fileSystemRef.current.updateFile(path, { content }),
+      createFile:  (path: string[], node: Partial<FileNode> = {}) => {
+        const parent = path.slice(0, -1);
+        const name = path[path.length - 1];
+        if (!name) return;
+        const { type = 'file', name: _n, ...rest } = node as Partial<FileNode> & { type?: 'file' | 'folder' };
+        void _n;
+        fileSystemRef.current.createFile(parent, name, type, rest);
+      },
+      deleteFile:  (path: string[]) => {
+        const parent = path.slice(0, -1);
+        const name = path[path.length - 1];
+        if (!name) return;
+        const node = fileSystemRef.current.getFile(path);
+        if (node && isContainerNode(node)) fileSystemRef.current.deleteFolder(parent, name);
+        else fileSystemRef.current.deleteFile(parent, name);
+      },
     },
 
     // ── 用户会话 ─────────────────────────────────────────────────────────

@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed / Added (prop reactivity & composability, #122)
+
+- **`apps` and `cultures` props are now reactive.** They were read only in the
+  provider's `useState` initializer, so entries added/removed after mount were
+  silently ignored (while USAGE implied reactivity). An effect now re-merges on
+  prop-id changes — the prop wins over a runtime `registerApp`/`registerCulture`
+  on id collision, and runtime registrations + built-ins are preserved. USAGE's
+  troubleshooting note is corrected to match.
+- **`useApp().fs` gained write access** — `writeFile` / `createFile` /
+  `deleteFile` (mirroring the `XPHandle.fs` surface), so a custom app can
+  persist files through the sanctioned `useApp` API instead of reaching into
+  `useFileSystem` internals.
+- **Exported `EventBusProvider`, `XPEventBus` and a `createXPEventBus()`
+  factory** so advanced composers using the bare providers can create one bus,
+  pass it to `EventBusProvider`, and observe the same instance the desktop emits
+  on. New tests cover update-after-mount, `useApp` writes, and bare-provider bus
+  sharing. (A `/events` subpath was evaluated and skipped — the event types are
+  type-only exports with no runtime cost from the root. React 19 `.d.ts`
+  verification is deferred to a CI matrix follow-up.)
+
 ### Added (save/load snapshot — "share a save", #117)
 
 - **Versioned `XPSnapshot` format** — a portable JSON description of a desktop

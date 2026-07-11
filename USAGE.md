@@ -56,10 +56,12 @@ login (default user `User`, password `forthe2000s`) → desktop.
 | `disableGlobalShortcuts` | boolean | `false` | Disable Alt+F4 / Alt+Tab handling and the BSOD easter egg |
 | `disableScreenSaver` | boolean | `false` | Disable the idle screensaver |
 
-> **Content props are mount-time.** `customFileSystem`, `cultures`, and `apps`
-> are read when the instance mounts; changing them later has no effect
-> (runtime registration hooks exist for advanced cases — see Custom
-> Applications). Reactivity is tracked in issue #122.
+> **`apps` and `cultures` are reactive (#122).** Adding or removing an entry
+> after mount registers/updates it — the prop wins over a runtime
+> `registerApp`/`registerCulture` on an id collision, and built-ins + runtime
+> registrations are preserved. `customFileSystem` remains **mount-time** (it
+> seeds the desktop; drive later filesystem changes through `useApp().fs` or
+> the `ref` handle).
 
 ## Content: make the desktop yours
 
@@ -260,6 +262,18 @@ function EventLogger() {
   });
   return null;
 }
+```
+
+**Bare-provider composition (#122).** Advanced composers using the bare
+providers (the `AppProviders` escape hatch) can create their own bus and
+observe the exact instance the desktop emits on:
+
+```jsx
+import { createXPEventBus, EventBusProvider } from '@caoergou/windows-xp';
+
+const bus = createXPEventBus();
+bus.subscribe((e) => console.log(e.type));
+// <EventBusProvider bus={bus}> … your providers … </EventBusProvider>
 ```
 
 ### Driving the desktop from the host
