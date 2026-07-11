@@ -44,7 +44,7 @@ function App() {
 
 - 🧩 **嵌入零副作用** —— 所有样式作用域限定在 `.windows-xp-root` 之下（宿主页面的按钮还是你的按钮）；`mode="embedded"` 一键关闭全部全局拦截；`storagePrefix` 让每个实例的存储完全隔离，同页两个桌面互不干扰。
 - 📡 **万物皆事件** —— `onEvent` 以类型化事件流送出用户的每个动作：`file:open`、`app:launch`、`cmd:exec`、`session:login`、窗口生命周期……埋点分析、引导演示、解谜逻辑都挂在这一个 prop 上。
-- 🎮 **用代码驱动** —— 命令式 `ref` 句柄（`XPHandle`）可以编程打开应用和文件、弹对话框、重置整台机器。
+- 🎮 **用代码驱动** —— 命令式 `ref` 句柄（`XPHandle`）可以打开应用和文件、读写文件系统、控制会话与壁纸，还能把整台机器快照成可分享的 JSON 存档（`getSnapshot`/`loadSnapshot`）。
 - 📦 **你的世界，不是我们的** —— `customFileSystem` + `fileSystemMode="replace"` 把整个桌面换成你的内容；壁纸、头像、自定义应用、整个文化包都以 props 注入。新增内容永远不需要写 React。
 - 🧱 **同时是一套组件库** —— `XPButton`、`XPDialog`、`XPTabs`、`XPProgressBar` 等可零 Provider 独立使用，与 xp.css 逐值对齐（见[组件画廊](https://eric.run.place/windows-xp/?gallery)）。
 - 🔍 **把保真当纪律** —— 每个视觉与行为细节都在 [FIDELITY.md](FIDELITY.md) 中对照真实 XP SP3 逐项打分，design token 全部标注出处，CI 挂视觉回归基线。这里没有"现代化改良"的圆角。

@@ -244,8 +244,8 @@ conventions and timers in #130.)
 - `sound.play(name)` and `emit(event)` (inject onto the same bus `onEvent` and scenario triggers read)
 
 `reset()` clears **both** storage layers (localStorage + IndexedDB file
-contents) for the instance's `storagePrefix`, then reloads. Save/load
-snapshots are tracked in #117.
+contents) for the instance's `storagePrefix`, then reloads. For save/load,
+see "Save / load a snapshot" below.
 
 **Inside the tree** (custom apps), subscribe without prop-drilling:
 

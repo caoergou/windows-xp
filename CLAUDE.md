@@ -57,7 +57,7 @@ I18nextProvider
 ### Events & Imperative API (`src/events.ts`, `src/components/XPBridge.tsx`)
 
 - `src/events.ts` is the single event catalog (typed `XPEvent` union, `domain:action` naming). Contexts emit; consumers subscribe via the `onEvent` prop or `useXPEvents()`.
-- `XPBridge.tsx` wires the `ref` handle (`XPHandle`) via `useImperativeHandle`: top-level `openApp`/`openFile`/`closeWindow`/`showAlert`/`reset` plus the grouped actuation APIs from #115 — `fs.*` (read/write/create/delete/unlock), `session.*`, `appearance.*`, `windows.*`, `sound.play`, `emit`. New host-facing capabilities belong on this handle.
+- `XPBridge.tsx` wires the `ref` handle (`XPHandle`) via `useImperativeHandle`: top-level `openApp`/`openFile`/`closeWindow`/`showAlert`/`reset` plus the grouped actuation APIs from #115 — `fs.*` (read/write/create/delete/unlock), `session.*`, `appearance.*`, `windows.*`, `sound.play`, `emit`, and `getSnapshot`/`loadSnapshot` (versioned XPSnapshot save/load, `src/snapshot.ts`, #117). New host-facing capabilities belong on this handle.
 - Rule: new user-visible interactions should emit an event; names follow the #130 grammar.
 
 ### Window Management (`src/context/WindowManagerContext.tsx`)
