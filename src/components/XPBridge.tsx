@@ -6,6 +6,7 @@ import { useModal } from '../context/ModalContext';
 import { useTray, type NotifyOptions } from '../context/TrayContext';
 import { useXPEventBus } from '../context/EventBusContext';
 import { useStorage } from '../context/StorageContext';
+import { useScheduler, type ScheduleOptions } from '../context/SchedulerContext';
 import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
 import { useAppRegistry } from '../context/AppRegistryContext';
 import { isContainerNode, isFileContentNode, type FileNode } from '../types';
@@ -97,6 +98,14 @@ export interface XPHandle {
   notify: (options: NotifyOptions) => string;
   /** Inject an event onto the same bus `onEvent` and scenario triggers read. */
   emit: (event: XPEvent) => void;
+  /**
+   * Schedule an event to fire after a delay or at a wall-clock deadline (#130).
+   * Pending schedules persist per instance and fire on next load if the
+   * deadline passed while the page was closed. Returns the schedule id.
+   */
+  schedule: (options: ScheduleOptions) => string;
+  /** Cancel a pending schedule by id (#130). */
+  cancelSchedule: (id: string) => void;
   /** Capture the full desktop state as a portable, versioned snapshot (#117). */
   getSnapshot: () => XPSnapshot;
   /**
@@ -141,6 +150,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
     const { registry } = useAppRegistry();
     const bus = useXPEventBus();
     const storage = useStorage();
+    const { schedule, cancelSchedule } = useScheduler();
 
     useImperativeHandle(
       ref,
@@ -267,6 +277,9 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
 
           emit: event => bus.emit(event),
 
+          schedule: options => schedule(options),
+          cancelSchedule: id => cancelSchedule(id),
+
           getSnapshot: (): XPSnapshot => {
             let openWindows: unknown[] = [];
             try {
@@ -326,6 +339,8 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
         registry,
         bus,
         storage,
+        schedule,
+        cancelSchedule,
       ]
     );
 

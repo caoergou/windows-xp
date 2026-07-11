@@ -12,4 +12,5 @@ export { useWindowManager } from '../context/WindowManagerContext';
 export { useUserSession } from '../context/UserSessionContext';
 export { useModal } from '../context/ModalContext';
 export { useTray } from '../context/TrayContext';
+export { useScheduler } from '../context/SchedulerContext';
 export { useApp } from '../hooks/useApp';
