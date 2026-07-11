@@ -66,14 +66,21 @@ const DEFAULT_TIMEOUT = 9000;
 const TASKBAR_HEIGHT = 30;
 /** Diamond tail size in px (see BalloonTip). */
 const TAIL_SIZE = 12;
+/**
+ * How far the rotated diamond tail actually drops below the bubble's box: it is
+ * offset `bottom: -8px` and, rotated 45°, its lowest vertex reaches ~3px further
+ * (12·√2/2 − 12/2). Lift the whole layer by this much above the taskbar so the
+ * tail tip clears it (the taskbar has the max z-index and would otherwise clip it).
+ */
+const TAIL_DROP = 12;
 /** Fixed BalloonTip width in px (see BalloonTip). */
 const BALLOON_WIDTH = 242;
 
 const NotificationLayer = styled.div`
   position: fixed;
-  /* Sit the whole bubble + tail above the taskbar (which has z-index max), so
-     the downward tail is never hidden behind it — its tip meets the tray. */
-  bottom: ${TASKBAR_HEIGHT + TAIL_SIZE / 2}px;
+  /* Sit the whole bubble + tail above the taskbar so the tail is never hidden
+     behind it — the tail tip rests just on the taskbar's top edge, above the icon. */
+  bottom: ${TASKBAR_HEIGHT + TAIL_DROP}px;
   z-index: 2147483646;
 `;
 
