@@ -126,6 +126,90 @@ describe('imperative XPHandle (#76)', () => {
   });
 });
 
+describe('imperative XPHandle v2 (#115)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  const mountHandle = async (seen: XPEvent[]) => {
+    const { WindowsXP } = await import('../src/lib');
+    const ref = React.createRef<import('../src/components/XPBridge').XPHandle>();
+    render(<WindowsXP ref={ref} autoLogin skipBoot onEvent={e => seen.push(e)} />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(ref.current).not.toBeNull();
+    return ref;
+  };
+
+  it('plants a file, reads/writes it, and openFile is observable', async () => {
+    const seen: XPEvent[] = [];
+    const ref = await mountHandle(seen);
+
+    act(() => {
+      ref.current!.fs.createFile(['clue.txt'], { type: 'file', content: 'secret', app: 'Notepad' });
+    });
+    expect(ref.current!.fs.exists(['clue.txt'])).toBe(true);
+    expect(ref.current!.fs.readFile(['clue.txt'])).toBe('secret');
+
+    act(() => {
+      ref.current!.fs.writeFile(['clue.txt'], 'changed');
+    });
+    expect(ref.current!.fs.readFile(['clue.txt'])).toBe('changed');
+
+    act(() => {
+      ref.current!.openFile(['clue.txt']);
+    });
+    expect(seen.map(e => e.type)).toContain('app:launch');
+
+    act(() => {
+      ref.current!.fs.deleteFile(['clue.txt']);
+    });
+    expect(ref.current!.fs.exists(['clue.txt'])).toBe(false);
+  });
+
+  it('unlockNode clears locked persistently and emits file:unlock', async () => {
+    const seen: XPEvent[] = [];
+    const ref = await mountHandle(seen);
+
+    act(() => {
+      ref.current!.fs.createFile(['vault'], { type: 'folder', locked: true, password: 'x' });
+    });
+    expect(ref.current!.fs.getNode(['vault'])?.locked).toBe(true);
+
+    act(() => {
+      ref.current!.fs.unlockNode(['vault']);
+    });
+    expect(ref.current!.fs.getNode(['vault'])?.locked).toBe(false);
+    expect(seen.some(e => e.type === 'file:unlock')).toBe(true);
+  });
+
+  it('exposes windows.list, appearance.setWallpaper and emit', async () => {
+    const seen: XPEvent[] = [];
+    const ref = await mountHandle(seen);
+
+    let id: string | null = null;
+    act(() => {
+      id = ref.current!.openApp('Calculator');
+    });
+    const list = ref.current!.windows.list();
+    expect(list.some(w => w.id === id)).toBe(true);
+
+    // Host-injected event reaches the same onEvent pipeline.
+    act(() => {
+      ref.current!.emit({ type: 'cmd:exec', command: 'from-host' });
+    });
+    expect(seen.some(e => e.type === 'cmd:exec' && 'command' in e && e.command === 'from-host')).toBe(
+      true
+    );
+
+    // setWallpaper does not throw and is callable from the handle.
+    act(() => {
+      ref.current!.appearance.setWallpaper('bliss');
+    });
+  });
+});
+
 describe('FileSystem emits mutation events (#76)', () => {
   beforeEach(() => {
     bus = new XPEventBus();

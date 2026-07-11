@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../context/FileSystemContext';
@@ -167,9 +167,13 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
 
   const [history, setHistory] = useState<string[][]>([initialPath]);
   const [historyIndex, setHistoryIndex] = useState(0);
-  const [selectedItem, setSelectedItem] = useState<{ name: string; type: FileNode['type'] } | null>(
-    null
-  );
+  const [selectedItem, setSelectedItem] = useState<{
+    name: string;
+    type: FileNode['type'];
+    key: string;
+  } | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [address, setAddress] = useState<string>(initialPath.join('\\'));
   const [dragOver, setDragOver] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<{
@@ -360,7 +364,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
   const handleContextMenu = (e: React.MouseEvent, key: string, item: FileNode) => {
     e.preventDefault();
     e.stopPropagation();
-    setSelectedItem({ name: getFileDisplayName(key, item, t), type: item?.type });
+    setSelectedItem({ name: getFileDisplayName(key, item, t), type: item?.type, key });
     setContextMenu({
       visible: true,
       x: e.clientX,
@@ -380,8 +384,8 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     closeContextMenu();
   };
 
-  const handleDelete = () => {
-    const targetItem = contextMenu.targetItem;
+  const handleDelete = (override?: { key: string; item: FileNode }) => {
+    const targetItem = override ?? contextMenu.targetItem;
     if (targetItem) {
       const displayName = getFileDisplayName(targetItem.key, targetItem.item, t);
       api.dialog
@@ -399,8 +403,8 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     }
   };
 
-  const handleRename = () => {
-    const targetItem = contextMenu.targetItem;
+  const handleRename = (override?: { key: string; item: FileNode }) => {
+    const targetItem = override ?? contextMenu.targetItem;
     if (targetItem) {
       api.dialog
         .prompt({
@@ -559,14 +563,14 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
 
   const renderFileItem = (key: string, item: FileNode) => {
     const displayName = getFileDisplayName(key, item, t);
-    const isSelected = selectedItem !== null && selectedItem.name === displayName;
+    const isSelected = selectedItem !== null && selectedItem.key === key;
 
     return (
       <FileItem
         key={key}
         data-testid={`file-item-${key}`}
         onDoubleClick={() => handleNavigate(key)}
-        onClick={() => setSelectedItem({ name: displayName, type: item.type })}
+        onClick={() => setSelectedItem({ name: displayName, type: item.type, key })}
         onContextMenu={e => handleContextMenu(e, key, item)}
         $selected={isSelected}
         draggable
@@ -622,8 +626,51 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     ? Object.keys(currentFolder.children).length
     : 0;
 
+  // Explorer keyboard operations (#87 EXP-03/04): Backspace = up one level,
+  // F5 refresh, F2 rename / Delete on the selected item. Ignored while typing
+  // in the address bar.
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+      return;
+    }
+    const folder = isContainerNode(currentFolder) ? currentFolder : null;
+    const selKey = selectedItem?.key;
+    const selNode = selKey && folder ? folder.children[selKey] : undefined;
+
+    if (e.key === 'Backspace') {
+      if (currentPath.length > 0) {
+        e.preventDefault();
+        handleUp();
+      }
+    } else if (e.key === 'F5') {
+      e.preventDefault();
+      setRefreshKey(k => k + 1);
+    } else if (e.key === 'F2') {
+      if (selKey && selNode) {
+        e.preventDefault();
+        handleRename({ key: selKey, item: selNode });
+      }
+    } else if (e.key === 'Delete') {
+      if (selKey && selNode) {
+        e.preventDefault();
+        handleDelete({ key: selKey, item: selNode });
+      }
+    }
+  };
+
   return (
     <Container
+      ref={containerRef}
+      tabIndex={0}
+      style={{ outline: 'none' }}
+      onKeyDown={handleKeyDown}
+      onMouseDown={e => {
+        const t = e.target as HTMLElement;
+        if (!t.closest('input,textarea,button,[contenteditable]')) {
+          containerRef.current?.focus();
+        }
+      }}
       onContextMenu={e => {
         e.preventDefault();
         e.stopPropagation();
@@ -646,7 +693,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
           currentItem={selectedItem}
           onNavigate={handleNavigateToPath}
         />
-        <FileArea>
+        <FileArea key={refreshKey}>
           {isInRecycleBin && childCount === 0 ? (
             <EmptyRecycleBinMessage>
               <XPIcon name="recycle_bin" size={48} />

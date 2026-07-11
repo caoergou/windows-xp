@@ -38,3 +38,36 @@ test.describe('Desktop keyboard operations', () => {
     await expect(page.getByText(/move .* to the Recycle Bin/i)).toBeVisible();
   });
 });
+
+/**
+ * Explorer keyboard interaction (#87 EXP-03/04): Backspace navigates up one
+ * level, F2 renames and Delete recycles the selected item.
+ */
+test.describe('Explorer keyboard operations', () => {
+  test.beforeEach(async ({ page }) => {
+    await login(page, { lang: 'en' });
+    await page.locator('[data-english-testid="desktop-icon-my-documents"]').dblclick();
+    // readme.txt lives in My Documents; wait for the folder contents to render.
+    await expect(page.locator('[data-testid="file-item-readme.txt"]')).toBeVisible();
+  });
+
+  test('Backspace navigates up one level (EXP-03)', async ({ page }) => {
+    // Descend into the "My Pictures" subfolder, then Backspace back up.
+    await page.locator('[data-testid="file-item-My Pictures"]').dblclick();
+    await expect(page.locator('[data-testid="file-item-readme.txt"]')).not.toBeVisible();
+    await page.keyboard.press('Backspace');
+    await expect(page.locator('[data-testid="file-item-readme.txt"]')).toBeVisible();
+  });
+
+  test('F2 opens the rename dialog for the selected item (EXP-04)', async ({ page }) => {
+    await page.locator('[data-testid="file-item-readme.txt"]').click();
+    await page.keyboard.press('F2');
+    await expect(page.getByText('Enter a new name:')).toBeVisible();
+  });
+
+  test('Delete on a selected item prompts for confirmation (EXP-04)', async ({ page }) => {
+    await page.locator('[data-testid="file-item-readme.txt"]').click();
+    await page.keyboard.press('Delete');
+    await expect(page.getByText(/move .* to the Recycle Bin/i)).toBeVisible();
+  });
+});

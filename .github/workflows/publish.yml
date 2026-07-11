@@ -32,4 +32,7 @@ jobs:
 
       - run: npm publish --access public --provenance
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Must be a real npm automation token (registry.npmjs.org).
+          # GITHUB_TOKEN does NOT authenticate against npm — add an
+          # `NPM_TOKEN` repository secret (see CONTRIBUTING.md → Releases).
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

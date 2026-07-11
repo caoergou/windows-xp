@@ -739,6 +739,8 @@
     "location": "位置",
     "desktop": "桌面",
     "size": "大小",
+    "bytes": "{{count}} 字节",
+    "objectCount": "{{count}} 个对象",
     "created": "创建时间",
     "modified": "修改时间",
     "accessed": "访问时间",

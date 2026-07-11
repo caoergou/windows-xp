@@ -20,7 +20,28 @@ npm run test -- --run
 npm run test:e2e
 ```
 
-CI will run `lint`, `typecheck`, and unit tests on every push.
+### What CI runs
+
+Every pull request (and every push to `main`) is gated by the `CI` workflow
+(`.github/workflows/ci.yml`):
+
+- **quality** job — `lint`, `typecheck`, `guard:nocheck`, the **full** unit
+  suite (`vitest run`), a library build, and `size:check`.
+- **e2e** job — the Playwright end-to-end suite (`test:e2e`) in the official
+  Playwright container.
+
+In addition, `visual.yml` runs the micro-component screenshot diff on every PR,
+and `deploy.yml` builds and publishes to GitHub Pages on pushes to `main`. A PR
+that breaks any of these goes red before it can merge.
+
+## Releases
+
+Tagging a commit `v*` triggers `.github/workflows/publish.yml`, which runs the
+quality gate and then `npm publish`. Publishing requires an **`NPM_TOKEN`**
+repository secret — an npm automation token for `registry.npmjs.org`. The
+built-in `GITHUB_TOKEN` does **not** authenticate against npm, so this secret
+must be configured under **Settings → Secrets and variables → Actions** for
+releases to succeed.
 
 ## Design Principles
 

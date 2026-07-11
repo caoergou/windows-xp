@@ -4,6 +4,93 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (XPHandle v2 — imperative actuation, #115)
+
+- The `ref` handle grew from 5 methods to a full actuation surface so a host
+  can drive the desktop with no custom apps or context access:
+  - `fs`: `readFile` / `writeFile` / `createFile` / `deleteFile` / `getNode` /
+    `exists` / `unlockNode`
+  - `session`: `login` / `logout` / `shutdown` / `restart`
+  - `appearance`: `setWallpaper` / `setLanguage`
+  - `windows`: `list` / `focus` / `minimize` / `maximize` / `restore`
+  - `sound.play(name)` and `emit(event)` (inject onto the same bus)
+- **`unlockNode(path)`** (also on `FileSystemContext`) persistently clears a
+  node's `locked` flag and emits `file:unlock` — a host/scenario force-unlock
+  that survives reload (unlike the transient `checkAccess`).
+- **`reset()` now clears IndexedDB too.** It previously removed only
+  localStorage keys and hardcoded the `'xp_'` prefix, so file contents in
+  IndexedDB survived a reset. It now clears both storage layers via the live
+  `Storage` handle (correct per-instance `storagePrefix`).
+- The original five methods (`openApp`/`openFile`/`closeWindow`/`showAlert`/
+  `reset`) stay at the top level for backward compatibility.
+- Exported the new handle types and `EventBusProvider` from the package root;
+  new USAGE "Driving the desktop from the host" section with an ARG example.
+
+### Fixed (correctness debt batch, #121)
+
+- **Notepad shortcuts no longer use a window-level listener.** Ctrl+S/F/H etc.
+  were bound with `window.addEventListener('keydown', …)`, so they fired
+  regardless of focus, double-fired with two Notepad instances, and leaked into
+  the host page (a DEVELOPMENT.md §3 / embedded-mode violation). They're now
+  scoped to the focused Notepad window via `onKeyDown` on its root container.
+- **Taskbar cascade/tile are no longer dead clicks.** They had regressed to
+  `disabled: windows.length === 0` with no `action`, so with windows open they
+  were enabled and did nothing. Re-disabled pending WIN-12 (cascade/tile need
+  controlled window positioning), so no enabled context-menu item is a no-op.
+- **File properties are fully localized.** `getFileProperties` returned
+  hardcoded Chinese (`0 字节`, `2003年10月25日`) even under `language="en"`; it
+  now returns raw values (`sizeBytes`/`childCount` + an ISO date) that
+  `FileProperties` formats with i18n keys and `Intl.DateTimeFormat`.
+- **Notepad Find/Replace dialogs** migrated to the shared `XPDialogFrame` (Luna
+  vertical-gradient title bar + Luna close button), removing the last
+  horizontal-gradient/orange-close dialog chrome (STY-15).
+- **MobileWarning** restyled as an XP dialog (`XPDialogFrame` + `XPButton`),
+  dropping the rounded corners, modern box-shadow and `transition: all` that
+  contradicted the fidelity red lines on the first screen a mobile visitor sees.
+
+### Docs (documentation truth sweep, #114)
+
+- **README** now tells the engine story: a new "It's an engine, not just a
+  screenshot" section (events, imperative `ref`/`XPHandle`, embedded mode,
+  replaceable content, standalone primitives), a **full props table** covering
+  every `WindowsXPProps` field with type + default, and an ARG-flavored
+  `onEvent` example. Fixed the custom-filesystem example (top-level keys merge
+  into the desktop root — no `"Desktop"` wrapper) and corrected the
+  app-maturity list (Paint saves to the FS, Notepad has Undo/Find/Replace/Word
+  Wrap, Solitaire is fully implemented and tested). Mirrored in
+  `README.zh-CN.md`.
+- **USAGE**: added `fileSystemMode`, `avatar`, `wallpapers`, `defaultWallpaper`
+  and `onEvent` to the props table; removed the obsolete `storagePrefix` /
+  issue #73 process-wide caveat (per-instance isolation shipped in #95); fixed
+  the broken Issues link; added an **SSR / Next.js** section
+  (`dynamic(() => import(...), { ssr: false })`).
+- **CLAUDE.md**: dropped the "⭐ NEW" registry tag, switched the example to
+  `nameKey`, documented the `locales` field, and completed the app table
+  (TaskManager, SafeGuard360, Thunder, KugouMusic, BaofengPlayer, WPSOffice).
+- **FIDELITY.md**: re-scored WIN-01, WIN-10, SND-07/08/09 and STY-02 to ✅ with
+  evidence links; fixed WIN-12's stale line reference; removed the duplicated
+  rule #6 and the dangling STY-02 AGENTS.md note.
+
+### Changed (CI gates tell the truth, #112)
+
+- **New `CI` workflow** (`.github/workflows/ci.yml`) runs on every pull request
+  and push to `main`: a **quality** job (`lint`, `typecheck`, `guard:nocheck`,
+  the full `vitest run` suite, library build + `size:check`) and an **e2e** job
+  running the Playwright suite in the official Playwright container. Previously
+  PRs were gated only by the visual-snapshot job, and the full unit suite / e2e
+  never ran in CI.
+- **Fixed the always-failing western-culture smoke assertion**
+  (`e2e/smoke.spec.ts`): marked `test.fixme` with a pointer to the en-culture
+  parity issue (#123) so the suite is green until those shortcuts exist.
+- **Fixed the stale 360 安全卫士 scan e2e** (`e2e/nostalgia.spec.ts`): it now
+  follows the #85 gag (scan finds "trojans" → clean → reassuring result) instead
+  of asserting a "safe" result that the trojan-finding behavior never produces.
+- **`publish.yml` now uses `secrets.NPM_TOKEN`** instead of `GITHUB_TOKEN`
+  (which cannot authenticate against npm); the required secret is documented in
+  CONTRIBUTING.md.
+- **CONTRIBUTING.md** now accurately describes what CI runs and adds a Releases
+  section covering the `NPM_TOKEN` secret.
+
 ### Added (behavior fidelity — keyboard batch, #87)
 
 - **Ctrl+Esc opens the Start menu** (KBD-03) — the XP-native Win-key equivalent
@@ -16,6 +103,13 @@ All notable changes to this project will be documented in this file.
   the handler ignores keystrokes while typing or while a window/dialog is
   focused. Covered by a new `e2e/keyboard.spec.ts`. FIDELITY DSK-03/04/05 and
   KBD-03 move to ✅.
+- **Explorer keyboard operations** (EXP-03/04): inside a file window,
+  **Backspace** navigates up one level (the XP-native shortcut, distinct from
+  "Back"), **F5** refreshes the view, **F2** renames the selected item, and
+  **Delete** moves it to the Recycle Bin. The file window takes focus on click so
+  these keys target it, and the handler ignores keystrokes while the address bar
+  is being edited. Covered by new Explorer cases in `e2e/keyboard.spec.ts`.
+  FIDELITY EXP-03/04 move to ✅.
 
 ### Added (component library primitives, closes #78)
 

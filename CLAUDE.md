@@ -57,7 +57,7 @@ I18nextProvider
 ### Events & Imperative API (`src/events.ts`, `src/components/XPBridge.tsx`)
 
 - `src/events.ts` is the single event catalog (typed `XPEvent` union, `domain:action` naming). Contexts emit; consumers subscribe via the `onEvent` prop or `useXPEvents()`.
-- `XPBridge.tsx` wires the `ref` handle (`XPHandle`: `openApp`, `openFile`, `closeWindow`, `showAlert`, `reset`) via `useImperativeHandle`. New host-facing capabilities belong on this handle (see #115).
+- `XPBridge.tsx` wires the `ref` handle (`XPHandle`) via `useImperativeHandle`: top-level `openApp`/`openFile`/`closeWindow`/`showAlert`/`reset` plus the grouped actuation APIs from #115 — `fs.*` (read/write/create/delete/unlock), `session.*`, `appearance.*`, `windows.*`, `sound.play`, `emit`. New host-facing capabilities belong on this handle.
 - Rule: new user-visible interactions should emit an event; names follow the #130 grammar.
 
 ### Window Management (`src/context/WindowManagerContext.tsx`)
@@ -76,10 +76,13 @@ Windows persist across refreshes via localStorage('xp_open_windows'). Components
 ### App Registry (`src/registry/apps.tsx`)
 
 All applications are registered in `APP_REGISTRY`, the single source of truth for:
-- Application metadata (id, `name` fallback + `nameKey` i18n key, icon)
+- Application metadata (id, `nameKey`/`name`, icon)
 - Default window configuration (width, height, singleton, resizable)
-- Locale gating (`locales: ['zh']` for culture-specific apps)
+- Locale gating: `locales` — optional list of culture ids (e.g. `['zh']` for the China-only apps); omit for apps available everywhere
 - File associations and restoration logic
+
+Prefer `nameKey` (an i18n key resolved via `getAppDisplayName`) over a hardcoded
+`name`; `name` remains as the fallback when no `nameKey` is set.
 
 ```typescript
 export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
@@ -88,7 +91,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     name: 'Calculator',            // fallback only —
     nameKey: 'apps.calculator',    // display name resolves through i18n first
     icon: 'calculator',
-    window: { width: 260, height: 340, resizable: false, singleton: true },
+    window: { width: 208, height: 196, resizable: false, singleton: true },
     associations: [{ appField: 'Calculator', getProps: () => ({}) }],
     restore: (props) => <Calculator {...props} />,
   },

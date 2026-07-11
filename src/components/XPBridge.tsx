@@ -1,16 +1,74 @@
 import React, { useEffect, useImperativeHandle } from 'react';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useFileSystem } from '../context/FileSystemContext';
+import { useUserSession } from '../context/UserSessionContext';
 import { useModal } from '../context/ModalContext';
 import { useXPEventBus } from '../context/EventBusContext';
+import { useStorage } from '../context/StorageContext';
 import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
 import { useAppRegistry } from '../context/AppRegistryContext';
-import { isContainerNode } from '../types';
-import type { XPEventListener } from '../events';
+import { isContainerNode, isFileContentNode, type FileNode } from '../types';
+import { canUseDOM } from '../utils/storage';
+import { saveLanguage } from '../utils/language';
+import { sounds, play as playSound } from '../utils/soundManager';
+import i18n from '../i18n';
+import type { XPEvent, XPEventListener } from '../events';
+
+/** Filesystem actuation from outside the desktop (#115). Paths are absolute. */
+export interface XPFsApi {
+  /** Read a file node's text content, or null if missing / not a text file. */
+  readFile: (path: string[]) => string | null;
+  /** Set a file node's content (persists). */
+  writeFile: (path: string[], content: string) => void;
+  /** Create a file/folder at path. `node.type` defaults to 'file'. */
+  createFile: (path: string[], node?: Partial<FileNode>) => void;
+  /** Delete the file or folder at path. */
+  deleteFile: (path: string[]) => void;
+  /** Return the raw node at path, or null. */
+  getNode: (path: string[]) => FileNode | null;
+  /** Whether a node exists at path. */
+  exists: (path: string[]) => boolean;
+  /** Persistently clear a node's `locked` flag. */
+  unlockNode: (path: string[]) => void;
+}
+
+/** Session control (#115). */
+export interface XPSessionApi {
+  login: (password?: string) => boolean;
+  logout: () => void;
+  shutdown: () => void;
+  restart: () => void;
+}
+
+/** Appearance control (#115). */
+export interface XPAppearanceApi {
+  setWallpaper: (idOrUrl: string) => void;
+  setLanguage: (lang: string) => void;
+}
+
+/** A window as seen from outside the desktop. */
+export interface XPWindowInfo {
+  id: string;
+  appId: string;
+  title: string;
+  isMinimized: boolean;
+  isMaximized: boolean;
+}
+
+/** Window introspection + control (#115). */
+export interface XPWindowsApi {
+  list: () => XPWindowInfo[];
+  focus: (id: string) => void;
+  minimize: (id: string) => void;
+  maximize: (id: string) => void;
+  restore: (id: string) => void;
+}
 
 /**
- * Imperative handle exposed via `ref` on <WindowsXP/> (#76): lets the host
- * drive the desktop programmatically (demos, tests, scenario scripting).
+ * Imperative handle exposed via `ref` on <WindowsXP/> (#76, extended in #115):
+ * lets the host drive the desktop programmatically (demos, tests, scenario
+ * scripting). The five original top-level methods are kept for backward
+ * compatibility; new capabilities are grouped by domain.
  */
 export interface XPHandle {
   /** Open a registered app by id, optionally passing component props. */
@@ -21,8 +79,20 @@ export interface XPHandle {
   closeWindow: (id: string) => void;
   /** Show an XP dialog. */
   showAlert: (title: string, message: string) => void;
-  /** Clear all persisted desktop state and reload. */
+  /** Clear all persisted desktop state (localStorage + IndexedDB) and reload. */
   reset: () => void;
+  /** Filesystem actuation. */
+  fs: XPFsApi;
+  /** Session control. */
+  session: XPSessionApi;
+  /** Appearance control. */
+  appearance: XPAppearanceApi;
+  /** Window introspection + control. */
+  windows: XPWindowsApi;
+  /** Play a named XP system sound. */
+  sound: { play: (name: string) => void };
+  /** Inject an event onto the same bus `onEvent` and scenario triggers read. */
+  emit: (event: XPEvent) => void;
 }
 
 /** Subscribes the host's onEvent callback to the bus. Renders nothing. */
@@ -40,66 +110,171 @@ export const XPEventBridge: React.FC<{ onEvent?: XPEventListener }> = ({ onEvent
 /** Wires the imperative handle to the live contexts. Renders nothing. */
 export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: string }>(
   function XPImperativeApi(_props, ref) {
-    const { openWindow, closeWindow } = useWindowManager();
-    const { fs, getFile } = useFileSystem();
+    const { openWindow, closeWindow, focusWindow, minimizeWindow, maximizeWindow, windows } =
+      useWindowManager();
+    const {
+      fs,
+      getFile,
+      updateFile,
+      createFile: fsCreateFile,
+      deleteFile: fsDeleteFile,
+      deleteFolder,
+      unlockNode,
+    } = useFileSystem();
+    const { login, logout, setWallpaper } = useUserSession();
     const { dialog } = useModal();
     const { registry } = useAppRegistry();
+    const bus = useXPEventBus();
+    const storage = useStorage();
 
     useImperativeHandle(
       ref,
-      (): XPHandle => ({
-        openApp: (appId, props = {}) => {
-          const def = registry[appId] ?? APP_REGISTRY[appId];
-          if (!def) {
-            console.warn(`[windows-xp] openApp: unknown appId "${appId}"`);
-            return null;
-          }
-          return openWindow(
-            appId,
-            def.name ?? appId,
-            def.restore(props),
-            def.icon,
-            { ...(def.window ?? {}), componentProps: props }
-          );
-        },
-        openFile: path => {
-          const node = getFile(path);
-          if (!node) {
-            console.warn(`[windows-xp] openFile: no node at ${path.join('/')}`);
-            return null;
-          }
-          const key = path[path.length - 1] ?? node.name;
-          const resolved = resolveFileOpen(key, node);
-          if (!resolved) return null;
-          return openWindow(
-            resolved.appId,
-            node.name,
-            resolved.component,
-            resolved.icon,
-            resolved.windowProps
-          );
-        },
+      (): XPHandle => {
+        const powerOff = (state: 'shutdown' | 'restart') => {
+          storage.local.removeItem(storage.key('open_windows'));
+          storage.local.setItem(storage.key('power_state'), state);
+          bus.emit({ type: 'session:shutdown', mode: state });
+          sounds.shutdown();
+          if (canUseDOM) setTimeout(() => window.location.reload(), 600);
+        };
+
+        return {
+          openApp: (appId, props = {}) => {
+            const def = registry[appId] ?? APP_REGISTRY[appId];
+            if (!def) {
+              console.warn(`[windows-xp] openApp: unknown appId "${appId}"`);
+              return null;
+            }
+            return openWindow(appId, def.name ?? appId, def.restore(props), def.icon, {
+              ...(def.window ?? {}),
+              componentProps: props,
+            });
+          },
+          openFile: path => {
+            const node = getFile(path);
+            if (!node) {
+              console.warn(`[windows-xp] openFile: no node at ${path.join('/')}`);
+              return null;
+            }
+            const key = path[path.length - 1] ?? node.name;
+            const resolved = resolveFileOpen(key, node);
+            if (!resolved) return null;
+            return openWindow(
+              resolved.appId,
+              node.name,
+              resolved.component,
+              resolved.icon,
+              resolved.windowProps
+            );
+          },
+          closeWindow,
+          showAlert: (title, message) => {
+            void dialog.alert({ title, message, type: 'info' });
+          },
+          reset: () => {
+            if (!canUseDOM) return;
+            const done = () => window.location.reload();
+            try {
+              const prefix = storage.prefix;
+              Object.keys(window.localStorage)
+                .filter(k => k.startsWith(prefix))
+                .forEach(k => window.localStorage.removeItem(k));
+            } catch (e) {
+              console.warn('[windows-xp] reset: localStorage clear failed', e);
+            }
+            // Also clear IndexedDB (file contents) for this instance's prefix,
+            // then reload once storage is gone.
+            storage.clearAllStorage().then(done, done);
+          },
+
+          fs: {
+            readFile: path => {
+              const node = getFile(path);
+              return node && isFileContentNode(node) ? (node.content ?? null) : null;
+            },
+            writeFile: (path, content) => updateFile(path, { content }),
+            createFile: (path, node = {}) => {
+              const parent = path.slice(0, -1);
+              const name = path[path.length - 1];
+              if (!name) return;
+              const { type = 'file', name: _n, ...rest } = node as Partial<FileNode> & {
+                type?: 'file' | 'folder';
+              };
+              void _n;
+              fsCreateFile(parent, name, type, rest);
+            },
+            deleteFile: path => {
+              const parent = path.slice(0, -1);
+              const name = path[path.length - 1];
+              if (!name) return;
+              const node = getFile(path);
+              if (node && isContainerNode(node)) deleteFolder(parent, name);
+              else fsDeleteFile(parent, name);
+            },
+            getNode: getFile,
+            exists: path => getFile(path) !== null,
+            unlockNode,
+          },
+
+          session: {
+            login: password => login(password ?? ''),
+            logout,
+            shutdown: () => powerOff('shutdown'),
+            restart: () => powerOff('restart'),
+          },
+
+          appearance: {
+            setWallpaper,
+            setLanguage: lang => {
+              saveLanguage(lang);
+              void i18n.changeLanguage(lang);
+            },
+          },
+
+          windows: {
+            list: () =>
+              windows.map(w => ({
+                id: w.id,
+                appId: w.appId,
+                title: w.title,
+                isMinimized: w.isMinimized,
+                isMaximized: w.isMaximized,
+              })),
+            focus: focusWindow,
+            minimize: minimizeWindow,
+            maximize: maximizeWindow,
+            restore: focusWindow,
+          },
+
+          sound: { play: name => playSound(name as Parameters<typeof playSound>[0]) },
+
+          emit: event => bus.emit(event),
+        };
+      },
+      [
+        openWindow,
         closeWindow,
-        showAlert: (title, message) => {
-          void dialog.alert({ title, message, type: 'info' });
-        },
-        reset: () => {
-          // Best-effort: clear namespaced keys and reload.
-          if (typeof window === 'undefined') return;
-          const prefix = _props.storagePrefix ?? 'xp_';
-          Object.keys(localStorage)
-            .filter(k => k.startsWith(prefix))
-            .forEach(k => localStorage.removeItem(k));
-          window.location.reload();
-        },
-      }),
-      [openWindow, closeWindow, getFile, dialog, registry, _props.storagePrefix]
+        focusWindow,
+        minimizeWindow,
+        maximizeWindow,
+        windows,
+        getFile,
+        updateFile,
+        fsCreateFile,
+        fsDeleteFile,
+        deleteFolder,
+        unlockNode,
+        login,
+        logout,
+        setWallpaper,
+        dialog,
+        registry,
+        bus,
+        storage,
+      ]
     );
 
-    // Touch fs/isContainerNode so tree-shaking keeps the type guard import
-    // meaningful and lint sees fs consumed for potential future use.
     void fs;
-    void isContainerNode;
     return null;
   }
 );

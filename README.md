@@ -80,6 +80,8 @@ The full scenario-by-scenario design work lives in [`docs/USE-CASES.md`](docs/US
 
 Custom filesystem entries merge into the desktop root (top-level keys become desktop items):
 
+Top-level keys are merged into the desktop root — so put files and folders at the top level (do **not** wrap them in a `"Desktop"` folder):
+
 ```jsx
 const myFs = {
   'ReadMe.txt': { type: 'file', name: 'ReadMe.txt', app: 'Notepad', content: 'Hello!' },
@@ -91,7 +93,7 @@ Every prop, the event catalog, the `XPHandle` methods, culture-package authoring
 
 ## Built-in applications
 
-**Complete:** Explorer, Notepad (undo/find/replace/word-wrap/save), Paint (draws & saves into the virtual filesystem), Internet Explorer (history, favorites, era portals), Calculator, Minesweeper (XP sprites, best times), Solitaire (full rules & win detection), Command Prompt (real command set + easter eggs), Photo Viewer, Run dialog, Volume Control, Help and Support, Task Manager.
+**Complete:** Explorer (with keyboard support — F2/F5/Del, Backspace = up), Notepad (undo/find/replace/word-wrap/save), Paint (draws & saves into the virtual filesystem), Internet Explorer (history, favorites, era portals), Calculator, Minesweeper (XP sprites, best times), Solitaire (full rules & win detection), Command Prompt (real command set + easter eggs), Photo Viewer, Run dialog, Volume Control, Help and Support, Task Manager.
 
 **Era apps (Chinese culture package):** QQ Login, 360 Safe Guard (with a working "threat scan" storyline), Thunder, Kugou Music, Baofeng Player, WPS Office.
 

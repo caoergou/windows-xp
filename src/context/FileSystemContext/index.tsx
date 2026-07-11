@@ -114,6 +114,8 @@ interface FileSystemContextType {
   clipboard: ClipboardItem | null;
   getFile: (path: string[]) => FileNode | null;
   checkAccess: (node: FileNode, passwordInput: string) => boolean;
+  /** Persistently clear a node's `locked` flag (host/scenario-driven unlock). */
+  unlockNode: (path: string[]) => void;
   updateFile: (path: string[], updates: Partial<FileNode>) => void;
   createFile: (
     parentPath: string[],
@@ -152,8 +154,12 @@ interface FileSystemContextType {
   ) => {
     name: string;
     type: string;
-    size: string;
+    /** Byte count for files (0 for folders). Format for display in the UI layer. */
+    sizeBytes: number;
+    /** Child object count for folders; null for files. */
+    childCount: number | null;
     icon?: string;
+    /** Stable ISO date (YYYY-MM-DD); format per-locale in the UI layer. */
     created: string;
     modified: string;
     accessed: string;
@@ -401,6 +407,19 @@ export const FileSystemProvider: React.FC<{
     [bus]
   );
 
+  // Persistently clear `locked` on a node and announce it (#115). Unlike
+  // checkAccess this is a host/scenario-driven force-unlock (no password),
+  // and it mutates the tree so the unlock survives reload.
+  const unlockNode = useCallback(
+    (path: string[]) => {
+      const node = getFile(path);
+      if (!node || !node.locked) return;
+      fileOperations.updateFile(path, { locked: false });
+      bus.emit({ type: 'file:unlock', name: node.name });
+    },
+    [getFile, fileOperations, bus]
+  );
+
   const copyToClipboard = useCallback((sourcePath: string[], fileName: string | string[]) => {
     const fileNames = Array.isArray(fileName) ? fileName : [fileName];
     setClipboard({
@@ -463,21 +482,26 @@ export const FileSystemProvider: React.FC<{
       const node = getFile([...path, fileName]);
       if (!node) return null;
 
-      let size = '0 字节';
+      let sizeBytes = 0;
+      let childCount: number | null = null;
       if (isContainerNode(node)) {
-        size = `${Object.keys(node.children || {}).length} 个对象`;
+        childCount = Object.keys(node.children || {}).length;
       } else if (isFileContentNode(node) && node.content) {
-        size = `${node.content.length} 字节`;
+        sizeBytes = node.content.length;
       }
+
+      // A stable, nostalgic XP-era date; formatted per-locale in the UI layer.
+      const XP_DATE = '2003-10-25';
 
       return {
         name: node.name,
         type: node.type,
-        size,
+        sizeBytes,
+        childCount,
         icon: node.icon,
-        created: '2003年10月25日',
-        modified: '2003年10月25日',
-        accessed: '2003年10月25日',
+        created: XP_DATE,
+        modified: XP_DATE,
+        accessed: XP_DATE,
         locked: !!node.locked,
         broken: !!node.broken,
       };
@@ -527,6 +551,7 @@ export const FileSystemProvider: React.FC<{
     clipboard,
     getFile,
     checkAccess,
+    unlockNode,
     updateFile: fileOperations.updateFile,
     createFile,
     createFolder: createFolderEmitting,

@@ -21,7 +21,7 @@
 4. **修复优先级 = 感知度 ⭐⭐⭐ 且状态 ❌ 的条目优先**，其次是 ⭐⭐⭐/🟡 与 ⭐⭐/❌。
 5. 🔍 条目的转正流程：与真实 XP 比对 → 补 e2e 或截图记录 → 改为 ✅/🟡/❌。
 6. **视觉审阅用组件级截图**：用 Playwright `locator.screenshot()` 只截目标组件（对话框、按钮、菜单栏本身），不要全屏截图——目标更聚焦，色值/渐变方向/圆角/边框的偏差一眼可辨。细到图标内部的像素位置，用 sharp 放大 8 倍并与 xp.css 的像素描摹 SVG 并排对照。
-7. **修复批次进度**：第一批（桌面键盘 + Ctrl+Esc）已完成（PR #111）；第二批（WIN-03 动画、DLG-01 模态、TSK-04 分组、SND 接线）继续在 #87 推进；Explorer 键盘与视图独立为 #120；各键位的跨平台可实施性由 #132 的审计矩阵补充。
+7. **修复批次进度**：第一批（桌面键盘 + Ctrl+Esc）已完成（PR #111）；Explorer 键盘（EXP-03/04）已随 #87 第二批落地；剩余第二批（WIN-03 动画、DLG-01 模态、TSK-04 分组、SND-03~05 接线）继续在 #87 推进；Explorer 视图/目录树/地址栏历史独立为 #120；各键位的跨平台可实施性由 #132 的审计矩阵补充。
 
 ---
 
@@ -55,7 +55,7 @@
 
 | ID | XP 基准行为 | 感知度 | 状态 | 备注 |
 |----|------------|:---:|:---:|------|
-| WIN-01 | 双击标题栏最大化/还原；不可调大小的窗口双击无效果 | ⭐⭐⭐ | ✅ | `WindowChrome.tsx:165` `onDoubleClick={() => isResizable && onMaximize()}`——非 resizable 分支已核实正确 |
+| WIN-01 | 双击标题栏最大化/还原；不可调大小的窗口双击无效果 | ⭐⭐⭐ | ✅ | `WindowChrome.tsx:165` `onDoubleClick={() => isResizable && onMaximize()}`——非 resizable 窗口双击为 no-op |
 | WIN-02 | 最小化/最大化/关闭按钮的 normal/hover/active 三态 | ⭐⭐⭐ | ✅ | luna 贴图全套已接。已核查：最小化横线位于按钮底部偏左（21×21 中 x=5–11、y=13–15），与 xp.css 像素描摹 SVG 逐像素一致——"偏下"是 XP 原版设计而非缺陷 |
 | WIN-03 | **最小化时窗口缩放动画飞向对应任务栏按钮；最大化/还原有展开动画**（XP 默认开启"最小化和最大化时显示窗口动画"） | ⭐⭐⭐ | ❌ | #87 第一批；建议在 #80 重构后实现 |
 | WIN-04 | 非激活窗口标题栏使用浅色渐变（色值见 AGENTS.md） | ⭐⭐⭐ | 🔍 | |
@@ -64,9 +64,9 @@
 | WIN-07 | Alt+Space 打开系统菜单（还原/移动/大小/最小化/最大化/关闭），"移动"支持方向键移窗 | ⭐⭐ | ❌ | 也是"窗口拖丢了"的官方恢复手段，见 WIN-08 |
 | WIN-08 | XP 无边缘吸附、无拖到顶部最大化，窗口可拖出屏幕边缘 | ⭐⭐ | 🟡 | 当前行为恰好一致，但缺 WIN-07 的恢复手段；可选提供"标题栏始终可见"约束作为非仿真增强（默认关） |
 | WIN-09 | 需要注意的窗口任务栏按钮闪烁橙色（FlashWindow） | ⭐⭐ | 🟡 | `flashWindow` 机制已有；颜色/节奏待比对 |
-| WIN-10 | 最小化/还原播放对应系统音（XP 默认方案含"最小化/还原"事件） | ⭐ | ✅ | 已接线：`Window/index.tsx:42,51` + 任务栏还原路径 `Taskbar/index.tsx:213,217`（= SND-08） |
+| WIN-10 | 最小化/还原播放对应系统音（XP 默认方案含"最小化/还原"事件） | ⭐ | ✅ | 已接线：`Window/index.tsx:42`（min）/`:51`（restore）、`Taskbar/index.tsx:213/217` → `sounds.minimize()/restore()` |
 | WIN-11 | 点击窗口任意处置顶获得焦点 | ⭐⭐⭐ | ✅ | |
-| WIN-12 | 层叠窗口 / 横向平铺 / 纵向平铺（任务栏右键） | ⭐⭐ | ❌ | **已退化**：菜单项在有窗口时可点击但无任何动作（`Taskbar/index.tsx:383-385`，`disabled` 条件改了但没接 `action`）。修复归 #121（实现或恢复 disabled 二选一） |
+| WIN-12 | 层叠窗口 / 横向平铺 / 纵向平铺（任务栏右键） | ⭐⭐ | ❌ | 菜单项恢复为 disabled 直至实现（#121 修掉了"可点无效"的死点击，`Taskbar/index.tsx:383-388` 附实现前提注释：需受控窗口定位） |
 
 ## D. 任务栏 / 开始菜单 / 托盘（TSK）
 
@@ -90,8 +90,8 @@
 |----|------------|:---:|:---:|------|
 | EXP-01 | 左侧蓝色任务面板（文件和文件夹任务 / 其它位置 / 详细信息，分组可折叠） | ⭐⭐⭐ | ✅ | `ExplorerSidebar.tsx` |
 | EXP-02 | 查看方式切换：缩略图 / 平铺 / 图标 / 列表 / 详细信息 | ⭐⭐ | ❌ | 当前单一视图；"详细信息"视图感知度最高。→ #120 |
-| EXP-03 | **Backspace = 向上一级**（XP 特有，不是"后退"） | ⭐⭐ | ❌ | 老用户肌肉记忆。→ #120 |
-| EXP-04 | F5 刷新 / F2 重命名 / Del 删除 在 Explorer 内可用 | ⭐⭐⭐ | ❌ | 与 DSK-03/04 同源，建议从桌面实现抽共享 hook。→ #120 |
+| EXP-03 | **Backspace = 向上一级**（XP 特有，不是"后退"） | ⭐⭐ | ✅ | Explorer Backspace → 上一级（#87 第二批） |
+| EXP-04 | F5 刷新 / F2 重命名 / Del 删除 在 Explorer 内可用 | ⭐⭐⭐ | ✅ | Explorer F5 刷新、F2 重命名、Del 删除选中项（#87 第二批） |
 | EXP-05 | 剪切（Ctrl+X）的项目图标半透明显示 | ⭐⭐ | 🔍 | 剪贴板逻辑已有 |
 | EXP-06 | 重命名为 inline 编辑框（选中文件名不含扩展名） | ⭐⭐ | 🟡 | 重命名已有，交互方式待比对 |
 | EXP-07 | 拖放移动；按住 Ctrl 拖放为复制（光标带 + 号） | ⭐⭐ | 🟡 | 拖放移动已有；Ctrl 复制待核查 |
@@ -142,9 +142,9 @@
 | SND-04 | 警告（Exclamation） | Exclamation | `exclamation.wav` | 🔍 | 警告类 Modal |
 | SND-05 | 默认响声（Default Beep） | Ding | `ding.wav` | ❌ | 点击模态框的父窗口（依赖 DLG-01） |
 | SND-06 | 系统通知 | Notify | `notify.wav` | 🟡 | 气球提示（TSK-08） |
-| SND-07 | 清空回收站 | Recycle | `recycle.wav` | ✅ | 已接线：`useFileOperations.ts:152` |
-| SND-08 | 最小化 / 还原 | Minimize / Restore | `minimize/restore.wav` | ✅ | 已接线（= WIN-10）；WIN-03 动画落地时同步校准时序 |
-| SND-09 | 菜单命令 | Menu Command | `menu_command.wav` | ✅ | 已接线：ContextMenu / StartMenu 菜单项点击 |
+| SND-07 | 清空回收站 | Recycle | `recycle.wav` | ✅ | 删除文件时触发 `sounds.recycle()`（`useFileOperations.ts:152`） |
+| SND-08 | 最小化 / 还原 | Minimize / Restore | `minimize/restore.wav` | ✅ | `Window/index.tsx:42/51`、`Taskbar/index.tsx:213/217`；WIN-03 动画落地时同步校准时序 |
+| SND-09 | 菜单命令 | Menu Command | `menu_command.wav` | ✅ | 菜单项点击：`ContextMenu.tsx:112`、`Taskbar/index.tsx:203`、`StartMenu.tsx:274` |
 | SND-10 | IE 导航点击（"开始导航"） | Start Navigation | ❌ 缺资产 | ❌ | IE 内点链接；低优先级 |
 
 ## J. 动画与视觉效果（ANM）
@@ -169,7 +169,7 @@
 | ID | XP 基准 | 感知度 | 状态 | 备注 |
 |----|--------|:---:|:---:|------|
 | STY-01 | 窗口 chrome：Luna 蓝渐变标题栏、顶部圆角、粗边框、贴图控制按钮 | ⭐⭐⭐ | ✅ | #35 已审计修正一轮（去现代阴影、Trebuchet MS 标题字体） |
-| STY-02 | **中文 UI 字体为宋体（SimSun）优先**——雅黑是 Vista 之后的字体，XP 时代中文界面是宋体 9pt | ⭐⭐⭐ | ✅ | 代码字体栈正确（`Tahoma, SimSun, Microsoft YaHei`）。历史注：AGENTS.md 旧版字体表曾与代码矛盾，AGENTS.md 已瘦身为总览、字体权威值以本文件 §K.1 为唯一出处。剩余收敛工作归 STY-03（token 化） |
+| STY-02 | **中文 UI 字体为宋体（SimSun）优先**——雅黑是 Vista 之后的字体，XP 时代中文界面是宋体 9pt | ⭐⭐⭐ | ✅ | 代码字体栈正确（`Tahoma, SimSun, Microsoft YaHei`），与 AGENTS.md 红线条目一致；字体权威值以本文件 §K.1 为唯一出处 |
 | STY-03 | 字体声明 token 化：同一 font-family 内联重复 30+ 处，无统一出口 | — | ❌ | 收敛进 `src/theme`；这是截图基线的前置（改一处即全局生效） |
 | STY-04 | 表单控件（按钮/输入框/复选框/单选/下拉）的 normal/hover/active/disabled 四态 | ⭐⭐⭐ | 🟡 | xp.css 提供，但多处组件手写偏离：已修 Calculator 按钮（原 Win2000 灰平面 → Luna 渐变+橙 hover）、4 个对话框按钮统一为共享 `XPButton`（xp.css 逐值对齐）、4 个对话框关闭钮从橙色渐变条统一为 Luna 贴图 `CloseBtn`、3 个应用菜单栏统一为 `XPMenuBar`（#99/PR #100）、3 处对话框文本输入框统一为共享 `XPTextInput`（#99）、复选框统一为 `XPCheckbox`/`XPRadio`（STY-17）、下拉统一为 `XPSelect`（STY-18）、滑块统一为 `xpTrackbarStyles`（STY-19）。按钮四态基本收敛，剩余散落手写按钮（ControlPanel/Notepad/FileProperties 等）待并入 XPButton |
 | STY-05 | disabled 文字的经典浮雕效果（灰字 + 1px 白色右下偏移） | ⭐ | 🔍 | |
@@ -183,7 +183,7 @@
 | STY-13 | IE6 chrome（绿色前进后退、#ECE9D8、状态栏） | ⭐⭐⭐ | ✅ | 规范见 AGENTS.md §2 |
 | STY-14 | tooltip 黄底样式 | ⭐⭐ | ✅ | 共享 `XPTooltip`：`#FFFFE1` 底、1px 黑边、Tahoma 11px、~500ms 延迟、淡入，body portal 防裁剪。gallery 登记；广泛替换 `title=` 为渐进采用 |
 | STY-20 | 进度条：白色圆角槽（1px `#686868`、radius 4px、14px 高）+ Luna 绿分段填充 | ⭐⭐ | ✅ | 共享 `XPProgressBar`，逐值取自 xp.css `progress`（绿色纵向渐变 + 重复白色分段）。gallery 登记；替换散落自绘进度条为渐进采用 |
-| STY-15 | 对话框 chrome 与窗口 chrome 完全一致（同款纵向 Luna 渐变标题栏、蓝色窗框、Luna 关闭钮） | ⭐⭐⭐ | ✅ | 曾为横向 `#0058EE→#3593FF` 渐变 + 独立窗框，4 个对话框各一份；已统一复用 `WindowChrome` 的 `TitleBar`/`WindowContainer`（`XPDialogChrome`），组件级截图对照确认与窗口一致 |
+| STY-15 | 对话框 chrome 与窗口 chrome 完全一致（同款纵向 Luna 渐变标题栏、蓝色窗框、Luna 关闭钮） | ⭐⭐⭐ | ✅ | 曾为横向 `#0058EE→#3593FF` 渐变 + 独立窗框，4 个对话框各一份；已统一复用 `WindowChrome` 的 `TitleBar`/`WindowContainer`（`XPDialogChrome`），组件级截图对照确认与窗口一致。#121 又将 Notepad 查找/替换对话框与 MobileWarning 迁移到 `XPDialogFrame`，消除最后残留的横向渐变标题栏与橙色关闭钮 |
 | STY-16 | 文本输入框（sunken 样式）：`#7f9db9` 单像素边框、`#fff` 底、23px 高、无 focus 高亮描边 | ⭐⭐ | ✅ | xp.css `input[type=text/password]` 逐值核对：XPInput（原 21px 高+2px 3px padding）、PasswordDialog（原多出 `border-radius:1px`+内阴影+发明的蓝色 focus 描边，无 XP 依据）、RunDialog（原缺 height/background，按钮也未接入 XPButton）三处分歧已统一为共享 `XPTextInput`；组件级截图核对三处（运行对话框、密码对话框、重命名对话框）视觉一致 |
 | STY-17 | 复选框/单选框：13px sunken 白底方框 + 7px 勾选贴图；单选 12px sunken 圆 + 4px 圆点 | ⭐⭐ | ✅ | **原生 `<input type=checkbox>` 被 xp.css 全局规则 `opacity:0;position:fixed` 隐藏**（它靠相邻 `input+label::before` 重绘，而 app 标记多不满足该结构）——静音开关、QQ「记住密码/自动登录/隐身登录」等复选框在屏幕上**完全不可见**。新增自绘的共享 `XPCheckbox`/`XPRadio`（逐值取自 xp.css `--border-field` + `checkmark.svg`/`radio-*.svg`），不依赖兄弟结构，处处一致可见。迁移 VolumePopup、VolumeControl、ControlPanel 声音/鼠标、QQ 登录；组件级截图确认 |
 | STY-18 | 下拉框（combobox）：`#7f9db9` sunken 白字段 + 右侧米色凸起下拉钮 + 黑箭头贴图 | ⭐⭐ | ✅ | 原生 `<select>`（ControlPanel 语言、DisplaySettings 壁纸/分辨率/屏保、DesktopProperties 背景/位置）渲染宿主 OS 控件，与 XP Luna combobox 无关。统一为共享 `XPSelect`（xp.css `select` 逐值：`button-down.svg` 米色钮 + 箭头），截图确认 |
@@ -241,8 +241,9 @@
 ## 修复批次（与 #87 对齐，2026-07 更新）
 
 - **✅ 第一批·键盘部分已完成**（PR #111）：DSK-03/04/05 桌面键盘 + KBD-03 Ctrl+Esc
-- **第一批·剩余（感知度 ⭐⭐⭐ 且 ❌，继续在 #87）**：WIN-03 最小化/最大化动画、DLG-01 模态行为（父窗口禁用 + 闪烁 + ding）、TSK-04 任务栏分组；WIN-12 层叠/平铺当前退化为可点无效，修复归 #121
-- **Explorer 章已独立为 #120**：EXP-02 详细信息视图、EXP-03 Backspace 上一级、EXP-04 键盘操作、EXP-08 地址栏历史、目录树面板
+- **✅ Explorer 键盘已完成**（#87 第二批）：EXP-03 Backspace 上一级、EXP-04 F5/F2/Del；死菜单已由 #121 修复（层叠/平铺恢复 disabled 待 WIN-12 实现）
+- **第一批·剩余（感知度 ⭐⭐⭐ 且 ❌，继续在 #87）**：WIN-03 最小化/最大化动画、DLG-01 模态行为（父窗口禁用 + 闪烁 + ding）、TSK-04 任务栏分组、WIN-12 层叠/平铺实现
+- **Explorer 深化已独立为 #120**：EXP-02 详细信息视图（切换器）、EXP-08 地址栏历史下拉、目录树面板
 - **第二批（#87）**：SND-03~05 声音接线（criticalStop/exclamation 已定义但零调用方，DLG-02）、TSK-08 BalloonTip 组件化（→ #118）、DLG-03~04（与 #124 可访问性合并实施）、CUR-02
 - **样式基线批**：STY-03 token 化 → K.1 表落地 `src/theme`（与 #135 主题层第一接缝为同一份工作）→ K.2 整机画面基线补齐
 - **持续**：全部 🔍 条目的核查转正（每次核查附截图或 e2e；样式类 🔍 一律以截图基线形式转正）；KBD 各条的跨平台可实施性列由 #132 审计矩阵回填

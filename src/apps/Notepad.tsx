@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import ContextMenu from '../components/ContextMenu';
+import { XPDialogFrame } from '../components/XPDialogChrome';
 
 import { useApp } from '../hooks/useApp';
 import { useFileSystem } from '../context/FileSystemContext';
@@ -148,57 +149,6 @@ const DialogOverlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-`;
-
-const DialogWindow = styled.div`
-  width: 360px;
-  background-color: #ece9d8;
-  border: 1px solid #0055ea;
-  border-radius: 3px;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
-`;
-
-const DialogTitleBar = styled.div`
-  height: 30px;
-  background: linear-gradient(to right, #0058ee 0%, #3593ff 100%);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 5px;
-  color: white;
-  font-weight: bold;
-  font-size: 13px;
-  text-shadow: 1px 1px 1px black;
-  border-radius: 2px 2px 0 0;
-`;
-
-const DialogCloseButton = styled.button`
-  width: 21px;
-  height: 21px;
-  background: linear-gradient(to bottom, #e79176, #da5e42);
-  border: 1px solid white;
-  border-radius: 3px;
-  color: white;
-  font-weight: bold;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-
-  &:hover {
-    filter: brightness(1.1);
-  }
-
-  &:active {
-    filter: brightness(0.9);
-    box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.5);
-  }
 `;
 
 const DialogContent = styled.div`
@@ -1096,9 +1046,12 @@ const Notepad = ({
     { label: t('notepad.menuitems.selectAll'), action: handleSelectAll },
   ];
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+  // Keyboard shortcuts — scoped to the Notepad window via onKeyDown on the
+  // root container (not a window-level listener), so shortcuts only fire when
+  // this window has focus and never leak Ctrl+S/F/H into the host page or a
+  // second Notepad instance (#121, DEVELOPMENT.md §3).
+  const handleShortcutKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
       const handlers = keyboardHandlersRef.current;
       if (!handlers) return;
 
@@ -1168,11 +1121,9 @@ const Notepad = ({
         e.preventDefault();
         handlers.handleDelete();
       }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [dialogMode]);
+    },
+    [dialogMode]
+  );
 
   const closeDialog = () => {
     setDialogMode(null);
@@ -1183,11 +1134,7 @@ const Notepad = ({
     if (dialogMode !== 'find') return null;
     return createPortal(
       <DialogOverlay className="windows-xp-portal" onMouseDown={e => e.stopPropagation()}>
-        <DialogWindow>
-          <DialogTitleBar>
-            <span>{t('notepad.find.title')}</span>
-            <DialogCloseButton onClick={closeDialog}>×</DialogCloseButton>
-          </DialogTitleBar>
+        <XPDialogFrame title={t('notepad.find.title')} onClose={closeDialog} width={340}>
           <DialogContent>
             <DialogRow>
               <DialogLabel>{t('notepad.find.findWhat')}</DialogLabel>
@@ -1218,7 +1165,7 @@ const Notepad = ({
             </DialogButton>
             <DialogButton onClick={closeDialog}>{t('common.cancel')}</DialogButton>
           </DialogButtonArea>
-        </DialogWindow>
+        </XPDialogFrame>
       </DialogOverlay>,
       document.body
     );
@@ -1228,11 +1175,7 @@ const Notepad = ({
     if (dialogMode !== 'replace') return null;
     return createPortal(
       <DialogOverlay className="windows-xp-portal" onMouseDown={e => e.stopPropagation()}>
-        <DialogWindow>
-          <DialogTitleBar>
-            <span>{t('notepad.replace.title')}</span>
-            <DialogCloseButton onClick={closeDialog}>×</DialogCloseButton>
-          </DialogTitleBar>
+        <XPDialogFrame title={t('notepad.replace.title')} onClose={closeDialog} width={360}>
           <DialogContent>
             <DialogRow>
               <DialogLabel>{t('notepad.replace.findWhat')}</DialogLabel>
@@ -1285,14 +1228,19 @@ const Notepad = ({
             </DialogButton>
             <DialogButton onClick={closeDialog}>{t('common.cancel')}</DialogButton>
           </DialogButtonArea>
-        </DialogWindow>
+        </XPDialogFrame>
       </DialogOverlay>,
       document.body
     );
   };
 
   return (
-    <Container ref={menuRef}>
+    <Container
+      ref={menuRef}
+      tabIndex={-1}
+      style={{ outline: 'none' }}
+      onKeyDown={handleShortcutKeyDown}
+    >
       <MenuBar>
         <MenuItemWrapper>
           <MenuItem $active={openMenu === 'file'} onClick={() => toggleMenu('file')}>

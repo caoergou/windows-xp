@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
+import { XPButton } from './XPButton';
+import { XPDialogFrame, XPDialogContent, XPDialogButtonRow } from './XPDialogChrome';
 
 const WarningContainer = styled.div`
   position: fixed;
@@ -19,56 +21,18 @@ const WarningContainer = styled.div`
   box-sizing: border-box;
 `;
 
-const WarningCard = styled.div`
-  background: #f0f0f0;
-  border: 2px solid #3366cc;
-  border-radius: 8px;
-  padding: 30px;
-  max-width: 400px;
-  width: 100%;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  text-align: center;
-`;
-
-const WarningIcon = styled.div`
-  font-size: 64px;
-  margin-bottom: 20px;
-`;
-
-const WarningTitle = styled.h2`
-  color: #333;
-  font-size: 24px;
-  margin: 0 0 15px 0;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+const WarningBody = styled.div`
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 `;
 
 const WarningText = styled.p`
-  color: #555;
-  font-size: 16px;
-  line-height: 1.6;
-  margin: 0 0 25px 0;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-`;
-
-const ContinueButton = styled.button`
-  background: linear-gradient(to bottom, #5a8adf, #3a6ea5);
-  color: white;
-  border: 1px solid #316ac5;
-  border-radius: 4px;
-  padding: 10px 25px;
-  font-size: 14px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background: linear-gradient(to bottom, #6b98e8, #4a7fd0);
-    border-color: #3b76c4;
-  }
-
-  &:active {
-    background: linear-gradient(to bottom, #3a6ea5, #2d57a0);
-  }
+  color: #000;
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 0;
 `;
 
 const isMobileDevice = () => {
@@ -112,13 +76,23 @@ const MobileWarning: React.FC = () => {
   }
 
   return (
-    <WarningContainer>
-      <WarningCard>
-        <WarningIcon><XPIcon name="dialog_warning" size={48} /></WarningIcon>
-        <WarningTitle>{t('mobileWarning.title')}</WarningTitle>
-        <WarningText>{t('mobileWarning.message')}</WarningText>
-        <ContinueButton onClick={handleContinue}>{t('mobileWarning.continue')}</ContinueButton>
-      </WarningCard>
+    <WarningContainer className="windows-xp-portal">
+      <XPDialogFrame
+        title={t('mobileWarning.title')}
+        onClose={handleContinue}
+        width={340}
+        data-testid="mobile-warning"
+      >
+        <XPDialogContent>
+          <WarningBody>
+            <XPIcon name="dialog_warning" size={32} />
+            <WarningText>{t('mobileWarning.message')}</WarningText>
+          </WarningBody>
+        </XPDialogContent>
+        <XPDialogButtonRow>
+          <XPButton onClick={handleContinue}>{t('mobileWarning.continue')}</XPButton>
+        </XPDialogButtonRow>
+      </XPDialogFrame>
     </WarningContainer>
   );
 };
