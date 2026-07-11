@@ -2,34 +2,30 @@ import styled from 'styled-components';
 
 // CommandPrompt styled-components (#163/A — split out of the single-file app).
 
+// The console is a single scrolling text buffer: output and the active prompt
+// live in one top-aligned flow, so the prompt sits right after the last line
+// (near the top when little has printed) exactly like real cmd.exe — not pinned
+// to the window's bottom edge.
 export const Container = styled.div<{ $color?: string }>`
   font-family: 'Perfect DOS VGA 437 Win', 'Lucida Console', 'Courier New', monospace;
   font-size: 12px;
+  line-height: 1.2;
   background: #000000;
   color: ${p => p.$color || '#c0c0c0'};
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 2px 0;
-  box-sizing: border-box;
-`;
-
-export const Output = styled.div`
-  flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  padding: 2px 6px;
+  box-sizing: border-box;
   white-space: pre-wrap;
   word-wrap: break-word;
-  padding: 0 6px;
-  min-height: 0;
+  cursor: text;
 `;
 
-export const InputLine = styled.div`
+/** The active prompt + input, flowing inline after the buffered output. */
+export const CurrentLine = styled.div`
   display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  padding: 0 6px;
-  background: #000000;
+  align-items: flex-start;
 `;
 
 export const Prompt = styled.span`
@@ -41,7 +37,7 @@ export const Prompt = styled.span`
 export const Input = styled.input`
   flex: 1;
   min-width: 0;
-  background: #000000 !important;
+  background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   border-radius: 0 !important;

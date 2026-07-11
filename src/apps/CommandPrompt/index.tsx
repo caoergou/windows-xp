@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../../context/FileSystemContext';
 import { useXPEventBus } from '../../context/EventBusContext';
 import { useApp } from '../../hooks/useApp';
-import { Container, Output, InputLine, Prompt, Input } from './styled';
+import { Container, CurrentLine, Prompt, Input } from './styled';
 import { DRIVE_ROOT, buildBanner } from './constants';
 import { executeCommand, CMD_CLEAR, CMD_EXIT } from './commands';
 import type { CommandHistory, CommandPromptProps } from './types';
@@ -96,9 +96,9 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
   };
 
   return (
-    <Container $color={textColor} onClick={() => inputRef.current?.focus()}>
-      <Output ref={outputRef}>{output}</Output>
-      <InputLine>
+    <Container ref={outputRef} $color={textColor} onClick={() => inputRef.current?.focus()}>
+      {output}
+      <CurrentLine>
         <Prompt>{getPrompt()}</Prompt>
         <Input
           ref={inputRef}
@@ -112,7 +112,7 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
           autoCapitalize="off"
           aria-label="Command input"
         />
-      </InputLine>
+      </CurrentLine>
     </Container>
   );
 };
