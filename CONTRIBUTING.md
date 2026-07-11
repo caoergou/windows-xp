@@ -37,11 +37,11 @@ that breaks any of these goes red before it can merge.
 ## Releases
 
 Tagging a commit `v*` triggers `.github/workflows/publish.yml`, which runs the
-quality gate and then `npm publish`. Publishing requires an **`NPM_TOKEN`**
-repository secret — an npm automation token for `registry.npmjs.org`. The
-built-in `GITHUB_TOKEN` does **not** authenticate against npm, so this secret
-must be configured under **Settings → Secrets and variables → Actions** for
-releases to succeed.
+quality gate and then `npm publish`. Authentication uses **npm OIDC trusted
+publishing** via the workflow's `id-token: write` permission — **no `NPM_TOKEN`
+or any other secret is required**, and provenance is attached automatically.
+(Trusted publishing must be enabled once for the package on npmjs.com, linked to
+this repository + workflow.)
 
 ## Design Principles
 

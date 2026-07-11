@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed (release workflow — OIDC trusted publishing, #113)
+
+- `publish.yml` no longer sets `NODE_AUTH_TOKEN`. The package uses **npm OIDC
+  trusted publishing** (via `id-token: write`), which needs no token or secret;
+  the earlier `NPM_TOKEN`/`GITHUB_TOKEN` env line was redundant and misleading.
+  CONTRIBUTING's Releases section is corrected accordingly (no `NPM_TOKEN`
+  required).
+
 ### Fixed / Added (prop reactivity & composability, #122)
 
 - **`apps` and `cultures` props are now reactive.** They were read only in the
