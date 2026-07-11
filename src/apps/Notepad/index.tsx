@@ -19,7 +19,7 @@ import {
   StatusBarSection,
 } from './styled';
 import { MAX_HISTORY } from './constants';
-import { getCursorPosition, findNextIndex, countOccurrences, replaceAll } from './logic';
+import { getCursorPosition, findNextIndex, countOccurrences, replaceAll, equalsIgnoreCase } from './logic';
 import FindReplaceDialog from './components/FindReplaceDialog';
 import type { MenuKey, HistoryState, DialogMode, NotepadMenuItem, NotepadProps } from './types';
 
@@ -352,7 +352,7 @@ const Notepad = ({
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
     const selected = content.substring(start, end);
-    if (selected === replaceQuery) {
+    if (equalsIgnoreCase(selected, replaceQuery)) {
       const newValue = content.substring(0, start) + replaceWith + content.substring(end);
       pushHistory();
       setContent(newValue);

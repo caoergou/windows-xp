@@ -11,6 +11,7 @@ import {
   findNextIndex,
   countOccurrences,
   replaceAll,
+  equalsIgnoreCase,
 } from '../src/apps/Notepad/logic';
 
 describe('Notepad logic (#163)', () => {
@@ -42,6 +43,13 @@ describe('Notepad logic (#163)', () => {
       expect(findNextIndex(text, 'dog', 0)).toBe(-1);
       expect(findNextIndex(text, '', 0)).toBe(-1);
     });
+    it('is case-insensitive (XP default), matching regardless of case', () => {
+      const mixed = 'Hello WORLD hello';
+      expect(findNextIndex(mixed, 'hello', 0)).toBe(0); // matches "Hello"
+      expect(findNextIndex(mixed, 'hello', 1)).toBe(12); // then "hello"
+      expect(findNextIndex(mixed, 'WORLD', 0)).toBe(6);
+      expect(findNextIndex(mixed, 'world', 0)).toBe(6); // lowercase query finds WORLD
+    });
   });
 
   describe('countOccurrences / replaceAll', () => {
@@ -56,6 +64,23 @@ describe('Notepad logic (#163)', () => {
       expect(replaceAll('foo foo', 'foo', 'bar')).toBe('bar bar');
       expect(replaceAll('unchanged', 'zzz', 'x')).toBe('unchanged');
       expect(replaceAll('unchanged', '', 'x')).toBe('unchanged');
+    });
+    it('counts and replaces case-insensitively (XP default)', () => {
+      expect(countOccurrences('Foo foo FOO', 'foo')).toBe(3);
+      expect(replaceAll('Foo foo FOO', 'foo', 'X')).toBe('X X X');
+    });
+    it('treats regex-special queries literally', () => {
+      expect(countOccurrences('a+b+c', '+')).toBe(2);
+      expect(replaceAll('a+b+c', '+', '-')).toBe('a-b-c');
+      // `$&` in the replacement must not be interpreted as a backreference.
+      expect(replaceAll('a b', ' ', '$&')).toBe('a$&b');
+    });
+  });
+
+  describe('equalsIgnoreCase', () => {
+    it('compares ignoring case', () => {
+      expect(equalsIgnoreCase('Hello', 'hello')).toBe(true);
+      expect(equalsIgnoreCase('abc', 'abd')).toBe(false);
     });
   });
 });
