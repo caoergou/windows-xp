@@ -15,6 +15,23 @@ All notable changes to this project will be documented in this file.
   Covered by `e2e/explorer.spec.ts`. FIDELITY EXP-02 → 🟡 (Thumbnails/Tiles/
   List and the Folders tree pane / address-history dropdown remain for a
   follow-up batch; EXP-03/04 keyboard already shipped in #87).
+- The Details **Type** column now shows the real per-file type (e.g. "Text
+  Document" / "文本文档", "JPEG Image", "MP3 Format Sound"), derived from the
+  file extension with a localized `explorer.fileTypes` map and an "EXT File"
+  fallback for unregistered types — instead of a flat "File" label.
+
+### Fixed
+
+- The Details view column header now sits flush at the top of the list area
+  (removed the `FileArea` padding for the Details view) and stays pinned on
+  scroll (`position: sticky`).
+- **Consolidated the duplicated Pictures folders under My Documents.** The
+  filesystem had both an English `My Pictures` (holding the sample images) and
+  an empty Chinese `我的图片` (the folder Paint actually saved into), so an
+  untranslated `我的图片` leaked into the English UI. They are now a single
+  canonical `我的图片` folder that localizes to "My Pictures" / "我的图片", and
+  `My Videos` likewise localizes as `我的视频`. `systemPaths`, the recycle-bin
+  metadata and the keyboard e2e were updated to the canonical key.
 
 ## [0.3.0] - 2026-07-11
 

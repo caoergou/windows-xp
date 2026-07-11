@@ -14,7 +14,8 @@ const DISPLAY_KEYS: Record<string, string> = {
   Solitaire: 'apps.solitaire',
   'Windows Media Player': 'apps.mediaPlayer',
   我的音乐: 'startMenu.myMusic',
-  'My Pictures': 'startMenu.myPictures',
+  我的图片: 'startMenu.myPictures',
+  我的视频: 'startMenu.myVideos',
 };
 
 export const getFileDisplayName = (key: string, item: FileNode, t: TFunction): string => {

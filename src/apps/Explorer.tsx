@@ -51,6 +51,10 @@ const DetailsHeadCell = styled.th`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* Keep the column header pinned flush to the top of the list on scroll. */
+  position: sticky;
+  top: 0;
+  z-index: 1;
 
   &:hover {
     background: linear-gradient(to bottom, #ffffff 0%, #eef4fb 45%, #dce9f8 100%);
@@ -88,14 +92,16 @@ const MainContent = styled.div`
   overflow: hidden;
 `;
 
-const FileArea = styled.div`
+const FileArea = styled.div<{ $flush?: boolean }>`
   flex: 1;
   background: white;
-  padding: 10px;
+  /* Details view (#120) goes edge-to-edge so its column header sits flush at
+     the top of the list area, XP-style; the icon grid keeps its padding. */
+  padding: ${p => (p.$flush ? '0' : '10px')};
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: ${p => (p.$flush ? '0' : '10px')};
   ${xpScrollbarStyles}
 `;
 
@@ -436,10 +442,17 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
   // Details view (#120, EXP-02): sortable Name / Size / Type / Date columns.
   const nodeSizeBytes = (item: FileNode): number | null =>
     isContainerNode(item) ? null : isFileContentNode(item) && item.content ? item.content.length : 0;
-  const nodeTypeLabel = (item: FileNode): string =>
-    item.type === 'folder'
-      ? t('explorer.types.folder')
-      : t('explorer.types.file');
+  const nodeTypeLabel = (item: FileNode): string => {
+    if (item.type === 'folder') return t('explorer.types.folder');
+    const dot = item.name.lastIndexOf('.');
+    if (dot <= 0 || dot === item.name.length - 1) return t('explorer.fileTypes.noExtension');
+    const ext = item.name.slice(dot + 1).toLowerCase();
+    // Known extensions map to a friendly XP name; unknown ones fall back to
+    // "EXT File" (e.g. "M3U File"), matching how XP labels unregistered types.
+    return t(`explorer.fileTypes.${ext}`, {
+      defaultValue: t('explorer.fileTypes.generic', { ext: ext.toUpperCase() }),
+    });
+  };
   const formatBytes = (bytes: number | null): string =>
     bytes === null ? '' : t('fileProperties.bytes', { count: bytes });
   const detailsDate = () => {
@@ -859,7 +872,7 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
           currentItem={selectedItem}
           onNavigate={handleNavigateToPath}
         />
-        <FileArea key={refreshKey}>
+        <FileArea key={refreshKey} $flush={viewMode === 'details'}>
           {isInRecycleBin && childCount === 0 ? (
             <EmptyRecycleBinMessage>
               <XPIcon name="recycle_bin" size={48} />

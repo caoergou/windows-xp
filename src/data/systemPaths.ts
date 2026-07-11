@@ -3,8 +3,9 @@ import type { TFunction } from 'i18next';
 export const SYSTEM_PATHS = {
   myComputer: ['我的电脑'],
   myDocuments: ['我的文档'],
-  myPictures: ['我的文档', 'My Pictures'],
+  myPictures: ['我的文档', '我的图片'],
   myMusic: ['我的文档', '我的音乐'],
+  myVideos: ['我的文档', '我的视频'],
   network: ['网上邻居'],
   recycleBin: ['回收站'],
 } as const;
@@ -12,8 +13,9 @@ export const SYSTEM_PATHS = {
 const PATH_TITLE_KEYS: Record<string, string> = {
   我的电脑: 'desktop.myComputer',
   我的文档: 'desktop.myDocuments',
-  'My Pictures': 'startMenu.myPictures',
+  我的图片: 'startMenu.myPictures',
   我的音乐: 'startMenu.myMusic',
+  我的视频: 'startMenu.myVideos',
   网上邻居: 'desktop.networkNeighborhood',
   回收站: 'desktop.recycleBin',
 };
@@ -46,8 +48,9 @@ export const resolveSystemPathDisplay = (path: string, t: TFunction): string[] =
   const aliases: Record<string, string> = {
     [t('desktop.myComputer')]: '我的电脑',
     [t('desktop.myDocuments')]: '我的文档',
-    [t('startMenu.myPictures')]: 'My Pictures',
+    [t('startMenu.myPictures')]: '我的图片',
     [t('startMenu.myMusic')]: '我的音乐',
+    [t('startMenu.myVideos')]: '我的视频',
     [t('desktop.networkNeighborhood')]: '网上邻居',
     [t('desktop.recycleBin')]: '回收站',
   };
