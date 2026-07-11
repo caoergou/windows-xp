@@ -65,7 +65,7 @@
 .windows-xp-root button,
 .windows-xp-root [role="button"],
 .windows-xp-root .xp-clickable {
-  cursor: url('./assets/cursors/xp/hand.png') 12 1, pointer;
+  cursor: url('./assets/cursors/xp/hand.cur') 12 1, pointer;
 }
 
 .windows-xp-root input,
