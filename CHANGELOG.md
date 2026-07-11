@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (Explorer depth follow-up, #120)
+
+- **Folders tree pane** behind the toolbar Folders toggle — the signature XP
+  left-hand tree over the same virtual filesystem: crisp XP +/− expand boxes,
+  auto-expansion down to the current folder, click-to-navigate, and a header
+  close box. Replaces the task sidebar while active; the toggle is persisted
+  per instance.
+- **Address-bar history dropdown** (EXP-08): the drop arrow opens a
+  keyboard-accessible list of recently visited locations (a per-instance MRU),
+  and picking one navigates there.
+- **Explorer keyboard completions**: Enter opens the selection and
+  arrows / Home / End move it (Backspace-up + F2/F5/Del already shipped in
+  #87). FIDELITY EXP-04 extended; EXP-08 → ✅.
+
 ### Added (Notification API, #118)
 
 - **Tray balloon notifications** — a reusable `BalloonTip` primitive (exported

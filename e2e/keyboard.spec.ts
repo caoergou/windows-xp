@@ -71,4 +71,13 @@ test.describe('Explorer keyboard operations', () => {
     await page.keyboard.press('Delete');
     await expect(page.getByText(/move .* to the Recycle Bin/i)).toBeVisible();
   });
+
+  test('arrow keys move selection and Enter opens the folder (#120)', async ({ page }) => {
+    // Focus the Explorer window, then walk the selection to a folder and open it.
+    await page.locator('[data-testid="file-item-我的图片"]').click();
+    await page.keyboard.press('Enter');
+    // Entering My Pictures reveals its Sample Pictures subfolder.
+    await expect(page.locator('[data-testid="file-item-Sample Pictures"]')).toBeVisible();
+    await expect(page.locator('[data-testid="file-item-readme.txt"]')).toBeHidden();
+  });
 });
