@@ -4,7 +4,7 @@ import XPInput from '../components/XPInput';
 import XPConfirm from '../components/XPConfirm';
 import PasswordDialog from '../components/PasswordDialog';
 
-interface ModalContextType {
+export interface ModalContextType {
   showModal: (title: string, message: string, type?: 'info' | 'warning' | 'error') => Promise<void>;
   hideModal: () => void;
   showInput: (title: string, message: string, defaultValue?: string) => Promise<string | null>;

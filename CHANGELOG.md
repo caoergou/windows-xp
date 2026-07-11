@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (public type exports, closes #79)
+
+- The entry point now re-exports every `CulturePackage` sub-type
+  (`CulturalItem`, `DesktopShortcut`, `StickyNoteContent`, `StartMenuApp`,
+  `StartMenuProfile`, `BrowserCultureProfile`, `CultureKey`) plus
+  `WallpaperItem`, `ModalContextType`, `TrayItem`, `TrayContextType`, and
+  `ExifData` — so a custom culture package or app can be authored fully
+  type-safe without hand-copying types.
+- New `JsonValue` type + a JSDoc note on `AppRegistryEntry` documenting that
+  restore/`componentProps` must be JSON-serializable (they are persisted for
+  window restore); runtime callbacks belong on the event bus / `AppLifecycle`,
+  not in props.
+- `test/lib-exports.test.tsx` gained a compile-time guard that constructs
+  values from each newly-exported type, so dropping an export fails `tsc`.
+
 ### Added (micro-component gallery + visual-regression CI, closes #99)
 
 - **Micro-component gallery** (`?gallery` route, `src/gallery/Gallery.tsx`):

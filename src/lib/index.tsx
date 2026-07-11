@@ -146,8 +146,24 @@ export type {
   UserSession,
   ClipboardItem,
   MenuItem,
+  JsonValue,
+  ExifData,
 } from '../types';
-export type { CulturePackage } from '../data/culture';
+// Culture package + all its sub-types, so a custom CulturePackage can be
+// authored type-safely without hand-copying types (#79).
+export type {
+  CulturePackage,
+  CulturalItem,
+  DesktopShortcut,
+  StickyNoteContent,
+  StartMenuApp,
+  StartMenuProfile,
+  BrowserCultureProfile,
+  CultureKey,
+} from '../data/culture';
+export type { WallpaperItem } from '../data/wallpapers';
+export type { ModalContextType } from '../context/ModalContext';
+export type { TrayItem, TrayContextType } from '../context/TrayContext';
 export type { XPEvent, XPEventType, XPEventListener } from '../events';
 export type { XPHandle } from '../components/XPBridge';
 export { useXPEvents, useXPEventBus } from '../context/EventBusContext';

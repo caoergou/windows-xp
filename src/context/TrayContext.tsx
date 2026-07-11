@@ -8,7 +8,7 @@ export interface TrayItem {
   onClick?: () => void;
 }
 
-interface TrayContextType {
+export interface TrayContextType {
   items: TrayItem[];
   register: (id: string, config: Omit<TrayItem, 'id'>) => void;
   unregister: (id: string) => void;
