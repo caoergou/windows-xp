@@ -55,6 +55,8 @@ login (default user `User`, password `forthe2000s`) → desktop.
 | `disableDevToolsBlock` | boolean | `false` | Allow F12 / Ctrl+Shift+I/J/C |
 | `disableGlobalShortcuts` | boolean | `false` | Disable Alt+F4 / Alt+Tab handling and the BSOD easter egg |
 | `disableScreenSaver` | boolean | `false` | Disable the idle screensaver |
+| `hourlyChime` | boolean | `false` | Play the classic 整点报时 chime on the hour (a culture package can enable it too) |
+| `idleThresholdMs` | number | `60000` | Inactivity threshold before `user:idle` fires |
 
 > **`apps` and `cultures` are reactive (#122).** Adding or removing an entry
 > after mount registers/updates it — the prop wins over a runtime
@@ -226,16 +228,56 @@ function App() {
 }
 ```
 
-**Event types** (typed payloads on the `XPEvent` union):
-`app:launch` / `app:close` · `window:focus` / `window:minimize` /
-`window:maximize` / `window:restore` · `file:open` / `file:create` /
-`file:update` / `file:delete` / `file:rename` / `file:move` / `file:copy` /
-`file:restore` / `file:unlock` / `folder:delete` / `recyclebin:empty` ·
-`password:fail` · `session:login` / `session:login-fail` / `session:logout` /
-`session:boot-complete` / `session:shutdown` · `cmd:exec` · `ie:navigate` ·
-`wallpaper:change` / `screensaver:start` / `screensaver:stop` ·
-`notification:show` / `notification:click`. (Naming conventions and a
-timer/scheduler subsystem are tracked in #130.)
+**Event types** (typed payloads on the `XPEvent` union). The catalog below is
+generated from `src/events.ts`; the naming grammar, domain list and payload
+conventions live in [`docs/EVENTS.md`](docs/EVENTS.md).
+
+<!-- EVENTS:START -->
+
+| Event | Payload | Description |
+| --- | --- | --- |
+| `app:launch` | `appId`, `windowId`, `title` | An application window was opened. |
+| `app:close` | `appId`, `windowId` | An application window was closed. |
+| `window:focus` | `windowId`, `appId` | A window gained focus (was brought to the front). |
+| `window:minimize` | `windowId`, `appId` | A window was minimized to the taskbar. |
+| `window:maximize` | `windowId`, `appId` | A window was maximized. |
+| `window:restore` | `windowId`, `appId` | A window was restored from a minimized/maximized state. |
+| `file:open` | `path`, `name`, `nodeType`, `app?` | A file or folder was opened (double-clicked / launched). |
+| `file:create` | `path`, `name`, `nodeType` | A file or folder was created. |
+| `file:update` | `path`, `name`, `content?` | A file's properties were edited; `content` is present when its text changed (the "player typed the passphrase" puzzle beat). |
+| `file:delete` | `path`, `name` | A file was deleted (moved to the Recycle Bin). |
+| `file:rename` | `path`, `oldName`, `newName` | A file or folder was renamed. |
+| `file:move` | `from`, `to`, `name` | A file was moved (cut+paste or drag) from `from` to `to`. |
+| `file:copy` | `from`, `to`, `name` | A file was copied from `from` to `to`. |
+| `file:restore` | `name` | A file was restored from the Recycle Bin. |
+| `file:unlock` | `name` | A locked node was unlocked (correct password, or a host/scenario force-unlock). |
+| `folder:delete` | `path`, `name` | A folder was deleted (files emit `file:delete`; folders emit this). |
+| `recyclebin:empty` | — | The Recycle Bin was emptied. |
+| `password:fail` | `path`, `name`, `attempt` | A wrong password was entered for a locked node; `attempt` counts consecutive failures. |
+| `session:login` | — | The user logged in successfully. |
+| `session:login-fail` | — | A login attempt failed (wrong password). |
+| `session:logout` | — | The user logged out. |
+| `session:boot-complete` | — | The desktop finished booting and is interactive. |
+| `session:shutdown` | `mode` | The machine was shut down, restarted, or logged out via the Start menu. |
+| `cmd:exec` | `command` | A command was executed in the Command Prompt. |
+| `ie:navigate` | `url` | Internet Explorer navigated to a URL. |
+| `wallpaper:change` | `wallpaper` | The desktop wallpaper was changed (`wallpaper` is the id or URL). |
+| `screensaver:start` | — | The screensaver started. |
+| `screensaver:stop` | — | The screensaver was dismissed. |
+| `notification:show` | `id`, `title`, `body?` | A tray notification balloon was shown. |
+| `notification:click` | `id` | A tray notification balloon was clicked. |
+| `time:hour` | `hour` | Fired on the top of each hour; `hour` is 0–23 (drives the 整点报时 chime). |
+| `time:fire` | `id` | A persisted schedule fired (delay elapsed or its `at` deadline passed, incl. while the page was closed). |
+| `user:idle` | `idleMs` | The user has been inactive for the idle threshold; `idleMs` is that threshold. |
+| `user:active` | — | The user resumed activity after being idle. |
+| `qq:login` | — | The player logged into QQ (the buddy-list panel opened). |
+| `qq:open` | `buddyId?` | The QQ client opened, or a specific buddy chat was opened (`buddyId`). |
+| `qq:online` | `buddyId`, `nickname` | A buddy came online. |
+| `qq:message` | `buddyId`, `direction`, `text` | A QQ message was sent or received; `direction` is 'incoming' (from the buddy) or 'outgoing' (from the player). |
+
+_Generated from `src/events.ts` by `npm run docs:events` — do not edit by hand._
+
+<!-- EVENTS:END -->
 
 **The `XPHandle`** (via `ref`) exposes the top-level `openApp(appId, props?)`,
 `openFile(path)`, `closeWindow(id)`, `showAlert(title, message)` and
@@ -246,6 +288,23 @@ timer/scheduler subsystem are tracked in #130.)
 - `appearance`: `setWallpaper(idOrUrl)`, `setLanguage(lang)`
 - `windows`: `list()`, `focus(id)`, `minimize(id)`, `maximize(id)`, `restore(id)`
 - `sound.play(name)` and `emit(event)` (inject onto the same bus `onEvent` and scenario triggers read)
+- `schedule({ id?, delayMs?, at?, event? })` / `cancelSchedule(id)` — time-based
+  triggers (#130). A schedule fires a `time:fire` event (or a caller-supplied
+  `event`) after `delayMs` or at the `at` epoch-ms deadline. **Pending schedules
+  persist per instance and fire on the next load if the deadline passed while
+  the page was closed** ("compute elapsed effects at launch" — there is no
+  background execution). The same subsystem emits the wall-clock `time:hour`
+  and `user:idle` / `user:active` events on the bus.
+
+```jsx
+// Remind the player 90s after they lock a folder — survives a reload.
+ref.current.schedule({ id: 'hint', delayMs: 90_000,
+  event: { type: 'notification:show', id: 'hint', title: 'Psst… try 2003' } });
+```
+
+The classic hourly chime (整点报时) is an opt-in consumer of `time:hour`:
+`<WindowsXP hourlyChime />` (or a culture package's `hourlyChime: true`); it is
+off by default. `idleThresholdMs` tunes when `user:idle` fires (default 60000).
 
 `reset()` clears **both** storage layers (localStorage + IndexedDB file
 contents) for the instance's `storagePrefix`, then reloads. For save/load,

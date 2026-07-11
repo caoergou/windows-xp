@@ -109,6 +109,8 @@ export interface CulturePackage {
   qq?: QQProfile;
   /** 默认壁纸 URL */
   wallpaper?: string;
+  /** 整点报时：是否在 time:hour 播放经典报时音（默认关闭，#130） */
+  hourlyChime?: boolean;
 }
 
 /** 规范化语言代码为文化包 key */

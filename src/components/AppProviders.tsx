@@ -14,6 +14,7 @@ import { FileNode, AppRegistryEntry } from '../types';
 import { CulturePackage } from '../data/culture';
 import { EventBusProvider } from '../context/EventBusContext';
 import { StorageProvider } from '../context/StorageContext';
+import { SchedulerProvider } from '../context/SchedulerContext';
 import { XPEventBridge, XPImperativeApi, type XPHandle } from './XPBridge';
 import { XPEventBus } from '../events';
 import type { XPEventListener } from '../events';
@@ -46,6 +47,10 @@ export interface AppProvidersProps {
   disableDevToolsBlock?: boolean;
   disableGlobalShortcuts?: boolean;
   disableScreenSaver?: boolean;
+  /** Play the classic hourly chime on `time:hour`. Off by default (#130). */
+  hourlyChime?: boolean;
+  /** Inactivity threshold (ms) before `user:idle` fires. Default 60000 (#130). */
+  idleThresholdMs?: number;
 }
 
 const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
@@ -66,6 +71,8 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   disableDevToolsBlock,
   disableGlobalShortcuts,
   disableScreenSaver,
+  hourlyChime,
+  idleThresholdMs,
 }) => {
   // Configure storage namespace synchronously before any context reads/writes storage.
   setStoragePrefix(storagePrefix || 'xp_');
@@ -104,6 +111,10 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
     <StorageProvider prefix={storagePrefix || 'xp_'}>
       <EventBusProvider bus={busRef}>
       <XPEventBridge onEvent={onEvent} />
+      <SchedulerProvider
+        hourlyChime={hourlyChime ?? culture.hourlyChime}
+        idleThresholdMs={idleThresholdMs}
+      >
       <UserSessionProvider
         username={username}
         password={password}
@@ -135,6 +146,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
           </WindowManagerProvider>
         </FileSystemProvider>
       </UserSessionProvider>
+      </SchedulerProvider>
       </EventBusProvider>
     </StorageProvider>
   );

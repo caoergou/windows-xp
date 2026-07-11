@@ -1,125 +1,35 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { useTranslation } from 'react-i18next';
-import { useFileSystem } from '../context/FileSystemContext';
-import { useXPEventBus } from '../context/EventBusContext';
-import { useApp } from '../hooks/useApp';
-import { isFileContentNode, isContainerNode, FileNode } from '../types';
-import { parseCmdArgs, resolveCmdPath } from '../utils/commandPath';
-import { triggerBsod } from '../utils/easterEggs';
+import { isFileContentNode, isContainerNode, FileNode } from '../../types';
+import { parseCmdArgs, resolveCmdPath } from '../../utils/commandPath';
+import { triggerBsod } from '../../utils/easterEggs';
+import { DRIVE_ROOT, PROTECTED_FOLDERS } from './constants';
+import type { CmdContext } from './types';
 
-const DRIVE_ROOT = ['root', '我的电脑', '本地磁盘 (C:)'] as const;
-const PROTECTED_FOLDERS = ['Windows', 'WINDOWS', 'Program Files'];
+/**
+ * CommandPrompt interpreter (#163/A+E), extracted verbatim from the app so the
+ * command set is a pure, unit-testable function. Side effects (cd, color, fs
+ * mutations, the BSOD egg) go through the injected {@link CmdContext}; `cls`
+ * and `exit` are signalled to the caller via these sentinels.
+ */
+export const CMD_CLEAR = '__CLEAR__';
+export const CMD_EXIT = '__EXIT__';
 
-const Container = styled.div<{ $color?: string }>`
-  font-family: 'Perfect DOS VGA 437 Win', 'Lucida Console', 'Courier New', monospace;
-  font-size: 12px;
-  background: #000000;
-  color: ${p => p.$color || '#c0c0c0'};
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 2px 0;
-  box-sizing: border-box;
-`;
+export function executeCommand(cmd: string, ctx: CmdContext): string {
+  const {
+    currentPath,
+    isChinese,
+    getFile,
+    createFolder,
+    deleteFolder,
+    renameFile,
+    copyFile,
+    deleteFile,
+    setCurrentPath,
+    setTextColor,
+  } = ctx;
 
-const Output = styled.div`
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  padding: 0 6px;
-  min-height: 0;
-`;
-
-const InputLine = styled.div`
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  padding: 0 6px;
-  background: #000000;
-`;
-
-const Prompt = styled.span`
-  color: inherit;
-  white-space: pre;
-  flex-shrink: 0;
-`;
-
-const Input = styled.input`
-  flex: 1;
-  min-width: 0;
-  background: #000000 !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  color: inherit;
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  outline: none;
-  padding: 0;
-  margin: 0;
-  caret-color: currentColor;
-
-  &:focus,
-  &:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-`;
-
-interface CommandHistory {
-  command: string;
-}
-
-interface CommandPromptProps {
-  windowId?: string;
-}
-
-const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
-  const { i18n } = useTranslation();
-  const isChinese = i18n.language === 'zh';
   const localize = (english: string, chinese: string) => (isChinese ? chinese : english);
-  const banner = localize(
-    'Microsoft Windows XP [Version 5.1.2600]\n(C) Copyright 1985-2001 Microsoft Corp.\n\n',
-    'Microsoft Windows XP [版本 5.1.2600]\n(C) 版权所有 1985-2001 Microsoft Corp.\n\n'
-  );
-  const { getFile, createFolder, deleteFolder, renameFile, copyFile, deleteFile } = useFileSystem();
-  const bus = useXPEventBus();
-  const api = useApp(windowId);
-  const [output, setOutput] = useState<string>(banner);
-  const [input, setInput] = useState<string>('');
-  const [currentPath, setCurrentPath] = useState<string[]>([...DRIVE_ROOT]);
-  const [history, setHistory] = useState<CommandHistory[]>([]);
-  const [historyIndex, setHistoryIndex] = useState<number>(-1);
-  const [textColor, setTextColor] = useState<string>('#c0c0c0');
-  const outputRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (outputRef.current) {
-      outputRef.current.scrollTop = outputRef.current.scrollHeight;
-    }
-  }, [output]);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  const getPrompt = () => {
-    const relative = currentPath.slice(DRIVE_ROOT.length);
-    return relative.length ? `C:\\${relative.join('\\')}>` : 'C:\\>';
-  };
-
   const resolvePath = (path: string): string[] => resolveCmdPath(path, currentPath, DRIVE_ROOT);
-
-  const formatSize = (size?: number) => {
-    if (!size) return '0';
-    return size.toLocaleString();
-  };
-
+  const formatSize = (size?: number) => (!size ? '0' : size.toLocaleString());
   const formatDate = () => {
     const now = new Date();
     return (
@@ -129,22 +39,21 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
     );
   };
 
-  const executeCommand = (cmd: string): string => {
-    const trimmed = cmd.trim();
-    if (!trimmed) return '';
+  const trimmed = cmd.trim();
+  if (!trimmed) return '';
 
-    const [command, ...args] = parseCmdArgs(trimmed);
-    const lowerCmd = command.toLowerCase();
-    const syntaxError = localize('The syntax of the command is incorrect.\n', '语法不正确。\n');
-    const pathNotFound = localize(
-      'The system cannot find the path specified.\n',
-      '系统找不到指定的路径。\n'
-    );
-    const fileNotFound = localize(
-      'The system cannot find the file specified.\n',
-      '系统找不到指定的文件。\n'
-    );
-    const accessDenied = localize('Access is denied.\n', '拒绝访问。\n');
+  const [command, ...args] = parseCmdArgs(trimmed);
+  const lowerCmd = command.toLowerCase();
+  const syntaxError = localize('The syntax of the command is incorrect.\n', '语法不正确。\n');
+  const pathNotFound = localize(
+    'The system cannot find the path specified.\n',
+    '系统找不到指定的路径。\n'
+  );
+  const fileNotFound = localize(
+    'The system cannot find the file specified.\n',
+    '系统找不到指定的文件。\n'
+  );
+  const accessDenied = localize('Access is denied.\n', '拒绝访问。\n');
 
     switch (lowerCmd) {
       case 'help':
@@ -194,7 +103,7 @@ VOL         显示磁盘卷标和序列号。`
         );
 
       case 'cls':
-        return '__CLEAR__';
+        return CMD_CLEAR;
 
       case 'ver':
         return localize(
@@ -569,7 +478,7 @@ VOL         显示磁盘卷标和序列号。`
       }
 
       case 'exit':
-        return '__EXIT__';
+        return CMD_EXIT;
 
       // ── Easter eggs (#85) ────────────────────────────────────────────────
       case 'color': {
@@ -669,73 +578,4 @@ VOL         显示磁盘卷标和序列号。`
           `'${command}' 不是内部或外部命令，也不是可运行的程序或批处理文件。\n`
         );
     }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      const command = input;
-      const prompt = getPrompt();
-
-      if (command.trim()) {
-        setHistory(prev => [...prev, { command }]);
-        setHistoryIndex(-1);
-      }
-
-      bus.emit({ type: 'cmd:exec', command });
-      const result = executeCommand(command);
-
-      if (result === '__CLEAR__') {
-        setOutput(banner);
-      } else if (result === '__EXIT__') {
-        setOutput(prev => prev + prompt + command + '\n');
-        api.window.close();
-      } else {
-        setOutput(prev => prev + prompt + command + '\n' + result);
-      }
-
-      setInput('');
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      if (history.length > 0) {
-        const newIndex = historyIndex === -1 ? history.length - 1 : Math.max(0, historyIndex - 1);
-        setHistoryIndex(newIndex);
-        setInput(history[newIndex].command);
-      }
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      if (historyIndex !== -1) {
-        const newIndex = historyIndex + 1;
-        if (newIndex >= history.length) {
-          setHistoryIndex(-1);
-          setInput('');
-        } else {
-          setHistoryIndex(newIndex);
-          setInput(history[newIndex].command);
-        }
-      }
-    }
-  };
-
-  return (
-    <Container $color={textColor} onClick={() => inputRef.current?.focus()}>
-      <Output ref={outputRef}>{output}</Output>
-      <InputLine>
-        <Prompt>{getPrompt()}</Prompt>
-        <Input
-          ref={inputRef}
-          type="text"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          spellCheck={false}
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="off"
-          aria-label="Command input"
-        />
-      </InputLine>
-    </Container>
-  );
-};
-
-export default CommandPrompt;
+}
