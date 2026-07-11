@@ -39,22 +39,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import XPIcon from '../components/XPIcon';
-
-/** Helper to cast unknown props when restoring an app component */
-const restoreApp = <P extends Record<string, unknown>>(Component: React.FC<P>) => {
-  const RestoredApp = (props: unknown) => {
-    if (!Component) {
-      return (
-        <div style={{ padding: 20, fontFamily: 'Tahoma, sans-serif' }}>
-          Unable to restore app component.
-        </div>
-      );
-    }
-    return <Component {...(props as P)} />;
-  };
-  RestoredApp.displayName = `Restored(${Component?.displayName || Component?.name || 'Unknown'})`;
-  return RestoredApp;
-};
+import { restoreApp } from './defineApp';
 
 // 占位应用 - 用于尚未实现的应用
 const DummyAppContainer = styled.div`
@@ -140,7 +125,6 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     window: { width: 720, height: 500 },
     lifecycle: {},
     restore: restoreApp(Explorer),
-    defaultWindowProps: { width: 720, height: 500 },
   },
 
   InternetExplorer: {

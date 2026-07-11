@@ -255,7 +255,7 @@ const Taskbar = () => {
           title,
           explorer.restore({ initialPath: path }),
           'folder',
-          { ...explorer.defaultWindowProps, componentProps: { initialPath: path } }
+          { ...explorer.window, componentProps: { initialPath: path } }
         );
       } else if (appName === 'RunDialog') {
         openWindow(
