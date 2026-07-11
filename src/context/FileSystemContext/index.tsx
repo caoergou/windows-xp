@@ -152,8 +152,12 @@ interface FileSystemContextType {
   ) => {
     name: string;
     type: string;
-    size: string;
+    /** Byte count for files (0 for folders). Format for display in the UI layer. */
+    sizeBytes: number;
+    /** Child object count for folders; null for files. */
+    childCount: number | null;
     icon?: string;
+    /** Stable ISO date (YYYY-MM-DD); format per-locale in the UI layer. */
     created: string;
     modified: string;
     accessed: string;
@@ -463,21 +467,26 @@ export const FileSystemProvider: React.FC<{
       const node = getFile([...path, fileName]);
       if (!node) return null;
 
-      let size = '0 字节';
+      let sizeBytes = 0;
+      let childCount: number | null = null;
       if (isContainerNode(node)) {
-        size = `${Object.keys(node.children || {}).length} 个对象`;
+        childCount = Object.keys(node.children || {}).length;
       } else if (isFileContentNode(node) && node.content) {
-        size = `${node.content.length} 字节`;
+        sizeBytes = node.content.length;
       }
+
+      // A stable, nostalgic XP-era date; formatted per-locale in the UI layer.
+      const XP_DATE = '2003-10-25';
 
       return {
         name: node.name,
         type: node.type,
-        size,
+        sizeBytes,
+        childCount,
         icon: node.icon,
-        created: '2003年10月25日',
-        modified: '2003年10月25日',
-        accessed: '2003年10月25日',
+        created: XP_DATE,
+        modified: XP_DATE,
+        accessed: XP_DATE,
         locked: !!node.locked,
         broken: !!node.broken,
       };

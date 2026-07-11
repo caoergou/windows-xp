@@ -380,9 +380,12 @@ const Taskbar = () => {
             submenu: [{ label: t('taskbar.context.quickLaunch'), disabled: true }],
           },
           { type: 'separator' },
-          { label: t('taskbar.context.cascade'), disabled: windows.length === 0 },
-          { label: t('taskbar.context.tileHorizontally'), disabled: windows.length === 0 },
-          { label: t('taskbar.context.tileVertically'), disabled: windows.length === 0 },
+          // Cascade / tile need controlled window positioning (windows use
+          // uncontrolled react-draggable today); kept disabled until WIN-12
+          // lands so no enabled menu item is a dead click (#121).
+          { label: t('taskbar.context.cascade'), disabled: true },
+          { label: t('taskbar.context.tileHorizontally'), disabled: true },
+          { label: t('taskbar.context.tileVertically'), disabled: true },
           {
             label: t('taskbar.context.showDesktop'),
             action: () =>

@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed (correctness debt batch, #121)
+
+- **Notepad shortcuts no longer use a window-level listener.** Ctrl+S/F/H etc.
+  were bound with `window.addEventListener('keydown', …)`, so they fired
+  regardless of focus, double-fired with two Notepad instances, and leaked into
+  the host page (a DEVELOPMENT.md §3 / embedded-mode violation). They're now
+  scoped to the focused Notepad window via `onKeyDown` on its root container.
+- **Taskbar cascade/tile are no longer dead clicks.** They had regressed to
+  `disabled: windows.length === 0` with no `action`, so with windows open they
+  were enabled and did nothing. Re-disabled pending WIN-12 (cascade/tile need
+  controlled window positioning), so no enabled context-menu item is a no-op.
+- **File properties are fully localized.** `getFileProperties` returned
+  hardcoded Chinese (`0 字节`, `2003年10月25日`) even under `language="en"`; it
+  now returns raw values (`sizeBytes`/`childCount` + an ISO date) that
+  `FileProperties` formats with i18n keys and `Intl.DateTimeFormat`.
+- **Notepad Find/Replace dialogs** migrated to the shared `XPDialogFrame` (Luna
+  vertical-gradient title bar + Luna close button), removing the last
+  horizontal-gradient/orange-close dialog chrome (STY-15).
+- **MobileWarning** restyled as an XP dialog (`XPDialogFrame` + `XPButton`),
+  dropping the rounded corners, modern box-shadow and `transition: all` that
+  contradicted the fidelity red lines on the first screen a mobile visitor sees.
+
 ### Docs (documentation truth sweep, #114)
 
 - **README** now tells the engine story: a new "It's an engine, not just a

@@ -745,6 +745,8 @@
     "location": "Location",
     "desktop": "Desktop",
     "size": "Size",
+    "bytes": "{{count}} bytes",
+    "objectCount": "{{count}} objects",
     "created": "Created",
     "modified": "Modified",
     "accessed": "Accessed",
