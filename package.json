@@ -1,6 +1,6 @@
 {
   "name": "@caoergou/windows-xp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A faithful recreation of Windows XP desktop in React - Relive the millennium era with authentic Y2K aesthetics",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
@@ -13,9 +13,7 @@
     "LICENSE"
   ],
   "sideEffects": [
-    "*.css",
-    "src/lib/index.tsx",
-    "src/i18n/index.ts"
+    "**/*.css"
   ],
   "exports": {
     ".": {
