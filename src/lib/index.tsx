@@ -66,6 +66,13 @@ export interface WindowsXPProps {
   disableGlobalShortcuts?: boolean;
   /** Disable the idle screensaver. */
   disableScreenSaver?: boolean;
+  /**
+   * Play the classic hourly chime (整点报时) when the `time:hour` event fires.
+   * Off by default; a culture package can also enable it via `hourlyChime` (#130).
+   */
+  hourlyChime?: boolean;
+  /** Inactivity threshold in ms before `user:idle` fires (default 60000, #130). */
+  idleThresholdMs?: number;
   /** Subscribe to desktop events (app launches, file opens, session, cmd...). */
   onEvent?: XPEventListener;
 }
@@ -105,6 +112,8 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     disableDevToolsBlock,
     disableGlobalShortcuts,
     disableScreenSaver,
+    hourlyChime,
+    idleThresholdMs,
     onEvent,
   },
   ref
@@ -125,6 +134,8 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       skipBoot={skipBoot}
       autoLogin={autoLogin}
       storagePrefix={storagePrefix}
+      hourlyChime={hourlyChime}
+      idleThresholdMs={idleThresholdMs}
       onEvent={onEvent}
       handleRef={ref}
       disableContextMenuBlock={disableContextMenuBlock ?? embedded}
@@ -144,6 +155,7 @@ export { WindowManagerProvider } from '../context/WindowManagerContext';
 export { UserSessionProvider } from '../context/UserSessionContext';
 export { ModalProvider } from '../context/ModalContext';
 export { TrayProvider } from '../context/TrayContext';
+export { SchedulerProvider } from '../context/SchedulerContext';
 
 // Re-export hooks.
 export { useAppRegistry } from '../context/AppRegistryContext';
@@ -153,6 +165,7 @@ export { useWindowManager } from '../context/WindowManagerContext';
 export { useUserSession } from '../context/UserSessionContext';
 export { useModal } from '../context/ModalContext';
 export { useTray } from '../context/TrayContext';
+export { useScheduler } from '../context/SchedulerContext';
 export { useApp } from '../hooks/useApp';
 
 // Re-export commonly used types.
@@ -193,6 +206,7 @@ export type { WallpaperItem } from '../data/wallpapers';
 export type { FileSystemMode } from '../context/FileSystemContext';
 export type { ModalContextType } from '../context/ModalContext';
 export type { TrayItem, TrayContextType, NotifyOptions } from '../context/TrayContext';
+export type { ScheduleOptions, SchedulerApi } from '../context/SchedulerContext';
 export type { XPEvent, XPEventType, XPEventListener } from '../events';
 export type {
   XPHandle,
