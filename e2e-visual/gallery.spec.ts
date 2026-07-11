@@ -18,6 +18,10 @@ const SECTIONS = [
   'gallery-progress',
   'gallery-tooltip',
   'gallery-menubar',
+  'gallery-groupbox',
+  'gallery-tabs',
+  'gallery-dialog',
+  'gallery-statusbar',
 ] as const;
 
 test.beforeEach(async ({ page }) => {

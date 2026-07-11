@@ -22,6 +22,10 @@ export { XPCheckbox, XPRadio } from '../components/XPCheckbox';
 export { XPSelect } from '../components/XPSelect';
 export { XPProgressBar } from '../components/XPProgressBar';
 export { XPTooltip } from '../components/XPTooltip';
+export { XPDialog } from '../components/XPDialog';
+export { XPGroupBox } from '../components/XPGroupBox';
+export { XPStatusBar, XPStatusBarField } from '../components/XPStatusBar';
+export { XPTabs } from '../components/XPTabs';
 export {
   XPMenuBar,
   XPMenuBarItem,

@@ -153,6 +153,62 @@ import { APP_REGISTRY } from '@caoergou/windows-xp/registry';
 
 > When using subpath imports, make sure the components are still rendered inside the providers exported from `@caoergou/windows-xp`.
 
+## Standalone UI Primitives (no providers)
+
+The `@caoergou/windows-xp/components` entry ships a set of **zero-dependency
+primitives** you can drop anywhere — no `<WindowsXP>`, no providers, no context —
+to build XP-styled UI (like [xp.css](https://botoxparty.github.io/XP.css/), but
+as controlled React components). They match the xp.css spec value-for-value.
+
+Standalone primitives: `XPButton`, `XPTextInput`, `XPCheckbox`, `XPRadio`,
+`XPSelect`, `XPProgressBar`, `XPTooltip`, `XPGroupBox`, `XPStatusBar`
+(+ `XPStatusBarField`), `XPTabs`, `XPMenuBar` (family), `XPIcon`, and `XPDialog`.
+
+```jsx
+import { XPDialog, XPButton } from '@caoergou/windows-xp/components';
+import '@caoergou/windows-xp/style.css';
+
+// A classic XP message box — no providers required.
+function SaveDialog({ onSave, onDiscard, onCancel }) {
+  return (
+    <XPDialog
+      title="Notepad"
+      icon="alert_warning"
+      modal
+      onClose={onCancel}
+      footer={
+        <>
+          <XPButton onClick={onSave}>Yes</XPButton>
+          <XPButton onClick={onDiscard}>No</XPButton>
+          <XPButton onClick={onCancel}>Cancel</XPButton>
+        </>
+      }
+    >
+      The text in the Untitled file has changed. Do you want to save the changes?
+    </XPDialog>
+  );
+}
+```
+
+Other primitives are equally self-contained:
+
+```jsx
+import {
+  XPGroupBox,
+  XPCheckbox,
+  XPTabs,
+  XPProgressBar,
+  XPStatusBar,
+  XPStatusBarField,
+} from '@caoergou/windows-xp/components';
+```
+
+> **Two layers.** The primitives above are standalone. The *system* components
+> (`Window`, `Taskbar`, `Desktop`, `StartMenu`, `FileProperties`, …) are wired to
+> the desktop's context and must be rendered inside the providers from
+> `@caoergou/windows-xp` (or `AppProviders`). See the component gallery route
+> (`?gallery`) for every primitive rendered in isolation.
+
 ## Custom Applications
 
 Register your own XP-style application so it can be opened from the desktop, start menu, or programmatically, and restored after refresh:
