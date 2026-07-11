@@ -110,6 +110,7 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
       {trayItems.map(item => (
         <TrayIconWrapper
           key={item.id}
+          data-tray-id={item.id}
           $clickable={!!item.onClick}
           title={item.tooltip || ''}
           onClick={item.onClick ? (e) => { e.stopPropagation(); item.onClick?.(); } : undefined}
@@ -118,6 +119,7 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
         </TrayIconWrapper>
       ))}
       <TrayIconWrapper
+        data-tray-id="volume"
         $clickable
         title={t('tray.volume')}
         onClick={handleToggleVolume}
@@ -126,6 +128,7 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
         {volumeOpen && <VolumePopup onClose={() => setVolumeOpen(false)} />}
       </TrayIconWrapper>
       <TrayIconWrapper
+        data-tray-id="network"
         $clickable
         title={t('tray.networkConnected')}
         onClick={openNetworkConnections}

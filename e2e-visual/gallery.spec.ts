@@ -17,6 +17,7 @@ const SECTIONS = [
   'gallery-slider',
   'gallery-progress',
   'gallery-tooltip',
+  'gallery-balloon',
   'gallery-menubar',
   'gallery-groupbox',
   'gallery-tabs',

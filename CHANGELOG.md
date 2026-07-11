@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (Notification API, #118)
+
+- **Tray balloon notifications** — a reusable `BalloonTip` primitive (exported
+  from `/components`) plus `useTray().notify({ icon, title, body, timeout,
+  onClick })`, which pops the classic XP light-yellow balloon above the tray,
+  queues one at a time, plays the notify sound (SND-06), auto-fades, and emits
+  `notification:show` / `notification:click`. Also exposed as `notify` on the
+  imperative `XPHandle` so hosts and the scenario system (#84) can fire
+  balloons in one line. Registered in the gallery with a visual baseline.
+  FIDELITY TSK-08 → ✅.
+- Culture packages can declare a `startupNotification`; the hardcoded, zh-only
+  `AntivirusPopup` is gone — the 360 Safe Guard reminder now lives in the zh
+  culture package and is delivered through the new API (`StartupNotifier`).
+
 ### Added (Explorer Details view, #120)
 
 - **Explorer view switcher with a sortable Details view** (EXP-02, the

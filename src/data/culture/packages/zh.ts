@@ -47,6 +47,14 @@ export const zhCulture: CulturePackage = {
       { id: 'kugou', action: 'KugouMusic', nameKey: 'startMenu.apps.kugou', icon: 'kugou' },
     ],
   },
+  startupNotification: {
+    icon: '360safe',
+    titleKey: 'tray.safeGuardReminder',
+    bodyKey: 'tray.safeGuardStatus',
+    delay: 3000,
+    trayIcon: '360safe',
+    app: 'SafeGuard360',
+  },
   stickyNote: {
     id: 'default',
     title: '备忘录',

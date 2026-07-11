@@ -13,7 +13,7 @@ import XPIcon from './XPIcon';
 import FileProperties from './FileProperties';
 import DesktopProperties from './DesktopProperties';
 import { resolveFileOpen } from '../registry/apps';
-import AntivirusPopup from './AntivirusPopup';
+import StartupNotifier from './StartupNotifier';
 import { useModal } from '../context/ModalContext';
 import { FileItem, FileNode, MenuItem, RootNode, isContainerNode } from '../types';
 import { getFileIconName } from '../utils/fileIcon';
@@ -734,7 +734,7 @@ const Desktop: React.FC = () => {
         menuItems={activeMenuItems}
       />
 
-      <AntivirusPopup />
+      <StartupNotifier />
     </DesktopContainer>
   );
 };

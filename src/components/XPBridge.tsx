@@ -3,6 +3,7 @@ import { useWindowManager } from '../context/WindowManagerContext';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useUserSession } from '../context/UserSessionContext';
 import { useModal } from '../context/ModalContext';
+import { useTray, type NotifyOptions } from '../context/TrayContext';
 import { useXPEventBus } from '../context/EventBusContext';
 import { useStorage } from '../context/StorageContext';
 import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
@@ -92,6 +93,8 @@ export interface XPHandle {
   windows: XPWindowsApi;
   /** Play a named XP system sound. */
   sound: { play: (name: string) => void };
+  /** Pop an XP tray balloon notification (#118). Returns the notification id. */
+  notify: (options: NotifyOptions) => string;
   /** Inject an event onto the same bus `onEvent` and scenario triggers read. */
   emit: (event: XPEvent) => void;
   /** Capture the full desktop state as a portable, versioned snapshot (#117). */
@@ -134,6 +137,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
     } = useFileSystem();
     const { login, logout, setWallpaper, wallpaper } = useUserSession();
     const { dialog } = useModal();
+    const { notify } = useTray();
     const { registry } = useAppRegistry();
     const bus = useXPEventBus();
     const storage = useStorage();
@@ -259,6 +263,8 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
 
           sound: { play: name => playSound(name as Parameters<typeof playSound>[0]) },
 
+          notify,
+
           emit: event => bus.emit(event),
 
           getSnapshot: (): XPSnapshot => {
@@ -316,6 +322,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
         setWallpaper,
         wallpaper,
         dialog,
+        notify,
         registry,
         bus,
         storage,

@@ -47,6 +47,36 @@ export interface BrowserCultureProfile {
 }
 
 /**
+ * 开机后自动弹出的托盘气泡通知（#118）。
+ *
+ * 取代原先 AntivirusPopup 里硬编码的 zh-only 判断：内容随文化包提供，
+ * 只有配置了 startupNotification 的文化包才会在登录后弹出气泡。
+ */
+export interface StartupNotification {
+  /** XPIcon key */
+  icon?: string;
+  /** i18n key，用于标题；优先于 title */
+  titleKey?: string;
+  /** 直接给出的标题文本 */
+  title?: string;
+  /** i18n key，用于正文；优先于 body */
+  bodyKey?: string;
+  /** 直接给出的正文文本 */
+  body?: string;
+  /** 登录后延迟多少毫秒弹出，默认 3000 */
+  delay?: number;
+  /** 气泡显示时长（毫秒），0 表示常驻 */
+  timeout?: number;
+  /**
+   * 常驻托盘图标（XPIcon key）。设置后会在托盘常驻该图标，气泡的尾巴对准它，
+   * 点击图标或气泡打开 {@link app}。留空则气泡从通知区域（右侧）弹出。
+   */
+  trayIcon?: string;
+  /** 点击托盘图标 / 气泡时打开的应用 ID（APP_REGISTRY key） */
+  app?: string;
+}
+
+/**
  * 文化包定义。
  *
  * 一个文化包描述某一语言/地域/时代下的桌面内容：
@@ -71,6 +101,8 @@ export interface CulturePackage {
   browser?: BrowserCultureProfile;
   /** 桌面便签 */
   stickyNote?: StickyNoteContent;
+  /** 登录后自动弹出的托盘气泡通知（#118） */
+  startupNotification?: StartupNotification;
   /** 默认壁纸 URL */
   wallpaper?: string;
 }

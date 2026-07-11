@@ -186,12 +186,13 @@ export type {
   StartMenuApp,
   StartMenuProfile,
   BrowserCultureProfile,
+  StartupNotification,
   CultureKey,
 } from '../data/culture';
 export type { WallpaperItem } from '../data/wallpapers';
 export type { FileSystemMode } from '../context/FileSystemContext';
 export type { ModalContextType } from '../context/ModalContext';
-export type { TrayItem, TrayContextType } from '../context/TrayContext';
+export type { TrayItem, TrayContextType, NotifyOptions } from '../context/TrayContext';
 export type { XPEvent, XPEventType, XPEventListener } from '../events';
 export type {
   XPHandle,
