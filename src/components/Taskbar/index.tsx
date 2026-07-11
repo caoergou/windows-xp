@@ -87,6 +87,19 @@ const Taskbar = () => {
   const startButtonRef = useRef<HTMLButtonElement>(null);
   const taskContextMenuRef = useRef<HTMLDivElement>(null);
 
+  // Ctrl+Esc opens the Start menu — the XP-native equivalent of the Win key,
+  // which the browser doesn't intercept (#87 KBD-03).
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'Escape') {
+        e.preventDefault();
+        setStartOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   useEffect(() => {
     windows.forEach(win => {
       const app = APP_REGISTRY[win.appId];
