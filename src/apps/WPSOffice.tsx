@@ -1,18 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { CultureAppShell } from './culture/shell';
 import { useTranslation } from 'react-i18next';
 
-const Wrap = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+const Wrap = styled(CultureAppShell)`
   background: #ECE9D8;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  font-size: 12px;
   color: #000;
-  user-select: none;
-  overflow: hidden;
 `;
 
 const MenuBar = styled.div`

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled, { keyframes, css } from 'styled-components';
+import { CultureAppShell } from './culture/shell';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
 import { useFileSystem } from '../context/FileSystemContext';
@@ -39,17 +40,9 @@ const progressStripes = keyframes`
   to { background-position: 20px 0; }
 `;
 
-const Wrap = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+const Wrap = styled(CultureAppShell)`
   background: #f7fbf5;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  font-size: 12px;
-  user-select: none;
   position: relative;
-  overflow: hidden;
 `;
 
 const Header = styled.div`
