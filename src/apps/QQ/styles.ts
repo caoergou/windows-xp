@@ -354,8 +354,9 @@ export const ChatRoot = styled.div`
     background-image: ${qqUrl('im/IMSidebarButtonExpand_Normal.png')}; background-size: 1000px 100%;
   }
   .qq-im-show { height: 100%; background-size: cover; background-position: 50%; background-repeat: no-repeat; }
+  /* 单张 QQ 秀素材复用于「对方形象 / 我的形象」两栏（体积预算取舍）。 */
   .qq-im-show-1 { background-image: ${qqUrl('im/show1.gif')}; }
-  .qq-im-show-3 { background-image: ${qqUrl('im/show3.gif')}; }
+  .qq-im-show-3 { background-image: ${qqUrl('im/show1.gif')}; transform: scaleX(-1); }
   .qq-im-zone { background: #f6f6f6; color: #0f0657; }
   .qq-im-zone div { line-height: 1.4; padding: 0 2px; white-space: nowrap; overflow: hidden; }
   .qq-im-zone span { color: red; }
