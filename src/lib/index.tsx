@@ -203,5 +203,6 @@ export type {
 } from '../components/XPBridge';
 export { useXPEvents, useXPEventBus } from '../context/EventBusContext';
 export { EventBusProvider } from '../context/EventBusContext';
+export { XPEventBus, createXPEventBus } from '../events';
 export type { XPSnapshot } from '../snapshot';
 export { XP_SNAPSHOT_VERSION, XPSnapshotVersionError, assertLoadableSnapshot } from '../snapshot';

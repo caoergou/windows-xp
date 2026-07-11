@@ -57,3 +57,10 @@ export class XPEventBus {
     });
   }
 }
+
+/**
+ * Create a fresh event bus. Advanced composers using the bare providers can
+ * make one bus, pass it to `EventBusProvider`, and observe it via `subscribe`
+ * — the same instance the desktop emits on (#122).
+ */
+export const createXPEventBus = (): XPEventBus => new XPEventBus();
