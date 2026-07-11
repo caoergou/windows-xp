@@ -123,6 +123,36 @@ this list is the recurring per-change eyeball pass.
 If a screenshot reveals a defect, fix it and re-capture before committing. Record
 what you verified (and attach/inspect the PNG) so the check is auditable.
 
+### Pitfalls learned the hard way
+
+These are real misses from past changes — check them explicitly, because a
+casual glance will pass over all of them:
+
+- **Full-frame screenshots hide small defects.** A 4px clipped tooltip tail, a
+  1px border, a slightly-off gradient, a header that isn't quite flush — none of
+  these are visible in a 1024×768 capture. For any fine detail, take a **tight,
+  zoomed crop** of the exact region (`clip: { x, y, width, height }`, or
+  `locator.screenshot()`), and inspect *that*. "Looks fine in the full frame" is
+  not verification.
+- **Don't trust CSS geometry math for transformed elements.** A `rotate(45deg)`
+  diamond tail extends further than its box; `transform`, `box-shadow`, and
+  borders all push real pixels past the layout box. Compute a first guess, then
+  **measure the rendered rect** (`locator.boundingBox()`) and log the numbers to
+  confirm — twice I "did the math" and was wrong by a few px.
+- **Check overlap and z-index against fixed chrome.** The taskbar uses the max
+  z-index (`2147483647`); anything that overlaps it is hidden behind it. A
+  floating element near the taskbar (balloon, popup, menu) must sit **entirely
+  clear** of it — verify no part is clipped or occluded, at zoom.
+- **Anchored elements must actually point at their anchor.** A tray balloon must
+  emanate from its specific tray icon (tail centred on the icon), a tooltip from
+  its trigger, a menu from its button. Don't settle for "roughly in the corner"
+  — measure the anchor's centre and confirm the pointer/tail lines up (log the
+  two x-coordinates; they should match).
+- **When the user reports a visual bug, reproduce it at the same zoom they saw
+  it, fix, then re-capture the *same crop* to prove it's gone.** Do not re-assert
+  "it's correct" from the code — the reason it shipped broken is that the code
+  looked right.
+
 ## Tech Stack
 
 - **Framework**: React 18 + Vite 5
