@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <!-- Original parody artwork for a classic 2000s MP3 player (not the Winamp logo). -->
+  <defs>
+    <linearGradient id="wa-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a3a3a"/>
+      <stop offset="1" stop-color="#161616"/>
+    </linearGradient>
+    <linearGradient id="wa-lcd" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b3b16"/>
+      <stop offset="1" stop-color="#04240d"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="9" width="40" height="30" rx="4" fill="url(#wa-body)" stroke="#000" stroke-width="1"/>
+  <rect x="5" y="10" width="38" height="3" rx="1.5" fill="#5a5a5a" opacity="0.7"/>
+  <rect x="8" y="15" width="32" height="12" rx="1.5" fill="url(#wa-lcd)" stroke="#000" stroke-width="0.8"/>
+  <!-- lightning bolt (green LCD glow) -->
+  <path d="M22 16.5l-5 6.2h3.4l-1.6 4.8 6-6.6h-3.7l1.5-4.4z" fill="#39ff6a"/>
+  <!-- tiny spectrum bars -->
+  <g fill="#39ff6a">
+    <rect x="30" y="22" width="1.6" height="4"/>
+    <rect x="32.4" y="19.5" width="1.6" height="6.5"/>
+    <rect x="34.8" y="21" width="1.6" height="5"/>
+    <rect x="37.2" y="18" width="1.6" height="8"/>
+  </g>
+  <!-- transport buttons -->
+  <g fill="#c9c9c9">
+    <path d="M11 32l4 2.4-4 2.4z"/>
+    <rect x="17" y="32" width="2.2" height="4.8"/>
+    <rect x="20" y="32" width="2.2" height="4.8"/>
+    <path d="M26 32l4 2.4-4 2.4z"/>
+    <path d="M31 32l4 2.4-4 2.4z"/>
+  </g>
+</svg>

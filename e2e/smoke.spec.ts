@@ -28,11 +28,9 @@ test.describe('Windows XP Simulator - Basic Access Test', () => {
     console.log('✓ 页面包含内容');
   });
 
-  // FIXME(#123): the en culture package only renders one desktop shortcut
-  // (Windows Media Player). Norton/Winamp/uTorrent/Office/iTunes live in the
-  // suppression list + i18n strings but are never rendered, so this assertion
-  // can never pass. Re-enable once en-culture parity lands (#123).
-  test.fixme('英文语言下显示西方文化桌面图标', async ({ page }) => {
+  // en culture-package parity landed in #123: these five western-2000s
+  // shortcuts now render (with original parody icons) and each opens a real app.
+  test('英文语言下显示西方文化桌面图标', async ({ page }) => {
     await login(page, { lang: 'en' });
 
     // Western 2000s cultural shortcuts expected in English locale
@@ -40,6 +38,10 @@ test.describe('Windows XP Simulator - Basic Access Test', () => {
     for (const name of expectedIcons) {
       await expect(page.locator(`[data-english-testid="desktop-icon-${name}"]`)).toBeVisible();
     }
+
+    // At least one is a real, openable app (the flagship Winamp player).
+    await page.locator('[data-english-testid="desktop-icon-Winamp"]').dblclick();
+    await expect(page.locator('[data-testid="winamp"]')).toBeVisible({ timeout: 8000 });
 
     // eslint-disable-next-line no-console -- Playwright test logging
     console.log('✓ English locale shows Western cultural icons');

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <!-- Original parody artwork for a 2000s office suite (generic four-pane tiles, not a brand logo). -->
+  <defs>
+    <linearGradient id="of-p" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="16" height="16" rx="2.5" fill="#e64a2e"/>
+  <rect x="26" y="6" width="16" height="16" rx="2.5" fill="#3aa757"/>
+  <rect x="6" y="26" width="16" height="16" rx="2.5" fill="#f2a11b"/>
+  <rect x="26" y="26" width="16" height="16" rx="2.5" fill="#2b6fd6"/>
+  <rect x="6" y="6" width="16" height="16" rx="2.5" fill="url(#of-p)"/>
+  <rect x="26" y="6" width="16" height="16" rx="2.5" fill="url(#of-p)"/>
+  <rect x="6" y="26" width="16" height="16" rx="2.5" fill="url(#of-p)"/>
+  <rect x="26" y="26" width="16" height="16" rx="2.5" fill="url(#of-p)"/>
+  <g fill="#ffffff" font-family="Georgia, 'Times New Roman', serif" font-weight="bold" font-size="12" text-anchor="middle">
+    <text x="14" y="18.5">W</text>
+    <text x="34" y="18.5">X</text>
+    <text x="14" y="38.5">P</text>
+    <text x="34" y="38.5">O</text>
+  </g>
+</svg>

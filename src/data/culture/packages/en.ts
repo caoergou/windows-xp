@@ -10,7 +10,14 @@ export const enCulture: CulturePackage = {
   browser: {
     homepage: 'http://www.msn.com',
   },
+  // Western 2000s software (#123). Names match the smoke-test assertions; icons
+  // are original parody artwork (no ripped brand logos, DEVELOPMENT.md §6).
   desktopShortcuts: [
+    { id: 'winamp', name: 'Winamp', app: 'Winamp', icon: 'winamp' },
+    { id: 'norton', name: 'Norton AntiVirus', app: 'NortonAntiVirus', icon: 'nav' },
+    { id: 'utorrent', name: 'uTorrent', app: 'UTorrent', icon: 'utorrent' },
+    { id: 'itunes', name: 'iTunes', app: 'ITunes', icon: 'itunes' },
+    { id: 'ms-office', name: 'Microsoft Office', app: 'MicrosoftOffice', icon: 'msoffice' },
     {
       id: 'media-player',
       name: 'Windows Media Player',
@@ -26,6 +33,7 @@ export const enCulture: CulturePackage = {
         nameKey: 'startMenu.apps.internetExplorer',
         icon: 'ie',
       },
+      { id: 'winamp', action: 'Winamp', nameKey: 'startMenu.apps.winamp', icon: 'winamp' },
       {
         id: 'media-player',
         action: 'WindowsMediaPlayer',
@@ -34,15 +42,11 @@ export const enCulture: CulturePackage = {
       },
     ],
     recent: [
+      { id: 'norton', action: 'NortonAntiVirus', nameKey: 'startMenu.apps.norton', icon: 'nav' },
+      { id: 'itunes', action: 'ITunes', nameKey: 'startMenu.apps.itunes', icon: 'itunes' },
+      { id: 'utorrent', action: 'UTorrent', nameKey: 'startMenu.apps.utorrent', icon: 'utorrent' },
+      { id: 'ms-office', action: 'MicrosoftOffice', nameKey: 'startMenu.apps.microsoftOffice', icon: 'msoffice' },
       { id: 'notepad', action: 'Notepad', nameKey: 'apps.notepad', icon: 'file' },
-      { id: 'paint', action: 'MicrosoftPaint', nameKey: 'apps.paint', icon: 'paint' },
-      { id: 'calculator', action: 'Calculator', nameKey: 'apps.calculator', icon: 'calculator' },
-      {
-        id: 'minesweeper',
-        action: 'Minesweeper',
-        nameKey: 'apps.minesweeper',
-        icon: 'minesweeper',
-      },
       { id: 'solitaire', action: 'Solitaire', nameKey: 'apps.solitaire', icon: 'solitaire' },
     ],
   },

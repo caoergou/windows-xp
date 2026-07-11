@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <!-- Original parody artwork for a 2000s antivirus (generic gold shield, not a brand logo). -->
+  <defs>
+    <linearGradient id="nav-sh" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffdf5e"/>
+      <stop offset="0.5" stop-color="#f6b81f"/>
+      <stop offset="1" stop-color="#d98a00"/>
+    </linearGradient>
+  </defs>
+  <path d="M24 4l16 5v12c0 10-6.8 17.5-16 22C14.8 38.5 8 31 8 21V9l16-5z"
+        fill="url(#nav-sh)" stroke="#a85f00" stroke-width="1.2"/>
+  <path d="M24 7.5l12.5 4v9.5c0 8-5.2 13.9-12.5 17.6V7.5z" fill="#ffffff" opacity="0.14"/>
+  <!-- check mark -->
+  <path d="M16 23l5.5 5.5L33 16" fill="none" stroke="#ffffff" stroke-width="4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M16 23l5.5 5.5L33 16" fill="none" stroke="#7a4a00" stroke-width="1.2"
+        stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+</svg>
