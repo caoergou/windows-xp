@@ -10,7 +10,8 @@ import { sounds } from '../../utils/soundManager';
 import { defaultPlugin } from '../../apps/BrowserPlugins';
 import { getSystemPathTitle } from '../../data/systemPaths';
 import { WindowState } from '../../types';
-import { safeLocalStorage, getStorageKey, canUseDOM } from '../../utils/storage';
+import { canUseDOM } from '../../utils/storage';
+import { useStorage } from '../../context/StorageContext';
 import { useXPEventBus } from '../../context/EventBusContext';
 import StartButton from './StartButton';
 import StartMenu from './StartMenu';
@@ -60,6 +61,7 @@ const Divider = styled.div`
 const Taskbar = () => {
   const { t, i18n } = useTranslation();
   const bus = useXPEventBus();
+  const storage = useStorage();
   const {
     windows,
     activeWindowId,
@@ -100,9 +102,9 @@ const Taskbar = () => {
   }, [closeWindow, cultureKey, setWindowTitle, t, windows]);
 
   const handleLogout = useCallback(() => {
-    safeLocalStorage.removeItem(getStorageKey('open_windows'));
+    storage.local.removeItem(storage.key('open_windows'));
     logout();
-  }, [logout]);
+  }, [logout, storage]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -279,15 +281,15 @@ const Taskbar = () => {
   );
 
   const performPowerAction = useCallback((state: 'shutdown' | 'restart') => {
-    safeLocalStorage.removeItem(getStorageKey('open_windows'));
-    safeLocalStorage.setItem(getStorageKey('power_state'), state);
+    storage.local.removeItem(storage.key('open_windows'));
+    storage.local.setItem(storage.key('power_state'), state);
     bus.emit({ type: 'session:shutdown', mode: state });
     sounds.shutdown();
     if (canUseDOM) {
       // Give the shutdown sound a moment to start before the page reloads.
       setTimeout(() => window.location.reload(), 600);
     }
-  }, [bus]);
+  }, [bus, storage]);
 
   const handleLogoutWithSound = useCallback(() => {
     sounds.logoff();

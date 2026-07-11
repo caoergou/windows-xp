@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useUserSession } from '../context/UserSessionContext';
 import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
-import { safeLocalStorage, getStorageKey, canUseDOM } from '../utils/storage';
+import { canUseDOM } from '../utils/storage';
+import { useStorage } from '../context/StorageContext';
 
 const Container = styled.div`
   background-color: #003399;
@@ -174,13 +175,14 @@ const ShutdownButton = styled.button`
 
 const LoginScreen = () => {
     const { t } = useTranslation();
+    const storage = useStorage();
     const { login, user } = useUserSession();
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
 
     const handleShutdown = () => {
-        safeLocalStorage.setItem(getStorageKey('power_state'), 'shutdown');
-        safeLocalStorage.removeItem(getStorageKey('first_boot_done'));
+        storage.local.setItem(storage.key('power_state'), 'shutdown');
+        storage.local.removeItem(storage.key('first_boot_done'));
         if (canUseDOM) {
             window.location.reload();
         }

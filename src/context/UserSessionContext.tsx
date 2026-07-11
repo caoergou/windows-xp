@@ -1,7 +1,8 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { useXPEventBus } from './EventBusContext';
+import { useStorage } from './StorageContext';
 import userConfig from '../data/user_config.json';
-import { safeLocalStorage, getStorageKey } from '../utils/storage';
+import type { Storage } from '../utils/storage';
 
 interface UserSessionContextType {
   isLoggedIn: boolean;
@@ -25,11 +26,11 @@ export const useUserSession = (): UserSessionContextType => {
 };
 
 // Check if login is required: only after shutdown, restart, or logout
-const getInitialLoginState = (autoLogin?: boolean): boolean => {
+const getInitialLoginState = (storage: Storage, autoLogin?: boolean): boolean => {
   if (autoLogin) return true;
 
-  const powerState = safeLocalStorage.getItem(getStorageKey('power_state'));
-  const hasLoggedInBefore = safeLocalStorage.getItem(getStorageKey('logged_in')) === 'true';
+  const powerState = storage.local.getItem(storage.key('power_state'));
+  const hasLoggedInBefore = storage.local.getItem(storage.key('logged_in')) === 'true';
 
   // Shutdown, restart, logout → need to login again
   if (powerState === 'shutdown' || powerState === 'restart' || powerState === 'logout') {
@@ -40,25 +41,26 @@ const getInitialLoginState = (autoLogin?: boolean): boolean => {
   return hasLoggedInBefore;
 };
 
-const WALLPAPER_KEY = getStorageKey('wallpaper');
-const SCREENSAVER_KEY = getStorageKey('screensaver_enabled');
-
 export const UserSessionProvider: React.FC<{
   children: React.ReactNode;
   username?: string;
   password?: string;
   autoLogin?: boolean;
 }> = ({ children, username = userConfig.username, password = userConfig.password, autoLogin }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => getInitialLoginState(autoLogin));
+  const storage = useStorage();
+  const wallpaperKey = storage.key('wallpaper');
+  const screensaverKey = storage.key('screensaver_enabled');
+
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => getInitialLoginState(storage, autoLogin));
   const [user, setUser] = useState<{ name: string; avatar: string }>({
     name: username,
     avatar: userConfig.avatar
   });
   const [wallpaper, setWallpaperState] = useState<string>(() =>
-    safeLocalStorage.getItem(WALLPAPER_KEY) || 'Bliss'
+    storage.local.getItem(wallpaperKey) || 'Bliss'
   );
   const [screensaverEnabled, setScreensaverEnabledState] = useState<boolean>(() => {
-    const stored = safeLocalStorage.getItem(SCREENSAVER_KEY);
+    const stored = storage.local.getItem(screensaverKey);
     return stored === null ? true : stored === 'true';
   });
 
@@ -68,39 +70,39 @@ export const UserSessionProvider: React.FC<{
 
   useEffect(() => {
     if (autoLogin) {
-      safeLocalStorage.setItem(getStorageKey('logged_in'), 'true');
-      safeLocalStorage.setItem(getStorageKey('power_state'), 'running');
+      storage.local.setItem(storage.key('logged_in'), 'true');
+      storage.local.setItem(storage.key('power_state'), 'running');
     }
-  }, [autoLogin]);
+  }, [autoLogin, storage]);
 
   const bus = useXPEventBus();
 
   const login = useCallback((inputPassword: string): boolean => {
     if (inputPassword === password) {
       setIsLoggedIn(true);
-      safeLocalStorage.setItem(getStorageKey('logged_in'), 'true');
-      safeLocalStorage.setItem(getStorageKey('power_state'), 'running');
+      storage.local.setItem(storage.key('logged_in'), 'true');
+      storage.local.setItem(storage.key('power_state'), 'running');
       bus.emit({ type: 'session:login' });
       return true;
     }
     return false;
-  }, [password, bus]);
+  }, [password, bus, storage]);
 
   const logout = useCallback(() => {
     setIsLoggedIn(false);
-    safeLocalStorage.setItem(getStorageKey('power_state'), 'logout');
+    storage.local.setItem(storage.key('power_state'), 'logout');
     bus.emit({ type: 'session:logout' });
-  }, [bus]);
+  }, [bus, storage]);
 
   const setWallpaper = useCallback((id: string) => {
     setWallpaperState(id);
-    safeLocalStorage.setItem(WALLPAPER_KEY, id);
-  }, []);
+    storage.local.setItem(wallpaperKey, id);
+  }, [storage, wallpaperKey]);
 
   const setScreensaverEnabled = useCallback((enabled: boolean) => {
     setScreensaverEnabledState(enabled);
-    safeLocalStorage.setItem(SCREENSAVER_KEY, String(enabled));
-  }, []);
+    storage.local.setItem(screensaverKey, String(enabled));
+  }, [storage, screensaverKey]);
 
   const contextValue: UserSessionContextType = {
     isLoggedIn,
