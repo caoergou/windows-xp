@@ -43,6 +43,16 @@
 - 🌍 **文化配置** - 中英文使用独立的桌面、开始菜单、浏览器主页和应用集合
 - 🎮 **经典游戏** - 内置扫雷和纸牌游戏
 
+### 它是一个引擎，而不只是一张截图
+
+除了桌面本身，`<WindowsXP>` 还为嵌入、脚本化和扩展而设计：
+
+- 📡 **事件流** —— 通过 `onEvent` 订阅桌面内发生的一切（`app:launch`、`file:open`、`cmd:exec`、`session:*` 等），是埋点分析、引导演示和剧情系统的基础
+- 🎛️ **命令式控制** —— 通过 `ref`（`XPHandle`：`openApp`、`openFile`、`closeWindow`、`showAlert`、`reset`）从你的应用驱动桌面
+- 🧩 **可嵌入** —— `mode="embedded"` 一键关闭对宿主页面的劫持（右键/开发者工具屏蔽、全局快捷键、屏保）；样式作用域隔离，不会外泄
+- 🗂️ **内容可替换** —— 自带文件系统（`customFileSystem` + `fileSystemMode`）、壁纸（`wallpapers`/`defaultWallpaper`）、登录 `avatar`、`cultures` 和 `apps`
+- 🧱 **独立原语组件** —— 无需 Provider 即可引入 XP 风格 React 组件（`XPButton`、`XPDialog`、`XPTabs` 等），像 xp.css 但是受控组件
+
 ## 📦 安装
 
 ```bash
@@ -90,19 +100,15 @@ function App() {
 
 ### 自定义文件系统
 
+顶层键会合并进桌面根目录——所以直接把文件和文件夹放在顶层即可（**不要**再套一层 `"Desktop"` 文件夹）：
+
 ```jsx
 const customFS = {
-  "Desktop": {
-    "type": "folder",
-    "name": "Desktop",
-    "children": {
-      "MyApp.txt": {
-        "type": "file",
-        "name": "MyApp.txt",
-        "app": "Notepad",
-        "content": "你好 Windows XP！"
-      }
-    }
+  "MyApp.txt": {
+    "type": "file",
+    "name": "MyApp.txt",
+    "app": "Notepad",
+    "content": "你好 Windows XP！"
   }
 };
 

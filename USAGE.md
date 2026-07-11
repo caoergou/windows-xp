@@ -29,6 +29,10 @@ The `WindowsXP` component accepts the following props:
 | `password` | string | `'forthe2000s'` | Default password for authentication |
 | `language` | string | `'en'` | Initial language (`'en'` or `'zh'`) |
 | `customFileSystem` | object | `null` | Custom file system structure (see below) |
+| `fileSystemMode` | `'merge'` \| `'replace'` | `'merge'` | Merge `customFileSystem` into the built-in tree, or replace it entirely |
+| `avatar` | string | – | Login avatar: an `XPIcon` id or an image URL |
+| `wallpapers` | `WallpaperItem[]` | – | Extra wallpapers selectable in Display properties |
+| `defaultWallpaper` | string | – | Initial wallpaper id or URL |
 | `cultures` | `CulturePackage[]` | `[]` | Custom culture packages that extend/override built-in `en`/`zh` |
 | `apps` | `AppRegistryEntry[]` | `[]` | Custom applications that extend/override built-in registry |
 | `skipBoot` | boolean | `false` | Skip boot screen on first load |
@@ -39,6 +43,7 @@ The `WindowsXP` component accepts the following props:
 | `disableDevToolsBlock` | boolean | `false` | Disable blocking of F12 / Ctrl+Shift+I/J/C |
 | `disableGlobalShortcuts` | boolean | `false` | Disable Alt+F4 / Alt+Tab / BSOD easter egg |
 | `disableScreenSaver` | boolean | `false` | Disable the idle screensaver |
+| `onEvent` | `(e: XPEvent) => void` | – | Listener called for every desktop event (see [Events and imperative control](#events-and-imperative-control-76)) |
 
 ## Examples
 
@@ -486,7 +491,7 @@ Individual `disable*` props still work and override the mode defaults, e.g. `mod
 
 The stylesheet never leaks: all XP styles are scoped under `.windows-xp-root` (and `.windows-xp-portal` for context menus/dialogs), so your host app's controls keep their own look.
 
-Note on storage: `storagePrefix` is currently process-wide — two instances with different prefixes on one page will share the most recently mounted prefix (a console warning is emitted). Full per-instance isolation is tracked in issue #73.
+Note on storage: `storagePrefix` gives each instance a fully isolated storage namespace (#95) — you can mount several `<WindowsXP>` instances on one page with different prefixes and their windows, filesystem and session state stay independent.
 
 Note on i18n: the library uses its own isolated i18next instance and never initializes the global singleton, so it cannot conflict with your app's i18next setup. If you render standalone components from `@caoergou/windows-xp/components` without `<WindowsXP/>`/`<AppProviders/>`, wrap them in an `I18nextProvider` bound to the exported instance:
 
@@ -496,6 +501,34 @@ import { AppProviders } from '@caoergou/windows-xp';
 // AppProviders already includes the provider; for bare components use your own i18next instance.
 ```
 
+## SSR / Next.js
+
+The desktop is a browser-only experience: it reads `localStorage`, plays audio,
+measures the viewport and drives long-running timers. The library is written to
+be **safe to _import_ during SSR** (no `window`/`document` access at module
+scope), but it should only be **rendered on the client**. In the Next.js App or
+Pages Router, load it with `next/dynamic` and `ssr: false`:
+
+```jsx
+'use client';
+import dynamic from 'next/dynamic';
+import '@caoergou/windows-xp/style.css';
+
+const WindowsXP = dynamic(
+  () => import('@caoergou/windows-xp').then(m => m.WindowsXP),
+  { ssr: false }
+);
+
+export default function Page() {
+  return <WindowsXP autoLogin />;
+}
+```
+
+This skips server rendering for the component (avoiding hydration mismatches
+from client-only state) while still letting the rest of your page render on the
+server. The same pattern applies to any SSR framework — render `<WindowsXP>`
+only after mount (e.g. behind an `useEffect`/`mounted` guard).
+
 ## License
 
 MIT
@@ -504,4 +537,4 @@ MIT
 
 For issues, questions, or contributions, visit:
 - GitHub: [https://github.com/caoergou/windows-xp](https://github.com/caoergou/windows-xp)
-- Issues: [https://github.com/caoergou/windows-xp/issues)
+- Issues: [https://github.com/caoergou/windows-xp/issues](https://github.com/caoergou/windows-xp/issues)

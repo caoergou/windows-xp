@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Docs (documentation truth sweep, #114)
+
+- **README** now tells the engine story: a new "It's an engine, not just a
+  screenshot" section (events, imperative `ref`/`XPHandle`, embedded mode,
+  replaceable content, standalone primitives), a **full props table** covering
+  every `WindowsXPProps` field with type + default, and an ARG-flavored
+  `onEvent` example. Fixed the custom-filesystem example (top-level keys merge
+  into the desktop root — no `"Desktop"` wrapper) and corrected the
+  app-maturity list (Paint saves to the FS, Notepad has Undo/Find/Replace/Word
+  Wrap, Solitaire is fully implemented and tested). Mirrored in
+  `README.zh-CN.md`.
+- **USAGE**: added `fileSystemMode`, `avatar`, `wallpapers`, `defaultWallpaper`
+  and `onEvent` to the props table; removed the obsolete `storagePrefix` /
+  issue #73 process-wide caveat (per-instance isolation shipped in #95); fixed
+  the broken Issues link; added an **SSR / Next.js** section
+  (`dynamic(() => import(...), { ssr: false })`).
+- **CLAUDE.md**: dropped the "⭐ NEW" registry tag, switched the example to
+  `nameKey`, documented the `locales` field, and completed the app table
+  (TaskManager, SafeGuard360, Thunder, KugouMusic, BaofengPlayer, WPSOffice).
+- **FIDELITY.md**: re-scored WIN-01, WIN-10, SND-07/08/09 and STY-02 to ✅ with
+  evidence links; fixed WIN-12's stale line reference; removed the duplicated
+  rule #6 and the dangling STY-02 AGENTS.md note.
+
 ### Changed (CI gates tell the truth, #112)
 
 - **New `CI` workflow** (`.github/workflows/ci.yml`) runs on every pull request
