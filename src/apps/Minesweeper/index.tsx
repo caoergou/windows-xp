@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
 import {
   XPMenuBar as SharedMenuBar,
   XPMenuBarItem as SharedMenuButton,
@@ -8,418 +7,59 @@ import {
   XPMenuDropdownItem as SharedDropdownItem,
   XPMenuSeparator as SharedMenuSeparator,
   XPMenuMark as SharedMenuMark,
-} from '../components/XPMenuBar';
+} from '../../components/XPMenuBar';
 import { useTranslation } from 'react-i18next';
-import { useWindowManager } from '../context/WindowManagerContext';
-import empty from '../assets/games/minesweeper/empty.png';
-import open1 from '../assets/games/minesweeper/open1.png';
-import open2 from '../assets/games/minesweeper/open2.png';
-import open3 from '../assets/games/minesweeper/open3.png';
-import open4 from '../assets/games/minesweeper/open4.png';
-import open5 from '../assets/games/minesweeper/open5.png';
-import open6 from '../assets/games/minesweeper/open6.png';
-import open7 from '../assets/games/minesweeper/open7.png';
-import open8 from '../assets/games/minesweeper/open8.png';
-import flag from '../assets/games/minesweeper/flag.png';
-import mineCeil from '../assets/games/minesweeper/mine-ceil.png';
-import mineDeath from '../assets/games/minesweeper/mine-death.png';
-import misflagged from '../assets/games/minesweeper/misflagged.png';
-import question from '../assets/games/minesweeper/question.png';
-import checked from '../assets/games/minesweeper/checked.png';
-import smile from '../assets/games/minesweeper/smile.png';
-import ohh from '../assets/games/minesweeper/ohh.png';
-import dead from '../assets/games/minesweeper/dead.png';
-import win from '../assets/games/minesweeper/win.png';
-import digit0 from '../assets/games/minesweeper/digit0.png';
-import digit1 from '../assets/games/minesweeper/digit1.png';
-import digit2 from '../assets/games/minesweeper/digit2.png';
-import digit3 from '../assets/games/minesweeper/digit3.png';
-import digit4 from '../assets/games/minesweeper/digit4.png';
-import digit5 from '../assets/games/minesweeper/digit5.png';
-import digit6 from '../assets/games/minesweeper/digit6.png';
-import digit7 from '../assets/games/minesweeper/digit7.png';
-import digit8 from '../assets/games/minesweeper/digit8.png';
-import digit9 from '../assets/games/minesweeper/digit9.png';
-import digitMinus from '../assets/games/minesweeper/digit-.png';
-
-const CELL_SIZE = 16;
-
-const numberSprites: Record<number, string> = {
-  1: open1,
-  2: open2,
-  3: open3,
-  4: open4,
-  5: open5,
-  6: open6,
-  7: open7,
-  8: open8,
-};
-
-const digitSprites: Record<string, string> = {
-  '0': digit0,
-  '1': digit1,
-  '2': digit2,
-  '3': digit3,
-  '4': digit4,
-  '5': digit5,
-  '6': digit6,
-  '7': digit7,
-  '8': digit8,
-  '9': digit9,
-  '-': digitMinus,
-};
-
-type Difficulty = 'beginner' | 'intermediate' | 'expert';
-type GameStatus = 'new' | 'playing' | 'won' | 'lost';
-type OpenMenu = 'game' | 'help' | null;
-
-interface CellData {
-  isMine: boolean;
-  isRevealed: boolean;
-  isFlagged: boolean;
-  isQuestioned: boolean;
-  isExploded: boolean;
-  value: number;
-}
-
-interface GameConfig {
-  rows: number;
-  cols: number;
-  mines: number;
-}
-
-const configs: Record<Difficulty, GameConfig> = {
-  beginner: { rows: 9, cols: 9, mines: 10 },
-  intermediate: { rows: 16, cols: 16, mines: 40 },
-  expert: { rows: 16, cols: 30, mines: 99 },
-};
-
-const difficultyKeys: Difficulty[] = ['beginner', 'intermediate', 'expert'];
-
-const createBoard = (config: GameConfig): CellData[][] =>
-  Array.from({ length: config.rows }, () =>
-    Array.from({ length: config.cols }, () => ({
-      isMine: false,
-      isRevealed: false,
-      isFlagged: false,
-      isQuestioned: false,
-      isExploded: false,
-      value: 0,
-    }))
-  );
-
-const cloneBoard = (board: CellData[][]): CellData[][] =>
-  board.map(row => row.map(cell => ({ ...cell })));
-
-const getNeighbors = (row: number, col: number, config: GameConfig): Array<[number, number]> => {
-  const neighbors: Array<[number, number]> = [];
-
-  for (let rowOffset = -1; rowOffset <= 1; rowOffset += 1) {
-    for (let colOffset = -1; colOffset <= 1; colOffset += 1) {
-      if (rowOffset === 0 && colOffset === 0) continue;
-      const nextRow = row + rowOffset;
-      const nextCol = col + colOffset;
-      if (nextRow >= 0 && nextRow < config.rows && nextCol >= 0 && nextCol < config.cols) {
-        neighbors.push([nextRow, nextCol]);
-      }
-    }
-  }
-
-  return neighbors;
-};
-
-const placeMines = (
-  board: CellData[][],
-  excludedRow: number,
-  excludedCol: number,
-  config: GameConfig
-) => {
-  let minesPlaced = 0;
-
-  while (minesPlaced < config.mines) {
-    const row = Math.floor(Math.random() * config.rows);
-    const col = Math.floor(Math.random() * config.cols);
-    const cell = board[row][col];
-
-    if ((row === excludedRow && col === excludedCol) || cell.isMine) continue;
-
-    cell.isMine = true;
-    minesPlaced += 1;
-
-    getNeighbors(row, col, config).forEach(([neighborRow, neighborCol]) => {
-      const neighbor = board[neighborRow][neighborCol];
-      if (!neighbor.isMine) neighbor.value += 1;
-    });
-  }
-};
-
-const revealSafeRegion = (board: CellData[][], row: number, col: number, config: GameConfig) => {
-  const queue: Array<[number, number]> = [[row, col]];
-
-  while (queue.length > 0) {
-    const [currentRow, currentCol] = queue.pop() as [number, number];
-    const cell = board[currentRow][currentCol];
-
-    if (cell.isRevealed || cell.isFlagged || cell.isMine) continue;
-
-    cell.isRevealed = true;
-
-    if (cell.value === 0) {
-      getNeighbors(currentRow, currentCol, config).forEach(([neighborRow, neighborCol]) => {
-        const neighbor = board[neighborRow][neighborCol];
-        if (!neighbor.isRevealed && !neighbor.isFlagged && !neighbor.isMine) {
-          queue.push([neighborRow, neighborCol]);
-        }
-      });
-    }
-  }
-};
-
-const revealLoss = (board: CellData[][], explodedRow: number, explodedCol: number) => {
-  board.forEach(row =>
-    row.forEach(cell => {
-      if (cell.isMine && !cell.isFlagged) cell.isRevealed = true;
-    })
-  );
-
-  const exploded = board[explodedRow][explodedCol];
-  exploded.isRevealed = true;
-  exploded.isExploded = true;
-};
-
-const isWon = (board: CellData[][]) =>
-  board.every(row => row.every(cell => cell.isMine || cell.isRevealed));
-
-const flagAllMines = (board: CellData[][]) => {
-  board.forEach(row =>
-    row.forEach(cell => {
-      if (cell.isMine) {
-        cell.isFlagged = true;
-        cell.isQuestioned = false;
-      }
-    })
-  );
-};
-
-const formatCounter = (value: number): string => {
-  if (value < 0) return `-${String(Math.min(99, Math.abs(value))).padStart(2, '0')}`;
-  return String(Math.min(999, value)).padStart(3, '0');
-};
-
-const Wrap = styled.div`
-  position: relative;
-  width: fit-content;
-  align-self: flex-start;
-  background: #ece9d8;
-  color: #000;
-  font-family: Tahoma, 'SimSun', 'Microsoft YaHei', sans-serif;
-  font-size: 11px;
-  line-height: 1;
-  user-select: none;
-  box-sizing: border-box;
-
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
-
-  img {
-    image-rendering: pixelated;
-  }
-`;
-
-const MenuCheck = styled.img`
-  width: 7px;
-  height: 7px;
-  image-rendering: pixelated;
-`;
-
-const GamePanel = styled.section`
-  padding: 5px;
-  border-top: 3px solid #f5f5f5;
-  border-left: 3px solid #f5f5f5;
-  background: #c0c0c0;
-  box-sizing: border-box;
-`;
-
-const ScoreBar = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 34px;
-  margin-bottom: 5px;
-  padding: 3px 7px 3px 4px;
-  border: 2px solid;
-  border-color: #808080 #f5f5f5 #f5f5f5 #808080;
-`;
-
-const Counter = styled.div`
-  display: flex;
-  width: 40px;
-  height: 24px;
-  overflow: hidden;
-  border-width: 0 1px 1px 0;
-  border-style: solid;
-  border-color: #fff;
-`;
-
-const Digit = styled.img`
-  display: block;
-  width: 13px;
-  height: 23px;
-  flex: 0 0 13px;
-  image-rendering: pixelated;
-`;
-
-const FaceOuter = styled.div`
-  width: 24px;
-  height: 24px;
-  border-top: 1px solid #808080;
-  border-left: 1px solid #808080;
-  transform: translateX(1px);
-`;
-
-const FaceButton = styled.button`
-  display: flex;
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  max-width: 24px;
-  min-height: 24px;
-  max-height: 24px;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 2px solid;
-  border-color: #f5f5f5 #808080 #808080 #f5f5f5;
-  outline: none;
-  background: #c0c0c0;
-  cursor: default;
-
-  &:active {
-    border-width: 1px;
-    border-color: #808080;
-  }
-
-  &:active img {
-    transform: translate(1px, 1px);
-  }
-`;
-
-const FaceIcon = styled.img`
-  width: 17px;
-  height: 17px;
-  image-rendering: pixelated;
-`;
-
-const Board = styled.div<{ $cols: number; $rows: number }>`
-  display: grid;
-  grid-template-columns: repeat(${props => props.$cols}, ${CELL_SIZE}px);
-  grid-template-rows: repeat(${props => props.$rows}, ${CELL_SIZE}px);
-  border: 3px solid;
-  border-color: #808080 #f5f5f5 #f5f5f5 #808080;
-  background: #808080;
-  line-height: 0;
-  overflow: hidden;
-`;
-
-const Cell = styled.button<{ $covered: boolean }>`
-  position: relative;
-  display: block;
-  width: ${CELL_SIZE}px;
-  height: ${CELL_SIZE}px;
-  min-width: ${CELL_SIZE}px;
-  max-width: ${CELL_SIZE}px;
-  min-height: ${CELL_SIZE}px;
-  max-height: ${CELL_SIZE}px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  outline: 0;
-  background: #c0c0c0;
-  appearance: none;
-  -webkit-appearance: none;
-  cursor: default;
-  line-height: 0;
-`;
-
-const CoveredBackground = styled.span`
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: ${CELL_SIZE}px;
-  height: ${CELL_SIZE}px;
-  background: #c0c0c0;
-  border: 2px solid;
-  border-color: #f5f5f5 #808080 #808080 #f5f5f5;
-`;
-
-const RevealedBackground = styled.span`
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: ${CELL_SIZE}px;
-  height: ${CELL_SIZE}px;
-  background: #c0c0c0;
-  border-top: 1px solid #808080;
-  border-left: 1px solid #808080;
-`;
-
-const CellIcon = styled.img`
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 16px;
-  height: 16px;
-  image-rendering: pixelated;
-  pointer-events: none;
-`;
-
-const AboutDialog = styled.div`
-  position: absolute;
-  z-index: 30;
-  top: 28px;
-  left: 50%;
-  width: 220px;
-  transform: translateX(-50%);
-  border: 2px solid;
-  border-color: #fff #404040 #404040 #fff;
-  background: #d4d0c8;
-  box-shadow: 2px 2px 1px #646464;
-`;
-
-const AboutTitle = styled.div`
-  padding: 4px 6px;
-  color: #fff;
-  background: linear-gradient(to right, #0997ff, #0053ee);
-  font-weight: bold;
-`;
-
-const AboutContent = styled.div`
-  padding: 16px 14px 12px;
-  white-space: pre-line;
-  line-height: 1.45;
-`;
-
-const AboutActions = styled.div`
-  display: flex;
-  justify-content: center;
-  padding: 0 0 12px;
-`;
-
-const DialogButton = styled.button`
-  min-width: 72px;
-  height: 23px;
-  border: 2px solid;
-  border-color: #fff #404040 #404040 #fff;
-  background: #d4d0c8;
-  font: inherit;
-
-  &:active {
-    border-color: #404040 #fff #fff #404040;
-  }
-`;
+import { useWindowManager } from '../../context/WindowManagerContext';
+import {
+  numberSprites,
+  digitSprites,
+  configs,
+  difficultyKeys,
+  empty,
+  flag,
+  mineCeil,
+  mineDeath,
+  misflagged,
+  question,
+  checked,
+  smile,
+  ohh,
+  dead,
+  win,
+} from './constants';
+import {
+  createBoard,
+  cloneBoard,
+  getNeighbors,
+  placeMines,
+  revealSafeRegion,
+  revealLoss,
+  isWon,
+  flagAllMines,
+  formatCounter,
+} from './game';
+import {
+  Wrap,
+  MenuCheck,
+  GamePanel,
+  ScoreBar,
+  Counter,
+  Digit,
+  FaceOuter,
+  FaceButton,
+  FaceIcon,
+  Board,
+  Cell,
+  CoveredBackground,
+  RevealedBackground,
+  CellIcon,
+  AboutDialog,
+  AboutTitle,
+  AboutContent,
+  AboutActions,
+  DialogButton,
+} from './styled';
+import type { Difficulty, GameStatus, OpenMenu, CellData } from './types';
 
 const Minesweeper = ({ windowId }: { windowId?: string }) => {
   const { t, i18n } = useTranslation();
