@@ -14,7 +14,7 @@ const START_MENU_BY_LOCALE: Record<string, StartMenuProfile> = {
         nameKey: 'startMenu.apps.internetExplorer',
         icon: 'ie',
       },
-      { id: 'qq', action: 'QQLogin', nameKey: 'startMenu.apps.qq', icon: 'qq' },
+      { id: 'qq', action: 'QQ', nameKey: 'startMenu.apps.qq', icon: 'qq' },
     ],
     recent: [
       { id: 'qqmail', action: 'QQMail', nameKey: 'startMenu.apps.qqMail', icon: 'email' },

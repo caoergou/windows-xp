@@ -47,7 +47,18 @@ export type XPEvent =
   | { type: 'screensaver:stop' }
   // Tray notifications (#118)
   | { type: 'notification:show'; id: string; title: string; body?: string }
-  | { type: 'notification:click'; id: string };
+  | { type: 'notification:click'; id: string }
+  // QQ messenger (#119)
+  | { type: 'qq:login' }
+  | { type: 'qq:open'; buddyId?: string }
+  | { type: 'qq:online'; buddyId: string; nickname: string }
+  | {
+      type: 'qq:message';
+      buddyId: string;
+      direction: 'incoming' | 'outgoing';
+      text: string;
+    }
+  | { type: 'qq:reply'; buddyId: string; text: string };
 
 export type XPEventType = XPEvent['type'];
 export type XPEventListener = (event: XPEvent) => void;

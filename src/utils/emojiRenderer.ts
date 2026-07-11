@@ -1,3 +1,5 @@
+import React from 'react';
+
 /**
  * QQ 表情映射表 - 将文本表情转换为 emoji
  * 基于 2015 年左右的 QQ 表情
@@ -147,4 +149,77 @@ export const renderEmojiHTML = (text: string): string => {
     });
 
     return result;
+};
+
+/**
+ * 经典 QQ 表情拼音缩写码（千禧年代真实写法）→ `[中文名]` 方括号码。
+ * 输入层支持 `/wx` 等缩写；数据层保留 `[微笑]` 以便可读。见 docs/QQ-CLASSIC-UI.md §3。
+ */
+const SHORTHAND_MAP: Record<string, string> = {
+    wx: '[微笑]', pz: '[撇嘴]', se: '[色]', fd: '[发呆]', dy: '[得意]',
+    ll: '[流泪]', hx: '[害羞]', bz: '[闭嘴]', shui: '[睡]', dk: '[大哭]',
+    gg: '[尴尬]', fn: '[发怒]', tp: '[调皮]', cy: '[呲牙]', jy: '[惊讶]',
+    ng: '[难过]', ku: '[酷]', lh: '[冷汗]', zk: '[抓狂]', tu: '[吐]',
+    tx: '[偷笑]', ka: '[可爱]', by: '[白眼]', am: '[傲慢]', kel: '[可怜]',
+    qiang: '[强]', ruo: '[弱]', ys: '[拥抱]', hq: '[握手]', bq: '[抱拳]',
+    ok: '[OK]', mg: '[玫瑰]', ax: '[爱心]', dg: '[大哭]',
+};
+
+/** 将 `/wx` 等缩写码规范化为 `[微笑]` 方括号码。 */
+export const normalizeShorthand = (text: string): string => {
+    if (!text) return text;
+    // 匹配 /字母（可含数字），最长优先
+    return text.replace(/\/([a-z]+)/gi, (whole, code: string) => {
+        const mapped = SHORTHAND_MAP[code.toLowerCase()];
+        return mapped ?? whole;
+    });
+};
+
+/** 单个表情 emoji（供渲染层加样式：16px、提高饱和度，逼近经典黄脸观感）。 */
+const EMOTICON_STYLE: React.CSSProperties = {
+    display: 'inline-block',
+    fontSize: '16px',
+    lineHeight: '16px',
+    verticalAlign: 'text-bottom',
+    filter: 'saturate(1.4)',
+};
+
+// 匹配任意已知 `[中文名]` 表情码
+const EMOJI_TOKEN = new RegExp(
+    '(' +
+        Object.keys(EMOJI_MAP)
+            .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .join('|') +
+        ')',
+    'g'
+);
+
+/**
+ * 将消息文本渲染为 React 节点数组：先把 `/wx` 缩写归一化为 `[微笑]`，
+ * 再把 `[微笑]` 等表情码替换为 16px 内联「经典黄脸」（emoji + 饱和度增强，
+ * 遵循 docs/QQ-CLASSIC-UI.md §7 的零图片自绘策略）。纯文本原样保留。
+ *
+ * 这让此前的死代码 emojiRenderer 终于成为活代码（#119）。
+ */
+export const renderMessageNodes = (text: string): React.ReactNode[] => {
+    if (!text) return [];
+    const normalized = normalizeShorthand(text);
+    const parts = normalized.split(EMOJI_TOKEN);
+    const nodes: React.ReactNode[] = [];
+    parts.forEach((part, i) => {
+        if (!part) return;
+        const emoji = EMOJI_MAP[part];
+        if (emoji) {
+            nodes.push(
+                React.createElement(
+                    'span',
+                    { key: i, className: 'qq-emoticon', style: EMOTICON_STYLE, title: part },
+                    emoji
+                )
+            );
+        } else {
+            nodes.push(part);
+        }
+    });
+    return nodes;
 };

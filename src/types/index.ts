@@ -212,6 +212,9 @@ export interface AppRegistryEntry<TProps = unknown> {
     height?: number;
     minWidth?: number;
     minHeight?: number;
+    /** Initial position; omit to center. Useful for tall windows that morph size. */
+    left?: number;
+    top?: number;
     singleton?: boolean;
     isMaximized?: boolean;
     resizable?: boolean;
