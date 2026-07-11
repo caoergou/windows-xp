@@ -351,6 +351,16 @@ function App({
     };
   }, [bootPhase, isLoggedIn, disableScreenSaver, screensaverEnabled]);
 
+  // Announce screensaver start/stop on the bus (#116). Emitting on enter and
+  // cleaning up on leave means the stop always pairs with a preceding start.
+  useEffect(() => {
+    if (bootPhase !== 'SCREENSAVER') return undefined;
+    bus.emit({ type: 'screensaver:start' });
+    return () => {
+      bus.emit({ type: 'screensaver:stop' });
+    };
+  }, [bootPhase, bus]);
+
   const handleBootComplete = () => {
     storage.local.setItem(storage.key('first_boot_done'), 'true');
     storage.local.setItem(storage.key('power_state'), 'running');

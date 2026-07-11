@@ -7,8 +7,9 @@
  * fast and deterministic.
  */
 import React from 'react';
-import { render, act } from '@testing-library/react';
+import { render, act, fireEvent } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import PasswordDialog from '../src/components/PasswordDialog';
 import { XPEventBus, type XPEvent } from '../src/events';
 import { EventBusProvider } from '../src/context/EventBusContext';
 import { WindowManagerProvider, useWindowManagerActions } from '../src/context/WindowManagerContext';
@@ -244,5 +245,132 @@ describe('FileSystem emits mutation events (#76)', () => {
     expect(byType('file:create')).toMatchObject({ name: 'ev.txt', nodeType: 'file' });
     expect(byType('file:rename')).toMatchObject({ oldName: 'ev.txt', newName: 'ev2.txt' });
     expect(byType('file:delete')).toMatchObject({ name: 'ev2.txt' });
+  });
+});
+
+describe('FileSystem emits expanded coverage events (#116)', () => {
+  let fsApi: ReturnType<typeof useFileSystem> | null;
+
+  const mountFs = () => {
+    fsApi = null;
+    const Probe: React.FC = () => {
+      fsApi = useFileSystem();
+      return null;
+    };
+    withBus(
+      <FileSystemProvider>
+        <Probe />
+      </FileSystemProvider>
+    );
+  };
+
+  beforeEach(() => {
+    bus = new XPEventBus();
+    events = [];
+    bus.subscribe(e => events.push(e));
+    localStorage.clear();
+  });
+
+  const byType = (t: string) => events.find(e => e.type === t);
+
+  it('emits file:update on content edit', () => {
+    mountFs();
+    act(() => {
+      fsApi!.createFile([], 'note.txt', 'file', { content: 'a' });
+    });
+    act(() => {
+      fsApi!.updateFile(['note.txt'], { content: 'passphrase' });
+    });
+    // Carries the new content so scenarios can react to what was typed (#116).
+    expect(byType('file:update')).toMatchObject({ path: ['note.txt'], name: 'note.txt', content: 'passphrase' });
+  });
+
+  it('emits folder:delete when a folder is removed', () => {
+    mountFs();
+    act(() => {
+      fsApi!.createFolder([], 'Docs');
+    });
+    act(() => {
+      fsApi!.deleteFolder([], 'Docs');
+    });
+    expect(byType('folder:delete')).toMatchObject({ path: ['Docs'], name: 'Docs' });
+  });
+
+  it('emits file:move and file:copy', () => {
+    mountFs();
+    act(() => {
+      fsApi!.createFolder([], 'Dest');
+      fsApi!.createFile([], 'm.txt', 'file', { content: 'x' });
+      fsApi!.createFile([], 'c.txt', 'file', { content: 'y' });
+    });
+    act(() => {
+      fsApi!.moveFile([], 'm.txt', ['Dest']);
+    });
+    act(() => {
+      fsApi!.copyFile([], 'c.txt', ['Dest']);
+    });
+    expect(byType('file:move')).toMatchObject({ from: ['m.txt'], to: ['Dest', 'm.txt'], name: 'm.txt' });
+    expect(byType('file:copy')).toMatchObject({ from: ['c.txt'], to: ['Dest', 'c.txt'], name: 'c.txt' });
+  });
+
+  it('emits recyclebin:empty', () => {
+    mountFs();
+    act(() => {
+      fsApi!.emptyRecycleBin();
+    });
+    expect(byType('recyclebin:empty')).toBeTruthy();
+  });
+
+  it('emits password:fail with an incrementing attempt count, then file:unlock', () => {
+    mountFs();
+    const locked = { type: 'folder', name: 'Secret', locked: true, password: 'open', children: {} } as never;
+    act(() => {
+      fsApi!.checkAccess(locked, 'wrong');
+    });
+    act(() => {
+      fsApi!.checkAccess(locked, 'nope');
+    });
+    act(() => {
+      fsApi!.checkAccess(locked, 'open');
+    });
+    const fails = events.filter(e => e.type === 'password:fail');
+    expect(fails).toHaveLength(2);
+    expect(fails[0]).toMatchObject({ name: 'Secret', attempt: 1 });
+    expect(fails[1]).toMatchObject({ name: 'Secret', attempt: 2 });
+    expect(byType('file:unlock')).toMatchObject({ name: 'Secret' });
+  });
+});
+
+describe('PasswordDialog fires onFail on each wrong entry (#116)', () => {
+  it('calls onFail when the entered password is incorrect, not on cancel', () => {
+    const onFail = vi.fn();
+    const onSuccess = vi.fn();
+    const onCancel = vi.fn();
+    const { getByPlaceholderText, getByText } = render(
+      <PasswordDialog
+        correctPassword="open"
+        onSuccess={onSuccess}
+        onCancel={onCancel}
+        onFail={onFail}
+      />
+    );
+    const input = getByPlaceholderText(/./) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'wrong' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onFail).toHaveBeenCalledTimes(1);
+    expect(onSuccess).not.toHaveBeenCalled();
+
+    // A second wrong attempt fires again (the dialog stayed open).
+    fireEvent.change(input, { target: { value: 'nope' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onFail).toHaveBeenCalledTimes(2);
+
+    // The correct password succeeds without another onFail.
+    fireEvent.change(input, { target: { value: 'open' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onFail).toHaveBeenCalledTimes(2);
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+
+    void getByText;
   });
 });

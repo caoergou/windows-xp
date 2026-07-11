@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useWindowManager } from '../../context/WindowManagerContext';
 import { useCulture } from '../../context/CultureContext';
+import { useXPEventBus } from '../../context/EventBusContext';
 import { useTranslation } from 'react-i18next';
 import IEToolbar from '../../components/Explorer/IEToolbar';
 import IEAddressBar from '../../components/Explorer/IEAddressBar';
@@ -25,6 +26,7 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
   const { openWindow } = useWindowManager();
   const { t } = useTranslation();
   const { culture } = useCulture();
+  const bus = useXPEventBus();
   const homepage = culture.browser?.homepage ?? 'about:blank';
 
   const openNewIE = useCallback(
@@ -75,13 +77,14 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
       }
       rawNavigateTo(newUrl, newHtml ?? null);
       addToHistory(newUrl);
+      bus.emit({ type: 'ie:navigate', url: newUrl });
       setIsLoading(true);
       const shortUrl = newUrl
         .replace(/^https?:\/\//, '')
         .replace(/^web\.archive\.org\/web\/\d+[a-z_]*\//, '');
       setStatusText(`${t('internetExplorer.status.opening')} ${shortUrl}...`);
     },
-    [pushErrorEntry, rawNavigateTo, addToHistory, t]
+    [pushErrorEntry, rawNavigateTo, addToHistory, t, bus]
   );
 
   useEffect(() => {

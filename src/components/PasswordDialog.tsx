@@ -68,6 +68,8 @@ interface PasswordDialogProps {
   correctPassword: string;
   onSuccess: () => void;
   onCancel: () => void;
+  /** Fires on each incorrect entry; the dialog stays open for another try (#116). */
+  onFail?: () => void;
 }
 
 const PasswordDialog = ({
@@ -77,6 +79,7 @@ const PasswordDialog = ({
   correctPassword,
   onSuccess,
   onCancel,
+  onFail,
 }: PasswordDialogProps) => {
   const { t } = useTranslation();
   const dialogTitle = title || t('passwordDialog.defaultTitle');
@@ -97,6 +100,7 @@ const PasswordDialog = ({
       onSuccess();
     } else {
       sounds.error();
+      onFail?.();
       setError(t('passwordDialog.incorrectError'));
       setPassword('');
       inputRef.current?.focus();
