@@ -175,6 +175,12 @@
     "close": "Close"
   },
   "explorer": {
+    "details": {
+      "name": "Name",
+      "size": "Size",
+      "type": "Type",
+      "dateModified": "Date Modified"
+    },
     "file": "File",
     "edit": "Edit",
     "view": "View",

@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (Explorer Details view, #120)
+
+- **Explorer view switcher with a sortable Details view** (EXP-02, the
+  highest-perceptibility Explorer gap): the toolbar "Views" button and the
+  View menu now switch between the Icons grid and a **Details** table with
+  Name / Size / Type / Date-modified columns (click a header to sort). The
+  chosen view is persisted per instance via `useStorage`. Rows support
+  selection, double-click-to-open, context menu and the #87 keyboard ops.
+  Covered by `e2e/explorer.spec.ts`. FIDELITY EXP-02 → 🟡 (Thumbnails/Tiles/
+  List and the Folders tree pane / address-history dropdown remain for a
+  follow-up batch; EXP-03/04 keyboard already shipped in #87).
+
 ## [0.3.0] - 2026-07-11
 
 This release turns the XP desktop into an **embeddable, scriptable engine** — an

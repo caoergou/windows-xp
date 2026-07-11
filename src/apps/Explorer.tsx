@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useXPEventBus } from '../context/EventBusContext';
+import { useStorage } from '../context/StorageContext';
 import { useApp } from '../hooks/useApp';
 import XPIcon from '../components/XPIcon';
 import { getFileIconName } from '../utils/fileIcon';
@@ -12,7 +13,7 @@ import AddressBar from '../components/Explorer/AddressBar';
 import ContextMenu from '../components/ContextMenu';
 import FileProperties from '../components/FileProperties';
 import { xpScrollbarStyles } from '../theme';
-import { FileNode, MenuItem, isContainerNode } from '../types';
+import { FileNode, MenuItem, isContainerNode, isFileContentNode } from '../types';
 import { getFileDisplayName } from '../utils/fileDisplayName';
 import {
   getSystemPathDisplay,
@@ -26,6 +27,59 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+`;
+
+/* ── Details view (#120, EXP-02) ── */
+const DetailsTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  table-layout: fixed;
+`;
+
+const DetailsHeadCell = styled.th`
+  text-align: left;
+  font-weight: normal;
+  background: linear-gradient(to bottom, #ffffff 0%, #f2f1ea 45%, #e7e5d8 100%);
+  border-right: 1px solid #d5d2c6;
+  border-bottom: 1px solid #aca899;
+  padding: 2px 6px;
+  height: 18px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    background: linear-gradient(to bottom, #ffffff 0%, #eef4fb 45%, #dce9f8 100%);
+  }
+`;
+
+const DetailsRow = styled.tr<{ $selected?: boolean }>`
+  background: ${p => (p.$selected ? '#316AC5' : 'transparent')};
+  color: ${p => (p.$selected ? '#fff' : '#000')};
+  cursor: default;
+
+  &:hover {
+    background: ${p => (p.$selected ? '#316AC5' : '#e6effc')};
+  }
+`;
+
+const DetailsCell = styled.td`
+  padding: 1px 6px;
+  height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid transparent;
+`;
+
+const DetailsNameCell = styled(DetailsCell)`
+  display: flex;
+  align-items: center;
+  gap: 5px;
 `;
 
 const MainContent = styled.div`
@@ -147,7 +201,7 @@ interface ExplorerProps {
 }
 
 const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     getFile,
     createFile,
@@ -164,6 +218,23 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
   } = useFileSystem();
   const bus = useXPEventBus();
   const api = useApp(windowId);
+  const storage = useStorage();
+
+  // View mode (#120, EXP-02): 'icons' (the default grid) or 'details' (sortable
+  // columns). Persisted per instance so it survives refresh.
+  const viewStorageKey = storage.key('explorer_view');
+  const [viewMode, setViewMode] = useState<'icons' | 'details'>(() =>
+    storage.local.getItem(viewStorageKey) === 'details' ? 'details' : 'icons'
+  );
+  const [sort, setSort] = useState<{ key: 'name' | 'size' | 'type' | 'modified'; dir: 'asc' | 'desc' }>(
+    { key: 'name', dir: 'asc' }
+  );
+  const changeView = (mode: 'icons' | 'details') => {
+    setViewMode(mode);
+    storage.local.setItem(viewStorageKey, mode);
+  };
+  const toggleSort = (key: 'name' | 'size' | 'type' | 'modified') =>
+    setSort(prev => (prev.key === key ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' }));
 
   const [history, setHistory] = useState<string[][]>([initialPath]);
   const [historyIndex, setHistoryIndex] = useState(0);
@@ -358,7 +429,99 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     }
 
     // Standard Folder View
+    if (viewMode === 'details') return renderDetailsView(children);
     return <IconsGrid>{children.map(([key, item]) => renderFileItem(key, item))}</IconsGrid>;
+  };
+
+  // Details view (#120, EXP-02): sortable Name / Size / Type / Date columns.
+  const nodeSizeBytes = (item: FileNode): number | null =>
+    isContainerNode(item) ? null : isFileContentNode(item) && item.content ? item.content.length : 0;
+  const nodeTypeLabel = (item: FileNode): string =>
+    item.type === 'folder'
+      ? t('explorer.types.folder')
+      : t('explorer.types.file');
+  const formatBytes = (bytes: number | null): string =>
+    bytes === null ? '' : t('fileProperties.bytes', { count: bytes });
+  const detailsDate = () => {
+    const d = new Date('2003-10-25');
+    return new Intl.DateTimeFormat(i18n.language, {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+    }).format(d);
+  };
+
+  const renderDetailsView = (children: [string, FileNode][]) => {
+    const sorted = [...children].sort(([ka, a], [kb, b]) => {
+      const dir = sort.dir === 'asc' ? 1 : -1;
+      if (sort.key === 'size') {
+        return ((nodeSizeBytes(a) ?? -1) - (nodeSizeBytes(b) ?? -1)) * dir;
+      }
+      if (sort.key === 'type') {
+        return nodeTypeLabel(a).localeCompare(nodeTypeLabel(b)) * dir;
+      }
+      // name (default) — modified is a constant date, so it falls back to name.
+      return getFileDisplayName(ka, a, t).localeCompare(getFileDisplayName(kb, b, t)) * dir;
+    });
+    const arrow = (key: typeof sort.key) => (sort.key === key ? (sort.dir === 'asc' ? ' ▲' : ' ▼') : '');
+    return (
+      <DetailsTable role="table">
+        <colgroup>
+          <col style={{ width: '45%' }} />
+          <col style={{ width: '18%' }} />
+          <col style={{ width: '22%' }} />
+          <col style={{ width: '15%' }} />
+        </colgroup>
+        <thead>
+          <tr>
+            <DetailsHeadCell onClick={() => toggleSort('name')}>
+              {t('explorer.details.name')}
+              {arrow('name')}
+            </DetailsHeadCell>
+            <DetailsHeadCell onClick={() => toggleSort('size')}>
+              {t('explorer.details.size')}
+              {arrow('size')}
+            </DetailsHeadCell>
+            <DetailsHeadCell onClick={() => toggleSort('type')}>
+              {t('explorer.details.type')}
+              {arrow('type')}
+            </DetailsHeadCell>
+            <DetailsHeadCell onClick={() => toggleSort('modified')}>
+              {t('explorer.details.dateModified')}
+              {arrow('modified')}
+            </DetailsHeadCell>
+          </tr>
+        </thead>
+        <tbody>
+          {sorted.map(([key, item]) => {
+            const displayName = getFileDisplayName(key, item, t);
+            const isSelected = selectedItem !== null && selectedItem.key === key;
+            return (
+              <DetailsRow
+                key={key}
+                data-testid={`file-row-${key}`}
+                $selected={isSelected}
+                onClick={() => setSelectedItem({ name: displayName, type: item.type, key })}
+                onDoubleClick={() => handleNavigate(key)}
+                onContextMenu={e => handleContextMenu(e, key, item)}
+              >
+                <DetailsNameCell>
+                  <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={16} />
+                  <span
+                    style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                  >
+                    {displayName}
+                  </span>
+                </DetailsNameCell>
+                <DetailsCell>{formatBytes(nodeSizeBytes(item))}</DetailsCell>
+                <DetailsCell>{nodeTypeLabel(item)}</DetailsCell>
+                <DetailsCell>{detailsDate()}</DetailsCell>
+              </DetailsRow>
+            );
+          })}
+        </tbody>
+      </DetailsTable>
+    );
   };
 
   const handleContextMenu = (e: React.MouseEvent, key: string, item: FileNode) => {
@@ -682,9 +845,12 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
         onBack={handleBack}
         onForward={handleForward}
         onUp={handleUp}
+        onRefresh={() => setRefreshKey(k => k + 1)}
         canGoBack={historyIndex > 0}
         canGoForward={historyIndex < history.length - 1}
         canGoUp={currentPath.length > 0}
+        view={viewMode}
+        onViewChange={changeView}
       />
       <AddressBar address={address} onAddressChange={setAddress} onGo={handleAddressGo} />
       <MainContent>

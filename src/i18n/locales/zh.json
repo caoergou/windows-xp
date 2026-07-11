@@ -169,6 +169,12 @@
     "close": "关闭"
   },
   "explorer": {
+    "details": {
+      "name": "名称",
+      "size": "大小",
+      "type": "类型",
+      "dateModified": "修改日期"
+    },
     "file": "文件",
     "edit": "编辑",
     "view": "查看",
