@@ -16,6 +16,13 @@ All notable changes to this project will be documented in this file.
   the handler ignores keystrokes while typing or while a window/dialog is
   focused. Covered by a new `e2e/keyboard.spec.ts`. FIDELITY DSK-03/04/05 and
   KBD-03 move to ✅.
+- **Explorer keyboard operations** (EXP-03/04): inside a file window,
+  **Backspace** navigates up one level (the XP-native shortcut, distinct from
+  "Back"), **F5** refreshes the view, **F2** renames the selected item, and
+  **Delete** moves it to the Recycle Bin. The file window takes focus on click so
+  these keys target it, and the handler ignores keystrokes while the address bar
+  is being edited. Covered by new Explorer cases in `e2e/keyboard.spec.ts`.
+  FIDELITY EXP-03/04 move to ✅.
 
 ### Added (component library primitives, closes #78)
 
