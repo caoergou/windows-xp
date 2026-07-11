@@ -157,10 +157,7 @@ export const sounds = {
   },
 };
 
-// Backwards-compatible alias for code that expects a single `play(name)` helper
-export const play = (name: keyof typeof sounds) => {
-  const sound = sounds[name];
-  if (sound) {
-    sound();
-  }
+/** Play a named system sound by key (used by the imperative XPHandle). */
+export const playSound = (name: keyof typeof sounds) => {
+  sounds[name]?.();
 };

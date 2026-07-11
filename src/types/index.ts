@@ -254,6 +254,3 @@ export interface MenuItem {
   shortcut?: string;
   submenu?: MenuItem[];
 }
-
-// 文件别名（兼容旧代码）
-export type FileItem = FileNode;
