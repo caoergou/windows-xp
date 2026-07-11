@@ -193,5 +193,13 @@ export type { FileSystemMode } from '../context/FileSystemContext';
 export type { ModalContextType } from '../context/ModalContext';
 export type { TrayItem, TrayContextType } from '../context/TrayContext';
 export type { XPEvent, XPEventType, XPEventListener } from '../events';
-export type { XPHandle } from '../components/XPBridge';
+export type {
+  XPHandle,
+  XPFsApi,
+  XPSessionApi,
+  XPAppearanceApi,
+  XPWindowsApi,
+  XPWindowInfo,
+} from '../components/XPBridge';
 export { useXPEvents, useXPEventBus } from '../context/EventBusContext';
+export { EventBusProvider } from '../context/EventBusContext';

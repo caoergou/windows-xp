@@ -114,6 +114,8 @@ interface FileSystemContextType {
   clipboard: ClipboardItem | null;
   getFile: (path: string[]) => FileNode | null;
   checkAccess: (node: FileNode, passwordInput: string) => boolean;
+  /** Persistently clear a node's `locked` flag (host/scenario-driven unlock). */
+  unlockNode: (path: string[]) => void;
   updateFile: (path: string[], updates: Partial<FileNode>) => void;
   createFile: (
     parentPath: string[],
@@ -405,6 +407,19 @@ export const FileSystemProvider: React.FC<{
     [bus]
   );
 
+  // Persistently clear `locked` on a node and announce it (#115). Unlike
+  // checkAccess this is a host/scenario-driven force-unlock (no password),
+  // and it mutates the tree so the unlock survives reload.
+  const unlockNode = useCallback(
+    (path: string[]) => {
+      const node = getFile(path);
+      if (!node || !node.locked) return;
+      fileOperations.updateFile(path, { locked: false });
+      bus.emit({ type: 'file:unlock', name: node.name });
+    },
+    [getFile, fileOperations, bus]
+  );
+
   const copyToClipboard = useCallback((sourcePath: string[], fileName: string | string[]) => {
     const fileNames = Array.isArray(fileName) ? fileName : [fileName];
     setClipboard({
@@ -536,6 +551,7 @@ export const FileSystemProvider: React.FC<{
     clipboard,
     getFile,
     checkAccess,
+    unlockNode,
     updateFile: fileOperations.updateFile,
     createFile,
     createFolder: createFolderEmitting,

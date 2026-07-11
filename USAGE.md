@@ -473,11 +473,66 @@ Emitted event types include: `app:launch` / `app:close`, `window:focus` /
 `session:shutdown`, and `cmd:exec`. Each carries a typed payload (see the
 `XPEvent` union).
 
-The imperative `XPHandle` (via `ref`) exposes `openApp(appId, props?)`,
-`openFile(path)`, `closeWindow(id)`, `showAlert(title, message)` and `reset()`.
+The imperative `XPHandle` (via `ref`) exposes the top-level `openApp(appId, props?)`,
+`openFile(path)`, `closeWindow(id)`, `showAlert(title, message)` and `reset()`,
+plus grouped actuation APIs (#115):
+
+- `fs`: `readFile(path)`, `writeFile(path, content)`, `createFile(path, node?)`, `deleteFile(path)`, `getNode(path)`, `exists(path)`, `unlockNode(path)`
+- `session`: `login(password?)`, `logout()`, `shutdown()`, `restart()`
+- `appearance`: `setWallpaper(idOrUrl)`, `setLanguage(lang)`
+- `windows`: `list()`, `focus(id)`, `minimize(id)`, `maximize(id)`, `restore(id)`
+- `sound.play(name)` and `emit(event)` (inject onto the same bus `onEvent` and scenario triggers read)
+
+`reset()` clears **both** storage layers (localStorage + IndexedDB file
+contents) for the instance's `storagePrefix`, then reloads.
 
 Inside the tree (custom apps), use the `useXPEvents(listener)` hook to
 subscribe without prop-drilling.
+
+### Driving the desktop from the host
+
+With only a `ref` — no custom apps, no context access — a host can plant a
+clue file and react when the player opens it (the core ARG loop):
+
+```jsx
+import { useRef, useEffect } from 'react';
+import { WindowsXP } from '@caoergou/windows-xp';
+import type { XPHandle, XPEvent } from '@caoergou/windows-xp';
+
+function Arg() {
+  const xp = useRef<XPHandle>(null);
+
+  // Plant the first file + a locked folder once the desktop has mounted.
+  useEffect(() => {
+    xp.current?.fs.createFile(['diary.txt'], { type: 'file', app: 'Notepad', content: '…' });
+    xp.current?.fs.createFile(['vault'], { type: 'folder', locked: true, password: 'BLISS' });
+  }, []);
+
+  return (
+    <WindowsXP
+      ref={xp}
+      autoLogin
+      onEvent={(e: XPEvent) => {
+        // The player opened the locked diary → drop the next clue.
+        if (e.type === 'file:open' && e.name === 'diary.txt') {
+          xp.current?.fs.createFile(['clue2.txt'], {
+            type: 'file',
+            app: 'Notepad',
+            content: 'The password is BLISS',
+          });
+        }
+      }}
+    />
+  );
+}
+```
+
+Later, unlock the folder programmatically and theme the desktop:
+
+```jsx
+xp.current?.fs.unlockNode(['vault']);
+xp.current?.appearance.setWallpaper('bliss');
+```
 
 ## Embedding in a host app
 
