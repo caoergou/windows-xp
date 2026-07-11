@@ -307,6 +307,41 @@ xp.current?.fs.unlockNode(['vault']);
 xp.current?.appearance.setWallpaper('bliss');
 ```
 
+### Save / load a snapshot ("share your save")
+
+`getSnapshot()` captures the whole instance — filesystem (with file contents),
+recycle bin, open windows, wallpaper, language, and a reserved `flags` slot —
+as a portable, versioned `XPSnapshot` JSON object. `loadSnapshot()` replaces
+this instance's state with a snapshot and reloads to rehydrate. Snapshots move
+between machines/browsers, so a player can share a save or an author can ship a
+checkpoint (#117).
+
+```jsx
+import type { XPSnapshot } from '@caoergou/windows-xp';
+
+// Export: download the current desktop as a .json file.
+function downloadSave(xp) {
+  const snapshot = xp.current.getSnapshot();
+  const blob = new Blob([JSON.stringify(snapshot)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'my-desktop.xpsave.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Import: load a save file (reloads to apply).
+async function uploadSave(xp, file) {
+  const snapshot = JSON.parse(await file.text());
+  await xp.current.loadSnapshot(snapshot); // throws XPSnapshotVersionError if too new
+}
+```
+
+Loading a snapshot whose `version` is newer than the running build throws
+`XPSnapshotVersionError` (exported) rather than corrupting state — so guard the
+import with a `try/catch` and surface a "please update" message.
+
 ## Embedding in a host app
 
 ```jsx

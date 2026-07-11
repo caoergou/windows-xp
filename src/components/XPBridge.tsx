@@ -9,7 +9,8 @@ import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
 import { useAppRegistry } from '../context/AppRegistryContext';
 import { isContainerNode, isFileContentNode, type FileNode } from '../types';
 import { canUseDOM } from '../utils/storage';
-import { saveLanguage } from '../utils/language';
+import { saveLanguage, getSavedLanguage } from '../utils/language';
+import { XP_SNAPSHOT_VERSION, assertLoadableSnapshot, type XPSnapshot } from '../snapshot';
 import { sounds, play as playSound } from '../utils/soundManager';
 import i18n from '../i18n';
 import type { XPEvent, XPEventListener } from '../events';
@@ -93,6 +94,13 @@ export interface XPHandle {
   sound: { play: (name: string) => void };
   /** Inject an event onto the same bus `onEvent` and scenario triggers read. */
   emit: (event: XPEvent) => void;
+  /** Capture the full desktop state as a portable, versioned snapshot (#117). */
+  getSnapshot: () => XPSnapshot;
+  /**
+   * Replace this instance's state with a snapshot and reload to rehydrate.
+   * Throws {@link XPSnapshotVersionError} for a missing/too-new version.
+   */
+  loadSnapshot: (snapshot: XPSnapshot) => Promise<void>;
 }
 
 /** Subscribes the host's onEvent callback to the bus. Renders nothing. */
@@ -120,8 +128,11 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
       deleteFile: fsDeleteFile,
       deleteFolder,
       unlockNode,
+      getFsSnapshot,
+      getRecycleBinItems,
+      loadFsSnapshot,
     } = useFileSystem();
-    const { login, logout, setWallpaper } = useUserSession();
+    const { login, logout, setWallpaper, wallpaper } = useUserSession();
     const { dialog } = useModal();
     const { registry } = useAppRegistry();
     const bus = useXPEventBus();
@@ -249,6 +260,39 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
           sound: { play: name => playSound(name as Parameters<typeof playSound>[0]) },
 
           emit: event => bus.emit(event),
+
+          getSnapshot: (): XPSnapshot => {
+            let openWindows: unknown[] = [];
+            try {
+              const raw = storage.local.getItem(storage.key('open_windows'));
+              if (raw) openWindows = JSON.parse(raw);
+            } catch (e) {
+              console.warn('[windows-xp] getSnapshot: open_windows parse failed', e);
+            }
+            return {
+              version: XP_SNAPSHOT_VERSION,
+              fs: getFsSnapshot(),
+              recycleBin: getRecycleBinItems(),
+              openWindows,
+              wallpaper: wallpaper ?? null,
+              language: getSavedLanguage(),
+              flags: {},
+            };
+          },
+
+          loadSnapshot: async (snapshot: XPSnapshot) => {
+            assertLoadableSnapshot(snapshot);
+            await loadFsSnapshot(snapshot.fs, snapshot.recycleBin ?? {});
+            storage.local.setItem(
+              storage.key('open_windows'),
+              JSON.stringify(snapshot.openWindows ?? [])
+            );
+            if (snapshot.wallpaper) {
+              storage.local.setItem(storage.key('wallpaper'), snapshot.wallpaper);
+            }
+            if (snapshot.language) saveLanguage(snapshot.language);
+            if (canUseDOM) window.location.reload();
+          },
         };
       },
       [
@@ -264,9 +308,13 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
         fsDeleteFile,
         deleteFolder,
         unlockNode,
+        getFsSnapshot,
+        getRecycleBinItems,
+        loadFsSnapshot,
         login,
         logout,
         setWallpaper,
+        wallpaper,
         dialog,
         registry,
         bus,
