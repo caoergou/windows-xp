@@ -16,7 +16,7 @@ const LinkItem = ({ href, children, onNav }: LinkItemProps) => (
     style={{ color: '#1843C5', textDecoration: 'none', fontSize: 12 }}
     onClick={e => {
       e.preventDefault();
-      onNav && onNav(href);
+      onNav?.(href);
     }}
   >
     {children}
