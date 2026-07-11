@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (behavior fidelity — keyboard batch, #87)
+
+- **Ctrl+Esc opens the Start menu** (KBD-03) — the XP-native Win-key equivalent
+  the browser doesn't intercept.
+- **Desktop keyboard operations** (DSK-03/04/05): with the desktop focused,
+  **F2** renames the selected icon, **Delete** moves it to the Recycle Bin (with
+  the usual confirm), **Enter** opens the selection, **Ctrl+A** selects all, and
+  the **arrow keys** move the selection. Clicking the desktop or an icon now
+  focuses the desktop so these keys target it even right after using a window;
+  the handler ignores keystrokes while typing or while a window/dialog is
+  focused. Covered by a new `e2e/keyboard.spec.ts`. FIDELITY DSK-03/04/05 and
+  KBD-03 move to ✅.
+
 ### Added (component library primitives, closes #78)
 
 - **Standalone `XPDialog`**: a provider-free, XP-styled dialog (Luna title bar +

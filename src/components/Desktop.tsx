@@ -235,6 +235,7 @@ const Desktop: React.FC = () => {
     if (e.button !== 0) return;
 
     e.preventDefault();
+    containerRef.current?.focus(); // desktop owns keyboard input (#87)
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
 
@@ -553,10 +554,88 @@ const Desktop: React.FC = () => {
 
   const activeMenuItems = buildIconMenuItems(resolveMenuKeys(contextMenu.iconKey));
 
+  // Desktop keyboard operations (#87 DSK-03/04/05): F2 rename, Delete → recycle,
+  // Enter open, Ctrl+A select all, arrow keys move the selection. Only when the
+  // desktop has focus — never while typing or when a window/dialog is focused.
+  // Latest values are read through a ref so the window listener stays mounted
+  // once (no per-render re-subscribe, no stale closures).
+  const keyOpsRef = useRef({
+    rootChildren,
+    selectedIcons,
+    contextMenuVisible: contextMenu.visible,
+    handleIconDelete,
+    handleIconRename,
+    handleOpenSelection,
+  });
+  keyOpsRef.current = {
+    rootChildren,
+    selectedIcons,
+    contextMenuVisible: contextMenu.visible,
+    handleIconDelete,
+    handleIconRename,
+    handleOpenSelection,
+  };
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const ae = document.activeElement as HTMLElement | null;
+      if (ae) {
+        const tag = ae.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || ae.isContentEditable) return;
+        if (ae.closest('[data-xp-context-boundary]')) return; // a window/dialog is focused
+      }
+      const ops = keyOpsRef.current;
+      if (ops.contextMenuVisible) return;
+
+      const keys = Object.keys(ops.rootChildren);
+      if (keys.length === 0) return;
+
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
+        e.preventDefault();
+        setSelectedIcons(new Set(keys));
+        return;
+      }
+
+      const selectedArr = Array.from(ops.selectedIcons);
+
+      if (e.key === 'Delete') {
+        if (selectedArr.length === 0) return;
+        e.preventDefault();
+        ops.handleIconDelete(selectedArr[0]);
+      } else if (e.key === 'F2') {
+        if (selectedArr.length !== 1) return;
+        e.preventDefault();
+        ops.handleIconRename(selectedArr[0]);
+      } else if (e.key === 'Enter') {
+        if (selectedArr.length === 0) return;
+        e.preventDefault();
+        ops.handleOpenSelection(selectedArr);
+      } else if (
+        e.key === 'ArrowUp' ||
+        e.key === 'ArrowDown' ||
+        e.key === 'ArrowLeft' ||
+        e.key === 'ArrowRight'
+      ) {
+        e.preventDefault();
+        const cur = selectedArr.length ? keys.indexOf(selectedArr[selectedArr.length - 1]) : -1;
+        const forward = e.key === 'ArrowDown' || e.key === 'ArrowRight';
+        let next: number;
+        if (cur < 0) next = 0;
+        else if (forward) next = Math.min(keys.length - 1, cur + 1);
+        else next = Math.max(0, cur - 1);
+        setSelectedIcons(new Set([keys[next]]));
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   return (
     <DesktopContainer
       ref={containerRef}
       data-testid="desktop"
+      tabIndex={-1}
+      style={{ outline: 'none' }}
       $bgUrl={desktopBg}
       onContextMenu={handleContextMenu}
       onClick={(e) => {
@@ -596,6 +675,9 @@ const Desktop: React.FC = () => {
               title={displayName}
               onClick={(e) => {
                 e.stopPropagation();
+                // Focus the desktop so keyboard ops (F2/Del/Enter…) target it,
+                // even right after interacting with a window (#87).
+                containerRef.current?.focus();
                 if (suppressClickClearRef.current) {
                   suppressClickClearRef.current = false;
                   return;
