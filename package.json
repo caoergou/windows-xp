@@ -70,6 +70,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\"",
     "size:check": "node scripts/check-size.mjs",
+    "docs:events": "node scripts/gen-events-doc.mjs",
+    "docs:events:check": "node scripts/gen-events-doc.mjs --check",
     "prepublishOnly": "npm run lint && npm run typecheck && npm run guard:nocheck && npm run test -- --run && npm run build:lib && npm run size:check"
   },
   "keywords": [

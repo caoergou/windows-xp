@@ -226,16 +226,47 @@ function App() {
 }
 ```
 
-**Event types** (typed payloads on the `XPEvent` union):
-`app:launch` / `app:close` · `window:focus` / `window:minimize` /
-`window:maximize` / `window:restore` · `file:open` / `file:create` /
-`file:update` / `file:delete` / `file:rename` / `file:move` / `file:copy` /
-`file:restore` / `file:unlock` / `folder:delete` / `recyclebin:empty` ·
-`password:fail` · `session:login` / `session:login-fail` / `session:logout` /
-`session:boot-complete` / `session:shutdown` · `cmd:exec` · `ie:navigate` ·
-`wallpaper:change` / `screensaver:start` / `screensaver:stop` ·
-`notification:show` / `notification:click`. (Naming conventions and a
-timer/scheduler subsystem are tracked in #130.)
+**Event types** (typed payloads on the `XPEvent` union). The catalog below is
+generated from `src/events.ts`; the naming grammar, domain list and payload
+conventions live in [`docs/EVENTS.md`](docs/EVENTS.md).
+
+<!-- EVENTS:START -->
+
+| Event | Payload | Description |
+| --- | --- | --- |
+| `app:launch` | `appId`, `windowId`, `title` | An application window was opened. |
+| `app:close` | `appId`, `windowId` | An application window was closed. |
+| `window:focus` | `windowId`, `appId` | A window gained focus (was brought to the front). |
+| `window:minimize` | `windowId`, `appId` | A window was minimized to the taskbar. |
+| `window:maximize` | `windowId`, `appId` | A window was maximized. |
+| `window:restore` | `windowId`, `appId` | A window was restored from a minimized/maximized state. |
+| `file:open` | `path`, `name`, `nodeType`, `app?` | A file or folder was opened (double-clicked / launched). |
+| `file:create` | `path`, `name`, `nodeType` | A file or folder was created. |
+| `file:update` | `path`, `name`, `content?` | A file's properties were edited; `content` is present when its text changed (the "player typed the passphrase" puzzle beat). |
+| `file:delete` | `path`, `name` | A file was deleted (moved to the Recycle Bin). |
+| `file:rename` | `path`, `oldName`, `newName` | A file or folder was renamed. |
+| `file:move` | `from`, `to`, `name` | A file was moved (cut+paste or drag) from `from` to `to`. |
+| `file:copy` | `from`, `to`, `name` | A file was copied from `from` to `to`. |
+| `file:restore` | `name` | A file was restored from the Recycle Bin. |
+| `file:unlock` | `name` | A locked node was unlocked (correct password, or a host/scenario force-unlock). |
+| `folder:delete` | `path`, `name` | A folder was deleted (files emit `file:delete`; folders emit this). |
+| `recyclebin:empty` | — | The Recycle Bin was emptied. |
+| `password:fail` | `path`, `name`, `attempt` | A wrong password was entered for a locked node; `attempt` counts consecutive failures. |
+| `session:login` | — | The user logged in successfully. |
+| `session:login-fail` | — | A login attempt failed (wrong password). |
+| `session:logout` | — | The user logged out. |
+| `session:boot-complete` | — | The desktop finished booting and is interactive. |
+| `session:shutdown` | `mode` | The machine was shut down, restarted, or logged out via the Start menu. |
+| `cmd:exec` | `command` | A command was executed in the Command Prompt. |
+| `ie:navigate` | `url` | Internet Explorer navigated to a URL. |
+| `wallpaper:change` | `wallpaper` | The desktop wallpaper was changed (`wallpaper` is the id or URL). |
+| `screensaver:start` | — | The screensaver started. |
+| `screensaver:stop` | — | The screensaver was dismissed. |
+| `notification:show` | `id`, `title`, `body?` | A tray notification balloon was shown. |
+
+_Generated from `src/events.ts` by `npm run docs:events` — do not edit by hand._
+
+<!-- EVENTS:END -->
 
 **The `XPHandle`** (via `ref`) exposes the top-level `openApp(appId, props?)`,
 `openFile(path)`, `closeWindow(id)`, `showAlert(title, message)` and

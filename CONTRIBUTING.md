@@ -61,5 +61,10 @@ this repository + workflow.)
      suites under `test/` — extend them rather than shipping untested changes.
 4. When changing UI interactions or styles, check and update the matching
    entry in `FIDELITY.md` (the XP fidelity baseline).
-5. Ensure all CI checks pass.
-6. Update this guide if you change the development workflow.
+5. **New user-visible interaction → register an event per the spec.** The event
+   catalog (`src/events.ts`) is public API for scenario authors. Follow the
+   `domain:action` grammar and payload rules in
+   [`docs/EVENTS.md`](docs/EVENTS.md), then run `npm run docs:events` to
+   regenerate the USAGE reference table — CI fails if it drifts.
+6. Ensure all CI checks pass.
+7. Update this guide if you change the development workflow.
