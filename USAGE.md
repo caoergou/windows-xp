@@ -229,11 +229,13 @@ function App() {
 **Event types** (typed payloads on the `XPEvent` union):
 `app:launch` / `app:close` · `window:focus` / `window:minimize` /
 `window:maximize` / `window:restore` · `file:open` / `file:create` /
-`file:delete` / `file:rename` / `file:restore` / `file:unlock` ·
-`session:login` / `session:logout` / `session:boot-complete` /
-`session:shutdown` · `cmd:exec`. (Coverage expansion — content edits,
-move/copy, password failures, IE navigation — is tracked in #116; naming
-conventions and timers in #130.)
+`file:update` / `file:delete` / `file:rename` / `file:move` / `file:copy` /
+`file:restore` / `file:unlock` / `folder:delete` / `recyclebin:empty` ·
+`password:fail` · `session:login` / `session:login-fail` / `session:logout` /
+`session:boot-complete` / `session:shutdown` · `cmd:exec` · `ie:navigate` ·
+`wallpaper:change` / `screensaver:start` / `screensaver:stop` ·
+`notification:show` / `notification:click`. (Naming conventions and a
+timer/scheduler subsystem are tracked in #130.)
 
 **The `XPHandle`** (via `ref`) exposes the top-level `openApp(appId, props?)`,
 `openFile(path)`, `closeWindow(id)`, `showAlert(title, message)` and

@@ -18,17 +18,33 @@ export type XPEvent =
   // Virtual filesystem
   | { type: 'file:open'; path: string[]; name: string; nodeType: string; app?: string }
   | { type: 'file:create'; path: string[]; name: string; nodeType: 'file' | 'folder' }
+  // `content` is present when the edit changed file text — the puzzle-relevant
+  // payload ("did the player type the passphrase into this Notepad file?").
+  | { type: 'file:update'; path: string[]; name: string; content?: string }
   | { type: 'file:delete'; path: string[]; name: string }
   | { type: 'file:rename'; path: string[]; oldName: string; newName: string }
+  | { type: 'file:move'; from: string[]; to: string[]; name: string }
+  | { type: 'file:copy'; from: string[]; to: string[]; name: string }
   | { type: 'file:restore'; name: string }
   | { type: 'file:unlock'; name: string }
+  | { type: 'folder:delete'; path: string[]; name: string }
+  | { type: 'recyclebin:empty' }
+  // Access control
+  | { type: 'password:fail'; path: string[]; name: string; attempt: number }
   // Session lifecycle
   | { type: 'session:login' }
+  | { type: 'session:login-fail' }
   | { type: 'session:logout' }
   | { type: 'session:boot-complete' }
   | { type: 'session:shutdown'; mode: 'shutdown' | 'restart' | 'logout' }
   // Command prompt
   | { type: 'cmd:exec'; command: string }
+  // Internet Explorer
+  | { type: 'ie:navigate'; url: string }
+  // Appearance
+  | { type: 'wallpaper:change'; wallpaper: string }
+  | { type: 'screensaver:start' }
+  | { type: 'screensaver:stop' }
   // Tray notifications (#118)
   | { type: 'notification:show'; id: string; title: string; body?: string }
   | { type: 'notification:click'; id: string };

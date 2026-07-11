@@ -392,6 +392,64 @@ export const FileSystemProvider: React.FC<{
     [fileOperations, bus]
   );
 
+  // Event-emitting wrappers for the mutations that were passed through raw
+  // (#116). Same layering decision as createFile/deleteFile above: the emit
+  // lives in this context, not in useFileOperations, so internal call sites
+  // (e.g. unlockNode's force-unlock via updateFile) stay silent by design and
+  // only user/host-driven mutations announce themselves on the bus.
+  const updateFile = useCallback(
+    (path: string[], updates: Partial<FileNode>) => {
+      fileOperations.updateFile(path, updates);
+      const content = (updates as { content?: unknown }).content;
+      bus.emit({
+        type: 'file:update',
+        path,
+        name: path[path.length - 1] ?? '',
+        ...(typeof content === 'string' ? { content } : {}),
+      });
+    },
+    [fileOperations, bus]
+  );
+
+  const deleteFolder = useCallback(
+    (parentPath: string[], folderName: string) => {
+      fileOperations.deleteFolder(parentPath, folderName);
+      bus.emit({ type: 'folder:delete', path: [...parentPath, folderName], name: folderName });
+    },
+    [fileOperations, bus]
+  );
+
+  const moveFile = useCallback(
+    (sourcePath: string[], fileName: string, destinationPath: string[], newName: string = fileName) => {
+      fileOperations.moveFile(sourcePath, fileName, destinationPath, newName);
+      bus.emit({
+        type: 'file:move',
+        from: [...sourcePath, fileName],
+        to: [...destinationPath, newName],
+        name: newName,
+      });
+    },
+    [fileOperations, bus]
+  );
+
+  const copyFile = useCallback(
+    (sourcePath: string[], fileName: string, destinationPath: string[], newName: string = fileName) => {
+      fileOperations.copyFile(sourcePath, fileName, destinationPath, newName);
+      bus.emit({
+        type: 'file:copy',
+        from: [...sourcePath, fileName],
+        to: [...destinationPath, newName],
+        name: newName,
+      });
+    },
+    [fileOperations, bus]
+  );
+
+  const emptyRecycleBin = useCallback(() => {
+    fileOperations.emptyRecycleBin();
+    bus.emit({ type: 'recyclebin:empty' });
+  }, [fileOperations, bus]);
+
   const getFile = useCallback(
     (path: string[]): FileNode | null => {
       let current = fs.root;
@@ -407,12 +465,22 @@ export const FileSystemProvider: React.FC<{
     [fs]
   );
 
+  // Per-node failed-attempt counters for password:fail (#116). Keyed by node
+  // name — checkAccess only sees the node, so the emitted path is the single
+  // name segment (the authoritative locator here is `name`).
+  const passwordAttemptsRef = useRef<Record<string, number>>({});
+
   const checkAccess = useCallback(
     (node: FileNode, passwordInput: string): boolean => {
       if (!node.locked) return true;
       const granted = node.password === passwordInput;
       if (granted) {
+        passwordAttemptsRef.current[node.name] = 0;
         bus.emit({ type: 'file:unlock', name: node.name });
+      } else {
+        const attempt = (passwordAttemptsRef.current[node.name] ?? 0) + 1;
+        passwordAttemptsRef.current[node.name] = attempt;
+        bus.emit({ type: 'password:fail', path: [node.name], name: node.name, attempt });
       }
       return granted;
     },
@@ -455,12 +523,26 @@ export const FileSystemProvider: React.FC<{
   const pasteFile = useCallback(
     (destinationPath: string[]): boolean => {
       const didPaste = fileOperations.pasteFile(destinationPath, clipboard, fs);
-      if (didPaste && clipboard?.type === 'cut') {
-        setClipboard(null);
+      if (didPaste && clipboard) {
+        // Paste is a move (cut) or a copy (copy) — surface it as such (#116) so
+        // scenarios can react to the relocation, not just the clipboard action.
+        const names = clipboard.fileNames?.length ? clipboard.fileNames : [clipboard.fileName];
+        const eventType = clipboard.type === 'cut' ? 'file:move' : 'file:copy';
+        names.forEach(name => {
+          bus.emit({
+            type: eventType,
+            from: [...clipboard.sourcePath, name],
+            to: [...destinationPath, name],
+            name,
+          });
+        });
+        if (clipboard.type === 'cut') {
+          setClipboard(null);
+        }
       }
       return didPaste;
     },
-    [clipboard, fileOperations, fs]
+    [clipboard, fileOperations, fs, bus]
   );
 
   const searchFiles = useCallback(
@@ -588,21 +670,21 @@ export const FileSystemProvider: React.FC<{
     getFile,
     checkAccess,
     unlockNode,
-    updateFile: fileOperations.updateFile,
+    updateFile,
     createFile,
     createFolder: createFolderEmitting,
     renameFile,
     deleteFile,
-    deleteFolder: fileOperations.deleteFolder,
-    copyFile: fileOperations.copyFile,
+    deleteFolder,
+    copyFile,
     copyToClipboard,
     cutFile,
     pasteFile,
-    emptyRecycleBin: fileOperations.emptyRecycleBin,
+    emptyRecycleBin,
     restoreFromRecycleBin,
     searchFiles,
     getFileProperties,
-    moveFile: fileOperations.moveFile,
+    moveFile,
     saveFsState,
     resetToDefault,
     getFsSnapshot,

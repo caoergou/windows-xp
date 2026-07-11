@@ -126,6 +126,7 @@ export const UserSessionProvider: React.FC<{
       bus.emit({ type: 'session:login' });
       return true;
     }
+    bus.emit({ type: 'session:login-fail' });
     return false;
   }, [password, bus, storage]);
 
@@ -138,7 +139,8 @@ export const UserSessionProvider: React.FC<{
   const setWallpaper = useCallback((id: string) => {
     setWallpaperState(id);
     storage.local.setItem(wallpaperKey, id);
-  }, [storage, wallpaperKey]);
+    bus.emit({ type: 'wallpaper:change', wallpaper: id });
+  }, [storage, wallpaperKey, bus]);
 
   const setScreensaverEnabled = useCallback((enabled: boolean) => {
     setScreensaverEnabledState(enabled);

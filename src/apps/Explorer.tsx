@@ -350,11 +350,16 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     }
 
     if (target.locked) {
+      let attempt = 0;
       const success = await api.dialog.password({
         title: t('explorer.password.title'),
         message: t('explorer.password.message'),
         hint: target.hint || '',
         correctPassword: target.password ?? '',
+        onFail: () => {
+          attempt += 1;
+          bus.emit({ type: 'password:fail', path: newPath, name: target.name, attempt });
+        },
       });
       if (!success) return;
     }
