@@ -74,6 +74,12 @@ import kugouIcon from '../assets/icons/kugou.svg';
 import baofengIcon from '../assets/icons/baofeng.svg';
 import safe360Icon from '../assets/icons/360safe.svg';
 import wpsIcon from '../assets/icons/wps.svg';
+// en-culture app icons — original parody artwork (see #123; no ripped brand logos)
+import winampIcon from '../assets/icons/winamp.svg';
+import navIcon from '../assets/icons/nav.svg';
+import utorrentIcon from '../assets/icons/utorrent.svg';
+import itunesIcon from '../assets/icons/itunes.svg';
+import msofficeIcon from '../assets/icons/msoffice.svg';
 
 // SVG toolbar/UI icons (small UI elements, no XP equivalents)
 import refreshIcon from '../assets/icons/refresh.svg';
@@ -181,6 +187,11 @@ const IconMap: Record<string, string> = {
     "baofeng": baofengIcon,
     "360safe": safe360Icon,
     "wps": wpsIcon,
+    "winamp": winampIcon,
+    "nav": navIcon,
+    "utorrent": utorrentIcon,
+    "itunes": itunesIcon,
+    "msoffice": msofficeIcon,
     "minesweeper": minesweeperIcon,
     "solitaire": solitaireIcon,
     "media": mediaPlayerIcon,

@@ -22,6 +22,12 @@ const Thunder = React.lazy(() => import('../apps/Thunder'));
 const BaofengPlayer = React.lazy(() => import('../apps/BaofengPlayer'));
 const KugouMusic = React.lazy(() => import('../apps/KugouMusic'));
 const WPSOffice = React.lazy(() => import('../apps/WPSOffice'));
+// en culture apps (#123)
+const Winamp = React.lazy(() => import('../apps/Winamp'));
+const NortonAntiVirus = React.lazy(() => import('../apps/NortonAntiVirus'));
+const UTorrent = React.lazy(() => import('../apps/UTorrent'));
+const ITunes = React.lazy(() => import('../apps/ITunes'));
+const MicrosoftOffice = React.lazy(() => import('../apps/MicrosoftOffice'));
 import {
   AppRegistryEntry,
   AppAssociation,
@@ -435,6 +441,61 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     lifecycle: {},
     associations: [{ appField: 'WPSOffice', getProps: () => ({}) }],
     restore: restoreApp(WPSOffice),
+  },
+
+  Winamp: {
+    id: 'Winamp',
+    name: 'Winamp',
+    icon: 'winamp',
+    locales: ['en'],
+    window: { width: 380, height: 440, minWidth: 300, minHeight: 320, resizable: true, singleton: true },
+    lifecycle: {},
+    associations: [{ appField: 'Winamp', getProps: () => ({}) }],
+    restore: restoreApp(Winamp),
+  },
+
+  NortonAntiVirus: {
+    id: 'NortonAntiVirus',
+    name: 'Norton AntiVirus',
+    icon: 'nav',
+    locales: ['en'],
+    window: { width: 480, height: 380, resizable: false, singleton: true },
+    lifecycle: {},
+    associations: [{ appField: 'NortonAntiVirus', getProps: () => ({}) }],
+    restore: restoreApp(NortonAntiVirus),
+  },
+
+  UTorrent: {
+    id: 'UTorrent',
+    name: 'uTorrent',
+    icon: 'utorrent',
+    locales: ['en'],
+    window: { width: 560, height: 380, resizable: true, singleton: true },
+    lifecycle: {},
+    associations: [{ appField: 'UTorrent', getProps: () => ({}) }],
+    restore: restoreApp(UTorrent),
+  },
+
+  ITunes: {
+    id: 'ITunes',
+    name: 'iTunes',
+    icon: 'itunes',
+    locales: ['en'],
+    window: { width: 600, height: 420, resizable: true, singleton: true },
+    lifecycle: {},
+    associations: [{ appField: 'ITunes', getProps: () => ({}) }],
+    restore: restoreApp(ITunes),
+  },
+
+  MicrosoftOffice: {
+    id: 'MicrosoftOffice',
+    name: 'Microsoft Office',
+    icon: 'msoffice',
+    locales: ['en'],
+    window: { width: 520, height: 380, resizable: true, singleton: true },
+    lifecycle: {},
+    associations: [{ appField: 'MicrosoftOffice', getProps: () => ({}) }],
+    restore: restoreApp(MicrosoftOffice),
   },
 
   DummyApp: {

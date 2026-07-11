@@ -16,8 +16,14 @@ const DESKTOP_SHORTCUTS_BY_LOCALE: Record<string, DesktopShortcut[]> = {
     { id: 'wps', name: 'WPS Office', app: 'WPSOffice', icon: 'wps' },
     { id: 'kugou', name: '酷狗音乐', app: 'KugouMusic', icon: 'kugou' },
   ],
-  // Only expose applications with a real implementation and an authentic icon.
+  // Western 2000s software (#123). Names match the smoke-test assertions;
+  // icons are original parody artwork (no ripped brand logos, DEVELOPMENT.md §6).
   en: [
+    { id: 'winamp', name: 'Winamp', app: 'Winamp', icon: 'winamp' },
+    { id: 'norton', name: 'Norton AntiVirus', app: 'NortonAntiVirus', icon: 'nav' },
+    { id: 'utorrent', name: 'uTorrent', app: 'UTorrent', icon: 'utorrent' },
+    { id: 'itunes', name: 'iTunes', app: 'ITunes', icon: 'itunes' },
+    { id: 'ms-office', name: 'Microsoft Office', app: 'MicrosoftOffice', icon: 'msoffice' },
     {
       id: 'media-player',
       name: 'Windows Media Player',
@@ -51,12 +57,9 @@ export const getDesktopShortcutNodes = (lang: string): Record<string, FileNode> 
 };
 
 export const getAllCultureShortcutNames = (): string[] => [
-  ...Object.values(DESKTOP_SHORTCUTS_BY_LOCALE).flatMap(shortcuts =>
-    shortcuts.map(shortcut => shortcut.name)
+  ...new Set(
+    Object.values(DESKTOP_SHORTCUTS_BY_LOCALE).flatMap(shortcuts =>
+      shortcuts.map(shortcut => shortcut.name)
+    )
   ),
-  'Norton AntiVirus',
-  'Winamp',
-  'uTorrent',
-  'Microsoft Office',
-  'iTunes',
 ];

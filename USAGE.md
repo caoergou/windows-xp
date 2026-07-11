@@ -157,6 +157,22 @@ key you don't provide in `i18n`; Start-menu items resolve names through
 `nameKey` only, so provide those keys. (Authoring validation and a
 `defineCulture()` helper are tracked in #129.)
 
+**Wiring a culture app end-to-end** (learned building the `en` Western-2000s
+pack in #123 — Winamp / Norton AntiVirus / uTorrent / iTunes / Microsoft Office):
+
+1. **Build the component** under `src/apps/` (a rich flagship like Winamp can
+   reuse the bundled sample clip for real audio; the rest can be themed shallow
+   shells, like the `zh` Thunder/Kugou apps).
+2. **Register it** in `APP_REGISTRY` with `locales: ['en']` so it only appears
+   in that culture, an `icon`, a `window` config, and an `associations` entry
+   whose `appField` equals the shortcut's `app` value.
+3. **Add the desktop shortcut** to the package's `desktopShortcuts` — the
+   shortcut `name` is what users (and `data-english-testid="desktop-icon-<name>"`
+   selectors) see, so keep it exact; `app` must match the registry `appField`.
+4. **Optionally pin it** in `startMenu` via a `nameKey`.
+5. **Assets must be original / parody artwork** — no ripped third-party logos
+   (DEVELOPMENT.md §6). The `en` app icons are hand-drawn SVGs.
+
 ### Custom applications
 
 ```jsx

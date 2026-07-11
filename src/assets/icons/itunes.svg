@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <!-- Original parody artwork for a 2000s media library (generic CD + note, not a brand logo). -->
+  <defs>
+    <linearGradient id="it-g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7fd3ff"/>
+      <stop offset="1" stop-color="#2b8fd6"/>
+    </linearGradient>
+  </defs>
+  <circle cx="24" cy="24" r="19" fill="url(#it-g)" stroke="#1c6aa6" stroke-width="1.4"/>
+  <circle cx="24" cy="24" r="19" fill="#ffffff" opacity="0.10"/>
+  <!-- eighth-note pair -->
+  <g fill="#ffffff">
+    <rect x="20" y="14" width="2.6" height="16" rx="1"/>
+    <rect x="29" y="12" width="2.6" height="16" rx="1"/>
+    <path d="M20 14c5-1.4 9-2.4 11.6-2v4.2C29 15.8 25 16.8 20 18.2V14z"/>
+    <circle cx="18" cy="30.5" r="3.6"/>
+    <circle cx="27" cy="28.5" r="3.6"/>
+  </g>
+  <circle cx="24" cy="24" r="3" fill="#eaf6ff" stroke="#1c6aa6" stroke-width="0.8"/>
+</svg>
