@@ -319,6 +319,27 @@ YourApp: {
 
 Note: `restore` props are persisted for refresh-restoration and must be JSON-serializable (no functions/elements) — see `docs/DEVELOPMENT.md` §1. A `defineApp()` factory that simplifies all of this is planned in #128.
 
+## Platform-Readiness Rules (#143 — enforced by `npm run guard:purity`)
+
+The long-term direction (#143 RFC, `docs/OS-PLATFORM-VISION.md`) decouples the
+engine from "XP": the OS becomes a definable package. We are NOT building that
+yet — but every PR must avoid growing the surgery cost. Non-negotiables
+(details: `docs/DEVELOPMENT.md` §7; quick list: `AGENTS.md` red lines 11/12):
+
+- **Mechanism vs. XP-skin layering**: engine dirs (`src/context`, `src/hooks`,
+  `src/utils`, `src/events.ts`, `src/snapshot.ts`) must contain zero color
+  literals, zero xp.css imports, zero XP-specific chrome assumptions. CI-enforced.
+- **Inline hex ratchet**: the count of inline hex colors in `src/` may only go
+  down (baseline lives in `scripts/guard-purity.mjs`). New code uses `COLORS`
+  (`src/constants.ts`) / FIDELITY §K.1 tokens — never literals.
+- **Menus are data**: new apps pass structured items to `XPMenuBar`, never
+  hand-rolled menu DOM (migrates to `defineApp`'s `menus:` field, #128).
+- **No behavior-semantics leakage**: don't hard-code XP behaviors (e.g.
+  "minimize targets a taskbar button", Ctrl as the modifier) outside window
+  mechanics — these become `BehaviorProfile`/`primaryModifier` inputs later.
+- Content references apps via registry association (`resolveFileOpen`), not
+  scattered appId branches — reserving room for the `appRoles` indirection.
+
 ## Boot Flow (in `src/App.tsx`)
 
 1. BOOTING - shows boot screen (first launch or after shutdown/restart)
