@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (fully replaceable content, closes #77)
+
+- **`fileSystemMode="replace"`**: keeps only OS scaffolding (Recycle Bin + an
+  empty My Computer) and drops the built-in desktop app shortcuts, My
+  Documents, Network Neighbourhood, preset content, AND culture shortcuts — so
+  a consumer's `customFileSystem` becomes the entire desktop (personal home
+  page / portfolio / branded page). Default `"merge"` is unchanged.
+- **`wallpapers` / `defaultWallpaper` props**: inject custom wallpapers
+  (merged over the built-in list, custom wins by id) and pick the initial one.
+  `defaultWallpaper` accepts a wallpaper id or a direct image URL. UserSession
+  now exposes `wallpapers` + `resolveWallpaperSrc()`; Desktop, Display Settings
+  and Desktop Properties resolve through it, so raw URLs and custom entries
+  render and appear in the picker.
+- **Activated `CulturePackage.wallpaper`** (previously a dead field): a culture
+  package can now declare its default wallpaper; `defaultWallpaper` prop wins.
+- **`avatar` prop**: override the login/user avatar (XPIcon id or image URL).
+- Documented that content props (`customFileSystem`) are applied at mount;
+  exported the `FileSystemMode` type. New `test/contentReplaceable.test.tsx`
+  proves replace mode yields a clean desktop with only injected content and
+  that a custom wallpaper URL is applied.
+
 ### Changed (per-instance storage isolation, closes #95)
 
 - Storage is no longer a process-wide global. `createStorage(prefix)` builds an

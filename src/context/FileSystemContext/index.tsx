@@ -62,6 +62,36 @@ if (
   }
 }
 
+/** How the built-in filesystem combines with injected content (#77). */
+export type FileSystemMode = 'merge' | 'replace';
+
+/**
+ * Root children kept in `replace` mode: the OS scaffolding the shell needs to
+ * function (Recycle Bin + a My Computer navigation root). Everything else —
+ * the built-in app shortcuts, My Documents, Network Neighbourhood and any
+ * preset content — is dropped so the consumer supplies the whole world (#77).
+ */
+const REPLACE_MODE_STRUCTURAL_KEYS = ['回收站', '我的电脑'];
+
+/** Build the base filesystem for the active mode (before custom/culture layers). */
+const buildBaseFs = (mode: FileSystemMode): { root: FileNode } => {
+  if (mode !== 'replace') return fileSystemWithRecycleBin;
+
+  const root: FileNode = JSON.parse(JSON.stringify(fileSystemWithRecycleBin.root));
+  if (isContainerNode(root)) {
+    const kept: Record<string, FileNode> = {};
+    for (const key of REPLACE_MODE_STRUCTURAL_KEYS) {
+      const node = root.children[key];
+      if (!node) continue;
+      // Empty the structural containers: the consumer provides all content.
+      if (isContainerNode(node)) node.children = {};
+      kept[key] = node;
+    }
+    root.children = kept;
+  }
+  return { root };
+};
+
 const mergeCustomFileSystem = (
   base: { root: FileNode },
   custom?: Record<string, FileNode>
@@ -151,28 +181,45 @@ export const FileSystemProvider: React.FC<{
   customFileSystem?: Record<string, FileNode>;
   cultureFileSystem?: Record<string, FileNode>;
   cultureKey?: string;
-}> = ({ children, customFileSystem, cultureFileSystem, cultureKey = 'en' }) => {
+  /** 'merge' (default) layers custom content over the built-ins; 'replace'
+   * keeps only OS scaffolding so the consumer owns the whole tree (#77). */
+  fileSystemMode?: FileSystemMode;
+}> = ({ children, customFileSystem, cultureFileSystem, cultureKey = 'en', fileSystemMode = 'merge' }) => {
   const storage = useStorage();
   const customFsRef = useRef(customFileSystem);
   const cultureFsRef = useRef(cultureFileSystem);
   customFsRef.current = customFileSystem;
   cultureFsRef.current = cultureFileSystem;
 
-  const withConfiguredLayers = useCallback((base: { root: FileNode }) => {
-    const withCustom = mergeCustomFileSystem(base, customFsRef.current);
-    return mergeCustomFileSystem(withCustom, cultureFsRef.current);
-  }, []);
+  // Base tree for the active mode (kept stable; mode is not meant to flip at runtime).
+  const baseFsRef = useRef<{ root: FileNode }>(buildBaseFs(fileSystemMode));
 
-  const [fs, setFs] = useState<{ root: FileNode }>(withConfiguredLayers(fileSystemWithRecycleBin));
+  const withConfiguredLayers = useCallback(
+    (base: { root: FileNode }) => {
+      const withCustom = mergeCustomFileSystem(base, customFsRef.current);
+      // In replace mode the consumer owns the desktop — built-in culture
+      // shortcuts (Norton/Winamp/QQ…) are suppressed like the other built-ins.
+      if (fileSystemMode === 'replace') return withCustom;
+      return mergeCustomFileSystem(withCustom, cultureFsRef.current);
+    },
+    [fileSystemMode]
+  );
+
+  const [fs, setFs] = useState<{ root: FileNode }>(() =>
+    withConfiguredLayers(baseFsRef.current)
+  );
   const [clipboard, setClipboard] = useState<ClipboardItem | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const recycleBinRef = useRef<Record<string, RecycleBinItem>>({ ...presetRecycleBinRef });
+  // Preset recycle-bin metadata only applies to the full built-in tree.
+  const recycleBinRef = useRef<Record<string, RecycleBinItem>>(
+    fileSystemMode === 'replace' ? {} : { ...presetRecycleBinRef }
+  );
 
   useEffect(() => {
     const loadPersistedData = async () => {
       try {
         const { root, recycleBinRef: savedRecycleBinRef } =
-          await loadPersistedFileSystem(storage, fileSystemWithRecycleBin);
+          await loadPersistedFileSystem(storage, baseFsRef.current);
         recycleBinRef.current = savedRecycleBinRef;
 
         // Re-attach preset recycle-bin metadata for any preset items still present.
@@ -191,7 +238,7 @@ export const FileSystemProvider: React.FC<{
         setFs(withConfiguredLayers({ root }));
       } catch (e) {
         console.error('Failed to load persisted data:', e);
-        setFs(withConfiguredLayers(fileSystemWithRecycleBin));
+        setFs(withConfiguredLayers(baseFsRef.current));
       } finally {
         setIsLoaded(true);
       }
@@ -212,11 +259,14 @@ export const FileSystemProvider: React.FC<{
       return {
         root: {
           ...current.root,
-          children: { ...children, ...cultureFsRef.current },
+          children: {
+            ...children,
+            ...(fileSystemMode === 'replace' ? {} : cultureFsRef.current),
+          },
         },
       };
     });
-  }, [cultureKey, isLoaded]);
+  }, [cultureKey, isLoaded, fileSystemMode]);
 
   // Debounced, diff-aware persistence (#81): operations landing within the
   // window are coalesced into one write; ops report their dirty/removed
@@ -244,7 +294,7 @@ export const FileSystemProvider: React.FC<{
     pending.dirty = new Set();
     pending.removed = new Set();
     void persistFs(storage, fsToPersist, isLoadedRef.current, {
-      defaultFs: fileSystemWithRecycleBin,
+      defaultFs: baseFsRef.current,
       dirtyContentPaths: dirty ? [...dirty].map(key => key.split('/')) : undefined,
       removedContentPaths: removed.map(key => key.split('/')),
     });
@@ -440,7 +490,7 @@ export const FileSystemProvider: React.FC<{
   }, [fs, doPersistFs]);
 
   const resetToDefault = useCallback(() => {
-    const next = withConfiguredLayers(fileSystemWithRecycleBin);
+    const next = withConfiguredLayers(baseFsRef.current);
     setFs(next);
     recycleBinRef.current = {};
     storage.saveRecycleBin({});

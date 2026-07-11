@@ -2,7 +2,8 @@ import React, { useEffect, useMemo } from 'react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import App from '../App';
 import xpI18n, { NAMESPACE } from '../i18n';
-import { FileSystemProvider } from '../context/FileSystemContext';
+import { FileSystemProvider, type FileSystemMode } from '../context/FileSystemContext';
+import type { WallpaperItem } from '../data/wallpapers';
 import { WindowManagerProvider } from '../context/WindowManagerContext';
 import { UserSessionProvider } from '../context/UserSessionContext';
 import { TrayProvider } from '../context/TrayContext';
@@ -28,6 +29,14 @@ export interface AppProvidersProps {
   password?: string;
   language?: string;
   customFileSystem?: Record<string, FileNode>;
+  /** 'merge' (default) or 'replace' the built-in filesystem (#77). */
+  fileSystemMode?: FileSystemMode;
+  /** Login/user avatar: an XPIcon id or an image URL (#77). */
+  avatar?: string;
+  /** Extra wallpapers merged over the built-in list (#77). */
+  wallpapers?: WallpaperItem[];
+  /** Initial wallpaper (id or URL) when the user hasn't picked one (#77). */
+  defaultWallpaper?: string;
   cultures?: CulturePackage[];
   apps?: AppRegistryEntry[];
   skipBoot?: boolean;
@@ -46,6 +55,10 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   password,
   language,
   customFileSystem,
+  fileSystemMode,
+  avatar,
+  wallpapers,
+  defaultWallpaper,
   skipBoot,
   autoLogin,
   storagePrefix,
@@ -91,11 +104,19 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
     <StorageProvider prefix={storagePrefix || 'xp_'}>
       <EventBusProvider bus={busRef}>
       <XPEventBridge onEvent={onEvent} />
-      <UserSessionProvider username={username} password={password} autoLogin={autoLogin}>
+      <UserSessionProvider
+        username={username}
+        password={password}
+        autoLogin={autoLogin}
+        avatar={avatar}
+        wallpapers={wallpapers}
+        defaultWallpaper={defaultWallpaper ?? culture.wallpaper}
+      >
         <FileSystemProvider
           customFileSystem={customFileSystem}
           cultureFileSystem={culturalShortcuts}
           cultureKey={cultureKey}
+          fileSystemMode={fileSystemMode}
         >
           <WindowManagerProvider registry={registry}>
             <TrayProvider>

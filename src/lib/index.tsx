@@ -2,6 +2,7 @@ import React from 'react';
 import { AppProviders } from '../components/AppProviders';
 import { FileNode, AppRegistryEntry } from '../types';
 import { CulturePackage } from '../data/culture';
+import type { WallpaperItem } from '../data/wallpapers';
 import type { XPEventListener } from '../events';
 import type { XPHandle } from '../components/XPBridge';
 import '../i18n';
@@ -19,8 +20,26 @@ export interface WindowsXPProps {
    * resources - missing keys fall back to English.
    */
   language?: string;
-  /** Custom file system structure merged on top of the defaults. */
+  /**
+   * Custom file system structure combined with the defaults per
+   * `fileSystemMode`. Applied at mount; later changes to this prop are not
+   * re-read (the tree is owned by the persistence layer after load). Remount
+   * with a different `storagePrefix` for a fresh tree.
+   */
   customFileSystem?: Record<string, FileNode>;
+  /**
+   * How `customFileSystem` combines with the built-ins (#77). `'merge'`
+   * (default) layers your content over the built-in desktop; `'replace'` keeps
+   * only OS scaffolding (Recycle Bin + an empty My Computer) so your content is
+   * the whole desktop — no built-in QQ/360/IE shortcuts.
+   */
+  fileSystemMode?: 'merge' | 'replace';
+  /** Login/user avatar: an XPIcon id (e.g. `'user'`) or an image URL (#77). */
+  avatar?: string;
+  /** Extra wallpapers merged over the built-in list, for the picker + resolution (#77). */
+  wallpapers?: WallpaperItem[];
+  /** Initial wallpaper — a wallpaper id or a direct image URL — used until the user picks one (#77). */
+  defaultWallpaper?: string;
   /** Custom culture packages that extend or override the built-in en/zh cultures. */
   cultures?: CulturePackage[];
   /** Custom applications that extend or override the built-in APP_REGISTRY. */
@@ -72,6 +91,10 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     password = 'forthe2000s',
     language = 'en',
     customFileSystem = null,
+    fileSystemMode,
+    avatar,
+    wallpapers,
+    defaultWallpaper,
     cultures,
     apps,
     skipBoot = false,
@@ -93,6 +116,10 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       password={password}
       language={language}
       customFileSystem={customFileSystem || undefined}
+      fileSystemMode={fileSystemMode}
+      avatar={avatar}
+      wallpapers={wallpapers}
+      defaultWallpaper={defaultWallpaper}
       cultures={cultures}
       apps={apps}
       skipBoot={skipBoot}
@@ -162,6 +189,7 @@ export type {
   CultureKey,
 } from '../data/culture';
 export type { WallpaperItem } from '../data/wallpapers';
+export type { FileSystemMode } from '../context/FileSystemContext';
 export type { ModalContextType } from '../context/ModalContext';
 export type { TrayItem, TrayContextType } from '../context/TrayContext';
 export type { XPEvent, XPEventType, XPEventListener } from '../events';
