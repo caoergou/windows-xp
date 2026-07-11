@@ -172,8 +172,16 @@ Filed as #112–#125 (rounds 1–3), plus #128–#135 from the owner-feedback ro
 | #130 | P1 | Event conventions + timer/scheduler subsystem ("整点") | #84 timer triggers |
 | #131 | P2 | Website upgrade: landing page + dual-language instant demo | adoption |
 | #132 | P2 | Keymap feasibility: cross-OS audit + central remappable module | embedded trust, #87 |
-| #134 | P1 | Puzzle-design research catalog (mechanics + guidance patterns) | #84 schema |
+| #134 | P1 | Puzzle-design research v2: mechanics → events → orchestration (`docs/PUZZLE-DESIGN.md`) | #84 schema |
 | #135 | P2 | Theme layer architecture (`themes/xp/`, engine-purity invariant) | Win7/macOS future |
+| #136 | P1 | Deep linking & URL state + `link:external` conversion event | S2 permalinks, S3 QR/share |
+| #137 | P1 | Blog content pipeline: MarkdownViewer + manifest adapter + SEO/RSS pattern | S2 flagship tutorial |
+| #138 | P2 | Persistence modes (`local`/`session`/`none`) | S3 campaigns, S5 classrooms |
+| #139 | P2 | Branded boot & login (logo/text/sound/tile overrides) | S3 "first five seconds" |
+
+The use-case derivations behind #136–#139 (and the #119 reply-provider comment)
+live in `docs/USE-CASES.md`; the game-scenario derivation behind #134 v2 lives
+in `docs/PUZZLE-DESIGN.md`.
 
 ### Dependency sketch
 
