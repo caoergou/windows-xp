@@ -165,4 +165,42 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
     // Status bar shows "正在播放"
     await expect(page.locator('text=正在播放').first()).toBeVisible({ timeout: 5000 });
   });
+
+  // ── Easter eggs (#85) ──────────────────────────────────────────────────
+  test('Run dialog: winver shows the About Windows dialog', async ({ page }) => {
+    await openStartMenu(page);
+    await page.locator('[data-testid="start-menu"]').getByText('运行', { exact: false }).first().click();
+    await page.locator('[data-testid="run-dialog-input"]').fill('winver');
+    await page.keyboard.press('Enter');
+    await expect(page.locator('text=Version 5.1').first()).toBeVisible({ timeout: 5000 });
+  });
+
+  test('CMD: format c: crashes to the BSOD, which reboots on click', async ({ page }) => {
+    await openStartMenu(page);
+    await page.locator('[data-testid="start-menu"]').getByText('运行', { exact: false }).first().click();
+    await page.locator('[data-testid="run-dialog-input"]').fill('cmd');
+    await page.keyboard.press('Enter');
+
+    const cmd = page.locator('input[aria-label="Command input"]');
+    await cmd.click();
+    await cmd.fill('format c:');
+    await page.keyboard.press('Enter');
+
+    const bsod = page.locator('[data-testid="bsod-screen"]');
+    await expect(bsod).toBeVisible({ timeout: 5000 });
+
+    // Clicking the blue screen fake-reboots: the boot screen returns.
+    await bsod.click();
+    await expect(page.locator('img[alt="Microsoft Windows XP"]')).toBeVisible({ timeout: 10000 });
+  });
+
+  test('360: scan finds "trojans" and Clean removes them', async ({ page }) => {
+    await page.locator('[data-english-testid="desktop-icon-360安全卫士"]').dblclick();
+    await page.locator('[data-testid="safe-guard-scan-button"]').click();
+
+    const cleanBtn = page.locator('[data-testid="safe-guard-clean-button"]');
+    await expect(cleanBtn).toBeVisible({ timeout: 10000 });
+    await cleanBtn.click();
+    await expect(cleanBtn).not.toBeVisible();
+  });
 });

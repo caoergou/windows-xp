@@ -175,16 +175,19 @@ describe('global keyboard shortcuts', () => {
     expect(taskbar()).toBeInTheDocument();
   });
 
-  it('Ctrl+Shift+Alt+B shows the BSOD easter egg and clicking it dismisses it', () => {
+  it('Ctrl+Shift+Alt+B shows the BSOD easter egg; clicking it fake-reboots (#85)', () => {
     render(<WindowsXP skipBoot autoLogin />);
 
     fireEvent.keyDown(window, { key: 'b', ctrlKey: true, shiftKey: true, altKey: true });
     expect(screen.getByTestId('bsod-screen')).toBeInTheDocument();
     expect(taskbar()).not.toBeInTheDocument();
 
+    // Clicking the blue screen restarts the machine: BSOD clears and the boot
+    // screen returns instead of dropping straight back to the desktop.
     fireEvent.click(screen.getByTestId('bsod-screen'));
     expect(screen.queryByTestId('bsod-screen')).not.toBeInTheDocument();
-    expect(taskbar()).toBeInTheDocument();
+    expect(screen.getByAltText('Microsoft Windows XP')).toBeInTheDocument();
+    expect(taskbar()).not.toBeInTheDocument();
   });
 });
 

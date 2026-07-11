@@ -2,6 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
+// Bundled no-copyright chime (synthesized tone) so the player works out of the
+// box — the old '/audio/sample.mp3' path never existed and ignored the base URL (#85).
+import sampleAudio from '../assets/audio/sample.wav';
 
 const Wrap = styled.div`
   width: 100%;
@@ -160,7 +163,7 @@ const TrackArtist = styled.div`
   color: #cccccc;
 `;
 
-const DEFAULT_SRC = '/audio/sample.mp3';
+const DEFAULT_SRC = sampleAudio;
 
 interface WindowsMediaPlayerProps {
   windowId?: string;

@@ -14,6 +14,7 @@ import windowsIcon from './assets/icons/windows.svg';
 import { TIME } from './constants';
 import { canUseDOM, STORAGE_ERROR_EVENT, type Storage } from './utils/storage';
 import { useStorage } from './context/StorageContext';
+import { BSOD_EVENT } from './utils/easterEggs';
 import { FS_NOTICE_EVENT } from './context/FileSystemContext/hooks/useFileOperations';
 import type { FsNoticeDetail } from './context/FileSystemContext/hooks/useFileOperations';
 import { useModal } from './context/ModalContext';
@@ -283,11 +284,16 @@ function App({
       }
     };
 
+    // CMD `format c:` / Run `bsod` reach the blue screen through this event (#85).
+    const handleBsodEvent = () => setBsodVisible(true);
+
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener(BSOD_EVENT, handleBsodEvent);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener(BSOD_EVENT, handleBsodEvent);
     };
   }, [
     activeWindowId,
@@ -351,8 +357,16 @@ function App({
     setBootPhase('RUNNING');
   };
 
+  // Clicking the BSOD "reboots" the machine: mark a restart and run the boot
+  // sequence again, exactly like a real crash recovery (#85).
+  const handleBsodReboot = () => {
+    setBsodVisible(false);
+    storage.local.setItem(storage.key('power_state'), 'restart');
+    setBootPhase('BOOTING');
+  };
+
   if (bsodVisible) {
-    return <BsodScreen onClick={() => setBsodVisible(false)} />;
+    return <BsodScreen onClick={handleBsodReboot} />;
   }
 
   if (bootPhase === 'SCREENSAVER') {

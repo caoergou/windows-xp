@@ -16,6 +16,7 @@ export default defineConfig({
       '**/.dev/**',
       '**/node_modules/**',
       'e2e/**',
+      'e2e-visual/**',
       'cn-net-research/**',
       'test/**/*.spec.ts',
       'test/**/*.spec.js',

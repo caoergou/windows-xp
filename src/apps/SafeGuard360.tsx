@@ -2,6 +2,26 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
+import { useFileSystem } from '../context/FileSystemContext';
+import { isContainerNode, type FileNode } from '../types';
+import { sounds } from '../utils/soundManager';
+
+/** Collect up to `limit` real file/app names from the tree — used as fake
+ * "trojans" so the 360 scan feels like it found something real (#85). */
+const collectFileNames = (node: FileNode, limit: number, acc: string[] = []): string[] => {
+  if (acc.length >= limit) return acc;
+  if (isContainerNode(node)) {
+    for (const [key, child] of Object.entries(node.children)) {
+      if (key === '回收站') continue;
+      if (child.type === 'file' || child.type === 'app_shortcut') {
+        if (!acc.includes(key)) acc.push(key);
+      }
+      if (acc.length >= limit) break;
+      collectFileNames(child, limit, acc);
+    }
+  }
+  return acc;
+};
 
 const rotate = keyframes`
   from { transform: rotate(0deg); }
@@ -108,7 +128,8 @@ const Body = styled.div`
   flex-direction: column;
   gap: 12px;
   background: #f7fbf5;
-  overflow: hidden;
+  overflow-y: auto;
+  min-height: 0;
 `;
 
 const MainPanel = styled.div`
@@ -311,6 +332,7 @@ const ResultPanel = styled.div`
   padding: 10px 14px;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   color: #335522;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -326,22 +348,68 @@ const ResultPanel = styled.div`
   }
 `;
 
+const ThreatList = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #b34700;
+  }
+`;
+
+const CleanButton = styled.button`
+  margin-left: auto;
+  padding: 5px 16px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  border: 1px solid #b34700;
+  border-radius: 3px;
+  cursor: pointer;
+  background: linear-gradient(to bottom, #ff8833 0%, #ff6600 50%, #e65c00 100%);
+
+  &:hover {
+    background: linear-gradient(to bottom, #ff9a55 0%, #ff7722 50%, #f06a11 100%);
+  }
+`;
+
 interface SafeGuard360Props {
   windowId?: string;
 }
 
 const SafeGuard360: React.FC<SafeGuard360Props> = () => {
   const { t } = useTranslation();
+  const { fs } = useFileSystem();
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [resultVisible, setResultVisible] = useState(false);
   const [score, setScore] = useState(100);
+  const [threats, setThreats] = useState<string[]>([]);
+  const [cleaned, setCleaned] = useState(false);
 
   const startScan = useCallback(() => {
     setScanning(true);
     setProgress(0);
     setResultVisible(false);
+    setCleaned(false);
+    setThreats([]);
     setScore(0);
+  }, []);
+
+  const cleanThreats = useCallback(() => {
+    sounds.notify();
+    setThreats([]);
+    setCleaned(true);
+    setScore(100);
   }, []);
 
   useEffect(() => {
@@ -363,13 +431,16 @@ const SafeGuard360: React.FC<SafeGuard360Props> = () => {
   useEffect(() => {
     if (progress >= 100 && scanning) {
       const timeout = setTimeout(() => {
+        // "Find" a couple of real files masquerading as trojans (#85).
+        const found = collectFileNames(fs.root, 2);
         setScanning(false);
         setResultVisible(true);
-        setScore(100);
+        setThreats(found);
+        setScore(found.length ? 70 : 100);
       }, 400);
       return () => clearTimeout(timeout);
     }
-  }, [progress, scanning]);
+  }, [progress, scanning, fs]);
 
   return (
     <Wrap>
@@ -434,10 +505,32 @@ const SafeGuard360: React.FC<SafeGuard360Props> = () => {
           </ProgressTrack>
         </ProgressWrap>
 
-        {resultVisible && (
+        {resultVisible && threats.length > 0 && (
+          <ResultPanel>
+            <div className="icon"><XPIcon name="alert_warning" size={48} /></div>
+            <div style={{ fontSize: 13, fontWeight: 'bold', color: '#b34700' }}>
+              {t('safeGuard360.scan.threatsFound', { count: threats.length })}
+            </div>
+            <ThreatList>
+              {threats.map(name => (
+                <li key={name}>
+                  <XPIcon name="stop_xp" size={16} />
+                  <span>{t('safeGuard360.scan.threatPrefix')}.{name}.exe</span>
+                </li>
+              ))}
+            </ThreatList>
+            <CleanButton data-testid="safe-guard-clean-button" onClick={cleanThreats}>
+              {t('safeGuard360.scan.cleanButton')}
+            </CleanButton>
+          </ResultPanel>
+        )}
+
+        {resultVisible && threats.length === 0 && (
           <ResultPanel>
             <div className="icon"><XPIcon name="checklist" size={48} /></div>
-            <div className="text">{t('safeGuard360.scan.resultSafe')}</div>
+            <div className="text">
+              {cleaned ? t('safeGuard360.scan.cleaned') : t('safeGuard360.scan.resultSafe')}
+            </div>
           </ResultPanel>
         )}
 

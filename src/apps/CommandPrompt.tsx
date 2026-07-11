@@ -6,15 +6,16 @@ import { useXPEventBus } from '../context/EventBusContext';
 import { useApp } from '../hooks/useApp';
 import { isFileContentNode, isContainerNode, FileNode } from '../types';
 import { parseCmdArgs, resolveCmdPath } from '../utils/commandPath';
+import { triggerBsod } from '../utils/easterEggs';
 
 const DRIVE_ROOT = ['root', '我的电脑', '本地磁盘 (C:)'] as const;
 const PROTECTED_FOLDERS = ['Windows', 'WINDOWS', 'Program Files'];
 
-const Container = styled.div`
+const Container = styled.div<{ $color?: string }>`
   font-family: 'Perfect DOS VGA 437 Win', 'Lucida Console', 'Courier New', monospace;
   font-size: 12px;
   background: #000000;
-  color: #c0c0c0;
+  color: ${p => p.$color || '#c0c0c0'};
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -41,7 +42,7 @@ const InputLine = styled.div`
 `;
 
 const Prompt = styled.span`
-  color: #c0c0c0;
+  color: inherit;
   white-space: pre;
   flex-shrink: 0;
 `;
@@ -53,14 +54,14 @@ const Input = styled.input`
   border: none !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-  color: #c0c0c0;
+  color: inherit;
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
   outline: none;
   padding: 0;
   margin: 0;
-  caret-color: #c0c0c0;
+  caret-color: currentColor;
 
   &:focus,
   &:focus-visible {
@@ -93,6 +94,7 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
   const [currentPath, setCurrentPath] = useState<string[]>([...DRIVE_ROOT]);
   const [history, setHistory] = useState<CommandHistory[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
+  const [textColor, setTextColor] = useState<string>('#c0c0c0');
   const outputRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -149,17 +151,20 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
         return localize(
           `For more information on a specific command, type HELP command-name
 CLS         Clears the screen.
+COLOR       Sets the default console foreground and background colors.
 COPY        Copies one or more files to another location.
 DATE        Displays or sets the date.
 DEL         Deletes one or more files.
 DIR         Displays a list of files and subdirectories.
 ECHO        Displays messages, or turns command echoing on or off.
 EXIT        Quits the CMD.EXE program.
+FORMAT      Formats a disk for use with Windows.
 HELP        Provides Help information for Windows commands.
 MD          Creates a directory.
 PING        Tests a network connection.
 RD          Removes a directory.
 REN         Renames a file.
+TELNET      Communicates with a Telnet server.
 TIME        Displays or sets the system time.
 TREE        Graphically displays the directory structure.
 TYPE        Displays the contents of a text file.
@@ -167,17 +172,20 @@ VER         Displays the Windows version.
 VOL         Displays a disk volume label and serial number.`,
           `有关某个命令的详细信息，请键入 HELP 命令名
 CLS         清除屏幕。
+COLOR       设置默认的控制台前景和背景颜色。
 COPY        将至少一个文件复制到另一个位置。
 DATE        显示或设置日期。
 DEL         删除至少一个文件。
 DIR         显示目录中的文件和子目录列表。
 ECHO        显示消息，或将命令回显打开或关闭。
 EXIT        退出 CMD.EXE 程序(命令解释程序)。
+FORMAT      格式化磁盘以配合 Windows 使用。
 HELP        提供 Windows 命令的帮助信息。
 MD          创建目录。
 PING        测试网络连接。
 RD          删除目录。
 REN         重命名文件。
+TELNET      与 Telnet 服务器通信。
 TIME        显示或设置系统时间。
 TREE        以图形显示驱动器或路径的目录结构。
 TYPE        显示文本文件的内容。
@@ -563,6 +571,85 @@ VOL         显示磁盘卷标和序列号。`
       case 'exit':
         return '__EXIT__';
 
+      // ── Easter eggs (#85) ────────────────────────────────────────────────
+      case 'color': {
+        const codes: Record<string, string> = {
+          '0': '#000000', '1': '#000080', '2': '#008000', '3': '#008080',
+          '4': '#800000', '5': '#800080', '6': '#808000', '7': '#c0c0c0',
+          '8': '#808080', '9': '#0000ff', a: '#00ff00', b: '#00ffff',
+          c: '#ff0000', d: '#ff00ff', e: '#ffff00', f: '#ffffff',
+        };
+        const code = (args[0] || '').toLowerCase();
+        if (!code) {
+          setTextColor('#c0c0c0');
+          return '';
+        }
+        // XP `color BF`: B = background, F = foreground. Single digit = foreground.
+        const fg = code.length >= 2 ? code[1] : code[0];
+        if (codes[fg]) {
+          setTextColor(codes[fg]);
+          return '';
+        }
+        return localize(
+          'The specified color is invalid.\n',
+          '指定的颜色无效。\n'
+        );
+      }
+
+      case 'matrix':
+        setTextColor('#00ff00');
+        return (
+          '\n01001101 01100001 01110100 01110010 01101001 01111000\n' +
+          '  ｱ0ﾃ1ﾔｷ ﾘ01ﾈ ﾂ1ｦ0ﾏ ﾗ0ｻ1ﾃ 0ﾘ1ｦ ﾂﾔ01ﾉ\n' +
+          '  0ﾆ1ｳ0 ﾑ01ﾜ ｦ1ﾂ0ﾋ 0ﾚ1ﾔ ﾈ01ｻ ﾏﾂ0ﾞ1\n' +
+          '  1ﾟ0ｴ1 ﾜ10ﾆ ﾂ0ﾉ1ｦ ﾞ01ﾔ ﾗ10ｻ ﾃﾂ1ﾈ0\n' +
+          '\n' +
+          localize('Wake up, Neo...\n', '醒醒，Neo……\n')
+        );
+
+      case 'telnet': {
+        const host = (args[0] || '').toLowerCase();
+        if (host.includes('towel.blinkenlights')) {
+          return (
+            '\n         Star Wars: Episode IV\n' +
+            '            A NEW HOPE\n\n' +
+            '   It is a period of civil war.\n' +
+            '   Rebel spaceships, striking\n' +
+            '   from a hidden base, have won\n' +
+            '   their first victory against\n' +
+            '   the evil Galactic Empire.\n\n' +
+            "        .-.\n" +
+            "       (o o)   ~ May the Force be with you ~\n" +
+            "        |=|\n" +
+            '       __|__\n'
+          );
+        }
+        if (!host) {
+          return localize('Usage: telnet host\n', '用法: telnet host\n');
+        }
+        return localize(
+          `Connecting To ${args[0]}...Could not open connection to the host.\n`,
+          `正在连接 ${args[0]}……无法打开到主机的连接。\n`
+        );
+      }
+
+      case 'format': {
+        const target = (args[0] || '').toLowerCase();
+        if (/^[a-z]:$/.test(target)) {
+          // The classic "don't run this" command: crash into the BSOD after the
+          // warning renders. Clicking the blue screen fake-reboots the machine.
+          setTimeout(triggerBsod, 600);
+          return localize(
+            `\nWARNING, ALL DATA ON NON-REMOVABLE DISK\nDRIVE ${target.toUpperCase()} WILL BE LOST!\nProceed with Format (Y/N)? y\n\nFormatting...\n`,
+            `\n警告: 驱动器 ${target.toUpperCase()} 上的所有数据\n都将丢失！\n是否继续格式化 (Y/N)? y\n\n正在格式化...\n`
+          );
+        }
+        return localize(
+          'Required parameter missing: drive letter (e.g. format c:)\n',
+          '缺少必需的参数: 驱动器盘符 (例如 format c:)\n'
+        );
+      }
+
       case 'ipconfig':
         return (
           `\nWindows IP Configuration\n\n` +
@@ -630,7 +717,7 @@ VOL         显示磁盘卷标和序列号。`
   };
 
   return (
-    <Container onClick={() => inputRef.current?.focus()}>
+    <Container $color={textColor} onClick={() => inputRef.current?.focus()}>
       <Output ref={outputRef}>{output}</Output>
       <InputLine>
         <Prompt>{getPrompt()}</Prompt>

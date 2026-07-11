@@ -165,15 +165,7 @@
       "November",
       "December"
     ],
-    "weekdays": [
-      "Su",
-      "Mo",
-      "Tu",
-      "We",
-      "Th",
-      "Fr",
-      "Sa"
-    ],
+    "weekdays": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
     "today": "Today"
   },
   "window": {
@@ -668,7 +660,11 @@
     "scan": {
       "quickScan": "Scan Now",
       "scanning": "Scanning…",
-      "resultSafe": "Your computer is very safe. Keep it up!"
+      "resultSafe": "Your computer is very safe. Keep it up!",
+      "threatsFound": "{{count}} trojan(s) found!",
+      "threatPrefix": "Trojan",
+      "cleanButton": "Clean Now",
+      "cleaned": "Threats removed. Your computer is now safe!"
     },
     "footer": {
       "lastScan": "Last Scan",
