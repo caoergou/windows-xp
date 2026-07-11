@@ -30,9 +30,7 @@ jobs:
 
       - run: npm run build:lib
 
+      # Authenticates via npm OIDC trusted publishing using the `id-token: write`
+      # permission above — no token or secret required. Provenance is attached
+      # automatically.
       - run: npm publish --access public --provenance
-        env:
-          # Must be a real npm automation token (registry.npmjs.org).
-          # GITHUB_TOKEN does NOT authenticate against npm — add an
-          # `NPM_TOKEN` repository secret (see CONTRIBUTING.md → Releases).
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
