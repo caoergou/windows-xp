@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (XPHandle v2 — imperative actuation, #115)
+
+- The `ref` handle grew from 5 methods to a full actuation surface so a host
+  can drive the desktop with no custom apps or context access:
+  - `fs`: `readFile` / `writeFile` / `createFile` / `deleteFile` / `getNode` /
+    `exists` / `unlockNode`
+  - `session`: `login` / `logout` / `shutdown` / `restart`
+  - `appearance`: `setWallpaper` / `setLanguage`
+  - `windows`: `list` / `focus` / `minimize` / `maximize` / `restore`
+  - `sound.play(name)` and `emit(event)` (inject onto the same bus)
+- **`unlockNode(path)`** (also on `FileSystemContext`) persistently clears a
+  node's `locked` flag and emits `file:unlock` — a host/scenario force-unlock
+  that survives reload (unlike the transient `checkAccess`).
+- **`reset()` now clears IndexedDB too.** It previously removed only
+  localStorage keys and hardcoded the `'xp_'` prefix, so file contents in
+  IndexedDB survived a reset. It now clears both storage layers via the live
+  `Storage` handle (correct per-instance `storagePrefix`).
+- The original five methods (`openApp`/`openFile`/`closeWindow`/`showAlert`/
+  `reset`) stay at the top level for backward compatibility.
+- Exported the new handle types and `EventBusProvider` from the package root;
+  new USAGE "Driving the desktop from the host" section with an ARG example.
+
 ### Fixed (correctness debt batch, #121)
 
 - **Notepad shortcuts no longer use a window-level listener.** Ctrl+S/F/H etc.
