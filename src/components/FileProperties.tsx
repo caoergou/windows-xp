@@ -5,7 +5,7 @@ import { getSystemPathDisplay } from '../data/systemPaths';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useFileSystem } from '../context/FileSystemContext';
 import XPIcon from './XPIcon';
-import { FileItem, ExifData } from '../types';
+import { FileNode, ExifData } from '../types';
 
 // Load all EXIF data files eagerly
 const exifFiles = import.meta.glob<ExifData & { default?: ExifData }>(
@@ -96,7 +96,7 @@ const Button = styled.button`
 `;
 
 interface FilePropertiesProps {
-  fileItem?: FileItem;
+  fileItem?: FileNode;
   onClose?: () => void;
   parentPath?: string[];
   windowId?: string;

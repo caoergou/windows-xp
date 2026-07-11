@@ -120,6 +120,8 @@ export interface Storage {
   saveMetadata: (metadata: FileSystemMetadata) => void;
   getMetadata: () => FileSystemMetadata | null;
   clearAllStorage: () => Promise<void>;
+  /** Remove every localStorage key under this instance's prefix (SSR-safe). */
+  clearPrefixedLocal: () => void;
   saveRecycleBin: (items: Record<string, RecycleBinItem>) => void;
   getRecycleBin: () => Record<string, RecycleBinItem> | null;
   /** @internal Drop the cached IndexedDB connection. */
@@ -231,6 +233,17 @@ export const createStorage = (rawPrefix: string): Storage => {
         request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);
       });
+    },
+
+    clearPrefixedLocal() {
+      if (!canUseDOM) return;
+      try {
+        Object.keys(window.localStorage)
+          .filter(k => k.startsWith(prefix))
+          .forEach(k => window.localStorage.removeItem(k));
+      } catch (e) {
+        console.warn('[windows-xp] clearPrefixedLocal failed', e);
+      }
     },
 
     saveRecycleBin(items) {

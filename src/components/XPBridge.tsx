@@ -13,7 +13,7 @@ import { isContainerNode, isFileContentNode, type FileNode } from '../types';
 import { canUseDOM } from '../utils/storage';
 import { saveLanguage, getSavedLanguage } from '../utils/language';
 import { XP_SNAPSHOT_VERSION, assertLoadableSnapshot, type XPSnapshot } from '../snapshot';
-import { sounds, play as playSound } from '../utils/soundManager';
+import { sounds, playSound } from '../utils/soundManager';
 import i18n from '../i18n';
 import type { XPEvent, XPEventListener } from '../events';
 import { qqStore } from '../apps/QQ/qqStore';
@@ -220,16 +220,9 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
           reset: () => {
             if (!canUseDOM) return;
             const done = () => window.location.reload();
-            try {
-              const prefix = storage.prefix;
-              Object.keys(window.localStorage)
-                .filter(k => k.startsWith(prefix))
-                .forEach(k => window.localStorage.removeItem(k));
-            } catch (e) {
-              console.warn('[windows-xp] reset: localStorage clear failed', e);
-            }
-            // Also clear IndexedDB (file contents) for this instance's prefix,
-            // then reload once storage is gone.
+            // Clear both storage layers for this instance through the storage
+            // util (no raw window.localStorage access here), then reload (#163/C).
+            storage.clearPrefixedLocal();
             storage.clearAllStorage().then(done, done);
           },
 

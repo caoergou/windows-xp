@@ -14,7 +14,7 @@ import DesktopProperties from '../DesktopProperties';
 import { resolveFileOpen } from '../../registry/apps';
 import StartupNotifier from '../StartupNotifier';
 import { useModal } from '../../context/ModalContext';
-import { FileItem, FileNode, MenuItem, RootNode, isContainerNode } from '../../types';
+import { FileNode, MenuItem, RootNode, isContainerNode } from '../../types';
 import { getFileIconName } from '../../utils/fileIcon';
 import { getFileDisplayName } from '../../utils/fileDisplayName';
 import { DesktopContainer, SelectionBox, IconGrid, DesktopIcon } from './styled';
@@ -168,7 +168,7 @@ const Desktop: React.FC = () => {
     document.addEventListener('mouseup', onMouseUp);
   };
 
-  const handleIconDoubleClick = (key: string, item: FileItem) => {
+  const handleIconDoubleClick = (key: string, item: FileNode) => {
     const resolved = resolveFileOpen(key, item);
     bus.emit({ type: 'file:open', path: [key], name: item.name, nodeType: item.type, app: (item as { app?: string }).app });
     const displayName = getFileDisplayName(key, item, t);
