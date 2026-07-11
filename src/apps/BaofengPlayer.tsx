@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { CultureAppShell } from './culture/shell';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
 
@@ -8,17 +9,9 @@ const pulse = keyframes`
   50% { opacity: 1; }
 `;
 
-const Wrap = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+const Wrap = styled(CultureAppShell)`
   background: #1a1a1a;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
-  font-size: 12px;
   color: #eeeeee;
-  user-select: none;
-  overflow: hidden;
 `;
 
 const Header = styled.div`
