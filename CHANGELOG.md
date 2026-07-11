@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (save/load snapshot — "share a save", #117)
+
+- **Versioned `XPSnapshot` format** — a portable JSON description of a desktop
+  instance: filesystem tree (with file contents), recycle bin, open windows,
+  wallpaper, language, and a reserved `flags` slot for the scenario system
+  (#84). Exported along with `XP_SNAPSHOT_VERSION`, `XPSnapshotVersionError`
+  and `assertLoadableSnapshot`.
+- **`XPHandle.getSnapshot()` / `loadSnapshot(snapshot)`** — capture the full
+  instance state and rehydrate it (into the same or a different `storagePrefix`,
+  even on another machine/browser). `loadSnapshot` clears the instance's
+  storage, re-persists the snapshot, and reloads; a snapshot whose `version` is
+  newer than the build throws `XPSnapshotVersionError` instead of corrupting
+  state.
+- `FileSystemContext` gained `getFsSnapshot` / `getRecycleBinItems` /
+  `loadFsSnapshot`. New USAGE "Save / load a snapshot" section with download/
+  upload examples. Round-trip + cross-prefix unit tests (with real IndexedDB
+  content via fake-indexeddb).
+- Deferred to follow-ups: the declarative `snapshot` mount prop and the
+  persistence-schema `flags` migration land with #84 (where flags are defined);
+  the snapshot format already reserves `flags`.
+
 ### Added (XPHandle v2 — imperative actuation, #115)
 
 - The `ref` handle grew from 5 methods to a full actuation surface so a host

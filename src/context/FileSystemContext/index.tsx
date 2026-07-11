@@ -168,6 +168,18 @@ interface FileSystemContextType {
   } | null;
   saveFsState: () => void;
   resetToDefault: () => void;
+  /** Deep clone of the live filesystem tree (with contents) for snapshots (#117). */
+  getFsSnapshot: () => { root: FileNode };
+  /** Deep clone of the live recycle bin contents (#117). */
+  getRecycleBinItems: () => Record<string, RecycleBinItem>;
+  /**
+   * Replace this instance's persisted filesystem + recycle bin with a snapshot
+   * (clears storage first, then writes). Caller reloads to rehydrate (#117).
+   */
+  loadFsSnapshot: (
+    tree: { root: FileNode },
+    recycleBin: Record<string, RecycleBinItem>
+  ) => Promise<void>;
   uploadTextFile: (parentPath: string[], fileName: string, content: string) => void;
   downloadTextFile: (path: string[], fileName: string) => void;
 }
@@ -521,6 +533,30 @@ export const FileSystemProvider: React.FC<{
     doPersistFs(next);
   }, [doPersistFs, withConfiguredLayers, storage]);
 
+  // Snapshot read/write (#117). The live tree already carries file contents
+  // (hydrated from IndexedDB at mount), so serializing is a deep clone; loading
+  // clears this instance's storage then re-persists against the same default
+  // baseline, so a reload reconstructs the snapshot exactly.
+  const getFsSnapshot = useCallback(
+    (): { root: FileNode } => JSON.parse(JSON.stringify(fs)) as { root: FileNode },
+    [fs]
+  );
+
+  const getRecycleBinItems = useCallback(
+    (): Record<string, RecycleBinItem> =>
+      JSON.parse(JSON.stringify(recycleBinRef.current)) as Record<string, RecycleBinItem>,
+    []
+  );
+
+  const loadFsSnapshot = useCallback(
+    async (tree: { root: FileNode }, recycleBin: Record<string, RecycleBinItem>) => {
+      await storage.clearAllStorage();
+      await persistFs(storage, tree, true, { defaultFs: baseFsRef.current });
+      storage.saveRecycleBin(recycleBin ?? {});
+    },
+    [storage]
+  );
+
   const uploadTextFile = useCallback(
     (parentPath: string[], fileName: string, content: string) => {
       fileOperations.createFile(parentPath, fileName, 'file', { content, app: 'Notepad' });
@@ -569,6 +605,9 @@ export const FileSystemProvider: React.FC<{
     moveFile: fileOperations.moveFile,
     saveFsState,
     resetToDefault,
+    getFsSnapshot,
+    getRecycleBinItems,
+    loadFsSnapshot,
     uploadTextFile,
     downloadTextFile,
   };
