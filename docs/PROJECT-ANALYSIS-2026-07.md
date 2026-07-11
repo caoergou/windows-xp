@@ -147,8 +147,9 @@ the sweep and extends the doc-examples regression test to README.
 
 ## 3. The supplementary issue list
 
-Filed as #112–#125, designed to slot between the current Phase 1 wrap-up and
-Phase 3 (#84/#85) in the #86 roadmap:
+Filed as #112–#125 (rounds 1–3), plus #128–#135 from the owner-feedback round
+(§4). Designed to slot between the current Phase 1 wrap-up and Phase 3
+(#84/#85) in the #86 roadmap:
 
 | # | P | Title (short) | Unblocks |
 |---|---|---|---|
@@ -166,6 +167,13 @@ Phase 3 (#84/#85) in the #86 roadmap:
 | #123 | P2 | en culture parity (western shortcuts + Winamp-class app) | intl audience, e2e green |
 | #124 | P2 | Accessibility & focus management (= DLG-03/04 + STY-09) | a11y + fidelity |
 | #125 | P3 | Touch support (tap/long-press/drag mapping) | mobile visitors |
+| #128 | P1 | App authoring DX: `defineApp()`, exported helpers, English JSDoc | community apps |
+| #129 | P1 | Culture authoring DX: `defineCulture()`, locales-trap fix, guide | community cultures, #123 |
+| #130 | P1 | Event conventions + timer/scheduler subsystem ("整点") | #84 timer triggers |
+| #131 | P2 | Website upgrade: landing page + dual-language instant demo | adoption |
+| #132 | P2 | Keymap feasibility: cross-OS audit + central remappable module | embedded trust, #87 |
+| #134 | P1 | Puzzle-design research catalog (mechanics + guidance patterns) | #84 schema |
+| #135 | P2 | Theme layer architecture (`themes/xp/`, engine-purity invariant) | Win7/macOS future |
 
 ### Dependency sketch
 
@@ -190,7 +198,63 @@ Phase 3 (#84/#85) in the #86 roadmap:
 - **Phase 4 — reach:** #122, #123, #124, #125 — integrators, international
   audience, accessibility, mobile.
 
-## 4. What was deliberately *not* filed
+## 4. Owner feedback round (2026-07-11) → issues #128–#135
+
+The maintainer reviewed rounds 1–3 and directed six additions, which after a second
+exploration pass (site/demo structure, authoring-DX types, theme coupling) and
+external research became seven more issues:
+
+| Feedback | Issue |
+|---|---|
+| Types and usage must be simpler | #128 App authoring DX (`defineApp()`, exported helpers, ≤10-line hello world, English JSDoc) |
+| Culture layer definition must be clear; custom-app difficulty must drop | #129 Culture authoring DX (`defineCulture()` + validation, fix the `normalizeCultureLang` non-zh→en collapse trap, authoring guide) |
+| Event mechanism needs a learnable definition style **and** timed/"整点" triggers | #130 Event conventions (naming spec + auto-generated reference docs) + scheduler subsystem (`time:hour`, persisted delays, `user:idle`) |
+| The site should introduce first, demo second; demo in both zh and en contexts | #131 Website upgrade (landing page, dual-language one-click demo, skipBoot default) |
+| Hotkeys must respect per-OS/browser feasibility and conflicts | #132 Keymap feasibility layer (audit matrix, central module, per-platform defaults, remapping) |
+| Dig deep into viable puzzle logics/guidance as a programmable game component — its own issue | #134 Puzzle-design research catalog (8 mechanic categories, guidance patterns, genre references, schema implications for #84) |
+| Leave room for Win7/macOS/custom themes; consolidate theme code | #135 Theme layer architecture (five seams, `themes/xp/` consolidation, engine-purity invariant) |
+
+Cross-reference comments were left on #116 (conventions/timers split out), #122
+(authoring DX split out) and #84 (#134 §J as schema input) rather than rewriting
+their bodies.
+
+### Key facts from the second exploration pass
+
+- **Site**: the Pages deploy is the raw app build — no landing page, boots straight
+  into BootScreen→Login; language comes from `?lang` → saved localStorage → `'en'`
+  (browser locale never consulted); `?gallery` is an internal VRT catalog.
+- **Authoring DX**: no `defineApp`/`defineCulture` factories exist; `restore` is
+  mandatory and the internal `restoreApp` helper is unexported; `window` vs
+  `defaultWindowProps` overlap; the componentProps JSON-serializability contract is
+  documented only in Chinese JSDoc that ships into the published `.d.ts`;
+  `normalizeCultureLang` collapses all non-zh languages to `'en'`, silently breaking
+  item-level locale filters for third-language culture packages.
+- **Theme coupling**: the engine/skin split already exists (all of `src/context/`
+  ≈2,200+ lines is style-free; window mechanics vs chrome are separate files; icons
+  and sounds sit behind name-keyed facades; xp.css has exactly 2 import sites). The
+  dominant cost of runtime theming is ~1,373 inline hex literals across 68 files that
+  bypass the `COLORS` token table — which coincides with FIDELITY §K's existing
+  token-consolidation plan (STY-03), so the de-hardcoding work pays twice.
+
+### External research notes
+
+- **XP-themed web in the wild**: a thriving genre of XP/98-styled portfolios
+  (Next.js + XP.css, react-rnd desktops, iframe project showcases, Clippy
+  assistants). These builders are the library's most concrete audience; #131 and
+  #128/#129 are aimed at them. Ecosystem positioning: daedalOS is an application,
+  xp.css is CSS-only — a content-injectable, event-driven React *engine* remains an
+  open niche.
+- **OS-simulation puzzle games**: Hypnospace Outlaw (diegetic job as permission to
+  snoop; fake-web needs authored junk for clue density; system updates as act
+  breaks), found-phone games (history + persona forensics carry a full game with
+  minimal gating), Emily is Away / Digital: A Love Story (mash-keys typing and
+  implied player voice dodge free-text NLP). All absorbed into #134.
+- **Theme-library family**: 98.css → XP.css → 7.css share class conventions (7.css
+  builds on XP.css; System.css covers classic Mac), and XP.css explicitly aims to
+  "boilerplate the GUI to be able to theme it easily" — the CSS skin layer for
+  future themes largely exists; #135's seams are the React-side counterpart.
+
+## 5. What was deliberately *not* filed
 
 - Window animations, true modality, taskbar grouping, sound wiring — already
   tracked as #87 batch 2; re-filing would fragment it.
