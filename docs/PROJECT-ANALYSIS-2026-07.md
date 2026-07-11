@@ -180,6 +180,7 @@ Filed as #112–#125 (rounds 1–3), plus #128–#135 from the owner-feedback ro
 | #139 | P2 | Branded boot & login (logo/text/sound/tile overrides) | S3 "first five seconds" |
 | #141 | P2 | Guided lesson engine: anchors, spotlight, Watch/Try/Do, `lesson:*` events | S5 teaching core |
 | #142 | P2 | Teaching content kit: setup wizard, install lifecycle, assertable settings | S5 content + PUZZLE F2 |
+| #143 | RFC | OS packages & the shell contract (`docs/OS-PLATFORM-VISION.md`) | platform pivot: Win7/Aqua-like/defineOS |
 
 The use-case derivations behind #136–#139 (and the #119 reply-provider comment)
 live in `docs/USE-CASES.md`; the game-scenario derivation behind #134 v2 lives
