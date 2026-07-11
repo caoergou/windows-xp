@@ -1,7 +1,8 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import { useXPEventBus } from './EventBusContext';
 import { useStorage } from './StorageContext';
 import userConfig from '../data/user_config.json';
+import { WALLPAPERS, DEFAULT_WALLPAPER_ID, type WallpaperItem } from '../data/wallpapers';
 import type { Storage } from '../utils/storage';
 
 interface UserSessionContextType {
@@ -9,11 +10,19 @@ interface UserSessionContextType {
   user: { name: string; avatar: string };
   wallpaper: string;
   setWallpaper: (wallpaper: string) => void;
+  /** Wallpapers available to the picker (built-ins + any injected via props). */
+  wallpapers: WallpaperItem[];
+  /** Resolve a wallpaper id (or raw URL) to a usable image src. */
+  resolveWallpaperSrc: (idOrUrl: string) => string;
   screensaverEnabled: boolean;
   setScreensaverEnabled: (enabled: boolean) => void;
   login: (password: string) => boolean;
   logout: () => void;
 }
+
+/** A string that is a direct image reference rather than a wallpaper id. */
+const looksLikeUrl = (s: string): boolean =>
+  /^(https?:|data:|blob:|\/|\.\/|\.\.\/)/.test(s) || /\.(jpe?g|png|gif|webp|svg|bmp)$/i.test(s);
 
 const UserSessionContext = createContext<UserSessionContextType | undefined>(undefined);
 
@@ -46,18 +55,50 @@ export const UserSessionProvider: React.FC<{
   username?: string;
   password?: string;
   autoLogin?: boolean;
-}> = ({ children, username = userConfig.username, password = userConfig.password, autoLogin }) => {
+  /** Override the login/user avatar (id in XPIcon map or an image URL) (#77). */
+  avatar?: string;
+  /** Extra wallpapers merged over the built-in list (by id; custom wins) (#77). */
+  wallpapers?: WallpaperItem[];
+  /** Initial wallpaper (id or URL) when the user hasn't picked one (#77). */
+  defaultWallpaper?: string;
+}> = ({
+  children,
+  username = userConfig.username,
+  password = userConfig.password,
+  autoLogin,
+  avatar,
+  wallpapers: customWallpapers,
+  defaultWallpaper,
+}) => {
   const storage = useStorage();
   const wallpaperKey = storage.key('wallpaper');
   const screensaverKey = storage.key('screensaver_enabled');
 
+  // Built-ins + injected wallpapers; a custom entry with an existing id wins.
+  const wallpapers = useMemo<WallpaperItem[]>(() => {
+    if (!customWallpapers?.length) return WALLPAPERS;
+    const byId = new Map(WALLPAPERS.map(w => [w.id, w]));
+    for (const w of customWallpapers) byId.set(w.id, w);
+    return [...byId.values()];
+  }, [customWallpapers]);
+
+  const resolveWallpaperSrc = useCallback(
+    (idOrUrl: string): string => {
+      const match = wallpapers.find(w => w.id === idOrUrl);
+      if (match) return match.src;
+      if (looksLikeUrl(idOrUrl)) return idOrUrl;
+      return wallpapers.find(w => w.id === DEFAULT_WALLPAPER_ID)?.src ?? wallpapers[0]?.src ?? '';
+    },
+    [wallpapers]
+  );
+
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => getInitialLoginState(storage, autoLogin));
   const [user, setUser] = useState<{ name: string; avatar: string }>({
     name: username,
-    avatar: userConfig.avatar
+    avatar: avatar ?? userConfig.avatar
   });
   const [wallpaper, setWallpaperState] = useState<string>(() =>
-    storage.local.getItem(wallpaperKey) || 'Bliss'
+    storage.local.getItem(wallpaperKey) || defaultWallpaper || DEFAULT_WALLPAPER_ID
   );
   const [screensaverEnabled, setScreensaverEnabledState] = useState<boolean>(() => {
     const stored = storage.local.getItem(screensaverKey);
@@ -65,8 +106,8 @@ export const UserSessionProvider: React.FC<{
   });
 
   useEffect(() => {
-    setUser(prev => ({ ...prev, name: username }));
-  }, [username]);
+    setUser(prev => ({ ...prev, name: username, avatar: avatar ?? userConfig.avatar }));
+  }, [username, avatar]);
 
   useEffect(() => {
     if (autoLogin) {
@@ -109,6 +150,8 @@ export const UserSessionProvider: React.FC<{
     user,
     wallpaper,
     setWallpaper,
+    wallpapers,
+    resolveWallpaperSrc,
     screensaverEnabled,
     setScreensaverEnabled,
     login,

@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useUserSession } from '../../context/UserSessionContext';
 import { XPSelect } from '../../components/XPSelect';
-import { WALLPAPERS, getWallpaperById } from '../../data/wallpapers';
 
 const Container = styled.div`
   display: flex;
@@ -90,12 +89,12 @@ const SCREENSAVER_OPTIONS = [
 
 const DisplaySettings: React.FC<DisplaySettingsProps> = ({ onBack }) => {
   const { t } = useTranslation();
-  const { wallpaper, setWallpaper, screensaverEnabled, setScreensaverEnabled } = useUserSession();
+  const { wallpaper, setWallpaper, screensaverEnabled, setScreensaverEnabled, wallpapers, resolveWallpaperSrc } = useUserSession();
   const [selectedWallpaper, setSelectedWallpaper] = useState(wallpaper);
   const [selectedResolution, setSelectedResolution] = useState('1024x768');
   const [selectedScreensaver, setSelectedScreensaver] = useState(screensaverEnabled ? 'logo' : 'none');
 
-  const previewBg = getWallpaperById(selectedWallpaper).src;
+  const previewBg = resolveWallpaperSrc(selectedWallpaper);
 
   const handleApply = () => {
     setWallpaper(selectedWallpaper);
@@ -120,7 +119,7 @@ const DisplaySettings: React.FC<DisplaySettingsProps> = ({ onBack }) => {
             value={selectedWallpaper}
             onChange={(e) => setSelectedWallpaper(e.target.value)}
           >
-            {WALLPAPERS.map(w => (
+            {wallpapers.map(w => (
               <option key={w.id} value={w.id}>{w.name}</option>
             ))}
           </Select>

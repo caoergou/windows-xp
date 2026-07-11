@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { XPSelect } from './XPSelect';
 import { useUserSession } from '../context/UserSessionContext';
-import { WALLPAPERS, getWallpaperById } from '../data/wallpapers';
 
 const Container = styled.div`
   width: 360px;
@@ -94,10 +93,10 @@ interface DesktopPropertiesProps {
 
 const DesktopProperties: React.FC<DesktopPropertiesProps> = ({ onClose }) => {
   const { t } = useTranslation();
-  const { wallpaper, setWallpaper } = useUserSession();
+  const { wallpaper, setWallpaper, wallpapers, resolveWallpaperSrc } = useUserSession();
   const [activeTab, setActiveTab] = useState('desktop');
   const [selected, setSelected] = useState(wallpaper);
-  const previewBg = getWallpaperById(selected).src;
+  const previewBg = resolveWallpaperSrc(selected);
 
   const handleOk = () => {
     setWallpaper(selected);
@@ -124,7 +123,7 @@ const DesktopProperties: React.FC<DesktopPropertiesProps> = ({ onClose }) => {
             <Row>
               <Label>{t('desktopProperties.background', 'Background:')}</Label>
               <Select value={selected} onChange={(e) => setSelected(e.target.value)}>
-                {WALLPAPERS.map(w => (
+                {wallpapers.map(w => (
                   <option key={w.id} value={w.id}>{w.name}</option>
                 ))}
               </Select>

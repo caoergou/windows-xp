@@ -15,7 +15,6 @@ import DesktopProperties from './DesktopProperties';
 import { resolveFileOpen } from '../registry/apps';
 import AntivirusPopup from './AntivirusPopup';
 import { useModal } from '../context/ModalContext';
-import { getWallpaperById } from '../data/wallpapers';
 import { FileItem, FileNode, MenuItem, RootNode, isContainerNode } from '../types';
 import { getFileIconName } from '../utils/fileIcon';
 import { getFileDisplayName } from '../utils/fileDisplayName';
@@ -144,8 +143,8 @@ const getEnglishTestId = (key: string, item: FileNode): string => {
 
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
-  const { wallpaper } = useUserSession();
-  const desktopBg = getWallpaperById(wallpaper).src;
+  const { wallpaper, resolveWallpaperSrc } = useUserSession();
+  const desktopBg = resolveWallpaperSrc(wallpaper);
   const { fs, moveFile, deleteFile, renameFile, createFile, copyToClipboard, cutFile, pasteFile, clipboard } = useFileSystem();
   const rootChildren = (fs.root as RootNode).children;
   const { windows, openWindow } = useWindowManager();
