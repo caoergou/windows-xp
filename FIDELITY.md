@@ -21,7 +21,6 @@
 4. **修复优先级 = 感知度 ⭐⭐⭐ 且状态 ❌ 的条目优先**，其次是 ⭐⭐⭐/🟡 与 ⭐⭐/❌。
 5. 🔍 条目的转正流程：与真实 XP 比对 → 补 e2e 或截图记录 → 改为 ✅/🟡/❌。
 6. **视觉审阅用组件级截图**：用 Playwright `locator.screenshot()` 只截目标组件（对话框、按钮、菜单栏本身），不要全屏截图——目标更聚焦，色值/渐变方向/圆角/边框的偏差一眼可辨。细到图标内部的像素位置，用 sharp 放大 8 倍并与 xp.css 的像素描摹 SVG 并排对照。
-6. **视觉审阅用组件级截图**：用 Playwright `locator.screenshot()` 只截目标组件（对话框、按钮、菜单栏本身），不要全屏截图——目标更聚焦，细节偏差（色值、渐变方向、圆角、边框）一眼可辨。
 
 ---
 
@@ -55,7 +54,7 @@
 
 | ID | XP 基准行为 | 感知度 | 状态 | 备注 |
 |----|------------|:---:|:---:|------|
-| WIN-01 | 双击标题栏最大化/还原；不可调大小的窗口双击无效果 | ⭐⭐⭐ | 🟡 | 双击已有（`WindowChrome.tsx:165`）；非 resizable 分支待核查 |
+| WIN-01 | 双击标题栏最大化/还原；不可调大小的窗口双击无效果 | ⭐⭐⭐ | ✅ | `WindowChrome.tsx:165` `onDoubleClick={() => isResizable && onMaximize()}`——非 resizable 窗口双击为 no-op |
 | WIN-02 | 最小化/最大化/关闭按钮的 normal/hover/active 三态 | ⭐⭐⭐ | ✅ | luna 贴图全套已接。已核查：最小化横线位于按钮底部偏左（21×21 中 x=5–11、y=13–15），与 xp.css 像素描摹 SVG 逐像素一致——"偏下"是 XP 原版设计而非缺陷 |
 | WIN-03 | **最小化时窗口缩放动画飞向对应任务栏按钮；最大化/还原有展开动画**（XP 默认开启"最小化和最大化时显示窗口动画"） | ⭐⭐⭐ | ❌ | #87 第一批；建议在 #80 重构后实现 |
 | WIN-04 | 非激活窗口标题栏使用浅色渐变（色值见 AGENTS.md） | ⭐⭐⭐ | 🔍 | |
@@ -64,9 +63,9 @@
 | WIN-07 | Alt+Space 打开系统菜单（还原/移动/大小/最小化/最大化/关闭），"移动"支持方向键移窗 | ⭐⭐ | ❌ | 也是"窗口拖丢了"的官方恢复手段，见 WIN-08 |
 | WIN-08 | XP 无边缘吸附、无拖到顶部最大化，窗口可拖出屏幕边缘 | ⭐⭐ | 🟡 | 当前行为恰好一致，但缺 WIN-07 的恢复手段；可选提供"标题栏始终可见"约束作为非仿真增强（默认关） |
 | WIN-09 | 需要注意的窗口任务栏按钮闪烁橙色（FlashWindow） | ⭐⭐ | 🟡 | `flashWindow` 机制已有；颜色/节奏待比对 |
-| WIN-10 | 最小化/还原播放对应系统音（XP 默认方案含"最小化/还原"事件） | ⭐ | 🔍 | `minimize.wav`/`restore.wav` 资产已有，接线待核查 |
+| WIN-10 | 最小化/还原播放对应系统音（XP 默认方案含"最小化/还原"事件） | ⭐ | ✅ | 已接线：`Window/index.tsx:42`（min）/`:51`（restore）、`Taskbar/index.tsx:213/217` → `sounds.minimize()/restore()` |
 | WIN-11 | 点击窗口任意处置顶获得焦点 | ⭐⭐⭐ | ✅ | |
-| WIN-12 | 层叠窗口 / 横向平铺 / 纵向平铺（任务栏右键） | ⭐⭐ | ❌ | 菜单项存在但永久 disabled（`Taskbar/index.tsx:363-365`）。#87 第一批 |
+| WIN-12 | 层叠窗口 / 横向平铺 / 纵向平铺（任务栏右键） | ⭐⭐ | ❌ | 菜单项存在但未接 action（`Taskbar/index.tsx:383-385`，仅在无窗口时 disabled）；需受控窗口定位，见 §末批次说明 |
 
 ## D. 任务栏 / 开始菜单 / 托盘（TSK）
 
@@ -142,9 +141,9 @@
 | SND-04 | 警告（Exclamation） | Exclamation | `exclamation.wav` | 🔍 | 警告类 Modal |
 | SND-05 | 默认响声（Default Beep） | Ding | `ding.wav` | ❌ | 点击模态框的父窗口（依赖 DLG-01） |
 | SND-06 | 系统通知 | Notify | `notify.wav` | 🟡 | 气球提示（TSK-08） |
-| SND-07 | 清空回收站 | Recycle | `recycle.wav` | 🔍 | 回收站"清空"操作 |
-| SND-08 | 最小化 / 还原 | Minimize / Restore | `minimize/restore.wav` | 🔍 | 窗口最小化/还原（配合 WIN-03 动画） |
-| SND-09 | 菜单命令 | Menu Command | `menu_command.wav` | 🔍 | 菜单项点击（XP 默认方案含此事件，音量很轻） |
+| SND-07 | 清空回收站 | Recycle | `recycle.wav` | ✅ | 删除文件时触发 `sounds.recycle()`（`useFileOperations.ts:152`） |
+| SND-08 | 最小化 / 还原 | Minimize / Restore | `minimize/restore.wav` | ✅ | `Window/index.tsx:42/51`、`Taskbar/index.tsx:213/217`（配合 WIN-03 动画） |
+| SND-09 | 菜单命令 | Menu Command | `menu_command.wav` | ✅ | 菜单项点击：`ContextMenu.tsx:112`、`Taskbar/index.tsx:203`、`StartMenu.tsx:274` |
 | SND-10 | IE 导航点击（"开始导航"） | Start Navigation | ❌ 缺资产 | ❌ | IE 内点链接；低优先级 |
 
 ## J. 动画与视觉效果（ANM）
@@ -169,7 +168,7 @@
 | ID | XP 基准 | 感知度 | 状态 | 备注 |
 |----|--------|:---:|:---:|------|
 | STY-01 | 窗口 chrome：Luna 蓝渐变标题栏、顶部圆角、粗边框、贴图控制按钮 | ⭐⭐⭐ | ✅ | #35 已审计修正一轮（去现代阴影、Trebuchet MS 标题字体） |
-| STY-02 | **中文 UI 字体为宋体（SimSun）优先**——雅黑是 Vista 之后的字体，XP 时代中文界面是宋体 9pt | ⭐⭐⭐ | 🟡 | 代码字体栈已正确（`Tahoma, SimSun, Microsoft YaHei`）；**AGENTS.md §常用 XP 字体 写的是 YaHei 优先，与代码矛盾且不保真，需修正**（本次一并修） |
+| STY-02 | **中文 UI 字体为宋体（SimSun）优先**——雅黑是 Vista 之后的字体，XP 时代中文界面是宋体 9pt | ⭐⭐⭐ | ✅ | 代码字体栈正确（`Tahoma, SimSun, Microsoft YaHei`），AGENTS.md §2 也已改为"中文字体宋体优先（雅黑是 Vista+）"，两者一致 |
 | STY-03 | 字体声明 token 化：同一 font-family 内联重复 30+ 处，无统一出口 | — | ❌ | 收敛进 `src/theme`；这是截图基线的前置（改一处即全局生效） |
 | STY-04 | 表单控件（按钮/输入框/复选框/单选/下拉）的 normal/hover/active/disabled 四态 | ⭐⭐⭐ | 🟡 | xp.css 提供，但多处组件手写偏离：已修 Calculator 按钮（原 Win2000 灰平面 → Luna 渐变+橙 hover）、4 个对话框按钮统一为共享 `XPButton`（xp.css 逐值对齐）、4 个对话框关闭钮从橙色渐变条统一为 Luna 贴图 `CloseBtn`、3 个应用菜单栏统一为 `XPMenuBar`（#99/PR #100）、3 处对话框文本输入框统一为共享 `XPTextInput`（#99）、复选框统一为 `XPCheckbox`/`XPRadio`（STY-17）、下拉统一为 `XPSelect`（STY-18）、滑块统一为 `xpTrackbarStyles`（STY-19）。按钮四态基本收敛，剩余散落手写按钮（ControlPanel/Notepad/FileProperties 等）待并入 XPButton |
 | STY-05 | disabled 文字的经典浮雕效果（灰字 + 1px 白色右下偏移） | ⭐ | 🔍 | |

@@ -61,21 +61,26 @@ Each window object:
 
 Windows persist across refreshes via localStorage('xp_open_windows'). Components are restored by WindowFactory.tsx using appId + componentProps.
 
-### App Registry (`src/registry/apps.tsx`) ⭐ NEW
+### App Registry (`src/registry/apps.tsx`)
 
 All applications are registered in `APP_REGISTRY`, which is the single source of truth for:
-- Application metadata (id, name, icon)
+- Application metadata (id, `nameKey`/`name`, icon)
 - Default window configuration (width, height, singleton, resizable)
 - File associations
 - Restoration logic
+- `locales` — optional list of culture ids the app belongs to (e.g. `['zh']` for the China-only apps); omit for apps available everywhere
+
+Prefer `nameKey` (an i18n key resolved via `getAppDisplayName`) over a hardcoded
+`name`; `name` remains as the fallback when no `nameKey` is set.
 
 ```typescript
 export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   Calculator: {
     id: 'Calculator',
     name: '计算器',
+    nameKey: 'apps.calculator',
     icon: 'calculator',
-    window: { width: 260, height: 340, resizable: false, singleton: true },
+    window: { width: 208, height: 196, resizable: false, singleton: true },
     associations: [{ appField: 'Calculator', getProps: () => ({}) }],
     restore: (props) => <Calculator {...props} />,
   },
@@ -118,6 +123,12 @@ Use `resolveFileOpen(key, item)` to resolve a filesystem node to window props.
 | VolumeControl | VolumeControl.tsx | Volume settings |
 | NetworkConnections | NetworkConnections.tsx | Network status |
 | BrowserPlugins | BrowserPlugins.tsx | Browser plugins management |
+| TaskManager | TaskManager.tsx | Task manager (processes/performance UI) |
+| SafeGuard360 | SafeGuard360.tsx | 360 安全卫士 — nostalgic scan gag (zh) |
+| Thunder | Thunder.tsx | 迅雷 download manager (zh) |
+| KugouMusic | KugouMusic.tsx | 酷狗音乐 music player (zh) |
+| BaofengPlayer | BaofengPlayer.tsx | 暴风影音 media player (zh) |
+| WPSOffice | WPSOffice.tsx | WPS Office suite UI (zh) |
 | DummyApp | (in registry) | Placeholder for unimplemented apps |
 
 ## Adding Content

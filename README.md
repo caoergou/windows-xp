@@ -43,6 +43,16 @@ This project is a nostalgic tribute to that era — the early 2000s internet, wh
 - 🌍 **Culture Profiles** - English and Chinese use distinct desktops, Start menus, browser homepages, and application sets
 - 🎮 **Classic Games** - Minesweeper and Solitaire included
 
+### It's an engine, not just a screenshot
+
+Beyond the desktop, `<WindowsXP>` is built to be embedded, scripted and extended:
+
+- 📡 **Event stream** — subscribe to everything happening inside the desktop with `onEvent` (`app:launch`, `file:open`, `cmd:exec`, `session:*`, …), the foundation for analytics, guided demos and the scenario system
+- 🎛️ **Imperative control** — drive the desktop from your app via a `ref` (`XPHandle`: `openApp`, `openFile`, `closeWindow`, `showAlert`, `reset`)
+- 🧩 **Embeddable** — `mode="embedded"` disables host-page hijacking (right-click/devtools blocks, global shortcuts, screensaver) in one switch; styles are scoped so nothing leaks onto your page
+- 🗂️ **Replaceable content** — bring your own filesystem (`customFileSystem` + `fileSystemMode`), wallpapers (`wallpapers`/`defaultWallpaper`), login `avatar`, `cultures` and `apps`
+- 🧱 **Standalone primitives** — import XP-styled React components (`XPButton`, `XPDialog`, `XPTabs`, …) with no providers, like xp.css but as controlled components
+
 ## 📦 Installation
 
 ```bash
@@ -88,21 +98,72 @@ function App() {
 />
 ```
 
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `username` | `string` | `'User'` | Username shown on the login screen |
+| `password` | `string` | `'forthe2000s'` | Password for authentication |
+| `language` | `string` | `'en'` | Initial language (`'en'` or `'zh'`, or a custom culture locale) |
+| `customFileSystem` | `Record<string, FileNode>` | `null` | Files/folders to seed the desktop (see below) |
+| `fileSystemMode` | `'merge' \| 'replace'` | `'merge'` | Merge into the built-in filesystem, or replace it entirely |
+| `avatar` | `string` | – | Login avatar: an `XPIcon` id or an image URL |
+| `wallpapers` | `WallpaperItem[]` | – | Extra wallpapers selectable in Display properties |
+| `defaultWallpaper` | `string` | – | Initial wallpaper id or URL |
+| `cultures` | `CulturePackage[]` | – | Custom culture packages that extend/override `en`/`zh` |
+| `apps` | `AppRegistryEntry[]` | – | Custom applications that extend/override the registry |
+| `skipBoot` | `boolean` | `false` | Skip the boot screen on first load |
+| `autoLogin` | `boolean` | `false` | Log in automatically without the login screen |
+| `storagePrefix` | `string` | `'xp_'` | Per-instance namespace for localStorage / IndexedDB |
+| `mode` | `'fullscreen' \| 'embedded'` | `'fullscreen'` | `'embedded'` disables host-page hijacking by default |
+| `disableContextMenuBlock` | `boolean` | `mode==='embedded'` | Disable the global right-click block |
+| `disableDevToolsBlock` | `boolean` | `mode==='embedded'` | Disable the F12 / devtools-shortcut block |
+| `disableGlobalShortcuts` | `boolean` | `mode==='embedded'` | Disable Alt+F4 / Alt+Tab / BSOD easter egg |
+| `disableScreenSaver` | `boolean` | `mode==='embedded'` | Disable the idle screensaver |
+| `onEvent` | `(e: XPEvent) => void` | – | Listener for every desktop event (see below) |
+
+The component also accepts a `ref` (`XPHandle`) for imperative control. See [USAGE.md](USAGE.md) for the complete reference.
+
+### Events & imperative control
+
+```jsx
+import { useRef } from 'react';
+import { WindowsXP } from '@caoergou/windows-xp';
+import type { XPHandle, XPEvent } from '@caoergou/windows-xp';
+
+function App() {
+  const xp = useRef<XPHandle>(null);
+
+  return (
+    <>
+      <button onClick={() => xp.current?.openApp('Notepad')}>Open Notepad</button>
+      <WindowsXP
+        ref={xp}
+        autoLogin
+        onEvent={(e: XPEvent) => {
+          // Drive an ARG: unlock the next clue when a specific file is opened
+          if (e.type === 'file:open' && e.name === 'secret.txt') {
+            xp.current?.showAlert('You found it', 'The password is: bliss');
+          }
+          if (e.type === 'cmd:exec') console.log('ran command', e.command);
+        }}
+      />
+    </>
+  );
+}
+```
+
 ### Custom File System
+
+Top-level keys are merged into the desktop root — so put files and folders at the top level (do **not** wrap them in a `"Desktop"` folder):
 
 ```jsx
 const customFS = {
-  "Desktop": {
-    "type": "folder",
-    "name": "Desktop",
-    "children": {
-      "MyApp.txt": {
-        "type": "file",
-        "name": "MyApp.txt",
-        "app": "Notepad",
-        "content": "Hello Windows XP!"
-      }
-    }
+  "MyApp.txt": {
+    "type": "file",
+    "name": "MyApp.txt",
+    "app": "Notepad",
+    "content": "Hello Windows XP!"
   }
 };
 
@@ -132,24 +193,21 @@ You can also extend the simulator with custom [culture packages](USAGE.md#custom
 ## 🎨 Built-in Applications
 
 ### Fully Implemented
-- 📝 **Notepad** - Text editor with file support
+- 📝 **Notepad** - Text editor with Undo/Redo, Find/Replace, Word Wrap, and save to the virtual filesystem
 - 🖼️ **Photo Viewer** - Image viewer
 - 🌐 **Internet Explorer** - Web browser with history and hao123 portal
-- 📁 **Explorer** - File manager with navigation
+- 📁 **Explorer** - File manager with navigation and keyboard shortcuts (F2/F5/Del, Backspace = up)
 - 🧮 **Calculator** - Basic calculator
+- 🎨 **Paint** - Brush, line, rectangle, circle drawing; saves the canvas (data URL) into the virtual filesystem
+- 🃏 **Solitaire** - Full move logic, auto-flip, stock recycling, and win detection (unit-tested)
+- 💣 **Minesweeper** - Classic game with difficulty menu, real XP sprites, and best-time tracking per difficulty
 - 💬 **QQ Login** - QQ login dialog
 - ❓ **Help and Support** - Help center
 - 🏃 **Run Dialog** - Run command dialog with common XP commands
 - 🔊 **Volume Control** - Volume settings
 
-### Playable / Working Core
-- 💣 **Minesweeper** - Classic game with difficulty menu, real XP sprites, and best-time tracking per difficulty
-
 ### Partial Functionality
-- 🎨 **Paint** - Brush, line, rectangle, circle drawing; save/load and advanced tools coming soon
-- 📝 **Notepad** - Edit/save works; Undo, Find/Replace, Word Wrap, Font are stubbed
 - 💻 **Command Prompt** - Basic commands work; `exit` closes the window
-- 🃏 **Solitaire** - Card UI rendered; move logic and win detection not yet implemented
 
 ### Basic UI (Limited Functionality)
 - 🎵 **Windows Media Player** - Media player UI with visualizations, no audio playback yet
