@@ -19,33 +19,49 @@ const TreeContainer = styled.div`
   min-width: 200px;
   background: #fff;
   border-right: 1px solid #aca899;
-  overflow: auto;
-  padding: 4px 2px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   font-size: 11px;
   font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   user-select: none;
 `;
 
+/* Fixed header bar — stays put while the tree body scrolls, so the close box
+   sits flush in the pane's top-right corner (XP). */
 const TreeHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
   height: 20px;
-  padding: 0 2px 0 6px;
-  margin-bottom: 2px;
+  padding: 0 3px 0 6px;
   font-weight: bold;
   color: #333;
   border-bottom: 1px solid #d4d0c8;
 `;
 
+const TreeBody = styled.div`
+  flex: 1;
+  overflow: auto;
+  padding: 4px 2px;
+`;
+
 const CloseX = styled.button`
+  /* min-width:0 overrides the global button min-width so the box is truly 16px
+     and the × sits flush in the top-right corner (measured, not assumed). */
   width: 16px;
+  min-width: 0;
   height: 16px;
+  flex: 0 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
   border: 1px solid transparent;
   background: transparent;
   font-size: 12px;
-  line-height: 12px;
+  line-height: 1;
   color: #555;
   cursor: pointer;
 
@@ -227,7 +243,7 @@ const ExplorerFolderTree: React.FC<ExplorerFolderTreeProps> = ({
           </CloseX>
         )}
       </TreeHeader>
-      {topLevel.map(([k, n]) => renderNode(k, n, [k], 0))}
+      <TreeBody>{topLevel.map(([k, n]) => renderNode(k, n, [k], 0))}</TreeBody>
     </TreeContainer>
   );
 };
