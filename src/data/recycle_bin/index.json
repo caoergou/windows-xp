@@ -1,7 +1,7 @@
 {
   "旧照片.jpg": {
     "file": "旧照片.json",
-    "originalPath": ["我的文档", "My Pictures", "Sample Pictures"]
+    "originalPath": ["我的文档", "我的图片", "Sample Pictures"]
   },
   "写给未来的信.txt": {
     "file": "写给未来的信.json",

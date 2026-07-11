@@ -47,6 +47,7 @@ const DropdownMenu = styled.div`
 `;
 
 const DropdownItem = styled.button<{ $disabled?: boolean }>`
+  position: relative;
   width: 100%;
   height: 20px;
   padding: 0 22px 0 22px;
@@ -173,7 +174,12 @@ const Separator = styled.div`
 type ExplorerMenuKey = 'file' | 'edit' | 'view' | 'favorites' | 'tools' | 'help';
 
 type DropdownSeparatorEntry = { type: 'separator' };
-type DropdownActionEntry = { label: string; disabled?: boolean; action?: () => void };
+type DropdownActionEntry = {
+  label: string;
+  disabled?: boolean;
+  action?: () => void;
+  checked?: boolean;
+};
 type DropdownEntry = DropdownSeparatorEntry | DropdownActionEntry;
 
 const isSeparatorEntry = (entry: DropdownEntry): entry is DropdownSeparatorEntry =>
@@ -187,6 +193,10 @@ interface ExplorerToolbarProps {
   canGoBack?: boolean;
   canGoForward?: boolean;
   canGoUp?: boolean;
+  /** Current file-list view mode (#120). */
+  view?: 'icons' | 'details';
+  /** Switch the file-list view mode (#120). */
+  onViewChange?: (mode: 'icons' | 'details') => void;
 }
 
 const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
@@ -197,6 +207,8 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
   canGoBack = false,
   canGoForward = false,
   canGoUp = false,
+  view = 'icons',
+  onViewChange,
 }) => {
   const { t } = useTranslation();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -249,11 +261,19 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
           { label: t('explorer.menuItems.statusBar') },
           { label: t('explorer.menuItems.explorerBar') },
           { type: 'separator' },
-          { label: t('explorer.menuItems.thumbnails') },
-          { label: t('explorer.menuItems.tiles') },
-          { label: t('explorer.menuItems.icons') },
-          { label: t('explorer.menuItems.list') },
-          { label: t('explorer.menuItems.details') },
+          { label: t('explorer.menuItems.thumbnails'), disabled: true },
+          { label: t('explorer.menuItems.tiles'), disabled: true },
+          {
+            label: t('explorer.menuItems.icons'),
+            action: () => onViewChange?.('icons'),
+            checked: view === 'icons',
+          },
+          { label: t('explorer.menuItems.list'), disabled: true },
+          {
+            label: t('explorer.menuItems.details'),
+            action: () => onViewChange?.('details'),
+            checked: view === 'details',
+          },
           { type: 'separator' },
           { label: t('explorer.menuItems.refresh'), action: _onRefresh },
         ],
@@ -286,7 +306,7 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
         ],
       },
     ],
-    [_onRefresh, t]
+    [_onRefresh, t, view, onViewChange]
   );
 
   return (
@@ -320,6 +340,9 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
                         setOpenMenu(null);
                       }}
                     >
+                      {entry.checked && (
+                        <span style={{ position: 'absolute', left: 8 }}>●</span>
+                      )}
                       {entry.label}
                     </DropdownItem>
                   );
@@ -372,8 +395,11 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
 
         <Separator />
 
-        {/* 视图 */}
-        <ToolBtn title={t('explorer.view')}>
+        {/* 视图 — quick toggle between Icons and Details (#120) */}
+        <ToolBtn
+          title={t('explorer.view')}
+          onClick={() => onViewChange?.(view === 'details' ? 'icons' : 'details')}
+        >
           <XPIcon name="views" size={16} />
           <span style={{ fontSize: 9, marginLeft: 1 }}>▾</span>
         </ToolBtn>

@@ -52,8 +52,9 @@ test.describe('Explorer keyboard operations', () => {
   });
 
   test('Backspace navigates up one level (EXP-03)', async ({ page }) => {
-    // Descend into the "My Pictures" subfolder, then Backspace back up.
-    await page.locator('[data-testid="file-item-My Pictures"]').dblclick();
+    // Descend into the My Pictures subfolder (canonical key 我的图片), then
+    // Backspace back up.
+    await page.locator('[data-testid="file-item-我的图片"]').dblclick();
     await expect(page.locator('[data-testid="file-item-readme.txt"]')).not.toBeVisible();
     await page.keyboard.press('Backspace');
     await expect(page.locator('[data-testid="file-item-readme.txt"]')).toBeVisible();

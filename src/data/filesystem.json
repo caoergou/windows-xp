@@ -147,9 +147,9 @@
               }
             }
           },
-          "My Pictures": {
+          "我的图片": {
             "type": "folder",
-            "name": "My Pictures",
+            "name": "我的图片",
             "icon": "folder",
             "children": {
               "Sample Pictures": {
@@ -176,15 +176,9 @@
               }
             }
           },
-          "我的图片": {
+          "我的视频": {
             "type": "folder",
-            "name": "我的图片",
-            "icon": "folder",
-            "children": {}
-          },
-          "My Videos": {
-            "type": "folder",
-            "name": "My Videos",
+            "name": "我的视频",
             "icon": "folder",
             "children": {}
           },

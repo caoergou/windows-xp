@@ -86,6 +86,7 @@
     "myComputer": "我的电脑",
     "myPictures": "我的图片",
     "myMusic": "我的音乐",
+    "myVideos": "我的视频",
     "controlPanel": "控制面板",
     "printersAndFaxes": "打印机和传真",
     "search": "搜索",
@@ -169,6 +170,12 @@
     "close": "关闭"
   },
   "explorer": {
+    "details": {
+      "name": "名称",
+      "size": "大小",
+      "type": "类型",
+      "dateModified": "修改日期"
+    },
     "file": "文件",
     "edit": "编辑",
     "view": "查看",
@@ -198,6 +205,28 @@
       "opticalDrive": "CD 驱动器",
       "file": "文件",
       "systemFolder": "系统文件夹"
+    },
+    "fileTypes": {
+      "generic": "{{ext}} 文件",
+      "noExtension": "文件",
+      "txt": "文本文档",
+      "jpg": "JPEG 图像",
+      "jpeg": "JPEG 图像",
+      "bmp": "位图图像",
+      "png": "PNG 图像",
+      "gif": "GIF 图像",
+      "ico": "图标",
+      "mp3": "MP3 音频文件",
+      "wav": "波形声音",
+      "m3u": "Winamp 媒体文件",
+      "zip": "压缩(zipped)文件夹",
+      "html": "HTML 文档",
+      "htm": "HTML 文档",
+      "url": "Internet 快捷方式",
+      "exe": "应用程序",
+      "lnk": "快捷方式",
+      "ini": "配置设置",
+      "doc": "WordPad 文档"
     },
     "sidebar": {
       "systemTasks": "系统任务",

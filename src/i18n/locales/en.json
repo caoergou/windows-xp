@@ -86,6 +86,7 @@
     "myComputer": "My Computer",
     "myPictures": "My Pictures",
     "myMusic": "My Music",
+    "myVideos": "My Videos",
     "controlPanel": "Control Panel",
     "printersAndFaxes": "Printers and Faxes",
     "search": "Search",
@@ -175,6 +176,12 @@
     "close": "Close"
   },
   "explorer": {
+    "details": {
+      "name": "Name",
+      "size": "Size",
+      "type": "Type",
+      "dateModified": "Date Modified"
+    },
     "file": "File",
     "edit": "Edit",
     "view": "View",
@@ -204,6 +211,28 @@
       "opticalDrive": "CD Drive",
       "file": "File",
       "systemFolder": "System Folder"
+    },
+    "fileTypes": {
+      "generic": "{{ext}} File",
+      "noExtension": "File",
+      "txt": "Text Document",
+      "jpg": "JPEG Image",
+      "jpeg": "JPEG Image",
+      "bmp": "Bitmap Image",
+      "png": "PNG Image",
+      "gif": "GIF Image",
+      "ico": "Icon",
+      "mp3": "MP3 Format Sound",
+      "wav": "Wave Sound",
+      "m3u": "Winamp Media File",
+      "zip": "Compressed (zipped) Folder",
+      "html": "HTML Document",
+      "htm": "HTML Document",
+      "url": "Internet Shortcut",
+      "exe": "Application",
+      "lnk": "Shortcut",
+      "ini": "Configuration Settings",
+      "doc": "WordPad Document"
     },
     "sidebar": {
       "systemTasks": "System Tasks",
