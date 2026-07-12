@@ -53,6 +53,60 @@ describe('XPEventBus core', () => {
   });
 });
 
+describe('expanded event catalog', () => {
+  beforeEach(() => {
+    bus = new XPEventBus();
+    events = [];
+    bus.subscribe(e => events.push(e));
+  });
+
+  // Every new domain must round-trip through the bus with its payload intact.
+  // This is the type-level contract scenario authors and hosts depend on: the
+  // union in src/events.ts is the single trigger vocabulary, so each member must
+  // be constructible and observable. (A compile error here is the real guard —
+  // an invalid payload would fail `tsc` before this test runs.)
+  const samples: XPEvent[] = [
+    { type: 'startmenu:open' },
+    { type: 'startmenu:close' },
+    { type: 'contextmenu:open', target: 'file', path: ['D:', '日记.txt'] },
+    { type: 'file:properties', path: ['D:', '日记.txt'], name: '日记.txt' },
+    { type: 'ie:navigate', url: 'http://example.com', generated: true },
+    { type: 'qq:offline', buddyId: 'crystal' },
+    { type: 'qq:status', buddyId: 'crystal', signature: '别动我的东西' },
+    { type: 'qq:choice', buddyId: 'crystal', choiceId: 'opt-2' },
+    { type: 'game:start', appId: 'Minesweeper', difficulty: 'beginner' },
+    { type: 'game:win', appId: 'Minesweeper', difficulty: 'expert', timeMs: 42000 },
+    { type: 'game:lose', appId: 'Minesweeper', difficulty: 'beginner' },
+    { type: 'media:play', path: '/music.mp3', title: 'music' },
+    { type: 'media:pause', path: '/music.mp3' },
+    { type: 'media:ended', path: '/music.mp3' },
+    { type: 'media:seek', path: '/music.mp3', position: 12.5 },
+    { type: 'search:query', query: '0318', hit: true, resultIds: ['thread-1'] },
+    { type: 'evidence:collect', termId: 'term.bicycle', source: 'diary' },
+    { type: 'evidence:pin', itemId: 'photo-3' },
+    { type: 'evidence:link', sourceId: 'photo-3', targetId: 'name-7' },
+    { type: 'evidence:unpin', itemId: 'photo-3' },
+    { type: 'deduction:submit', formId: 'finale', slots: { who: '阿哲', where: '网吧' } },
+    { type: 'deduction:verified', formId: 'finale', groups: ['g1'] },
+    { type: 'deduction:failed', formId: 'finale', groups: ['g2'] },
+    { type: 'lesson:start', lessonId: 'get-software' },
+    { type: 'lesson:step-complete', lessonId: 'get-software', stepId: 's1' },
+    { type: 'lesson:hint-shown', lessonId: 'get-software', stepId: 's1', hintId: 'h1' },
+    { type: 'lesson:step-failed', lessonId: 'get-software', stepId: 's1' },
+    { type: 'lesson:complete', lessonId: 'get-software', score: 100 },
+    { type: 'install:start', appId: 'Thunder' },
+    { type: 'install:complete', appId: 'Thunder' },
+    { type: 'install:cancelled', appId: 'Thunder' },
+    { type: 'ui:action', appId: 'ControlPanel', control: 'screensaver.enabled', value: true },
+  ];
+
+  it.each(samples.map(s => [s.type, s] as const))('delivers %s with its payload intact', (_type, sample) => {
+    bus.emit(sample);
+    expect(events).toHaveLength(1);
+    expect(events[0]).toEqual(sample);
+  });
+});
+
 describe('WindowManager emits lifecycle events (#76)', () => {
   beforeEach(() => {
     bus = new XPEventBus();

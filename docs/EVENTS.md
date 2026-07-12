@@ -21,6 +21,8 @@ about one subsystem.
 | --- | --- |
 | `app` | application lifecycle (launch/close) |
 | `window` | window state (focus/minimize/maximize/restore) |
+| `startmenu` | Start menu open/close |
+| `contextmenu` | right-click context menu |
 | `file` | files in the virtual filesystem |
 | `folder` | folders (distinct from files where the payload differs) |
 | `recyclebin` | the Recycle Bin |
@@ -33,8 +35,23 @@ about one subsystem.
 | `notification` | tray notification balloons |
 | `time` | wall-clock / scheduler events (#130 timer half) |
 | `user` | user-presence / idle detection (#130 timer half) |
+| `game` | bundled games — Minesweeper / Solitaire win/lose/start (#134) |
+| `media` | audio / video playback (#134) |
+| `search` | in-world search oracle — scenario-layer (#134) |
+| `evidence` | clue collection & pinboard — scenario-layer (#134) |
+| `deduction` | constrained answer submission — scenario-layer (#134) |
+| `lesson` | guided-tutorial lifecycle (#141) |
+| `install` | software-install lifecycle (#142) |
+| `ui` | semantic in-app control changes (#142) |
 | `link` | outbound navigation out of the fiction (#136 conversion signal) |
-| `qq`, `game`, … | reserved for app- and scenario-specific domains |
+| `qq`, … | app- and scenario-specific domains |
+
+Three of the new domains — `search`, `evidence`, `deduction` — are
+**scenario-layer surfaces**: the core engine stays ignorant of game semantics
+(axiom 2), so they are emitted by the scenario runtime / scenario-provided apps
+(or injected via the imperative `emit()`), never by `src/context`. The catalog
+still declares them here because the `XPEvent` union is the single vocabulary
+scenario authors learn from.
 
 Introducing a new domain is a deliberate act: add it to this list and to
 `DOMAIN_TITLES` in `scripts/gen-events-doc.mjs`. Prefer an existing domain over

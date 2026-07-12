@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getSystemPathDisplay } from '../data/systemPaths';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { useFileSystem } from '../context/FileSystemContext';
+import { useXPEventBus } from '../context/EventBusContext';
 import XPIcon from './XPIcon';
 import { FileNode, ExifData } from '../types';
 
@@ -113,8 +114,17 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
   const [exifData, setExifData] = useState<ExifData | null>(null);
   const { closeWindow } = useWindowManager();
   const { getFileProperties } = useFileSystem();
+  const bus = useXPEventBus();
 
   const properties = fileItem ? getFileProperties(parentPath || [], fileItem.name) : null;
+
+  // The Properties dialog is the one layer where "metadata was inspected" is
+  // observable — emit once per open so scenarios can treat it as a clue channel.
+  useEffect(() => {
+    if (!fileItem) return;
+    bus.emit({ type: 'file:properties', path: [...(parentPath || []), fileItem.name], name: fileItem.name });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Localize the raw values the filesystem layer returns (#121): size as a
   // byte/object count and the XP-era date, both formatted for the active locale.

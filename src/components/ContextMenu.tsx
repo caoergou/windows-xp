@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
+import { useXPEventBus } from '../context/EventBusContext';
 import { MenuItem } from '../types';
 
 const ContextMenuContainer = styled.div<{ $x: number; $y: number }>`
@@ -147,6 +148,16 @@ const MenuRow = ({
 
 const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(({ visible, x, y, onClose, menuItems }, ref) => {
     const menuRef = useRef<HTMLDivElement | null>(null);
+    const bus = useXPEventBus();
+
+    // One emission per open, from the single shared context-menu layer. Call
+    // sites can enrich the payload with `target`/`path` later; the bare signal
+    // already tells listeners a right-click menu was raised.
+    const wasVisibleRef = useRef(false);
+    useEffect(() => {
+        if (visible && !wasVisibleRef.current) bus.emit({ type: 'contextmenu:open' });
+        wasVisibleRef.current = visible;
+    }, [visible, bus]);
 
     const setRef = useCallback((el: HTMLDivElement | null) => {
         menuRef.current = el;
