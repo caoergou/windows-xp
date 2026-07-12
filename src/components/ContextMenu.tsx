@@ -226,7 +226,7 @@ const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(({ visible, x, 
     if (!visible) return null;
 
     return createPortal(
-        <ContextMenuContainer ref={setRef} $x={x} $y={y} className="windows-xp-portal">
+        <ContextMenuContainer ref={setRef} $x={x} $y={y} className="windows-xp-portal" data-testid="context-menu">
             {menuItems.map((item, index) => (
                 <MenuRow
                   key={index}

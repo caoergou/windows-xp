@@ -14,7 +14,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 /** src/ 内联 hex 色值存量基线：只许减少。降低后请同步更新此值。 */
-const HEX_BASELINE = 1539; // 2026-07-11：#123 en 文化应用（Winamp/Norton/uTorrent/iTunes/Office）新增内联色值后实测；token 化欠账见 #135
+const HEX_BASELINE = 1538; // 2026-07-12：#125 触摸 MobileWarning 改用 COLORS token 后下调；token 化欠账见 #135
 
 /** 机制层：必须保持零色值、零 xp.css 依赖的目录/文件。 */
 const ENGINE_PURE = ['src/context', 'src/hooks', 'src/utils', 'src/events.ts', 'src/snapshot.ts'];

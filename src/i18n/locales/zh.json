@@ -923,9 +923,9 @@
     }
   },
   "mobileWarning": {
-    "title": "检测到移动设备",
-    "message": "Windows XP 模拟器在桌面或笔记本电脑上体验最佳。在移动设备上，界面和功能可能会受到限制。",
-    "continue": "继续访问桌面版"
+    "title": "触摸操作",
+    "message": "点按即单击，双击可打开，长按弹出右键菜单。拖动标题栏可移动窗口。",
+    "gotIt": "知道了"
   },
   "storage": {
     "errorTitle": "Windows XP",

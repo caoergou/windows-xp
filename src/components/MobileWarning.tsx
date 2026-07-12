@@ -3,97 +3,112 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { XPButton } from './XPButton';
-import { XPDialogFrame, XPDialogContent, XPDialogButtonRow } from './XPDialogChrome';
+import { useStorage } from '../context/StorageContext';
+import { COLORS } from '../constants';
 
-const WarningContainer = styled.div`
+/**
+ * Touch onboarding hint (#125).
+ *
+ * Touch is now a first-class input (tap = click, double-tap = open, long-press =
+ * context menu, drag windows by the title bar), so this is no longer a blocking
+ * "desktop recommended" wall. On a touch device it shows once — a small,
+ * dismissible hint explaining the gestures — then never again for that instance
+ * (the dismissal is persisted per `storagePrefix`).
+ */
+
+const HINT_KEY = 'touch_hint_seen';
+
+const HintBar = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85);
+  left: 50%;
+  bottom: 46px;
+  transform: translateX(-50%);
+  z-index: 999998;
+  max-width: min(92vw, 420px);
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 999999;
-  padding: 20px;
-  box-sizing: border-box;
-`;
-
-const WarningBody = styled.div`
-  display: flex;
-  gap: 14px;
+  gap: 12px;
   align-items: flex-start;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  background: ${COLORS.SURFACE};
+  border: 1px solid ${COLORS.BUTTON_SHADOW};
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
   font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  animation: touchHintIn 0.28s ease-out;
+
+  @keyframes touchHintIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, 12px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
 `;
 
-const WarningText = styled.p`
-  color: #000;
-  font-size: 11px;
-  line-height: 1.5;
-  margin: 0;
+const HintText = styled.div`
+  flex: 1;
+  min-width: 0;
+
+  strong {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 3px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.5;
+  }
 `;
 
-const isMobileDevice = () => {
-  const width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-  const height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-
-  // 检测移动设备的关键指标
-  return (
-    // 设备宽度小于 768px
-    width < 768 ||
-    // 设备高度小于 600px 且宽度较小
-    (height < 600 && width < 1024) ||
-    // 触摸设备检测
-    'ontouchstart' in window ||
+const isTouchDevice = () =>
+  typeof window !== 'undefined' &&
+  ('ontouchstart' in window ||
     navigator.maxTouchPoints > 0 ||
-    ((navigator as Navigator & { msMaxTouchPoints?: number }).msMaxTouchPoints ?? 0) > 0
-  );
-};
+    ((navigator as Navigator & { msMaxTouchPoints?: number }).msMaxTouchPoints ?? 0) > 0);
 
 const MobileWarning: React.FC = () => {
   const { t } = useTranslation();
-  const [isMobile, setIsMobile] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const storage = useStorage();
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(isMobileDevice());
-    };
+    if (!isTouchDevice()) return;
+    try {
+      if (storage.local.getItem(storage.key(HINT_KEY))) return;
+    } catch {
+      /* ignore */
+    }
+    setVisible(true);
+  }, [storage]);
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  const handleContinue = () => {
-    setDismissed(true);
+  const dismiss = () => {
+    setVisible(false);
+    try {
+      storage.local.setItem(storage.key(HINT_KEY), '1');
+    } catch {
+      /* ignore */
+    }
   };
 
-  if (!isMobile || dismissed) {
-    return null;
-  }
+  if (!visible) return null;
 
   return (
-    <WarningContainer className="windows-xp-portal">
-      <XPDialogFrame
-        title={t('mobileWarning.title')}
-        onClose={handleContinue}
-        width={340}
-        data-testid="mobile-warning"
-      >
-        <XPDialogContent>
-          <WarningBody>
-            <XPIcon name="dialog_warning" size={32} />
-            <WarningText>{t('mobileWarning.message')}</WarningText>
-          </WarningBody>
-        </XPDialogContent>
-        <XPDialogButtonRow>
-          <XPButton onClick={handleContinue}>{t('mobileWarning.continue')}</XPButton>
-        </XPDialogButtonRow>
-      </XPDialogFrame>
-    </WarningContainer>
+    <HintBar className="windows-xp-portal" data-testid="touch-hint" role="status">
+      <XPIcon name="help" size={28} />
+      <HintText>
+        <strong>{t('mobileWarning.title')}</strong>
+        <p>{t('mobileWarning.message')}</p>
+      </HintText>
+      <XPButton onClick={dismiss} data-testid="touch-hint-dismiss">
+        {t('mobileWarning.gotIt')}
+      </XPButton>
+    </HintBar>
   );
 };
 

@@ -4,6 +4,7 @@ import { useFileSystem } from '../../context/FileSystemContext';
 import { useXPEventBus } from '../../context/EventBusContext';
 import { useStorage } from '../../context/StorageContext';
 import { useApp } from '../../hooks/useApp';
+import { useTapGestures } from '../../hooks/useTapGestures';
 import XPIcon from '../../components/XPIcon';
 import { getFileIconName } from '../../utils/fileIcon';
 import ExplorerSidebar from '../../components/Explorer/ExplorerSidebar';
@@ -97,6 +98,10 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
   } | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Touch gestures (#125): synthetic mouse clicks that follow a handled tap are
+  // ignored so behavior isn't doubled; a real mouse never sets this.
+  const lastTouchAt = useRef(0);
+  const isSyntheticAfterTouch = () => Date.now() - lastTouchAt.current < 700;
   const [address, setAddress] = useState<string>(initialPath.join('\\'));
   const [dragOver, setDragOver] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<{
@@ -251,6 +256,55 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     setSelectedItem(null);
   };
 
+  // Touch (#125): resolve the file item under the finger (via `data-item-key`)
+  // and map tap → select, double-tap → open/navigate, long-press → its context
+  // menu. List scrolling still works — the hook uses passive listeners and
+  // cancels a tap once the finger moves past tolerance. Declared before the
+  // early return below so the hooks run on every render.
+  const touchTargetRef = useRef<{ key: string; item: FileNode } | null>(null);
+  const resolveTouchItem = (key: string): FileNode | undefined =>
+    currentFolder && isContainerNode(currentFolder) ? currentFolder.children[key] : undefined;
+
+  const fileTouchGestures = useTapGestures({
+    onTap: () => {
+      lastTouchAt.current = Date.now();
+      const target = touchTargetRef.current;
+      setSelectedItem(
+        target
+          ? { name: getFileDisplayName(target.key, target.item, t), type: target.item.type, key: target.key }
+          : null
+      );
+    },
+    onDoubleTap: () => {
+      lastTouchAt.current = Date.now();
+      const target = touchTargetRef.current;
+      if (target) handleNavigate(target.key);
+    },
+    onLongPress: ({ x, y }) => {
+      lastTouchAt.current = Date.now();
+      const target = touchTargetRef.current;
+      if (target) {
+        setSelectedItem({
+          name: getFileDisplayName(target.key, target.item, t),
+          type: target.item.type,
+          key: target.key,
+        });
+        setContextMenu({ visible: true, x, y, targetItem: { key: target.key, item: target.item } });
+      } else {
+        setSelectedItem(null);
+        setContextMenu({ visible: true, x, y, targetItem: null });
+      }
+    },
+  });
+
+  const handleFileAreaTouchStart = (e: React.TouchEvent) => {
+    const el = (e.target as HTMLElement).closest('[data-item-key]') as HTMLElement | null;
+    const key = el?.dataset.itemKey;
+    const item = key ? resolveTouchItem(key) : undefined;
+    touchTargetRef.current = key && item ? { key, item } : null;
+    fileTouchGestures.onTouchStart(e);
+  };
+
   if (!currentFolder) return <div>{t('explorer.errors.pathNotFound')}</div>;
 
   // Grouping Logic for "My Computer" (Root or Explicit 'My Computer' path)
@@ -390,9 +444,16 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
               <DetailsRow
                 key={key}
                 data-testid={`file-row-${key}`}
+                data-item-key={key}
                 $selected={isSelected}
-                onClick={() => setSelectedItem({ name: displayName, type: item.type, key })}
-                onDoubleClick={() => handleNavigate(key)}
+                onClick={() => {
+                  if (isSyntheticAfterTouch()) return;
+                  setSelectedItem({ name: displayName, type: item.type, key });
+                }}
+                onDoubleClick={() => {
+                  if (isSyntheticAfterTouch()) return;
+                  handleNavigate(key);
+                }}
                 onContextMenu={e => handleContextMenu(e, key, item)}
               >
                 <DetailsNameCell>
@@ -414,16 +475,21 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
     );
   };
 
-  const handleContextMenu = (e: React.MouseEvent, key: string, item: FileNode) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const openItemMenuAt = (x: number, y: number, key: string, item: FileNode) => {
     setSelectedItem({ name: getFileDisplayName(key, item, t), type: item?.type, key });
     setContextMenu({
       visible: true,
-      x: e.clientX,
-      y: e.clientY,
+      x,
+      y,
       targetItem: item ? { key, item } : null,
     });
+  };
+
+  const handleContextMenu = (e: React.MouseEvent, key: string, item: FileNode) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isSyntheticAfterTouch()) return;
+    openItemMenuAt(e.clientX, e.clientY, key, item);
   };
 
   const closeContextMenu = () => {
@@ -622,8 +688,15 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
       <FileItem
         key={key}
         data-testid={`file-item-${key}`}
-        onDoubleClick={() => handleNavigate(key)}
-        onClick={() => setSelectedItem({ name: displayName, type: item.type, key })}
+        data-item-key={key}
+        onDoubleClick={() => {
+          if (isSyntheticAfterTouch()) return;
+          handleNavigate(key);
+        }}
+        onClick={() => {
+          if (isSyntheticAfterTouch()) return;
+          setSelectedItem({ name: displayName, type: item.type, key });
+        }}
         onContextMenu={e => handleContextMenu(e, key, item)}
         $selected={isSelected}
         draggable
@@ -813,7 +886,13 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
             onNavigate={handleNavigateToPath}
           />
         )}
-        <FileArea key={refreshKey} $flush={viewMode === 'details'}>
+        <FileArea
+          key={refreshKey}
+          $flush={viewMode === 'details'}
+          onTouchStart={handleFileAreaTouchStart}
+          onTouchMove={fileTouchGestures.onTouchMove}
+          onTouchEnd={fileTouchGestures.onTouchEnd}
+        >
           {isInRecycleBin && childCount === 0 ? (
             <EmptyRecycleBinMessage>
               <XPIcon name="recycle_bin" size={48} />

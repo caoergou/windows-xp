@@ -20,6 +20,7 @@ import { getFileIconName } from '../../utils/fileIcon';
 import { getFileDisplayName } from '../../utils/fileDisplayName';
 import { DesktopContainer, SelectionBox, IconGrid, DesktopIcon } from './styled';
 import { BOX_SELECT_IGNORE, SYSTEM_ICON_KEYS, getEnglishTestId } from './constants';
+import { useTapGestures } from '../../hooks/useTapGestures';
 
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
@@ -92,8 +93,8 @@ const Desktop: React.FC = () => {
     };
   }, []);
 
-  const toggleIconSelection = (key: string, e: React.MouseEvent) => {
-    if (e.ctrlKey) {
+  const selectIcon = (key: string, additive: boolean) => {
+    if (additive) {
       const newSelected = new Set(selectedIcons);
       if (newSelected.has(key)) {
         newSelected.delete(key);
@@ -105,6 +106,18 @@ const Desktop: React.FC = () => {
       setSelectedIcons(new Set([key]));
     }
   };
+
+  const toggleIconSelection = (key: string, e: React.MouseEvent) => {
+    selectIcon(key, e.ctrlKey);
+  };
+
+  // Timestamp of the last touch-handled gesture (#125). React registers
+  // touchstart as passive so we can't preventDefault the compatibility mouse
+  // click; instead the mouse handlers ignore synthetic clicks/contextmenus that
+  // land right after a gesture. A real mouse never sets this, so pointer and
+  // keyboard behavior stay byte-identical.
+  const lastTouchAt = useRef(0);
+  const isSyntheticAfterTouch = () => Date.now() - lastTouchAt.current < 700;
 
   const handleMouseDown = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -228,20 +241,85 @@ const Desktop: React.FC = () => {
     return [];
   };
 
+  const openDesktopMenuAt = (x: number, y: number) => {
+    setContextMenu({ visible: true, x, y, iconKey: null });
+  };
+
+  const openIconMenuAt = (x: number, y: number, key: string) => {
+    if (!selectedIcons.has(key)) {
+      setSelectedIcons(new Set([key]));
+    }
+    setContextMenu({ visible: true, x, y, iconKey: key });
+  };
+
   const handleContextMenu = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     if (target.closest('[data-xp-context-boundary="true"]')) return;
     e.preventDefault();
-    setContextMenu({ visible: true, x: e.clientX, y: e.clientY, iconKey: null });
+    // A touch long-press already raised our menu; just swallow the native one.
+    if (isSyntheticAfterTouch()) return;
+    openDesktopMenuAt(e.clientX, e.clientY);
   };
 
   const handleIconContextMenu = (e: React.MouseEvent, key: string) => {
     e.preventDefault();
-    e.stopPropagation();
-    if (!selectedIcons.has(key)) {
-      setSelectedIcons(new Set([key]));
+    e.stopPropagation(); // don't let the desktop's own context menu also fire
+    if (isSyntheticAfterTouch()) return;
+    openIconMenuAt(e.clientX, e.clientY, key);
+  };
+
+  // ── Touch gestures (#125): map finger taps to the existing mouse metaphor.
+  // A single delegating instance resolves the icon under the finger at press
+  // time; mouse/keyboard paths above are untouched.
+  const touchTargetKeyRef = useRef<string | null>(null);
+  const touchIgnoreRef = useRef(false);
+
+  const touchGestures = useTapGestures({
+    onTap: () => {
+      lastTouchAt.current = Date.now();
+      const key = touchTargetKeyRef.current;
+      if (key) {
+        containerRef.current?.focus();
+        selectIcon(key, false);
+      } else {
+        setSelectedIcons(new Set());
+      }
+    },
+    onDoubleTap: () => {
+      lastTouchAt.current = Date.now();
+      const key = touchTargetKeyRef.current;
+      if (!key) return;
+      const item = rootChildren[key];
+      if (item) handleIconDoubleClick(key, item);
+    },
+    onLongPress: ({ x, y }) => {
+      lastTouchAt.current = Date.now();
+      const key = touchTargetKeyRef.current;
+      if (key) openIconMenuAt(x, y, key);
+      else openDesktopMenuAt(x, y);
+    },
+  });
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const target = e.target as HTMLElement;
+    // Leave windows, dialogs, menus, the taskbar and resize handles alone —
+    // only the desktop plane and its icons opt into these gestures.
+    if (target.closest('[data-xp-context-boundary="true"], [data-testid="taskbar"], .windows-xp-portal, .react-resizable-handle')) {
+      touchIgnoreRef.current = true;
+      return;
     }
-    setContextMenu({ visible: true, x: e.clientX, y: e.clientY, iconKey: key });
+    touchIgnoreRef.current = false;
+    const iconEl = target.closest('[data-icon-key]') as HTMLElement | null;
+    touchTargetKeyRef.current = iconEl?.dataset.iconKey ?? null;
+    touchGestures.onTouchStart(e);
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchIgnoreRef.current) return;
+    touchGestures.onTouchMove(e);
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchIgnoreRef.current) return;
+    touchGestures.onTouchEnd(e);
   };
 
   const closeContextMenu = () => {
@@ -529,6 +607,7 @@ const Desktop: React.FC = () => {
       $bgUrl={desktopBg}
       onContextMenu={handleContextMenu}
       onClick={(e) => {
+        if (isSyntheticAfterTouch()) return; // a touch tap already handled this
         if (suppressClickClearRef.current) {
           suppressClickClearRef.current = false;
           return;
@@ -540,6 +619,9 @@ const Desktop: React.FC = () => {
         }
       }}
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <IconGrid key={refreshKey} style={{ opacity: isRefreshing ? 0 : 1 }}>
         {Object.entries(desktopItems || {}).map(([key, item]: [string, FileNode]) => {
@@ -565,6 +647,7 @@ const Desktop: React.FC = () => {
               title={displayName}
               onClick={(e) => {
                 e.stopPropagation();
+                if (isSyntheticAfterTouch()) return; // a touch tap already handled this
                 // Focus the desktop so keyboard ops (F2/Del/Enter…) target it,
                 // even right after interacting with a window (#87).
                 containerRef.current?.focus();
@@ -574,7 +657,10 @@ const Desktop: React.FC = () => {
                 }
                 toggleIconSelection(key, e);
               }}
-              onDoubleClick={() => handleIconDoubleClick(key, item)}
+              onDoubleClick={() => {
+                if (isSyntheticAfterTouch()) return; // a double-tap already handled this
+                handleIconDoubleClick(key, item);
+              }}
               onContextMenu={(e) => handleIconContextMenu(e, key)}
               draggable
               onDragStart={(e) => handleDragStart(e, key)}

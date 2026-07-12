@@ -11,6 +11,9 @@ export const DesktopContainer = styled.div<{ $bgUrl: string }>`
   background-position: center;
   position: relative;
   overflow: hidden;
+  /* Own touch gestures on the desktop plane: no double-tap zoom or the 300ms
+     click delay; long-press is handled in JS, not by the native callout (#125). */
+  touch-action: manipulation;
 `;
 
 export const SelectionBox = styled.div<{ $left: number; $top: number; $width: number; $height: number }>`
@@ -51,6 +54,8 @@ export const DesktopIcon = styled.div<{ $selected?: boolean }>`
   box-sizing: border-box;
   user-select: none;
   -webkit-user-select: none;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
 
   ${props => props.$selected && `
     background-color: rgba(49, 106, 197, 0.55);
