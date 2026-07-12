@@ -330,6 +330,9 @@ export { defineScenario, ScenarioBuilder } from '../scenario/builder';
 export * as scenarioHelpers from '../scenario/builder';
 export { solveScenario, ranAction } from '../scenario/solver';
 export type { SolveOptions, SolveResult, SolveFsNode } from '../scenario/solver';
+// Load-time validation (#208): deep, path-named checks for untrusted JSON.
+export { validateScenario, assertValidScenario, ScenarioValidationError, SCENARIO_MAX_BYTES } from '../scenario/validate';
+export type { ScenarioValidation } from '../scenario/validate';
 // Layer 3: the Puzzle Dependency Graph — compiler + graph linter.
 export { compilePuzzleGraph, lintPuzzleGraph, solvedFlag } from '../scenario/puzzleGraph';
 export type { PuzzleGraph, PuzzleNode, PuzzleHint, GraphLintIssue, PuzzleGraphReport } from '../scenario/puzzleGraph';
@@ -352,4 +355,4 @@ export { defineLesson } from '../lesson/types';
 export { lintLesson, isLessonValid, type LintIssue } from '../lesson/lint';
 export { notepadBasicsLesson } from '../data/lessons/notepadBasics';
 export type { XPSnapshot } from '../snapshot';
-export { XP_SNAPSHOT_VERSION, XPSnapshotVersionError, assertLoadableSnapshot } from '../snapshot';
+export { XP_SNAPSHOT_VERSION, XPSnapshotError, XPSnapshotVersionError, assertLoadableSnapshot, SNAPSHOT_MAX_BYTES } from '../snapshot';
