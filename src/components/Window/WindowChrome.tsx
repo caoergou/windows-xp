@@ -50,6 +50,9 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
   padding: 3px 5px 3px 3px;
   cursor: default;
   user-select: none;
+  /* Let react-draggable own touch-drags of the window instead of the browser
+     scrolling/zooming when a finger drags the title bar (#125). */
+  touch-action: none;
   position: relative;
   font-weight: 700;
   font-size: 13px;

@@ -35,16 +35,14 @@ export async function login(page: Page, options: LoginOptions = {}) {
   await page.goto(path);
   await page.waitForLoadState('networkidle');
 
-  // Dismiss mobile warning overlay if present (Desktop Chrome usually skips this,
-  // but the helper is defensive for other viewports).
-  const mobileBtn = page
-    .getByRole('button', { name: /Continue to Desktop|继续访问桌面版/ })
-    .first();
+  // Dismiss the one-time touch hint if present (only shown on touch devices
+  // since #125). Harmless no-op on Desktop Chrome where it never appears.
+  const touchHintBtn = page.locator('[data-testid="touch-hint-dismiss"]');
   try {
-    await mobileBtn.waitFor({ state: 'visible', timeout: 3000 });
-    await mobileBtn.click();
+    await touchHintBtn.waitFor({ state: 'visible', timeout: 2000 });
+    await touchHintBtn.click();
   } catch {
-    // Mobile warning not shown; continue.
+    // Touch hint not shown; continue.
   }
 
   // If we landed on the screensaver (e.g. reused logged-in state), dismiss it.

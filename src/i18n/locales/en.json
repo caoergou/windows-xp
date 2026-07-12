@@ -929,9 +929,9 @@
     }
   },
   "mobileWarning": {
-    "title": "Mobile Device Detected",
-    "message": "This Windows XP Simulator is best experienced on a desktop or laptop computer. The interface and functionality may be limited on mobile devices.",
-    "continue": "Continue to Desktop"
+    "title": "Touch controls",
+    "message": "Tap to select, double-tap to open, and press and hold for the right-click menu. Drag a window by its title bar.",
+    "gotIt": "Got it"
   },
   "storage": {
     "errorTitle": "Windows XP",
