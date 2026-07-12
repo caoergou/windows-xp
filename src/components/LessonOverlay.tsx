@@ -16,7 +16,7 @@
  */
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import styled, { keyframes } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useFloating, offset, flip, shift, autoUpdate } from '@floating-ui/react';
 import { COLORS } from '../constants';
@@ -45,13 +45,22 @@ const Shade = styled.div`
   pointer-events: none;
 `;
 
-const Ring = styled.div`
+const ringShake = keyframes`
+  0%, 100% { margin-left: 0; }
+  20% { margin-left: -5px; }
+  40% { margin-left: 5px; }
+  60% { margin-left: -3px; }
+  80% { margin-left: 3px; }
+`;
+
+const Ring = styled.div<{ $shake: number }>`
   position: absolute;
   border: 2px solid ${COLORS.DIALOG_BLUE};
   border-radius: 2px;
   box-shadow: 0 0 6px rgba(10, 80, 200, 0.7);
   transition: left 90ms linear, top 90ms linear, width 90ms linear, height 90ms linear;
   pointer-events: none;
+  ${p => (p.$shake > 0 ? css`animation: ${ringShake} 320ms ease;` : '')}
 `;
 
 // Watch-mode ghost cursor: an XP-style pointer that glides to each step's
@@ -194,6 +203,7 @@ export const LessonOverlay: React.FC = () => {
   const rootRef = useRef<HTMLDivElement>(null);
   const [rect, setRect] = useState<Box | null>(null);
   const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(null);
+  const [blockSeq, setBlockSeq] = useState(0);
   const anchorElRef = useRef<Element | null>(null);
 
   // Balloon placement is delegated to floating-ui (viewport-fixed, auto-flipped
@@ -263,13 +273,28 @@ export const LessonOverlay: React.FC = () => {
       ]
     : [{ inset: 0 }];
 
+  // `shield`: off-target clicks are absorbed by the dim shades (with a shake)
+  // instead of reaching the UI, so the learner can only click the lit target.
+  const shieldOn = running && step?.onWrongAction === 'shield';
+  const shakeSeq = nudgeSeq + blockSeq;
+
   return (
     <Root ref={rootRef} data-testid="lesson-overlay">
-      {running && shades.map((s, i) => <Shade key={i} style={s} />)}
+      {running &&
+        shades.map((s, i) => (
+          <Shade
+            key={i}
+            data-testid="lesson-shade"
+            style={{ ...s, pointerEvents: shieldOn ? 'auto' : 'none' }}
+            onClick={shieldOn ? e => { e.preventDefault(); e.stopPropagation(); setBlockSeq(n => n + 1); } : undefined}
+          />
+        ))}
 
       {running && rect && (
         <Ring
           data-testid="lesson-spotlight"
+          key={shakeSeq}
+          $shake={shakeSeq}
           style={{ left: rect.left - 4, top: rect.top - 4, width: rect.width + 8, height: rect.height + 8 }}
         />
       )}

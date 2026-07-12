@@ -16,8 +16,6 @@ import { useXPEventBus } from './EventBusContext';
 import { useStorage } from './StorageContext';
 import { useWindowManager } from './WindowManagerContext';
 import { useAppRegistry } from './AppRegistryContext';
-import { useFileSystem } from './FileSystemContext';
-import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
 import { expectMatches, isWrongAction, computeScore } from '../lesson/engine';
 import { lintLesson } from '../lesson/lint';
 import type { Lesson, LessonMode, LessonScore, LessonStep, WatchAction } from '../lesson/types';
@@ -29,6 +27,8 @@ const WATCH_STEP_MS = 1400;
 /** What the overlay renders from. */
 export interface LessonApi {
   status: 'idle' | 'running' | 'complete';
+  /** All registered lessons (the catalog a launcher UI lists). */
+  catalog: Lesson[];
   lesson: Lesson | null;
   mode: LessonMode;
   stepIndex: number;
@@ -75,9 +75,8 @@ export const LessonProvider: React.FC<{ lessons?: Lesson[]; children: React.Reac
 }) => {
   const bus = useXPEventBus();
   const storage = useStorage();
-  const { openWindow } = useWindowManager();
+  const { openWindow, closeWindow } = useWindowManager();
   const { registry } = useAppRegistry();
-  const { getFile } = useFileSystem();
 
   const byId = useRef(new Map<string, Lesson>());
   byId.current = new Map((lessons ?? []).map(l => [l.id, l]));
@@ -233,6 +232,13 @@ export const LessonProvider: React.FC<{ lessons?: Lesson[]; children: React.Reac
       wrongRef.current += 1;
       setNudgeSeq(n => n + 1);
       bus.emit({ type: 'lesson:step-failed', lessonId: lesson.id, stepId: String(stepIndex) });
+      // `undo`: best-effort revert of the mistake. Today it closes a window the
+      // wrong action opened (the "oops, wrong app" case); other reverts fall back
+      // to the nudge. `shield` is handled in the overlay (off-target clicks are
+      // absorbed before they become events).
+      if (step.onWrongAction === 'undo' && event.type === 'app:launch' && 'windowId' in event) {
+        closeWindow(event.windowId);
+      }
       persist(snapshot(lesson, mode, stepIndex, 'running'));
     }
   };
@@ -270,28 +276,18 @@ export const LessonProvider: React.FC<{ lessons?: Lesson[]; children: React.Reac
   const performWatchAction = useCallback(
     (action: WatchAction) => {
       if ('openApp' in action) {
-        const def = registry[action.openApp] ?? APP_REGISTRY[action.openApp];
+        const def = registry[action.openApp];
         if (!def) return;
         const props = action.props ?? {};
         openWindow(action.openApp, def.name ?? action.openApp, def.restore(props), def.icon, {
           ...(def.window ?? {}),
           componentProps: props,
         });
-      } else if ('openFile' in action) {
-        const node = getFile(action.openFile);
-        if (!node) return;
-        const key = action.openFile[action.openFile.length - 1] ?? node.name;
-        const resolved = resolveFileOpen(key, node);
-        if (!resolved) return;
-        openWindow(resolved.appId, node.name, resolved.component, resolved.icon, {
-          ...resolved.windowProps,
-          sourcePath: action.openFile,
-        });
       } else if ('emit' in action) {
         bus.emit(action.emit);
       }
     },
-    [registry, openWindow, getFile, bus]
+    [registry, openWindow, bus]
   );
 
   useEffect(() => {
@@ -307,6 +303,7 @@ export const LessonProvider: React.FC<{ lessons?: Lesson[]; children: React.Reac
 
   const value: LessonApi = {
     status,
+    catalog: lessons ?? [],
     lesson,
     mode,
     stepIndex,
@@ -333,6 +330,7 @@ export const useLesson = (): LessonApi => {
   if (ctx) return ctx;
   return {
     status: 'idle',
+    catalog: [],
     lesson: null,
     mode: 'try',
     stepIndex: 0,

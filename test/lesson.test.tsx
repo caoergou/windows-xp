@@ -156,4 +156,50 @@ describe('lesson runtime — <WindowsXP lessons/> + startLesson', () => {
     expect(types.filter(t => t === 'lesson:step-complete').length).toBe(2);
     expect(types).toContain('lesson:complete');
   }, 15000);
+
+  it('undo policy closes a wrongly-opened window', async () => {
+    const { WindowsXP } = await import('../src/lib');
+    const ref = React.createRef<import('../src/components/XPBridge').XPHandle>();
+    const undoLesson: Lesson = {
+      id: 'undo-x',
+      title: 'u',
+      steps: [{ instruction: 'x', anchor: 'start-button', expect: { on: 'app:launch', appId: 'Notepad' }, onWrongAction: 'undo', demonstrate: { openApp: 'Notepad' } }],
+    };
+    render(<WindowsXP ref={ref} autoLogin skipBoot lessons={[undoLesson]} />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    act(() => {
+      ref.current!.startLesson('undo-x', 'try');
+    });
+    let wrongId: string | null = null;
+    act(() => {
+      wrongId = ref.current!.openApp('Calculator'); // wrong app → undo should close it
+    });
+    expect(wrongId).toBeTruthy();
+    expect(ref.current!.windows.list().some(w => w.id === wrongId)).toBe(false);
+  });
+
+  it('shield policy makes the dim shades capture clicks', async () => {
+    const { WindowsXP } = await import('../src/lib');
+    const ref = React.createRef<import('../src/components/XPBridge').XPHandle>();
+    const shieldLesson: Lesson = {
+      id: 'shield-x',
+      title: 's',
+      steps: [{ instruction: 'x', anchor: 'start-button', expect: { on: 'file:create' }, onWrongAction: 'shield', demonstrate: { emit: { type: 'file:create', path: ['a'], name: 'a', nodeType: 'file' } } }],
+    };
+    render(<WindowsXP ref={ref} autoLogin skipBoot lessons={[shieldLesson]} />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    act(() => {
+      ref.current!.startLesson('shield-x', 'try');
+    });
+    await act(async () => {
+      await new Promise(r => setTimeout(r, 60));
+    });
+    const shades = document.querySelectorAll('[data-testid="lesson-shade"]');
+    expect(shades.length).toBeGreaterThan(0);
+    expect((shades[0] as HTMLElement).style.pointerEvents).toBe('auto');
+  });
 });

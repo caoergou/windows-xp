@@ -8,7 +8,10 @@ import FileProperties from '../components/FileProperties';
 import QQ from '../apps/QQ';
 import SafeGuard360 from '../apps/SafeGuard360';
 import Calculator from '../apps/Calculator';
-import HelpAndSupport from '../apps/HelpAndSupport';
+// Lazy: HelpAndSupport uses the lesson context (#141), which pulls the app
+// registry; loading it eagerly here would be a circular import. Lazy defers it
+// until the window opens, by which point this module is fully initialized.
+const HelpAndSupport = React.lazy(() => import('../apps/HelpAndSupport'));
 import RunDialog from '../apps/RunDialog';
 import TaskManager from '../apps/TaskManager';
 const CommandPrompt = React.lazy(() => import('../apps/CommandPrompt'));

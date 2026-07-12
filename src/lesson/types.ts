@@ -40,7 +40,6 @@ export type WrongActionPolicy = 'nudge' | 'shield' | 'undo';
  */
 export type WatchAction =
   | { openApp: string; props?: Record<string, unknown> }
-  | { openFile: string[] }
   | { emit: XPEvent };
 
 /** A single teachable step. */

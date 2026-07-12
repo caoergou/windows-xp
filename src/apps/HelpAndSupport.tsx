@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import XPIcon from '../components/XPIcon';
 import { useTranslation } from 'react-i18next';
+import { useLesson } from '../context/LessonContext';
+import { COLORS } from '../constants';
 
 const Container = styled.div`
   width: 100%;
@@ -76,6 +78,30 @@ const TopicContent = styled.div`
   color: #666;
 `;
 
+const LessonRow = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: ${COLORS.SURFACE};
+  border: 1px solid ${COLORS.BUTTON_BORDER};
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  &:hover {
+    background: ${COLORS.MENU_HIGHLIGHT};
+    color: white;
+  }
+`;
+
+const LessonRowText = styled.span`
+  flex: 1 1 auto;
+`;
+
 interface Topic {
   id: string;
   icon: string;
@@ -88,6 +114,7 @@ interface TopicContent {
 
 const HelpAndSupport = () => {
   const { t } = useTranslation();
+  const { catalog, start } = useLesson();
   const [selectedTopic, setSelectedTopic] = useState<string>('welcome');
 
   const topics: Topic[] = [
@@ -98,6 +125,8 @@ const HelpAndSupport = () => {
     { id: 'internet', icon: 'ie' },
     { id: 'applications', icon: 'programs' },
     { id: 'settings', icon: 'settings' },
+    // The diegetic lesson catalog — only when the host registered lessons (#141).
+    ...(catalog.length ? [{ id: 'lessons', icon: 'help' }] : []),
   ];
 
   const topicContent: Record<string, TopicContent> = {
@@ -151,14 +180,36 @@ const HelpAndSupport = () => {
           ))}
         </Sidebar>
         <MainContent>
-          <TopicTitle>{topicContent[selectedTopic].title}</TopicTitle>
-          <TopicContent>
-            {topicContent[selectedTopic].content.split('\n').map((paragraph, index) => (
-              <p key={index} style={{ margin: '0 0 10px 0' }}>
-                {paragraph}
-              </p>
-            ))}
-          </TopicContent>
+          {selectedTopic === 'lessons' ? (
+            <>
+              <TopicTitle>{t('helpAndSupport.lessons.title')}</TopicTitle>
+              <TopicContent>
+                <p style={{ margin: '0 0 12px 0' }}>{t('helpAndSupport.lessons.intro')}</p>
+                {catalog.map(lesson => (
+                  <LessonRow
+                    key={lesson.id}
+                    data-testid={`lesson-launch-${lesson.id}`}
+                    onClick={() => start(lesson.id, 'try')}
+                  >
+                    <XPIcon name="help" size={16} />
+                    <LessonRowText>{t(lesson.title)}</LessonRowText>
+                    <span aria-hidden>▶</span>
+                  </LessonRow>
+                ))}
+              </TopicContent>
+            </>
+          ) : (
+            <>
+              <TopicTitle>{topicContent[selectedTopic].title}</TopicTitle>
+              <TopicContent>
+                {topicContent[selectedTopic].content.split('\n').map((paragraph, index) => (
+                  <p key={index} style={{ margin: '0 0 10px 0' }}>
+                    {paragraph}
+                  </p>
+                ))}
+              </TopicContent>
+            </>
+          )}
         </MainContent>
       </Content>
     </Container>

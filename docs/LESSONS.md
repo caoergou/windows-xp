@@ -70,8 +70,8 @@ Lessons are plain data (JSON-serializable), so they can equally live in a
 | `anchor` | `string?` | Semantic UI anchor id to spotlight (see [Anchors](#anchors)). Omit for an unanchored step. |
 | `expect` | `ExpectPattern` | The verified action that advances the step. |
 | `hints` | `LessonHint[]?` | Escalating hints (Try mode only). |
-| `onWrongAction` | `'nudge' \| 'shield' \| 'undo'?` | Reaction to a wrong action. `nudge` ships; `shield`/`undo` are planned (Phase 3). |
-| `demonstrate` | `WatchAction?` | How Watch mode auto-plays the step: `{ openApp, props? }`, `{ openFile: string[] }`, or `{ emit: XPEvent }`. Omit and Watch can't auto-play the step. |
+| `onWrongAction` | `'nudge' \| 'shield' \| 'undo'?` | Reaction to a wrong action — `nudge` (shake), `shield` (absorb off-target clicks), or `undo` (close a wrongly-opened window). |
+| `demonstrate` | `WatchAction?` | How Watch mode auto-plays the step: `{ openApp, props? }` or `{ emit: XPEvent }`. Omit and Watch can't auto-play the step. |
 
 ### `ExpectPattern`
 
@@ -151,10 +151,10 @@ The same lesson runs in three modes, selected by the second argument to
   }
   ```
 
-  `demonstrate` is one of `{ openApp, props? }`, `{ openFile: string[] }`, or
-  `{ emit: XPEvent }` (the escape hatch for steps a single handle call can't
-  perform — e.g. "save", demonstrated by emitting the `file:create` the save
-  would produce).
+  `demonstrate` is one of `{ openApp, props? }` or `{ emit: XPEvent }` (the
+  escape hatch for steps a single handle call can't perform — e.g. "save",
+  demonstrated by emitting the `file:create` the save would produce, or "open a
+  file", by emitting `file:open`).
 
 ## Anchors
 
@@ -208,13 +208,17 @@ where the learner left off. `stopLesson()` clears it.
 A **wrong action** is an event of the step's expected *type* whose payload does
 **not** match — for example, launching the wrong app while the step expects
 `{ on: 'app:launch', appId: 'Notepad' }`. It increments the wrong-action count,
-emits `lesson:step-failed`, and (Phase 1) triggers a `nudge` — a visual shake of
-the balloon. Events of unrelated types are never wrong; the learner is free to
-poke around.
+emits `lesson:step-failed`, and triggers the step's policy. Events of unrelated
+types are never wrong; the learner is free to poke around.
 
-`shield` (block the wrong interaction outright) and `undo` (perform it, then roll
-it back) are **planned** — authoring them is allowed by the schema, but Phase 1
-treats every policy as `nudge`.
+- **`nudge`** (default) — a visual shake of the spotlight ring.
+- **`shield`** — off-target clicks are absorbed by the dim shades (they capture
+  the click and shake) instead of reaching the UI, so the learner can only click
+  the lit target. Because the click never becomes an event, it can't even count
+  as a wrong action.
+- **`undo`** — best-effort revert of the mistake. Today it closes a window the
+  wrong action opened (the "oops, wrong app" case); other reverts fall back to
+  the nudge.
 
 ## Mapping `lesson:*` to xAPI for an LMS
 
@@ -301,17 +305,17 @@ export const notepadBasicsLesson = defineLesson({
 
 ## Scope
 
-**Shipped (Phase 1 + 2):** Try / Do / **Watch** modes; the event-gated matcher;
-the hint ladder; the `nudge` policy; anchors + spotlight + instruction balloon
-(positioned with @floating-ui/react); the **ghost cursor** with Pause/Resume;
-the `lesson:*` events; per-instance resumable progress + Do-mode scoring; the
-`defineLesson` builder; and the **lesson-pack linter** (`lintLesson`, run in
-dev-mode against every registered lesson).
+**Shipped (Phase 1–3):** Try / Do / **Watch** modes; the event-gated matcher;
+the hint ladder; all three wrong-action policies (`nudge` / `shield` / `undo`);
+anchors + spotlight + instruction balloon (positioned with @floating-ui/react);
+the **ghost cursor** with Pause/Resume; the `lesson:*` events; per-instance
+resumable progress + Do-mode scoring; the `defineLesson` builder; the
+**lesson-pack linter** (`lintLesson`, run in dev against every registered
+lesson); and the **Help & Support Center catalog** — a diegetic lesson browser
+that lists registered lessons and starts one on click.
 
-**Deferred to Phase 3:**
+**Deferred:**
 
 - **Beacon hotspot** — a pulsing beacon on the anchored target for self-serve tips.
-- **`shield` / `undo` wrong-action policies** — only `nudge` is wired.
-- **Help & Support Center catalog surface** — an in-world lesson browser.
 - **e2e** — a Playwright run across all three modes (incl. shield blocking
-  off-target clicks).
+  off-target clicks); the runtime is covered by jsdom integration tests today.
