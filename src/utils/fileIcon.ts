@@ -4,7 +4,7 @@
  */
 export function getFileIconName(
   fileName: string,
-  nodeType?: 'file' | 'folder' | 'drive' | 'app_shortcut' | 'root',
+  nodeType?: 'file' | 'folder' | 'drive' | 'app_shortcut' | 'root' | 'external_link',
   explicitIcon?: string
 ): string {
   if (explicitIcon) {
@@ -14,6 +14,7 @@ export function getFileIconName(
   if (nodeType === 'folder') return 'folder';
   if (nodeType === 'drive') return 'drive';
   if (nodeType === 'app_shortcut') return 'app_window';
+  if (nodeType === 'external_link') return 'ie';
 
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
 

@@ -85,8 +85,25 @@ export interface AppShortcutNode extends BaseFileNode {
   isHtmlContent?: boolean;
 }
 
+/**
+ * 外部链接节点 (#136) — a desktop/Explorer shortcut that leaves the fiction.
+ * Opening it navigates to `href` (a real URL) instead of a desktop window, and
+ * emits `link:external`. `newTab` defaults to true (open in a new tab).
+ */
+export interface ExternalLinkNode extends BaseFileNode {
+  type: 'external_link';
+  href: string;
+  newTab?: boolean;
+}
+
 /** 联合类型 - 所有可能的文件节点 */
-export type FileNode = RootNode | FolderNode | DriveNode | FileContentNode | AppShortcutNode;
+export type FileNode =
+  | RootNode
+  | FolderNode
+  | DriveNode
+  | FileContentNode
+  | AppShortcutNode
+  | ExternalLinkNode;
 
 /** 类型守卫 - 判断是否为可包含子节点的节点 */
 export function isContainerNode(node: FileNode): node is RootNode | FolderNode | DriveNode {
@@ -101,6 +118,11 @@ export function isFileContentNode(node: FileNode): node is FileContentNode {
 /** 类型守卫 - 判断是否为应用快捷方式节点 */
 export function isAppShortcutNode(node: FileNode): node is AppShortcutNode {
   return node.type === 'app_shortcut';
+}
+
+/** 类型守卫 - 判断是否为外部链接节点 (#136) */
+export function isExternalLinkNode(node: FileNode): node is ExternalLinkNode {
+  return node.type === 'external_link';
 }
 
 // ============================================================
@@ -170,6 +192,12 @@ export interface WindowProps {
   onOpen?: ((id: string) => void) | null;
   onClose?: ((id: string) => void) | null;
   onFocus?: ((id: string) => void) | null;
+  /**
+   * Absolute filesystem path this window was opened from (#136). Set when a
+   * window is opened by path (deep link / openFile / a file double-click) so
+   * `XPHandle.getShareUrl` can reproduce it; absent for component-only windows.
+   */
+  sourcePath?: string[];
   [key: string]: unknown;
 }
 

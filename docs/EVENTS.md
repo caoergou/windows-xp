@@ -33,6 +33,7 @@ about one subsystem.
 | `notification` | tray notification balloons |
 | `time` | wall-clock / scheduler events (#130 timer half) |
 | `user` | user-presence / idle detection (#130 timer half) |
+| `link` | outbound navigation out of the fiction (#136 conversion signal) |
 | `qq`, `game`, … | reserved for app- and scenario-specific domains |
 
 Introducing a new domain is a deliberate act: add it to this list and to

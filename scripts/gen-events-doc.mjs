@@ -93,6 +93,8 @@ const DOMAIN_TITLES = {
   notification: 'Tray notifications',
   time: 'Timers',
   user: 'Idle detection',
+  qq: 'QQ Messenger',
+  link: 'Outbound links',
 };
 
 const renderTable = (events) => {
