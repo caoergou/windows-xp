@@ -889,7 +889,12 @@
       "explorer": "文件资源管理器",
       "internet": "Internet Explorer",
       "applications": "应用程序",
-      "settings": "系统设置"
+      "settings": "系统设置",
+      "lessons": "引导课程"
+    },
+    "lessons": {
+      "title": "引导课程",
+      "intro": "选择一节课，一步步带你完成任务。桌面会引导你，并在你完成每一步后自动推进。"
     },
     "content": {
       "welcome": {

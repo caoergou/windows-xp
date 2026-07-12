@@ -895,7 +895,12 @@
       "explorer": "File Explorer",
       "internet": "Internet Explorer",
       "applications": "Applications",
-      "settings": "System Settings"
+      "settings": "System Settings",
+      "lessons": "Guided Lessons"
+    },
+    "lessons": {
+      "title": "Guided Lessons",
+      "intro": "Pick a lesson to walk through a task step by step. The desktop guides you and advances as you complete each step."
     },
     "content": {
       "welcome": {
