@@ -7,6 +7,7 @@ import { useWindowManager } from '../../context/WindowManagerContext';
 import { useUserSession } from '../../context/UserSessionContext';
 import Taskbar from '../Taskbar';
 import Window from '../Window';
+import ErrorBoundary from '../ErrorBoundary';
 import ContextMenu from '../ContextMenu';
 import LessonOverlay from '../LessonOverlay';
 import XPIcon from '../XPIcon';
@@ -691,8 +692,13 @@ const Desktop: React.FC = () => {
         />
       )}
 
+      {/* Per-window guard: a single malformed/broken window renders nothing
+          instead of throwing and taking the whole desktop + taskbar down (#223).
+          Field-level fallbacks live in WindowChrome; this is the last line. */}
       {windows.map(win => (
-        <Window key={win.id} windowState={win} />
+        <ErrorBoundary key={win.id} windowId={win.id} fallback={null}>
+          <Window windowState={win} />
+        </ErrorBoundary>
       ))}
 
       <LessonOverlay />

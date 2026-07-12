@@ -149,8 +149,10 @@ const WindowChrome: React.FC<WindowChromeProps> = ({
   style,
 }) => {
   const { title, icon } = windowState;
-  const minWidth = windowState.props.minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH;
-  const minHeight = windowState.props.minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT;
+  // Field-level fallback: a malformed persisted record (e.g. missing `props`)
+  // must not throw here and white-screen the whole desktop (#223).
+  const minWidth = windowState.props?.minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH;
+  const minHeight = windowState.props?.minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT;
 
   return (
     <WindowContainer

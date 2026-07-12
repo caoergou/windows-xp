@@ -57,7 +57,7 @@
     },
     "soundSettings": {
       "volume": "设备音量",
-      "mute": "静音(&M)",
+      "mute": "静音(M)",
       "soundScheme": "声音方案",
       "programEvents": "程序事件：",
       "play": "播放",

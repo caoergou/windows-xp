@@ -195,7 +195,7 @@ const SoundSettings: React.FC<SoundSettingsProps> = ({ onBack }) => {
             id="cp-mute"
             checked={muted}
             onChange={handleMuteChange}
-            label={t('controlPanel.soundSettings.mute', 'Mute(&M)')}
+            label={t('controlPanel.soundSettings.mute', 'Mute(M)')}
           />
         </CheckboxContainer>
       </GroupBox>
