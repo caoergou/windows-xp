@@ -308,6 +308,11 @@ export { EventBusProvider } from '../context/EventBusContext';
 export { XPEventBus, createXPEventBus } from '../events';
 export type { Scenario, Trigger, Condition, Action, FlagValue } from '../scenario/types';
 export { prologueScenario } from '../data/scenarios/prologue';
+// Author toolchain (PUZZLE-DESIGN §4): Layer-2 fluent builder + headless solver.
+export { defineScenario, ScenarioBuilder } from '../scenario/builder';
+export * as scenarioHelpers from '../scenario/builder';
+export { solveScenario, ranAction } from '../scenario/solver';
+export type { SolveOptions, SolveResult, SolveFsNode } from '../scenario/solver';
 export type { Lesson, LessonStep, LessonHint, LessonMode, LessonScore, ExpectPattern, WrongActionPolicy, WatchAction } from '../lesson/types';
 export { defineLesson } from '../lesson/types';
 export { lintLesson, isLessonValid, type LintIssue } from '../lesson/lint';
