@@ -2,6 +2,7 @@ import React from 'react';
 import Explorer from '../apps/Explorer';
 const InternetExplorer = React.lazy(() => import('../apps/InternetExplorer'));
 const Notepad = React.lazy(() => import('../apps/Notepad'));
+const MarkdownViewer = React.lazy(() => import('../apps/MarkdownViewer'));
 import PhotoViewer from '../apps/PhotoViewer';
 import FileProperties from '../components/FileProperties';
 import QQ from '../apps/QQ';
@@ -167,6 +168,25 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
       },
     ],
     restore: restoreApp(Notepad),
+  },
+
+  MarkdownViewer: {
+    id: 'MarkdownViewer',
+    name: 'Markdown Viewer',
+    nameKey: 'apps.markdownViewer',
+    icon: 'file',
+    window: { width: 560, height: 440, resizable: true },
+    lifecycle: {},
+    associations: [
+      {
+        appField: 'MarkdownViewer',
+        getProps: (item: FileNode) => ({
+          content: isFileContentNode(item) ? (item.content ?? '') : '',
+          fileName: item.name,
+        }),
+      },
+    ],
+    restore: restoreApp(MarkdownViewer),
   },
 
   PhotoViewer: {
@@ -531,8 +551,13 @@ export const resolveFileOpen = (key: string, item: FileNode) => {
   }
 
   // app_shortcut / file → 按 appField 查注册表
-  const appField =
+  let appField =
     item.type === 'app_shortcut' ? item.app : item.type === 'file' ? item.app : undefined;
+  // Extension fallback (#137): .md files open in MarkdownViewer unless the node
+  // explicitly names another app.
+  if (!appField && item.type === 'file' && item.name.toLowerCase().endsWith('.md')) {
+    appField = 'MarkdownViewer';
+  }
   if (!appField) return null;
 
   const entry = _assocByField[appField];

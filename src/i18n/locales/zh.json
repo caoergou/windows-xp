@@ -310,6 +310,7 @@
   },
   "apps": {
     "notepad": "记事本",
+    "markdownViewer": "Markdown 查看器",
     "paint": "画图",
     "calculator": "计算器",
     "commandPrompt": "命令提示符",
