@@ -319,6 +319,7 @@
     "minesweeper": "扫雷",
     "solitaire": "纸牌",
     "deductionSheet": "推理表",
+    "evidenceBoard": "证据板",
     "wordpad": "写字板",
     "mediaPlayer": "Windows Media Player",
     "messenger": "MSN Messenger",
@@ -947,6 +948,11 @@
     "choose": "— 选择 —",
     "wordBank": "词库",
     "solved": "案件了结——所有推理均已核验。"
+  },
+  "evidenceBoard": {
+    "tray": "证据",
+    "unpin": "从板上移除",
+    "linkHint": "点一张卡片，再点另一张，把它们用线连起来。"
   },
   "lesson": {
     "close": "关闭课程",

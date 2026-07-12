@@ -53,7 +53,11 @@ export type Condition =
   /** FS predicate: the node at `path` exists and is not locked. */
   | { unlocked: string[] }
   /** FS predicate: the text file at `path` contains `contains`. */
-  | { contentContains: { path: string[]; contains: string } };
+  | { contentContains: { path: string[]; contains: string } }
+  /** Evidence-board predicate: item `pinned` is currently on the board (more `evidence:pin` than `evidence:unpin` in the journal). */
+  | { pinned: string }
+  /** Evidence-board predicate: items `a` and `b` are linked and both still pinned (order-insensitive). */
+  | { linked: { a: string; b: string } };
 
 /**
  * An action executed when a trigger fires and its condition holds. Each maps to
