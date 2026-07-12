@@ -18,6 +18,9 @@ import { StorageProvider } from '../context/StorageContext';
 import { SchedulerProvider } from '../context/SchedulerContext';
 import { XPEventBridge, XPImperativeApi, type XPHandle } from './XPBridge';
 import { ScenarioRunner } from './ScenarioRunner';
+// Dev-only overlay (#209): lazy so a production build that never sets `devtools`
+// tree-shakes the panel out of the main chunk.
+const DevToolsPanel = React.lazy(() => import('../devtools/DevToolsPanel'));
 import { LessonProvider } from '../context/LessonContext';
 import type { Scenario } from '../scenario/types';
 import type { Lesson } from '../lesson/types';
@@ -79,6 +82,12 @@ export interface AppProvidersProps {
   scenario?: Scenario;
   /** Guided lessons (#141) — data-driven tutorials, driven via `startLesson`. */
   lessons?: Lesson[];
+  /**
+   * Mount the Scenario / event DevTools overlay (#209): a dev-time panel showing
+   * the live event stream, current flags, and per-trigger hit/miss with the
+   * `when` predicate tree. Opt-in; off in production.
+   */
+  devtools?: boolean;
 }
 
 const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
@@ -111,6 +120,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   login,
   scenario,
   lessons,
+  devtools,
 }) => {
   // Configure storage namespace synchronously before any context reads/writes storage.
   setStoragePrefix(storagePrefix || 'xp_');
@@ -200,6 +210,11 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
                 <LessonProvider lessons={lessons}>
                   <XPImperativeApi ref={handleRef} storagePrefix={storagePrefix} />
                   <ScenarioRunner scenario={scenario} />
+                  {devtools && (
+                    <React.Suspense fallback={null}>
+                      <DevToolsPanel scenario={scenario} />
+                    </React.Suspense>
+                  )}
                   <DeepLinkLoader
                     open={openOnLoad}
                     routes={routes}

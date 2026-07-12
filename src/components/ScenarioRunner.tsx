@@ -29,6 +29,14 @@ import { playSound } from '../utils/soundManager';
 import { isContainerNode, isFileContentNode, type FileNode } from '../types';
 import type { XPEvent } from '../events';
 import { appendJournal, evaluateCondition, matchOn, type EvalContext } from '../scenario/engine';
+import { traceCondition, type ConditionTrace } from '../scenario/trace';
+import {
+  hasTraceListeners,
+  publishTrace,
+  type FlagChange,
+  type SkipReason,
+  type TriggerReport,
+} from '../devtools/traceChannel';
 import type { Action, FlagValue, Scenario } from '../scenario/types';
 
 /** In-memory + persisted progress for one running scenario. */
@@ -95,6 +103,9 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
     };
   }
 
+  // Monotonic sequence for DevTools reports (#209).
+  const seqRef = useRef(0);
+
   // A ref-backed handler so we subscribe once but always see the latest context
   // functions (mirrors XPEventBridge). Rebuilt every render.
   const handlerRef = useRef<(event: XPEvent) => void>(() => {});
@@ -102,6 +113,16 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
     const state = stateRef.current;
     if (!scenario || !state) return;
     const keys = stateKeys(storage.key);
+
+    // DevTools tracing (#209): only build the extra evaluation trace + flag-change
+    // log when a panel is actually listening on this instance, so production pays
+    // nothing. `traceTrigger`/`traceFlag` capture attribution as actions run.
+    const tracing = hasTraceListeners(storage.prefix);
+    const changes: FlagChange[] = [];
+    let currentTriggerId: string | null = null;
+    const traceFlag = (flag: string, value: FlagValue) => {
+      if (tracing) changes.push({ flag, value, by: currentTriggerId ?? '(delayed)' });
+    };
     const persist = <K extends keyof ScenarioState>(field: K) => {
       try {
         storage.local.setItem(keys[field], JSON.stringify(state[field]));
@@ -134,10 +155,12 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
       if ('setFlag' in action) {
         state.flags[action.setFlag] = action.value ?? true;
         persist('flags');
+        traceFlag(action.setFlag, state.flags[action.setFlag]);
       } else if ('incFlag' in action) {
         const cur = state.flags[action.incFlag];
         state.flags[action.incFlag] = (typeof cur === 'number' ? cur : 0) + (action.by ?? 1);
         persist('flags');
+        traceFlag(action.incFlag, state.flags[action.incFlag]);
       } else if ('unlock' in action) {
         unlockNode(action.unlock);
       } else if ('addFile' in action) {
@@ -213,20 +236,63 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
     }
 
     // 3. Evaluate triggers.
+    const reports: TriggerReport[] = [];
     scenario.triggers.forEach((trigger, index) => {
-      if (!matchOn(trigger.on, event.type)) return;
       const fireKey = trigger.id ?? String(index);
       const count = state.fires[fireKey] ?? 0;
-      if (trigger.once && count >= 1) return;
-      if (trigger.max !== undefined && count >= trigger.max) return;
+
+      if (!matchOn(trigger.on, event.type)) {
+        if (tracing) {
+          reports.push({ id: fireKey, index, on: trigger.on, matchedOn: false, fired: false, fireCount: count });
+        }
+        return;
+      }
+
+      // Budget gates take precedence over `when` (matching the original order).
+      let skip: SkipReason | undefined;
+      if (trigger.once && count >= 1) skip = 'once';
+      else if (trigger.max !== undefined && count >= trigger.max) skip = 'max';
 
       const ctx: EvalContext = { flags: state.flags, event, journal: state.journal, fs: fsPredicates };
-      if (!evaluateCondition(trigger.when, ctx)) return;
+      let whenTrace: ConditionTrace | undefined;
+      if (!skip) {
+        if (!evaluateCondition(trigger.when, ctx)) skip = 'when';
+        if (tracing) whenTrace = traceCondition(trigger.when, ctx);
+      }
+      const willFire = skip === undefined;
 
+      if (tracing) {
+        reports.push({
+          id: fireKey,
+          index,
+          on: trigger.on,
+          matchedOn: true,
+          when: whenTrace,
+          fired: willFire,
+          skip,
+          fireCount: count,
+        });
+      }
+
+      if (!willFire) return;
+      currentTriggerId = fireKey;
       state.fires[fireKey] = count + 1;
       persist('fires');
       runActions(trigger.do);
+      currentTriggerId = null;
     });
+
+    // 4. Report this event's evaluation to any DevTools panel (#209).
+    if (tracing) {
+      seqRef.current += 1;
+      publishTrace(storage.prefix, {
+        seq: seqRef.current,
+        event,
+        triggers: reports,
+        flags: { ...state.flags },
+        changes,
+      });
+    }
   };
 
   // On (re)start, stamp the scenario id and persist the seeded flags so a fresh

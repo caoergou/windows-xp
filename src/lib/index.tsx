@@ -135,6 +135,13 @@ export interface WindowsXPProps {
    * See `docs/LESSONS.md`.
    */
   lessons?: Lesson[];
+  /**
+   * Mount the Scenario / event DevTools overlay (#209): a dev-time panel with the
+   * live event stream, current flags, and per-trigger hit/miss showing **why a
+   * trigger did not fire** (the `when` predicate tree annotated ✓/✗). Opt-in;
+   * leave off in production. See `docs/SCENARIOS.md`.
+   */
+  devtools?: boolean;
   /** Subscribe to desktop events (app launches, file opens, session, cmd...). */
   onEvent?: XPEventListener;
 }
@@ -186,6 +193,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     login,
     scenario,
     lessons,
+    devtools,
     onEvent,
   },
   ref
@@ -217,6 +225,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       login={login}
       scenario={scenario}
       lessons={lessons}
+      devtools={devtools}
       onEvent={onEvent}
       handleRef={ref}
       disableContextMenuBlock={disableContextMenuBlock ?? embedded}
@@ -325,6 +334,12 @@ export type { SolveOptions, SolveResult, SolveFsNode } from '../scenario/solver'
 export { compilePuzzleGraph, lintPuzzleGraph, solvedFlag } from '../scenario/puzzleGraph';
 export type { PuzzleGraph, PuzzleNode, PuzzleHint, GraphLintIssue, PuzzleGraphReport } from '../scenario/puzzleGraph';
 export { prologueGraph, prologueGraphScenario } from '../data/scenarios/prologueGraph';
+// Scenario / event DevTools (#209): the `devtools` prop mounts the panel, or a
+// host can mount it directly and read the same trace channel.
+export { default as DevToolsPanel } from '../devtools/DevToolsPanel';
+export { traceCondition, type ConditionTrace } from '../scenario/trace';
+export { subscribeTrace, publishTrace, hasTraceListeners } from '../devtools/traceChannel';
+export type { EvalReport, TriggerReport, FlagChange, SkipReason } from '../devtools/traceChannel';
 // Scenario-layer app (#219): the Deduction Sheet + a reference puzzle.
 export type { DeductionSheetProps } from '../apps/DeductionSheet';
 export { demoDeduction } from '../data/scenarios/deductionDemo';
