@@ -1,147 +1,191 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
+import { XPButton } from '../components/XPButton';
+import { COLORS } from '../constants';
+
+const UI_FONT = "'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif";
 
 const Container = styled.div`
-  padding: 16px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
-  font-size: 12px;
+  font-family: ${UI_FONT};
+  font-size: 11px;
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #ece9d8;
+  background: ${COLORS.SURFACE};
 `;
 
-const Title = styled.h3`
-  margin: 0 0 12px 0;
-  font-size: 14px;
-  font-weight: bold;
-`;
+/* ---------- List (Network Connections folder) view ---------- */
 
-const ConnectionList = styled.div`
+const ListArea = styled.div`
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  background: ${COLORS.BUTTON_HIGHLIGHT};
   overflow-y: auto;
+  padding: 4px 0 0;
+`;
+
+const GroupHeading = styled.div`
+  font-weight: bold;
+  padding: 3px 10px 4px;
+  border-bottom: 1px solid ${COLORS.DIVIDER_GREY};
+  margin: 0 8px 6px;
+`;
+
+const ConnectionGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 8px 8px;
 `;
 
 const ConnectionItem = styled.div<{ $selected: boolean }>`
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px;
-  background: ${({ $selected }) =>
-    $selected ? '#316ac5' : 'linear-gradient(to bottom, #ffffff, #ece9d8)'};
-  color: ${({ $selected }) => ($selected ? '#ffffff' : 'inherit')};
-  border: 1px solid ${({ $selected }) => ($selected ? '#316ac5' : '#7f9db9')};
-  border-radius: 2px;
+  gap: 8px;
+  padding: 4px 6px;
+  width: 100%;
+  box-sizing: border-box;
+  background: ${({ $selected }) => ($selected ? COLORS.MENU_HIGHLIGHT : 'transparent')};
+  color: ${({ $selected }) => ($selected ? COLORS.BUTTON_HIGHLIGHT : 'inherit')};
   cursor: pointer;
 
   &:hover {
     background: ${({ $selected }) =>
-      $selected ? '#316ac5' : 'linear-gradient(to bottom, #f0f0f0, #dcd9c9)'};
+      $selected ? COLORS.MENU_HIGHLIGHT : COLORS.BORDER_GREY_HILIGHT};
   }
-`;
-
-const ConnectionIcon = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
 
 const ConnectionInfo = styled.div`
   flex: 1;
+  min-width: 0;
 `;
 
 const ConnectionName = styled.div`
   font-weight: bold;
-  margin-bottom: 4px;
 `;
 
 const ConnectionStatus = styled.div`
   font-size: 11px;
-  color: inherit;
-  opacity: 0.9;
 `;
 
-const DetailContainer = styled.div`
+/* ---------- Status dialog ---------- */
+
+const Dialog = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  overflow-y: auto;
+  padding: 10px 10px 8px;
+  min-height: 0;
 `;
 
-const DetailHeader = styled.div`
+const Tabs = styled.div`
+  display: flex;
+  padding: 0 0 0 2px;
+`;
+
+const Tab = styled.div<{ $active?: boolean }>`
+  padding: 3px 12px;
+  border: 1px solid ${COLORS.BORDER_GREY};
+  border-bottom-color: ${({ $active }) => ($active ? COLORS.SURFACE : COLORS.BORDER_GREY)};
+  background: ${({ $active }) => ($active ? COLORS.SURFACE : COLORS.BORDER_GREY_HILIGHT)};
+  border-radius: 3px 3px 0 0;
+  position: relative;
+  z-index: ${({ $active }) => ($active ? 2 : 1)};
+  margin-right: 2px;
+  cursor: default;
+`;
+
+const TabPane = styled.div`
+  margin-top: -1px;
+  border: 1px solid ${COLORS.BORDER_GREY};
+  background: ${COLORS.SURFACE};
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const GroupBox = styled.fieldset`
+  border: 1px solid ${COLORS.DIVIDER_GREY};
+  border-radius: 0;
+  margin: 0;
+  padding: 10px 12px 12px;
+  min-width: 0;
+
+  legend {
+    padding: 0 4px;
+    font-weight: normal;
+    color: ${COLORS.WINDOW_FRAME};
+  }
+`;
+
+const FieldRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 2px 0;
+  gap: 12px;
+`;
+
+const FieldValue = styled.span`
+  font-weight: bold;
+`;
+
+/* Activity: Sent — [computers] — Received */
+
+const ActivityTop = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px;
-  background: linear-gradient(to bottom, #ffffff, #ece9d8);
-  border: 1px solid #7f9db9;
-  border-radius: 2px;
+  justify-content: center;
+  gap: 14px;
+  padding: 2px 0 8px;
 `;
 
-const DetailTitle = styled.div`
+const ActivityLabel = styled.div`
+  min-width: 70px;
+  text-align: center;
+`;
+
+const ActivityIcons = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: ${COLORS.BORDER_GREY};
   font-weight: bold;
-  font-size: 13px;
-  margin-bottom: 4px;
 `;
 
-const DetailSubtitle = styled.div`
-  font-size: 11px;
-  color: #666666;
+const Etched = styled.div`
+  height: 0;
+  border-top: 1px solid ${COLORS.DIVIDER_GREY};
+  border-bottom: 1px solid ${COLORS.BUTTON_HIGHLIGHT};
+  margin: 2px 0 6px;
 `;
 
-const StatsGrid = styled.div`
+const DataRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: auto 1fr 1fr;
+  align-items: baseline;
+  padding: 1px 0;
+
+  > span:nth-child(2),
+  > span:nth-child(3) {
+    text-align: center;
+  }
 `;
 
-const StatBox = styled.div`
-  padding: 12px;
-  background: #ffffff;
-  border: 1px solid #7f9db9;
-  border-radius: 2px;
+const RepairResult = styled.div`
+  padding: 4px 0 0;
 `;
 
-const StatLabel = styled.div`
-  font-size: 11px;
-  color: #666666;
-  margin-bottom: 6px;
-`;
-
-const StatValue = styled.div`
-  font-size: 14px;
-  font-weight: bold;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', monospace;
-`;
-
-const ButtonContainer = styled.div`
+const ButtonRow = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  margin-top: 16px;
-`;
-
-const Button = styled.button`
-  padding: 4px 12px;
-  font-size: 12px;
-  background: linear-gradient(to bottom, #ffffff, #ece9d8);
-  border: 1px solid #7f9db9;
-  border-radius: 2px;
-  cursor: pointer;
-
-  &:hover {
-    background: linear-gradient(to bottom, #f0f0f0, #dcd9c9);
-  }
-
-  &:active {
-    background: linear-gradient(to bottom, #ece9d8, #ffffff);
-  }
+  margin-top: 12px;
 `;
 
 interface Connection {
@@ -153,10 +197,6 @@ interface Connection {
   connected: boolean;
 }
 
-interface NetworkConnectionsProps {
-  onClose?: () => void;
-}
-
 const formatDuration = (seconds: number): string => {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
@@ -164,44 +204,49 @@ const formatDuration = (seconds: number): string => {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 };
 
-const formatBytes = (bytes: number): string => {
-  return bytes.toLocaleString();
-};
+const formatNumber = (n: number): string => n.toLocaleString();
 
-const NetworkConnections = ({ onClose }: NetworkConnectionsProps) => {
+type StatusTab = 'general' | 'support';
+type RepairState = 'idle' | 'repairing' | 'done';
+
+const CONNECTIONS: Connection[] = [
+  {
+    key: 'local',
+    nameKey: 'networkConnections.localConnection',
+    statusKey: 'networkConnections.connected',
+    icon: 'network_connections',
+    typeKey: 'networkConnections.local',
+    connected: true,
+  },
+  {
+    key: 'wireless',
+    nameKey: 'networkConnections.wirelessConnection',
+    statusKey: 'networkConnections.disconnected',
+    icon: 'wireless_network',
+    typeKey: 'networkConnections.wireless',
+    connected: false,
+  },
+];
+
+const NetworkConnections = () => {
   const { t } = useTranslation();
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(0);
   const [detailConnection, setDetailConnection] = useState<Connection | null>(null);
+  const [activeTab, setActiveTab] = useState<StatusTab>('general');
   const [duration, setDuration] = useState<number>(0);
   const [sentBytes, setSentBytes] = useState<number>(0);
   const [receivedBytes, setReceivedBytes] = useState<number>(0);
-
-  const connections: Connection[] = [
-    {
-      key: 'local',
-      nameKey: 'networkConnections.localConnection',
-      statusKey: 'networkConnections.connected',
-      icon: 'network_connections',
-      typeKey: 'networkConnections.local',
-      connected: true,
-    },
-    {
-      key: 'wireless',
-      nameKey: 'networkConnections.wirelessConnection',
-      statusKey: 'networkConnections.disconnected',
-      icon: 'wireless_network',
-      typeKey: 'networkConnections.wireless',
-      connected: false,
-    },
-  ];
+  const [sentPackets, setSentPackets] = useState<number>(0);
+  const [receivedPackets, setReceivedPackets] = useState<number>(0);
+  const [repairState, setRepairState] = useState<RepairState>('idle');
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const repairTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (repairTimeoutRef.current) clearTimeout(repairTimeoutRef.current);
     };
   }, []);
 
@@ -215,99 +260,185 @@ const NetworkConnections = ({ onClose }: NetworkConnectionsProps) => {
       setDuration(0);
       setSentBytes(0);
       setReceivedBytes(0);
+      setSentPackets(0);
+      setReceivedPackets(0);
 
       intervalRef.current = setInterval(() => {
         setDuration(prev => prev + 1);
         setSentBytes(prev => prev + Math.floor(Math.random() * 1024) + 128);
         setReceivedBytes(prev => prev + Math.floor(Math.random() * 2048) + 256);
+        setSentPackets(prev => prev + Math.floor(Math.random() * 6) + 1);
+        setReceivedPackets(prev => prev + Math.floor(Math.random() * 9) + 1);
       }, 1000);
     }
   }, [detailConnection]);
 
-  const handleItemClick = (index: number) => {
-    setSelectedIndex(index);
-  };
-
-  const handleItemDoubleClick = (index: number) => {
-    setDetailConnection(connections[index]);
+  const openStatus = (index: number) => {
+    setActiveTab('general');
+    setRepairState('idle');
+    setDetailConnection(CONNECTIONS[index]);
   };
 
   const handleCloseDetail = () => {
     setDetailConnection(null);
   };
 
+  const handleRepair = () => {
+    if (repairState === 'repairing') return;
+    setRepairState('repairing');
+    if (repairTimeoutRef.current) clearTimeout(repairTimeoutRef.current);
+    repairTimeoutRef.current = setTimeout(() => {
+      setRepairState('done');
+    }, 1000);
+  };
+
   if (detailConnection) {
     return (
-      <Container>
-        <Title>{t('networkConnections.statusTitle')}</Title>
-        <DetailContainer>
-          <DetailHeader>
-            <ConnectionIcon>
-              <XPIcon name={detailConnection.icon} size={32} />
-            </ConnectionIcon>
-            <ConnectionInfo>
-              <DetailTitle>{t(detailConnection.nameKey)}</DetailTitle>
-              <DetailSubtitle>
-                {t('networkConnections.status')}: {t(detailConnection.statusKey)}
-              </DetailSubtitle>
-            </ConnectionInfo>
-          </DetailHeader>
-          <StatsGrid>
-            <StatBox>
-              <StatLabel>{t('networkConnections.duration')}</StatLabel>
-              <StatValue>{formatDuration(duration)}</StatValue>
-            </StatBox>
-            <StatBox>
-              <StatLabel>{t('networkConnections.status')}</StatLabel>
-              <StatValue>{t(detailConnection.statusKey)}</StatValue>
-            </StatBox>
-            <StatBox>
-              <StatLabel>{t('networkConnections.sent')}</StatLabel>
-              <StatValue>
-                {t('networkConnections.bytes', { value: formatBytes(sentBytes) })}
-              </StatValue>
-            </StatBox>
-            <StatBox>
-              <StatLabel>{t('networkConnections.received')}</StatLabel>
-              <StatValue>
-                {t('networkConnections.bytes', { value: formatBytes(receivedBytes) })}
-              </StatValue>
-            </StatBox>
-          </StatsGrid>
-        </DetailContainer>
-        <ButtonContainer>
-          <Button onClick={handleCloseDetail}>{t('networkConnections.close')}</Button>
-        </ButtonContainer>
+      <Container data-testid="netconn-status-dialog">
+        <Dialog>
+          <Tabs>
+            <Tab
+              data-testid="netconn-tab-general"
+              $active={activeTab === 'general'}
+              onClick={() => setActiveTab('general')}
+            >
+              {t('networkConnections.generalTab')}
+            </Tab>
+            <Tab
+              data-testid="netconn-tab-support"
+              $active={activeTab === 'support'}
+              onClick={() => setActiveTab('support')}
+            >
+              {t('networkConnections.supportTab')}
+            </Tab>
+          </Tabs>
+
+          {activeTab === 'general' ? (
+            <TabPane>
+              <GroupBox>
+                <legend>{t('networkConnections.connectionGroup')}</legend>
+                <FieldRow>
+                  <span>{t('networkConnections.status')}:</span>
+                  <FieldValue>{t(detailConnection.statusKey)}</FieldValue>
+                </FieldRow>
+                <FieldRow>
+                  <span>{t('networkConnections.duration')}:</span>
+                  <FieldValue data-testid="netconn-duration">
+                    {formatDuration(duration)}
+                  </FieldValue>
+                </FieldRow>
+                <FieldRow>
+                  <span>{t('networkConnections.speed')}:</span>
+                  <FieldValue>{t('networkConnections.speedValue')}</FieldValue>
+                </FieldRow>
+              </GroupBox>
+
+              <GroupBox>
+                <legend>{t('networkConnections.activityGroup')}</legend>
+                <ActivityTop>
+                  <ActivityLabel>{t('networkConnections.sent')}</ActivityLabel>
+                  <ActivityIcons>
+                    <XPIcon name="computer" size={22} />
+                    <span>&raquo;&laquo;</span>
+                    <XPIcon name="computer" size={22} />
+                  </ActivityIcons>
+                  <ActivityLabel>{t('networkConnections.received')}</ActivityLabel>
+                </ActivityTop>
+                <Etched />
+                <DataRow>
+                  <span>{t('networkConnections.packets')}:</span>
+                  <span data-testid="netconn-sent">{formatNumber(sentPackets)}</span>
+                  <span data-testid="netconn-received">{formatNumber(receivedPackets)}</span>
+                </DataRow>
+                <DataRow>
+                  <span>{t('networkConnections.bytesLabel')}:</span>
+                  <span>{formatNumber(sentBytes)}</span>
+                  <span>{formatNumber(receivedBytes)}</span>
+                </DataRow>
+              </GroupBox>
+
+              <ButtonRow>
+                <XPButton disabled>{t('networkConnections.properties')}</XPButton>
+                <XPButton disabled>{t('networkConnections.disable')}</XPButton>
+                <XPButton onClick={handleCloseDetail}>
+                  {t('networkConnections.close')}
+                </XPButton>
+              </ButtonRow>
+            </TabPane>
+          ) : (
+            <TabPane>
+              <GroupBox>
+                <legend>{t('networkConnections.connectionStatusGroup')}</legend>
+                <FieldRow>
+                  <span>{t('networkConnections.addressType')}:</span>
+                  <FieldValue>{t('networkConnections.assignedByDhcp')}</FieldValue>
+                </FieldRow>
+                <FieldRow>
+                  <span>{t('networkConnections.ipAddress')}:</span>
+                  <FieldValue>192.168.1.101</FieldValue>
+                </FieldRow>
+                <FieldRow>
+                  <span>{t('networkConnections.subnetMask')}:</span>
+                  <FieldValue>255.255.255.0</FieldValue>
+                </FieldRow>
+                <FieldRow>
+                  <span>{t('networkConnections.defaultGateway')}:</span>
+                  <FieldValue>192.168.1.1</FieldValue>
+                </FieldRow>
+              </GroupBox>
+
+              <ButtonRow>
+                <XPButton disabled>{t('networkConnections.details')}</XPButton>
+                <XPButton
+                  data-testid="netconn-repair"
+                  disabled={repairState === 'repairing'}
+                  onClick={handleRepair}
+                >
+                  {repairState === 'repairing'
+                    ? t('networkConnections.repairing')
+                    : t('networkConnections.repair')}
+                </XPButton>
+              </ButtonRow>
+              {repairState === 'done' && (
+                <RepairResult>{t('networkConnections.repairSuccess')}</RepairResult>
+              )}
+
+              <ButtonRow>
+                <XPButton onClick={handleCloseDetail}>
+                  {t('networkConnections.close')}
+                </XPButton>
+              </ButtonRow>
+            </TabPane>
+          )}
+        </Dialog>
       </Container>
     );
   }
 
   return (
     <Container>
-      <Title>{t('networkConnections.title')}</Title>
-      <ConnectionList>
-        {connections.map((conn, index) => (
-          <ConnectionItem
-            key={conn.key}
-            $selected={selectedIndex === index}
-            onClick={() => handleItemClick(index)}
-            onDoubleClick={() => handleItemDoubleClick(index)}
-          >
-            <ConnectionIcon>
+      <ListArea>
+        <GroupHeading>{t('networkConnections.lanGroup')}</GroupHeading>
+        <ConnectionGrid>
+          {CONNECTIONS.map((conn, index) => (
+            <ConnectionItem
+              key={conn.key}
+              data-testid={`netconn-item-${conn.key}`}
+              $selected={selectedIndex === index}
+              onClick={() => setSelectedIndex(index)}
+              onDoubleClick={() => openStatus(index)}
+            >
               <XPIcon name={conn.icon} size={32} />
-            </ConnectionIcon>
-            <ConnectionInfo>
-              <ConnectionName>{t(conn.nameKey)}</ConnectionName>
-              <ConnectionStatus>
-                {t(conn.statusKey)} - {t(conn.typeKey)}
-              </ConnectionStatus>
-            </ConnectionInfo>
-          </ConnectionItem>
-        ))}
-      </ConnectionList>
-      <ButtonContainer>
-        <Button onClick={onClose}>{t('networkConnections.close')}</Button>
-      </ButtonContainer>
+              <ConnectionInfo>
+                <ConnectionName>{t(conn.nameKey)}</ConnectionName>
+                <ConnectionStatus>
+                  {t(conn.statusKey)} - {t(conn.typeKey)}
+                </ConnectionStatus>
+              </ConnectionInfo>
+            </ConnectionItem>
+          ))}
+        </ConnectionGrid>
+      </ListArea>
     </Container>
   );
 };
