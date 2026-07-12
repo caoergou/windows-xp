@@ -321,6 +321,9 @@ export { defineScenario, ScenarioBuilder } from '../scenario/builder';
 export * as scenarioHelpers from '../scenario/builder';
 export { solveScenario, ranAction } from '../scenario/solver';
 export type { SolveOptions, SolveResult, SolveFsNode } from '../scenario/solver';
+// Layer 3: the Puzzle Dependency Graph — compiler + graph linter.
+export { compilePuzzleGraph, lintPuzzleGraph, solvedFlag } from '../scenario/puzzleGraph';
+export type { PuzzleGraph, PuzzleNode, PuzzleHint, GraphLintIssue, PuzzleGraphReport } from '../scenario/puzzleGraph';
 export type { Lesson, LessonStep, LessonHint, LessonMode, LessonScore, ExpectPattern, WrongActionPolicy, WatchAction } from '../lesson/types';
 export { defineLesson } from '../lesson/types';
 export { lintLesson, isLessonValid, type LintIssue } from '../lesson/lint';

@@ -294,10 +294,43 @@ The solver runs the **same** matching/gating/flag semantics as the live runtime
 rather than performed, and `emit` actions feed back into the loop (cascades,
 capped by `maxEvents`). Seed FS-gated puzzles with the `fs` option.
 
-### Planned — Layer 3: the Puzzle Dependency Graph
+### Layer 3 — the Puzzle Dependency Graph
 
-Ron Gilbert's Puzzle Dependency Charts as the *authoring model*: declare puzzle
-nodes with `requires` / `solvedWhen` / `grants`; the compiler derives Layer-1
-triggers; a graph linter catches unreachable puzzles, unintended act-bottleneck
-bypasses, required steps with no hint ladder, and reports "bushiness" (pacing).
-Not yet implemented — tracked as the next toolchain step.
+Ron Gilbert's Puzzle Dependency Charts as the *authoring model*. Declare puzzle
+nodes with `requires` / `solvedWhen` / `grants`; `compilePuzzleGraph` derives the
+Layer-1 triggers (each puzzle → a fire-once trigger gated on its prerequisites'
+`solved:<id>` flags + its `solvedWhen`, whose actions set its own solved flag and
+run `grants`). The result runs on the same runtime and is testable with the solver.
+
+```ts
+import { compilePuzzleGraph, lintPuzzleGraph, scenarioHelpers as h } from '@caoergou/windows-xp';
+
+const graph = {
+  id: 'county-2007',
+  puzzles: [
+    { id: 'read-diary', on: 'file:open', solvedWhen: h.eventMatch({ name: '日记.txt' }),
+      hints: [{ afterMs: 600000, text: 'hint.diary.1' }] },
+    { id: 'unlock-folder', requires: ['read-diary'], gate: true,
+      solvedWhen: h.happened('file:unlock', { name: '私人' }),   // `on` derived from `happened`
+      grants: [h.unlock(['我的电脑', '本地磁盘 (D:)', '私人'])],
+      hints: [{ text: 'hint.folder.1' }, { text: 'hint.folder.2' }] },
+  ],
+};
+
+const scenario = compilePuzzleGraph(graph);   // → the Layer-1 Scenario; pass as the `scenario` prop
+```
+
+`solvedWhen`'s trigger event is derived from its `happened`/`count` types; for
+flag/FS/`eventMatch`-only conditions, set `on` explicitly. Mark act bottlenecks
+with `gate: true`.
+
+**The graph linter** — `lintPuzzleGraph(graph)` catches what PDCs were invented
+to catch, mechanically:
+
+- **errors**: missing/self `requires`, dependency **cycles** (deadlock),
+  **unreachable** puzzles, and puzzles with no derivable trigger event;
+- **warnings**: a step with **no hint ladder** (the M12 anti-stuck contract), and
+  puzzles that **bypass a `gate`** (don't transitively require it);
+- **bushiness**: `report.bushiness[depth]` — how many puzzles are open in
+  parallel at each dependency depth — and `report.maxParallel`, free pacing
+  visualization. `report.ok` is false when any error is present (wire into CI).
