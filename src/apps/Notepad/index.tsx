@@ -901,7 +901,11 @@ const Notepad = ({
     >
       <MenuBar>
         <MenuItemWrapper>
-          <MenuItem $active={openMenu === 'file'} onClick={() => toggleMenu('file')}>
+          <MenuItem
+            $active={openMenu === 'file'}
+            data-xp-anchor="notepad.menu.file"
+            onClick={() => toggleMenu('file')}
+          >
             {t('notepad.menu.file')}
           </MenuItem>
           {renderDropdown('file')}
@@ -934,6 +938,7 @@ const Notepad = ({
       <EditorArea>
         <TextArea
           ref={textareaRef}
+          data-xp-anchor="notepad.textarea"
           value={content}
           onChange={handleContentChange}
           onSelect={handleSelect}

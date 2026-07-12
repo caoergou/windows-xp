@@ -9,6 +9,7 @@ import type { WallpaperItem } from '../data/wallpapers';
 import type { XPEventListener } from '../events';
 import type { XPHandle } from '../components/XPBridge';
 import type { Scenario } from '../scenario/types';
+import type { Lesson } from '../lesson/types';
 import '../i18n';
 import 'xp.css/dist/XP.css';
 import '../scoped.css';
@@ -121,6 +122,13 @@ export interface WindowsXPProps {
    * See `docs/SCENARIOS.md`.
    */
   scenario?: Scenario;
+  /**
+   * Guided lessons (#141): data-driven Watch/Try/Do tutorials. Register them
+   * here, then start one via the `startLesson(id, mode)` ref handle. Steps
+   * advance on real, event-verified actions; `lesson:*` events report progress.
+   * See `docs/LESSONS.md`.
+   */
+  lessons?: Lesson[];
   /** Subscribe to desktop events (app launches, file opens, session, cmd...). */
   onEvent?: XPEventListener;
 }
@@ -170,6 +178,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     boot,
     login,
     scenario,
+    lessons,
     onEvent,
   },
   ref
@@ -200,6 +209,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       boot={boot}
       login={login}
       scenario={scenario}
+      lessons={lessons}
       onEvent={onEvent}
       handleRef={ref}
       disableContextMenuBlock={disableContextMenuBlock ?? embedded}
@@ -298,5 +308,8 @@ export { EventBusProvider } from '../context/EventBusContext';
 export { XPEventBus, createXPEventBus } from '../events';
 export type { Scenario, Trigger, Condition, Action, FlagValue } from '../scenario/types';
 export { prologueScenario } from '../data/scenarios/prologue';
+export type { Lesson, LessonStep, LessonHint, LessonMode, LessonScore, ExpectPattern, WrongActionPolicy } from '../lesson/types';
+export { defineLesson } from '../lesson/types';
+export { notepadBasicsLesson } from '../data/lessons/notepadBasics';
 export type { XPSnapshot } from '../snapshot';
 export { XP_SNAPSHOT_VERSION, XPSnapshotVersionError, assertLoadableSnapshot } from '../snapshot';

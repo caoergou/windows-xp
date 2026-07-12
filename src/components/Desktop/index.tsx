@@ -8,6 +8,7 @@ import { useUserSession } from '../../context/UserSessionContext';
 import Taskbar from '../Taskbar';
 import Window from '../Window';
 import ContextMenu from '../ContextMenu';
+import LessonOverlay from '../LessonOverlay';
 import XPIcon from '../XPIcon';
 import FileProperties from '../FileProperties';
 import DesktopProperties from '../DesktopProperties';
@@ -699,6 +700,8 @@ const Desktop: React.FC = () => {
       {windows.map(win => (
         <Window key={win.id} windowState={win} />
       ))}
+
+      <LessonOverlay />
 
       <Taskbar />
 

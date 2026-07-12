@@ -934,5 +934,19 @@
   "recycleBinNotices": {
     "restoreFallbackTitle": "回收站",
     "restoreFallbackMessage": "\"{{name}}\"的原始文件夹已不存在，已将其还原到桌面。"
+  },
+  "lesson": {
+    "close": "关闭课程",
+    "progress": "第 {{current}} / {{total}} 步",
+    "done": "课程完成！",
+    "score": "得分：{{score}} / 100",
+    "notepad": {
+      "title": "课程：记事本入门",
+      "step1": "从「开始」菜单打开记事本。",
+      "hint1a": "点击左下角的「开始」按钮。",
+      "hint1b": "记事本在「所有程序 → 附件」里。",
+      "step2": "输入一小段文字，然后保存到「我的文档」。",
+      "hint2": "打开「文件」菜单选择「保存」，再确认保存位置。"
+    }
   }
 }

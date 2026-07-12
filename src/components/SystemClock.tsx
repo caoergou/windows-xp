@@ -148,6 +148,7 @@ const SystemClock = () => {
     <ClockContainer
       ref={containerRef}
       data-testid="system-clock"
+      data-xp-anchor="taskbar.clock"
       onClick={toggleOpen}
     >
       <TimeLabel>{time}</TimeLabel>
