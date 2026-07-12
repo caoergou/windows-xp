@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom/client';
 import { AppProviders } from './components/AppProviders';
 import Gallery from './gallery/Gallery';
 import type { BootBranding, LoginBranding } from './branding';
+import { prologueScenario } from './data/scenario/prologue';
 import './i18n';
 import 'xp.css/dist/XP.css';
 import './index.css';
@@ -48,6 +49,9 @@ if (params.get('brand') === 'demo') {
   };
 }
 
+// Scenario demo (#84): ?scenario=prologue runs the bundled playable prologue.
+const scenario = params.get('scenario') === 'prologue' ? prologueScenario : undefined;
+
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   showGallery ? (
     <Gallery />
@@ -59,6 +63,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
       persistence={persistence}
       boot={boot}
       login={login}
+      scenario={scenario}
     />
   )
 );

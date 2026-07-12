@@ -17,7 +17,9 @@ import { StorageProvider } from '../context/StorageContext';
 import { SchedulerProvider } from '../context/SchedulerContext';
 import { XPEventBridge, XPImperativeApi, type XPHandle } from './XPBridge';
 import { DeepLinkLoader } from './DeepLinkLoader';
+import { ScenarioRunner } from './ScenarioRunner';
 import type { DeepLinkRoutes } from '../utils/deepLink';
+import type { Scenario } from '../scenario/types';
 import { XPEventBus } from '../events';
 import type { XPEventListener } from '../events';
 import { setStoragePrefix, type PersistenceMode } from '../utils/storage';
@@ -68,6 +70,8 @@ export interface AppProvidersProps {
   boot?: BootBranding;
   /** Login-screen branding (#139). */
   login?: LoginBranding;
+  /** Declarative scenario/story to run (#84). */
+  scenario?: Scenario;
 }
 
 const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
@@ -97,6 +101,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   persistence,
   boot,
   login,
+  scenario,
 }) => {
   // Configure storage namespace synchronously before any context reads/writes storage.
   setStoragePrefix(storagePrefix || 'xp_');
@@ -189,6 +194,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
                   location={location}
                   historyIntegration={historyIntegration}
                 />
+                <ScenarioRunner scenario={scenario} />
                 <App
                   initialLanguage={language}
                   skipBoot={skipBoot}

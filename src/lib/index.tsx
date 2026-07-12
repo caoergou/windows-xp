@@ -5,6 +5,7 @@ import { CulturePackage } from '../data/culture';
 import type { DeepLinkRoutes } from '../utils/deepLink';
 import type { PersistenceMode } from '../utils/storage';
 import type { BootBranding, LoginBranding } from '../branding';
+import type { Scenario } from '../scenario/types';
 import type { WallpaperItem } from '../data/wallpapers';
 import type { XPEventListener } from '../events';
 import type { XPHandle } from '../components/XPBridge';
@@ -113,6 +114,12 @@ export interface WindowsXPProps {
    * suppresses the "Microsoft Windows XP" wordmark.
    */
   login?: LoginBranding;
+  /**
+   * Declarative scenario/story (#84): triggers + flags authored as JSON (no
+   * React). Progress persists per instance. See `defineScenario` and the
+   * "Author an interactive scenario" USAGE walkthrough.
+   */
+  scenario?: Scenario;
   /** Subscribe to desktop events (app launches, file opens, session, cmd...). */
   onEvent?: XPEventListener;
 }
@@ -161,6 +168,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     historyIntegration,
     boot,
     login,
+    scenario,
     onEvent,
   },
   ref
@@ -190,6 +198,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       historyIntegration={historyIntegration}
       boot={boot}
       login={login}
+      scenario={scenario}
       onEvent={onEvent}
       handleRef={ref}
       disableContextMenuBlock={disableContextMenuBlock ?? embedded}
@@ -213,6 +222,8 @@ export {
   postPermalink,
   postPath,
 } from '../content/blog';
+// Scenario system (#84).
+export { defineScenario, evaluateEvent, evalCondition, matchesEvent } from '../scenario';
 export { FileSystemProvider } from '../context/FileSystemContext';
 export { WindowManagerProvider } from '../context/WindowManagerContext';
 export { UserSessionProvider } from '../context/UserSessionContext';
@@ -271,6 +282,15 @@ export type { BlogPost, ContentManifest, SiteMeta } from '../content/blog';
 export type { FileSystemMode } from '../context/FileSystemContext';
 export type { PersistenceMode } from '../utils/storage';
 export type { BootBranding, LoginBranding } from '../branding';
+export type {
+  Scenario,
+  ScenarioTrigger,
+  ScenarioAction,
+  ScenarioCondition,
+  ScenarioEvent,
+  ScenarioState,
+  EventPattern,
+} from '../scenario/types';
 export type { ModalContextType } from '../context/ModalContext';
 export type { TrayItem, TrayContextType, NotifyOptions } from '../context/TrayContext';
 export type { ScheduleOptions, SchedulerApi } from '../context/SchedulerContext';

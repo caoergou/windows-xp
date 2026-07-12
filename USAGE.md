@@ -591,6 +591,71 @@ your analytics:
 New tabs open with `noopener,noreferrer`, so an embedded desktop never hijacks
 its host page.
 
+## Author an interactive scenario (#84)
+
+Turn the desktop into a playable story — a mystery to investigate, a guided demo,
+an ARG — **without writing React**. A *scenario* is declarative JSON: a set of
+**triggers** ("when this event happens and these conditions hold, run these
+actions") over the same event bus you subscribe to with `onEvent`, plus
+**flags** (progress that persists per instance). It's a thin client over the
+imperative engine — the runtime is a `scenario` prop:
+
+```jsx
+import { WindowsXP, defineScenario } from '@caoergou/windows-xp';
+
+const story = defineScenario({
+  triggers: [
+    // Push: the moment the desktop is ready, pop a tray balloon.
+    {
+      id: 'intro',
+      on: 'scenario:start',
+      once: true,
+      actions: [{ notify: { title: 'Start here', body: 'Open readme.txt in My Documents.' } }],
+    },
+    // Gate: opening the readme reveals a clue and a password-locked file.
+    {
+      id: 'reveal',
+      on: 'file:open',
+      when: { match: { name: 'readme.txt' } },
+      once: true,
+      actions: [
+        { setFlag: 'readReadme' },
+        { addFile: { path: ['我的文档', 'clue.txt'], content: 'The year everyone went online: 2007.' } },
+        { addFile: { path: ['我的文档', 'secret.txt'], locked: true, password: '2007', content: 'You made it.' } },
+      ],
+    },
+    // Progress: opening the unlocked secret (only fires after the right password)
+    // completes the chapter — conditions can read flags and the event journal.
+    {
+      id: 'solved',
+      on: 'file:open',
+      when: { allOf: [{ match: { name: 'secret.txt' } }, { flag: 'readReadme' }] },
+      once: true,
+      actions: [{ playSound: 'ding' }, { notify: { title: 'Chapter complete' } }],
+    },
+  ],
+});
+
+export default () => <WindowsXP scenario={story} />;
+```
+
+**Triggers** listen on any event `type` (exact, or a `file:*` glob), plus two
+synthetic ones: `scenario:start` (fires once when the desktop becomes
+interactive) and `flag:set`. `once`/`max` bound how often a trigger fires — and
+that bookkeeping **persists**, so a refresh resumes mid-story.
+
+**Conditions** (`when`) combine `flag` / `flagEquals`, `match` (the current
+event's fields), the event-history predicates `happened` and `count` (over a
+persisted journal — sequence-breaking is a feature, not a bug), and `allOf` /
+`anyOf` / `not`.
+
+**Actions** are the verbs: `setFlag`, `unlockNode`, `addFile`, `removeFile`,
+`notify` (tray balloon), `alert`, `qqMessage`, `playSound`, `openApp`,
+`openFile`, `schedule` (a delayed `time:fire` a later trigger reacts to), and
+`emit`. Adding a story node is a JSON edit — no component, no rebuild of the
+engine. A bundled, playable prologue ships behind `?scenario=prologue` in the
+dev demo; its source is `src/data/scenario/prologue.ts`.
+
 ## Embedding in a host app
 
 ```jsx
