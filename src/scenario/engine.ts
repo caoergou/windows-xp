@@ -103,9 +103,21 @@ export const evaluateCondition = (condition: Condition | undefined, ctx: EvalCon
     const { a, b } = condition.linked;
     return isPinned(ctx.journal, a) && isPinned(ctx.journal, b) && hasLink(ctx.journal, a, b);
   }
+  if ('searched' in condition) return wasSearched(ctx.journal, condition.searched);
+  if ('found' in condition) return wasFound(ctx.journal, condition.found);
 
   return false;
 };
+
+/** Whether any `search:query` in the journal contains `term` (case-insensitive substring). */
+export const wasSearched = (journal: XPEvent[], term: string): boolean => {
+  const needle = term.toLowerCase();
+  return journal.some(e => e.type === 'search:query' && e.query.toLowerCase().includes(needle));
+};
+
+/** Whether any `search:query` surfaced the result `resultId` (present in its `resultIds`). */
+export const wasFound = (journal: XPEvent[], resultId: string): boolean =>
+  journal.some(e => e.type === 'search:query' && (e.resultIds?.includes(resultId) ?? false));
 
 /** Board state is derived from the journal: an item is pinned when its `evidence:pin`s outnumber its `evidence:unpin`s. */
 export const isPinned = (journal: XPEvent[], itemId: string): boolean => {

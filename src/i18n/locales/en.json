@@ -326,6 +326,7 @@
     "solitaire": "Solitaire",
     "deductionSheet": "Deduction Sheet",
     "evidenceBoard": "Evidence Board",
+    "searchOracle": "Search",
     "wordpad": "WordPad",
     "mediaPlayer": "Windows Media Player",
     "messenger": "MSN Messenger",
@@ -959,6 +960,14 @@
     "tray": "Evidence",
     "unpin": "Remove from board",
     "linkHint": "Click a card, then another, to string them together."
+  },
+  "searchOracle": {
+    "brand": "Search",
+    "placeholder": "Search the web",
+    "go": "Search",
+    "stat": "{{count}} results for \"{{query}}\"",
+    "empty": "No results for \"{{query}}\"",
+    "noResults": "Your search did not match any documents."
   },
   "lesson": {
     "close": "Close lesson",

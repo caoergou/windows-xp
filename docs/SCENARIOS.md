@@ -379,3 +379,26 @@ The Golden Idol verifier — a form of labelled slots the player fills from a wo
 bank, submitted for batched verification. Emits `deduction:submit` and
 `deduction:verified` / `deduction:failed`. Scenarios react to the verified event;
 the app owns the correctness check against its scenario-provided answer key.
+
+### Search Oracle (`SearchOracle`, mechanic #134)
+
+An in-world period search engine (a fake 百度/AltaVista/MSN Search). The player
+types a query; the app matches it against an authored result set and emits
+`search:query { query, hit, resultIds }`. Scenarios gate on `searched(term)` /
+`found(resultId)`.
+
+```ts
+import { defineScenario, searched, found, demoSearch } from '@caoergou/windows-xp';
+
+ref.openApp('SearchOracle', demoSearch);   // props.results = the authored oracle
+
+const s = defineScenario('web');
+s.on('search:query').when(searched('水晶女孩')).do(setFlag('lead'));
+s.on('search:query').when(found('cafe-news')).do(openFile([/* … */]));
+```
+
+Each result lists the query terms that surface it; a query *hits* when it
+contains any of a result's `match` terms (case-insensitive substring), so authors
+reward the **idea** of a search, not an exact string. `searched(term)` holds when
+some past query contained `term`; `found(id)` holds when some query surfaced that
+result. A missed search still emits (`hit: false`, empty `resultIds`).
