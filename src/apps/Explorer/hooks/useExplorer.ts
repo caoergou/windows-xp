@@ -5,6 +5,7 @@ import { useXPEventBus } from '../../../context/EventBusContext';
 import { useStorage } from '../../../context/StorageContext';
 import { useApp } from '../../../hooks/useApp';
 import { useTapGestures } from '../../../hooks/useTapGestures';
+import { useMultiSelect } from '../../../hooks/useMultiSelect';
 import FileProperties from '../../../components/FileProperties';
 import { FileNode, MenuItem, isContainerNode, isFileContentNode } from '../../../types';
 import { getFileDisplayName } from '../../../utils/fileDisplayName';
@@ -80,11 +81,10 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
 
   const [history, setHistory] = useState<string[][]>([initialPath]);
   const [historyIndex, setHistoryIndex] = useState(0);
-  const [selectedItem, setSelectedItem] = useState<{
-    name: string;
-    type: FileNode['type'];
-    key: string;
-  } | null>(null);
+  // Multi-selection (#211) shared with the desktop via one model. A legacy-shaped
+  // `selectedItem` is derived from the active key below for the sidebar/details
+  // pane and the keyboard handlers that only care about the focused item.
+  const selection = useMultiSelect();
   const [refreshKey, setRefreshKey] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   // Touch gestures (#125): synthetic mouse clicks that follow a handled tap are
@@ -107,6 +107,25 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
 
   const currentPath = history[historyIndex];
   const currentFolder = getFile(currentPath);
+
+  // Legacy-shaped "active item" derived from the selection model — feeds the
+  // sidebar/details pane and the keyboard handlers that act on the focused item.
+  const activeNode =
+    selection.active && currentFolder && isContainerNode(currentFolder)
+      ? currentFolder.children[selection.active]
+      : undefined;
+  const selectedItem =
+    selection.active && activeNode
+      ? { name: getFileDisplayName(selection.active, activeNode, t), type: activeNode.type, key: selection.active }
+      : null;
+
+  // Keys currently selected that still exist in the folder — the working set for
+  // batch copy/cut/delete/drag.
+  const selectionKeys = (): string[] => {
+    const folder = currentFolder && isContainerNode(currentFolder) ? currentFolder : null;
+    if (!folder) return [];
+    return [...selection.selected].filter(k => folder.children[k]);
+  };
 
   // Keep address bar in sync when navigating
   useEffect(() => {
@@ -182,7 +201,7 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
       newHistory.push(newPath);
       setHistory(newHistory);
       setHistoryIndex(newHistory.length - 1);
-      setSelectedItem(null);
+      selection.clear();
     } else if (target.type === 'external_link') {
       // External-link shortcut: leave the fiction instead of opening a window (#136).
       const newTab = target.newTab ?? true;
@@ -214,14 +233,14 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   const handleBack = () => {
     if (historyIndex > 0) {
       setHistoryIndex(historyIndex - 1);
-      setSelectedItem(null);
+      selection.clear();
     }
   };
 
   const handleForward = () => {
     if (historyIndex < history.length - 1) {
       setHistoryIndex(historyIndex + 1);
-      setSelectedItem(null);
+      selection.clear();
     }
   };
 
@@ -233,7 +252,7 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
       newHistory.push(newPath);
       setHistory(newHistory);
       setHistoryIndex(newHistory.length - 1);
-      setSelectedItem(null);
+      selection.clear();
     }
   };
 
@@ -242,7 +261,7 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     newHistory.push(path);
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
-    setSelectedItem(null);
+    selection.clear();
   };
 
   // Touch (#125): resolve the file item under the finger (via `data-item-key`)
@@ -258,11 +277,8 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     onTap: () => {
       lastTouchAt.current = Date.now();
       const target = touchTargetRef.current;
-      setSelectedItem(
-        target
-          ? { name: getFileDisplayName(target.key, target.item, t), type: target.item.type, key: target.key }
-          : null
-      );
+      if (target) selection.selectOnly(target.key);
+      else selection.clear();
     },
     onDoubleTap: () => {
       lastTouchAt.current = Date.now();
@@ -273,14 +289,10 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
       lastTouchAt.current = Date.now();
       const target = touchTargetRef.current;
       if (target) {
-        setSelectedItem({
-          name: getFileDisplayName(target.key, target.item, t),
-          type: target.item.type,
-          key: target.key,
-        });
+        selection.selectOnly(target.key);
         setContextMenu({ visible: true, x, y, targetItem: { key: target.key, item: target.item } });
       } else {
-        setSelectedItem(null);
+        selection.clear();
         setContextMenu({ visible: true, x, y, targetItem: null });
       }
     },
@@ -324,7 +336,9 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   };
 
   const openItemMenuAt = (x: number, y: number, key: string, item: FileNode) => {
-    setSelectedItem({ name: getFileDisplayName(key, item, t), type: item?.type, key });
+    // Right-clicking an already-selected item keeps the whole multi-selection
+    // (so batch delete/cut work); right-clicking elsewhere selects just it.
+    if (!selection.isSelected(key)) selection.selectOnly(key);
     setContextMenu({
       visible: true,
       x,
@@ -351,23 +365,31 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     closeContextMenu();
   };
 
-  const handleDelete = (override?: { key: string; item: FileNode }) => {
-    const targetItem = override ?? contextMenu.targetItem;
-    if (targetItem) {
-      const displayName = getFileDisplayName(targetItem.key, targetItem.item, t);
-      api.dialog
-        .confirm({
-          title: t('common.deleteConfirmTitle'),
-          message: t('common.deleteConfirmSingle', { name: displayName }),
-          type: 'warning',
-        })
-        .then(confirmed => {
-          if (confirmed) {
-            deleteFile(currentPath, targetItem.key);
-            closeContextMenu();
-          }
-        });
+  // Batch delete over the current multi-selection (#211). Falls back to the
+  // single-item path if nothing is selected but a menu target exists. Confirms
+  // with a per-count message and recycles each node (one file:delete apiece).
+  const handleDeleteSelection = (override?: { key: string; item: FileNode }) => {
+    const folder = currentFolder && isContainerNode(currentFolder) ? currentFolder : null;
+    if (!folder) return;
+    let keys = selectionKeys();
+    if (keys.length === 0) {
+      const single = override ?? contextMenu.targetItem;
+      if (!single) return;
+      keys = [single.key];
     }
+    const message =
+      keys.length === 1
+        ? t('common.deleteConfirmSingle', { name: getFileDisplayName(keys[0], folder.children[keys[0]], t) })
+        : t('common.deleteConfirmMultiple', { count: keys.length });
+    api.dialog
+      .confirm({ title: t('common.deleteConfirmTitle'), message, type: 'warning' })
+      .then(confirmed => {
+        if (confirmed) {
+          keys.forEach(k => deleteFile(currentPath, k));
+          selection.clear();
+          closeContextMenu();
+        }
+      });
   };
 
   const handleRename = (override?: { key: string; item: FileNode }) => {
@@ -389,10 +411,10 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   };
 
   const handleCopy = () => {
-    if (contextMenu.targetItem) {
-      copyToClipboard(currentPath, contextMenu.targetItem.key);
-      closeContextMenu();
-    }
+    const keys = selectionKeys();
+    if (keys.length === 0) return;
+    copyToClipboard(currentPath, keys.length === 1 ? keys[0] : keys);
+    closeContextMenu();
   };
 
   const handleUpload = () => {
@@ -416,10 +438,10 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   };
 
   const handleCut = () => {
-    if (contextMenu.targetItem) {
-      cutFile(currentPath, contextMenu.targetItem.key);
-      closeContextMenu();
-    }
+    const keys = selectionKeys();
+    if (keys.length === 0) return;
+    cutFile(currentPath, keys.length === 1 ? keys[0] : keys);
+    closeContextMenu();
   };
 
   const handlePaste = () => {
@@ -499,22 +521,28 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
         { type: 'separator' },
         { label: t('explorer.upload'), action: handleUpload },
         { type: 'separator' },
-        { label: t('contextMenu.copy'), action: handleCopy, disabled: !contextMenu.targetItem },
-        { label: t('contextMenu.cut'), action: handleCut, disabled: !contextMenu.targetItem },
+        // Copy/Cut/Delete act on the whole selection; Rename/Properties are
+        // single-item ops, disabled while several are selected (#211).
+        { label: t('contextMenu.copy'), action: handleCopy, disabled: selection.size === 0 },
+        { label: t('contextMenu.cut'), action: handleCut, disabled: selection.size === 0 },
         { label: t('contextMenu.paste'), action: handlePaste, disabled: !clipboard },
         { type: 'separator' },
-        { label: t('contextMenu.rename'), action: handleRename, disabled: !contextMenu.targetItem },
-        { label: t('contextMenu.delete'), action: handleDelete, disabled: !contextMenu.targetItem },
+        { label: t('contextMenu.rename'), action: handleRename, disabled: selection.size !== 1 },
+        { label: t('contextMenu.delete'), action: handleDeleteSelection, disabled: selection.size === 0 },
         { type: 'separator' },
         {
           label: t('contextMenu.properties'),
           action: handleProperties,
-          disabled: !contextMenu.targetItem,
+          disabled: selection.size !== 1,
         },
       ];
 
   const handleDragStart = (e: React.DragEvent, key: string) => {
-    e.dataTransfer.setData('text/plain', key);
+    // Dragging one of a multi-selection drags them all (#211); dragging an
+    // unselected item drags just it (and selects it, matching XP).
+    const keys = selection.isSelected(key) ? selectionKeys() : [key];
+    if (!selection.isSelected(key)) selection.selectOnly(key);
+    e.dataTransfer.setData('text/plain', JSON.stringify(keys));
     e.dataTransfer.effectAllowed = 'move';
   };
 
@@ -523,9 +551,15 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     e.stopPropagation();
     setDragOver(null);
     if (targetItem.type !== 'folder') return;
-    const srcKey = e.dataTransfer.getData('text/plain');
-    if (!srcKey || srcKey === targetKey) return;
-    moveFile(currentPath, srcKey, [...currentPath, targetKey]);
+    let srcKeys: string[];
+    try {
+      srcKeys = JSON.parse(e.dataTransfer.getData('text/plain'));
+    } catch {
+      srcKeys = [];
+    }
+    srcKeys
+      .filter(k => k && k !== targetKey)
+      .forEach(k => moveFile(currentPath, k, [...currentPath, targetKey]));
   };
 
   const childCount =
@@ -559,14 +593,16 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
       return;
     }
     const folder = currentFolder && isContainerNode(currentFolder) ? currentFolder : null;
-    const selKey = selectedItem?.key;
+    const selKey = selection.active;
     const selNode = selKey && folder ? folder.children[selKey] : undefined;
 
-    const selectByKey = (key: string) => {
-      const node = folder?.children[key];
-      if (!node) return;
-      setSelectedItem({ name: getFileDisplayName(key, node, t), type: node.type, key });
-    };
+    // Ctrl/Cmd+A selects every item in the folder (#211).
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
+      if (!folder) return;
+      e.preventDefault();
+      selection.selectAll(orderedKeys());
+      return;
+    }
 
     if (e.key === 'Backspace') {
       if (currentPath.length > 0) {
@@ -582,9 +618,9 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
         handleRename({ key: selKey, item: selNode });
       }
     } else if (e.key === 'Delete') {
-      if (selKey && selNode) {
+      if (selection.size > 0) {
         e.preventDefault();
-        handleDelete({ key: selKey, item: selNode });
+        handleDeleteSelection(selKey && selNode ? { key: selKey, item: selNode } : undefined);
       }
     } else if (e.key === 'Enter') {
       if (selKey && selNode) {
@@ -609,7 +645,8 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
       else if (e.key === 'End') idx = keys.length - 1;
       else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') idx = cur <= 0 ? 0 : cur - 1;
       else idx = cur < 0 ? 0 : Math.min(cur + 1, keys.length - 1);
-      selectByKey(keys[idx]);
+      // Shift+Arrow extends the range from the anchor; a plain arrow moves it.
+      selection.moveActive(keys, keys[idx], e.shiftKey);
     }
   };
 
@@ -626,7 +663,8 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     history,
     historyIndex,
     selectedItem,
-    setSelectedItem,
+    selection,
+    orderedKeys,
     refreshKey,
     setRefreshKey,
     containerRef,

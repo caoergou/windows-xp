@@ -87,6 +87,15 @@ One user action = one event. Wrap the mutation at a single layer (see the
 `FileSystemContext` wrappers) so an action fires exactly once, and internal
 call-sites that reuse the primitive stay silent by design.
 
+**Batch operations fire one event per affected node, not one aggregate event.**
+A multi-select delete emits N `file:delete` events, a multi-paste emits N
+`file:move`/`file:copy` events — one per file, each with its own path. There is
+no `file:deleteMany`. This keeps the catalog small and lets a scenario react to
+each node uniformly whether it moved alone or as part of a selection; a host that
+wants to debounce a burst can coalesce on its side. The rule follows from
+"one action = one event" applied at the node granularity the primitive already
+uses (`deleteFile`/`pasteFile` loop over the selection).
+
 ## Evolution policy (don't break consumers)
 
 The catalog is public API. Change it **additively**:

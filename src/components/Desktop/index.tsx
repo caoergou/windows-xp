@@ -22,6 +22,7 @@ import { getFileDisplayName } from '../../utils/fileDisplayName';
 import { DesktopContainer, SelectionBox, IconGrid, DesktopIcon } from './styled';
 import { BOX_SELECT_IGNORE, SYSTEM_ICON_KEYS, getEnglishTestId } from './constants';
 import { useTapGestures } from '../../hooks/useTapGestures';
+import { useMultiSelect } from '../../hooks/useMultiSelect';
 import { useShortcut } from '../../context/KeymapContext';
 
 const Desktop: React.FC = () => {
@@ -35,7 +36,11 @@ const Desktop: React.FC = () => {
   const { showModal, showConfirm, showInput } = useModal();
 
   const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; iconKey: string | null }>({ visible: false, x: 0, y: 0, iconKey: null });
-  const [selectedIcons, setSelectedIcons] = useState<Set<string>>(new Set());
+  // Icon selection uses the same model as Explorer (#211). `selectedIcons` is a
+  // read-only view of the set; writes go through the hook's methods.
+  const iconSelection = useMultiSelect();
+  const selectedIcons = iconSelection.selected;
+  const orderedIconKeys = () => Object.keys((fs.root as RootNode).children);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [dragOver, setDragOver] = useState<string | null>(null);
@@ -86,8 +91,8 @@ const Desktop: React.FC = () => {
       }
     });
 
-    setSelectedIcons(newSelected);
-  }, []);
+    iconSelection.setSelection(newSelected);
+  }, [iconSelection]);
 
   useEffect(() => {
     return () => {
@@ -96,21 +101,13 @@ const Desktop: React.FC = () => {
   }, []);
 
   const selectIcon = (key: string, additive: boolean) => {
-    if (additive) {
-      const newSelected = new Set(selectedIcons);
-      if (newSelected.has(key)) {
-        newSelected.delete(key);
-      } else {
-        newSelected.add(key);
-      }
-      setSelectedIcons(newSelected);
-    } else {
-      setSelectedIcons(new Set([key]));
-    }
+    if (additive) iconSelection.handleItemClick(key, orderedIconKeys(), { ctrlKey: true });
+    else iconSelection.selectOnly(key);
   };
 
   const toggleIconSelection = (key: string, e: React.MouseEvent) => {
-    selectIcon(key, e.ctrlKey);
+    // Ctrl/Cmd toggles, Shift range-selects (#211), plain click selects one.
+    iconSelection.handleItemClick(key, orderedIconKeys(), e);
   };
 
   // Timestamp of the last touch-handled gesture (#125). React registers
@@ -145,7 +142,7 @@ const Desktop: React.FC = () => {
     setSelectionEnd(start);
 
     if (!e.ctrlKey) {
-      setSelectedIcons(new Set());
+      iconSelection.clear();
     }
 
     const onMouseMove = (ev: MouseEvent) => {
@@ -249,7 +246,7 @@ const Desktop: React.FC = () => {
 
   const openIconMenuAt = (x: number, y: number, key: string) => {
     if (!selectedIcons.has(key)) {
-      setSelectedIcons(new Set([key]));
+      iconSelection.selectOnly(key);
     }
     setContextMenu({ visible: true, x, y, iconKey: key });
   };
@@ -284,7 +281,7 @@ const Desktop: React.FC = () => {
         containerRef.current?.focus();
         selectIcon(key, false);
       } else {
-        setSelectedIcons(new Set());
+        iconSelection.clear();
       }
     },
     onDoubleTap: () => {
@@ -349,7 +346,7 @@ const Desktop: React.FC = () => {
     showConfirm(t('common.deleteConfirmTitle'), message, 'warning').then(confirmed => {
       if (confirmed) {
         keysToDelete.forEach(k => deleteFile([], k));
-        setSelectedIcons(new Set());
+        iconSelection.clear();
       }
     });
     closeContextMenu();
@@ -561,14 +558,14 @@ const Desktop: React.FC = () => {
     if (cur < 0) next = 0;
     else if (forward) next = Math.min(keys.length - 1, cur + 1);
     else next = Math.max(0, cur - 1);
-    setSelectedIcons(new Set([keys[next]]));
+    iconSelection.selectOnly(keys[next]);
   };
 
   useShortcut({ id: 'desktop.selectAll', combo: 'Mod+A', scope: 'desktop', label: 'Select all icons' }, () => {
     const ops = keyOpsRef.current;
     if (ops.contextMenuVisible) return;
     const keys = Object.keys(ops.rootChildren);
-    if (keys.length > 0) setSelectedIcons(new Set(keys));
+    if (keys.length > 0) iconSelection.selectAll(keys);
   });
   useShortcut({ id: 'desktop.delete', combo: 'Delete', scope: 'desktop', label: 'Delete to Recycle Bin' }, () => {
     const ops = keyOpsRef.current;
@@ -610,7 +607,7 @@ const Desktop: React.FC = () => {
         const target = e.target as HTMLElement;
         if (!target.closest('.desktop-icon-selectable') &&
             !target.closest('[data-testid^="desktop-icon-"]')) {
-          setSelectedIcons(new Set());
+          iconSelection.clear();
         }
       }}
       onMouseDown={handleMouseDown}
@@ -635,6 +632,7 @@ const Desktop: React.FC = () => {
                 }
               }}
               $selected={selectedIcons.has(key)}
+              data-selected={selectedIcons.has(key)}
               data-testid={`desktop-icon-${key}`}
               data-english-testid={`desktop-icon-${getEnglishTestId(key, item)}`}
               className="desktop-icon-selectable"
