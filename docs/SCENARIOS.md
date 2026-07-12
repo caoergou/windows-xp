@@ -136,6 +136,8 @@ Each action maps to a shipped actuation primitive.
 | `{ playSound: string }` | Play a named XP system sound. |
 | `{ emit: XPEvent }` | Inject an event onto the bus — visible to `onEvent` and other triggers. |
 | `{ alert: { title, message } }` | Show a modal alert dialog. |
+| `{ note: { id, content, title?, x?, y?, color? } }` | Pin or update a desktop sticky note (upsert by `id`) — the cheapest narration channel. `color`: `yellow`\|`blue`\|`pink`\|`green`. |
+| `{ removeNote: string }` | Remove a desktop sticky note by id. |
 | `{ after: { ms, do: Action[] } }` | Run nested actions after `ms` ([delayed actions](#delayed-actions)). |
 
 > These are the only fields the schema defines. Do not invent others — an

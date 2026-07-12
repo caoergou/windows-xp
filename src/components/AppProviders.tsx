@@ -22,6 +22,7 @@ import { ScenarioRunner } from './ScenarioRunner';
 // tree-shakes the panel out of the main chunk.
 const DevToolsPanel = React.lazy(() => import('../devtools/DevToolsPanel'));
 import { LessonProvider } from '../context/LessonContext';
+import { NotesProvider } from '../context/NotesContext';
 import type { Scenario } from '../scenario/types';
 import type { Lesson } from '../lesson/types';
 import { DeepLinkLoader } from './DeepLinkLoader';
@@ -207,6 +208,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
             <KeymapProvider keymap={keymap} disableGlobalShortcuts={disableGlobalShortcuts}>
             <TrayProvider>
               <ModalProvider>
+                <NotesProvider>
                 <LessonProvider lessons={lessons}>
                   <XPImperativeApi ref={handleRef} storagePrefix={storagePrefix} />
                   <ScenarioRunner scenario={scenario} />
@@ -231,6 +233,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
                     login={login}
                   />
                 </LessonProvider>
+                </NotesProvider>
               </ModalProvider>
             </TrayProvider>
             </KeymapProvider>
