@@ -57,7 +57,7 @@
     },
     "soundSettings": {
       "volume": "Device volume",
-      "mute": "Mute(&M)",
+      "mute": "Mute(M)",
       "soundScheme": "Sound scheme",
       "programEvents": "Program events:",
       "play": "Play",

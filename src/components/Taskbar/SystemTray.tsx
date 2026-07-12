@@ -7,6 +7,7 @@ import SystemClock from '../SystemClock';
 import VolumePopup from '../VolumePopup';
 import XPIcon from '../XPIcon';
 import NetworkConnections from '../../apps/NetworkConnections';
+import VolumeControl from '../../apps/VolumeControl';
 
 const SystemTrayContainer = styled.div`
   height: 30px;
@@ -92,6 +93,22 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
     setVolumeOpen(prev => !prev);
   }, []);
 
+  // Double-clicking the speaker opens the full sndvol32 (VolumeControl), matching
+  // real XP. Without this the registered VolumeControl app is unreachable (#223).
+  const openVolumeControl = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setVolumeOpen(false);
+      openWindow('VolumeControl', t('apps.volumeControl'), <VolumeControl />, 'volume', {
+        width: 280,
+        height: 120,
+        resizable: false,
+        singleton: true,
+      });
+    },
+    [openWindow, t]
+  );
+
   useEffect(() => {
     if (!volumeOpen) return undefined;
 
@@ -123,6 +140,7 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
         $clickable
         title={t('tray.volume')}
         onClick={handleToggleVolume}
+        onDoubleClick={openVolumeControl}
       >
         <XPIcon name="sound" size={16} color="white" />
         {volumeOpen && <VolumePopup onClose={() => setVolumeOpen(false)} />}

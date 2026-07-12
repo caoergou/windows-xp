@@ -70,7 +70,16 @@ const VolumePopup: React.FC<VolumePopupProps> = ({ onClose }) => {
   };
 
   return (
-    <Popup ref={popupRef} data-testid="volume-popup">
+    // The popup is rendered as a child of the tray icon whose onClick toggles
+    // it open/closed. Without this, a click on the slider or checkbox bubbles up
+    // to that toggle and slams the popup shut on release (#223). Stop the click
+    // here so only a genuine outside click (document mousedown) closes it.
+    <Popup
+      ref={popupRef}
+      data-testid="volume-popup"
+      onClick={e => e.stopPropagation()}
+      onMouseDown={e => e.stopPropagation()}
+    >
       <Row>
         <Slider
           type="range"
