@@ -72,6 +72,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\"",
     "size:check": "node scripts/check-size.mjs",
     "size:check:app": "node scripts/check-app-bundle.mjs",
+    "consumer:smoke": "node scripts/consumer-smoke.mjs",
     "docs:events": "node scripts/gen-events-doc.mjs",
     "docs:events:check": "node scripts/gen-events-doc.mjs --check",
     "prepublishOnly": "npm run lint && npm run typecheck && npm run guard:nocheck && npm run guard:purity && npm run test -- --run && npm run build:lib && npm run size:check"

@@ -29,6 +29,12 @@ Every pull request (and every push to `main`) is gated by the `CI` workflow
   suite (`vitest run`), a library build, and `size:check`.
 - **e2e** job — the Playwright end-to-end suite (`test:e2e`) in the official
   Playwright container.
+- **consumer-smoke** job (`npm run consumer:smoke`, #206) — packs the tarball
+  and consumes it from a clean Vite + React app (render smoke, `style.css` +
+  `./components` subpaths, i18n side-effect / `sideEffects` integrity, React
+  18 + 19 type-check). Heavier than the unit gate, so it runs only on **`main`
+  pushes and release-labelled PRs**. Run it locally before a release with
+  `npm run consumer:smoke`.
 
 In addition, `visual.yml` runs the micro-component screenshot diff on every PR,
 and `deploy.yml` builds and publishes to GitHub Pages on pushes to `main`. A PR

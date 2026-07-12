@@ -34,6 +34,34 @@ jobs:
         run: npm run build:lib
       - run: npm run size:check
 
+  consumer-smoke:
+    name: Consumer smoke (pack → install → build → render)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Consumes the packed tarball as a real npm user would (#206). It's the only
+    # gate that catches package-level regressions — a dead `sideEffects` path, an
+    # unresolvable export subpath, a style.css that doesn't ship, a .d.ts that
+    # breaks under React 18/19. Heavier than the unit gate (fresh install +
+    # consumer build), so it runs only on main pushes and release-labelled PRs.
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.pull_request.labels.*.name, 'release')
+    # Official Playwright image so the render smoke's Chromium matches the specs.
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-jammy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Consumer smoke
+        run: npm run consumer:smoke
+        env:
+          CI: 'true'
+
   e2e:
     name: End-to-end (Playwright)
     runs-on: ubuntu-latest

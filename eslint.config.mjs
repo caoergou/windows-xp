@@ -19,6 +19,10 @@ export default tseslint.config(
       'cn-net-research/',
       'test-results/',
       'playwright-report/',
+      // The consumer-smoke fixture (#206) is a standalone template app that
+      // imports the published package — it isn't repo source and can't resolve
+      // '@caoergou/windows-xp' here, so keep it out of lint/type scope.
+      'scripts/consumer-smoke/consumer/',
       // Faithful port of the old `--ext ts,tsx`: only TypeScript sources are
       // linted (config files and .mjs build/CI scripts were never in scope).
       '**/*.js',
