@@ -426,3 +426,39 @@ Pass `devtools` to `<WindowsXP/>` to mount an in-desktop panel that shows what
 It reads the trace the runtime publishes (`subscribeTrace(prefix, …)`); a
 production build that never sets `devtools` tree-shakes it out. The pure
 `traceCondition(condition, ctx)` behind it is exported for custom tooling.
+
+## Common validation errors (#208)
+
+Scenario JSON has no compile-time safety (TS only guards code, not a hand-written
+`.json`), so the runtime validates it up front. `validateScenario(scenario)`
+returns `{ ok, errors, warnings }`; the `ScenarioRunner` runs it on mount and
+**refuses to run a scenario with errors** (a half-applied bad script is worse
+than an inert one), logging them to the console. `assertValidScenario` throws.
+Every message is prefixed with the offending path.
+
+**Errors** (won't run):
+
+| Message contains | Cause |
+| --- | --- |
+| `triggers[0].on: expected an event type…` | `on` missing or not a string/string[] |
+| `triggers[0].do[1]: unknown action — expected one of …` | typo'd action key (`setFlags` for `setFlag`) |
+| `triggers[0].do[0].setFlag: expected a flag name (string)` | wrong param shape |
+| `triggers[0].when: unknown condition — expected one of …` | typo'd condition key |
+| `triggers[0].do[0].after.do[0]: …` | the same checks recurse into delayed actions |
+| `scenario is too large (… KB > 2048 KB limit)` | over the 2 MB ceiling |
+
+**Warnings** (still runs, but probably a mistake):
+
+| Message contains | Cause |
+| --- | --- |
+| `"bogus:thing" has an unknown event domain — will never fire` | `on` references a domain the engine never emits |
+| `flag "ghost" is read in a condition but never set …` | a `when` gates on a flag no action or `initialFlags` ever sets |
+
+### Snapshots
+
+`assertLoadableSnapshot(value)` deep-validates a shared save before applying it —
+`XPSnapshotVersionError` for a missing/too-new `version`, `XPSnapshotError` for a
+malformed structure, each naming the path (e.g.
+`fs.root.children["C盘"].type: expected one of 'root'|'folder'|…, got undefined`).
+It also rejects a snapshot over 5 MB. Validation runs **before** any storage
+write, so a rejected snapshot leaves the desktop untouched.

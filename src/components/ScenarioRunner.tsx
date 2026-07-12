@@ -29,6 +29,7 @@ import { playSound } from '../utils/soundManager';
 import { isContainerNode, isFileContentNode, type FileNode } from '../types';
 import type { XPEvent } from '../events';
 import { appendJournal, evaluateCondition, matchOn, type EvalContext } from '../scenario/engine';
+import { validateScenario } from '../scenario/validate';
 import { traceCondition, type ConditionTrace } from '../scenario/trace';
 import {
   hasTraceListeners,
@@ -106,12 +107,27 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
   // Monotonic sequence for DevTools reports (#209).
   const seqRef = useRef(0);
 
+  // Validate the scenario once per id (#208). Errors → don't run it (a
+  // half-applied bad script is worse than an inert one); warnings → run but
+  // surface. Author-facing, so the messages stay English (console).
+  const validRef = useRef<{ id: string; ok: boolean } | null>(null);
+  if (scenario && validRef.current?.id !== scenario.id) {
+    const { ok, errors, warnings } = validateScenario(scenario);
+    validRef.current = { id: scenario.id, ok };
+    if (errors.length) {
+      console.error(`[windows-xp] scenario "${scenario.id}" is invalid — not running:\n- ${errors.join('\n- ')}`);
+    }
+    if (warnings.length) {
+      console.warn(`[windows-xp] scenario "${scenario.id}" warnings:\n- ${warnings.join('\n- ')}`);
+    }
+  }
+
   // A ref-backed handler so we subscribe once but always see the latest context
   // functions (mirrors XPEventBridge). Rebuilt every render.
   const handlerRef = useRef<(event: XPEvent) => void>(() => {});
   handlerRef.current = (event: XPEvent) => {
     const state = stateRef.current;
-    if (!scenario || !state) return;
+    if (!scenario || !state || validRef.current?.ok === false) return;
     const keys = stateKeys(storage.key);
 
     // DevTools tracing (#209): only build the extra evaluation trace + flag-change
