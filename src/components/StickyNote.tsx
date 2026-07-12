@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { useWindowManager } from '../context/WindowManagerContext';
+import { useWindowManagerActions } from '../context/WindowManagerContext';
 import { useCulture } from '../context/CultureContext';
 import { APP_REGISTRY } from '../registry/apps';
 import { SYSTEM_PATHS } from '../data/systemPaths';
@@ -77,7 +77,7 @@ const NoteContent = styled.div`
 
 const StickyNote = () => {
   const { t } = useTranslation();
-  const { openWindow } = useWindowManager();
+  const { openWindow } = useWindowManagerActions();
   const { culture } = useCulture();
   const [visible, setVisible] = useState<boolean>(true);
   const stickyNote = culture.stickyNote ?? { title: 'Memo', content: '' };

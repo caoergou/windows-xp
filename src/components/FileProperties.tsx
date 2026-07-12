@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { getSystemPathDisplay } from '../data/systemPaths';
-import { useWindowManager } from '../context/WindowManagerContext';
+import { useWindowManagerActions } from '../context/WindowManagerContext';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useXPEventBus } from '../context/EventBusContext';
 import XPIcon from './XPIcon';
@@ -112,7 +112,7 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
   const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('general');
   const [exifData, setExifData] = useState<ExifData | null>(null);
-  const { closeWindow } = useWindowManager();
+  const { closeWindow } = useWindowManagerActions();
   const { getFileProperties } = useFileSystem();
   const bus = useXPEventBus();
 

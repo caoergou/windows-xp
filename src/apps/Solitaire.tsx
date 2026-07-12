@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import styled, { css } from 'styled-components';
-import { useWindowManager } from '../context/WindowManagerContext';
+import { useWindowManagerActions } from '../context/WindowManagerContext';
 import { useXPEventBus } from '../context/EventBusContext';
 import {
   XPMenuBar,
@@ -217,7 +217,7 @@ interface DragState {
 
 const Solitaire = ({ windowId }: { windowId?: string }) => {
   const { t, i18n } = useTranslation();
-  const { setWindowTitle, closeWindow } = useWindowManager();
+  const { setWindowTitle, closeWindow } = useWindowManagerActions();
   const bus = useXPEventBus();
   const [openMenu, setOpenMenu] = useState<'game' | 'help' | null>(null);
   const [gameState, setGameState] = useState<GameState>(() => dealGame());

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useWindowManager } from '../../context/WindowManagerContext';
+import { useWindowManagerActions } from '../../context/WindowManagerContext';
 import { useCulture } from '../../context/CultureContext';
 import { useXPEventBus } from '../../context/EventBusContext';
 import { useTranslation } from 'react-i18next';
@@ -23,7 +23,7 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
   html: initialHtml,
   plugin = defaultPlugin,
 }) => {
-  const { openWindow } = useWindowManager();
+  const { openWindow } = useWindowManagerActions();
   const { t } = useTranslation();
   const { culture } = useCulture();
   const bus = useXPEventBus();

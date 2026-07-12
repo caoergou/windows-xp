@@ -20,7 +20,7 @@ import { useFileSystem } from '../context/FileSystemContext';
 import { useTray } from '../context/TrayContext';
 import { useScheduler } from '../context/SchedulerContext';
 import { useModal } from '../context/ModalContext';
-import { useWindowManager } from '../context/WindowManagerContext';
+import { useWindowManagerActions } from '../context/WindowManagerContext';
 import { useAppRegistry } from '../context/AppRegistryContext';
 import { useStorage } from '../context/StorageContext';
 import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
@@ -68,7 +68,7 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
   const { notify } = useTray();
   const { schedule } = useScheduler();
   const { dialog } = useModal();
-  const { openWindow } = useWindowManager();
+  const { openWindow } = useWindowManagerActions();
   const { registry } = useAppRegistry();
   const storage = useStorage();
 
