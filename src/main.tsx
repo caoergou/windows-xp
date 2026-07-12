@@ -20,6 +20,11 @@ const showGallery = params.has('gallery');
 const openOnLoad = params.getAll('open');
 const historyIntegration = params.get('history') === '1';
 
+// Persistence mode (#138): ?persistence=none|session|local (default local).
+const pParam = params.get('persistence');
+const persistence =
+  pParam === 'none' || pParam === 'session' || pParam === 'local' ? pParam : undefined;
+
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   showGallery ? (
     <Gallery />
@@ -28,6 +33,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
       language={initialLanguage}
       openOnLoad={openOnLoad}
       historyIntegration={historyIntegration}
+      persistence={persistence}
     />
   )
 );
