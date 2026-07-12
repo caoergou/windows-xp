@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import XPIcon from '../XPIcon';
+import type { ExplorerViewMode } from '../../apps/Explorer/types';
+import { EXPLORER_VIEW_MODES } from '../../apps/Explorer/types';
 
 /* ── 菜单栏 ── */
 const MenuBar = styled.div`
@@ -195,10 +197,10 @@ interface ExplorerToolbarProps {
   canGoBack?: boolean;
   canGoForward?: boolean;
   canGoUp?: boolean;
-  /** Current file-list view mode (#120). */
-  view?: 'icons' | 'details';
-  /** Switch the file-list view mode (#120). */
-  onViewChange?: (mode: 'icons' | 'details') => void;
+  /** Current file-list view mode (#120 / #211). */
+  view?: ExplorerViewMode;
+  /** Switch the file-list view mode (#120 / #211). */
+  onViewChange?: (mode: ExplorerViewMode) => void;
   /** Whether the Folders tree pane is showing (#120). */
   foldersOpen?: boolean;
   /** Toggle the Folders tree pane (#120). */
@@ -221,6 +223,10 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
   const { t } = useTranslation();
   const menuRef = useRef<HTMLDivElement>(null);
   const [openMenu, setOpenMenu] = useState<ExplorerMenuKey | null>(null);
+  // The toolbar "Views" button opens the same five-option chooser as the menu-bar
+  // View submenu (#211), anchored to the button.
+  const viewsBtnRef = useRef<HTMLDivElement>(null);
+  const [viewsOpen, setViewsOpen] = useState(false);
 
   useEffect(() => {
     if (!openMenu) return;
@@ -234,6 +240,38 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
     document.addEventListener('mousedown', closeOnOutsideClick);
     return () => document.removeEventListener('mousedown', closeOnOutsideClick);
   }, [openMenu]);
+
+  useEffect(() => {
+    if (!viewsOpen) return;
+    const close = (event: MouseEvent) => {
+      if (viewsBtnRef.current && !viewsBtnRef.current.contains(event.target as Node)) {
+        setViewsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [viewsOpen]);
+
+  // The five XP views, in menu order, with their i18n labels — shared by the
+  // menu-bar View submenu and the toolbar Views dropdown (#211).
+  const viewMenuKey: Record<ExplorerViewMode, string> = {
+    thumbnails: 'explorer.menuItems.thumbnails',
+    tiles: 'explorer.menuItems.tiles',
+    icons: 'explorer.menuItems.icons',
+    list: 'explorer.menuItems.list',
+    details: 'explorer.menuItems.details',
+  };
+  const viewEntries = useMemo<DropdownEntry[]>(
+    () =>
+      EXPLORER_VIEW_MODES.map(mode => ({
+        label: t(viewMenuKey[mode]),
+        action: () => onViewChange?.(mode),
+        checked: view === mode,
+      })),
+    // viewMenuKey is a static literal; only translation/view/handler change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, view, onViewChange]
+  );
 
   const menus = useMemo<Array<{ key: ExplorerMenuKey; label: string; entries: DropdownEntry[] }>>(
     () => [
@@ -269,19 +307,7 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
           { label: t('explorer.menuItems.statusBar') },
           { label: t('explorer.menuItems.explorerBar') },
           { type: 'separator' },
-          { label: t('explorer.menuItems.thumbnails'), disabled: true },
-          { label: t('explorer.menuItems.tiles'), disabled: true },
-          {
-            label: t('explorer.menuItems.icons'),
-            action: () => onViewChange?.('icons'),
-            checked: view === 'icons',
-          },
-          { label: t('explorer.menuItems.list'), disabled: true },
-          {
-            label: t('explorer.menuItems.details'),
-            action: () => onViewChange?.('details'),
-            checked: view === 'details',
-          },
+          ...viewEntries,
           { type: 'separator' },
           { label: t('explorer.menuItems.refresh'), action: _onRefresh },
         ],
@@ -314,7 +340,7 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
         ],
       },
     ],
-    [_onRefresh, t, view, onViewChange]
+    [_onRefresh, t, viewEntries]
   );
 
   return (
@@ -408,14 +434,40 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
 
         <Separator />
 
-        {/* 视图 — quick toggle between Icons and Details (#120) */}
-        <ToolBtn
-          title={t('explorer.view')}
-          onClick={() => onViewChange?.(view === 'details' ? 'icons' : 'details')}
-        >
-          <XPIcon name="views" size={16} />
-          <span style={{ fontSize: 9, marginLeft: 1 }}>▾</span>
-        </ToolBtn>
+        {/* 视图 — opens the five-view chooser dropdown, XP-style (#211) */}
+        <MenuBarItemWrapper ref={viewsBtnRef}>
+          <ToolBtn
+            title={t('explorer.view')}
+            $active={viewsOpen}
+            aria-haspopup="menu"
+            aria-expanded={viewsOpen}
+            onClick={() => setViewsOpen(o => !o)}
+          >
+            <XPIcon name="views" size={16} />
+            <span style={{ fontSize: 9, marginLeft: 1 }}>▾</span>
+          </ToolBtn>
+          {viewsOpen && (
+            <DropdownMenu role="menu" style={{ left: 'auto', right: 0, top: 34, minWidth: 140 }}>
+              {viewEntries.map((entry, index) =>
+                isSeparatorEntry(entry) ? (
+                  <DropdownSeparator key={`vsep-${index}`} />
+                ) : (
+                  <DropdownItem
+                    key={entry.label}
+                    type="button"
+                    onClick={() => {
+                      entry.action?.();
+                      setViewsOpen(false);
+                    }}
+                  >
+                    {entry.checked && <span style={{ position: 'absolute', left: 8 }}>●</span>}
+                    {entry.label}
+                  </DropdownItem>
+                )
+              )}
+            </DropdownMenu>
+          )}
+        </MenuBarItemWrapper>
       </ToolbarContainer>
     </>
   );
