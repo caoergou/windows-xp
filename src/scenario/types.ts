@@ -57,7 +57,11 @@ export type Condition =
   /** Evidence-board predicate: item `pinned` is currently on the board (more `evidence:pin` than `evidence:unpin` in the journal). */
   | { pinned: string }
   /** Evidence-board predicate: items `a` and `b` are linked and both still pinned (order-insensitive). */
-  | { linked: { a: string; b: string } };
+  | { linked: { a: string; b: string } }
+  /** Search-oracle predicate: a `search:query` was run whose query contains `searched` (case-insensitive substring). */
+  | { searched: string }
+  /** Search-oracle predicate: a `search:query` surfaced the result `found` (its id appeared in `resultIds`). */
+  | { found: string };
 
 /**
  * An action executed when a trigger fires and its condition holds. Each maps to

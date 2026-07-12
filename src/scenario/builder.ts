@@ -31,6 +31,8 @@ export const unlocked = (path: string[]): Condition => ({ unlocked: path });
 export const contentContains = (path: string[], contains: string): Condition => ({ contentContains: { path, contains } });
 export const pinned = (itemId: string): Condition => ({ pinned: itemId });
 export const linked = (a: string, b: string): Condition => ({ linked: { a, b } });
+export const searched = (term: string): Condition => ({ searched: term });
+export const found = (resultId: string): Condition => ({ found: resultId });
 
 // ── action helpers ───────────────────────────────────────────────────────────
 export const setFlag = (name: string, value?: FlagValue): Action => ({ setFlag: name, ...(value !== undefined ? { value } : {}) });

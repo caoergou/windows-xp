@@ -320,6 +320,7 @@
     "solitaire": "纸牌",
     "deductionSheet": "推理表",
     "evidenceBoard": "证据板",
+    "searchOracle": "搜索",
     "wordpad": "写字板",
     "mediaPlayer": "Windows Media Player",
     "messenger": "MSN Messenger",
@@ -953,6 +954,14 @@
     "tray": "证据",
     "unpin": "从板上移除",
     "linkHint": "点一张卡片，再点另一张，把它们用线连起来。"
+  },
+  "searchOracle": {
+    "brand": "搜索",
+    "placeholder": "搜索网页",
+    "go": "百度一下",
+    "stat": "找到 {{count}} 条关于“{{query}}”的结果",
+    "empty": "没有找到与“{{query}}”相关的结果",
+    "noResults": "抱歉，没有找到相关网页。"
   },
   "lesson": {
     "close": "关闭课程",
