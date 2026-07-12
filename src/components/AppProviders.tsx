@@ -22,6 +22,7 @@ import { XPEventBus } from '../events';
 import type { XPEventListener } from '../events';
 import { setStoragePrefix, type PersistenceMode } from '../utils/storage';
 import { getSavedLanguage } from '../utils/language';
+import type { BootBranding, LoginBranding } from '../branding';
 
 export interface AppProvidersProps {
   /** Subscribe to desktop events (#76). */
@@ -63,6 +64,10 @@ export interface AppProvidersProps {
   historyIntegration?: boolean;
   /** Persistence backend (#138): 'local' (default) | 'session' | 'none'. */
   persistence?: PersistenceMode;
+  /** Boot-screen branding (#139). */
+  boot?: BootBranding;
+  /** Login-screen branding (#139). */
+  login?: LoginBranding;
 }
 
 const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
@@ -90,6 +95,8 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   location,
   historyIntegration,
   persistence,
+  boot,
+  login,
 }) => {
   // Configure storage namespace synchronously before any context reads/writes storage.
   setStoragePrefix(storagePrefix || 'xp_');
@@ -189,6 +196,8 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
                   disableDevToolsBlock={disableDevToolsBlock}
                   disableGlobalShortcuts={disableGlobalShortcuts}
                   disableScreenSaver={disableScreenSaver}
+                  boot={boot}
+                  login={login}
                 />
               </ModalProvider>
             </TrayProvider>

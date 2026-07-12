@@ -636,6 +636,39 @@ every visitor to start clean, while a game wants progress saved:
   toy") from an otherwise-ephemeral `'none'` or `'session'` desktop.
 - Window-restore-on-reload simply no-ops in `'session'`/`'none'` — expected.
 
+### Campaign skinning (#139)
+
+For a marketing or personal-brand deployment, the boot and login screens are
+the opening shot. Skin them with the `boot` and `login` prop groups — image
+URLs, strings, and CSS values inside the XP-shaped flow. Defaults stay
+pixel-faithful XP; setting **any** field on a screen suppresses the remaining
+Microsoft trademarks on it (no half-branded frankenscreens):
+
+```jsx
+import { WindowsXP } from '@caoergou/windows-xp';
+
+<WindowsXP
+  // The whole desktop is yours (no built-in shortcuts), pristine per visitor…
+  fileSystemMode="replace"
+  persistence="none"
+  customFileSystem={campaignFiles}
+  openOnLoad="Teaser.txt"           // land straight on the hero content (#136)
+  // …behind a branded first five seconds:
+  boot={{ logo: '/brand/logo.png', text: 'ACME 2000', progressColor: '#ff6600', startupSound: '/brand/chime.mp3' }}
+  login={{ title: 'ACME Portal', background: '/brand/login-bg.jpg', userTile: '/brand/tile.png', userName: 'Guest' }}
+/>;
+```
+
+- `login.userTile` / `login.userName` extend the top-level `avatar` / `username`
+  props — set either pair; the `login` group wins on the login screen.
+- `boot.startupSound` plays instead of the XP chime and honors the volume/mute
+  plumbing; `boot.progressColor` swaps the XP loading GIF for a branded bar.
+- Shutdown and BSOD text stay XP (BSOD copy is a scenario action, not branding).
+
+Combine with `fileSystemMode="replace"` (#77), `persistence="none"` (above), and
+deep links (#136) and you have boot → login → desktop with zero Microsoft
+branding, from props alone — no fork, no CSS surgery.
+
 ## SSR / Next.js
 
 The library is SSR-safe at module scope (no top-level `window`/storage

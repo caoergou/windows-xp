@@ -4,6 +4,7 @@ import { FileNode, AppRegistryEntry } from '../types';
 import { CulturePackage } from '../data/culture';
 import type { DeepLinkRoutes } from '../utils/deepLink';
 import type { PersistenceMode } from '../utils/storage';
+import type { BootBranding, LoginBranding } from '../branding';
 import type { WallpaperItem } from '../data/wallpapers';
 import type { XPEventListener } from '../events';
 import type { XPHandle } from '../components/XPBridge';
@@ -100,6 +101,18 @@ export interface WindowsXPProps {
    * last-opened window on content sites (#136). Off by default — games/embeds skip it.
    */
   historyIntegration?: boolean;
+  /**
+   * Boot-screen branding (#139): `logo`, `text`, `progressColor`, `startupSound`.
+   * Opt-in; defaults render pixel-faithful XP. Setting any field suppresses the
+   * Microsoft trademarks on the boot screen.
+   */
+  boot?: BootBranding;
+  /**
+   * Login-screen branding (#139): `background`, `title`, `userTile`, `userName`
+   * (the latter two extend `avatar`/`username`). Opt-in; setting any field
+   * suppresses the "Microsoft Windows XP" wordmark.
+   */
+  login?: LoginBranding;
   /** Subscribe to desktop events (app launches, file opens, session, cmd...). */
   onEvent?: XPEventListener;
 }
@@ -146,6 +159,8 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     routes,
     location,
     historyIntegration,
+    boot,
+    login,
     onEvent,
   },
   ref
@@ -173,6 +188,8 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       routes={routes}
       location={location}
       historyIntegration={historyIntegration}
+      boot={boot}
+      login={login}
       onEvent={onEvent}
       handleRef={ref}
       disableContextMenuBlock={disableContextMenuBlock ?? embedded}
@@ -253,6 +270,7 @@ export type { DeepLinkRoute, DeepLinkRoutes } from '../utils/deepLink';
 export type { BlogPost, ContentManifest, SiteMeta } from '../content/blog';
 export type { FileSystemMode } from '../context/FileSystemContext';
 export type { PersistenceMode } from '../utils/storage';
+export type { BootBranding, LoginBranding } from '../branding';
 export type { ModalContextType } from '../context/ModalContext';
 export type { TrayItem, TrayContextType, NotifyOptions } from '../context/TrayContext';
 export type { ScheduleOptions, SchedulerApi } from '../context/SchedulerContext';
