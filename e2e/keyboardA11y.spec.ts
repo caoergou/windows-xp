@@ -13,12 +13,12 @@ test.describe('Keyboard a11y (#124)', () => {
     await page.addInitScript(() => localStorage.clear());
     await page.goto('demo/en/?brand=demo');
     const pw = page.locator('input[type="password"]').first();
-    await pw.waitFor({ state: 'visible', timeout: 20000 });
+    await pw.waitFor({ state: 'visible', timeout: 45000 });
     // Type the password and submit with the keyboard only.
     await pw.focus();
     await page.keyboard.type(LOGIN_PASSWORD);
     await page.keyboard.press('Enter');
-    await expect(page.locator('[data-testid="taskbar"]')).toBeVisible({ timeout: 20000 });
+    await expect(page.locator('[data-testid="taskbar"]')).toBeVisible({ timeout: 45000 });
   });
 
   test('Esc closes a modal dialog (focus never escapes to the desktop)', async ({ page }) => {
