@@ -334,3 +334,10 @@ to catch, mechanically:
 - **bushiness**: `report.bushiness[depth]` — how many puzzles are open in
   parallel at each dependency depth — and `report.maxParallel`, free pacing
   visualization. `report.ok` is false when any error is present (wire into CI).
+
+**Reference demo & "CI for stories".** `prologueGraph` (exported) is the序章
+authored as a four-node graph; it lints with zero issues. `test/prologueGraph.test.ts`
+shows the pattern: lint the graph, then `solveScenario(compilePuzzleGraph(graph),
+walkthrough)` and assert the ending is reached — and that out-of-order play does
+**not** sequence-break the gate. A story whose walkthrough breaks fails CI like
+any other regression.
