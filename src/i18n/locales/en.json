@@ -324,6 +324,7 @@
     "networkConnections": "Network Connections",
     "minesweeper": "Minesweeper",
     "solitaire": "Solitaire",
+    "deductionSheet": "Deduction Sheet",
     "wordpad": "WordPad",
     "mediaPlayer": "Windows Media Player",
     "messenger": "MSN Messenger",
@@ -945,6 +946,13 @@
   "recycleBinNotices": {
     "restoreFallbackTitle": "Recycle Bin",
     "restoreFallbackMessage": "The original folder of \"{{name}}\" no longer exists. It has been restored to the Desktop."
+  },
+  "deductionSheet": {
+    "title": "Deduction",
+    "verify": "Verify",
+    "choose": "— choose —",
+    "wordBank": "Word bank",
+    "solved": "Case closed — every deduction verified."
   },
   "lesson": {
     "close": "Close lesson",

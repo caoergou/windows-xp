@@ -325,6 +325,9 @@ export type { SolveOptions, SolveResult, SolveFsNode } from '../scenario/solver'
 export { compilePuzzleGraph, lintPuzzleGraph, solvedFlag } from '../scenario/puzzleGraph';
 export type { PuzzleGraph, PuzzleNode, PuzzleHint, GraphLintIssue, PuzzleGraphReport } from '../scenario/puzzleGraph';
 export { prologueGraph, prologueGraphScenario } from '../data/scenarios/prologueGraph';
+// Scenario-layer app (#219): the Deduction Sheet + a reference puzzle.
+export type { DeductionSheetProps } from '../apps/DeductionSheet';
+export { demoDeduction } from '../data/scenarios/deductionDemo';
 export type { Lesson, LessonStep, LessonHint, LessonMode, LessonScore, ExpectPattern, WrongActionPolicy, WatchAction } from '../lesson/types';
 export { defineLesson } from '../lesson/types';
 export { lintLesson, isLessonValid, type LintIssue } from '../lesson/lint';
