@@ -17,10 +17,12 @@ export interface LoginOptions {
  * for the desktop/taskbar to be visible.
  */
 export async function login(page: Page, options: LoginOptions = {}) {
-  const qs = [options.lang ? `lang=${options.lang}` : '', options.query ?? '']
-    .filter(Boolean)
-    .join('&');
-  const path = qs ? `./?${qs}` : './';
+  // Since #160 the root `/` is the landing page; the live desktop lives at the
+  // per-locale demo routes (`/demo/en/`, `/demo/zh/`). Deep-link params
+  // (`open=…&history=1`) are preserved on the query string.
+  const lang = options.lang ?? 'en';
+  const base = `demo/${lang}/`;
+  const path = options.query ? `${base}?${options.query}` : base;
 
   if (options.skipBoot !== false) {
     await page.addInitScript(() => {

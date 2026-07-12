@@ -26,7 +26,7 @@ const SECTIONS = [
 ] as const;
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('./?gallery');
+  await page.goto('gallery/');
   await page.waitForSelector('[data-testid="gallery"]');
   // Let styled-components inject and fonts settle before capture.
   await page.waitForTimeout(300);

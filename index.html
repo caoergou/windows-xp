@@ -4,24 +4,141 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="/windows-xp/favicon.ico" type="image/x-icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Windows XP Simulator - A faithful recreation of the classic Windows XP desktop experience in your browser" />
-    <meta name="keywords" content="Windows XP, simulator, retro, Y2K, nostalgia, millennium, desktop, React" />
+    <meta
+      name="description"
+      content="Three Desktops, One Engine — an embeddable, scriptable Windows XP desktop for React. Drag a real, live desktop right on the page; drive it with an imperative API; inject your own content."
+    />
+    <meta
+      name="keywords"
+      content="Windows XP, desktop engine, React, embeddable, scriptable, retro, Y2K, nostalgia, component library, QQ, Winamp"
+    />
     <meta name="author" content="caoergou" />
-    <meta property="og:title" content="Windows XP Simulator" />
-    <meta property="og:description" content="Relive the nostalgia of the millennium era with this authentic Windows XP desktop simulator" />
+    <meta property="og:title" content="Three Desktops, One Engine · 三个桌面，一个引擎" />
+    <meta
+      property="og:description"
+      content="An embeddable, scriptable Windows XP desktop for React. The landing page IS the product — a real desktop you can drag."
+    />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:url" content="https://eric.run.place/windows-xp/" />
     <meta property="og:image" content="https://eric.run.place/windows-xp/images/desktop_bg.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Windows XP Simulator" />
-    <meta name="twitter:description" content="Relive the nostalgia of the millennium era with this authentic Windows XP desktop simulator" />
+    <meta name="twitter:title" content="Three Desktops, One Engine · 三个桌面，一个引擎" />
+    <meta
+      name="twitter:description"
+      content="An embeddable, scriptable Windows XP desktop for React. Drag a real, live desktop on the page."
+    />
     <meta name="twitter:image" content="https://eric.run.place/windows-xp/images/desktop_bg.jpg" />
     <link rel="canonical" href="https://eric.run.place/windows-xp/" />
-    <title>Windows XP Simulator</title>
+    <link rel="preload" as="image" href="/windows-xp/images/desktop_bg.jpg" />
+    <title>Three Desktops, One Engine · Windows XP Desktop Engine for React</title>
+    <!-- Legacy query-string routes (#160): redirect to the new multi-page paths. -->
+    <script>
+      (function () {
+        try {
+          var p = new URLSearchParams(location.search);
+          if (p.has('gallery')) {
+            location.replace('gallery/' + location.hash);
+            return;
+          }
+          if (p.get('demo') === '1') {
+            var lang = p.get('lang') === 'zh' ? 'zh' : 'en';
+            location.replace('demo/' + lang + '/' + location.hash);
+          }
+        } catch (e) {
+          /* no-op: fall through to the landing page */
+        }
+      })();
+    </script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #245edb;
+      }
+      /* Static first-paint / no-JS floor: real marketing copy for SEO and for
+         the ~1s before the engine embed lazy-loads. The React landing renders
+         its own real-DOM copy over this; kept inside <noscript> as the no-JS floor. */
+      #ssr-floor {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        text-align: center;
+        padding: 24px;
+        color: #fff;
+        font-family: 'Trebuchet MS', Tahoma, sans-serif;
+        background:
+          linear-gradient(rgba(0, 40, 104, 0.35), rgba(0, 40, 104, 0.5)),
+          url('/windows-xp/images/desktop_bg.jpg') center / cover no-repeat;
+      }
+      #ssr-floor h1 {
+        font-size: clamp(28px, 5vw, 52px);
+        margin: 0;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      }
+      #ssr-floor p {
+        max-width: 640px;
+        font-size: clamp(14px, 2vw, 18px);
+        line-height: 1.6;
+        margin: 0;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+      }
+      #ssr-floor .links {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      #ssr-floor a {
+        color: #fff;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 15px;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div id="root">
+      <!-- First-paint poster + real marketing copy (replaced by the React landing,
+           which re-renders the same copy as real DOM). -->
+      <div id="ssr-floor">
+        <h1>Three Desktops, One Engine</h1>
+        <p>
+          An embeddable, scriptable Windows&nbsp;XP desktop for React. This page is not a
+          screenshot — it loads a real, running desktop you can drag, and drives itself with the
+          same imperative API you get. 三个桌面，一个引擎：可嵌入、可编剧的桌面引擎。
+        </p>
+        <div class="links">
+          <a href="demo/en/">Enter the English desktop</a>
+          <a href="demo/zh/">进入中文桌面</a>
+          <a href="gallery/">Component gallery</a>
+          <a href="https://github.com/caoergou/windows-xp">GitHub</a>
+        </div>
+      </div>
+    </div>
+    <noscript>
+      <div style="padding: 24px; font-family: Tahoma, sans-serif">
+        <h1>Three Desktops, One Engine · 三个桌面，一个引擎</h1>
+        <p>
+          An embeddable, scriptable Windows XP desktop for React. JavaScript is required for the
+          live desktop, but you can still open the demos directly:
+        </p>
+        <ul>
+          <li><a href="demo/en/">English desktop demo</a></li>
+          <li><a href="demo/zh/">中文桌面 demo</a></li>
+          <li><a href="gallery/">Component gallery</a></li>
+          <li><a href="https://github.com/caoergou/windows-xp">GitHub repository</a></li>
+        </ul>
+      </div>
+    </noscript>
+    <script type="module" src="./src/site/landing-main.tsx"></script>
   </body>
 </html>
