@@ -178,6 +178,14 @@ export { AppProviders } from '../components/AppProviders';
 export { AppRegistryProvider } from '../context/AppRegistryContext';
 export { CultureProvider } from '../context/CultureContext';
 export { defineCulture } from '../data/culture';
+// Blog / content pipeline helpers (#137).
+export {
+  buildContentFs,
+  buildRssFeed,
+  buildPostMirrorHtml,
+  postPermalink,
+  postPath,
+} from '../content/blog';
 export { FileSystemProvider } from '../context/FileSystemContext';
 export { WindowManagerProvider } from '../context/WindowManagerContext';
 export { UserSessionProvider } from '../context/UserSessionContext';
@@ -232,6 +240,7 @@ export type {
 } from '../data/culture';
 export type { WallpaperItem } from '../data/wallpapers';
 export type { DeepLinkRoute, DeepLinkRoutes } from '../utils/deepLink';
+export type { BlogPost, ContentManifest, SiteMeta } from '../content/blog';
 export type { FileSystemMode } from '../context/FileSystemContext';
 export type { ModalContextType } from '../context/ModalContext';
 export type { TrayItem, TrayContextType, NotifyOptions } from '../context/TrayContext';

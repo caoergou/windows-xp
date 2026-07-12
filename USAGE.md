@@ -246,6 +246,65 @@ Rules that matter:
   `@caoergou/windows-xp/registry` for the same `unknown → props` cast the
   built-ins use.
 
+### Build a blog on the desktop
+
+The desktop makes a natural portfolio/blog shell. Keep posts in Markdown, turn
+them into openable windows with one helper, and mirror them as static pages so
+search engines can still find your writing (#137).
+
+**1. Author in Markdown, load with `buildContentFs`.** A *content manifest* is a
+plain list of posts; `buildContentFs` turns it into a `customFileSystem`
+fragment where each post is a `<slug>.md` file that opens in the built-in
+**MarkdownViewer** (Notepad stays the plain-text editor). Posts sharing a
+`folder` nest under it.
+
+```jsx
+import { WindowsXP, buildContentFs } from '@caoergou/windows-xp';
+
+// With a bundler you can glob a folder of .md files at build time:
+//   const files = import.meta.glob('./posts/*.md', { as: 'raw', eager: true });
+const manifest = [
+  { slug: 'hello-world', title: 'Hello, World', date: '2007-01-01', source: '# Hi\n\nMy first post.', folder: 'Posts' },
+  { slug: 'about-me', title: 'About Me', source: '# About\n\nI build things.' },
+];
+
+export default () => <WindowsXP customFileSystem={buildContentFs(manifest)} />;
+```
+
+**2. Permalinks come for free.** Because posts are real filesystem nodes, the
+deep-linking API (above) addresses them: `postPermalink(post, siteMeta)` returns
+a `?open=…` URL that opens the post's window, and `WindowsXP`'s `openOnLoad`
+consumes it. A share button or QR code just points at that URL.
+
+**3. Be findable — the SEO mirror.** Crawlers don't run your desktop, so emit a
+static HTML page per post that carries the text and links back to the desktop
+permalink. Render the body at build time and hand it to `buildPostMirrorHtml`
+(the render step is yours, so the core ships no markdown-to-HTML dependency):
+
+```jsx
+import { renderToStaticMarkup } from 'react-dom/server';
+import { buildPostMirrorHtml, buildRssFeed } from '@caoergou/windows-xp';
+import { MarkdownViewer } from '@caoergou/windows-xp/apps';
+
+const site = { title: 'My XP Blog', siteUrl: 'https://me.dev/', language: 'en' };
+
+// One crawlable page per post (write these to /blog/<slug>.html at build time):
+for (const post of manifest) {
+  // Reuse the in-desktop renderer for byte-identical output, or any md→HTML lib:
+  const bodyHtml = renderToStaticMarkup(<MarkdownViewer content={post.source} />);
+  const page = buildPostMirrorHtml(post, site, bodyHtml);
+  // fs.writeFileSync(`dist/blog/${post.slug}.html`, page)
+}
+
+// And an RSS feed whose entries link to the desktop permalinks:
+const rss = buildRssFeed(manifest, { ...site, description: 'Posts from a Windows XP desktop' });
+```
+
+Wire it up per framework: on **Next.js**, generate the mirror pages as static
+routes (`generateStaticParams`) and serve `rss.xml` from `app/rss.xml/route.ts`;
+on **plain Vite**, write the pages and feed in a small post-build script. Either
+way humans get the desktop and crawlers get indexable HTML that deep-links back.
+
 ## Events and imperative control
 
 Subscribe to everything happening inside the desktop with `onEvent`, and

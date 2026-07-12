@@ -187,6 +187,12 @@
             "name": "readme.txt",
             "app": "Notepad",
             "content": "Welcome to Windows XP!\r\n\r\nThis is a simulated Windows XP desktop environment built with React.\r\n\r\nFeel free to explore the file system, open applications, and browse the web.\r\n\r\nEnjoy your computing experience!\r\n"
+          },
+          "about.md": {
+            "type": "file",
+            "name": "about.md",
+            "app": "MarkdownViewer",
+            "content": "# About This Desktop\r\n\r\nThis is a **Windows XP** desktop engine for React — an embeddable, scriptable recreation of the classic experience.\r\n\r\n## What you can do\r\n\r\n- Open apps, browse the *virtual* file system, and surf a period web\r\n- Drive it from code via the imperative `ref` handle\r\n- Author your own content: file systems, culture packages, and apps\r\n\r\n## Markdown, rendered\r\n\r\nThis file opens in the **Markdown Viewer**, not Notepad. It supports headings, lists, `inline code`, and [links](https://github.com/caoergou/windows-xp).\r\n\r\n> The desktop is the inventory.\r\n"
           }
         }
       },

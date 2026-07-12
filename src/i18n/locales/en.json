@@ -316,6 +316,7 @@
   },
   "apps": {
     "notepad": "Notepad",
+    "markdownViewer": "Markdown Viewer",
     "paint": "Paint",
     "calculator": "Calculator",
     "commandPrompt": "Command Prompt",
