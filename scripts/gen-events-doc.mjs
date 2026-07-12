@@ -20,7 +20,9 @@ import { dirname, join } from 'node:path';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const EVENTS_TS = join(ROOT, 'src', 'events.ts');
-const USAGE_MD = join(ROOT, 'USAGE.md');
+// The event reference table lives on the docs site's Events page (#214); USAGE
+// is now a thin jump index. The generator rewrites the region between markers.
+const EVENTS_MD = join(ROOT, 'docs-site', 'guide', 'events.md');
 const START = '<!-- EVENTS:START -->';
 const END = '<!-- EVENTS:END -->';
 
@@ -138,27 +140,29 @@ if (undocumented.length) {
 }
 
 const table = renderTable(events);
-const usage = readFileSync(USAGE_MD, 'utf8');
-const startIdx = usage.indexOf(START);
-const endIdx = usage.indexOf(END);
+const page = readFileSync(EVENTS_MD, 'utf8');
+const startIdx = page.indexOf(START);
+const endIdx = page.indexOf(END);
 if (startIdx === -1 || endIdx === -1) {
-  console.error(`USAGE.md is missing the ${START} / ${END} markers.`);
+  console.error(`docs-site/guide/events.md is missing the ${START} / ${END} markers.`);
   process.exit(1);
 }
-const next = usage.slice(0, startIdx) + table + usage.slice(endIdx + END.length);
+const next = page.slice(0, startIdx) + table + page.slice(endIdx + END.length);
 
 const check = process.argv.includes('--check');
 if (check) {
-  if (next !== usage) {
-    console.error('USAGE.md event table is stale. Run `npm run docs:events` and commit the result.');
+  if (next !== page) {
+    console.error(
+      'docs-site/guide/events.md event table is stale. Run `npm run docs:events` and commit the result.'
+    );
     process.exit(1);
   }
   console.log(`event docs OK: ${events.length} events in sync`);
 } else {
-  if (next !== usage) {
-    writeFileSync(USAGE_MD, next);
-    console.log(`Wrote ${events.length} events to USAGE.md`);
+  if (next !== page) {
+    writeFileSync(EVENTS_MD, next);
+    console.log(`Wrote ${events.length} events to docs-site/guide/events.md`);
   } else {
-    console.log(`USAGE.md already up to date (${events.length} events)`);
+    console.log(`docs-site/guide/events.md already up to date (${events.length} events)`);
   }
 }

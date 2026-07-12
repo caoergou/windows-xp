@@ -9,7 +9,7 @@
 [![React](https://img.shields.io/badge/React-18%20%7C%2019-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
-[在线演示](https://eric.run.place/windows-xp/) · [English desktop](https://eric.run.place/windows-xp/demo/en/) · [中文桌面](https://eric.run.place/windows-xp/demo/zh/) · [使用文档](USAGE.md) · [路线图](https://github.com/caoergou/windows-xp/issues/86) · [报告问题](https://github.com/caoergou/windows-xp/issues)
+[在线演示](https://eric.run.place/windows-xp/) · [English desktop](https://eric.run.place/windows-xp/demo/en/) · [中文桌面](https://eric.run.place/windows-xp/demo/zh/) · [文档站](https://eric.run.place/windows-xp/docs/) · [路线图](https://github.com/caoergou/windows-xp/issues/86) · [报告问题](https://github.com/caoergou/windows-xp/issues)
 
 > 在线演示是一个真实运行、可以拖动的桌面——无需登录（演示页自动登录）。上面两个桌面链接可直接进入英文 / 中文世界。
 
@@ -91,7 +91,7 @@ const myFs = {
 };
 ```
 
-全部 props、事件目录、`XPHandle` 方法、文化包编写、子路径导入（`/components`、`/apps`、`/hooks`、`/theme`、`/registry`）见 **[USAGE.md](USAGE.md)**。
+全部 props、事件目录、`XPHandle` 方法、文化包编写、子路径导入（`/components`、`/apps`、`/hooks`、`/theme`、`/registry`）见 **[文档站](https://eric.run.place/windows-xp/docs/)**（旧的 [USAGE.md](USAGE.md) 现在是薄跳转索引）。
 
 ## 内置应用
 
@@ -111,7 +111,8 @@ const myFs = {
 
 | 文档 | 内容 |
 |---|---|
-| [USAGE.md](USAGE.md) | 使用方 API：props、事件、ref、子路径、内容编写 |
+| [文档站](https://eric.run.place/windows-xp/docs/)（`docs-site/`）| 使用方 API：props、事件、ref、子路径、内容编写 |
+| [USAGE.md](USAGE.md) | 指向文档站的薄跳转索引 |
 | [FIDELITY.md](FIDELITY.md) | XP 保真基线：逐行为打分 + design token 权威值 |
 | [AGENTS.md](AGENTS.md) / [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | 贡献者原则与代码规则 |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 工作流、检查项、PR 要求 |
