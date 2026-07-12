@@ -76,6 +76,7 @@ const HeroDesktop: React.FC<HeroDesktopProps> = ({ greeterTitle, greeterBody, re
     <WindowsXP
       ref={xp}
       mode="embedded"
+      viewportPolicy="scale"
       skipBoot
       autoLogin
       storagePrefix={HERO_PREFIX}
