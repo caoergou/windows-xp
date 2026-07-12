@@ -53,7 +53,8 @@ login (default user `User`, password `forthe2000s`) → desktop.
 | `storagePrefix` | string | `'xp_'` | Storage namespace — each instance is fully isolated |
 | `disableContextMenuBlock` | boolean | `false` | Allow the browser's right-click menu |
 | `disableDevToolsBlock` | boolean | `false` | Allow F12 / Ctrl+Shift+I/J/C |
-| `disableGlobalShortcuts` | boolean | `false` | Disable Alt+F4 / Alt+Tab handling and the BSOD easter egg |
+| `disableGlobalShortcuts` | boolean | `false` | Disable every global-scope shortcut (Ctrl+Esc, Alt+F4, Alt+Tab, BSOD egg) |
+| `keymap` | `Record<string, string \| null>` | — | Remap or disable individual shortcuts by id (see [Keyboard shortcuts](#keyboard-shortcuts)) |
 | `disableScreenSaver` | boolean | `false` | Disable the idle screensaver |
 | `hourlyChime` | boolean | `false` | Play the classic 整点报时 chime on the hour (a culture package can enable it too) |
 | `idleThresholdMs` | number | `60000` | Inactivity threshold before `user:idle` fires |
@@ -64,6 +65,45 @@ login (default user `User`, password `forthe2000s`) → desktop.
 > registrations are preserved. `customFileSystem` remains **mount-time** (it
 > seeds the desktop; drive later filesystem changes through `useApp().fs` or
 > the `ref` handle).
+
+## Keyboard shortcuts
+
+Every **global** and **app-command** shortcut goes through one central keymap
+(#132). `Mod` is the platform primary modifier — **Ctrl** on Windows/Linux,
+**⌘ Cmd** on macOS — so bindings work on a Mac without extra config.
+
+| id | Default | Scope | Action |
+|---|---|---|---|
+| `startMenu.toggle` | `Ctrl+Esc` | global | Open the Start menu (Win-key substitute) |
+| `window.close` | `Alt+F4` | global | Close the focused window |
+| `switcher.next` | `Alt+Tab` | global | App switcher |
+| `egg.bsod` | `Ctrl+Shift+Alt+B` | global | Blue Screen easter egg |
+| `desktop.selectAll` | `Mod+A` | desktop | Select all icons |
+| `desktop.rename` | `F2` | desktop | Rename icon |
+| `desktop.delete` | `Delete` | desktop | Send to Recycle Bin |
+| `desktop.open` | `Enter` | desktop | Open selection |
+| `paint.save` / `paint.open` | `Mod+S` / `Mod+O` | app | Paint save / open |
+| `minesweeper.newGame` | `F2` | app | New game |
+
+**Remap or disable** any of them with the `keymap` prop — an embedding host can
+reclaim keys without forking:
+
+```jsx
+<WindowsXP
+  keymap={{
+    'startMenu.toggle': 'Mod+Shift+X', // remap
+    'window.close': null,              // disable
+  }}
+/>
+```
+
+`disableGlobalShortcuts` is sugar for disabling the entire `global` scope.
+
+**Feasibility matters.** The browser reserves some keys (`Ctrl+W`/`T`/`N`,
+`Ctrl+L`, `F11`) — pressing them can close the visitor's tab or open a new
+window, and the page can't stop it. None of those ship as bindings (e.g. Notepad
+"New" is menu-only, not `Ctrl+N`). The full per-OS/browser audit and the
+substitutes for blocked XP keys live in [`docs/KEYMAP.md`](docs/KEYMAP.md).
 
 ## Content: make the desktop yours
 

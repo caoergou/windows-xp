@@ -76,6 +76,12 @@ export interface WindowsXPProps {
   disableDevToolsBlock?: boolean;
   /** Disable global shortcuts like Alt+F4, Alt+Tab and the BSOD easter egg. */
   disableGlobalShortcuts?: boolean;
+  /**
+   * Remap or disable individual shortcuts by id (#132): `{ 'window.close': 'Mod+Shift+W' }`
+   * or `{ 'startMenu.toggle': null }` to disable. Ids are listed in `docs/KEYMAP.md`.
+   * Lets an embedding host reclaim keys without forking.
+   */
+  keymap?: Record<string, string | null>;
   /** Disable the idle screensaver. */
   disableScreenSaver?: boolean;
   /**
@@ -168,6 +174,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     disableContextMenuBlock,
     disableDevToolsBlock,
     disableGlobalShortcuts,
+    keymap,
     disableScreenSaver,
     hourlyChime,
     idleThresholdMs,
@@ -215,6 +222,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       disableContextMenuBlock={disableContextMenuBlock ?? embedded}
       disableDevToolsBlock={disableDevToolsBlock ?? embedded}
       disableGlobalShortcuts={disableGlobalShortcuts ?? embedded}
+      keymap={keymap}
       disableScreenSaver={disableScreenSaver ?? embedded}
     />
   );

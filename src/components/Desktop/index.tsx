@@ -22,6 +22,7 @@ import { getFileDisplayName } from '../../utils/fileDisplayName';
 import { DesktopContainer, SelectionBox, IconGrid, DesktopIcon } from './styled';
 import { BOX_SELECT_IGNORE, SYSTEM_ICON_KEYS, getEnglishTestId } from './constants';
 import { useTapGestures } from '../../hooks/useTapGestures';
+import { useShortcut } from '../../context/KeymapContext';
 
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
@@ -545,59 +546,52 @@ const Desktop: React.FC = () => {
     handleOpenSelection,
   };
 
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      const ae = document.activeElement as HTMLElement | null;
-      if (ae) {
-        const tag = ae.tagName;
-        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || ae.isContentEditable) return;
-        if (ae.closest('[data-xp-context-boundary]')) return; // a window/dialog is focused
-      }
-      const ops = keyOpsRef.current;
-      if (ops.contextMenuVisible) return;
+  // Desktop keyboard operations, now registered on the central keymap (#132).
+  // `desktop` scope means these fire only when the desktop plane is focused (not
+  // a window/dialog/input) and skip while a context menu is open. `Mod+A` makes
+  // Select-All Cmd-aware on macOS.
+  const moveSelection = (forward: boolean) => {
+    const ops = keyOpsRef.current;
+    if (ops.contextMenuVisible) return;
+    const keys = Object.keys(ops.rootChildren);
+    if (keys.length === 0) return;
+    const selectedArr = Array.from(ops.selectedIcons);
+    const cur = selectedArr.length ? keys.indexOf(selectedArr[selectedArr.length - 1]) : -1;
+    let next: number;
+    if (cur < 0) next = 0;
+    else if (forward) next = Math.min(keys.length - 1, cur + 1);
+    else next = Math.max(0, cur - 1);
+    setSelectedIcons(new Set([keys[next]]));
+  };
 
-      const keys = Object.keys(ops.rootChildren);
-      if (keys.length === 0) return;
-
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
-        e.preventDefault();
-        setSelectedIcons(new Set(keys));
-        return;
-      }
-
-      const selectedArr = Array.from(ops.selectedIcons);
-
-      if (e.key === 'Delete') {
-        if (selectedArr.length === 0) return;
-        e.preventDefault();
-        ops.handleIconDelete(selectedArr[0]);
-      } else if (e.key === 'F2') {
-        if (selectedArr.length !== 1) return;
-        e.preventDefault();
-        ops.handleIconRename(selectedArr[0]);
-      } else if (e.key === 'Enter') {
-        if (selectedArr.length === 0) return;
-        e.preventDefault();
-        ops.handleOpenSelection(selectedArr);
-      } else if (
-        e.key === 'ArrowUp' ||
-        e.key === 'ArrowDown' ||
-        e.key === 'ArrowLeft' ||
-        e.key === 'ArrowRight'
-      ) {
-        e.preventDefault();
-        const cur = selectedArr.length ? keys.indexOf(selectedArr[selectedArr.length - 1]) : -1;
-        const forward = e.key === 'ArrowDown' || e.key === 'ArrowRight';
-        let next: number;
-        if (cur < 0) next = 0;
-        else if (forward) next = Math.min(keys.length - 1, cur + 1);
-        else next = Math.max(0, cur - 1);
-        setSelectedIcons(new Set([keys[next]]));
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, []);
+  useShortcut({ id: 'desktop.selectAll', combo: 'Mod+A', scope: 'desktop', label: 'Select all icons' }, () => {
+    const ops = keyOpsRef.current;
+    if (ops.contextMenuVisible) return;
+    const keys = Object.keys(ops.rootChildren);
+    if (keys.length > 0) setSelectedIcons(new Set(keys));
+  });
+  useShortcut({ id: 'desktop.delete', combo: 'Delete', scope: 'desktop', label: 'Delete to Recycle Bin' }, () => {
+    const ops = keyOpsRef.current;
+    if (ops.contextMenuVisible) return;
+    const selectedArr = Array.from(ops.selectedIcons);
+    if (selectedArr.length > 0) ops.handleIconDelete(selectedArr[0]);
+  });
+  useShortcut({ id: 'desktop.rename', combo: 'F2', scope: 'desktop', label: 'Rename' }, () => {
+    const ops = keyOpsRef.current;
+    if (ops.contextMenuVisible) return;
+    const selectedArr = Array.from(ops.selectedIcons);
+    if (selectedArr.length === 1) ops.handleIconRename(selectedArr[0]);
+  });
+  useShortcut({ id: 'desktop.open', combo: 'Enter', scope: 'desktop', label: 'Open selection' }, () => {
+    const ops = keyOpsRef.current;
+    if (ops.contextMenuVisible) return;
+    const selectedArr = Array.from(ops.selectedIcons);
+    if (selectedArr.length > 0) ops.handleOpenSelection(selectedArr);
+  });
+  useShortcut({ id: 'desktop.moveDown', combo: 'ArrowDown', scope: 'desktop' }, () => moveSelection(true));
+  useShortcut({ id: 'desktop.moveUp', combo: 'ArrowUp', scope: 'desktop' }, () => moveSelection(false));
+  useShortcut({ id: 'desktop.moveRight', combo: 'ArrowRight', scope: 'desktop' }, () => moveSelection(true));
+  useShortcut({ id: 'desktop.moveLeft', combo: 'ArrowLeft', scope: 'desktop' }, () => moveSelection(false));
 
   return (
     <DesktopContainer

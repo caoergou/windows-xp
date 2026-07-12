@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
+import { useWindowManager } from '../context/WindowManagerContext';
 
 // Windows XP calc.exe standard view — 6-column layout (see calc.exe / Wikipedia reference)
 
@@ -127,7 +128,8 @@ interface CalculatorProps {
   windowId?: string;
 }
 
-const Calculator = ({ windowId: _windowId }: CalculatorProps) => {
+const Calculator = ({ windowId }: CalculatorProps) => {
+  const { windows, activeWindowId } = useWindowManager();
   const [display, setDisplay] = useState<string>('0');
   const [operand, setOperand] = useState<number | null>(null);
   const [operator, setOperator] = useState<string | null>(null);
@@ -277,6 +279,11 @@ const Calculator = ({ windowId: _windowId }: CalculatorProps) => {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      // Numeric-keypad input capture: only while Calculator is the focused window
+      // (#132 — previously a global listener that ran even when unfocused).
+      const focusedWindow = windows.find(w => w.id === activeWindowId);
+      const isFocused = windowId ? focusedWindow?.id === windowId : focusedWindow?.appId === 'Calculator';
+      if (!isFocused) return;
       const k = e.key;
       if (k >= '0' && k <= '9') inputDigit(parseInt(k, 10));
       else if (k === '.') inputDot();
@@ -296,7 +303,7 @@ const Calculator = ({ windowId: _windowId }: CalculatorProps) => {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [inputDigit, inputDot, backspace, clearEntry, clearAll, pressOperator, pressEquals, percent, sqrt, reciprocal]);
+  }, [windows, activeWindowId, windowId, inputDigit, inputDot, backspace, clearEntry, clearAll, pressOperator, pressEquals, percent, sqrt, reciprocal]);
 
   return (
     <Wrap>

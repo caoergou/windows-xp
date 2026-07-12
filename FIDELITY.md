@@ -112,14 +112,18 @@
 
 ## G. 全局键盘（KBD）
 
-| ID | XP 基准行为 | 感知度 | 状态 | 备注 |
-|----|------------|:---:|:---:|------|
-| KBD-01 | Alt+Tab 切换器：灰色覆盖层、图标网格、蓝色选择框、底部窗口标题 | ⭐⭐⭐ | 🚫→🟡 | 浏览器/OS 截获 Alt+Tab（`App.tsx:215-238` 的 keyup 永远收不到）。替代方案：Alt+` 或可配置键位；覆盖层 UI 本身可先做 |
-| KBD-02 | Alt+F4 关闭当前窗口 | ⭐⭐⭐ | ✅ | 可被 `disableGlobalShortcuts` 关闭 |
-| KBD-03 | **Ctrl+Esc 打开开始菜单**（XP 原生快捷键，浏览器不截获，天然替代 Win 键） | ⭐⭐⭐ | ✅ | Taskbar 全局监听 Ctrl+Esc 切换开始菜单（#87 第一批） |
-| KBD-04 | Win / Win+D / Win+E / Win+R | ⭐⭐ | 🚫 | OS 保留。文档中注明替代键位（Ctrl+Esc；其余可自定义） |
-| KBD-05 | 菜单栏 Alt 加速键（Alt+F 打开"文件"；XP 默认按 Alt 前隐藏下划线） | ⭐ | ❌ | 低优先级 |
-| KBD-06 | 应用内标准快捷键（记事本 Ctrl+S/F/H、画图 Ctrl+Z 等） | ⭐⭐ | 🟡 | Notepad 部分已有；各 app 逐一登记 |
+「可行性」列来源于 #132 的逐 OS×浏览器审计（权威表见 [`docs/KEYMAP.md`](docs/KEYMAP.md)）：
+✅ 可用 · 🟦 OS 保留（需替代键）· 🟥 浏览器保留（不可拦截）。所有 global/app
+快捷键现由中央 keymap（`src/utils/keymap.ts`）登记，宿主可用 `keymap` prop 重映射。
+
+| ID | XP 基准行为 | 感知度 | 状态 | 可行性 | 备注 |
+|----|------------|:---:|:---:|:---:|------|
+| KBD-01 | Alt+Tab 切换器：灰色覆盖层、图标网格、蓝色选择框、底部窗口标题 | ⭐⭐⭐ | 🟡 | 🟥 | 浏览器/OS 截获 Alt+Tab（keyup 收不到；mac 为 Cmd+Tab）。官方替代 **Alt+`**；覆盖层 UI 可先做。keymap id `switcher.next` |
+| KBD-02 | Alt+F4 关闭当前窗口 | ⭐⭐⭐ | ✅ | 🟦 | Windows 下可能关闭浏览器窗口（OS 级）；mac/Linux ✅。可被 `disableGlobalShortcuts` 关闭。id `window.close` |
+| KBD-03 | **Ctrl+Esc 打开开始菜单**（XP 原生快捷键，浏览器不截获，天然替代 Win 键） | ⭐⭐⭐ | ✅ | ✅ | 各平台可用。id `startMenu.toggle`（#87 第一批） |
+| KBD-04 | Win / Win+D / Win+E / Win+R | ⭐⭐ | 🚫 | 🟥 | OS 保留。替代：Ctrl+Esc（其余可自定义） |
+| KBD-05 | 菜单栏 Alt 加速键（Alt+F 打开"文件"；XP 默认按 Alt 前隐藏下划线） | ⭐ | ❌ | ✅ | 低优先级 |
+| KBD-06 | 应用内标准快捷键（记事本 Ctrl+S/F/H、画图 Ctrl+O/S 等） | ⭐⭐ | 🟡 | ✅ | Notepad/Paint 已登记；**Ctrl+N 已移除**（浏览器保留=开新窗口，见 KEYMAP.md）。`Mod` 归一化 Cmd/Ctrl |
 
 ## H. 鼠标 / 光标 / 提示（CUR）
 

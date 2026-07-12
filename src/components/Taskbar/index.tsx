@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useWindowManager } from '../../context/WindowManagerContext';
+import { useShortcut } from '../../context/KeymapContext';
 import { useUserSession } from '../../context/UserSessionContext';
 import { useModal } from '../../context/ModalContext';
 import { useCulture } from '../../context/CultureContext';
@@ -88,17 +89,11 @@ const Taskbar = () => {
   const taskContextMenuRef = useRef<HTMLDivElement>(null);
 
   // Ctrl+Esc opens the Start menu — the XP-native equivalent of the Win key,
-  // which the browser doesn't intercept (#87 KBD-03).
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'Escape') {
-        e.preventDefault();
-        setStartOpen(prev => !prev);
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, []);
+  // which the browser doesn't intercept (#87 KBD-03; keymap #132).
+  useShortcut(
+    { id: 'startMenu.toggle', combo: 'Ctrl+Esc', scope: 'global', label: 'Open Start menu' },
+    () => setStartOpen(prev => !prev)
+  );
 
   // Announce Start-menu open/close from a single layer regardless of which
   // trigger toggled it (button, Ctrl+Esc, outside-click). The ref skips the

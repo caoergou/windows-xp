@@ -702,7 +702,7 @@ const Notepad = ({
     if (openMenu !== key) return null;
 
     const fileMenuItems: NotepadMenuItem[] = [
-      { label: t('notepad.menuitems.new'), shortcut: 'Ctrl+N', action: handleNew },
+      { label: t('notepad.menuitems.new'), action: handleNew },
       { label: t('notepad.menuitems.open'), shortcut: 'Ctrl+O', action: handleOpen },
       {
         label: t('notepad.menuitems.save'),
@@ -831,10 +831,8 @@ const Notepad = ({
 
       if (e.ctrlKey) {
         switch (e.key.toLowerCase()) {
-          case 'n':
-            e.preventDefault();
-            handlers.handleNew();
-            break;
+          // Ctrl+N intentionally NOT bound: it opens a new browser window
+          // (browser-reserved, uncancelable). "New" stays on the menu. (#132)
           case 'o':
             e.preventDefault();
             handlers.handleOpen();

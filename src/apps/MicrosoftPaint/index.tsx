@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../../hooks/useApp';
 import { useFileSystem } from '../../context/FileSystemContext';
+import { useShortcut } from '../../context/KeymapContext';
 import { isContainerNode, isFileContentNode } from '../../types';
 import {
   Wrap,
@@ -435,36 +436,20 @@ const MicrosoftPaint = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openMenu]);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const handlers = keyboardHandlersRef.current;
-      if (!handlers) return;
-      if (e.ctrlKey) {
-        switch (e.key.toLowerCase()) {
-          case 'n':
-            e.preventDefault();
-            handlers.handleNew();
-            break;
-          case 'o':
-            e.preventDefault();
-            handlers.handleOpen();
-            break;
-          case 's':
-            e.preventDefault();
-            if (e.shiftKey) {
-              handlers.handleSaveAs();
-            } else {
-              handlers.handleSave();
-            }
-            break;
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  // App-scoped shortcuts via the keymap (#132) — fire only when Paint is
+  // focused (was a global listener). `Ctrl+N` is intentionally dropped: it opens
+  // a new *browser window* (browser-reserved, uncancelable), so "New" lives only
+  // on the menu now (see docs/KEYMAP.md). Ctrl↔Cmd via `Mod`.
+  const paintApp = { scope: 'app' as const, appId: 'MicrosoftPaint' };
+  useShortcut({ id: 'paint.open', combo: 'Mod+O', ...paintApp, label: 'Open' }, () =>
+    keyboardHandlersRef.current?.handleOpen()
+  );
+  useShortcut({ id: 'paint.save', combo: 'Mod+S', ...paintApp, label: 'Save' }, () =>
+    keyboardHandlersRef.current?.handleSave()
+  );
+  useShortcut({ id: 'paint.saveAs', combo: 'Mod+Shift+S', ...paintApp, label: 'Save As' }, () =>
+    keyboardHandlersRef.current?.handleSaveAs()
+  );
 
   const toggleMenu = (key: Exclude<MenuKey, null>) => {
     setOpenMenu(prev => (prev === key ? null : key));
@@ -474,7 +459,7 @@ const MicrosoftPaint = ({
     if (openMenu !== key) return null;
 
     const fileMenuItems: PaintMenuItem[] = [
-      { label: t('paint.menuitems.new'), shortcut: 'Ctrl+N', action: handleNew },
+      { label: t('paint.menuitems.new'), action: handleNew },
       { label: t('paint.menuitems.open'), shortcut: 'Ctrl+O', action: handleOpen },
       { label: t('paint.menuitems.save'), shortcut: 'Ctrl+S', action: handleSave },
       { label: t('paint.menuitems.saveAs'), action: handleSaveAs },

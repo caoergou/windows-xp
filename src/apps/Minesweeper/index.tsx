@@ -10,6 +10,7 @@ import {
 } from '../../components/XPMenuBar';
 import { useTranslation } from 'react-i18next';
 import { useWindowManager } from '../../context/WindowManagerContext';
+import { useShortcut } from '../../context/KeymapContext';
 import { useXPEventBus } from '../../context/EventBusContext';
 import {
   numberSprites,
@@ -300,26 +301,20 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
     if (windowId) closeWindow(windowId);
   }, [closeWindow, windowId]);
 
-  useEffect(() => {
-    const handleKeyboardShortcut = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setOpenMenu(null);
-        setAboutOpen(false);
-      } else if (event.key === 'F2') {
-        event.preventDefault();
-        resetGame();
-      } else if (event.altKey && event.key.toLowerCase() === 'g') {
-        event.preventDefault();
-        setOpenMenu(current => (current === 'game' ? null : 'game'));
-      } else if (event.altKey && event.key.toLowerCase() === 'h') {
-        event.preventDefault();
-        setOpenMenu(current => (current === 'help' ? null : 'help'));
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyboardShortcut);
-    return () => window.removeEventListener('keydown', handleKeyboardShortcut);
-  }, [resetGame]);
+  // App-scoped shortcuts via the keymap (#132) — fire only when Minesweeper is
+  // the focused window (was a global listener that ran even when unfocused).
+  const mineApp = { scope: 'app' as const, appId: 'Minesweeper' };
+  useShortcut({ id: 'minesweeper.newGame', combo: 'F2', ...mineApp, label: 'New game' }, () => resetGame());
+  useShortcut({ id: 'minesweeper.gameMenu', combo: 'Alt+G', ...mineApp, label: 'Game menu' }, () =>
+    setOpenMenu(current => (current === 'game' ? null : 'game'))
+  );
+  useShortcut({ id: 'minesweeper.helpMenu', combo: 'Alt+H', ...mineApp, label: 'Help menu' }, () =>
+    setOpenMenu(current => (current === 'help' ? null : 'help'))
+  );
+  useShortcut({ id: 'minesweeper.dismiss', combo: 'Escape', ...mineApp, preventDefault: false }, () => {
+    setOpenMenu(null);
+    setAboutOpen(false);
+  });
 
   const faceSrc = face === 'smile' ? smile : face === 'ohh' ? ohh : face === 'dead' ? dead : win;
   const mineCounter = formatCounter(config.mines - flags);
