@@ -2,11 +2,12 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Branded boot & login (#139)', () => {
   test('branded boot screen shows custom marks and no Microsoft branding', async ({ page }) => {
-    // Fresh load (no first_boot_done) → the boot screen renders.
+    // Fresh load (no first_boot_done) → the boot screen renders. Since #160 the
+    // desktop demo lives at /demo/<lang>/; `?brand=demo` skins boot + login.
     await page.addInitScript(() => localStorage.clear());
-    await page.goto('./?brand=demo');
+    await page.goto('demo/en/?brand=demo');
     const boot = page.locator('[data-testid="boot-screen"]');
-    await expect(boot).toBeVisible();
+    await expect(boot).toBeVisible({ timeout: 40000 });
     await expect(boot.getByText('ACME 2000')).toBeVisible();
     await expect(boot.getByAltText('Microsoft Windows XP')).toHaveCount(0);
     await expect(boot.getByAltText('Microsoft')).toHaveCount(0);
@@ -19,9 +20,9 @@ test.describe('Branded boot & login (#139)', () => {
       localStorage.setItem('xp_first_boot_done', 'true');
       localStorage.setItem('xp_power_state', 'running');
     });
-    await page.goto('./?brand=demo&lang=en');
+    await page.goto('demo/en/?brand=demo');
     const loginScreen = page.locator('[data-testid="login-screen"]');
-    await expect(loginScreen).toBeVisible();
+    await expect(loginScreen).toBeVisible({ timeout: 40000 });
     await expect(page.locator('[data-testid="login-title"]')).toHaveText('ACME Portal');
     await expect(loginScreen.getByText('Guest')).toBeVisible();
     await expect(page.getByText('Microsoft Windows')).toHaveCount(0);

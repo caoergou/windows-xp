@@ -7,6 +7,10 @@ module.exports = defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
+  // Give boot-flow specs headroom: on a busy shared CI runner the ~4s boot
+  // animation plus first render can push past Playwright's 30s test default.
+  timeout: 60000,
+  expect: { timeout: 15000 },
   reporter: 'html',
   use: {
     baseURL: 'http://localhost:5173/windows-xp/',

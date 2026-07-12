@@ -6,6 +6,13 @@ on:
   pull_request:
   workflow_dispatch:
 
+# When several agents push in quick succession the shared runner pool gets
+# saturated and e2e runs slow to a crawl. Cancel superseded runs per ref so a
+# fresh push doesn't queue behind its own stale runs.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   quality:
     name: Lint / typecheck / unit / size
@@ -30,6 +37,7 @@ jobs:
   e2e:
     name: End-to-end (Playwright)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     # Official Playwright image so the bundled Chromium build and fonts match
     # what the specs were written against (same pattern as visual.yml).
     container:
