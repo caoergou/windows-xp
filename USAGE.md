@@ -173,46 +173,62 @@ pack in #123 — Winamp / Norton AntiVirus / uTorrent / iTunes / Microsoft Offic
 5. **Assets must be original / parody artwork** — no ripped third-party logos
    (DEVELOPMENT.md §6). The `en` app icons are hand-drawn SVGs.
 
-### Custom applications
+### Write your first app
+
+`defineApp()` turns a component into a registrable app in one typed call —
+here's a complete, refresh-restorable hello-world in under 10 lines:
 
 ```jsx
-import { WindowsXP, useWindowManager, useApp } from '@caoergou/windows-xp';
+import { WindowsXP } from '@caoergou/windows-xp';
+import { defineApp } from '@caoergou/windows-xp/registry';
 
-function MyApp() {
-  const { window } = useApp(); // window.id injected automatically
-  return <div>Hello from window {window.id}!</div>;
-}
+const HelloApp = defineApp({
+  id: 'Hello',
+  name: 'Hello',
+  component: () => <div style={{ padding: 16 }}>Hello from Windows XP!</div>,
+});
 
-const myApp = {
-  id: 'MyApp',
-  name: 'My Application',
-  icon: 'app_window',
-  window: { width: 400, height: 300 },
-  restore: (props) => <MyApp {...props} />,
-};
+export default () => <WindowsXP apps={[HelloApp]} />;
+```
 
-function Host() {
-  const { openWindow } = useWindowManager();
-  return (
-    <>
-      <button onClick={() => openWindow('MyApp', 'My App', <MyApp />, 'app_window')}>
-        Open My App
-      </button>
-      <WindowsXP apps={[myApp]} />
-    </>
-  );
-}
+`defineApp` fills in the defaults (icon `app_window`, a 400×300 window,
+non-singleton) and derives `restore` from `component` for you. Open your
+registered app from the imperative handle:
+
+```tsx
+const xp = useRef(null);
+// …
+<WindowsXP ref={xp} apps={[HelloApp]} />;
+xp.current?.openApp('Hello');   // opens a window running HelloApp
+```
+
+**Props that survive a refresh.** A window's props are persisted so it can be
+rebuilt on reload, so they must be JSON-serializable. `defineApp` enforces this
+at compile time — a function or element in your props is a **type error**, not
+a silent refresh bug:
+
+```tsx
+const NoteApp = defineApp<{ text: string }>({
+  id: 'Note',
+  name: 'Note',
+  component: ({ text }) => <div>{text}</div>,
+  // window, nameKey, locales, lifecycle and associations are all optional.
+});
 ```
 
 Rules that matter:
 
-- **`restore` props must be JSON-serializable.** They persist to storage so
-  windows can be rebuilt after refresh — functions, elements, and class
-  instances silently vanish. Pass data, react to it inside the component.
-- Add `associations: [{ appField: 'MyApp', getProps: (item) => ({ /* … */ }) }]`
-  if filesystem nodes should open with your app (`node.app === 'MyApp'`).
+- **Open custom apps via `ref.openApp(id)`** (above) — it resolves against the
+  merged registry that includes your `apps`. `associations` + `getProps` let a
+  filesystem node's `.app` field open an app, but that path currently resolves
+  **built-in** apps only; opening a custom app straight from a desktop/Explorer
+  shortcut is being generalized (tracked with the `appRoles` work in #122).
 - Add `nameKey` for a translated display name; `name` is the fallback.
-- A `defineApp()` factory that simplifies this is tracked in #128.
+- Runtime callbacks belong on the event bus (`onEvent`) or `lifecycle`, never in
+  props. Reach window/session state from inside the component via `useApp()`.
+- Need to hand-build an `AppRegistryEntry`? Import the `restoreApp` helper from
+  `@caoergou/windows-xp/registry` for the same `unknown → props` cast the
+  built-ins use.
 
 ## Events and imperative control
 

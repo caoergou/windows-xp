@@ -3,12 +3,12 @@
 // ============================================================
 
 /**
- * 任意 JSON 可序列化值。
+ * Any JSON-serializable value.
  *
- * 窗口的 `componentProps` 会被写入 localStorage 以便刷新后重建窗口，
- * 因此自定义应用的 restore props 必须是 JSON 可序列化的（不能含函数、
- * DOM 节点、类实例等）。用它约束 `AppRegistryEntry` 的 props 类型即可
- * 在类型层面挡住"刷新后恢复失败"的坑。
+ * A window's `componentProps` are written to localStorage to rebuild the window
+ * after a refresh, so a custom app's restore props must be JSON-serializable
+ * (no functions, DOM nodes, or class instances). Constraining an app's props
+ * type with this catches "restoration fails after refresh" bugs at compile time.
  */
 export type JsonValue =
   | string
@@ -177,36 +177,43 @@ export interface WindowProps {
 // 应用注册表类型
 // ============================================================
 
-/** 应用生命周期回调 */
+/** App lifecycle callbacks. Runtime-only — never persisted (see AppRegistryEntry). */
 export interface AppLifecycle {
   onOpen?: (windowId: string) => void;
   onClose?: (windowId: string) => void;
   onFocus?: (windowId: string) => void;
 }
 
-/** 应用文件关联 */
+/**
+ * File→app association. The app opens for any filesystem node whose `.app`
+ * equals `appField`; `getProps` maps that node to the app's restore props.
+ */
 export interface AppAssociation<TFileNode extends FileNode = FileNode, TProps = unknown> {
   appField: string;
   getProps: (item: TFileNode) => TProps;
 }
 
 /**
- * 应用注册表条目。
+ * A registered desktop application.
  *
- * `TProps` 是该应用 `restore(props)` 接收的属性类型。**注意**：窗口的
- * `componentProps` 会被持久化到 localStorage 以便刷新后重建窗口，因此用于
- * 恢复的 props 必须是 JSON 可序列化的（见 {@link JsonValue}）——不要放函数、
- * 回调、DOM 节点或类实例，否则刷新后恢复会失败。运行期回调请走事件总线
- * (`onEvent`) 或 `AppLifecycle`，不要塞进 props。
+ * `TProps` is the type `restore(props)` receives. **Important:** a window's
+ * `componentProps` are persisted to localStorage so the window can be rebuilt
+ * after a page refresh, so restore props MUST be JSON-serializable (see
+ * {@link JsonValue}) — do not pass functions, callbacks, DOM nodes or class
+ * instances, or restoration after refresh will fail. Route runtime callbacks
+ * through the event bus (`onEvent`) or `AppLifecycle`, not through props.
+ *
+ * Prefer the {@link defineApp} factory over writing this literal by hand.
  */
 export interface AppRegistryEntry<TProps = unknown> {
   id: string;
   name: string;
-  /** i18n key for the window title; falls back to `name` if omitted or untranslated */
+  /** i18n key for the window title; falls back to `name` if omitted or untranslated. */
   nameKey?: string;
   icon: string;
-  /** Omitted for applications shared by every culture profile. */
+  /** Restrict to culture ids (e.g. `['zh']`); omit for apps shared by every culture. */
   locales?: string[];
+  /** Window size, position and behavior. */
   window?: {
     width?: number;
     height?: number;
@@ -219,6 +226,7 @@ export interface AppRegistryEntry<TProps = unknown> {
     isMaximized?: boolean;
     resizable?: boolean;
   };
+  /** @deprecated Use {@link AppRegistryEntry.window} instead — this duplicate shape will be removed. */
   defaultWindowProps?: Record<string, unknown>;
   lifecycle?: AppLifecycle;
   associations?: AppAssociation[];
