@@ -19,14 +19,23 @@ is **consolidation behind a contract**, not untangling.
 
 ```
 src/themes/
-  contract.ts      # OSTheme — the abstraction a theme fills
-  index.ts         # barrel: contract types + xpTheme
+  contract.ts        # OSTheme — the abstraction a theme fills
+  index.ts           # barrel: contract types + xpTheme
   xp/
-    index.ts       # xpTheme: OSTheme
-    tokens.ts      # COLORS (re-exported by src/constants.ts for back-compat)
-    styles.ts      # xpButtonStyles/… (re-exported by src/theme/index.ts)
-    assets.ts      # XP_ASSETS — window-control PNGs, Start-button spritesheet
+    index.ts         # xpTheme: OSTheme
+    tokens.ts        # COLORS (re-exported by src/constants.ts for back-compat)
+    styles.ts        # xpButtonStyles/… (re-exported by src/theme/index.ts)
+    assets/
+      index.ts       # XP_ASSETS registry
+      window-controls/*.png   # Luna min/max/restore/close button states
+      start-button-sprite.png # the English Start button spritesheet
+      start-flag.png          # the waving XP flag (for the localized button)
 ```
+
+A theme owns its assets: the XP chrome image files live **beside** the registry
+under `src/themes/xp/assets/`, not in the shared `src/assets/` tree, so the
+theme is a self-contained package. A second theme ships its own `assets/` folder
+of the same shape.
 
 `OSTheme` = `{ id, name, tokens, assets, styles, chrome? }`:
 
