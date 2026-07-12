@@ -353,12 +353,23 @@ const scenario = compilePuzzleGraph(graph);   // → the Layer-1 Scenario; pass 
 flag/FS/`eventMatch`-only conditions, set `on` explicitly. Mark act bottlenecks
 with `gate: true`.
 
+**Hint ladders (M12 anti-stuck contract).** A puzzle's `hints` are an escalating
+ladder, best built with `ladder()`: `ladder({ fails: 2, title: '提示' }, a, b)`
+shows `a` after 2 `password:fail`s and `b` after 4; `ladder({ idles: 1 }, …)`
+reveals a rung per `user:idle` period. `compilePuzzleGraph` turns each rung into
+a fire-once `password:fail` / `user:idle` count trigger, gated so it only
+balloons while its puzzle is *active* (prerequisites solved, itself unsolved) and
+only once per rung — behaviorally the same as a hand-written
+`{ on: 'password:fail', when: count(...) ≥ n }` hint trigger.
+
 **The graph linter** — `lintPuzzleGraph(graph)` catches what PDCs were invented
 to catch, mechanically:
 
 - **errors**: missing/self `requires`, dependency **cycles** (deadlock),
-  **unreachable** puzzles, and puzzles with no derivable trigger event;
-- **warnings**: a step with **no hint ladder** (the M12 anti-stuck contract), and
+  **unreachable** puzzles, puzzles with no derivable trigger event, and a
+  **critical-path** puzzle (a `gate`, or one every ending transitively requires)
+  with **no hint ladder** — the anti-stuck contract, mechanically enforced;
+- **warnings**: an *optional* (off-critical-path) step with no hint ladder, and
   puzzles that **bypass a `gate`** (don't transitively require it);
 - **bushiness**: `report.bushiness[depth]` — how many puzzles are open in
   parallel at each dependency depth — and `report.maxParallel`, free pacing

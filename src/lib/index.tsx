@@ -334,7 +334,7 @@ export type { SolveOptions, SolveResult, SolveFsNode } from '../scenario/solver'
 export { validateScenario, assertValidScenario, ScenarioValidationError, SCENARIO_MAX_BYTES } from '../scenario/validate';
 export type { ScenarioValidation } from '../scenario/validate';
 // Layer 3: the Puzzle Dependency Graph — compiler + graph linter.
-export { compilePuzzleGraph, lintPuzzleGraph, solvedFlag } from '../scenario/puzzleGraph';
+export { compilePuzzleGraph, lintPuzzleGraph, solvedFlag, ladder } from '../scenario/puzzleGraph';
 export type { PuzzleGraph, PuzzleNode, PuzzleHint, GraphLintIssue, PuzzleGraphReport } from '../scenario/puzzleGraph';
 export { prologueGraph, prologueGraphScenario } from '../data/scenarios/prologueGraph';
 // Scenario / event DevTools (#209): the `devtools` prop mounts the panel, or a

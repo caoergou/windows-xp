@@ -10,14 +10,42 @@
  * many puzzles are open in parallel at each depth) for pacing.
  */
 import type { XPEventType } from '../events';
-import { all, flag, setFlag } from './builder';
+import { all, count, flag, not, notify, setFlag } from './builder';
 import type { Action, Condition, FlagValue, Scenario, Trigger } from './types';
 
-/** A hint rung for a puzzle's anti-stuck ladder (M12). */
+/**
+ * A hint rung for a puzzle's anti-stuck ladder (M12). A rung reveals its `text`
+ * (as a tray balloon) once the player looks stuck: after `afterFails`
+ * `password:fail`s, or `afterIdles` `user:idle` periods — whichever comes first.
+ * Prefer the {@link ladder} helper over writing rungs by hand.
+ */
 export interface PuzzleHint {
-  afterMs?: number;
   text: string;
+  /** Balloon title (default `'Hint'`). */
+  title?: string;
+  /** Reveal after this many `password:fail` events (journal count ≥). */
+  afterFails?: number;
+  /** Reveal after this many `user:idle` periods (journal count ≥). */
+  afterIdles?: number;
 }
+
+/**
+ * Build an escalating hint ladder (M12): each text becomes a rung, and `fails` /
+ * `idles` set the base cadence so rung *i* unlocks at `base * (i + 1)` — e.g.
+ * `ladder({ fails: 2 }, a, b)` shows `a` after 2 fails, `b` after 4. Give both
+ * `fails` and `idles` to reveal on either channel. Compiles (via
+ * {@link compilePuzzleGraph}) to `password:fail` / `user:idle` count triggers.
+ */
+export const ladder = (
+  opts: { fails?: number; idles?: number; title?: string },
+  ...texts: string[]
+): PuzzleHint[] =>
+  texts.map((text, i) => ({
+    text,
+    ...(opts.title ? { title: opts.title } : {}),
+    ...(opts.fails ? { afterFails: opts.fails * (i + 1) } : {}),
+    ...(opts.idles ? { afterIdles: opts.idles * (i + 1) } : {}),
+  }));
 
 /** One node in the dependency graph. */
 export interface PuzzleNode {
@@ -73,6 +101,8 @@ const deriveOn = (node: PuzzleNode): XPEventType[] => {
  * fire-once trigger gated on `requires` (solved flags) + `solvedWhen`, whose
  * actions set the puzzle's solved flag and run its `grants`.
  */
+const HINT_TIMEOUT = 10000;
+
 export const compilePuzzleGraph = (graph: PuzzleGraph): Scenario => {
   const triggers: Trigger[] = graph.puzzles.map(p => {
     const reqConds = (p.requires ?? []).map(r => flag(solvedFlag(r)));
@@ -86,10 +116,36 @@ export const compilePuzzleGraph = (graph: PuzzleGraph): Scenario => {
       do: [setFlag(solvedFlag(p.id)), ...(p.grants ?? [])],
     };
   });
+
+  // Hint ladders (M12): each rung fires once, only while its puzzle is *active*
+  // (prerequisites solved, itself not yet solved), on the fail/idle channel it
+  // declares. A per-rung "shown" flag means it balloons once even if both the
+  // fail and idle thresholds are met.
+  const hintTriggers: Trigger[] = [];
+  graph.puzzles.forEach(p => {
+    (p.hints ?? []).forEach((hint, i) => {
+      const shown = `hint:${p.id}:${i}`;
+      const active = [
+        ...(p.requires ?? []).map(r => flag(solvedFlag(r))),
+        not(flag(solvedFlag(p.id))),
+        not(flag(shown)),
+      ];
+      const fire = (channel: XPEventType, threshold: number): Trigger => ({
+        id: `hint:${p.id}:${i}:${channel}`,
+        on: channel,
+        once: true,
+        when: all(...active, count(channel, { gte: threshold })),
+        do: [setFlag(shown), notify({ title: hint.title ?? 'Hint', body: hint.text, timeout: HINT_TIMEOUT })],
+      });
+      if (hint.afterFails) hintTriggers.push(fire('password:fail', hint.afterFails));
+      if (hint.afterIdles) hintTriggers.push(fire('user:idle', hint.afterIdles));
+    });
+  });
+
   return {
     id: graph.id,
     ...(graph.initialFlags ? { initialFlags: graph.initialFlags } : {}),
-    triggers,
+    triggers: [...triggers, ...hintTriggers],
   };
 };
 
@@ -182,11 +238,6 @@ export const lintPuzzleGraph = (graph: PuzzleGraph): PuzzleGraphReport => {
     }
   });
 
-  // Hint ladder (M12): every puzzle should have hints.
-  graph.puzzles.forEach(p => {
-    if (!p.hints?.length) issues.push({ puzzle: p.id, level: 'warn', message: 'has no hint ladder (M12 anti-stuck contract)' });
-  });
-
   // Transitive requires (only over reachable, acyclic edges).
   const transReqCache = new Map<string, Set<string>>();
   const transReq = (id: string, seen = new Set<string>()): Set<string> => {
@@ -202,6 +253,28 @@ export const lintPuzzleGraph = (graph: PuzzleGraph): PuzzleGraphReport => {
     transReqCache.set(id, out);
     return out;
   };
+
+  // Hint ladder (M12 anti-stuck contract). A node is *critical* — a 必经步骤 —
+  // when it's a `gate` or every ending (a puzzle nothing depends on) transitively
+  // requires it. A critical node with no hints can hard-stick the player, so
+  // that's an error; an optional/parallel node without hints is only a warning.
+  const dependedOn = new Set<string>();
+  graph.puzzles.forEach(p => (p.requires ?? []).forEach(r => dependedOn.add(r)));
+  const terminals = graph.puzzles.filter(p => !dependedOn.has(p.id) && !inCycle.has(p.id));
+  const isCritical = (id: string): boolean => {
+    const p = byId.get(id);
+    if (p?.gate) return true;
+    if (terminals.length === 0) return false;
+    return terminals.every(t => t.id === id || transReq(t.id).has(id));
+  };
+  graph.puzzles.forEach(p => {
+    if (p.hints?.length) return;
+    if (isCritical(p.id)) {
+      issues.push({ puzzle: p.id, level: 'error', message: 'is on the critical path but has no hint ladder (M12 anti-stuck contract)' });
+    } else {
+      issues.push({ puzzle: p.id, level: 'warn', message: 'has no hint ladder (M12 anti-stuck contract)' });
+    }
+  });
 
   // Gate bypass: everything not upstream of a gate must transitively require it.
   graph.puzzles

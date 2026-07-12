@@ -244,9 +244,10 @@ with clean derivations.)
   - `password:fail` 🔶#116 + **counters** (hint ladders),
   - `user:idle` 🔶#130 (stall detection),
   - actions: `balloonTip` 🔶#118, 🆕 `flashTaskbar`, `playSound` ✅,
-  - 🆕 **first-class hint ladders** in the schema (`hints: [{after: …, do: …}]`
-    per puzzle node — see §4 Layer 3, where the linter enforces "every required
-    step declares its ladder"),
+  - ✅ **first-class hint ladders** in the schema (#207: `hints: ladder({ fails,
+    idles }, …)` per puzzle node — compiled to `password:fail` / `user:idle`
+    count triggers; see §4 Layer 3, where the linter **errors** if a critical-path
+    step declares no ladder),
   - **no silent flag-sets on the critical path** (authoring lint rule).
 
 ---
