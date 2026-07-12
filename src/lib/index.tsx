@@ -150,6 +150,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
 export { AppProviders } from '../components/AppProviders';
 export { AppRegistryProvider } from '../context/AppRegistryContext';
 export { CultureProvider } from '../context/CultureContext';
+export { defineCulture } from '../data/culture';
 export { FileSystemProvider } from '../context/FileSystemContext';
 export { WindowManagerProvider } from '../context/WindowManagerContext';
 export { UserSessionProvider } from '../context/UserSessionContext';

@@ -11,7 +11,7 @@ import { ModalProvider } from '../context/ModalContext';
 import { AppRegistryProvider, useAppRegistry } from '../context/AppRegistryContext';
 import { CultureProvider, useCulture } from '../context/CultureContext';
 import { FileNode, AppRegistryEntry } from '../types';
-import { CulturePackage } from '../data/culture';
+import { CulturePackage, filterByLocale } from '../data/culture';
 import { EventBusProvider } from '../context/EventBusContext';
 import { StorageProvider } from '../context/StorageContext';
 import { SchedulerProvider } from '../context/SchedulerContext';
@@ -85,10 +85,36 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   const { registry } = useAppRegistry();
   const activeLang = getSavedLanguage(language || 'en');
 
+  // Item-level `locales` are honored here (#129): a shortcut whitelisted to
+  // other languages is filtered out for the active language.
   const culturalShortcuts = useMemo(
-    () => (culture.desktopShortcuts ? desktopShortcutsToNodes(culture.desktopShortcuts) : {}),
-    [culture]
+    () =>
+      culture.desktopShortcuts
+        ? desktopShortcutsToNodes(filterByLocale(culture.desktopShortcuts, activeLang))
+        : {},
+    [culture, activeLang]
   );
+
+  // Dev-mode: warn if the active culture references app ids that aren't in the
+  // merged registry (respects the `apps` prop — validation that defineCulture
+  // can't do at author time). Also surfaces unmet `requiredApps`.
+  useEffect(() => {
+    if (!(import.meta.env?.DEV ?? false)) return;
+    const known = new Set(Object.keys(registry));
+    (culture.desktopShortcuts ?? []).forEach(s => {
+      if (s.app && !known.has(s.app)) {
+        console.warn(
+          `[windows-xp] culture "${culture.id}": desktop shortcut "${s.id}" references ` +
+            `unregistered app "${s.app}". Register it (built-in or via the \`apps\` prop).`
+        );
+      }
+    });
+    (culture.requiredApps ?? []).forEach(appId => {
+      if (!known.has(appId)) {
+        console.warn(`[windows-xp] culture "${culture.id}": requiredApp "${appId}" is not registered.`);
+      }
+    });
+  }, [culture, registry]);
 
   // Sync language and culture when the language prop changes.
   useEffect(() => {

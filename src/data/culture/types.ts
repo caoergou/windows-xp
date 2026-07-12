@@ -8,34 +8,34 @@
 import { QQProfile } from '../qq/types';
 
 export interface CulturalItem {
-  /** 唯一标识 */
+  /** Unique id within the package. */
   id: string;
-  /** 指定语言白名单；未指定表示全语言通用 */
+  /** Language whitelist; omit to show in every language. Matched base-aware (see filterByLocale). */
   locales?: string[];
 }
 
 export interface DesktopShortcut extends CulturalItem {
-  /** 显示名称 */
+  /** Display name (also the desktop icon's key). */
   name: string;
-  /** 对应 APP_REGISTRY 中的应用 ID */
+  /** App id in the registry to open — must be a registered app (built-in or via the `apps` prop). */
   app: string;
-  /** XPIcon key */
+  /** `XPIcon` key. */
   icon: string;
 }
 
 export interface StickyNoteContent extends CulturalItem {
-  /** 便签标题 */
+  /** Note title. */
   title: string;
-  /** 便签正文，支持 \n 换行 */
+  /** Note body; `\n` for line breaks. */
   content: string;
 }
 
 export interface StartMenuApp extends CulturalItem {
-  /** 开始菜单内部动作标识 */
+  /** Internal start-menu action id (the app/route it opens). */
   action: string;
-  /** i18n key，用于显示名称 */
+  /** i18n key for the label — provide it in the package's `i18n` or it renders as the raw key. */
   nameKey: string;
-  /** XPIcon key */
+  /** `XPIcon` key. */
   icon: string;
 }
 
@@ -79,52 +79,76 @@ export interface StartupNotification {
 }
 
 /**
- * 文化包定义。
+ * A culture package — the era/region/language content of a desktop: shortcuts,
+ * start menu, homepage, sticky note, wallpaper, i18n resources and more.
  *
- * 一个文化包描述某一语言/地域/时代下的桌面内容：
- * 桌面快捷方式、开始菜单、浏览器主页、便签、壁纸、i18n 资源等。
+ * Prefer the {@link defineCulture} factory, which validates the package (app-id
+ * references, locale consistency, missing i18n keys) at author time.
  */
 export interface CulturePackage {
-  /** 唯一标识，如 'en', 'zh', 'jp-retro' */
+  /** Unique id, e.g. `'en'`, `'zh'`, `'jp-retro'`. */
   id: string;
-  /** 显示名称 */
+  /** Human-readable name for the culture picker. */
   displayName: string;
-  /** 匹配的语言代码列表，如 ['en', 'en-US'] */
+  /** Language codes this package activates for, e.g. `['ja', 'ja-JP']`. */
   locales: string[];
-  /** 该文化包依赖的应用 ID，用于启动前校验 */
+  /** App ids this package needs registered; used for a startup check. */
   requiredApps?: string[];
-  /** 该文化包补充的 i18n 资源（会合并进 windows-xp namespace） */
+  /** Extra i18n resources merged into the windows-xp namespace (`{ lang: { key: value } }`). */
   i18n?: Record<string, Record<string, string>>;
-  /** 桌面快捷方式 */
+  /** Desktop shortcuts. */
   desktopShortcuts?: DesktopShortcut[];
-  /** 开始菜单配置 */
+  /** Start-menu pinned/recent apps. */
   startMenu?: StartMenuProfile;
-  /** 浏览器默认主页 */
+  /** Default browser homepage. */
   browser?: BrowserCultureProfile;
-  /** 桌面便签 */
+  /** Desktop sticky note. */
   stickyNote?: StickyNoteContent;
-  /** 登录后自动弹出的托盘气泡通知（#118） */
+  /** Tray balloon shown after login (#118). */
   startupNotification?: StartupNotification;
-  /** QQ Messenger 档案：好友 / 分组 / 脚本消息（#119），供 QQ 应用读取 */
+  /** QQ Messenger profile — buddies / groups / scripted messages (#119), read by the QQ app. */
   qq?: QQProfile;
-  /** 默认壁纸 URL */
+  /** Default wallpaper URL. */
   wallpaper?: string;
-  /** 整点报时：是否在 time:hour 播放经典报时音（默认关闭，#130） */
+  /** Play the hourly chime on `time:hour` (off by default, #130). */
   hourlyChime?: boolean;
 }
 
-/** 规范化语言代码为文化包 key */
+/**
+ * The two built-in culture buckets. Used only for the built-in en/zh content
+ * maps (start menu, browser, IE favorites) — NOT for filtering a package's own
+ * items (see {@link filterByLocale}, which matches the real locale).
+ */
 export type CultureKey = 'en' | 'zh';
 
+/** Collapse a language code to a built-in bucket. `zh*` → `'zh'`, else `'en'`. */
 export const normalizeCultureLang = (lang: string): CultureKey => {
   if (!lang) return 'en';
   return lang.startsWith('zh') ? 'zh' : 'en';
 };
 
-/** 按当前语言过滤文化项 */
+/**
+ * Whether an item's `locales` whitelist matches `lang`, base-aware and
+ * case-insensitive: `['ja']` matches `ja` and `ja-JP`; `['en']` matches `en-US`.
+ * This is FULL-locale matching (not the two-bucket collapse), so a third-
+ * language package's item `locales` filter as the author wrote them (#129).
+ */
+export const localeMatchesItem = (itemLocales: string[], lang: string): boolean => {
+  const lower = (lang || '').toLowerCase();
+  const base = lower.split('-')[0];
+  return itemLocales.some(loc => {
+    const l = loc.toLowerCase();
+    return l === lower || l.split('-')[0] === base;
+  });
+};
+
+/**
+ * Filter culture items (desktop shortcuts, start-menu apps, …) for a language.
+ * An item with no `locales` is shown everywhere; otherwise it is kept only when
+ * its `locales` match `lang` per {@link localeMatchesItem}.
+ */
 export const filterByLocale = <T extends CulturalItem>(items: T[], lang: string): T[] => {
-  const normalized = normalizeCultureLang(lang);
-  return items.filter(item => !item.locales || item.locales.includes(normalized));
+  return items.filter(item => !item.locales || localeMatchesItem(item.locales, lang));
 };
 
 /** 判断某个语言是否匹配文化包 */

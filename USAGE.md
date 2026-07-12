@@ -127,14 +127,23 @@ A culture package defines a complete regional/era experience: desktop
 shortcuts, Start menu, browser homepage, sticky note, and i18n resources.
 Built-ins: `zh` (2005–2007 Chinese internet) and `en` (Western 2000s).
 
+Author one with `defineCulture()`. It's an identity wrapper that gives you
+the `CulturePackage` type and, in dev builds, warns (naming the offending
+field) when a package would silently misbehave — an empty shortcut `app`, a
+duplicate item id, item `locales` that don't overlap the package's, or a
+Start-menu `nameKey` your `i18n` never defines:
+
 ```jsx
-const jpRetroCulture = {
+import { WindowsXP, defineCulture } from '@caoergou/windows-xp';
+
+const jpRetroCulture = defineCulture({
   id: 'jp-retro',
   displayName: '日本 2000s',
   locales: ['ja', 'ja-JP'],
   browser: { homepage: 'http://www.yahoo.co.jp' },
   desktopShortcuts: [
-    { id: 'nicovideo', name: 'ニコニコ動画', app: 'NicoVideoPlayer', icon: 'nico' },
+    // `app` must be a registered app id (built-in or from the `apps` prop).
+    { id: 'nicovideo', name: 'ニコニコ動画', app: 'InternetExplorer', icon: 'ie' },
   ],
   startMenu: {
     pinned: [{ id: 'ie', action: 'InternetExplorer', nameKey: 'startMenu.apps.internetExplorer', icon: 'ie' }],
@@ -147,15 +156,22 @@ const jpRetroCulture = {
       'apps.notepad': 'メモ帳',
     },
   },
-};
+});
 
 <WindowsXP language="ja" cultures={[jpRetroCulture]} />
 ```
 
-Notes for third-language packages: UI strings fall back to English for any
-key you don't provide in `i18n`; Start-menu items resolve names through
-`nameKey` only, so provide those keys. (Authoring validation and a
-`defineCulture()` helper are tracked in #129.)
+Notes for third-language packages:
+
+- **`locales` are base-aware.** An item's `locales: ['ja']` matches the
+  `'ja-JP'` runtime language and vice versa — case-insensitively, on the base
+  subtag. Omit item-level `locales` to show an item in every language the
+  package covers; set them to scope an item to a subset (e.g. a shortcut only
+  the `ja` audience should see).
+- UI strings **fall back to English** for any key you don't provide in `i18n`.
+- Start-menu items resolve names through `nameKey` only, so provide those keys.
+- `app` values must be **registered app ids** — a built-in, or one you pass via
+  the `apps` prop. In dev, an unregistered id logs a warning at mount.
 
 **Wiring a culture app end-to-end** (learned building the `en` Western-2000s
 pack in #123 — Winamp / Norton AntiVirus / uTorrent / iTunes / Microsoft Office):
