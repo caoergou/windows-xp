@@ -34,6 +34,38 @@ In addition, `visual.yml` runs the micro-component screenshot diff on every PR,
 and `deploy.yml` builds and publishes to GitHub Pages on pushes to `main`. A PR
 that breaks any of these goes red before it can merge.
 
+### First-paint budget (#210)
+
+For the marketing / 404-egg scenarios (`docs/USE-CASES.md` S3) the first paint
+*is* the product, so bundle size is gated, not just watched:
+
+- **`size:check`** (library build) — no JS chunk over 1 MB, dist under 6 MB
+  (guards against the base64-inline regression that once made the package 17 MB).
+- **`size:check:app`** (site/demo build, run after `npm run build`) — **no JS
+  chunk over 500 kB**. This is the line Vite only *warns* about, made a hard fail
+  so the `AppProviders` chunk can't drift back toward the 734 kB it was at before
+  #210 (it was base64-inlining ~270 kB of icon PNGs into JS).
+
+Current site-build first-paint chunks (minified / gzip):
+
+| chunk | min | gzip |
+|---|---|---|
+| `AppProviders` (engine + providers) | ~323 kB | ~100 kB |
+| `vendor` (react, react-dom, styled-components, i18next) | ~285 kB | ~93 kB |
+| `i18n-locales` (en + zh) | ~37 kB | ~16 kB |
+
+**Budget target: engine-core + boot ≤ 200 kB gzip.** We're close (the vendor
+chunk caches across visits). Keep bytes out of the first paint:
+
+- Assets load as URLs, not base64 — `build.assetsInlineLimit: 0` in
+  `vite.config.ts`. An icon only downloads when its `<img>` renders, so most of
+  the icon set never touches first paint.
+- Heavy app components stay behind `React.lazy` (see `src/registry/apps.tsx`);
+  never import an app component eagerly into a provider.
+- Third-party libs and the i18n locale JSON are split into their own chunks via
+  `manualChunks`. Keep them a **single** `vendor` chunk — fine-grained
+  react/styled-components splitting reorders chunk init and breaks `React`.
+
 ## Releases
 
 Tagging a commit `v*` triggers `.github/workflows/publish.yml`, which runs the
