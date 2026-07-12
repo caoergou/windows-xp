@@ -1,12 +1,13 @@
 /**
  * guard:purity — 引擎纯净性护栏（#143 平台化预备，规则见 AGENTS.md 红线 11/12，
- * 细则见 docs/DEVELOPMENT.md §八）。三项检查：
+ * 细则见 docs/DEVELOPMENT.md §八）。四项检查：
  *
  *  1. 引擎目录零色值：机制层（context/hooks/utils/events/snapshot）不得出现
  *     颜色字面量——「机制」与「XP 的样子」分层，Phase B 时机制层原样成为引擎。
  *  2. xp.css 只允许入口文件引入：引擎/组件不得直接依赖 XP 皮肤表。
  *  3. 内联 hex 棘轮：src/ 全量内联色值只减不增（存量 ≈ FIDELITY §K STY-03 /
  *     #135 的 token 化欠账）。降到基线以下时按提示下调 HEX_BASELINE。
+ *  4. 引擎目录禁止引入主题层（src/themes）：主题在引擎之上选定（#135 主题契约）。
  *
  * 计数在剥离注释后进行（issue 引用如 `#116` 常出现在注释里，是主要噪音源）。
  */
@@ -37,6 +38,9 @@ const XPCSS_ENTRIES = new Set([
 
 const HEX_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/g;
 const XPCSS_IMPORT_RE = /(?:import\s+['"]|from\s+['"])xp\.css/;
+// #135: the engine (mechanism) must never import the theme layer (src/themes).
+// A theme is picked above the engine; the engine stays look-agnostic.
+const THEMES_IMPORT_RE = /(?:from|import)\s+['"](?:\.\.?\/)+themes\//;
 
 function stripComments(source) {
   return source
@@ -73,6 +77,9 @@ for (const file of walk('src')) {
     }
     if (XPCSS_IMPORT_RE.test(line) && !XPCSS_ENTRIES.has(posix)) {
       failures.push(`非入口文件引入 xp.css ${posix}:${i + 1}（仅允许：${[...XPCSS_ENTRIES].join(', ')}）`);
+    }
+    if (isEnginePure && THEMES_IMPORT_RE.test(line)) {
+      failures.push(`引擎目录引入主题层 ${posix}:${i + 1}（红线 11：机制层禁止依赖 src/themes——主题在引擎之上选定）`);
     }
   });
 }

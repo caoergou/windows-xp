@@ -1,18 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import minimizeButton from '../../assets/images/window/luna/minimize.png';
-import minimizeButtonHover from '../../assets/images/window/luna/minimize-hover.png';
-import minimizeButtonActive from '../../assets/images/window/luna/minimize-active.png';
-import maximizeButton from '../../assets/images/window/luna/maximize.png';
-import maximizeButtonHover from '../../assets/images/window/luna/maximize-hover.png';
-import maximizeButtonActive from '../../assets/images/window/luna/maximize-active.png';
-import restoreButton from '../../assets/images/window/luna/unmaximize.png';
-import restoreButtonHover from '../../assets/images/window/luna/unmaximize-hover.png';
-import restoreButtonActive from '../../assets/images/window/luna/unmaximize-active.png';
-import closeButton from '../../assets/images/window/luna/close.png';
-import closeButtonHover from '../../assets/images/window/luna/close-hover.png';
-import closeButtonActive from '../../assets/images/window/luna/close-active.png';
+import { XP_ASSETS } from '../../themes/xp/assets';
+
+const { minimize, maximize, restore, close } = XP_ASSETS.windowControls;
 
 export const TitleControls = styled.div<{ $isFocus?: boolean }>`
   opacity: ${({ $isFocus }) => ($isFocus ? 1 : 0.6)};
@@ -70,27 +61,27 @@ const ImageWindowControl = styled(BaseButton)<{
 `;
 
 export const MinimizeBtn = styled(ImageWindowControl).attrs({
-  $normal: minimizeButton,
-  $hover: minimizeButtonHover,
-  $active: minimizeButtonActive,
+  $normal: minimize.normal,
+  $hover: minimize.hover,
+  $active: minimize.active,
 })``;
 
 export const MaximizeBtn = styled(ImageWindowControl).attrs({
-  $normal: maximizeButton,
-  $hover: maximizeButtonHover,
-  $active: maximizeButtonActive,
+  $normal: maximize.normal,
+  $hover: maximize.hover,
+  $active: maximize.active,
 })``;
 
 export const RestoreBtn = styled(ImageWindowControl).attrs({
-  $normal: restoreButton,
-  $hover: restoreButtonHover,
-  $active: restoreButtonActive,
+  $normal: restore.normal,
+  $hover: restore.hover,
+  $active: restore.active,
 })``;
 
 export const CloseBtn = styled(ImageWindowControl).attrs({
-  $normal: closeButton,
-  $hover: closeButtonHover,
-  $active: closeButtonActive,
+  $normal: close.normal,
+  $hover: close.hover,
+  $active: close.active,
 })`
   margin-right: 0;
 `;

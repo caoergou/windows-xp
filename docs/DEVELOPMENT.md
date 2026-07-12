@@ -58,6 +58,12 @@
   原样成为引擎）还是"XP 的样子"（Luna 色、chrome、XP 文案、xp.css 类名）。机制
   层文件（`src/context`、`src/hooks`、`src/utils`、`src/events.ts`、
   `src/snapshot.ts`）出现后者即违规，`guard:purity` 会挡下
+- **主题层与引擎的边界**（#135，详见 `docs/THEMING.md`）：一切"XP 的样子"——
+  token（`COLORS`）、样式片段（`xpButtonStyles` 等）、图片资产（窗口控制按钮、
+  开始按钮贴图）——收敛在 `src/themes/xp/` 之下，契约 `OSTheme` 定义在
+  `src/themes/contract.ts`。**机制层禁止 import `src/themes/`**（`guard:purity`
+  第 4 项强制）：主题在引擎之上选定，不能被引擎反向依赖。去硬编码（1373 处内联
+  hex）是**顺手迁移**，不是独立工作量，跟随 STY-03/色值棘轮推进
 - **色值棘轮**：src/ 存量内联 hex（基线见 `scripts/guard-purity.mjs`）只减不增；
   新代码引用 `COLORS`（`src/constants.ts`）/ FIDELITY §K.1 token。还债进度即
   #135 Phase A / STY-03 的进度，降到基线以下就下调基线锁住战果
