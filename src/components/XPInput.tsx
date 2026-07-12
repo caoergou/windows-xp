@@ -6,6 +6,7 @@ import { XPDialogWindow, XPDialogTitleText } from './XPDialogChrome';
 import { TitleBar as LunaTitleBar } from './Window/WindowChrome';
 import { XPTextInput } from './XPTextInput';
 import { useTranslation } from 'react-i18next';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 const Overlay = styled.div`
   position: fixed;
@@ -60,6 +61,7 @@ const XPInput: React.FC<XPInputProps> = ({ title, message, defaultValue = '', on
     const { t } = useTranslation();
     const [value, setValue] = useState(defaultValue);
     const inputRef = useRef<HTMLInputElement>(null);
+    const { containerRef, onKeyDown } = useModalA11y(onCancel);
 
     useEffect(() => {
         if (inputRef.current) {
@@ -77,8 +79,8 @@ const XPInput: React.FC<XPInputProps> = ({ title, message, defaultValue = '', on
     };
 
     return (
-        <Overlay onClick={(e) => { if(e.target === e.currentTarget) { /* block outside click */ } }}>
-            <XPDialogWindow>
+        <Overlay ref={containerRef} onKeyDown={onKeyDown} data-xp-context-boundary>
+            <XPDialogWindow role="dialog" aria-modal="true" aria-label={title}>
                 <LunaTitleBar $isFocus className="title-bar">
                     <XPDialogTitleText>{title}</XPDialogTitleText>
                     <CloseBtn onClick={onCancel} aria-label="Close" />
@@ -95,7 +97,7 @@ const XPInput: React.FC<XPInputProps> = ({ title, message, defaultValue = '', on
                     />
                 </ContentArea>
                 <ButtonArea>
-                    <XPButton onClick={() => onOk(value)}>{t('common.ok')}</XPButton>
+                    <XPButton $default onClick={() => onOk(value)}>{t('common.ok')}</XPButton>
                     <XPButton onClick={onCancel}>{t('common.cancel')}</XPButton>
                 </ButtonArea>
             </XPDialogWindow>

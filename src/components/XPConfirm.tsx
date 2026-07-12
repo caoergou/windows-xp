@@ -6,6 +6,7 @@ import { XPDialogWindow, XPDialogTitleText } from './XPDialogChrome';
 import { TitleBar as LunaTitleBar } from './Window/WindowChrome';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 // ── Styled components（与 XPAlert 保持视觉一致）─────────────────────────────
 
@@ -63,6 +64,7 @@ const XPConfirm = ({
 }: XPConfirmProps) => {
   const { t } = useTranslation();
   const confirmRef = useRef<HTMLButtonElement>(null);
+  const { containerRef, onKeyDown } = useModalA11y(onCancel);
   const finalConfirmLabel = confirmLabel || t('common.ok');
   const finalCancelLabel = cancelLabel || t('common.cancel');
 
@@ -76,8 +78,8 @@ const XPConfirm = ({
     /* question / info */  'alert_info';
 
   return (
-    <Overlay>
-      <XPDialogWindow>
+    <Overlay ref={containerRef} onKeyDown={onKeyDown} data-xp-context-boundary>
+      <XPDialogWindow role="dialog" aria-modal="true" aria-label={title}>
         <LunaTitleBar $isFocus className="title-bar">
           <XPDialogTitleText>{title}</XPDialogTitleText>
           <CloseBtn onClick={onCancel} aria-label="Close" />
@@ -87,7 +89,7 @@ const XPConfirm = ({
           <Message>{message}</Message>
         </ContentArea>
         <ButtonArea>
-          <XPButton ref={confirmRef} onClick={onConfirm}>{finalConfirmLabel}</XPButton>
+          <XPButton ref={confirmRef} $default onClick={onConfirm}>{finalConfirmLabel}</XPButton>
           <XPButton onClick={onCancel}>{finalCancelLabel}</XPButton>
         </ButtonArea>
       </XPDialogWindow>

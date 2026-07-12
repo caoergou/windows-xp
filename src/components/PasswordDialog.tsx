@@ -8,6 +8,7 @@ import { XPTextInput } from './XPTextInput';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 const Overlay = styled.div`
   position: fixed;
@@ -87,6 +88,7 @@ const PasswordDialog = ({
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const { containerRef, onKeyDown } = useModalA11y(onCancel);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -113,8 +115,8 @@ const PasswordDialog = ({
   };
 
   return (
-    <Overlay>
-      <XPDialogWindow>
+    <Overlay ref={containerRef} onKeyDown={onKeyDown} data-xp-context-boundary>
+      <XPDialogWindow role="dialog" aria-modal="true" aria-label={dialogTitle}>
         <LunaTitleBar $isFocus className="title-bar">
           <XPDialogTitleText>{dialogTitle}</XPDialogTitleText>
           <CloseBtn onClick={onCancel} aria-label="Close" />
@@ -141,7 +143,7 @@ const PasswordDialog = ({
         </ContentArea>
         <ButtonArea>
           <XPButton onClick={onCancel}>{t('common.cancel')}</XPButton>
-          <XPButton onClick={handleSubmit}>{t('common.ok')}</XPButton>
+          <XPButton $default onClick={handleSubmit}>{t('common.ok')}</XPButton>
         </ButtonArea>
       </XPDialogWindow>
     </Overlay>

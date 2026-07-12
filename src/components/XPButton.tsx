@@ -13,12 +13,14 @@ import styled from 'styled-components';
  * Previously XPAlert, XPConfirm, PasswordDialog and XPInput each duplicated
  * a flat #ECE9D8 button that matched neither xp.css nor each other.
  */
-export const XPButton = styled.button`
+export const XPButton = styled.button<{ $default?: boolean }>`
   box-sizing: border-box;
   min-width: 75px;
   min-height: 23px;
   padding: 0 12px;
-  border: 1px solid #003c74;
+  /* DLG-03 (#124): the dialog default button carries a heavier border so
+     Enter's target reads at a glance (XP behavior + keyboard a11y). */
+  border: ${props => (props.$default ? '2px' : '1px')} solid #003c74;
   border-radius: 3px;
   background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
   box-shadow: none;
