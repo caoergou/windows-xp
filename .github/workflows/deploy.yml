@@ -29,6 +29,17 @@ jobs:
       - run: npm run guard:nocheck
       - run: npm run test:smoke
       - run: npm run build
+      # Build the VitePress docs site (#214) — a self-contained workspace — and
+      # nest it under dist/docs so Pages serves it at /windows-xp/docs/.
+      - name: Build docs site
+        run: |
+          npm ci
+          npm run docs:build
+        working-directory: docs-site
+      - name: Nest docs into the Pages artifact
+        run: |
+          mkdir -p dist/docs
+          cp -r docs-site/.vitepress/dist/. dist/docs/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

@@ -1,0 +1,20 @@
+{
+  "name": "windows-xp-docs-site",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "VitePress documentation site for @caoergou/windows-xp (#214). Self-contained workspace so its Vue/VitePress deps never touch the engine's install.",
+  "scripts": {
+    "docs:api": "typedoc && node scripts/escape-api-html.mjs",
+    "docs:dev": "npm run docs:api && vitepress dev",
+    "docs:build": "npm run docs:api && vitepress build",
+    "docs:preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "typedoc": "^0.28.0",
+    "typedoc-plugin-markdown": "^4.4.0",
+    "typedoc-vitepress-theme": "^1.1.3",
+    "typescript": "^5.9.3",
+    "vitepress": "^1.6.0"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
+  "entryPoints": [
+    "../src/lib/index.tsx",
+    "../src/lib/components.tsx",
+    "../src/lib/apps.tsx",
+    "../src/lib/hooks.tsx",
+    "../src/lib/theme.tsx",
+    "../src/lib/registry.tsx"
+  ],
+  "tsconfig": "../tsconfig.json",
+  "out": "api",
+  "readme": "none",
+  "githubPages": false,
+  "hideGenerator": true,
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "skipErrorChecking": true,
+  "entryFileName": "index",
+  "publicPath": "/windows-xp/docs/api/"
+}

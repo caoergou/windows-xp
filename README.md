@@ -9,7 +9,7 @@
 [![React](https://img.shields.io/badge/React-18%20%7C%2019-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
-[Live Demo](https://eric.run.place/windows-xp/) · [English desktop](https://eric.run.place/windows-xp/demo/en/) · [中文桌面](https://eric.run.place/windows-xp/demo/zh/) · [Usage Guide](USAGE.md) · [Roadmap](https://github.com/caoergou/windows-xp/issues/86) · [Report Bug](https://github.com/caoergou/windows-xp/issues)
+[Live Demo](https://eric.run.place/windows-xp/) · [English desktop](https://eric.run.place/windows-xp/demo/en/) · [中文桌面](https://eric.run.place/windows-xp/demo/zh/) · [Docs](https://eric.run.place/windows-xp/docs/) · [Roadmap](https://github.com/caoergou/windows-xp/issues/86) · [Report Bug](https://github.com/caoergou/windows-xp/issues)
 
 > The live demo is a real, running desktop you can drag — no login needed (the demos auto-sign-in). The two desktop links above drop you straight into the English or Chinese world.
 
@@ -91,7 +91,7 @@ const myFs = {
 };
 ```
 
-Every prop, the event catalog, the `XPHandle` methods, culture-package authoring, and subpath imports (`/components`, `/apps`, `/hooks`, `/theme`, `/registry`) are documented in **[USAGE.md](USAGE.md)**.
+Every prop, the event catalog, the `XPHandle` methods, culture-package authoring, and subpath imports (`/components`, `/apps`, `/hooks`, `/theme`, `/registry`) are documented on the **[docs site](https://eric.run.place/windows-xp/docs/)** (the old [USAGE.md](USAGE.md) is now a thin jump index).
 
 ## Built-in applications
 
@@ -111,7 +111,8 @@ The roadmap lives in [issue #86](https://github.com/caoergou/windows-xp/issues/8
 
 | Doc | What's in it |
 |---|---|
-| [USAGE.md](USAGE.md) | Consumer API: props, events, ref, subpaths, authoring |
+| [Docs site](https://eric.run.place/windows-xp/docs/) (`docs-site/`) | Consumer API: props, events, ref, subpaths, authoring |
+| [USAGE.md](USAGE.md) | Thin jump index into the docs site |
 | [FIDELITY.md](FIDELITY.md) | The XP-authenticity baseline: per-behavior scoring + design tokens |
 | [AGENTS.md](AGENTS.md) / [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Principles & code rules for contributors |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Workflow, checks, PR expectations |

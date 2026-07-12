@@ -7,7 +7,7 @@
  * module, so docs can never again advertise exports that do not exist.
  */
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import * as rootExports from '../src/lib';
@@ -26,7 +26,21 @@ const MODULES: Record<string, Record<string, unknown>> = {
   '/registry': registryExports,
 };
 
-const DOC_FILES = ['README.md', 'README.zh-CN.md', 'USAGE.md'];
+// The READMEs, the thin USAGE index, and every page of the docs site (#214) —
+// so a doc-site code example can never advertise an export that doesn't exist.
+const collectDocFiles = (): string[] => {
+  const files = ['README.md', 'README.zh-CN.md', 'USAGE.md'];
+  const guideDir = join(__dirname, '..', 'docs-site', 'guide');
+  for (const f of readdirSync(guideDir)) {
+    if (f.endsWith('.md')) files.push(join('docs-site', 'guide', f));
+  }
+  for (const f of ['index.md', 'components.md']) {
+    files.push(join('docs-site', f));
+  }
+  return files;
+};
+
+const DOC_FILES = collectDocFiles();
 
 interface DocImport {
   file: string;

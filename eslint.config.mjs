@@ -23,6 +23,9 @@ export default tseslint.config(
       // imports the published package — it isn't repo source and can't resolve
       // '@caoergou/windows-xp' here, so keep it out of lint/type scope.
       'scripts/consumer-smoke/consumer/',
+      // The docs site (#214) is a self-contained VitePress workspace with its
+      // own toolchain; it isn't part of the engine's lint/type scope.
+      'docs-site/',
       // Faithful port of the old `--ext ts,tsx`: only TypeScript sources are
       // linted (config files and .mjs build/CI scripts were never in scope).
       '**/*.js',
