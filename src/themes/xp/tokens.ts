@@ -31,6 +31,17 @@ export const COLORS = {
   INPUT_BORDER: '#789DBC',
   MENU_HIGHLIGHT: '#316AC5',
 
+  // Neutral greys used by list controls, dividers and text (Luna 3D chrome).
+  BLACK: '#000000',
+  BORDER_GREY: '#919B9C', // control/list dark border
+  DIVIDER_GREY: '#ACA899', // list column / menu separator grey
+
+  // Task Manager "oscilloscope" graphs — green line + grid on a black panel,
+  // the iconic taskmgr.exe Performance look. These are XP-skin colours and so
+  // live here in the theme layer (not inline in the component).
+  PERF_GRAPH_LINE: '#00FF00',
+  PERF_GRAPH_GRID: '#008000',
+
   // XP.css button gradients
   BUTTON_GRADIENT: 'linear-gradient(180deg, #FFFFFF 0%, #ECEBE5 86%, #D8D0C4 100%)',
   BUTTON_ACTIVE_GRADIENT: 'linear-gradient(180deg, #CDCAC3 0%, #E3E3DB 8%, #E5E5DE 94%, #F2F2F1 100%)',

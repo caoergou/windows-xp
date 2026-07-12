@@ -286,7 +286,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     name: 'Windows Task Manager',
     nameKey: 'taskManager.title',
     icon: 'computer',
-    window: { width: 520, height: 390, minWidth: 400, minHeight: 280, singleton: true },
+    window: { width: 540, height: 470, minWidth: 400, minHeight: 320, singleton: true },
     lifecycle: {},
     restore: restoreApp(TaskManager),
   },

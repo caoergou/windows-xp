@@ -130,12 +130,69 @@
     "running": "正在运行",
     "switchTo": "切换至",
     "endTask": "结束任务",
+    "newTask": "新任务...",
+    "endProcess": "结束进程",
+    "tasksLabel": "下列任务正在运行:",
     "menu": {
       "file": "文件",
       "options": "选项",
       "view": "查看",
       "windows": "窗口",
       "help": "帮助"
+    },
+    "menuItems": {
+      "newTask": "新任务(运行...)",
+      "exit": "退出任务管理器",
+      "alwaysOnTop": "总在最前",
+      "minimizeOnUse": "使用时最小化",
+      "hideWhenMinimized": "最小化时隐藏",
+      "refreshNow": "立即刷新",
+      "updateSpeed": "更新速度",
+      "tileHorizontally": "横向平铺窗口",
+      "tileVertically": "纵向平铺窗口",
+      "cascade": "层叠窗口",
+      "helpTopics": "任务管理器帮助主题",
+      "about": "关于 Windows 任务管理器"
+    },
+    "columns": {
+      "imageName": "映像名称",
+      "userName": "用户名",
+      "cpu": "CPU",
+      "memUsage": "内存使用"
+    },
+    "statusBar": {
+      "processes": "进程数: {{count}}",
+      "cpuUsage": "CPU 使用: {{percent}}%",
+      "commitCharge": "提交更改: {{current}}M / {{limit}}M"
+    },
+    "warning": {
+      "title": "任务管理器警告",
+      "message": "警告: 终止进程可能会导致不希望的结果, 包括数据丢失和系统不稳定。在终止之前, 进程将没有机会保存其状态或数据。你确定要终止此进程吗?",
+      "confirm": "是"
+    },
+    "perf": {
+      "cpuUsage": "CPU 使用",
+      "cpuUsageHistory": "CPU 使用记录",
+      "pfUsage": "PF 使用",
+      "pageFileUsageHistory": "页面文件使用记录",
+      "totals": "总数",
+      "handles": "句柄数",
+      "threads": "线程数",
+      "processes": "进程数",
+      "commitCharge": "提交更改 (K)",
+      "physicalMemory": "物理内存 (K)",
+      "kernelMemory": "核心内存 (K)",
+      "total": "总数",
+      "limit": "限制",
+      "peak": "峰值",
+      "available": "可用",
+      "systemCache": "系统缓存",
+      "paged": "分页",
+      "nonpaged": "未分页"
+    },
+    "about": {
+      "title": "关于 Windows 任务管理器",
+      "message": "Microsoft (R) Windows 任务管理器\n版本 5.1 (内部版本 2600.xpsp_sp3)\n版权所有 (C) 1985-2001 Microsoft Corp."
     }
   },
   "tray": {
@@ -160,7 +217,15 @@
       "十一月",
       "十二月"
     ],
-    "weekdays": ["日", "一", "二", "三", "四", "五", "六"],
+    "weekdays": [
+      "日",
+      "一",
+      "二",
+      "三",
+      "四",
+      "五",
+      "六"
+    ],
     "today": "今天"
   },
   "window": {
