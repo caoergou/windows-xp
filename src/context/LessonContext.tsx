@@ -14,9 +14,17 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useXPEventBus } from './EventBusContext';
 import { useStorage } from './StorageContext';
+import { useWindowManager } from './WindowManagerContext';
+import { useAppRegistry } from './AppRegistryContext';
+import { useFileSystem } from './FileSystemContext';
+import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
 import { expectMatches, isWrongAction, computeScore } from '../lesson/engine';
-import type { Lesson, LessonMode, LessonScore, LessonStep } from '../lesson/types';
+import { lintLesson } from '../lesson/lint';
+import type { Lesson, LessonMode, LessonScore, LessonStep, WatchAction } from '../lesson/types';
 import type { XPEvent } from '../events';
+
+/** Watch-mode pacing: cursor travel + settle before a step auto-plays. */
+const WATCH_STEP_MS = 1400;
 
 /** What the overlay renders from. */
 export interface LessonApi {
@@ -32,6 +40,15 @@ export interface LessonApi {
   nudgeSeq: number;
   /** Set when a run completes (Do mode carries a meaningful score). */
   score: LessonScore | null;
+  /** Whether the run is auto-demonstrating (Watch mode). */
+  isWatch: boolean;
+  /** Whether Watch auto-play is paused. */
+  watchPaused: boolean;
+  /** Increments each time Watch performs a step (drives the cursor click pulse). */
+  demoSeq: number;
+  /** Pause / resume Watch auto-play. */
+  pauseWatch: () => void;
+  resumeWatch: () => void;
   /** Start a lesson by id. Returns false if unknown. `try` is the default. */
   start: (lessonId: string, mode?: LessonMode) => boolean;
   /** Abort the current lesson and clear its saved progress. */
@@ -58,9 +75,24 @@ export const LessonProvider: React.FC<{ lessons?: Lesson[]; children: React.Reac
 }) => {
   const bus = useXPEventBus();
   const storage = useStorage();
+  const { openWindow } = useWindowManager();
+  const { registry } = useAppRegistry();
+  const { getFile } = useFileSystem();
 
   const byId = useRef(new Map<string, Lesson>());
   byId.current = new Map((lessons ?? []).map(l => [l.id, l]));
+
+  // Dev-mode: lint each registered lesson so authoring gaps surface early.
+  useEffect(() => {
+    if (!(import.meta.env?.DEV ?? false)) return;
+    (lessons ?? []).forEach(l =>
+      lintLesson(l).forEach(issue => {
+        const where = issue.step >= 0 ? ` step ${issue.step}` : '';
+        const log = issue.level === 'error' ? console.error : console.warn;
+        log(`[windows-xp] lesson "${l.id}"${where}: ${issue.message}`);
+      })
+    );
+  }, [lessons]);
 
   const [status, setStatus] = useState<LessonApi['status']>('idle');
   const [lesson, setLesson] = useState<Lesson | null>(null);
@@ -69,6 +101,8 @@ export const LessonProvider: React.FC<{ lessons?: Lesson[]; children: React.Reac
   const [visibleHints, setVisibleHints] = useState<string[]>([]);
   const [nudgeSeq, setNudgeSeq] = useState(0);
   const [score, setScore] = useState<LessonScore | null>(null);
+  const [watchPaused, setWatchPaused] = useState(false);
+  const [demoSeq, setDemoSeq] = useState(0);
 
   // Non-render state.
   const wrongRef = useRef(0);
@@ -151,11 +185,11 @@ export const LessonProvider: React.FC<{ lessons?: Lesson[]; children: React.Reac
         console.warn(`[windows-xp] startLesson: unknown lesson "${lessonId}"`);
         return false;
       }
-      if (m === 'watch') console.warn('[windows-xp] lesson watch mode is not yet implemented; running as "try".');
       wrongRef.current = 0;
       hintsRef.current = 0;
       startedAtRef.current = Date.now();
       setScore(null);
+      setWatchPaused(false);
       setLesson(l);
       setMode(m);
       setStepIndex(0);
@@ -230,6 +264,47 @@ export const LessonProvider: React.FC<{ lessons?: Lesson[]; children: React.Reac
 
   useEffect(() => () => clearHintTimers(), [clearHintTimers]);
 
+  // Watch mode: auto-perform the current step through the imperative primitives.
+  // The resulting event advances the step through the same gate as Try/Do, so
+  // Watch is a driver over one runtime, not a second engine.
+  const performWatchAction = useCallback(
+    (action: WatchAction) => {
+      if ('openApp' in action) {
+        const def = registry[action.openApp] ?? APP_REGISTRY[action.openApp];
+        if (!def) return;
+        const props = action.props ?? {};
+        openWindow(action.openApp, def.name ?? action.openApp, def.restore(props), def.icon, {
+          ...(def.window ?? {}),
+          componentProps: props,
+        });
+      } else if ('openFile' in action) {
+        const node = getFile(action.openFile);
+        if (!node) return;
+        const key = action.openFile[action.openFile.length - 1] ?? node.name;
+        const resolved = resolveFileOpen(key, node);
+        if (!resolved) return;
+        openWindow(resolved.appId, node.name, resolved.component, resolved.icon, {
+          ...resolved.windowProps,
+          sourcePath: action.openFile,
+        });
+      } else if ('emit' in action) {
+        bus.emit(action.emit);
+      }
+    },
+    [registry, openWindow, getFile, bus]
+  );
+
+  useEffect(() => {
+    if (status !== 'running' || mode !== 'watch' || watchPaused || !lesson) return undefined;
+    const demo = lesson.steps[stepIndex]?.demonstrate;
+    if (!demo) return undefined; // can't auto-play this step; wait
+    const timer = window.setTimeout(() => {
+      setDemoSeq(n => n + 1);
+      performWatchAction(demo);
+    }, WATCH_STEP_MS);
+    return () => window.clearTimeout(timer);
+  }, [status, mode, watchPaused, lesson, stepIndex, performWatchAction]);
+
   const value: LessonApi = {
     status,
     lesson,
@@ -240,6 +315,11 @@ export const LessonProvider: React.FC<{ lessons?: Lesson[]; children: React.Reac
     visibleHints,
     nudgeSeq,
     score,
+    isWatch: mode === 'watch',
+    watchPaused,
+    demoSeq,
+    pauseWatch: () => setWatchPaused(true),
+    resumeWatch: () => setWatchPaused(false),
     start,
     stop,
   };
@@ -261,6 +341,11 @@ export const useLesson = (): LessonApi => {
     visibleHints: [],
     nudgeSeq: 0,
     score: null,
+    isWatch: false,
+    watchPaused: false,
+    demoSeq: 0,
+    pauseWatch: () => {},
+    resumeWatch: () => {},
     start: () => false,
     stop: () => {},
   };

@@ -24,12 +24,17 @@ export const notepadBasicsLesson = defineLesson({
         { afterMs: 30000, text: 'lesson.notepad.hint1b' },
       ],
       onWrongAction: 'nudge',
+      demonstrate: { openApp: 'Notepad' },
     },
     {
       instruction: 'lesson.notepad.step2',
       anchor: 'notepad.textarea',
       expect: { on: 'file:create', nodeType: 'file' },
       hints: [{ afterMs: 15000, text: 'lesson.notepad.hint2' }],
+      // Watch mode "saves" the note by creating the file the save would produce.
+      demonstrate: {
+        emit: { type: 'file:create', path: ['我的文档', '便签.txt'], name: '便签.txt', nodeType: 'file' },
+      },
     },
   ],
 });

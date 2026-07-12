@@ -10,6 +10,8 @@ import React from 'react';
 import { render, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { expectMatches, isWrongAction, computeScore } from '../src/lesson/engine';
+import { lintLesson, isLessonValid } from '../src/lesson/lint';
+import type { Lesson } from '../src/lesson/types';
 import type { XPEvent } from '../src/events';
 
 describe('lesson engine — expectMatches / isWrongAction', () => {
@@ -33,6 +35,38 @@ describe('lesson engine — expectMatches / isWrongAction', () => {
     expect(computeScore(0, 0, 1000)).toBe(100);
     expect(computeScore(2, 1, 1000)).toBe(75); // 100 - 20 - 5
     expect(computeScore(20, 0, 1000)).toBe(0); // floored
+  });
+});
+
+describe('lesson linter', () => {
+  it('passes a complete lesson and flags a broken one', () => {
+    const good: Lesson = {
+      id: 'g',
+      title: 'g',
+      steps: [
+        { instruction: 'i', anchor: 'a', expect: { on: 'app:launch' }, hints: [{ afterMs: 1000, text: 'h' }], demonstrate: { openApp: 'X' } },
+      ],
+    };
+    expect(lintLesson(good)).toHaveLength(0);
+    expect(isLessonValid(good)).toBe(true);
+
+    const bad = { id: '', title: '', steps: [{ instruction: '', expect: {} }] } as unknown as Lesson;
+    const issues = lintLesson(bad);
+    expect(issues.some(i => i.level === 'error')).toBe(true);
+    expect(isLessonValid(bad)).toBe(false);
+  });
+
+  it('warns on missing hints / anchor / demonstrate but does not error', () => {
+    const l: Lesson = { id: 'x', title: 'x', steps: [{ instruction: 'i', expect: { on: 'app:launch' } }] };
+    const issues = lintLesson(l);
+    expect(issues.every(i => i.level === 'warn')).toBe(true);
+    expect(issues.map(i => i.message).join(' ')).toMatch(/hint|anchor|demonstrate/);
+  });
+
+  it('checks i18n key resolution when a resolver is supplied', () => {
+    const l: Lesson = { id: 'x', title: 'lesson.missing.title', steps: [{ instruction: 'i', anchor: 'a', expect: { on: 'app:launch' }, hints: [{ afterMs: 1, text: 'h' }], demonstrate: { emit: { type: 'session:login' } } }] };
+    const issues = lintLesson(l, () => false);
+    expect(issues.some(i => i.message.includes('no translation'))).toBe(true);
   });
 });
 
@@ -91,4 +125,35 @@ describe('lesson runtime — <WindowsXP lessons/> + startLesson', () => {
       expect(ref.current!.startLesson('nope')).toBe(false);
     });
   });
+
+  it('watch mode auto-plays each step to completion', async () => {
+    const { WindowsXP } = await import('../src/lib');
+    const seen: XPEvent[] = [];
+    const ref = React.createRef<import('../src/components/XPBridge').XPHandle>();
+    const watchLesson: Lesson = {
+      id: 'w-auto',
+      title: 'w',
+      steps: [
+        { instruction: 'a', anchor: 'start-button', expect: { on: 'cmd:exec', command: 'one' }, demonstrate: { emit: { type: 'cmd:exec', command: 'one' } } },
+        { instruction: 'b', anchor: 'taskbar.clock', expect: { on: 'cmd:exec', command: 'two' }, demonstrate: { emit: { type: 'cmd:exec', command: 'two' } } },
+      ],
+    };
+    render(<WindowsXP ref={ref} autoLogin skipBoot lessons={[watchLesson]} onEvent={e => seen.push(e)} />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    act(() => {
+      ref.current!.startLesson('w-auto', 'watch');
+    });
+    // Each step auto-plays after the watch pacing delay (~1.4s).
+    await act(async () => {
+      await new Promise(r => setTimeout(r, 1700));
+    });
+    await act(async () => {
+      await new Promise(r => setTimeout(r, 1700));
+    });
+    const types = seen.map(e => e.type);
+    expect(types.filter(t => t === 'lesson:step-complete').length).toBe(2);
+    expect(types).toContain('lesson:complete');
+  }, 15000);
 });

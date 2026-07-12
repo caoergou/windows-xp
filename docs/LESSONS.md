@@ -70,7 +70,8 @@ Lessons are plain data (JSON-serializable), so they can equally live in a
 | `anchor` | `string?` | Semantic UI anchor id to spotlight (see [Anchors](#anchors)). Omit for an unanchored step. |
 | `expect` | `ExpectPattern` | The verified action that advances the step. |
 | `hints` | `LessonHint[]?` | Escalating hints (Try mode only). |
-| `onWrongAction` | `'nudge' \| 'shield' \| 'undo'?` | Reaction to a wrong action. Phase 1 implements `nudge`; `shield`/`undo` are planned. |
+| `onWrongAction` | `'nudge' \| 'shield' \| 'undo'?` | Reaction to a wrong action. `nudge` ships; `shield`/`undo` are planned (Phase 3). |
+| `demonstrate` | `WatchAction?` | How Watch mode auto-plays the step: `{ openApp, props? }`, `{ openFile: string[] }`, or `{ emit: XPEvent }`. Omit and Watch can't auto-play the step. |
 
 ### `ExpectPattern`
 
@@ -117,7 +118,7 @@ The same lesson runs in three modes, selected by the second argument to
 | --- | --- | --- | --- | --- |
 | `'try'` | Event-gated | Yes — the hint ladder | No | **Ships (Phase 1)** |
 | `'do'` | Event-gated | No | Yes | **Ships (Phase 1)** |
-| `'watch'` | Auto-demonstrated | — | — | **Planned (Phase 2)** |
+| `'watch'` | Auto-demonstrated | — | — | **Ships (Phase 2)** |
 
 - **Try** — the coaching mode. Steps are gated on real actions; the hint ladder
   arms on each step and escalates on inactivity (`afterMs`). Wrong actions
@@ -133,9 +134,27 @@ The same lesson runs in three modes, selected by the second argument to
   actions only. The final `score` is reported in the `lesson:complete` event and
   in the completion payload the overlay reads. (Time on task is measured and
   reported, but not currently penalized.)
-- **Watch** — auto-demonstration via a ghost cursor is **planned / Phase 2**.
-  Passing `'watch'` today runs the lesson exactly like `'try'` and logs a
-  console notice; the ghost cursor does not exist yet. Do not rely on it.
+- **Watch** — the demonstration mode. Each step auto-plays: an XP-style **ghost
+  cursor** glides to the step's anchor, a click pulse fires, and the step's
+  `demonstrate` action is performed through the imperative handle. The resulting
+  event advances the step through the *same* gate as Try/Do — Watch is a driver
+  over one runtime, not a second engine. The docked panel gains a **Pause /
+  Resume** control. A step with no `demonstrate` cannot auto-play (the linter
+  warns); author one per step for a complete Watch.
+
+  ```jsonc
+  {
+    "instruction": "lesson.step1",
+    "anchor": "start-button",
+    "expect": { "on": "app:launch", "appId": "Notepad" },
+    "demonstrate": { "openApp": "Notepad" }   // Watch performs this
+  }
+  ```
+
+  `demonstrate` is one of `{ openApp, props? }`, `{ openFile: string[] }`, or
+  `{ emit: XPEvent }` (the escape hatch for steps a single handle call can't
+  perform — e.g. "save", demonstrated by emitting the `file:create` the save
+  would produce).
 
 ## Anchors
 
@@ -280,16 +299,19 @@ export const notepadBasicsLesson = defineLesson({
 });
 ```
 
-## Phase 1 scope / not yet implemented
+## Scope
 
-Phase 1 ships Try and Do modes, the event-gated matcher, the hint ladder, the
-`nudge` policy, anchors + spotlight, the `lesson:*` events, and per-instance
-resumable progress. Deferred to later phases:
+**Shipped (Phase 1 + 2):** Try / Do / **Watch** modes; the event-gated matcher;
+the hint ladder; the `nudge` policy; anchors + spotlight + instruction balloon
+(positioned with @floating-ui/react); the **ghost cursor** with Pause/Resume;
+the `lesson:*` events; per-instance resumable progress + Do-mode scoring; the
+`defineLesson` builder; and the **lesson-pack linter** (`lintLesson`, run in
+dev-mode against every registered lesson).
 
-- **Watch mode** — the auto-demonstrated ghost cursor (today `'watch'` runs as
-  `'try'`).
-- **Beacon hotspot** — a pulsing beacon on the anchored target.
+**Deferred to Phase 3:**
+
+- **Beacon hotspot** — a pulsing beacon on the anchored target for self-serve tips.
 - **`shield` / `undo` wrong-action policies** — only `nudge` is wired.
 - **Help & Support Center catalog surface** — an in-world lesson browser.
-- **Lesson-pack linter** — static validation of a lesson bundle (dangling
-  anchors, unknown event types, unreachable steps).
+- **e2e** — a Playwright run across all three modes (incl. shield blocking
+  off-target clicks).
