@@ -401,6 +401,7 @@ const GlassBox: React.FC = () => {
               key={world}
               ref={xp}
               mode="embedded"
+              viewportPolicy="scale"
               skipBoot
               autoLogin
               disableScreenSaver

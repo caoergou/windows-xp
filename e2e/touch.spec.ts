@@ -122,3 +122,47 @@ test.describe('Touch support (#125)', () => {
     await expect(page.locator('.xp-window')).toHaveCount(0);
   });
 });
+
+/**
+ * Small-screen scale-to-fit strategy (#215). At an iPhone-SE portrait viewport
+ * the whole desktop scales to fit (letterboxed) instead of overflowing behind a
+ * warning — a designed path, still fully drivable by touch. See docs/VIEWPORT.md.
+ */
+test.describe('Small-screen viewport (#215)', () => {
+  test.use({ hasTouch: true, viewport: { width: 375, height: 667 } });
+
+  test('iPhone SE scales the whole desktop to fit and shows the rotate nudge', async ({ page }) => {
+    await login(page, { lang: 'en' });
+
+    // The stage is scaled: .windows-xp-root carries a sub-1 scale transform, so
+    // its rendered (visual) width is the viewport width, not the 1024 baseline.
+    const scale = await page.evaluate(() => {
+      const root = document.querySelector('.windows-xp-root') as HTMLElement | null;
+      if (!root) return null;
+      return new DOMMatrix(getComputedStyle(root).transform).a; // scale-x
+    });
+    expect(scale).not.toBeNull();
+    expect(scale as number).toBeGreaterThan(0.2);
+    expect(scale as number).toBeLessThan(0.9);
+
+    // Portrait → the "rotate for a larger view" nudge (landscape scales larger).
+    await expect(page.locator('[data-testid="rotate-hint"]')).toBeVisible();
+
+    // The desktop is still drivable: double-tapping an icon opens its app.
+    await doubleTap(page, '[data-english-testid="desktop-icon-Calculator"]');
+    await expect(
+      page.locator('[data-testid="window-title"]').filter({ hasText: 'Calculator' })
+    ).toBeVisible({ timeout: 8000 });
+  });
+
+  test('desktop-width viewport is not scaled (native path)', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await login(page, { lang: 'en' });
+    const transform = await page.evaluate(() => {
+      const root = document.querySelector('.windows-xp-root') as HTMLElement | null;
+      return root ? getComputedStyle(root).transform : null;
+    });
+    expect(transform).toBe('none');
+    await expect(page.locator('[data-testid="rotate-hint"]')).toHaveCount(0);
+  });
+});

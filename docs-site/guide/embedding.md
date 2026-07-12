@@ -80,3 +80,35 @@ Combine with `fileSystemMode="replace"` (#77), `persistence="none"` (above), and
 deep links (#136) and you have boot → login → desktop with zero Microsoft
 branding, from props alone — no fork, no CSS surgery.
 
+
+## Small screens & mobile (#215)
+
+The shell is authored against a **1024×768 baseline**. Rather than reflow it on
+a phone (XP has no portrait form — reflowing would break the simulation), the
+whole desktop **scales to fit**, letterboxed. Nothing moves; it's just smaller,
+and every #125 touch gesture still drives it. The full rationale and the
+rejected alternatives live in
+[`docs/VIEWPORT.md`](https://github.com/caoergou/windows-xp/blob/main/docs/VIEWPORT.md).
+
+Control it with the `viewportPolicy` prop:
+
+| value | behaviour |
+|---|---|
+| `'auto'` — default in `fullscreen` | Native at ≥ baseline; scale-to-fit when the container is narrower than 1024px. The desktop is unchanged; a phone gets the whole desktop. |
+| `'native'` — default in `embedded` | Never scale — the host controls an embedded desktop's size. |
+| `'scale'` | Always fit the baseline to the container (even on desktop). |
+| `'warn'` | Never scale; show the mobile hint. |
+
+### Minimum-viable viewport matrix
+
+| Viewport | Path |
+|---|---|
+| ≥ 1024×768 (desktop, tablet landscape) | Native, unchanged. |
+| Landscape phone (812×375, 667×375) | Scale-to-fit — the full desktop, comfortably touch-driven. |
+| Portrait phone (375×667, iPhone SE) | Scale-to-fit (≈0.37×) **plus** a "rotate for a larger view" nudge. |
+| Embedded | Scales to the host container, not the window (`'native'` by default). |
+
+```jsx
+// Make an embedded desktop scale-to-fit on phones too:
+<WindowsXP mode="embedded" viewportPolicy="auto" />
+```

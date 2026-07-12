@@ -22,6 +22,7 @@ title: Props reference
 | `ref` | `Ref<XPHandle>` | — | Imperative control handle (see Events) |
 | `devtools` | boolean | `false` | Mount the [Scenario / event DevTools](#scenario--event-devtools-209) overlay (dev-time; tree-shaken out when off) |
 | `mode` | `'fullscreen'` \| `'embedded'` | `'fullscreen'` | `'embedded'` disables all host-page hijacking in one switch |
+| `viewportPolicy` | `'auto'` \| `'scale'` \| `'native'` \| `'warn'` | `'auto'` (fullscreen) / `'native'` (embedded) | Small-screen strategy (#215) — see [Small screens & mobile](/guide/embedding#small-screens-mobile-215) |
 | `storagePrefix` | string | `'xp_'` | Storage namespace — each instance is fully isolated |
 | `disableContextMenuBlock` | boolean | `false` | Allow the browser's right-click menu |
 | `disableDevToolsBlock` | boolean | `false` | Allow F12 / Ctrl+Shift+I/J/C |

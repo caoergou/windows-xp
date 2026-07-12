@@ -1,6 +1,11 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
+import styled from 'styled-components';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import App from '../App';
+import MobileWarning from './MobileWarning';
+import { useViewportScale } from '../hooks/useViewportScale';
+import { ViewportScaleProvider } from '../context/ViewportScaleContext';
+import { COLORS } from '../constants';
 import xpI18n, { NAMESPACE } from '../i18n';
 import { FileSystemProvider, type FileSystemMode } from '../context/FileSystemContext';
 import type { WallpaperItem } from '../data/wallpapers';
@@ -32,6 +37,7 @@ import type { XPEventListener } from '../events';
 import { setStoragePrefix, type PersistenceMode } from '../utils/storage';
 import { getSavedLanguage } from '../utils/language';
 import type { BootBranding, LoginBranding } from '../branding';
+import type { ViewportPolicy } from '../hooks/useViewportScale';
 
 export interface AppProvidersProps {
   /** Subscribe to desktop events (#76). */
@@ -89,6 +95,8 @@ export interface AppProvidersProps {
    * `when` predicate tree. Opt-in; off in production.
    */
   devtools?: boolean;
+  /** Small-screen / portrait strategy (#215). */
+  viewportPolicy?: ViewportPolicy;
 }
 
 const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
@@ -265,24 +273,99 @@ function desktopShortcutsToNodes(
   );
 }
 
+// #215 small-screen scaling. The Letterbox and the transform sit ABOVE
+// `.windows-xp-root` (which owns the 1024px baseline floor), so on a narrow
+// container the whole desktop scales to fit, letterboxed — while the gallery,
+// which mounts `.windows-xp-root` on its own, is untouched. Inactive ⇒ both are
+// transparent full-size passthroughs, so the desktop is byte-identical.
+const Letterbox = styled.div<{ $active: boolean }>`
+  width: 100%;
+  height: 100%;
+  ${p =>
+    p.$active &&
+    `
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: ${COLORS.DESKTOP_BACKGROUND};
+  `}
+`;
+
+const RotateHint = styled.div`
+  position: fixed;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999997;
+  max-width: min(92vw, 360px);
+  padding: 7px 12px;
+  box-sizing: border-box;
+  background: ${COLORS.SURFACE};
+  border: 1px solid ${COLORS.BUTTON_SHADOW};
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
+`;
+
+/**
+ * Fixed-to-viewport chrome that must stay OUTSIDE the scaled `.windows-xp-root`
+ * (a `position: fixed` element inside a `transform`ed ancestor is captured by
+ * that ancestor). Rendered inside i18n so it can translate. (#215)
+ */
+const ViewportChrome: React.FC<{ showRotateHint: boolean }> = ({ showRotateHint }) => {
+  const { t } = useTranslation();
+  return (
+    <>
+      <MobileWarning />
+      {showRotateHint && (
+        <RotateHint className="windows-xp-portal" role="status" data-testid="rotate-hint">
+          {t('mobileWarning.rotateHint')}
+        </RotateHint>
+      )}
+    </>
+  );
+};
+
 export const AppProviders: React.FC<AppProvidersProps> = ({
   cultures,
   apps,
   language,
+  viewportPolicy,
   ...rest
 }) => {
   const activeLang = getSavedLanguage(language || 'en');
+  const letterboxRef = useRef<HTMLDivElement>(null);
+  const viewport = useViewportScale(viewportPolicy ?? 'auto', letterboxRef);
+
+  const rootStyle: React.CSSProperties = viewport.active
+    ? {
+        flex: '0 0 auto',
+        width: viewport.baseWidth,
+        height: viewport.baseHeight,
+        transform: `scale(${viewport.scale})`,
+        transformOrigin: 'center center',
+      }
+    : { width: '100%', height: '100%' };
 
   return (
-    <div className="windows-xp-root" style={{ width: '100%', height: '100%' }}>
+    <Letterbox ref={letterboxRef} $active={viewport.active}>
       <I18nextProvider i18n={xpI18n}>
-        <AppRegistryProvider apps={apps}>
-          <CultureProvider cultures={cultures} defaultLanguage={activeLang}>
-            <CultureAwareProviders language={language} {...rest} />
-          </CultureProvider>
-        </AppRegistryProvider>
+        <ViewportScaleProvider scale={viewport.scale}>
+          <ViewportChrome showRotateHint={viewport.showRotateHint} />
+          <div className="windows-xp-root" style={rootStyle}>
+            <AppRegistryProvider apps={apps}>
+              <CultureProvider cultures={cultures} defaultLanguage={activeLang}>
+                <CultureAwareProviders language={language} {...rest} />
+              </CultureProvider>
+            </AppRegistryProvider>
+          </div>
+        </ViewportScaleProvider>
       </I18nextProvider>
-    </div>
+    </Letterbox>
   );
 };
 

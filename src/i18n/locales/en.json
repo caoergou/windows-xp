@@ -1057,7 +1057,8 @@
   "mobileWarning": {
     "title": "Touch controls",
     "message": "Tap to select, double-tap to open, and press and hold for the right-click menu. Drag a window by its title bar.",
-    "gotIt": "Got it"
+    "gotIt": "Got it",
+    "rotateHint": "Rotate to landscape for a larger view."
   },
   "storage": {
     "errorTitle": "Windows XP",
