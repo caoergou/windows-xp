@@ -33,6 +33,9 @@ export default defineConfig({
       insertTypesEntry: true,
       rollupTypes: false,
       tsconfigPath: path.resolve(__dirname, 'tsconfig.json'),
+      // The marketing site / demo / gallery entries are not part of the library
+      // surface — don't emit their .d.ts into the package (#210 zero-leakage).
+      exclude: ['src/site/**', 'src/demo/**', 'src/gallery/**', 'e2e/**', 'test/**'],
     }),
   ],
   publicDir: false,
