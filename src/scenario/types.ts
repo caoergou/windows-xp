@@ -15,6 +15,7 @@
  *   `flags` slot (#117) and could be hand-written in a `.json` file.
  */
 import type { XPEvent, XPEventType } from '../events';
+import type { ScenarioStrings } from './strings';
 
 /** A flag value: booleans for gates, numbers for counters, strings for variables. */
 export type FlagValue = boolean | number | string;
@@ -81,10 +82,10 @@ export type Action =
   | { removeFile: string[] }
   /** Overwrite a text file's content at `path`. */
   | { writeFile: { path: string[]; content: string } }
-  /** Pop an XP tray balloon (the `showPopup` beat). */
-  | { notify: { title: string; body?: string; icon?: string; timeout?: number; anchorId?: string } }
-  /** Deliver an incoming QQ message from a buddy. */
-  | { qqMessage: { buddyId: string; text: string } }
+  /** Pop an XP tray balloon (the `showPopup` beat). `titleKey`/`bodyKey` resolve against the scenario's string table (#207). */
+  | { notify: { title?: string; titleKey?: string; body?: string; bodyKey?: string; icon?: string; timeout?: number; anchorId?: string } }
+  /** Deliver an incoming QQ message from a buddy. `textKey` resolves against the string table (#207). */
+  | { qqMessage: { buddyId: string; text?: string; textKey?: string } }
   /** Bring a QQ buddy online (knock + tray blink + balloon). */
   | { qqOnline: string }
   /** Open a registered app by id. */
@@ -95,8 +96,8 @@ export type Action =
   | { playSound: string }
   /** Inject an event onto the bus (also visible to `onEvent` and other triggers). */
   | { emit: XPEvent }
-  /** Show a modal alert dialog. */
-  | { alert: { title: string; message: string } }
+  /** Show a modal alert dialog. `titleKey`/`messageKey` resolve against the string table (#207). */
+  | { alert: { title?: string; titleKey?: string; message?: string; messageKey?: string } }
   /**
    * Pin or update a desktop sticky note (#207) — the cheapest "narration" channel
    * for nudging the story forward. Upserts by `id`; call again with the same id to
@@ -120,8 +121,12 @@ export interface ScenarioNote {
   id: string;
   /** Optional heading; falls back to a generic "Note" caption. */
   title?: string;
+  /** String-table key for the title (#207); resolves over `title`. */
+  titleKey?: string;
   /** Body text (newlines preserved). */
-  content: string;
+  content?: string;
+  /** String-table key for the body (#207); resolves over `content`. */
+  contentKey?: string;
   /** Desktop position in px; auto-stacked from the top-right when omitted. */
   x?: number;
   y?: number;
@@ -153,4 +158,11 @@ export interface Scenario {
   initialFlags?: Record<string, FlagValue>;
   /** The rulebook. */
   triggers: Trigger[];
+  /**
+   * Per-locale beat-text tables (#207). Actions reference an entry by key
+   * (`titleKey`, `bodyKey`, `textKey`, `contentKey`); the runtime resolves it
+   * against the active UI locale. Lets a writer localize/polish the script
+   * without touching the logic.
+   */
+  strings?: ScenarioStrings;
 }

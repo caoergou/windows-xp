@@ -41,7 +41,7 @@ export const unlock = (path: string[]): Action => ({ unlock: path });
 export const addFile = (path: string[], node?: Partial<FileNode>): Action => ({ addFile: { path, ...(node ? { node } : {}) } });
 export const removeFile = (path: string[]): Action => ({ removeFile: path });
 export const writeFile = (path: string[], content: string): Action => ({ writeFile: { path, content } });
-export const notify = (opts: { title: string; body?: string; icon?: string; timeout?: number; anchorId?: string }): Action => ({ notify: opts });
+export const notify = (opts: { title?: string; titleKey?: string; body?: string; bodyKey?: string; icon?: string; timeout?: number; anchorId?: string }): Action => ({ notify: opts });
 export const qqMessage = (buddyId: string, text: string): Action => ({ qqMessage: { buddyId, text } });
 export const qqOnline = (buddyId: string): Action => ({ qqOnline: buddyId });
 export const openApp = (appId: string, props?: Record<string, unknown>): Action => ({ openApp: { appId, ...(props ? { props } : {}) } });
