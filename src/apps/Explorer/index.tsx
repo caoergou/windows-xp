@@ -31,7 +31,8 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
     history,
     historyIndex,
     selectedItem,
-    setSelectedItem,
+    selection,
+    orderedKeys,
     refreshKey,
     setRefreshKey,
     containerRef,
@@ -172,16 +173,17 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
         <tbody>
           {sorted.map(([key, item]) => {
             const displayName = getFileDisplayName(key, item, t);
-            const isSelected = selectedItem !== null && selectedItem.key === key;
+            const isSelected = selection.isSelected(key);
             return (
               <DetailsRow
                 key={key}
                 data-testid={`file-row-${key}`}
                 data-item-key={key}
+                data-selected={isSelected}
                 $selected={isSelected}
-                onClick={() => {
+                onClick={e => {
                   if (isSyntheticAfterTouch()) return;
-                  setSelectedItem({ name: displayName, type: item.type, key });
+                  selection.handleItemClick(key, orderedKeys(), e);
                 }}
                 onDoubleClick={() => {
                   if (isSyntheticAfterTouch()) return;
@@ -210,20 +212,21 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
 
   const renderFileItem = (key: string, item: FileNode) => {
     const displayName = getFileDisplayName(key, item, t);
-    const isSelected = selectedItem !== null && selectedItem.key === key;
+    const isSelected = selection.isSelected(key);
 
     return (
       <FileItem
         key={key}
         data-testid={`file-item-${key}`}
         data-item-key={key}
+        data-selected={isSelected}
         onDoubleClick={() => {
           if (isSyntheticAfterTouch()) return;
           handleNavigate(key);
         }}
-        onClick={() => {
+        onClick={e => {
           if (isSyntheticAfterTouch()) return;
-          setSelectedItem({ name: displayName, type: item.type, key });
+          selection.handleItemClick(key, orderedKeys(), e);
         }}
         onContextMenu={e => handleContextMenu(e, key, item)}
         $selected={isSelected}
@@ -287,11 +290,22 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
         if (!t.closest('input,textarea,button,[contenteditable]')) {
           containerRef.current?.focus();
         }
+        // A left-click on empty space (not an item or control) clears the
+        // selection, matching XP. Ctrl/Shift keep it for additive gestures.
+        if (
+          e.button === 0 &&
+          !e.ctrlKey &&
+          !e.metaKey &&
+          !e.shiftKey &&
+          !t.closest('[data-item-key],input,textarea,button,[contenteditable]')
+        ) {
+          selection.clear();
+        }
       }}
       onContextMenu={e => {
         e.preventDefault();
         e.stopPropagation();
-        setSelectedItem(null);
+        selection.clear();
         setContextMenu({ visible: true, x: e.clientX, y: e.clientY, targetItem: null });
       }}
     >
