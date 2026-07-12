@@ -1,7 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import startButtonSprite from '../../assets/images/taskbar/startButton__spriteSheet.png';
-import windowsLogo from '../../assets/windowsIcons/windows.png';
+import { XP_ASSETS } from '../../themes/xp/assets';
+
+const startButtonSprite = XP_ASSETS.startButton.sprite;
+const windowsLogo = XP_ASSETS.startButton.logo;
 
 const StartButtonContainer = styled.button<{ $isActive?: boolean; $localized?: boolean }>`
   height: 30px;

@@ -15,10 +15,18 @@ import prefixer from 'postcss-prefix-selector';
 
 const SCOPE = ':where(.windows-xp-root, .windows-xp-portal)';
 
-export const xpCssScopePlugin = () =>
+/**
+ * Files whose bare element selectors get scoped. Defaults to xp.css; kept a
+ * parameter (#135, seam 2) so a second theme's sheet — the 98.css/XP.css/7.css
+ * family shares xp.css's class conventions — can be scoped identically by
+ * passing e.g. `[/xp\.css/, /7\.css/]`.
+ */
+const DEFAULT_INCLUDE = [/xp\.css/];
+
+export const xpCssScopePlugin = (includeFiles: RegExp[] = DEFAULT_INCLUDE) =>
   prefixer({
     prefix: SCOPE,
-    includeFiles: [/xp\.css/],
+    includeFiles,
     transform: (prefix: string, selector: string, prefixedSelector: string) => {
       // Page-level selectors become the scope roots themselves.
       if (selector === 'html' || selector === 'body' || selector === ':root') {
