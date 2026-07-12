@@ -161,3 +161,11 @@ export const sounds = {
 export const playSound = (name: keyof typeof sounds) => {
   sounds[name]?.();
 };
+
+/**
+ * Play a custom audio file by URL, honoring the global volume + mute state
+ * (#139 branded startup sound). No-ops when muted.
+ */
+export const playCustomSound = (url: string) => {
+  if (url) playSample(url);
+};

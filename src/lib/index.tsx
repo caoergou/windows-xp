@@ -3,6 +3,8 @@ import { AppProviders } from '../components/AppProviders';
 import { FileNode, AppRegistryEntry } from '../types';
 import { CulturePackage } from '../data/culture';
 import type { DeepLinkRoutes } from '../utils/deepLink';
+import type { PersistenceMode } from '../utils/storage';
+import type { BootBranding, LoginBranding } from '../branding';
 import type { WallpaperItem } from '../data/wallpapers';
 import type { XPEventListener } from '../events';
 import type { XPHandle } from '../components/XPBridge';
@@ -52,6 +54,13 @@ export interface WindowsXPProps {
   /** Namespace prefix for localStorage / IndexedDB keys (default: `'xp_'`). */
   storagePrefix?: string;
   /**
+   * Persistence backend (#138). `'local'` (default) survives across visits
+   * (localStorage + IndexedDB); `'session'` is per-tab (sessionStorage, content
+   * lost on tab close); `'none'` is pure in-memory — every mount starts pristine
+   * (campaign pages, blogs, teaching sandboxes) and no IndexedDB is opened.
+   */
+  persistence?: PersistenceMode;
+  /**
    * Integration mode. `'fullscreen'` (default) keeps the classic kiosk
    * behavior. `'embedded'` makes the component a well-behaved guest inside a
    * host application: the right-click block, devtools block, global shortcuts
@@ -92,6 +101,18 @@ export interface WindowsXPProps {
    * last-opened window on content sites (#136). Off by default — games/embeds skip it.
    */
   historyIntegration?: boolean;
+  /**
+   * Boot-screen branding (#139): `logo`, `text`, `progressColor`, `startupSound`.
+   * Opt-in; defaults render pixel-faithful XP. Setting any field suppresses the
+   * Microsoft trademarks on the boot screen.
+   */
+  boot?: BootBranding;
+  /**
+   * Login-screen branding (#139): `background`, `title`, `userTile`, `userName`
+   * (the latter two extend `avatar`/`username`). Opt-in; setting any field
+   * suppresses the "Microsoft Windows XP" wordmark.
+   */
+  login?: LoginBranding;
   /** Subscribe to desktop events (app launches, file opens, session, cmd...). */
   onEvent?: XPEventListener;
 }
@@ -126,6 +147,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     skipBoot = false,
     autoLogin = false,
     storagePrefix,
+    persistence,
     mode = 'fullscreen',
     disableContextMenuBlock,
     disableDevToolsBlock,
@@ -137,6 +159,8 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     routes,
     location,
     historyIntegration,
+    boot,
+    login,
     onEvent,
   },
   ref
@@ -157,12 +181,15 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       skipBoot={skipBoot}
       autoLogin={autoLogin}
       storagePrefix={storagePrefix}
+      persistence={persistence}
       hourlyChime={hourlyChime}
       idleThresholdMs={idleThresholdMs}
       openOnLoad={openOnLoad}
       routes={routes}
       location={location}
       historyIntegration={historyIntegration}
+      boot={boot}
+      login={login}
       onEvent={onEvent}
       handleRef={ref}
       disableContextMenuBlock={disableContextMenuBlock ?? embedded}
@@ -242,6 +269,8 @@ export type { WallpaperItem } from '../data/wallpapers';
 export type { DeepLinkRoute, DeepLinkRoutes } from '../utils/deepLink';
 export type { BlogPost, ContentManifest, SiteMeta } from '../content/blog';
 export type { FileSystemMode } from '../context/FileSystemContext';
+export type { PersistenceMode } from '../utils/storage';
+export type { BootBranding, LoginBranding } from '../branding';
 export type { ModalContextType } from '../context/ModalContext';
 export type { TrayItem, TrayContextType, NotifyOptions } from '../context/TrayContext';
 export type { ScheduleOptions, SchedulerApi } from '../context/SchedulerContext';

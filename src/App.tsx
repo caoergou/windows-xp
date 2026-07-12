@@ -20,6 +20,7 @@ import type { FsNoticeDetail } from './context/FileSystemContext/hooks/useFileOp
 import { useModal } from './context/ModalContext';
 import { useXPEventBus } from './context/EventBusContext';
 import { getSavedLanguage } from './utils/language';
+import type { BootBranding, LoginBranding } from './branding';
 
 const Container = styled.div`
   width: 100%;
@@ -152,6 +153,10 @@ export interface AppProps {
   disableDevToolsBlock?: boolean;
   disableGlobalShortcuts?: boolean;
   disableScreenSaver?: boolean;
+  /** Boot-screen branding (#139). */
+  boot?: BootBranding;
+  /** Login-screen branding (#139). */
+  login?: LoginBranding;
 }
 
 function App({
@@ -161,6 +166,8 @@ function App({
   disableDevToolsBlock,
   disableGlobalShortcuts,
   disableScreenSaver,
+  boot,
+  login,
 }: AppProps = {}) {
   const { t } = useTranslation();
   const { dialog } = useModal();
@@ -398,11 +405,11 @@ function App({
     <Container>
       <MobileWarning />
       {bootPhase === 'BOOTING' ? (
-        <BootScreen onComplete={handleBootComplete} />
+        <BootScreen onComplete={handleBootComplete} branding={boot} />
       ) : isLoggedIn ? (
         <Desktop />
       ) : (
-        <LoginScreen />
+        <LoginScreen branding={login} />
       )}
       {altTabVisible && windows.length > 0 && (
         <AltTabOverlay>

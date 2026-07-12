@@ -7,6 +7,7 @@ import { TitleBar as LunaTitleBar } from './Window/WindowChrome';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import Draggable from 'react-draggable';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 const Overlay = styled.div`
   position: fixed;
@@ -52,6 +53,7 @@ interface XPAlertProps {
 const XPAlert = ({ title, message, type = 'info', onClose }: XPAlertProps) => {
     const { t } = useTranslation();
     const okButtonRef = useRef<HTMLButtonElement>(null);
+    const { containerRef, onKeyDown } = useModalA11y(onClose);
 
     useEffect(() => {
         if (okButtonRef.current) {
@@ -65,9 +67,9 @@ const XPAlert = ({ title, message, type = 'info', onClose }: XPAlertProps) => {
     const nodeRef = useRef<HTMLDivElement>(null);
 
     return (
-        <Overlay className="xp-alert" onMouseDown={(e) => e.stopPropagation()}>
+        <Overlay ref={containerRef} onKeyDown={onKeyDown} data-xp-context-boundary className="xp-alert" onMouseDown={(e) => e.stopPropagation()}>
             <Draggable nodeRef={nodeRef} handle=".title-bar">
-                <XPDialogWindow ref={nodeRef} onMouseDown={(e) => e.stopPropagation()}>
+                <XPDialogWindow ref={nodeRef} role="dialog" aria-modal="true" aria-label={title} onMouseDown={(e) => e.stopPropagation()}>
                     <LunaTitleBar $isFocus className="title-bar">
                         <XPDialogTitleText>{title}</XPDialogTitleText>
                         <CloseBtn onClick={onClose} aria-label="Close" />
@@ -77,7 +79,7 @@ const XPAlert = ({ title, message, type = 'info', onClose }: XPAlertProps) => {
                         <Message>{message}</Message>
                     </ContentArea>
                     <ButtonArea>
-                        <XPButton ref={okButtonRef} onClick={onClose}>{t('common.ok')}</XPButton>
+                        <XPButton ref={okButtonRef} $default onClick={onClose}>{t('common.ok')}</XPButton>
                     </ButtonArea>
                 </XPDialogWindow>
             </Draggable>

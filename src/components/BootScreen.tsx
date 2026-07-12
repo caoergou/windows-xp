@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import { sounds } from '../utils/soundManager';
+import styled, { keyframes } from 'styled-components';
+import { sounds, playCustomSound } from '../utils/soundManager';
+import type { BootBranding } from '../branding';
 import primaryLogo from '../assets/images/bios__primary_logo.png';
 import loadingBar from '../assets/images/bios__loading_bar.gif';
 import copyright from '../assets/images/bios__copyright.png';
@@ -8,6 +9,7 @@ import secondaryLogo from '../assets/images/bios__secondary_logo.png';
 
 interface BootScreenProps {
   onComplete: () => void;
+  branding?: BootBranding;
 }
 
 const Container = styled.div`
@@ -70,12 +72,50 @@ const SecondaryLogo = styled.img`
   margin-bottom: 2px;
 `;
 
-const BootScreen: React.FC<BootScreenProps> = ({ onComplete }) => {
+const BootText = styled.div`
+  color: white;
+  font-family: 'Franklin Gothic Medium', 'Trebuchet MS', 'Tahoma', sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.5px;
+  text-align: center;
+`;
+
+const slide = keyframes`
+  0% { left: -40%; }
+  100% { left: 100%; }
+`;
+
+// A branded indeterminate bar used when `progressColor` is set (the default XP
+// GIF can't be recolored). Kept in the same 150px footprint as the GIF.
+const ProgressTrack = styled.div`
+  position: relative;
+  width: 150px;
+  height: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+`;
+
+const ProgressFill = styled.div<{ $color: string }>`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  background: ${props => props.$color};
+  animation: ${slide} 1.6s linear infinite;
+`;
+
+const BootScreen: React.FC<BootScreenProps> = ({ onComplete, branding }) => {
+  const branded = !!(
+    branding &&
+    (branding.logo || branding.text || branding.progressColor || branding.startupSound)
+  );
+
   useEffect(() => {
-    // Attempt to play the authentic Windows XP startup sound.
+    // Attempt to play the startup sound (custom when branded, else the XP chime).
     // Browsers may block autoplay until the user has interacted with the page.
     const soundTimer = setTimeout(() => {
-      sounds.startup();
+      if (branding?.startupSound) playCustomSound(branding.startupSound);
+      else sounds.startup();
     }, 300);
 
     const completeTimer = setTimeout(() => {
@@ -86,18 +126,32 @@ const BootScreen: React.FC<BootScreenProps> = ({ onComplete }) => {
       clearTimeout(soundTimer);
       clearTimeout(completeTimer);
     };
-  }, [onComplete]);
+  }, [onComplete, branding]);
 
   return (
-    <Container>
+    <Container data-testid="boot-screen">
       <LogoArea>
-        <PrimaryLogo src={primaryLogo} alt="Microsoft Windows XP" />
-        <LoadingBar src={loadingBar} alt="Loading" />
+        {branding?.logo ? (
+          <PrimaryLogo src={branding.logo} alt={branding.text || 'Logo'} />
+        ) : branded ? null : (
+          <PrimaryLogo src={primaryLogo} alt="Microsoft Windows XP" />
+        )}
+        {branding?.text && <BootText>{branding.text}</BootText>}
+        {branding?.progressColor ? (
+          <ProgressTrack aria-label="Loading">
+            <ProgressFill $color={branding.progressColor} />
+          </ProgressTrack>
+        ) : (
+          <LoadingBar src={loadingBar} alt="Loading" />
+        )}
       </LogoArea>
-      <MetaArea>
-        <Copyright src={copyright} alt="Copyright" />
-        <SecondaryLogo src={secondaryLogo} alt="Microsoft" />
-      </MetaArea>
+      {/* Suppress the Microsoft copyright/logo once any branding is applied. */}
+      {!branded && (
+        <MetaArea>
+          <Copyright src={copyright} alt="Copyright" />
+          <SecondaryLogo src={secondaryLogo} alt="Microsoft" />
+        </MetaArea>
+      )}
     </Container>
   );
 };
