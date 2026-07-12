@@ -409,3 +409,20 @@ holds when some past query contained `term`; `found(id)` holds when some query
 surfaced that result. A missed search still emits (`hit: false`, empty
 `resultIds`). With no `searchCorpus`, `baidu.com` still renders — every query
 simply misses — so the engine is never a dead page.
+
+## Debugging: the Scenario DevTools (#209)
+
+Pass `devtools` to `<WindowsXP/>` to mount an in-desktop panel that shows what
+`onEvent`/console can't — engine-internal state:
+
+- **Triggers** — per registered trigger, for the most recent event: `fired`,
+  `no match`, or a skip reason. When a trigger matched but its `when` was false,
+  the condition tree is annotated ✓/✗ down to the **exact false leaf** (e.g.
+  `✗ flag door_open (undefined) is truthy`). The runtime only ever returns a
+  single boolean, so this "why didn't it fire" breakdown is otherwise invisible.
+- **Flags** — every current flag, its value, and which event → which trigger
+  last changed it.
+
+It reads the trace the runtime publishes (`subscribeTrace(prefix, …)`); a
+production build that never sets `devtools` tree-shakes it out. The pure
+`traceCondition(condition, ctx)` behind it is exported for custom tooling.

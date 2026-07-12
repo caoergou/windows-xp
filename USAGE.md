@@ -49,6 +49,7 @@ login (default user `User`, password `forthe2000s`) → desktop.
 | `apps` | `AppRegistryEntry[]` | `[]` | Custom applications merged over the built-in registry |
 | `onEvent` | `(e: XPEvent) => void` | — | Subscribe to every desktop event (see Events) |
 | `ref` | `Ref<XPHandle>` | — | Imperative control handle (see Events) |
+| `devtools` | boolean | `false` | Mount the [Scenario / event DevTools](#scenario--event-devtools-209) overlay (dev-time; tree-shaken out when off) |
 | `mode` | `'fullscreen'` \| `'embedded'` | `'fullscreen'` | `'embedded'` disables all host-page hijacking in one switch |
 | `storagePrefix` | string | `'xp_'` | Storage namespace — each instance is fully isolated |
 | `disableContextMenuBlock` | boolean | `false` | Allow the browser's right-click menu |
@@ -701,6 +702,33 @@ changes; flags feed the snapshot `flags` slot. Full schema reference — every
 condition and action, `once`/`max` semantics, `happened`/`count` predicates,
 delayed actions, and a worked example — lives in
 [`docs/SCENARIOS.md`](./docs/SCENARIOS.md).
+
+### Scenario DevTools (#209)
+
+`onEvent={console.log}` already shows you *what* happened — so this panel doesn't
+duplicate an event stream. It surfaces the two things that live *inside* the
+engine and never reach the console: **why a trigger didn't fire**, and the
+current flags. Set `devtools` to mount an XP-styled overlay:
+
+```tsx
+<WindowsXP scenario={scenario} devtools autoLogin />
+```
+
+Two tabs:
+
+- **Triggers** — for the most recent event, each registered trigger's outcome:
+  `fired`, `no match` (event type didn't match `on`), or a skip reason. When a
+  trigger matched but its `when` was false, the condition tree is shown annotated
+  ✓/✗ so the **exact false predicate** is obvious (e.g. `✗ flag door_open
+  (undefined) is truthy` — the runtime only ever computes a single boolean, so
+  this is otherwise invisible).
+- **Flags** — every current flag with its value and *who last changed it* (which
+  event → which trigger).
+
+It reads the trace the runtime publishes, is opt-in, and tree-shakes out of a
+production build that never sets `devtools`. Advanced hosts can mount
+`<DevToolsPanel/>` themselves or subscribe to `subscribeTrace(prefix, …)` to feed
+their own console logging or UI.
 
 ## 引导课程 / Guided lessons (#141)
 
