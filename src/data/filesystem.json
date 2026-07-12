@@ -47,6 +47,28 @@
                 "locked": true,
                 "password": "admin",
                 "children": {}
+              },
+              "boot.ini": {
+                "type": "file",
+                "name": "boot.ini",
+                "hidden": true,
+                "protected": true,
+                "mtime": "2003-10-25",
+                "content": "[boot loader]\r\ntimeout=30\r\ndefault=multi(0)disk(0)rdisk(0)partition(1)\\WINDOWS\r\n[operating systems]\r\nmulti(0)disk(0)rdisk(0)partition(1)\\WINDOWS=\"Microsoft Windows XP Professional\" /noexecute=optin /fastdetect\r\n"
+              },
+              "ntldr": {
+                "type": "file",
+                "name": "ntldr",
+                "hidden": true,
+                "protected": true,
+                "mtime": "2004-08-04"
+              },
+              "pagefile.sys": {
+                "type": "file",
+                "name": "pagefile.sys",
+                "hidden": true,
+                "protected": true,
+                "mtime": "2007-08-12"
               }
             }
           },

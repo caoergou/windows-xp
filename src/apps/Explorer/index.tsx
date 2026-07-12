@@ -27,6 +27,8 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
     toggleSort,
     showFolders,
     toggleFolders,
+    showHidden,
+    visibleEntries,
     addrHistory,
     history,
     historyIndex,
@@ -73,7 +75,7 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
   const renderContent = () => {
     if (!isContainerNode(currentFolder)) return null;
 
-    const children = Object.entries(currentFolder.children);
+    const children = visibleEntries(Object.entries(currentFolder.children));
 
     if (isRoot) {
       const drives: { key: string; item: FileNode }[] = [];
@@ -138,7 +140,9 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
       if (sort.key === 'type') {
         return nodeTypeLabel(a).localeCompare(nodeTypeLabel(b)) * dir;
       }
-      // name (default) — modified is a constant date, so it falls back to name.
+      if (sort.key === 'modified') {
+        return (a.mtime ?? '2003-10-25').localeCompare(b.mtime ?? '2003-10-25') * dir;
+      }
       return getFileDisplayName(ka, a, t).localeCompare(getFileDisplayName(kb, b, t)) * dir;
     });
     const arrow = (key: typeof sort.key) => (sort.key === key ? (sort.dir === 'asc' ? ' ▲' : ' ▼') : '');
@@ -181,6 +185,7 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
                 data-item-key={key}
                 data-selected={isSelected}
                 $selected={isSelected}
+                style={item.hidden ? { opacity: 0.55 } : undefined}
                 onClick={e => {
                   if (isSyntheticAfterTouch()) return;
                   selection.handleItemClick(key, orderedKeys(), e);
@@ -201,7 +206,7 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
                 </DetailsNameCell>
                 <DetailsCell>{formatBytes(nodeSizeBytes(item))}</DetailsCell>
                 <DetailsCell>{nodeTypeLabel(item)}</DetailsCell>
-                <DetailsCell>{detailsDate()}</DetailsCell>
+                <DetailsCell>{detailsDate(item)}</DetailsCell>
               </DetailsRow>
             );
           })}
@@ -240,11 +245,12 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
         }}
         onDragLeave={() => setDragOver(null)}
         onDrop={e => handleDropOnFolder(e, key, item)}
-        style={
-          dragOver === key && item.type === 'folder'
+        style={{
+          ...(dragOver === key && item.type === 'folder'
             ? { background: '#C1D2EE', border: '1px dashed #316AC5' }
-            : undefined
-        }
+            : {}),
+          ...(item.hidden ? { opacity: 0.55 } : {}),
+        }}
       >
         <IconWrapper>
           <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={32} />

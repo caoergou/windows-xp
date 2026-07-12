@@ -196,6 +196,12 @@
     "address": "Address",
     "upload": "Upload File",
     "objectCount": "{{count}} object(s)",
+    "showHiddenFiles": "Show Hidden Files",
+    "protected": {
+      "title": "Error Deleting File or Folder",
+      "deleteMessage": "Cannot delete {{name}}: it is a protected system file.",
+      "renameMessage": "Cannot rename {{name}}: it is a protected system file."
+    },
     "groups": {
       "hardDisks": "Hard Disk Drives",
       "removableStorage": "Devices with Removable Storage",

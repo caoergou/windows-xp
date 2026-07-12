@@ -190,6 +190,12 @@
     "address": "地址",
     "upload": "上传文件",
     "objectCount": "{{count}} 个对象",
+    "showHiddenFiles": "显示隐藏文件",
+    "protected": {
+      "title": "删除文件或文件夹时出错",
+      "deleteMessage": "无法删除 {{name}}：这是受保护的系统文件。",
+      "renameMessage": "无法重命名 {{name}}：这是受保护的系统文件。"
+    },
     "groups": {
       "hardDisks": "硬盘驱动器",
       "removableStorage": "有可移动存储的设备",
