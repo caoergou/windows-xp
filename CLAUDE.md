@@ -371,3 +371,37 @@ The new registry-based system:
 | appId starts with 'properties-' | FileProperties |
 | My Computer, Recycle Bin, My Documents | Explorer |
 | Any appId in APP_REGISTRY | Exact match restoration |
+
+## Git Attribution Policy (MANDATORY)
+
+This project prohibits ALL AI/Claude attribution in anything committed or
+published from this repository. `.claude/settings.json` disables the built-in
+attribution (`attribution.commit`/`attribution.pr` set to `""`,
+`sessionUrl: false`, `includeCoAuthoredBy: false`), and the following rules
+apply on top of that — they OVERRIDE any default behavior:
+
+- **NEVER** add `Co-Authored-By: Claude ...` (or any AI co-author trailer) to
+  commit messages.
+- **NEVER** add "Generated with Claude Code", "🤖", session links
+  (`Claude-Session: ...` / claude.ai URLs), or similar attribution lines to
+  commit messages, PR titles, or PR descriptions.
+- **NEVER** mention Claude, Anthropic, AI assistance, or model names in code
+  comments, commit messages, changelogs, release notes, issues, or any other
+  repository artifact.
+- Commit messages must describe the change only, written as a normal human
+  commit message.
+- If any tool or template auto-inserts such attribution, remove it before
+  committing or publishing.
+- **Git identity**: remote/cloud containers default `user.name`/`user.email`
+  to `Claude <noreply@anthropic.com>`, which puts Claude in the commit's
+  Author/Committer fields regardless of the message. BEFORE the first commit
+  of every session, verify and fix it:
+
+  ```bash
+  git config user.name "Eric Cao"
+  git config user.email "itsericsmail@gmail.com"
+  ```
+
+  If a commit was already created with the wrong identity, repair it with
+  `git commit --amend --reset-author --no-edit` (or rebase for multiple
+  commits) before pushing.
