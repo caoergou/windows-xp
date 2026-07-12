@@ -9,7 +9,9 @@
 [![React](https://img.shields.io/badge/React-18%20%7C%2019-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
-[Live Demo](https://eric.run.place/windows-xp/) · [Usage Guide](USAGE.md) · [Roadmap](https://github.com/caoergou/windows-xp/issues/86) · [Report Bug](https://github.com/caoergou/windows-xp/issues)
+[Live Demo](https://eric.run.place/windows-xp/) · [English desktop](https://eric.run.place/windows-xp/demo/en/) · [中文桌面](https://eric.run.place/windows-xp/demo/zh/) · [Usage Guide](USAGE.md) · [Roadmap](https://github.com/caoergou/windows-xp/issues/86) · [Report Bug](https://github.com/caoergou/windows-xp/issues)
+
+> The live demo is a real, running desktop you can drag — no login needed (the demos auto-sign-in). The two desktop links above drop you straight into the English or Chinese world.
 
 English | [简体中文](README.zh-CN.md)
 
@@ -46,7 +48,7 @@ Plenty of projects *look* like Windows XP. This one is built to be **used inside
 - 📡 **Everything is an event** — `onEvent` streams typed events for every user action: `file:open`, `app:launch`, `cmd:exec`, `session:login`, window lifecycle… Analytics, guided demos, and puzzle logic all hang off one prop.
 - 🎮 **Drive it from code** — the imperative `ref` handle (`XPHandle`) opens apps and files, reads/writes the filesystem, controls the session and wallpaper, and can snapshot the whole machine to a shareable JSON save (`getSnapshot`/`loadSnapshot`).
 - 📦 **Your world, not ours** — `customFileSystem` + `fileSystemMode="replace"` swap the entire desktop for your content; inject wallpapers, avatar, custom apps, and whole culture packages as props. Adding content never requires writing React.
-- 🧱 **A component library, too** — `XPButton`, `XPDialog`, `XPTabs`, `XPProgressBar` and friends work standalone with zero providers, matching xp.css value-for-value (see the [gallery](https://eric.run.place/windows-xp/?gallery)).
+- 🧱 **A component library, too** — `XPButton`, `XPDialog`, `XPTabs`, `XPProgressBar` and friends work standalone with zero providers, matching xp.css value-for-value (see the [gallery](https://eric.run.place/windows-xp/gallery/)).
 - 🔍 **Fidelity as a discipline** — every visual and behavioral detail is audited against real XP SP3 in [FIDELITY.md](FIDELITY.md), with design tokens sourced and visual-regression baselines in CI. No "modernized" rounded corners here.
 
 ## What people build with it
