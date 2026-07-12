@@ -100,8 +100,8 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
       e.stopPropagation();
       setVolumeOpen(false);
       openWindow('VolumeControl', t('apps.volumeControl'), <VolumeControl />, 'volume', {
-        width: 280,
-        height: 120,
+        width: 320,
+        height: 300,
         resizable: false,
         singleton: true,
       });

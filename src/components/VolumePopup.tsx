@@ -4,32 +4,49 @@ import { useTranslation } from 'react-i18next';
 import { getVolume, setVolume, getMuted, setMuted } from '../utils/soundManager';
 import { XPCheckbox } from './XPCheckbox';
 import { xpTrackbarStyles } from '../theme';
+import { COLORS } from '../constants';
 
+// Real XP's single-click tray popup: a narrow panel with a vertical volume
+// slider and a Mute checkbox at the bottom.
 const Popup = styled.div`
   position: absolute;
   bottom: calc(100% + 4px);
   right: 0;
-  width: 180px;
-  background: #ece9d8;
-  border: 1px solid #003c74;
-  box-shadow: 2px 2px 0 #808080;
-  padding: 10px;
+  width: 72px;
+  background: ${COLORS.SURFACE};
+  border: 1px solid ${COLORS.BUTTON_BORDER};
+  box-shadow: 2px 2px 0 ${COLORS.BUTTON_SHADOW};
+  padding: 8px 6px;
   z-index: 30000;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
 `;
 
-const Row = styled.div`
+const Title = styled.div`
+  text-align: center;
+  line-height: 12px;
+`;
+
+// A vertical range slider: a horizontal xp trackbar rotated so the max end
+// sits at the top, wrapped in a box that reserves the rotated footprint.
+const SliderBox = styled.div`
+  position: relative;
+  width: 24px;
+  height: 92px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  justify-content: center;
 `;
 
 const Slider = styled.input`
-  flex: 1;
   ${xpTrackbarStyles}
+  width: 92px;
+  transform: rotate(-90deg);
 `;
 
 interface VolumePopupProps {
@@ -80,8 +97,10 @@ const VolumePopup: React.FC<VolumePopupProps> = ({ onClose }) => {
       onClick={e => e.stopPropagation()}
       onMouseDown={e => e.stopPropagation()}
     >
-      <Row>
+      <Title>{t('tray.volume')}</Title>
+      <SliderBox>
         <Slider
+          data-testid="volume-popup-slider"
           type="range"
           min="0"
           max="100"
@@ -89,8 +108,7 @@ const VolumePopup: React.FC<VolumePopupProps> = ({ onClose }) => {
           onChange={handleVolumeChange}
           aria-label={t('tray.volume')}
         />
-        <span>{muted ? 0 : volume}%</span>
-      </Row>
+      </SliderBox>
       <XPCheckbox checked={muted} onChange={handleMuteChange} label={t('tray.mute')} />
     </Popup>
   );

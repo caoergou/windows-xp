@@ -202,6 +202,33 @@
     "safeGuardReminder": "360安全卫士提醒",
     "safeGuardStatus": "您的电脑安全状态良好"
   },
+  "volumeControl": {
+    "title": "音量控制",
+    "menu": {
+      "options": "选项(O)",
+      "help": "帮助(H)"
+    },
+    "menuItems": {
+      "properties": "属性(P)",
+      "advancedControls": "高级控制(A)",
+      "exit": "退出(X)",
+      "about": "关于音量控制(A)"
+    },
+    "channels": {
+      "master": "主音量",
+      "wave": "波形",
+      "swSynth": "软件合成器",
+      "cd": "CD 音频"
+    },
+    "balance": "平衡:",
+    "volume": "音量:",
+    "mute": "静音",
+    "muteAll": "全部静音",
+    "about": {
+      "title": "关于音量控制",
+      "message": "音量控制 for Windows XP。"
+    }
+  },
   "calendar": {
     "monthNames": [
       "一月",
