@@ -29,3 +29,6 @@ xp-research/
 
 # Chinese internet nostalgia research clones (local reference only)
 cn-net-research/
+
+# npm pack output (consumer-smoke, #206)
+*.tgz
