@@ -612,6 +612,30 @@ its host page.
   initializes the global singleton, so it cannot conflict with your app's
   i18next setup.
 
+### Persistence modes (#138)
+
+Persistence is per-instance and selectable — because a campaign page wants
+every visitor to start clean, while a game wants progress saved:
+
+```jsx
+<WindowsXP persistence="none" />   // pristine every mount (campaigns, blogs, sandboxes)
+```
+
+| Mode | Metadata (windows, fs tree, wallpaper) | File content | Survives |
+| --- | --- | --- | --- |
+| `'local'` *(default)* | localStorage | IndexedDB | across visits |
+| `'session'` | sessionStorage | in-memory | reload within the tab; gone on close |
+| `'none'` | in-memory | in-memory | nothing — every mount is pristine |
+
+- `'none'` **never opens IndexedDB**, so shared/kiosk machines leave no trace
+  and two consecutive mounts render identical desktops regardless of what the
+  previous visitor did.
+- `customFileSystem`, culture packages, and `openOnLoad` still apply on **every**
+  mount in all modes — only *user-made* changes are (or aren't) persisted.
+- `getSnapshot()` works in every mode, so a visitor can still export ("save your
+  toy") from an otherwise-ephemeral `'none'` or `'session'` desktop.
+- Window-restore-on-reload simply no-ops in `'session'`/`'none'` — expected.
+
 ## SSR / Next.js
 
 The library is SSR-safe at module scope (no top-level `window`/storage

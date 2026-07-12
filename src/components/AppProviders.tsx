@@ -20,7 +20,7 @@ import { DeepLinkLoader } from './DeepLinkLoader';
 import type { DeepLinkRoutes } from '../utils/deepLink';
 import { XPEventBus } from '../events';
 import type { XPEventListener } from '../events';
-import { setStoragePrefix } from '../utils/storage';
+import { setStoragePrefix, type PersistenceMode } from '../utils/storage';
 import { getSavedLanguage } from '../utils/language';
 
 export interface AppProvidersProps {
@@ -61,6 +61,8 @@ export interface AppProvidersProps {
   location?: string;
   /** Push/pop history as top-level windows open/close (#136). Default off. */
   historyIntegration?: boolean;
+  /** Persistence backend (#138): 'local' (default) | 'session' | 'none'. */
+  persistence?: PersistenceMode;
 }
 
 const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
@@ -87,6 +89,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   routes,
   location,
   historyIntegration,
+  persistence,
 }) => {
   // Configure storage namespace synchronously before any context reads/writes storage.
   setStoragePrefix(storagePrefix || 'xp_');
@@ -148,7 +151,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
 
   // 用户传入的 customFileSystem 优先级高于文化包
   return (
-    <StorageProvider prefix={storagePrefix || 'xp_'}>
+    <StorageProvider prefix={storagePrefix || 'xp_'} persistence={persistence}>
       <EventBusProvider bus={busRef}>
       <XPEventBridge onEvent={onEvent} />
       <SchedulerProvider

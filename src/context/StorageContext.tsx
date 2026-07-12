@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { createStorage, getDefaultStorage, setStoragePrefix, type Storage } from '../utils/storage';
+import {
+  createStorage,
+  getDefaultStorage,
+  setStoragePrefix,
+  type Storage,
+  type PersistenceMode,
+} from '../utils/storage';
 
 /**
  * Per-instance storage isolation (#95).
@@ -15,9 +21,11 @@ const StorageContext = createContext<Storage | null>(null);
 
 export const StorageProvider: React.FC<{
   prefix?: string;
+  /** Persistence backend for this instance (#138). Defaults to `'local'`. */
+  persistence?: PersistenceMode;
   children: React.ReactNode;
-}> = ({ prefix = 'xp_', children }) => {
-  const storage = useMemo(() => createStorage(prefix), [prefix]);
+}> = ({ prefix = 'xp_', persistence = 'local', children }) => {
+  const storage = useMemo(() => createStorage(prefix, persistence), [prefix, persistence]);
 
   // Keep the process-wide default aligned so any non-migrated module-level
   // caller in a single-instance app still targets the right namespace.

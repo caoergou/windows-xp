@@ -74,34 +74,173 @@ export interface SafeLocalStorage {
   removeItem: (key: string) => void;
 }
 
-const makeSafeLocalStorage = (): SafeLocalStorage => ({
-  getItem: (key: string): string | null => {
+/**
+ * How a storage handle persists desktop state (#138).
+ *
+ * - `'local'` (default): localStorage metadata + IndexedDB file content —
+ *   survives across visits. Right for games/progress.
+ * - `'session'`: sessionStorage metadata + in-memory file content — per-tab
+ *   continuity (survives reload within the tab), gone when the tab closes.
+ * - `'none'`: everything in memory, no IndexedDB opened — every mount is
+ *   pristine. Right for campaign pages, blogs, and teaching sandboxes.
+ */
+export type PersistenceMode = 'local' | 'session' | 'none';
+
+/** Web-storage (localStorage / sessionStorage) backed SafeLocalStorage. */
+const makeWebStorage = (kind: 'local' | 'session'): SafeLocalStorage => {
+  const store = (): globalThis.Storage | null => {
     if (!canUseDOM) return null;
     try {
-      return localStorage.getItem(key);
-    } catch (e) {
-      console.error('Failed to read localStorage:', e);
+      return kind === 'session' ? window.sessionStorage : window.localStorage;
+    } catch {
       return null;
     }
-  },
-  setItem: (key: string, value: string): void => {
-    if (!canUseDOM) return;
-    try {
-      localStorage.setItem(key, value);
-    } catch (e) {
-      console.error('Failed to write localStorage:', e);
-      notifyStorageError(e);
-    }
-  },
-  removeItem: (key: string): void => {
-    if (!canUseDOM) return;
-    try {
-      localStorage.removeItem(key);
-    } catch (e) {
-      console.error('Failed to remove localStorage:', e);
-    }
-  },
-});
+  };
+  return {
+    getItem: key => {
+      const s = store();
+      if (!s) return null;
+      try {
+        return s.getItem(key);
+      } catch (e) {
+        console.error('Failed to read storage:', e);
+        return null;
+      }
+    },
+    setItem: (key, value) => {
+      const s = store();
+      if (!s) return;
+      try {
+        s.setItem(key, value);
+      } catch (e) {
+        console.error('Failed to write storage:', e);
+        notifyStorageError(e);
+      }
+    },
+    removeItem: key => {
+      const s = store();
+      if (!s) return;
+      try {
+        s.removeItem(key);
+      } catch (e) {
+        console.error('Failed to remove storage:', e);
+      }
+    },
+  };
+};
+
+/** In-memory SafeLocalStorage — pristine per handle; nothing touches the disk. */
+const makeMemoryStorage = (): SafeLocalStorage => {
+  const map = new Map<string, string>();
+  return {
+    getItem: key => (map.has(key) ? map.get(key)! : null),
+    setItem: (key, value) => void map.set(key, value),
+    removeItem: key => void map.delete(key),
+  };
+};
+
+/** File-content backend: IndexedDB (persistent) or an in-memory map (ephemeral). */
+interface ContentBackend {
+  save: (path: string[], content: string) => Promise<void>;
+  get: (path: string[]) => Promise<string | null>;
+  del: (path: string[]) => Promise<void>;
+  clear: () => Promise<void>;
+  reset: () => void;
+}
+
+const makeMemoryContent = (): ContentBackend => {
+  const map = new Map<string, string>();
+  return {
+    save: (path, content) => {
+      map.set(path.join('/'), content);
+      return Promise.resolve();
+    },
+    get: path => Promise.resolve(map.has(path.join('/')) ? map.get(path.join('/'))! : null),
+    del: path => {
+      map.delete(path.join('/'));
+      return Promise.resolve();
+    },
+    clear: () => {
+      map.clear();
+      return Promise.resolve();
+    },
+    reset: () => map.clear(),
+  };
+};
+
+const makeIdbContent = (dbName: string): ContentBackend => {
+  let dbPromise: Promise<IDBDatabase | null> | null = null;
+  const initDB = (): Promise<IDBDatabase | null> => {
+    if (dbPromise) return dbPromise;
+    dbPromise = new Promise((resolve, reject) => {
+      if (!idb) {
+        resolve(null);
+        return;
+      }
+      const request = idb.open(dbName, DB_VERSION);
+      request.onerror = () => {
+        dbPromise = null;
+        reject(request.error);
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onupgradeneeded = event => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: 'path' });
+        }
+      };
+    });
+    return dbPromise;
+  };
+  return {
+    async save(path, content) {
+      const db = await initDB();
+      if (!db) return;
+      const store = db.transaction([STORE_NAME], 'readwrite').objectStore(STORE_NAME);
+      const pathKey = path.join('/');
+      return new Promise((resolve, reject) => {
+        const request = store.put({ path: pathKey, content, modifiedAt: Date.now() });
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    },
+    async get(path) {
+      const db = await initDB();
+      if (!db) return null;
+      const store = db.transaction([STORE_NAME], 'readonly').objectStore(STORE_NAME);
+      const pathKey = path.join('/');
+      return new Promise((resolve, reject) => {
+        const request = store.get(pathKey);
+        request.onsuccess = () => resolve(request.result ? request.result.content : null);
+        request.onerror = () => reject(request.error);
+      });
+    },
+    async del(path) {
+      const db = await initDB();
+      if (!db) return;
+      const store = db.transaction([STORE_NAME], 'readwrite').objectStore(STORE_NAME);
+      const pathKey = path.join('/');
+      return new Promise((resolve, reject) => {
+        const request = store.delete(pathKey);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    },
+    async clear() {
+      const db = await initDB();
+      if (!db) return;
+      const store = db.transaction([STORE_NAME], 'readwrite').objectStore(STORE_NAME);
+      return new Promise((resolve, reject) => {
+        const request = store.clear();
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    },
+    reset: () => {
+      dbPromise = null;
+    },
+  };
+};
 
 /**
  * A fully isolated storage handle bound to one prefix. All methods read and
@@ -129,41 +268,49 @@ export interface Storage {
 }
 
 /**
- * Create an isolated storage handle for a prefix. Each handle keeps its own
- * IndexedDB connection promise, so instances never share state (#95).
+ * Create an isolated storage handle for a prefix (#95), with a selectable
+ * persistence backend (#138). Each handle keeps its own IndexedDB connection or
+ * in-memory maps, so instances never share state. `persistence` defaults to
+ * `'local'` — the historical behavior — so existing callers are unaffected.
  */
-export const createStorage = (rawPrefix: string): Storage => {
+export const createStorage = (
+  rawPrefix: string,
+  persistence: PersistenceMode = 'local'
+): Storage => {
   const prefix = rawPrefix.endsWith('_') ? rawPrefix : `${rawPrefix}_`;
-  const local = makeSafeLocalStorage();
 
   const dbName = `${prefix}WindowsXP_FS`;
   const metadataKey = `${prefix}fs_metadata`;
   const recycleBinKey = `${prefix}fs_recycle_bin`;
 
-  // One connection per handle lifetime instead of one per operation (#81).
-  let dbPromise: Promise<IDBDatabase | null> | null = null;
+  // Pick backends: 'local' persists to disk (localStorage + IndexedDB);
+  // 'session' keeps per-tab metadata but ephemeral content; 'none' is pure
+  // in-memory and never opens IndexedDB.
+  const local: SafeLocalStorage =
+    persistence === 'local'
+      ? makeWebStorage('local')
+      : persistence === 'session'
+        ? makeWebStorage('session')
+        : makeMemoryStorage();
+  const content: ContentBackend =
+    persistence === 'local' ? makeIdbContent(dbName) : makeMemoryContent();
 
-  const initDB = (): Promise<IDBDatabase | null> => {
-    if (dbPromise) return dbPromise;
-    dbPromise = new Promise((resolve, reject) => {
-      if (!idb) {
-        resolve(null);
-        return;
-      }
-      const request = idb.open(dbName, DB_VERSION);
-      request.onerror = () => {
-        dbPromise = null;
-        reject(request.error);
-      };
-      request.onsuccess = () => resolve(request.result);
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME, { keyPath: 'path' });
-        }
-      };
-    });
-    return dbPromise;
+  const clearPrefixedLocal = (): void => {
+    if (persistence === 'none') {
+      // Memory backend: the handle owns its map; a full clear is cheap and safe.
+      local.removeItem(metadataKey);
+      local.removeItem(recycleBinKey);
+      return;
+    }
+    if (!canUseDOM) return;
+    try {
+      const web = persistence === 'session' ? window.sessionStorage : window.localStorage;
+      Object.keys(web)
+        .filter(k => k.startsWith(prefix))
+        .forEach(k => web.removeItem(k));
+    } catch (e) {
+      console.warn('[windows-xp] clearPrefixedLocal failed', e);
+    }
   };
 
   return {
@@ -171,41 +318,9 @@ export const createStorage = (rawPrefix: string): Storage => {
     local,
     key: (shortKey: string) => `${prefix}${shortKey}`,
 
-    async saveFileContent(path, content) {
-      const db = await initDB();
-      if (!db) return;
-      const store = db.transaction([STORE_NAME], 'readwrite').objectStore(STORE_NAME);
-      const pathKey = path.join('/');
-      return new Promise((resolve, reject) => {
-        const request = store.put({ path: pathKey, content, modifiedAt: Date.now() });
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-      });
-    },
-
-    async getFileContent(path) {
-      const db = await initDB();
-      if (!db) return null;
-      const store = db.transaction([STORE_NAME], 'readonly').objectStore(STORE_NAME);
-      const pathKey = path.join('/');
-      return new Promise((resolve, reject) => {
-        const request = store.get(pathKey);
-        request.onsuccess = () => resolve(request.result ? request.result.content : null);
-        request.onerror = () => reject(request.error);
-      });
-    },
-
-    async deleteFileContent(path) {
-      const db = await initDB();
-      if (!db) return;
-      const store = db.transaction([STORE_NAME], 'readwrite').objectStore(STORE_NAME);
-      const pathKey = path.join('/');
-      return new Promise((resolve, reject) => {
-        const request = store.delete(pathKey);
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-      });
-    },
+    saveFileContent: (path, content2) => content.save(path, content2),
+    getFileContent: path => content.get(path),
+    deleteFileContent: path => content.del(path),
 
     saveMetadata(metadata) {
       local.setItem(metadataKey, JSON.stringify(metadata));
@@ -225,26 +340,10 @@ export const createStorage = (rawPrefix: string): Storage => {
     async clearAllStorage() {
       local.removeItem(metadataKey);
       local.removeItem(recycleBinKey);
-      const db = await initDB();
-      if (!db) return;
-      const store = db.transaction([STORE_NAME], 'readwrite').objectStore(STORE_NAME);
-      return new Promise((resolve, reject) => {
-        const request = store.clear();
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-      });
+      await content.clear();
     },
 
-    clearPrefixedLocal() {
-      if (!canUseDOM) return;
-      try {
-        Object.keys(window.localStorage)
-          .filter(k => k.startsWith(prefix))
-          .forEach(k => window.localStorage.removeItem(k));
-      } catch (e) {
-        console.warn('[windows-xp] clearPrefixedLocal failed', e);
-      }
-    },
+    clearPrefixedLocal,
 
     saveRecycleBin(items) {
       local.setItem(recycleBinKey, JSON.stringify(items));
@@ -262,7 +361,7 @@ export const createStorage = (rawPrefix: string): Storage => {
     },
 
     resetConnection() {
-      dbPromise = null;
+      content.reset();
     },
   };
 };

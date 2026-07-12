@@ -3,6 +3,7 @@ import { AppProviders } from '../components/AppProviders';
 import { FileNode, AppRegistryEntry } from '../types';
 import { CulturePackage } from '../data/culture';
 import type { DeepLinkRoutes } from '../utils/deepLink';
+import type { PersistenceMode } from '../utils/storage';
 import type { WallpaperItem } from '../data/wallpapers';
 import type { XPEventListener } from '../events';
 import type { XPHandle } from '../components/XPBridge';
@@ -51,6 +52,13 @@ export interface WindowsXPProps {
   autoLogin?: boolean;
   /** Namespace prefix for localStorage / IndexedDB keys (default: `'xp_'`). */
   storagePrefix?: string;
+  /**
+   * Persistence backend (#138). `'local'` (default) survives across visits
+   * (localStorage + IndexedDB); `'session'` is per-tab (sessionStorage, content
+   * lost on tab close); `'none'` is pure in-memory — every mount starts pristine
+   * (campaign pages, blogs, teaching sandboxes) and no IndexedDB is opened.
+   */
+  persistence?: PersistenceMode;
   /**
    * Integration mode. `'fullscreen'` (default) keeps the classic kiosk
    * behavior. `'embedded'` makes the component a well-behaved guest inside a
@@ -126,6 +134,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     skipBoot = false,
     autoLogin = false,
     storagePrefix,
+    persistence,
     mode = 'fullscreen',
     disableContextMenuBlock,
     disableDevToolsBlock,
@@ -157,6 +166,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       skipBoot={skipBoot}
       autoLogin={autoLogin}
       storagePrefix={storagePrefix}
+      persistence={persistence}
       hourlyChime={hourlyChime}
       idleThresholdMs={idleThresholdMs}
       openOnLoad={openOnLoad}
@@ -242,6 +252,7 @@ export type { WallpaperItem } from '../data/wallpapers';
 export type { DeepLinkRoute, DeepLinkRoutes } from '../utils/deepLink';
 export type { BlogPost, ContentManifest, SiteMeta } from '../content/blog';
 export type { FileSystemMode } from '../context/FileSystemContext';
+export type { PersistenceMode } from '../utils/storage';
 export type { ModalContextType } from '../context/ModalContext';
 export type { TrayItem, TrayContextType, NotifyOptions } from '../context/TrayContext';
 export type { ScheduleOptions, SchedulerApi } from '../context/SchedulerContext';
