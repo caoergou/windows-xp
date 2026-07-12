@@ -208,6 +208,33 @@
     "safeGuardReminder": "360 Safe Guard Alert",
     "safeGuardStatus": "Your computer is protected"
   },
+  "volumeControl": {
+    "title": "Volume Control",
+    "menu": {
+      "options": "Options",
+      "help": "Help"
+    },
+    "menuItems": {
+      "properties": "Properties",
+      "advancedControls": "Advanced Controls",
+      "exit": "Exit",
+      "about": "About Volume Control"
+    },
+    "channels": {
+      "master": "Volume Control",
+      "wave": "Wave",
+      "swSynth": "SW Synth",
+      "cd": "CD Audio"
+    },
+    "balance": "Balance:",
+    "volume": "Volume:",
+    "mute": "Mute",
+    "muteAll": "Mute all",
+    "about": {
+      "title": "About Volume Control",
+      "message": "Volume Control for Windows XP."
+    }
+  },
   "calendar": {
     "monthNames": [
       "January",

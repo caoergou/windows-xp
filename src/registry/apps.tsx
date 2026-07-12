@@ -306,7 +306,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     name: '音量控制',
     nameKey: 'apps.volumeControl',
     icon: 'volume',
-    window: { width: 280, height: 120, resizable: false, singleton: true },
+    window: { width: 320, height: 300, resizable: false, singleton: true },
     lifecycle: {},
     restore: restoreApp(VolumeControl),
   },
