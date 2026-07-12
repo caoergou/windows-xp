@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCulture } from '../context/CultureContext';
 import { useTray } from '../context/TrayContext';
-import { useWindowManager } from '../context/WindowManagerContext';
+import { useWindowManagerActions } from '../context/WindowManagerContext';
 import { APP_REGISTRY } from '../registry/apps';
 
 const STARTUP_TRAY_ID = 'startup-notify';
@@ -22,7 +22,7 @@ const StartupNotifier: React.FC = () => {
   const { t } = useTranslation();
   const { culture } = useCulture();
   const { notify, register, unregister } = useTray();
-  const { openWindow } = useWindowManager();
+  const { openWindow } = useWindowManagerActions();
   const firedForCulture = useRef<string | null>(null);
 
   const startup = culture.startupNotification;

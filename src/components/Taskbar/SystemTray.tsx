@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useTray } from '../../context/TrayContext';
-import { useWindowManager } from '../../context/WindowManagerContext';
+import { useWindowManagerActions } from '../../context/WindowManagerContext';
 import SystemClock from '../SystemClock';
 import VolumePopup from '../VolumePopup';
 import XPIcon from '../XPIcon';
@@ -73,7 +73,7 @@ interface SystemTrayProps {
 const SystemTray: React.FC<SystemTrayProps> = () => {
   const { t } = useTranslation();
   const { items: trayItems } = useTray();
-  const { openWindow } = useWindowManager();
+  const { openWindow } = useWindowManagerActions();
   const [volumeOpen, setVolumeOpen] = useState(false);
   const trayRef = useRef<HTMLDivElement>(null);
 

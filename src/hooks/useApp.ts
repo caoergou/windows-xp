@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react';
-import { useWindowManager } from '../context/WindowManagerContext';
+import { useWindowManagerActions } from '../context/WindowManagerContext';
 import { useModal } from '../context/ModalContext';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useUserSession } from '../context/UserSessionContext';
@@ -24,7 +24,7 @@ export function useApp(windowId?: string) {
   const contextWindowId = useWindowId();
   const resolvedWindowId = windowId ?? contextWindowId ?? '';
 
-  const windowManager = useWindowManager();
+  const windowManager = useWindowManagerActions();
   const windowManagerRef = useRef(windowManager);
   windowManagerRef.current = windowManager;
 

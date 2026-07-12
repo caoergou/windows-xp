@@ -9,7 +9,7 @@ import {
   XPMenuMark as SharedMenuMark,
 } from '../../components/XPMenuBar';
 import { useTranslation } from 'react-i18next';
-import { useWindowManager } from '../../context/WindowManagerContext';
+import { useWindowManagerActions } from '../../context/WindowManagerContext';
 import { useShortcut } from '../../context/KeymapContext';
 import { useXPEventBus } from '../../context/EventBusContext';
 import {
@@ -65,7 +65,7 @@ import type { Difficulty, GameStatus, OpenMenu, CellData } from './types';
 
 const Minesweeper = ({ windowId }: { windowId?: string }) => {
   const { t, i18n } = useTranslation();
-  const { closeWindow, resizeWindow, setWindowTitle } = useWindowManager();
+  const { closeWindow, resizeWindow, setWindowTitle } = useWindowManagerActions();
   const bus = useXPEventBus();
   const [difficulty, setDifficulty] = useState<Difficulty>('beginner');
   const [board, setBoard] = useState<CellData[][]>([]);
