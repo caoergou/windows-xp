@@ -136,12 +136,69 @@
     "running": "Running",
     "switchTo": "Switch To",
     "endTask": "End Task",
+    "newTask": "New Task...",
+    "endProcess": "End Process",
+    "tasksLabel": "The following tasks are running:",
     "menu": {
       "file": "File",
       "options": "Options",
       "view": "View",
       "windows": "Windows",
       "help": "Help"
+    },
+    "menuItems": {
+      "newTask": "New Task (Run...)",
+      "exit": "Exit Task Manager",
+      "alwaysOnTop": "Always On Top",
+      "minimizeOnUse": "Minimize On Use",
+      "hideWhenMinimized": "Hide When Minimized",
+      "refreshNow": "Refresh Now",
+      "updateSpeed": "Update Speed",
+      "tileHorizontally": "Tile Horizontally",
+      "tileVertically": "Tile Vertically",
+      "cascade": "Cascade",
+      "helpTopics": "Task Manager Help Topics",
+      "about": "About Windows Task Manager"
+    },
+    "columns": {
+      "imageName": "Image Name",
+      "userName": "User Name",
+      "cpu": "CPU",
+      "memUsage": "Mem Usage"
+    },
+    "statusBar": {
+      "processes": "Processes: {{count}}",
+      "cpuUsage": "CPU Usage: {{percent}}%",
+      "commitCharge": "Commit Charge: {{current}}M / {{limit}}M"
+    },
+    "warning": {
+      "title": "Task Manager Warning",
+      "message": "WARNING: Terminating a process can cause undesirable results including loss of data and system instability. The process will not be given the chance to save its state or data before it is terminated. Are you sure you want to terminate the process?",
+      "confirm": "Yes"
+    },
+    "perf": {
+      "cpuUsage": "CPU Usage",
+      "cpuUsageHistory": "CPU Usage History",
+      "pfUsage": "PF Usage",
+      "pageFileUsageHistory": "Page File Usage History",
+      "totals": "Totals",
+      "handles": "Handles",
+      "threads": "Threads",
+      "processes": "Processes",
+      "commitCharge": "Commit Charge (K)",
+      "physicalMemory": "Physical Memory (K)",
+      "kernelMemory": "Kernel Memory (K)",
+      "total": "Total",
+      "limit": "Limit",
+      "peak": "Peak",
+      "available": "Available",
+      "systemCache": "System Cache",
+      "paged": "Paged",
+      "nonpaged": "Nonpaged"
+    },
+    "about": {
+      "title": "About Windows Task Manager",
+      "message": "Microsoft (R) Windows Task Manager\nVersion 5.1 (Build 2600.xpsp_sp3)\nCopyright (C) 1985-2001 Microsoft Corp."
     }
   },
   "tray": {
@@ -166,7 +223,15 @@
       "November",
       "December"
     ],
-    "weekdays": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+    "weekdays": [
+      "Su",
+      "Mo",
+      "Tu",
+      "We",
+      "Th",
+      "Fr",
+      "Sa"
+    ],
     "today": "Today"
   },
   "window": {
