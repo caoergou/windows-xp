@@ -940,6 +940,10 @@
     "progress": "第 {{current}} / {{total}} 步",
     "done": "课程完成！",
     "score": "得分：{{score}} / 100",
+    "watch": {
+      "pause": "⏸ 暂停",
+      "resume": "▶ 继续"
+    },
     "notepad": {
       "title": "课程：记事本入门",
       "step1": "从「开始」菜单打开记事本。",

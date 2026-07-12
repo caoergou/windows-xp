@@ -15,7 +15,8 @@
  * they stay naturally lit while the desktop dims around them.
  */
 import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
+import { createPortal } from 'react-dom';
+import styled, { keyframes } from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useFloating, offset, flip, shift, autoUpdate } from '@floating-ui/react';
 import { COLORS } from '../constants';
@@ -51,6 +52,52 @@ const Ring = styled.div`
   box-shadow: 0 0 6px rgba(10, 80, 200, 0.7);
   transition: left 90ms linear, top 90ms linear, width 90ms linear, height 90ms linear;
   pointer-events: none;
+`;
+
+// Watch-mode ghost cursor: an XP-style pointer that glides to each step's
+// anchor, then a click pulse fires as the step auto-plays. Portaled to the body
+// at the top z-index so it floats above the taskbar (whose Start button/clock
+// are common anchors), using viewport coordinates.
+const GhostCursor = styled.div`
+  position: fixed;
+  width: 20px;
+  height: 28px;
+  pointer-events: none;
+  transition: left 1100ms cubic-bezier(0.4, 0, 0.2, 1), top 1100ms cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.5));
+  z-index: 2147483647;
+`;
+
+const clickPulse = keyframes`
+  from { transform: scale(0.3); opacity: 0.7; }
+  to { transform: scale(1.6); opacity: 0; }
+`;
+
+const ClickPulse = styled.div`
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border: 2px solid ${COLORS.DIALOG_BLUE};
+  border-radius: 50%;
+  pointer-events: none;
+  animation: ${clickPulse} 500ms ease-out;
+`;
+
+const WatchButton = styled.button`
+  margin-top: 8px;
+  width: 100%;
+  padding: 3px 6px;
+  background: ${COLORS.BUTTON_GRADIENT};
+  border: 1px solid ${COLORS.BUTTON_BORDER};
+  border-radius: 3px;
+  font-family: Tahoma, sans-serif;
+  font-size: 11px;
+  color: black;
+  cursor: pointer;
+  &:hover {
+    box-shadow: ${COLORS.BUTTON_HOVER_SHADOW};
+  }
 `;
 
 const Balloon = styled.div`
@@ -143,9 +190,10 @@ interface Box {
 
 export const LessonOverlay: React.FC = () => {
   const { t } = useTranslation();
-  const { status, lesson, step, stepIndex, totalSteps, visibleHints, nudgeSeq, score, stop } = useLesson();
+  const { status, lesson, step, stepIndex, totalSteps, visibleHints, nudgeSeq, score, stop, isWatch, watchPaused, demoSeq, pauseWatch, resumeWatch } = useLesson();
   const rootRef = useRef<HTMLDivElement>(null);
   const [rect, setRect] = useState<Box | null>(null);
+  const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(null);
   const anchorElRef = useRef<Element | null>(null);
 
   // Balloon placement is delegated to floating-ui (viewport-fixed, auto-flipped
@@ -166,6 +214,7 @@ export const LessonOverlay: React.FC = () => {
   useEffect(() => {
     if (!running) {
       setRect(null);
+      setCursorPos(null);
       anchorElRef.current = null;
       refs.setReference(null);
       return undefined;
@@ -188,8 +237,12 @@ export const LessonOverlay: React.FC = () => {
             ? prev
             : next
         );
+        const vx = r.left + r.width / 2;
+        const vy = r.top + r.height / 2;
+        setCursorPos(prev => (prev && prev.x === vx && prev.y === vy ? prev : { x: vx, y: vy }));
       } else {
         setRect(prev => (prev === null ? prev : null));
+        setCursorPos(prev => (prev === null ? prev : null));
       }
       raf = requestAnimationFrame(tick);
     };
@@ -221,6 +274,19 @@ export const LessonOverlay: React.FC = () => {
         />
       )}
 
+      {running &&
+        isWatch &&
+        cursorPos &&
+        createPortal(
+          <GhostCursor data-testid="lesson-ghost-cursor" style={{ left: cursorPos.x, top: cursorPos.y }}>
+            <ClickPulse key={demoSeq} />
+            <svg width="20" height="28" viewBox="0 0 12 19" aria-hidden>
+              <path d="M1 1 L1 15 L4.5 11.5 L7 17.5 L9 16.5 L6.5 11 L11 11 Z" fill="white" stroke="black" strokeWidth="1" strokeLinejoin="round" />
+            </svg>
+          </GhostCursor>,
+          document.body
+        )}
+
       {running && step && anchorElRef.current && (
         <Balloon ref={refs.setFloating} style={floatingStyles} key={nudgeSeq} data-testid="lesson-balloon">
           <BalloonInstruction>{t(step.instruction)}</BalloonInstruction>
@@ -246,6 +312,14 @@ export const LessonOverlay: React.FC = () => {
                   </StepItem>
                 ))}
               </StepList>
+              {isWatch && (
+                <WatchButton
+                  data-testid="lesson-watch-toggle"
+                  onClick={() => (watchPaused ? resumeWatch() : pauseWatch())}
+                >
+                  {watchPaused ? t('lesson.watch.resume') : t('lesson.watch.pause')}
+                </WatchButton>
+              )}
             </>
           ) : (
             <div data-testid="lesson-complete">

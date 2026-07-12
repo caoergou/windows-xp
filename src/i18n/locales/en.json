@@ -946,6 +946,10 @@
     "progress": "Step {{current}} of {{total}}",
     "done": "Lesson complete!",
     "score": "Score: {{score}} / 100",
+    "watch": {
+      "pause": "⏸ Pause",
+      "resume": "▶ Resume"
+    },
     "notepad": {
       "title": "Lesson: Notepad basics",
       "step1": "Open Notepad from the Start menu.",

@@ -9,7 +9,7 @@
  * `watch` (auto-demonstrated) is planned. Authored as JSON, i18n-keyed — see
  * `docs/LESSONS.md`.
  */
-import type { XPEventType } from '../events';
+import type { XPEvent, XPEventType } from '../events';
 import type { Scalar } from '../scenario/types';
 
 /**
@@ -33,6 +33,16 @@ export interface LessonHint {
 /** What happens when the learner performs the wrong action for the step. */
 export type WrongActionPolicy = 'nudge' | 'shield' | 'undo';
 
+/**
+ * How Watch mode auto-performs a step (drives the imperative handle, then the
+ * resulting event advances the step through the same gate as Try/Do). Omit and
+ * Watch will fall back to emitting the step's `expect` as-is.
+ */
+export type WatchAction =
+  | { openApp: string; props?: Record<string, unknown> }
+  | { openFile: string[] }
+  | { emit: XPEvent };
+
 /** A single teachable step. */
 export interface LessonStep {
   /** Instruction text — an i18n key (resolved if present) or a literal string. */
@@ -48,6 +58,8 @@ export interface LessonStep {
    * doesn't match). Phase 1 implements `nudge`; `shield`/`undo` are planned.
    */
   onWrongAction?: WrongActionPolicy;
+  /** Watch-mode demonstration: how to auto-perform this step (#141 Phase 2). */
+  demonstrate?: WatchAction;
 }
 
 /** A complete lesson. */
