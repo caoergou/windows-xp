@@ -6,9 +6,23 @@ import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
 import { canUseDOM } from '../utils/storage';
 import { useStorage } from '../context/StorageContext';
+import type { LoginBranding } from '../branding';
 
-const Container = styled.div`
-  background-color: #003399;
+interface LoginScreenProps {
+  branding?: LoginBranding;
+}
+
+/** A background value is treated as an image when it looks like a URL/path/data URI. */
+const isImageBackground = (bg: string): boolean =>
+  /^(https?:|data:|\/|\.)/.test(bg) || /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(bg);
+
+const Container = styled.div<{ $background?: string }>`
+  ${props =>
+    props.$background
+      ? isImageBackground(props.$background)
+        ? `background: url("${props.$background}") center / cover no-repeat;`
+        : `background: ${props.$background};`
+      : 'background-color: #003399;'}
   width: 100%;
   height: 100%;
   display: flex;
@@ -173,12 +187,19 @@ const ShutdownButton = styled.button`
     }
 `;
 
-const LoginScreen = () => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ branding }) => {
     const { t } = useTranslation();
     const storage = useStorage();
     const { login, user } = useUserSession();
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
+
+    const branded = !!(
+        branding &&
+        (branding.background || branding.title || branding.userTile || branding.userName)
+    );
+    const tileImage = branding?.userTile ?? user.avatar;
+    const displayName = branding?.userName ?? user.name;
 
     const handleShutdown = () => {
         storage.local.setItem(storage.key('power_state'), 'shutdown');
@@ -204,20 +225,24 @@ const LoginScreen = () => {
     };
 
     return (
-        <Container>
-            <Logo>Microsoft Windows<span>XP</span></Logo>
+        <Container $background={branding?.background} data-testid="login-screen">
+            {branding?.title ? (
+                <Logo data-testid="login-title">{branding.title}</Logo>
+            ) : branded ? null : (
+                <Logo>Microsoft Windows<span>XP</span></Logo>
+            )}
             <Content>
 
                 <UserRow>
                     <UserIcon>
-                        {user.avatar ? (
-                            <img src={user.avatar} alt={user.name} />
+                        {tileImage ? (
+                            <img src={tileImage} alt={displayName} />
                         ) : (
                             <XPIcon name="user" size={64} color="white" />
                         )}
                     </UserIcon>
                     <InputArea>
-                        <UserName>{user.name}</UserName>
+                        <UserName>{displayName}</UserName>
                         <PasswordBox>
                             <label>{t('login.password')}:</label>
                             <Input
