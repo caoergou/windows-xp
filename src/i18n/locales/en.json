@@ -325,6 +325,7 @@
     "minesweeper": "Minesweeper",
     "solitaire": "Solitaire",
     "deductionSheet": "Deduction Sheet",
+    "evidenceBoard": "Evidence Board",
     "wordpad": "WordPad",
     "mediaPlayer": "Windows Media Player",
     "messenger": "MSN Messenger",
@@ -953,6 +954,11 @@
     "choose": "— choose —",
     "wordBank": "Word bank",
     "solved": "Case closed — every deduction verified."
+  },
+  "evidenceBoard": {
+    "tray": "Evidence",
+    "unpin": "Remove from board",
+    "linkHint": "Click a card, then another, to string them together."
   },
   "lesson": {
     "close": "Close lesson",

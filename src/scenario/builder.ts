@@ -29,6 +29,8 @@ export const count = (type: XPEventType, cmp: { gte?: number; lte?: number; eq?:
 export const exists = (path: string[]): Condition => ({ exists: path });
 export const unlocked = (path: string[]): Condition => ({ unlocked: path });
 export const contentContains = (path: string[], contains: string): Condition => ({ contentContains: { path, contains } });
+export const pinned = (itemId: string): Condition => ({ pinned: itemId });
+export const linked = (a: string, b: string): Condition => ({ linked: { a, b } });
 
 // ── action helpers ───────────────────────────────────────────────────────────
 export const setFlag = (name: string, value?: FlagValue): Action => ({ setFlag: name, ...(value !== undefined ? { value } : {}) });

@@ -98,9 +98,32 @@ export const evaluateCondition = (condition: Condition | undefined, ctx: EvalCon
     const text = ctx.fs.content(condition.contentContains.path);
     return typeof text === 'string' && text.includes(condition.contentContains.contains);
   }
+  if ('pinned' in condition) return isPinned(ctx.journal, condition.pinned);
+  if ('linked' in condition) {
+    const { a, b } = condition.linked;
+    return isPinned(ctx.journal, a) && isPinned(ctx.journal, b) && hasLink(ctx.journal, a, b);
+  }
 
   return false;
 };
+
+/** Board state is derived from the journal: an item is pinned when its `evidence:pin`s outnumber its `evidence:unpin`s. */
+export const isPinned = (journal: XPEvent[], itemId: string): boolean => {
+  let net = 0;
+  for (const e of journal) {
+    if (e.type === 'evidence:pin' && e.itemId === itemId) net += 1;
+    else if (e.type === 'evidence:unpin' && e.itemId === itemId) net -= 1;
+  }
+  return net > 0;
+};
+
+/** Whether an `evidence:link` between `a` and `b` (either direction) is in the journal. */
+export const hasLink = (journal: XPEvent[], a: string, b: string): boolean =>
+  journal.some(
+    e =>
+      e.type === 'evidence:link' &&
+      ((e.sourceId === a && e.targetId === b) || (e.sourceId === b && e.targetId === a))
+  );
 
 /** Append an event to a bounded journal (newest last), capping total length. */
 export const appendJournal = (journal: XPEvent[], event: XPEvent, cap = 500): XPEvent[] => {

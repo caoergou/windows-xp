@@ -22,6 +22,7 @@ const MicrosoftPaint = React.lazy(() => import('../apps/MicrosoftPaint'));
 import Minesweeper from '../apps/Minesweeper';
 const Solitaire = React.lazy(() => import('../apps/Solitaire'));
 const DeductionSheet = React.lazy(() => import('../apps/DeductionSheet'));
+const EvidenceBoard = React.lazy(() => import('../apps/EvidenceBoard'));
 const WindowsMediaPlayer = React.lazy(() => import('../apps/WindowsMediaPlayer'));
 const Thunder = React.lazy(() => import('../apps/Thunder'));
 const BaofengPlayer = React.lazy(() => import('../apps/BaofengPlayer'));
@@ -358,6 +359,16 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     // `openApp('DeductionSheet', { formId, wordBank, slots, groups, solution })`.
     window: { width: 460, height: 420 },
     restore: restoreApp(DeductionSheet),
+  },
+  EvidenceBoard: {
+    id: 'EvidenceBoard',
+    name: 'Evidence Board',
+    nameKey: 'apps.evidenceBoard',
+    icon: 'notepad',
+    // Scenario-layer app (#219): opened with an evidence pool via
+    // `openApp('EvidenceBoard', { boardId, items })`.
+    window: { width: 560, height: 400 },
+    restore: restoreApp(EvidenceBoard),
   },
   Minesweeper: {
     id: 'Minesweeper',

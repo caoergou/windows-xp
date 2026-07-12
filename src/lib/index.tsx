@@ -328,6 +328,8 @@ export { prologueGraph, prologueGraphScenario } from '../data/scenarios/prologue
 // Scenario-layer app (#219): the Deduction Sheet + a reference puzzle.
 export type { DeductionSheetProps } from '../apps/DeductionSheet';
 export { demoDeduction } from '../data/scenarios/deductionDemo';
+export type { EvidenceBoardProps, EvidenceItem } from '../apps/EvidenceBoard';
+export { demoEvidence } from '../data/scenarios/evidenceDemo';
 export type { Lesson, LessonStep, LessonHint, LessonMode, LessonScore, ExpectPattern, WrongActionPolicy, WatchAction } from '../lesson/types';
 export { defineLesson } from '../lesson/types';
 export { lintLesson, isLessonValid, type LintIssue } from '../lesson/lint';

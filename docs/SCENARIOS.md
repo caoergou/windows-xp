@@ -85,6 +85,8 @@ the persisted event journal, and the filesystem.
 | `{ exists: string[] }` | A filesystem node exists at that path. |
 | `{ unlocked: string[] }` | The node at that path exists and is **not** locked. |
 | `{ contentContains: { path, contains } }` | The text file at `path` contains the `contains` substring. |
+| `{ pinned: string }` | The evidence item is currently on the board (net `evidence:pin` > `evidence:unpin` in the journal). |
+| `{ linked: { a, b } }` | Items `a` and `b` are linked and both still pinned (order-insensitive). |
 
 Paths are `string[]` — the sequence of node keys from the desktop root, e.g.
 `["我的电脑", "本地磁盘 (D:)", "游戏", "聊天记录.txt"]`.
@@ -341,3 +343,39 @@ shows the pattern: lint the graph, then `solveScenario(compilePuzzleGraph(graph)
 walkthrough)` and assert the ending is reached — and that out-of-order play does
 **not** sequence-break the gate. A story whose walkthrough breaks fails CI like
 any other regression.
+
+## Scenario-layer apps
+
+Some mechanics need a *surface* the player manipulates. These are ordinary
+registered apps, but they carry no game semantics: the engine stays ignorant
+(axiom 2). The app only **emits events**; scenarios gate on **journal-derived
+predicates**. Content (the pool of clues, the roster to accuse) is passed in via
+props, never hard-coded, so one app serves any story.
+
+### Evidence Board (`EvidenceBoard`, mechanic M4)
+
+The Roottrees / Shadows-of-Doubt corkboard. Pin evidence to the board, string
+two pinned items together, or unpin. It emits `evidence:pin` / `evidence:link` /
+`evidence:unpin`; scenarios gate on `pinned(id)` / `linked(a, b)`. Because both
+predicates read the journal, the runtime holds no board state — a save/load round
+trip reconstructs the board from replayed events.
+
+```ts
+import { defineScenario, linked, demoEvidence } from '@caoergou/windows-xp';
+
+ref.openApp('EvidenceBoard', demoEvidence);   // props.items = the clue pool
+
+const s = defineScenario('board');
+s.on('evidence:link').when(linked('diary', 'chatlog')).do(setFlag('connected'));
+```
+
+`pinned` counts net pins (`evidence:pin` minus `evidence:unpin`); `linked`
+requires a link event **and** both endpoints still pinned, and is
+order-insensitive. Unpinning either end silently invalidates the link.
+
+### Deduction Sheet (`DeductionSheet`, mechanic M3)
+
+The Golden Idol verifier — a form of labelled slots the player fills from a word
+bank, submitted for batched verification. Emits `deduction:submit` and
+`deduction:verified` / `deduction:failed`. Scenarios react to the verified event;
+the app owns the correctness check against its scenario-provided answer key.
