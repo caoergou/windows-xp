@@ -21,6 +21,7 @@ import ControlPanel from '../apps/ControlPanel';
 const MicrosoftPaint = React.lazy(() => import('../apps/MicrosoftPaint'));
 import Minesweeper from '../apps/Minesweeper';
 const Solitaire = React.lazy(() => import('../apps/Solitaire'));
+const DeductionSheet = React.lazy(() => import('../apps/DeductionSheet'));
 const WindowsMediaPlayer = React.lazy(() => import('../apps/WindowsMediaPlayer'));
 const Thunder = React.lazy(() => import('../apps/Thunder'));
 const BaofengPlayer = React.lazy(() => import('../apps/BaofengPlayer'));
@@ -348,6 +349,16 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     restore: restoreApp(MicrosoftPaint),
   },
 
+  DeductionSheet: {
+    id: 'DeductionSheet',
+    name: 'Deduction Sheet',
+    nameKey: 'apps.deductionSheet',
+    icon: 'notepad',
+    // Scenario-layer app (#219): opened by a scenario/host with a puzzle via
+    // `openApp('DeductionSheet', { formId, wordBank, slots, groups, solution })`.
+    window: { width: 460, height: 420 },
+    restore: restoreApp(DeductionSheet),
+  },
   Minesweeper: {
     id: 'Minesweeper',
     name: '扫雷',

@@ -318,6 +318,7 @@
     "networkConnections": "网络连接",
     "minesweeper": "扫雷",
     "solitaire": "纸牌",
+    "deductionSheet": "推理表",
     "wordpad": "写字板",
     "mediaPlayer": "Windows Media Player",
     "messenger": "MSN Messenger",
@@ -939,6 +940,13 @@
   "recycleBinNotices": {
     "restoreFallbackTitle": "回收站",
     "restoreFallbackMessage": "\"{{name}}\"的原始文件夹已不存在，已将其还原到桌面。"
+  },
+  "deductionSheet": {
+    "title": "推理",
+    "verify": "核验",
+    "choose": "— 选择 —",
+    "wordBank": "词库",
+    "solved": "案件了结——所有推理均已核验。"
   },
   "lesson": {
     "close": "关闭课程",
