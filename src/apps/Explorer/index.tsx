@@ -10,7 +10,8 @@ import { FileNode, isContainerNode } from '../../types';
 import { getFileDisplayName } from '../../utils/fileDisplayName';
 import { getSystemPathDisplay } from '../../data/systemPaths';
 import {
-  Container, DetailsTable, DetailsHeadCell, DetailsRow, DetailsCell, DetailsNameCell, MainContent, FileArea, GroupHeader, IconsGrid, FileItem, IconWrapper, FileInfo, FileName, FileType, StatusBar, EmptyRecycleBinMessage,
+  Container, DetailsTable, DetailsHeadCell, DetailsRow, DetailsCell, DetailsNameCell, MainContent, FileArea, GroupHeader, StatusBar, EmptyRecycleBinMessage,
+  ThumbsGrid, ThumbItem, ThumbBox, ThumbName, IconsVGrid, IconVItem, IconVName, ListGrid, ListItem, TilesGrid, TileItem, TileMeta,
 } from './styled';
 import { isOpticalDrive } from './helpers';
 import type { ExplorerProps } from './types';
@@ -72,6 +73,21 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
 
   if (!currentFolder) return <div>{t('explorer.errors.pathNotFound')}</div>;
 
+  // Render a flat list of children in whichever view is active (#211).
+  const renderGrid = (entries: [string, FileNode][]) => {
+    switch (viewMode) {
+      case 'thumbnails':
+        return <ThumbsGrid>{entries.map(([k, it]) => renderThumb(k, it))}</ThumbsGrid>;
+      case 'icons':
+        return <IconsVGrid>{entries.map(([k, it]) => renderIconItem(k, it))}</IconsVGrid>;
+      case 'list':
+        return <ListGrid>{entries.map(([k, it]) => renderListItem(k, it))}</ListGrid>;
+      case 'tiles':
+      default:
+        return <TilesGrid>{entries.map(([k, it]) => renderTile(k, it))}</TilesGrid>;
+    }
+  };
+
   const renderContent = () => {
     if (!isContainerNode(currentFolder)) return null;
 
@@ -99,26 +115,24 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
         }
       });
 
-      // If we have drives, we assume this is the "My Computer" view-like structure
-      if (drives.length > 0) {
+      // My Computer keeps its grouped layout; Details still tables the flat list.
+      if (drives.length > 0 && viewMode !== 'details') {
         return (
           <>
             <GroupHeader>{t('explorer.groups.hardDisks')}</GroupHeader>
-            <IconsGrid>{drives.map(({ key, item }) => renderFileItem(key, item))}</IconsGrid>
+            {renderGrid(drives.map(({ key, item }) => [key, item]))}
 
             {removableDrives.length > 0 && (
               <>
                 <GroupHeader>{t('explorer.groups.removableStorage')}</GroupHeader>
-                <IconsGrid>
-                  {removableDrives.map(({ key, item }) => renderFileItem(key, item))}
-                </IconsGrid>
+                {renderGrid(removableDrives.map(({ key, item }) => [key, item]))}
               </>
             )}
 
             {others.length > 0 && (
               <>
                 <GroupHeader>{t('explorer.groups.other')}</GroupHeader>
-                <IconsGrid>{others.map(({ key, item }) => renderFileItem(key, item))}</IconsGrid>
+                {renderGrid(others.map(({ key, item }) => [key, item]))}
               </>
             )}
           </>
@@ -126,9 +140,9 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
       }
     }
 
-    // Standard Folder View
+    // Standard folder view — Details tables, the other four are grids.
     if (viewMode === 'details') return renderDetailsView(children);
-    return <IconsGrid>{children.map(([key, item]) => renderFileItem(key, item))}</IconsGrid>;
+    return renderGrid(children);
   };
 
   const renderDetailsView = (children: [string, FileNode][]) => {
@@ -215,73 +229,151 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
     );
   };
 
-  const renderFileItem = (key: string, item: FileNode) => {
+  // Handlers shared by every view's item (click routes through the multi-select
+  // model, double-click navigates, right-click opens the menu, drag moves).
+  const itemProps = (key: string, item: FileNode) => ({
+    'data-testid': `file-item-${key}`,
+    'data-item-key': key,
+    'data-selected': selection.isSelected(key),
+    draggable: true,
+    onDragStart: (e: React.DragEvent) => handleDragStart(e, key),
+    onDragOver: (e: React.DragEvent) => {
+      if (item.type === 'folder') {
+        e.preventDefault();
+        setDragOver(key);
+      }
+    },
+    onDragLeave: () => setDragOver(null),
+    onDrop: (e: React.DragEvent) => handleDropOnFolder(e, key, item),
+    onDoubleClick: () => {
+      if (isSyntheticAfterTouch()) return;
+      handleNavigate(key);
+    },
+    onClick: (e: React.MouseEvent) => {
+      if (isSyntheticAfterTouch()) return;
+      selection.handleItemClick(key, orderedKeys(), e);
+    },
+    onContextMenu: (e: React.MouseEvent) => handleContextMenu(e, key, item),
+  });
+
+  // Per-item inline style: a dashed drop target while dragged over (folders),
+  // plus ghosting for hidden files when they're shown (#219).
+  const dropStyle = (key: string, item: FileNode): React.CSSProperties | undefined => {
+    const dropping = dragOver === key && item.type === 'folder';
+    if (!dropping && !item.hidden) return undefined;
+    return {
+      ...(dropping ? { background: '#C1D2EE', border: '1px dashed #316AC5' } : {}),
+      ...(item.hidden ? { opacity: 0.55 } : {}),
+    };
+  };
+
+  // The small padlock overlay on locked files (kept from the previous view).
+  const lockBadge = (item: FileNode) =>
+    item.locked ? (
+      <svg width="10" height="10" viewBox="0 0 10 10" style={{ marginLeft: 4, flexShrink: 0 }}>
+        <rect x="1" y="4" width="8" height="5" rx="1" fill="#666" />
+        <path d="M2.5 4V2.5a2.5 2.5 0 0 1 5 0V4" stroke="#666" strokeWidth="1.2" fill="none" />
+      </svg>
+    ) : null;
+
+  const isImageNode = (item: FileNode): boolean =>
+    item.type === 'file' &&
+    !item.broken &&
+    !!(item as { content?: string }).content &&
+    /\.(jpe?g|png|gif|bmp)$/i.test(item.name);
+
+  // Resolve a node's image content to a usable src. Bundled `/images/...` public
+  // assets are rebased onto the app's BASE_URL (so they resolve from any route,
+  // not just the root); data: URIs and absolute URLs pass through untouched.
+  const thumbSrc = (item: FileNode): string | undefined => {
+    const src = (item as { content?: string }).content;
+    if (!src) return undefined;
+    if (src.startsWith('/images/')) {
+      const base = import.meta.env.BASE_URL ?? '/';
+      return `${base.replace(/\/$/, '')}${src}`;
+    }
+    return src;
+  };
+
+  // Thumbnails (#211): ~96px preview box (real image or large icon), name below.
+  const renderThumb = (key: string, item: FileNode) => {
     const displayName = getFileDisplayName(key, item, t);
     const isSelected = selection.isSelected(key);
-
     return (
-      <FileItem
-        key={key}
-        data-testid={`file-item-${key}`}
-        data-item-key={key}
-        data-selected={isSelected}
-        onDoubleClick={() => {
-          if (isSyntheticAfterTouch()) return;
-          handleNavigate(key);
-        }}
-        onClick={e => {
-          if (isSyntheticAfterTouch()) return;
-          selection.handleItemClick(key, orderedKeys(), e);
-        }}
-        onContextMenu={e => handleContextMenu(e, key, item)}
-        $selected={isSelected}
-        draggable
-        onDragStart={e => handleDragStart(e, key)}
-        onDragOver={e => {
-          if (item.type === 'folder') {
-            e.preventDefault();
-            setDragOver(key);
-          }
-        }}
-        onDragLeave={() => setDragOver(null)}
-        onDrop={e => handleDropOnFolder(e, key, item)}
-        style={{
-          ...(dragOver === key && item.type === 'folder'
-            ? { background: '#C1D2EE', border: '1px dashed #316AC5' }
-            : {}),
-          ...(item.hidden ? { opacity: 0.55 } : {}),
-        }}
-      >
-        <IconWrapper>
-          <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={32} />
-        </IconWrapper>
-        <FileInfo>
-          <FileName $isDrive={isRoot && (item.type === 'drive' || item.icon === 'drive')}>
-            {displayName}
-            {item.locked && (
-              <svg
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                style={{ marginLeft: '5px', flexShrink: 0 }}
-              >
-                <rect x="1" y="4" width="8" height="5" rx="1" fill="#666" />
-                <path
-                  d="M2.5 4V2.5a2.5 2.5 0 0 1 5 0V4"
-                  stroke="#666"
-                  strokeWidth="1.2"
-                  fill="none"
-                />
-              </svg>
-            )}
-          </FileName>
-          {isRoot && (item.type === 'drive' || item.icon === 'drive') && (
-            <FileType $selected={isSelected}>
-              {t(isOpticalDrive(key) ? 'explorer.types.opticalDrive' : 'explorer.types.localDisk')}
-            </FileType>
+      <ThumbItem key={key} {...itemProps(key, item)} style={dropStyle(key, item)}>
+        <ThumbBox>
+          {isImageNode(item) ? (
+            <img src={thumbSrc(item)} alt={displayName} draggable={false} />
+          ) : (
+            <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={48} />
           )}
-        </FileInfo>
-      </FileItem>
+        </ThumbBox>
+        <ThumbName $selected={isSelected}>
+          {displayName}
+          {lockBadge(item)}
+        </ThumbName>
+      </ThumbItem>
+    );
+  };
+
+  // Icons (#211): 32px icon on top, name centred below.
+  const renderIconItem = (key: string, item: FileNode) => {
+    const displayName = getFileDisplayName(key, item, t);
+    const isSelected = selection.isSelected(key);
+    return (
+      <IconVItem key={key} {...itemProps(key, item)} style={dropStyle(key, item)}>
+        <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={32} />
+        <IconVName $selected={isSelected}>
+          {displayName}
+          {lockBadge(item)}
+        </IconVName>
+      </IconVItem>
+    );
+  };
+
+  // List (#211): 16px icon + name on one line, columns filling top-to-bottom.
+  const renderListItem = (key: string, item: FileNode) => {
+    const displayName = getFileDisplayName(key, item, t);
+    const isSelected = selection.isSelected(key);
+    return (
+      <ListItem key={key} $selected={isSelected} {...itemProps(key, item)} style={dropStyle(key, item)}>
+        <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={16} />
+        <span>
+          {displayName}
+          {lockBadge(item)}
+        </span>
+      </ListItem>
+    );
+  };
+
+  // Tiles (#211): 48px icon, name + type/size (or drive label at the root).
+  const renderTile = (key: string, item: FileNode) => {
+    const displayName = getFileDisplayName(key, item, t);
+    const isSelected = selection.isSelected(key);
+    const isDrive = isRoot && (item.type === 'drive' || item.icon === 'drive');
+    const meta = isDrive
+      ? t(isOpticalDrive(key) ? 'explorer.types.opticalDrive' : 'explorer.types.localDisk')
+      : item.type === 'folder'
+        ? t('explorer.types.folder')
+        : `${nodeTypeLabel(item)}${formatBytes(nodeSizeBytes(item)) ? `  ${formatBytes(nodeSizeBytes(item))}` : ''}`;
+    return (
+      <TileItem key={key} $selected={isSelected} {...itemProps(key, item)} style={dropStyle(key, item)}>
+        <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={48} />
+        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: isDrive ? 'bold' : 'normal',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {displayName}
+            {lockBadge(item)}
+          </span>
+          <TileMeta $selected={isSelected}>{meta}</TileMeta>
+        </div>
+      </TileItem>
     );
   };
 

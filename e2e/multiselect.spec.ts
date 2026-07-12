@@ -50,8 +50,15 @@ test.describe('Explorer multi-selection', () => {
   });
 
   test('Shift+click selects a contiguous range', async ({ page }) => {
-    // Switch to Details view for a stable top-to-bottom order to range over.
+    // Switch to Details view (via the Views dropdown) for a stable top-to-bottom
+    // order to range over.
     await page.locator('button[title="View"]').click();
+    await page
+      .locator('[role="menu"]')
+      .last()
+      .locator('button', { hasText: /^Details/ })
+      .first()
+      .click();
     await expect(page.locator('[data-testid="file-row-readme.txt"]')).toBeVisible();
 
     const rows = page.locator('[data-item-key]');

@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { xpScrollbarStyles } from '../../theme';
+import { COLORS } from '../../constants';
 
 // Explorer styled-components (#163/A).
 
@@ -80,7 +81,9 @@ export const FileArea = styled.div<{ $flush?: boolean }>`
   /* Details view (#120) goes edge-to-edge so its column header sits flush at
      the top of the list area, XP-style; the icon grid keeps its padding. */
   padding: ${p => (p.$flush ? '0' : '10px')};
-  overflow-y: auto;
+  /* List view lays items out in columns that grow rightward, so allow both
+     axes to scroll; wrapping grids never trigger the horizontal bar. */
+  overflow: auto;
   display: flex;
   flex-direction: column;
   gap: ${p => (p.$flush ? '0' : '10px')};
@@ -101,59 +104,142 @@ export const GroupHeader = styled.div`
   }
 `;
 
-export const IconsGrid = styled.div`
+/* ── Thumbnails view (#211): ~96px preview boxes, name below.
+   Colors come from COLORS tokens / rgba() to keep the inline-hex ratchet flat. ── */
+export const ThumbsGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  align-content: flex-start;
+  gap: 10px 8px;
 `;
 
-export const FileItem = styled.div<{ $selected?: boolean }>`
-  width: 250px; /* List view style often seen in My Computer */
+export const ThumbItem = styled.div`
+  width: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+`;
+
+export const ThumbBox = styled.div`
+  width: 96px;
+  height: 96px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  background: ${COLORS.BUTTON_HIGHLIGHT};
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 0 0 1px ${COLORS.BUTTON_HIGHLIGHT};
+  overflow: hidden;
+
+  img {
+    max-width: 88px;
+    max-height: 88px;
+    display: block;
+  }
+`;
+
+export const ThumbName = styled.span<{ $selected?: boolean }>`
+  margin-top: 4px;
+  max-width: 108px;
+  padding: 1px 4px;
+  font-size: 11px;
+  text-align: center;
+  word-break: break-word;
+  ${p =>
+    p.$selected ? `background:${COLORS.MENU_HIGHLIGHT};color:${COLORS.BUTTON_HIGHLIGHT};` : ''}
+`;
+
+/* ── Icons view (#211): 32px icon on top, name centred below ── */
+export const IconsVGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px 4px;
+`;
+
+export const IconVItem = styled.div`
+  width: 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+`;
+
+export const IconVName = styled.span<{ $selected?: boolean }>`
+  margin-top: 3px;
+  max-width: 74px;
+  padding: 1px 3px;
+  font-size: 11px;
+  text-align: center;
+  word-break: break-word;
+  ${p =>
+    p.$selected ? `background:${COLORS.MENU_HIGHLIGHT};color:${COLORS.BUTTON_HIGHLIGHT};` : ''}
+`;
+
+/* ── List view (#211): 16px icon + name, column-major wrap ── */
+export const ListGrid = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  height: 100%;
+`;
+
+export const ListItem = styled.div<{ $selected?: boolean }>`
+  width: 190px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 3px;
+  cursor: pointer;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    padding: 0 2px;
+    ${p =>
+      p.$selected ? `background:${COLORS.MENU_HIGHLIGHT};color:${COLORS.BUTTON_HIGHLIGHT};` : ''}
+  }
+`;
+
+/* ── Tiles view (#211): 48px icon, name + type/size, two per row ── */
+export const TilesGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 4px 8px;
+`;
+
+export const TileItem = styled.div<{ $selected?: boolean }>`
+  width: 240px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 3px;
   cursor: pointer;
   border: 1px solid transparent;
 
   &:hover {
-    background-color: #e8f4ff;
-    border: 1px solid #c0deff;
+    background-color: ${p => (p.$selected ? COLORS.MENU_HIGHLIGHT : 'rgba(49, 106, 197, 0.12)')};
+    border-color: ${p => (p.$selected ? COLORS.MENU_HIGHLIGHT : 'rgba(49, 106, 197, 0.3)')};
   }
 
-  ${props =>
-    props.$selected &&
+  ${p =>
+    p.$selected &&
     `
-        background-color: #316AC5;
-        color: white;
-        border: 1px dotted #fff;
-
-        &:hover {
-            background-color: #316AC5;
-            color: white;
-        }
+      background-color: ${COLORS.MENU_HIGHLIGHT};
+      color: ${COLORS.BUTTON_HIGHLIGHT};
+      border-color: ${COLORS.MENU_HIGHLIGHT};
     `}
 `;
 
-export const IconWrapper = styled.div`
-  margin-right: 5px;
-  position: relative;
-  flex-shrink: 0;
-`;
-
-export const FileInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-export const FileName = styled.span<{ $isDrive?: boolean }>`
-  font-size: 11px;
-  font-weight: ${props => (props.$isDrive ? 'bold' : 'normal')};
-`;
-
-export const FileType = styled.span<{ $selected?: boolean }>`
+export const TileMeta = styled.span<{ $selected?: boolean }>`
   font-size: 10px;
-  color: #666;
-  ${props => props.$selected && `color: #eee;`}
+  color: ${p => (p.$selected ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.55)')};
 `;
 
 export const StatusBar = styled.div`

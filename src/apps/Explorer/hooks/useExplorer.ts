@@ -15,7 +15,7 @@ import {
   getSystemPathTitle,
   resolveSystemPathDisplay,
 } from '../../../data/systemPaths';
-import type { ExplorerProps } from '../types';
+import type { ExplorerProps, ExplorerViewMode } from '../types';
 
 export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   const { t, i18n } = useTranslation();
@@ -37,19 +37,23 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   const api = useApp(windowId);
   const storage = useStorage();
 
-  // View mode (#120, EXP-02): 'icons' (the default grid) or 'details' (sortable
-  // columns). Persisted per instance so it survives refresh.
-  const viewStorageKey = storage.key('explorer_view');
-  const [viewMode, setViewMode] = useState<'icons' | 'details'>(() =>
-    storage.local.getItem(viewStorageKey) === 'details' ? 'details' : 'icons'
-  );
+  // View mode (#120 EXP-02 / #211): one of the five XP views. Persisted PER
+  // FOLDER (a JSON path→mode map) so each folder remembers how it was last
+  // shown. A folder with no saved choice defaults by content — picture folders
+  // open in Thumbnails, everything else in Tiles (XP's defaults).
+  const viewStorageKey = storage.key('explorer_view_by_path');
+  const [viewByPath, setViewByPath] = useState<Record<string, ExplorerViewMode>>(() => {
+    try {
+      const raw = storage.local.getItem(viewStorageKey);
+      const parsed = raw ? JSON.parse(raw) : {};
+      return parsed && typeof parsed === 'object' ? (parsed as Record<string, ExplorerViewMode>) : {};
+    } catch {
+      return {};
+    }
+  });
   const [sort, setSort] = useState<{ key: 'name' | 'size' | 'type' | 'modified'; dir: 'asc' | 'desc' }>(
     { key: 'name', dir: 'asc' }
   );
-  const changeView = (mode: 'icons' | 'details') => {
-    setViewMode(mode);
-    storage.local.setItem(viewStorageKey, mode);
-  };
   const toggleSort = (key: 'name' | 'size' | 'type' | 'modified') =>
     setSort(prev => (prev.key === key ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' }));
 
@@ -129,6 +133,29 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
 
   const currentPath = history[historyIndex];
   const currentFolder = getFile(currentPath);
+
+  // The view for this folder: its saved choice, else a content-based default —
+  // Thumbnails for a picture folder, Tiles otherwise (#211).
+  const pathKey = currentPath.join('\u0000');
+  const isPictureFolder = (): boolean => {
+    if (currentPath.some(seg => seg === '我的图片' || /pictures?/i.test(seg))) return true;
+    if (!currentFolder || !isContainerNode(currentFolder)) return false;
+    const kids = Object.values(currentFolder.children);
+    const images = kids.filter(n => n.type === 'file' && /\.(jpe?g|png|gif|bmp)$/i.test(n.name));
+    return kids.length > 0 && images.length >= Math.ceil(kids.length / 2);
+  };
+  const viewMode: ExplorerViewMode = viewByPath[pathKey] ?? (isPictureFolder() ? 'thumbnails' : 'tiles');
+  const changeView = (mode: ExplorerViewMode) => {
+    setViewByPath(prev => {
+      const next = { ...prev, [pathKey]: mode };
+      try {
+        storage.local.setItem(viewStorageKey, JSON.stringify(next));
+      } catch {
+        /* storage unavailable — view choice stays in-memory only */
+      }
+      return next;
+    });
+  };
 
   // Legacy-shaped "active item" derived from the selection model — feeds the
   // sidebar/details pane and the keyboard handlers that act on the focused item.
