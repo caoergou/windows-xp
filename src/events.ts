@@ -77,6 +77,9 @@ export type XPEvent =
   | { type: 'session:boot-complete' }
   /** The machine was shut down, restarted, or logged out via the Start menu. */
   | { type: 'session:shutdown'; mode: 'shutdown' | 'restart' | 'logout' }
+  // ── flag: scenario flag lifecycle (#207) ────────────────────────────────────
+  /** A scenario flag's value changed (set/inc). Lets a trigger fire on progress itself, not only on a UI event. Emitted by the scenario runtime, not the core engine. */
+  | { type: 'flag:change'; flag: string; value: string | number | boolean | null }
   // ── cmd: command prompt ─────────────────────────────────────────────────────
   /** A command was executed in the Command Prompt. */
   | { type: 'cmd:exec'; command: string }

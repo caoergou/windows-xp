@@ -217,6 +217,35 @@ describe('scenario runtime — <WindowsXP scenario/>', () => {
     expect(ref.current!.fs.exists(['尾声.txt'])).toBe(true);
   });
 
+  it('flag:change fires a trigger on progression itself (#207)', async () => {
+    const scenario: Scenario = {
+      id: 'test-flagchange',
+      triggers: [
+        { id: 'grant', on: 'cmd:exec', do: [{ setFlag: 'have_key' }] },
+        { id: 'react', on: 'flag:change', when: { event: { flag: 'have_key' } }, do: [{ setFlag: 'reacted' }] },
+      ],
+    };
+    const ref = await mount(scenario);
+    act(() => ref.current!.emit({ type: 'cmd:exec', command: 'go' }));
+    // grant set have_key → flag:change → react fired. (react's own flag:change for
+    // "reacted" doesn't match event.flag==have_key, so the cascade terminates.)
+    expect(ref.current!.getSnapshot().flags).toMatchObject({ have_key: true, reacted: true });
+  });
+
+  it('flag:change does not fire when the value is unchanged (#207)', async () => {
+    const scenario: Scenario = {
+      id: 'test-flagchange-noop',
+      initialFlags: { x: true },
+      triggers: [
+        { id: 'set', on: 'cmd:exec', do: [{ setFlag: 'x', value: true }] }, // already true → no-op
+        { id: 'watch', on: 'flag:change', do: [{ setFlag: 'sawChange' }] },
+      ],
+    };
+    const ref = await mount(scenario);
+    act(() => ref.current!.emit({ type: 'cmd:exec', command: 'go' }));
+    expect(ref.current!.getSnapshot().flags.sawChange).toBeUndefined();
+  });
+
   it('persists progress across a remount (same scenario id)', async () => {
     const scenario: Scenario = {
       id: 'test-persist',
