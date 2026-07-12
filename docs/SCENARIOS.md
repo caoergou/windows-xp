@@ -380,25 +380,32 @@ bank, submitted for batched verification. Emits `deduction:submit` and
 `deduction:verified` / `deduction:failed`. Scenarios react to the verified event;
 the app owns the correctness check against its scenario-provided answer key.
 
-### Search Oracle (`SearchOracle`, mechanic #134)
+### In-world search (inside Internet Explorer, mechanic #134)
 
-An in-world period search engine (a fake 百度/AltaVista/MSN Search). The player
-types a query; the app matches it against an authored result set and emits
-`search:query { query, hit, resultIds }`. Scenarios gate on `searched(term)` /
-`found(resultId)`.
+A search engine in the XP era is a *web page*, not a desktop app — so the
+in-world search lives **inside Internet Explorer** at `baidu.com`, not in a
+window of its own. The scenario hands IE a `searchCorpus` (an authored slice of
+the in-world web); the player's query rides in the URL (`/s?wd=…`) so a search is
+an ordinary IE navigation that Back/Forward replay. Each results page emits
+`search:query { query, hit, resultIds }`; scenarios gate on `searched(term)` /
+`found(resultId)`. Clicking a result navigates IE to that page's `url` and
+renders its authored `html` — the player reads straight into a clue.
 
 ```ts
-import { defineScenario, searched, found, demoSearch } from '@caoergou/windows-xp';
+import { defineScenario, searched, found, demoSearchCorpus } from '@caoergou/windows-xp';
 
-ref.openApp('SearchOracle', demoSearch);   // props.results = the authored oracle
+// Open the browser at the search engine, seeded with the story's web.
+ref.openApp('InternetExplorer', { url: 'http://www.baidu.com', searchCorpus: demoSearchCorpus });
 
 const s = defineScenario('web');
 s.on('search:query').when(searched('水晶女孩')).do(setFlag('lead'));
 s.on('search:query').when(found('cafe-news')).do(openFile([/* … */]));
 ```
 
-Each result lists the query terms that surface it; a query *hits* when it
-contains any of a result's `match` terms (case-insensitive substring), so authors
-reward the **idea** of a search, not an exact string. `searched(term)` holds when
-some past query contained `term`; `found(id)` holds when some query surfaced that
-result. A missed search still emits (`hit: false`, empty `resultIds`).
+Each `SearchResultPage` lists the query terms that surface it; a query *hits*
+when it contains any of a result's `match` terms (case-insensitive substring), so
+authors reward the **idea** of a search, not an exact string. `searched(term)`
+holds when some past query contained `term`; `found(id)` holds when some query
+surfaced that result. A missed search still emits (`hit: false`, empty
+`resultIds`). With no `searchCorpus`, `baidu.com` still renders — every query
+simply misses — so the engine is never a dead page.
