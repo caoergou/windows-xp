@@ -84,7 +84,7 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
       t('apps.networkConnections'),
       <NetworkConnections />,
       'network',
-      { width: 400, height: 300 }
+      { width: 388, height: 452, resizable: false }
     );
   }, [openWindow, t]);
 

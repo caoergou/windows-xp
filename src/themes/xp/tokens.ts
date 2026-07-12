@@ -54,6 +54,10 @@ export const COLORS = {
   // XP.css scrollbar
   SCROLLBAR_BG: 'linear-gradient(90deg, #C5D5FF 0%, #B5D3FF 86%, #B6CAF7 100%)',
   SCROLLBAR_SHADOW: 'inset 1px 1px white, inset -1px -1px white, inset 2px 2px #B9CDFA, inset -2px -2px #B6C9F7',
+
+  // XP dialog / group-box greys (status dialogs, group boxes, tabs, list separators).
+  // BORDER_GREY / DIVIDER_GREY already exist above; only the hilight is new.
+  BORDER_GREY_HILIGHT: '#D4D0C8',
 };
 
 /** The shape of the XP token set — the contract a theme's `tokens` must satisfy. */
