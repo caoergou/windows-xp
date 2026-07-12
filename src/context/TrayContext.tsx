@@ -27,7 +27,9 @@ export interface NotifyOptions {
   /**
    * Tray item id to anchor the balloon's tail to (a registered icon's id, or
    * the built-in 'volume' / 'network'). The balloon points its tail at that
-   * icon, XP-style. Omit to anchor to the notification area (right side).
+   * icon, XP-style. When omitted, the tail auto-anchors to a tray icon whose id
+   * matches `icon` (so a `network` balloon emanates from the network icon), and
+   * failing that, to the notification area (right side).
    */
   anchorId?: string;
 }
@@ -112,11 +114,13 @@ const NotificationHost: React.FC<{
   // Anchor the tail to the target tray icon's centre (measured from the DOM).
   React.useLayoutEffect(() => {
     if (!current || typeof document === 'undefined') return;
-    if (!current.anchorId) {
-      setPosition(FALLBACK_POSITION);
-      return;
-    }
-    const el = document.querySelector<HTMLElement>(`[data-tray-id="${current.anchorId}"]`);
+    // Anchor to the explicit `anchorId`, or fall back to a tray icon whose id
+    // matches the balloon's `icon` (so a `network` balloon emanates from the
+    // network icon without the caller wiring `anchorId`). Otherwise, corner.
+    const anchor = current.anchorId ?? current.icon;
+    const el = anchor
+      ? document.querySelector<HTMLElement>(`[data-tray-id="${anchor}"]`)
+      : null;
     if (!el) {
       setPosition(FALLBACK_POSITION);
       return;
