@@ -17,11 +17,14 @@ import FavoritesPanel from './components/FavoritesPanel';
 import ContentView from './components/ContentView';
 import StatusBar from './components/StatusBar';
 import AddFavoriteModal from './components/AddFavoriteModal';
+import SearchEnginePage from './components/SearchEnginePage';
+import { isSearchEngineUrl, parseSearchQuery } from './constants';
 
 const InternetExplorer: React.FC<InternetExplorerProps> = ({
   url: initialUrl,
   html: initialHtml,
   plugin = defaultPlugin,
+  searchCorpus,
 }) => {
   const { openWindow } = useWindowManagerActions();
   const { t } = useTranslation();
@@ -34,12 +37,36 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
       openWindow(
         'InternetExplorer',
         newUrl,
-        React.createElement(InternetExplorer, { url: newUrl, plugin }),
+        React.createElement(InternetExplorer, { url: newUrl, plugin, searchCorpus }),
         'ie',
         { isMaximized: true }
       );
     },
-    [openWindow, plugin]
+    [openWindow, plugin, searchCorpus]
+  );
+
+  // The in-world search engine (baidu.com) is a first-class IE page, not a
+  // separate window (#219 / #134). Compose it onto the active plugin so a
+  // search is an ordinary navigation; the scenario `searchCorpus` (if any)
+  // rides in via closure — no corpus just means every query misses.
+  const effectivePlugin = useCallback(
+    (
+      url: string,
+      navigateTo: (u: string, h?: string) => void,
+      openNew: (u: string) => void
+    ): React.ReactNode => {
+      if (isSearchEngineUrl(url)) {
+        return (
+          <SearchEnginePage
+            query={parseSearchQuery(url)}
+            corpus={searchCorpus ?? []}
+            navigateTo={navigateTo}
+          />
+        );
+      }
+      return plugin(url, navigateTo, openNew);
+    },
+    [plugin, searchCorpus]
   );
 
   const {
@@ -204,7 +231,7 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
         )}
         <ContentView
           currentEntry={currentEntry}
-          plugin={plugin}
+          plugin={effectivePlugin}
           onNavigate={navigateTo}
           onOpenNewIE={openNewIE}
           onLoad={handleContentLoad}
