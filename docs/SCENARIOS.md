@@ -68,6 +68,31 @@ A rule of the shape `{ on, when?, do }`.
 | `once` | `boolean?` | Fire at most once for the lifetime of the save. Default `false`. |
 | `max` | `number?` | Fire at most this many times (see [semantics](#once--max)). |
 
+#### Triggering on progress: `on: 'flag:change'` (#207)
+
+Besides UI events, a trigger can fire on **a flag changing value** — progression
+itself, not only a user action. When `setFlag`/`incFlag` changes a flag to a new
+value, the runtime emits `flag:change { flag, value }`; a trigger listens with:
+
+```json
+{ "on": "flag:change", "when": { "event": { "flag": "have_key" } },
+  "do": [{ "notify": { "title": "You can open the door now." } }] }
+```
+
+The synthetic event's payload is the changed `flag` and its new `value`, matched
+via the ordinary `event` predicate. It fires **only on a real change** (setting a
+flag to the value it already holds emits nothing), so a stable state can't loop.
+
+#### Trigger order & flag cascades (#207)
+
+Within one event, triggers are evaluated in **declaration (array) order**, and a
+later trigger sees flag mutations made by earlier triggers in the same event —
+so ordering your rulebook is a deliberate tool. A `flag:change` emitted while an
+action runs is processed **depth-first** (before the emitting trigger's next
+action returns), bounded by a cascade-depth guard against runaway loops. The
+headless solver models the same fixpoint breadth-first; both converge to the same
+flags for order-independent rulebooks.
+
 ### `Condition`
 
 A composable predicate tree. Leaves read flags, the triggering event's payload,

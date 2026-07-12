@@ -411,6 +411,7 @@ conventions live in [`docs/EVENTS.md`](docs/EVENTS.md).
 | `session:logout` | — | The user logged out. |
 | `session:boot-complete` | — | The desktop finished booting and is interactive. |
 | `session:shutdown` | `mode` | The machine was shut down, restarted, or logged out via the Start menu. |
+| `flag:change` | `flag`, `value` | A scenario flag's value changed (set/inc). Lets a trigger fire on progress itself, not only on a UI event. Emitted by the scenario runtime, not the core engine. |
 | `cmd:exec` | `command` | A command was executed in the Command Prompt. |
 | `ie:navigate` | `url`, `generated?` | Internet Explorer navigated to a URL; `generated` is true when the page came from a host content provider rather than a bundled/authored page (#149). |
 | `wallpaper:change` | `wallpaper` | The desktop wallpaper was changed (`wallpaper` is the id or URL). |

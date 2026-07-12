@@ -24,7 +24,7 @@ export const SCENARIO_MAX_BYTES = 2 * 1024 * 1024;
 
 /** Event domains the engine emits (the prefix before `:`). Keep in sync with `events.ts`. */
 const KNOWN_EVENT_DOMAINS = new Set([
-  'app', 'cmd', 'contextmenu', 'deduction', 'evidence', 'file', 'folder', 'game', 'ie',
+  'app', 'cmd', 'contextmenu', 'deduction', 'evidence', 'file', 'flag', 'folder', 'game', 'ie',
   'install', 'lesson', 'link', 'media', 'notification', 'password', 'qq', 'recyclebin',
   'screensaver', 'search', 'session', 'startmenu', 'time', 'ui', 'user', 'wallpaper', 'window',
 ]);

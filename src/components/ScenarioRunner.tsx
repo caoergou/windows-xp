@@ -106,6 +106,9 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
 
   // Monotonic sequence for DevTools reports (#209).
   const seqRef = useRef(0);
+  // Re-entrancy depth for flag:change cascades (#207): a flag:change trigger may
+  // set another flag, emitting another flag:change. Bounded to catch loops.
+  const flagDepthRef = useRef(0);
 
   // Validate the scenario once per id (#208). Errors → don't run it (a
   // half-applied bad script is worse than an inert one); warnings → run but
@@ -139,6 +142,25 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
     const traceFlag = (flag: string, value: FlagValue) => {
       if (tracing) changes.push({ flag, value, by: currentTriggerId ?? '(delayed)' });
     };
+
+    // Announce a real flag change (#207) so `on: 'flag:change'` triggers can fire
+    // on progress itself. Emitted on the bus (visible to onEvent/DevTools) and
+    // re-entrant into this handler; a depth guard stops a runaway cascade.
+    const FLAG_CASCADE_LIMIT = 30;
+    const emitFlagChange = (flag: string, value: FlagValue) => {
+      if (flagDepthRef.current >= FLAG_CASCADE_LIMIT) {
+        console.warn(
+          `[windows-xp] scenario "${scenario.id}": flag:change cascade exceeded ${FLAG_CASCADE_LIMIT} (flag "${flag}") — stopping to avoid a loop.`
+        );
+        return;
+      }
+      flagDepthRef.current += 1;
+      try {
+        bus.emit({ type: 'flag:change', flag, value });
+      } finally {
+        flagDepthRef.current -= 1;
+      }
+    };
     const persist = <K extends keyof ScenarioState>(field: K) => {
       try {
         storage.local.setItem(keys[field], JSON.stringify(state[field]));
@@ -169,14 +191,19 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
 
     const runAction = (action: Action) => {
       if ('setFlag' in action) {
-        state.flags[action.setFlag] = action.value ?? true;
+        const prev = state.flags[action.setFlag];
+        const next = action.value ?? true;
+        state.flags[action.setFlag] = next;
         persist('flags');
-        traceFlag(action.setFlag, state.flags[action.setFlag]);
+        traceFlag(action.setFlag, next);
+        if (prev !== next) emitFlagChange(action.setFlag, next);
       } else if ('incFlag' in action) {
-        const cur = state.flags[action.incFlag];
-        state.flags[action.incFlag] = (typeof cur === 'number' ? cur : 0) + (action.by ?? 1);
+        const prev = state.flags[action.incFlag];
+        const next = (typeof prev === 'number' ? prev : 0) + (action.by ?? 1);
+        state.flags[action.incFlag] = next;
         persist('flags');
-        traceFlag(action.incFlag, state.flags[action.incFlag]);
+        traceFlag(action.incFlag, next);
+        if (prev !== next) emitFlagChange(action.incFlag, next);
       } else if ('unlock' in action) {
         unlockNode(action.unlock);
       } else if ('addFile' in action) {
