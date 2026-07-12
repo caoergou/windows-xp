@@ -15,7 +15,7 @@ async function loginPreservingStorage(page: Page) {
       localStorage.setItem('xp_power_state', 'running');
     }
   });
-  await page.goto('./?lang=en');
+  await page.goto('demo/en/');
   await page.waitForLoadState('networkidle');
 
   const passwordInput = page.locator('input[type="password"]').first();

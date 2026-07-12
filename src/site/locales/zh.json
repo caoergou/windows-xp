@@ -1,0 +1,50 @@
+{
+  "nav.demoEn": "English desktop",
+  "nav.demoZh": "中文桌面",
+  "nav.gallery": "组件库",
+  "nav.github": "GitHub",
+  "nav.docs": "文档",
+
+  "hero.badge": "实机运行 · 非截图",
+  "hero.tagline": "一个可嵌入、可编剧的 Windows XP 桌面引擎（React）。这个页面不是在“介绍”引擎——它就是引擎在运行，并用你也能调用的公开 API 驱动自己。",
+  "hero.powerOn": "点击开机",
+  "hero.dragHint": "拖动这个窗口，它是真的。",
+
+  "greeter.title": "欢迎 - 记事本",
+  "greeter.body": "这不是一段视频。\n拖动这个窗口试试。→\n\n本页所有内容都是真实的\n@caoergou/windows-xp 引擎——\n这段文字正是它通过公开的 ref 句柄\n（XPHandle）驱动自己敲出来的。\n\n可嵌入。可编剧。皆可为你所用。",
+
+  "act2.eyebrow": "同一套代码，多个世界",
+  "act2.title": "三个桌面，一个引擎",
+  "act2.body": "Windows XP 只是第一个“操作系统包”。同一引擎还能渲染深夜网吧桌面，以及一个虚构的青色系统——换掉文化包，引擎不变。",
+  "monitor.live": "实机",
+  "monitor.concept": "概念",
+  "monitor.xp": "Windows XP · Luna",
+  "monitor.xpDesc": "忠实的基准线：像素级还原的窗框、真实窗口、真实应用。",
+  "monitor.netcafe": "深夜网吧 · 中文",
+  "monitor.netcafeDesc": "QQ、360、迅雷、酷狗——2005–2007 中国互联网的气息与它的解谜剧情。",
+  "monitor.echo": "EchoOS · 虚构",
+  "monitor.echoDesc": "一个带 Dock 的虚构青色系统——证明外壳是可定义的“包”，而非写死的皮肤。",
+
+  "act4.eyebrow": "两扇门",
+  "act4.title": "选一个世界，走进去",
+  "door.zh.title": "中文桌面 · 网吧",
+  "door.zh.desc": "QQ 上线、360 体检、迅雷下载、暴风影音——2000s 中国互联网桌面。",
+  "door.zh.cta": "进入中文桌面 →",
+  "door.en.title": "English desktop",
+  "door.en.desc": "Winamp、Norton、uTorrent、iTunes、Office——西方 2000s 电脑。",
+  "door.en.cta": "进入英文桌面 →",
+
+  "roadmap.title": "路线图",
+  "roadmap.now": "现在",
+  "roadmap.next": "接下来",
+  "roadmap.later": "以后",
+  "roadmap.1": "可嵌入引擎：事件、命令式 ref、内容注入、文化包",
+  "roadmap.2": "剧情运行时——声明式触发器/flags，支撑可编剧的 ARG 故事",
+  "roadmap.3": "XP 之外的操作系统包（Win7 / 类 macOS / defineOS）",
+  "roadmap.4": "LLM 桥接：可被智能体感知、可被智能体操作的桌面",
+
+  "footer.start": "开始",
+  "footer.tagline": "三个桌面，一个引擎",
+
+  "lang.switch": "EN"
+}

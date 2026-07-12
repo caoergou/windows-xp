@@ -19,8 +19,21 @@ const HEX_BASELINE = 1539; // 2026-07-11：#123 en 文化应用（Winamp/Norton/
 /** 机制层：必须保持零色值、零 xp.css 依赖的目录/文件。 */
 const ENGINE_PURE = ['src/context', 'src/hooks', 'src/utils', 'src/events.ts', 'src/snapshot.ts'];
 
+/**
+ * hex 棘轮豁免：营销落地页（#160）是构建在引擎之上的**消费层**，自带一套刻意
+ * 非 XP Luna 的暗色/青色设计系统（COLORS token 不适用），不计入引擎的 token 化
+ * 欠账。棘轮仍治理引擎与组件库代码。
+ */
+const RATCHET_EXCLUDE = ['src/site'];
+
 /** 允许引入 xp.css 的入口文件（皮肤在入口挂载，不在模块内部渗透）。 */
-const XPCSS_ENTRIES = new Set(['src/main.tsx', 'src/lib/index.tsx']);
+const XPCSS_ENTRIES = new Set([
+  'src/lib/index.tsx',
+  // Multi-page site entries (#160) — the old src/main.tsx router was split into these.
+  'src/demo/mountDemo.tsx',
+  'src/gallery/gallery-main.tsx',
+  'src/site/landing-main.tsx',
+]);
 
 const HEX_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/g;
 const XPCSS_IMPORT_RE = /(?:import\s+['"]|from\s+['"])xp\.css/;
@@ -48,11 +61,12 @@ for (const file of walk('src')) {
   const lines = stripped.split('\n');
 
   const isEnginePure = ENGINE_PURE.some(p => posix === p || posix.startsWith(p + '/'));
+  const isRatchetExcluded = RATCHET_EXCLUDE.some(p => posix === p || posix.startsWith(p + '/'));
 
   lines.forEach((line, i) => {
     const hexes = line.match(HEX_RE);
     if (hexes) {
-      totalHex += hexes.length;
+      if (!isRatchetExcluded) totalHex += hexes.length;
       if (isEnginePure) {
         failures.push(`引擎目录出现色值 ${posix}:${i + 1} → ${hexes.join(' ')}（红线 11：机制层禁止 XP 皮肤细节）`);
       }
