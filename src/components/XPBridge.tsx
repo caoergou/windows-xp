@@ -20,6 +20,7 @@ import i18n from '../i18n';
 import type { XPEvent, XPEventListener } from '../events';
 import { qqStore } from '../apps/QQ/qqStore';
 import type { QQProfile } from '../data/qq/types';
+import { SCENARIO_FLAGS_KEY } from './ScenarioRunner';
 
 /** Filesystem actuation from outside the desktop (#115). Paths are absolute. */
 export interface XPFsApi {
@@ -379,6 +380,14 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             } catch (e) {
               console.warn('[windows-xp] getSnapshot: open_windows parse failed', e);
             }
+            // Scenario progress (#84) lives under the canonical flags key.
+            let flags: Record<string, unknown> = {};
+            try {
+              const raw = storage.local.getItem(storage.key(SCENARIO_FLAGS_KEY));
+              if (raw) flags = JSON.parse(raw);
+            } catch (e) {
+              console.warn('[windows-xp] getSnapshot: scenario flags parse failed', e);
+            }
             return {
               version: XP_SNAPSHOT_VERSION,
               fs: getFsSnapshot(),
@@ -386,7 +395,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
               openWindows,
               wallpaper: wallpaper ?? null,
               language: getSavedLanguage(),
-              flags: {},
+              flags,
             };
           },
 
@@ -399,6 +408,9 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             );
             if (snapshot.wallpaper) {
               storage.local.setItem(storage.key('wallpaper'), snapshot.wallpaper);
+            }
+            if (snapshot.flags && Object.keys(snapshot.flags).length > 0) {
+              storage.local.setItem(storage.key(SCENARIO_FLAGS_KEY), JSON.stringify(snapshot.flags));
             }
             if (snapshot.language) saveLanguage(snapshot.language);
             if (canUseDOM) window.location.reload();

@@ -623,6 +623,45 @@ your analytics:
 New tabs open with `noopener,noreferrer`, so an embedded desktop never hijacks
 its host page.
 
+## 剧情系统 / Scenario system (#84)
+
+Turn the desktop into a playable story with **no React** — author a JSON
+rulebook of `{ on, when?, do }` triggers that listen to the events above, read
+world state (flags, filesystem, event history), and drive shipped primitives
+(unlock a folder, pop a balloon, send a QQ message, write a file). Pass it via
+the `scenario` prop:
+
+```jsx
+import { WindowsXP } from '@caoergou/windows-xp';
+
+const scenario = {
+  id: 'prologue-v1',
+  initialFlags: { readLog: false },
+  triggers: [
+    {
+      id: 'read-chat-log',
+      on: 'file:open',
+      when: { event: { name: '聊天记录.txt' } },
+      once: true,
+      do: [
+        { setFlag: 'readLog', value: true },
+        { unlock: ['我的电脑', '本地磁盘 (C:)', 'WINDOWS'] },
+        { qqOnline: 'crystal' },
+      ],
+    },
+  ],
+};
+
+<WindowsXP scenario={scenario} autoLogin />;
+```
+
+Progress (flags, a bounded event journal, per-trigger fire counts, pending
+delayed `after` actions) persists per instance and resets when `scenario.id`
+changes; flags feed the snapshot `flags` slot. Full schema reference — every
+condition and action, `once`/`max` semantics, `happened`/`count` predicates,
+delayed actions, and a worked example — lives in
+[`docs/SCENARIOS.md`](./docs/SCENARIOS.md).
+
 ## Embedding in a host app
 
 ```jsx

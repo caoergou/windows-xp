@@ -8,6 +8,7 @@ import type { BootBranding, LoginBranding } from '../branding';
 import type { WallpaperItem } from '../data/wallpapers';
 import type { XPEventListener } from '../events';
 import type { XPHandle } from '../components/XPBridge';
+import type { Scenario } from '../scenario/types';
 import '../i18n';
 import 'xp.css/dist/XP.css';
 import '../scoped.css';
@@ -113,6 +114,13 @@ export interface WindowsXPProps {
    * suppresses the "Microsoft Windows XP" wordmark.
    */
   login?: LoginBranding;
+  /**
+   * Declarative scenario/story script (#84): flags, triggers, and gated actions
+   * authored as plain JSON. The runtime subscribes to the event stream and drives
+   * gating (doors & keys), pushes (QQ/tray/file events), and progress — no React.
+   * See `docs/SCENARIOS.md`.
+   */
+  scenario?: Scenario;
   /** Subscribe to desktop events (app launches, file opens, session, cmd...). */
   onEvent?: XPEventListener;
 }
@@ -161,6 +169,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     historyIntegration,
     boot,
     login,
+    scenario,
     onEvent,
   },
   ref
@@ -190,6 +199,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       historyIntegration={historyIntegration}
       boot={boot}
       login={login}
+      scenario={scenario}
       onEvent={onEvent}
       handleRef={ref}
       disableContextMenuBlock={disableContextMenuBlock ?? embedded}
@@ -286,5 +296,7 @@ export type {
 export { useXPEvents, useXPEventBus } from '../context/EventBusContext';
 export { EventBusProvider } from '../context/EventBusContext';
 export { XPEventBus, createXPEventBus } from '../events';
+export type { Scenario, Trigger, Condition, Action, FlagValue } from '../scenario/types';
+export { prologueScenario } from '../data/scenarios/prologue';
 export type { XPSnapshot } from '../snapshot';
 export { XP_SNAPSHOT_VERSION, XPSnapshotVersionError, assertLoadableSnapshot } from '../snapshot';
