@@ -10,7 +10,13 @@ import { join, extname } from 'node:path';
 
 const DIST = new URL('../dist', import.meta.url).pathname;
 const CHUNK_LIMIT = 1 * 1024 * 1024; // 1MB per JS chunk
-const TOTAL_LIMIT = 6 * 1024 * 1024; // 6MB dist total (npm pack ~3MB gzipped)
+// Total dist ceiling. Raised 6 -> 7MB (#224): the library keeps gaining real
+// content (system-app fidelity, culture apps, scenario/lesson engines) and the
+// dist had already reached ~6.04MB, so 6MB no longer left headroom. The tarball
+// is ~3.9MB gzipped at this size — still an order of magnitude under the 17MB
+// package #72 set out to prevent. This is a soft ratchet: keep it just above the
+// real dist so a genuine regression (e.g. base64-inlined assets) still trips it.
+const TOTAL_LIMIT = 7 * 1024 * 1024; // 7MB dist total (npm pack ~3.9MB gzipped)
 
 function walk(dir) {
   const out = [];
