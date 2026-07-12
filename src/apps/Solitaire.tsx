@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import styled, { css } from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
+import { useXPEventBus } from '../context/EventBusContext';
 import {
   XPMenuBar,
   XPMenuBarItem,
@@ -217,10 +218,13 @@ interface DragState {
 const Solitaire = ({ windowId }: { windowId?: string }) => {
   const { t, i18n } = useTranslation();
   const { setWindowTitle, closeWindow } = useWindowManager();
+  const bus = useXPEventBus();
   const [openMenu, setOpenMenu] = useState<'game' | 'help' | null>(null);
   const [gameState, setGameState] = useState<GameState>(() => dealGame());
   const [drag, setDrag] = useState<DragState | null>(null);
   const [won, setWon] = useState(false);
+  // Track the win transition so game:win fires once, not on every re-render.
+  const wonRef = useRef(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const foundationRefs = useRef<(HTMLDivElement | null)[]>([]);
   const tableauRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -239,8 +243,16 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
   }, []);
 
   useEffect(() => {
-    setWon(checkWin(gameState.foundations));
-  }, [gameState]);
+    const isWon = checkWin(gameState.foundations);
+    setWon(isWon);
+    if (isWon && !wonRef.current) bus.emit({ type: 'game:win', appId: 'Solitaire' });
+    wonRef.current = isWon;
+  }, [gameState, bus]);
+
+  // Announce the opening deal once; subsequent new games emit from resetGame.
+  useEffect(() => {
+    bus.emit({ type: 'game:start', appId: 'Solitaire' });
+  }, [bus]);
 
   useEffect(() => {
     if (windowId) setWindowTitle(windowId, t('apps.solitaire'));
@@ -249,7 +261,9 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
   const resetGame = useCallback(() => {
     setGameState(dealGame());
     setWon(false);
-  }, []);
+    wonRef.current = false;
+    bus.emit({ type: 'game:start', appId: 'Solitaire' });
+  }, [bus]);
 
   const handleStockClick = useCallback(() => {
     setGameState(prev => dealFromStock(prev));

@@ -100,6 +100,16 @@ const Taskbar = () => {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
+  // Announce Start-menu open/close from a single layer regardless of which
+  // trigger toggled it (button, Ctrl+Esc, outside-click). The ref skips the
+  // initial mount so a closed menu doesn't emit a spurious startmenu:close.
+  const startOpenRef = useRef(startOpen);
+  useEffect(() => {
+    if (startOpen === startOpenRef.current) return;
+    startOpenRef.current = startOpen;
+    bus.emit({ type: startOpen ? 'startmenu:open' : 'startmenu:close' });
+  }, [startOpen, bus]);
+
   useEffect(() => {
     windows.forEach(win => {
       const app = APP_REGISTRY[win.appId];

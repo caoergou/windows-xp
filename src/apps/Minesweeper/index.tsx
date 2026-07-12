@@ -10,6 +10,7 @@ import {
 } from '../../components/XPMenuBar';
 import { useTranslation } from 'react-i18next';
 import { useWindowManager } from '../../context/WindowManagerContext';
+import { useXPEventBus } from '../../context/EventBusContext';
 import {
   numberSprites,
   digitSprites,
@@ -64,6 +65,7 @@ import type { Difficulty, GameStatus, OpenMenu, CellData } from './types';
 const Minesweeper = ({ windowId }: { windowId?: string }) => {
   const { t, i18n } = useTranslation();
   const { closeWindow, resizeWindow, setWindowTitle } = useWindowManager();
+  const bus = useXPEventBus();
   const [difficulty, setDifficulty] = useState<Difficulty>('beginner');
   const [board, setBoard] = useState<CellData[][]>([]);
   const [flags, setFlags] = useState(0);
@@ -76,8 +78,15 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const pendingChordRef = useRef<string | null>(null);
+  // Mirror `time` in a ref so game:win can report the elapsed seconds without
+  // rebuilding the win/loss callbacks every tick.
+  const timeRef = useRef(0);
 
   const config = configs[difficulty];
+
+  useEffect(() => {
+    timeRef.current = time;
+  }, [time]);
 
   const initBoard = useCallback(() => {
     setBoard(createBoard(configs[difficulty]));
@@ -87,7 +96,8 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
     setFirstClick(true);
     setFace('smile');
     pendingChordRef.current = null;
-  }, [difficulty]);
+    bus.emit({ type: 'game:start', appId: 'Minesweeper', difficulty });
+  }, [difficulty, bus]);
 
   useEffect(() => {
     initBoard();
@@ -129,11 +139,15 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
     );
   }, [board.length, difficulty, resizeWindow, windowId]);
 
-  const endWithLoss = useCallback((nextBoard: CellData[][], row: number, col: number) => {
-    revealLoss(nextBoard, row, col);
-    setStatus('lost');
-    setFace('dead');
-  }, []);
+  const endWithLoss = useCallback(
+    (nextBoard: CellData[][], row: number, col: number) => {
+      revealLoss(nextBoard, row, col);
+      setStatus('lost');
+      setFace('dead');
+      bus.emit({ type: 'game:lose', appId: 'Minesweeper', difficulty });
+    },
+    [difficulty, bus]
+  );
 
   const endWithWin = useCallback(
     (nextBoard: CellData[][]) => {
@@ -141,8 +155,9 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
       setFlags(configs[difficulty].mines);
       setStatus('won');
       setFace('win');
+      bus.emit({ type: 'game:win', appId: 'Minesweeper', difficulty, timeMs: timeRef.current * 1000 });
     },
-    [difficulty]
+    [difficulty, bus]
   );
 
   const revealCell = useCallback(

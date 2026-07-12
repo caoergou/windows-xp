@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
+import { useXPEventBus } from '../context/EventBusContext';
 // Bundled no-copyright chime (synthesized tone) so the player works out of the
 // box — the old '/audio/sample.mp3' path never existed and ignored the base URL (#85).
 import sampleAudio from '../assets/audio/sample.wav';
@@ -175,6 +176,7 @@ const WindowsMediaPlayer = ({
   src = DEFAULT_SRC,
 }: WindowsMediaPlayerProps) => {
   const { t } = useTranslation();
+  const bus = useXPEventBus();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -200,9 +202,16 @@ const WindowsMediaPlayer = ({
     const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
+      bus.emit({ type: 'media:ended', path: mediaSrc });
     };
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
+    const handlePlay = () => {
+      setIsPlaying(true);
+      bus.emit({ type: 'media:play', path: mediaSrc, title: trackTitle });
+    };
+    const handlePause = () => {
+      setIsPlaying(false);
+      bus.emit({ type: 'media:pause', path: mediaSrc });
+    };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -219,7 +228,7 @@ const WindowsMediaPlayer = ({
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
     };
-  }, [isDragging]);
+  }, [isDragging, bus, mediaSrc, trackTitle]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -267,6 +276,7 @@ const WindowsMediaPlayer = ({
     const newTime = (value / 100) * duration;
     audio.currentTime = newTime;
     setCurrentTime(newTime);
+    bus.emit({ type: 'media:seek', path: mediaSrc, position: newTime });
   };
 
   const handleSeekStart = () => {

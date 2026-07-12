@@ -349,6 +349,9 @@ conventions live in [`docs/EVENTS.md`](docs/EVENTS.md).
 | `window:minimize` | `windowId`, `appId` | A window was minimized to the taskbar. |
 | `window:maximize` | `windowId`, `appId` | A window was maximized. |
 | `window:restore` | `windowId`, `appId` | A window was restored from a minimized/maximized state. |
+| `startmenu:open` | — | The Start menu was opened. |
+| `startmenu:close` | — | The Start menu was closed. |
+| `contextmenu:open` | `target?`, `path?` | A right-click context menu was opened; `target` classifies what was clicked ('desktop' / 'file' / 'app' …) and `path` locates the node when one was the target. |
 | `file:open` | `path`, `name`, `nodeType`, `app?` | A file or folder was opened (double-clicked / launched). |
 | `file:create` | `path`, `name`, `nodeType` | A file or folder was created. |
 | `file:update` | `path`, `name`, `content?` | A file's properties were edited; `content` is present when its text changed (the "player typed the passphrase" puzzle beat). |
@@ -358,6 +361,7 @@ conventions live in [`docs/EVENTS.md`](docs/EVENTS.md).
 | `file:copy` | `from`, `to`, `name` | A file was copied from `from` to `to`. |
 | `file:restore` | `name` | A file was restored from the Recycle Bin. |
 | `file:unlock` | `name` | A locked node was unlocked (correct password, or a host/scenario force-unlock). |
+| `file:properties` | `path`, `name` | A file's Properties dialog was opened — metadata (size, dates) inspected; a clue channel for scenarios (M1). |
 | `folder:delete` | `path`, `name` | A folder was deleted (files emit `file:delete`; folders emit this). |
 | `recyclebin:empty` | — | The Recycle Bin was emptied. |
 | `password:fail` | `path`, `name`, `attempt` | A wrong password was entered for a locked node; `attempt` counts consecutive failures. |
@@ -367,7 +371,7 @@ conventions live in [`docs/EVENTS.md`](docs/EVENTS.md).
 | `session:boot-complete` | — | The desktop finished booting and is interactive. |
 | `session:shutdown` | `mode` | The machine was shut down, restarted, or logged out via the Start menu. |
 | `cmd:exec` | `command` | A command was executed in the Command Prompt. |
-| `ie:navigate` | `url` | Internet Explorer navigated to a URL. |
+| `ie:navigate` | `url`, `generated?` | Internet Explorer navigated to a URL; `generated` is true when the page came from a host content provider rather than a bundled/authored page (#149). |
 | `wallpaper:change` | `wallpaper` | The desktop wallpaper was changed (`wallpaper` is the id or URL). |
 | `screensaver:start` | — | The screensaver started. |
 | `screensaver:stop` | — | The screensaver was dismissed. |
@@ -382,6 +386,34 @@ conventions live in [`docs/EVENTS.md`](docs/EVENTS.md).
 | `qq:online` | `buddyId`, `nickname` | A buddy came online. |
 | `qq:message` | `buddyId`, `direction`, `text` | A QQ message was sent or received; `direction` is 'incoming' (from the buddy) or 'outgoing' (from the player). |
 | `qq:reply` | `buddyId`, `text` | The player sent a reply to a buddy (the puzzle-relevant "player answered" beat). |
+| `qq:offline` | `buddyId` | A buddy went offline. |
+| `qq:status` | `buddyId`, `status?`, `signature?` | A buddy's status or signature changed — a world reaction (e.g. a mood line the player is meant to notice). |
+| `qq:choice` | `buddyId`, `choiceId` | The player picked a scripted reply option (a branching choice, distinct from the free-text `qq:reply`). |
+| `game:start` | `appId`, `difficulty?` | A game started a new round; `appId` names the game and `difficulty` is present when it applies. |
+| `game:win` | `appId`, `difficulty?`, `timeMs?` | A game was won; `timeMs` is the completion time when the game tracks one. |
+| `game:lose` | `appId`, `difficulty?` | A game was lost. |
+| `media:play` | `path?`, `title?` | Media playback started or resumed; `path` is the source when known. |
+| `media:pause` | `path?` | Media playback was paused. |
+| `media:ended` | `path?` | Media playback reached the end of the track. |
+| `media:seek` | `path?`, `position` | The playhead was moved; `position` is the new time in seconds. |
+| `search:query` | `query`, `hit`, `resultIds?` | A query was run against an in-world search engine (a fake 百度/AltaVista); `hit` is whether authored results matched. Emitted by the scenario runtime/app, not the core engine. |
+| `evidence:collect` | `termId`, `source?` | A term/clue entered the player's word bank (clicked a highlighted term, or granted by the scenario). |
+| `evidence:pin` | `itemId` | An item was pinned to the evidence board. |
+| `evidence:link` | `sourceId`, `targetId` | Two pinned items were linked on the evidence board. |
+| `evidence:unpin` | `itemId` | An item was removed from the evidence board. |
+| `deduction:submit` | `formId`, `slots?` | The player submitted a deduction form (Mad-Libs slots / Obra-Dinn triples); `slots` maps slot id → chosen value. |
+| `deduction:verified` | `formId`, `groups?` | A submitted deduction verified as correct; `groups` names the slot-groups that matched (supports verify-in-batches). |
+| `deduction:failed` | `formId`, `groups?` | A submitted deduction was rejected; `groups` names the slot-groups that failed. |
+| `lesson:start` | `lessonId` | A guided lesson started. |
+| `lesson:step-complete` | `lessonId`, `stepId` | A lesson step was completed (the learner performed the expected action). |
+| `lesson:hint-shown` | `lessonId`, `stepId`, `hintId?` | A hint was shown for the current step (hint-ladder escalation). |
+| `lesson:step-failed` | `lessonId`, `stepId` | The learner took a wrong action on a step. |
+| `lesson:complete` | `lessonId`, `score?` | A lesson finished; `score` is the assessed result when the lesson grades. |
+| `install:start` | `appId` | A software install/setup flow started. |
+| `install:complete` | `appId` | A software install completed. |
+| `install:cancelled` | `appId` | A software install was cancelled before completing. |
+| `ui:action` | `appId`, `control`, `value?` | A semantic app control changed (checkbox toggled, option selected); `control` names it and `value` is the new value. Emitted by data-driven apps (defineApp), gated by `settingEquals`. |
+| `link:external` | `url`, `newTab`, `source?` | The visitor followed a link out of the fiction to an external URL — the conversion signal campaigns measure. `newTab` is whether it opened in a new tab; `source` is the originating window id or file path, when known. |
 
 _Generated from `src/events.ts` by `npm run docs:events` — do not edit by hand._
 

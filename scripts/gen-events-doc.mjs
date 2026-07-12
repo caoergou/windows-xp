@@ -61,7 +61,9 @@ const parseEvents = (block) => {
     }
     // A union member: `| { type: 'domain:action'; … }` possibly with a leading
     // JSDoc on the same line.
-    const memberMatch = line.match(/\|\s*\{\s*type:\s*'([^']+)'\s*;?\s*(.*)\}\s*$/);
+    // Tolerate a trailing `;` on the final union member (it terminates the
+    // whole `type` declaration) so the last event is never dropped from the table.
+    const memberMatch = line.match(/\|\s*\{\s*type:\s*'([^']+)'\s*;?\s*(.*)\}\s*;?\s*$/);
     if (memberMatch) {
       const inlineDoc = line.match(/\/\*\*\s*(.*?)\s*\*\//);
       const type = memberMatch[1];
@@ -81,6 +83,8 @@ const parseEvents = (block) => {
 const DOMAIN_TITLES = {
   app: 'Application',
   window: 'Window',
+  startmenu: 'Start menu',
+  contextmenu: 'Context menu',
   file: 'Filesystem — files',
   folder: 'Filesystem — folders',
   recyclebin: 'Filesystem — Recycle Bin',
@@ -94,6 +98,14 @@ const DOMAIN_TITLES = {
   time: 'Timers',
   user: 'Idle detection',
   qq: 'QQ Messenger',
+  game: 'Games',
+  media: 'Media playback',
+  search: 'Search oracle',
+  evidence: 'Evidence board',
+  deduction: 'Deduction forms',
+  lesson: 'Guided lessons',
+  install: 'Software install',
+  ui: 'Semantic UI actions',
   link: 'Outbound links',
 };
 

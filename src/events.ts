@@ -31,6 +31,13 @@ export type XPEvent =
   | { type: 'window:maximize'; windowId: string; appId: string }
   /** A window was restored from a minimized/maximized state. */
   | { type: 'window:restore'; windowId: string; appId: string }
+  // ── startmenu / contextmenu: desktop shell interactions ─────────────────────
+  /** The Start menu was opened. */
+  | { type: 'startmenu:open' }
+  /** The Start menu was closed. */
+  | { type: 'startmenu:close' }
+  /** A right-click context menu was opened; `target` classifies what was clicked ('desktop' / 'file' / 'app' …) and `path` locates the node when one was the target. */
+  | { type: 'contextmenu:open'; target?: string; path?: string[] }
   // ── file / folder / recyclebin: the virtual filesystem ──────────────────────
   /** A file or folder was opened (double-clicked / launched). */
   | { type: 'file:open'; path: string[]; name: string; nodeType: string; app?: string }
@@ -50,6 +57,8 @@ export type XPEvent =
   | { type: 'file:restore'; name: string }
   /** A locked node was unlocked (correct password, or a host/scenario force-unlock). */
   | { type: 'file:unlock'; name: string }
+  /** A file's Properties dialog was opened — metadata (size, dates) inspected; a clue channel for scenarios (M1). */
+  | { type: 'file:properties'; path: string[]; name: string }
   /** A folder was deleted (files emit `file:delete`; folders emit this). */
   | { type: 'folder:delete'; path: string[]; name: string }
   /** The Recycle Bin was emptied. */
@@ -72,8 +81,8 @@ export type XPEvent =
   /** A command was executed in the Command Prompt. */
   | { type: 'cmd:exec'; command: string }
   // ── ie: Internet Explorer ───────────────────────────────────────────────────
-  /** Internet Explorer navigated to a URL. */
-  | { type: 'ie:navigate'; url: string }
+  /** Internet Explorer navigated to a URL; `generated` is true when the page came from a host content provider rather than a bundled/authored page (#149). */
+  | { type: 'ie:navigate'; url: string; generated?: boolean }
   // ── wallpaper / screensaver: appearance ─────────────────────────────────────
   /** The desktop wallpaper was changed (`wallpaper` is the id or URL). */
   | { type: 'wallpaper:change'; wallpaper: string }
@@ -107,6 +116,68 @@ export type XPEvent =
   | { type: 'qq:message'; buddyId: string; direction: 'incoming' | 'outgoing'; text: string }
   /** The player sent a reply to a buddy (the puzzle-relevant "player answered" beat). */
   | { type: 'qq:reply'; buddyId: string; text: string }
+  /** A buddy went offline. */
+  | { type: 'qq:offline'; buddyId: string }
+  /** A buddy's status or signature changed — a world reaction (e.g. a mood line the player is meant to notice). */
+  | { type: 'qq:status'; buddyId: string; status?: string; signature?: string }
+  /** The player picked a scripted reply option (a branching choice, distinct from the free-text `qq:reply`). */
+  | { type: 'qq:choice'; buddyId: string; choiceId: string }
+  // ── game: bundled games (#134) ──────────────────────────────────────────────
+  /** A game started a new round; `appId` names the game and `difficulty` is present when it applies. */
+  | { type: 'game:start'; appId: string; difficulty?: string }
+  /** A game was won; `timeMs` is the completion time when the game tracks one. */
+  | { type: 'game:win'; appId: string; difficulty?: string; timeMs?: number }
+  /** A game was lost. */
+  | { type: 'game:lose'; appId: string; difficulty?: string }
+  // ── media: audio / video playback (#134) ────────────────────────────────────
+  /** Media playback started or resumed; `path` is the source when known. */
+  | { type: 'media:play'; path?: string; title?: string }
+  /** Media playback was paused. */
+  | { type: 'media:pause'; path?: string }
+  /** Media playback reached the end of the track. */
+  | { type: 'media:ended'; path?: string }
+  /** The playhead was moved; `position` is the new time in seconds. */
+  | { type: 'media:seek'; path?: string; position: number }
+  // ── search: in-world search oracle (#134, scenario-layer) ────────────────────
+  /** A query was run against an in-world search engine (a fake 百度/AltaVista); `hit` is whether authored results matched. Emitted by the scenario runtime/app, not the core engine. */
+  | { type: 'search:query'; query: string; hit: boolean; resultIds?: string[] }
+  // ── evidence: clue collection & pinboard (#134, scenario-layer) ──────────────
+  /** A term/clue entered the player's word bank (clicked a highlighted term, or granted by the scenario). */
+  | { type: 'evidence:collect'; termId: string; source?: string }
+  /** An item was pinned to the evidence board. */
+  | { type: 'evidence:pin'; itemId: string }
+  /** Two pinned items were linked on the evidence board. */
+  | { type: 'evidence:link'; sourceId: string; targetId: string }
+  /** An item was removed from the evidence board. */
+  | { type: 'evidence:unpin'; itemId: string }
+  // ── deduction: constrained answer submission (#134, scenario-layer) ──────────
+  /** The player submitted a deduction form (Mad-Libs slots / Obra-Dinn triples); `slots` maps slot id → chosen value. */
+  | { type: 'deduction:submit'; formId: string; slots?: Record<string, string> }
+  /** A submitted deduction verified as correct; `groups` names the slot-groups that matched (supports verify-in-batches). */
+  | { type: 'deduction:verified'; formId: string; groups?: string[] }
+  /** A submitted deduction was rejected; `groups` names the slot-groups that failed. */
+  | { type: 'deduction:failed'; formId: string; groups?: string[] }
+  // ── lesson: guided-tutorial lifecycle (#141) ─────────────────────────────────
+  /** A guided lesson started. */
+  | { type: 'lesson:start'; lessonId: string }
+  /** A lesson step was completed (the learner performed the expected action). */
+  | { type: 'lesson:step-complete'; lessonId: string; stepId: string }
+  /** A hint was shown for the current step (hint-ladder escalation). */
+  | { type: 'lesson:hint-shown'; lessonId: string; stepId: string; hintId?: string }
+  /** The learner took a wrong action on a step. */
+  | { type: 'lesson:step-failed'; lessonId: string; stepId: string }
+  /** A lesson finished; `score` is the assessed result when the lesson grades. */
+  | { type: 'lesson:complete'; lessonId: string; score?: number }
+  // ── install: software-install lifecycle (#142) ───────────────────────────────
+  /** A software install/setup flow started. */
+  | { type: 'install:start'; appId: string }
+  /** A software install completed. */
+  | { type: 'install:complete'; appId: string }
+  /** A software install was cancelled before completing. */
+  | { type: 'install:cancelled'; appId: string }
+  // ── ui: semantic in-app control changes (#142) ───────────────────────────────
+  /** A semantic app control changed (checkbox toggled, option selected); `control` names it and `value` is the new value. Emitted by data-driven apps (defineApp), gated by `settingEquals`. */
+  | { type: 'ui:action'; appId: string; control: string; value?: string | number | boolean }
   // ── link: outbound navigation (#136) ────────────────────────────────────────
   /** The visitor followed a link out of the fiction to an external URL — the conversion signal campaigns measure. `newTab` is whether it opened in a new tab; `source` is the originating window id or file path, when known. */
   | { type: 'link:external'; url: string; newTab: boolean; source?: string };
