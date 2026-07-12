@@ -143,6 +143,38 @@ Each action maps to a shipped actuation primitive.
 > These are the only fields the schema defines. Do not invent others — an
 > unknown key is authoring drift, not a feature.
 
+## Localizing beat text: string tables (#207)
+
+A scenario's *logic* (triggers, puzzle graph) is culture-neutral, but its *beat
+text* — balloon titles, QQ lines, note bodies — is not. Keep them apart: put the
+text in a per-locale `strings` table and reference it by key.
+
+```jsonc
+{
+  "id": "county-2007",
+  "strings": {
+    "zh": { "intro.title": "还记得吗？", "intro.body": "看看桌面上的便签。" },
+    "en": { "intro.title": "Remember?",  "intro.body": "Check the desktop note." }
+  },
+  "triggers": [
+    { "on": "session:boot-complete",
+      "do": [{ "notify": { "titleKey": "intro.title", "bodyKey": "intro.body" } }] }
+  ]
+}
+```
+
+`notify` (`titleKey`/`bodyKey`), `alert` (`titleKey`/`messageKey`), `qqMessage`
+(`textKey`), and `note` (`titleKey`/`contentKey`) each take a key beside their
+literal — the key wins when present. The runtime resolves it against the **active
+culture's locale** at fire time, falling back across tables then to the key
+itself (so an unresolved key is visible, not blank). One graph, two skins:
+`prologueGraph` ships `zh` + `en` tables, so the same story plays in either
+language by switching locale.
+
+Inline literals still work for prototyping; once a `strings` table exists, the
+validator nudges you (one summary warning) to extract the rest, and flags a
+`*Key` that references a missing string.
+
 ## Event-history predicates: `happened` & `count`
 
 `when` normally reads the *triggering* event (via `event`), but a scenario often

@@ -95,6 +95,31 @@ export const validateScenario = (scenario: unknown): ScenarioValidation => {
     return { ok: false, errors, warnings };
   }
 
+  // String tables (#207): the keys defined across all locales, and whether the
+  // author has opted into extraction at all.
+  const stringKeys = new Set<string>();
+  if (isObj(scenario.strings)) {
+    for (const table of Object.values(scenario.strings)) {
+      if (isObj(table)) Object.keys(table).forEach(k => stringKeys.add(k));
+    }
+  }
+  const hasStrings = stringKeys.size > 0;
+  let inlineTextCount = 0; // beat literals still inline once a string table exists
+
+  // Check a beat action's text fields (#207): a `*Key` must resolve to a defined
+  // string; remaining inline literals are counted for one summary nudge below.
+  const checkText = (obj: Record<string, unknown>, path: string, pairs: [string, string][]): void => {
+    for (const [literalField, keyField] of pairs) {
+      const key = obj[keyField];
+      if (typeof key === 'string' && !stringKeys.has(key)) {
+        warnings.push(`${path}.${keyField}: references string key "${key}" not found in any locale table`);
+      }
+      if (hasStrings && key === undefined && typeof obj[literalField] === 'string') {
+        inlineTextCount += 1;
+      }
+    }
+  };
+
   // Flag reference consistency: collect what's set vs. what's read.
   const setFlags = new Set<string>(
     isObj(scenario.initialFlags) ? Object.keys(scenario.initialFlags) : []
@@ -155,7 +180,16 @@ export const validateScenario = (scenario: unknown): ScenarioValidation => {
       } else if (key === 'note') {
         const v = action.note;
         if (!isObj(v) || typeof v.id !== 'string') errors.push(`${ap}.note.id: expected a string`);
-        if (isObj(v) && typeof v.content !== 'string') errors.push(`${ap}.note.content: expected a string`);
+        if (isObj(v) && typeof v.content !== 'string' && typeof v.contentKey !== 'string') {
+          errors.push(`${ap}.note: needs a content or contentKey`);
+        }
+        if (isObj(v)) checkText(v, `${ap}.note`, [['title', 'titleKey'], ['content', 'contentKey']]);
+      } else if (key === 'notify') {
+        if (isObj(action.notify)) checkText(action.notify, `${ap}.notify`, [['title', 'titleKey'], ['body', 'bodyKey']]);
+      } else if (key === 'alert') {
+        if (isObj(action.alert)) checkText(action.alert, `${ap}.alert`, [['title', 'titleKey'], ['message', 'messageKey']]);
+      } else if (key === 'qqMessage') {
+        if (isObj(action.qqMessage)) checkText(action.qqMessage, `${ap}.qqMessage`, [['text', 'textKey']]);
       } else if (key === 'removeNote') {
         if (typeof action.removeNote !== 'string') errors.push(`${ap}.removeNote: expected a note id (string)`);
       } else if (key === 'openApp') {
@@ -210,6 +244,12 @@ export const validateScenario = (scenario: unknown): ScenarioValidation => {
     if (!setFlags.has(f)) {
       warnings.push(`flag "${f}" is read in a condition but never set (setFlag/incFlag/initialFlags) — the gate may never open`);
     }
+  }
+
+  // One nudge (not per-field spam): a string table exists but some beat text is
+  // still inline — extract it so the whole script localizes (#207).
+  if (inlineTextCount > 0) {
+    warnings.push(`${inlineTextCount} beat text field(s) are still inline — extract to string keys so the whole script localizes`);
   }
 
   return { ok: errors.length === 0, errors, warnings };

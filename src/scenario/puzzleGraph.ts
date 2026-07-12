@@ -12,6 +12,7 @@
 import type { XPEventType } from '../events';
 import { all, count, flag, not, notify, setFlag } from './builder';
 import type { Action, Condition, FlagValue, Scenario, Trigger } from './types';
+import type { ScenarioStrings } from './strings';
 
 /**
  * A hint rung for a puzzle's anti-stuck ladder (M12). A rung reveals its `text`
@@ -75,6 +76,8 @@ export interface PuzzleGraph {
   id: string;
   initialFlags?: Record<string, FlagValue>;
   puzzles: PuzzleNode[];
+  /** Per-locale beat-text tables (#207), passed through to the compiled scenario. */
+  strings?: ScenarioStrings;
 }
 
 /** The flag a solved puzzle sets (and that dependents gate on). */
@@ -145,6 +148,7 @@ export const compilePuzzleGraph = (graph: PuzzleGraph): Scenario => {
   return {
     id: graph.id,
     ...(graph.initialFlags ? { initialFlags: graph.initialFlags } : {}),
+    ...(graph.strings ? { strings: graph.strings } : {}),
     triggers: [...triggers, ...hintTriggers],
   };
 };

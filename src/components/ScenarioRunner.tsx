@@ -29,8 +29,10 @@ import { qqStore } from '../apps/QQ/qqStore';
 import { playSound } from '../utils/soundManager';
 import { isContainerNode, isFileContentNode, type FileNode } from '../types';
 import type { XPEvent } from '../events';
+import { useCulture } from '../context/CultureContext';
 import { appendJournal, evaluateCondition, matchOn, type EvalContext } from '../scenario/engine';
 import { validateScenario } from '../scenario/validate';
+import { pickText } from '../scenario/strings';
 import { traceCondition, type ConditionTrace } from '../scenario/trace';
 import {
   hasTraceListeners,
@@ -79,6 +81,7 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
   const { schedule } = useScheduler();
   const { dialog } = useModal();
   const { setNote, removeNote } = useNotes();
+  const { cultureKey } = useCulture();
   const { openWindow } = useWindowManagerActions();
   const { registry } = useAppRegistry();
   const storage = useStorage();
@@ -191,6 +194,14 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
       for (const action of actions) runAction(action);
     };
 
+    // Resolve a beat's literal-or-key against the scenario string table for the
+    // active locale (#207): `key` wins over the inline literal when present. The
+    // locale is the active culture id (which tracks the desktop language), not
+    // `i18n.language` — the desktop's isolated i18n instance isn't the one the
+    // language prop drives.
+    const text = (literal: string | undefined, key: string | undefined): string | undefined =>
+      pickText(scenario.strings, cultureKey, literal, key);
+
     const runAction = (action: Action) => {
       if ('setFlag' in action) {
         const prev = state.flags[action.setFlag];
@@ -227,9 +238,11 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
       } else if ('writeFile' in action) {
         updateFile(action.writeFile.path, { content: action.writeFile.content });
       } else if ('notify' in action) {
-        notify(action.notify);
+        const n = action.notify;
+        notify({ ...n, title: text(n.title, n.titleKey) ?? '', body: text(n.body, n.bodyKey) });
       } else if ('qqMessage' in action) {
-        if (!qqStore.receiveMessage(action.qqMessage.buddyId, action.qqMessage.text)) {
+        const body = text(action.qqMessage.text, action.qqMessage.textKey) ?? '';
+        if (!qqStore.receiveMessage(action.qqMessage.buddyId, body)) {
           console.warn(
             `[windows-xp] scenario qqMessage: no buddy "${action.qqMessage.buddyId}" (open QQ / loadProfile first)`
           );
@@ -262,9 +275,14 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
       } else if ('emit' in action) {
         bus.emit(action.emit);
       } else if ('alert' in action) {
-        void dialog.alert({ title: action.alert.title, message: action.alert.message, type: 'info' });
+        void dialog.alert({
+          title: text(action.alert.title, action.alert.titleKey) ?? '',
+          message: text(action.alert.message, action.alert.messageKey) ?? '',
+          type: 'info',
+        });
       } else if ('note' in action) {
-        setNote(action.note);
+        const n = action.note;
+        setNote({ ...n, title: text(n.title, n.titleKey), content: text(n.content, n.contentKey) ?? '' });
       } else if ('removeNote' in action) {
         removeNote(action.removeNote);
       } else if ('after' in action) {
