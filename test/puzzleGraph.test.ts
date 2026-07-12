@@ -4,12 +4,59 @@
  * solver, and the graph linter (cycles, reachability, gates, hints, bushiness).
  */
 import { describe, it, expect } from 'vitest';
-import { compilePuzzleGraph, lintPuzzleGraph, solvedFlag, type PuzzleGraph } from '../src/scenario/puzzleGraph';
+import { compilePuzzleGraph, lintPuzzleGraph, ladder, solvedFlag, type PuzzleGraph } from '../src/scenario/puzzleGraph';
 import { solveScenario, ranAction } from '../src/scenario/solver';
 import { eventMatch, happened, unlock, flag } from '../src/scenario/builder';
 import type { XPEvent } from '../src/events';
 
 const openFileEvent = (name: string): XPEvent => ({ type: 'file:open', path: [name], name, nodeType: 'file' });
+
+describe('hint ladders (M12)', () => {
+  it('ladder() escalates thresholds at base*(i+1)', () => {
+    expect(ladder({ fails: 2 }, 'a', 'b', 'c')).toEqual([
+      { text: 'a', afterFails: 2 },
+      { text: 'b', afterFails: 4 },
+      { text: 'c', afterFails: 6 },
+    ]);
+    expect(ladder({ idles: 1, title: '提示' }, 'x')).toEqual([{ text: 'x', title: '提示', afterIdles: 1 }]);
+  });
+
+  it('compiles a fails ladder to a password:fail hint — matching the hand-written prologue trigger', () => {
+    const scenario = compilePuzzleGraph({
+      id: 'g',
+      puzzles: [
+        { id: 'door', on: 'file:unlock', solvedWhen: happened('file:unlock', { name: 'WINDOWS' }),
+          hints: ladder({ fails: 2, title: '提示' }, '看便签。') },
+      ],
+    });
+    // Below the threshold: no hint.
+    const one = solveScenario(scenario, [{ type: 'password:fail', path: ['x'], name: 'x', attempt: 1 }]);
+    expect(one.actions.some(a => 'notify' in a)).toBe(false);
+    // At 2 fails the hint balloons — equivalent to the hand-written count>=2 trigger.
+    const two = solveScenario(scenario, [
+      { type: 'password:fail', path: ['x'], name: 'x', attempt: 1 },
+      { type: 'password:fail', path: ['x'], name: 'x', attempt: 2 },
+    ]);
+    const hint = two.actions.find(a => 'notify' in a) as { notify: { body: string } } | undefined;
+    expect(hint?.notify.body).toBe('看便签。');
+  });
+
+  it('stops hinting once the puzzle is solved', () => {
+    const scenario = compilePuzzleGraph({
+      id: 'g',
+      puzzles: [
+        { id: 'door', on: 'file:unlock', solvedWhen: happened('file:unlock', { name: 'WINDOWS' }),
+          hints: ladder({ fails: 1 }, 'hint') },
+      ],
+    });
+    // Solve first, then fail: the door is solved, so no hint fires.
+    const r = solveScenario(scenario, [
+      { type: 'file:unlock', name: 'WINDOWS' },
+      { type: 'password:fail', path: ['x'], name: 'x', attempt: 1 },
+    ]);
+    expect(r.actions.some(a => 'notify' in a)).toBe(false);
+  });
+});
 
 describe('compilePuzzleGraph', () => {
   it('compiles a node to a fire-once gated trigger', () => {
@@ -108,13 +155,28 @@ describe('lintPuzzleGraph', () => {
     expect(report.issues.filter(i => i.message.includes('cycle')).length).toBeGreaterThanOrEqual(1);
   });
 
-  it('warns on a missing hint ladder (M12)', () => {
+  it('errors when a critical-path puzzle has no hint ladder (M12)', () => {
     const report = lintPuzzleGraph({
       id: 'g',
       puzzles: [{ id: 'a', on: 'file:open', solvedWhen: eventMatch({ name: 'x' }) }],
     });
-    expect(report.issues.some(i => i.level === 'warn' && i.message.includes('hint ladder'))).toBe(true);
-    expect(report.ok).toBe(true); // warning, not error
+    expect(
+      report.issues.some(i => i.level === 'error' && i.message.includes('critical path') && i.message.includes('hint ladder'))
+    ).toBe(true);
+    expect(report.ok).toBe(false);
+  });
+
+  it('only warns for an optional (non-critical) puzzle without hints', () => {
+    const report = lintPuzzleGraph({
+      id: 'g',
+      puzzles: [
+        { id: 'a', on: 'file:open', solvedWhen: eventMatch({ name: 'x' }), hints: [{ text: 'h' }] },
+        { id: 'main', requires: ['a'], on: 'file:open', solvedWhen: eventMatch({ name: 'y' }), hints: [{ text: 'h' }] },
+        { id: 'side', requires: ['a'], on: 'file:open', solvedWhen: eventMatch({ name: 'z' }) }, // optional terminal, unhinted
+      ],
+    });
+    expect(report.issues.some(i => i.puzzle === 'side' && i.level === 'warn' && i.message.includes('hint ladder'))).toBe(true);
+    expect(report.ok).toBe(true); // a warning, not an error — it's off the critical path
   });
 
   it('errors when a puzzle has no derivable trigger event', () => {

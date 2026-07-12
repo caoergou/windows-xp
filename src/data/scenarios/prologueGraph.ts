@@ -13,6 +13,7 @@
  */
 import {
   compilePuzzleGraph,
+  ladder,
   type PuzzleGraph,
 } from '../../scenario/puzzleGraph';
 import { addFile, eventMatch, happened, notify, qqMessage } from '../../scenario/builder';
@@ -30,7 +31,7 @@ export const prologueGraph: PuzzleGraph = {
           timeout: 12000,
         }),
       ],
-      hints: [{ afterMs: 20000, text: '先看看桌面上的便签，或翻翻回收站。' }],
+      hints: ladder({ idles: 1, title: '提示' }, '先看看桌面上的便签，或翻翻回收站。'),
     },
     {
       id: 'read-letter',
@@ -44,7 +45,7 @@ export const prologueGraph: PuzzleGraph = {
           timeout: 12000,
         }),
       ],
-      hints: [{ afterMs: 25000, text: '回收站里的《写给未来的信》。' }],
+      hints: ladder({ idles: 1, title: '提示' }, '回收站里的《写给未来的信》。'),
     },
     {
       id: 'read-chat',
@@ -61,7 +62,7 @@ export const prologueGraph: PuzzleGraph = {
           content: '给未来的我：\r\n\r\nC 盘那个藏起来的文件夹，密码就是我给所有东西设的老密码——admin（小写）。',
         }),
       ],
-      hints: [{ afterMs: 25000, text: 'D 盘 → 游戏 → 聊天记录.txt。' }],
+      hints: ladder({ idles: 1, title: '提示' }, 'D 盘 → 游戏 → 聊天记录.txt。'),
     },
     {
       id: 'unlock-windows',
@@ -71,7 +72,7 @@ export const prologueGraph: PuzzleGraph = {
         notify({ title: '序章完成', body: '文件夹打开了。当年的自己，终于把东西交到了未来的手上。', timeout: 0 }),
         addFile(['尾声.txt'], { type: 'file', app: 'Notepad', content: '2005 年的那台电脑，你已经全部看过了。\r\n\r\n（序章 · 完）' }),
       ],
-      hints: [{ afterMs: 20000, text: '密码便签写着答案——老密码，小写。' }],
+      hints: ladder({ fails: 2, title: '提示' }, '桌面上的「密码便签」写着答案——老密码，小写。'),
     },
   ],
 };
