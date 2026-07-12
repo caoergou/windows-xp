@@ -940,5 +940,19 @@
   "recycleBinNotices": {
     "restoreFallbackTitle": "Recycle Bin",
     "restoreFallbackMessage": "The original folder of \"{{name}}\" no longer exists. It has been restored to the Desktop."
+  },
+  "lesson": {
+    "close": "Close lesson",
+    "progress": "Step {{current}} of {{total}}",
+    "done": "Lesson complete!",
+    "score": "Score: {{score}} / 100",
+    "notepad": {
+      "title": "Lesson: Notepad basics",
+      "step1": "Open Notepad from the Start menu.",
+      "hint1a": "Click the Start button in the bottom-left corner.",
+      "hint1b": "Notepad is under All Programs → Accessories.",
+      "step2": "Type a short note, then save it to My Documents.",
+      "hint2": "Open the File menu and choose Save, then confirm the location."
+    }
   }
 }

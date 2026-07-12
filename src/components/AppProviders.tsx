@@ -17,7 +17,9 @@ import { StorageProvider } from '../context/StorageContext';
 import { SchedulerProvider } from '../context/SchedulerContext';
 import { XPEventBridge, XPImperativeApi, type XPHandle } from './XPBridge';
 import { ScenarioRunner } from './ScenarioRunner';
+import { LessonProvider } from '../context/LessonContext';
 import type { Scenario } from '../scenario/types';
+import type { Lesson } from '../lesson/types';
 import { DeepLinkLoader } from './DeepLinkLoader';
 import type { DeepLinkRoutes } from '../utils/deepLink';
 import { XPEventBus } from '../events';
@@ -72,6 +74,8 @@ export interface AppProvidersProps {
   login?: LoginBranding;
   /** Declarative scenario/story script — triggers, flags, gated actions (#84). */
   scenario?: Scenario;
+  /** Guided lessons (#141) — data-driven tutorials, driven via `startLesson`. */
+  lessons?: Lesson[];
 }
 
 const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
@@ -102,6 +106,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   boot,
   login,
   scenario,
+  lessons,
 }) => {
   // Configure storage namespace synchronously before any context reads/writes storage.
   setStoragePrefix(storagePrefix || 'xp_');
@@ -187,24 +192,26 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
           <WindowManagerProvider registry={registry}>
             <TrayProvider>
               <ModalProvider>
-                <XPImperativeApi ref={handleRef} storagePrefix={storagePrefix} />
-                <ScenarioRunner scenario={scenario} />
-                <DeepLinkLoader
-                  open={openOnLoad}
-                  routes={routes}
-                  location={location}
-                  historyIntegration={historyIntegration}
-                />
-                <App
-                  initialLanguage={language}
-                  skipBoot={skipBoot}
-                  disableContextMenuBlock={disableContextMenuBlock}
-                  disableDevToolsBlock={disableDevToolsBlock}
-                  disableGlobalShortcuts={disableGlobalShortcuts}
-                  disableScreenSaver={disableScreenSaver}
-                  boot={boot}
-                  login={login}
-                />
+                <LessonProvider lessons={lessons}>
+                  <XPImperativeApi ref={handleRef} storagePrefix={storagePrefix} />
+                  <ScenarioRunner scenario={scenario} />
+                  <DeepLinkLoader
+                    open={openOnLoad}
+                    routes={routes}
+                    location={location}
+                    historyIntegration={historyIntegration}
+                  />
+                  <App
+                    initialLanguage={language}
+                    skipBoot={skipBoot}
+                    disableContextMenuBlock={disableContextMenuBlock}
+                    disableDevToolsBlock={disableDevToolsBlock}
+                    disableGlobalShortcuts={disableGlobalShortcuts}
+                    disableScreenSaver={disableScreenSaver}
+                    boot={boot}
+                    login={login}
+                  />
+                </LessonProvider>
               </ModalProvider>
             </TrayProvider>
           </WindowManagerProvider>

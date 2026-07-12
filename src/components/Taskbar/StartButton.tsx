@@ -81,6 +81,7 @@ const StartButton: React.FC<StartButtonProps> = ({ label, isActive, buttonRef, o
     <StartButtonContainer
       ref={buttonRef}
       data-testid="start-button"
+      data-xp-anchor="start-button"
       onClick={onClick}
       className={isActive ? 'active' : ''}
       $isActive={isActive}

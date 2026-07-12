@@ -21,6 +21,8 @@ import type { XPEvent, XPEventListener } from '../events';
 import { qqStore } from '../apps/QQ/qqStore';
 import type { QQProfile } from '../data/qq/types';
 import { SCENARIO_FLAGS_KEY } from './ScenarioRunner';
+import { useLesson } from '../context/LessonContext';
+import type { LessonMode } from '../lesson/types';
 
 /** Filesystem actuation from outside the desktop (#115). Paths are absolute. */
 export interface XPFsApi {
@@ -141,6 +143,14 @@ export interface XPHandle {
   schedule: (options: ScheduleOptions) => string;
   /** Cancel a pending schedule by id (#130). */
   cancelSchedule: (id: string) => void;
+  /**
+   * Start a guided lesson by id (#141) in `try` (default), `do`, or `watch`
+   * mode. Returns false if no lesson with that id was registered via the
+   * `lessons` prop. Emits `lesson:*` events; progress persists per instance.
+   */
+  startLesson: (lessonId: string, mode?: LessonMode) => boolean;
+  /** Stop the running lesson and clear its saved progress (#141). */
+  stopLesson: () => void;
   /** Capture the full desktop state as a portable, versioned snapshot (#117). */
   getSnapshot: () => XPSnapshot;
   /**
@@ -186,6 +196,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
     const bus = useXPEventBus();
     const storage = useStorage();
     const { schedule, cancelSchedule } = useScheduler();
+    const { start: startLesson, stop: stopLesson } = useLesson();
 
     useImperativeHandle(
       ref,
@@ -372,6 +383,9 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
           schedule: options => schedule(options),
           cancelSchedule: id => cancelSchedule(id),
 
+          startLesson: (lessonId, lessonMode) => startLesson(lessonId, lessonMode),
+          stopLesson,
+
           getSnapshot: (): XPSnapshot => {
             let openWindows: unknown[] = [];
             try {
@@ -444,6 +458,8 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
         storage,
         schedule,
         cancelSchedule,
+        startLesson,
+        stopLesson,
       ]
     );
 
