@@ -231,3 +231,73 @@ What it demonstrates: `event` matches the triggering payload; `once` makes each
 beat fire exactly once; `unlock` opens a door by real path; `flag` + `unlocked`
 gate the follow-up; `qqOnline`/`qqMessage` push the story; `after` paces the
 payoff; and `setFlag` advances progress that persists into the snapshot.
+
+## Author toolchain (PUZZLE-DESIGN §4)
+
+Scenarios are authored across layers that all compile to the one JSON runtime
+above — so hand-written JSON, a typed builder, and a headless test harness share
+one save format and one linter.
+
+- **Layer 0 — imperative host**: `ref.emit()`, `onEvent`, the `fs.*`/`session.*`
+  handle. The escape hatch for set-pieces the declarative layers can't say.
+- **Layer 1 — declarative JSON** (this document): the lingua franca; what
+  saves/loads and what the other layers compile into.
+- **Layer 2 — typed fluent builder**: `defineScenario()` + helpers, for
+  developers who want autocomplete over the event catalog and compile-time
+  payload checking.
+- **Headless solver**: run a scenario over an event sequence with no browser —
+  "CI for stories".
+
+### Layer 2 — `defineScenario`
+
+```ts
+import { defineScenario, not, flag, setFlag, after, ms, qqOnline } from '@caoergou/windows-xp';
+
+const s = defineScenario('county-2007').initialFlag('act', 1);
+
+s.on('file:open', { name: '日记.txt' })   // `match` becomes an implicit event condition
+  .when(not(flag('act2')))
+  .once()
+  .do(setFlag('readDiary'), after(ms('3s'), qqOnline('crystal')));
+
+export default s.build();   // → the Layer-1 Scenario JSON
+```
+
+Condition helpers: `all` / `any` / `not` / `flag` / `eventMatch` / `happened` /
+`count` / `exists` / `unlocked` / `contentContains`. Action helpers:
+`setFlag` / `incFlag` / `unlock` / `addFile` / `removeFile` / `writeFile` /
+`notify` / `qqMessage` / `qqOnline` / `openApp` / `openFile` / `playSound` /
+`emit` / `alert` / `after`. `ms()` parses `500`, `'90s'`, `'10m'`, `'1h'`.
+(Also importable namespaced as `scenarioHelpers`.)
+
+### Headless solver — `solveScenario`
+
+Because triggers and events are data, a scenario is testable without a browser:
+feed the walkthrough, assert the ending.
+
+```ts
+import { solveScenario, ranAction } from '@caoergou/windows-xp';
+
+const r = solveScenario(scenario, [
+  { type: 'file:open', path: ['D:', '日记.txt'], name: '日记.txt', nodeType: 'file' },
+  { type: 'file:unlock', name: '私人' },
+], { fs: [{ path: ['D:', '私人'], locked: true }] });
+
+expect(r.flags.solved).toBe(true);      // ending reached
+expect(ranAction(r, 'unlock')).toBe(true);
+```
+
+The solver runs the **same** matching/gating/flag semantics as the live runtime
+(a regression test asserts flag-parity between the two). Fidelity notes: delayed
+`after` actions apply immediately (headless has no clock — it models
+"eventually"), side-effecting actions (`notify`/`qq`/`openApp`/…) are recorded
+rather than performed, and `emit` actions feed back into the loop (cascades,
+capped by `maxEvents`). Seed FS-gated puzzles with the `fs` option.
+
+### Planned — Layer 3: the Puzzle Dependency Graph
+
+Ron Gilbert's Puzzle Dependency Charts as the *authoring model*: declare puzzle
+nodes with `requires` / `solvedWhen` / `grants`; the compiler derives Layer-1
+triggers; a graph linter catches unreachable puzzles, unintended act-bottleneck
+bypasses, required steps with no hint ladder, and reports "bushiness" (pacing).
+Not yet implemented — tracked as the next toolchain step.
