@@ -20,6 +20,7 @@ import { useFileSystem } from '../context/FileSystemContext';
 import { useTray } from '../context/TrayContext';
 import { useScheduler } from '../context/SchedulerContext';
 import { useModal } from '../context/ModalContext';
+import { useNotes } from '../context/NotesContext';
 import { useWindowManagerActions } from '../context/WindowManagerContext';
 import { useAppRegistry } from '../context/AppRegistryContext';
 import { useStorage } from '../context/StorageContext';
@@ -77,6 +78,7 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
   const { notify } = useTray();
   const { schedule } = useScheduler();
   const { dialog } = useModal();
+  const { setNote, removeNote } = useNotes();
   const { openWindow } = useWindowManagerActions();
   const { registry } = useAppRegistry();
   const storage = useStorage();
@@ -261,6 +263,10 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
         bus.emit(action.emit);
       } else if ('alert' in action) {
         void dialog.alert({ title: action.alert.title, message: action.alert.message, type: 'info' });
+      } else if ('note' in action) {
+        setNote(action.note);
+      } else if ('removeNote' in action) {
+        removeNote(action.removeNote);
       } else if ('after' in action) {
         const id = schedule({ delayMs: action.after.ms });
         state.pending[id] = action.after.do;

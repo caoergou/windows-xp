@@ -98,10 +98,36 @@ export type Action =
   /** Show a modal alert dialog. */
   | { alert: { title: string; message: string } }
   /**
+   * Pin or update a desktop sticky note (#207) — the cheapest "narration" channel
+   * for nudging the story forward. Upserts by `id`; call again with the same id to
+   * change the text.
+   */
+  | { note: ScenarioNote }
+  /** Remove a desktop sticky note by id (#207). */
+  | { removeNote: string }
+  /**
    * Run nested actions after `ms` milliseconds. Persisted via the #130 scheduler:
    * survives reload and fires on next load if the delay elapsed while closed.
    */
   | { after: { ms: number; do: Action[] } };
+
+/** Colour of a scenario sticky note (#207). */
+export type NoteColor = 'yellow' | 'blue' | 'pink' | 'green';
+
+/** A desktop sticky note pinned by a scenario (#207). JSON-serializable. */
+export interface ScenarioNote {
+  /** Stable id — upsert/remove key. */
+  id: string;
+  /** Optional heading; falls back to a generic "Note" caption. */
+  title?: string;
+  /** Body text (newlines preserved). */
+  content: string;
+  /** Desktop position in px; auto-stacked from the top-right when omitted. */
+  x?: number;
+  y?: number;
+  /** Paper colour (default `yellow`). */
+  color?: NoteColor;
+}
 
 /** One `{ on, when?, do }` rule. */
 export interface Trigger {

@@ -1020,6 +1020,10 @@
     "wordBank": "词库",
     "solved": "案件了结——所有推理均已核验。"
   },
+  "stickyNote": {
+    "defaultTitle": "便笺",
+    "dismiss": "撕掉"
+  },
   "evidenceBoard": {
     "tray": "证据",
     "unpin": "从板上移除",

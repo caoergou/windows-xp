@@ -32,7 +32,8 @@ const KNOWN_EVENT_DOMAINS = new Set([
 /** Known action keys and the required shape of each (beyond the discriminant). */
 const ACTION_KEYS = new Set([
   'setFlag', 'incFlag', 'unlock', 'addFile', 'removeFile', 'writeFile', 'notify',
-  'qqMessage', 'qqOnline', 'openApp', 'openFile', 'playSound', 'emit', 'alert', 'after',
+  'qqMessage', 'qqOnline', 'openApp', 'openFile', 'playSound', 'emit', 'alert',
+  'note', 'removeNote', 'after',
 ]);
 
 const CONDITION_KEYS = new Set([
@@ -151,6 +152,12 @@ export const validateScenario = (scenario: unknown): ScenarioValidation => {
         if (key === 'writeFile' && isObj(v) && typeof v.content !== 'string') {
           errors.push(`${ap}.writeFile.content: expected a string`);
         }
+      } else if (key === 'note') {
+        const v = action.note;
+        if (!isObj(v) || typeof v.id !== 'string') errors.push(`${ap}.note.id: expected a string`);
+        if (isObj(v) && typeof v.content !== 'string') errors.push(`${ap}.note.content: expected a string`);
+      } else if (key === 'removeNote') {
+        if (typeof action.removeNote !== 'string') errors.push(`${ap}.removeNote: expected a note id (string)`);
       } else if (key === 'openApp') {
         const v = action.openApp;
         if (!isObj(v) || typeof v.appId !== 'string') errors.push(`${ap}.openApp.appId: expected a string`);

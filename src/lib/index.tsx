@@ -323,7 +323,7 @@ export type {
 export { useXPEvents, useXPEventBus } from '../context/EventBusContext';
 export { EventBusProvider } from '../context/EventBusContext';
 export { XPEventBus, createXPEventBus } from '../events';
-export type { Scenario, Trigger, Condition, Action, FlagValue } from '../scenario/types';
+export type { Scenario, Trigger, Condition, Action, FlagValue, ScenarioNote, NoteColor } from '../scenario/types';
 export { prologueScenario } from '../data/scenarios/prologue';
 // Author toolchain (PUZZLE-DESIGN §4): Layer-2 fluent builder + headless solver.
 export { defineScenario, ScenarioBuilder } from '../scenario/builder';

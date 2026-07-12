@@ -1026,6 +1026,10 @@
     "wordBank": "Word bank",
     "solved": "Case closed — every deduction verified."
   },
+  "stickyNote": {
+    "defaultTitle": "Note",
+    "dismiss": "Dismiss"
+  },
   "evidenceBoard": {
     "tray": "Evidence",
     "unpin": "Remove from board",

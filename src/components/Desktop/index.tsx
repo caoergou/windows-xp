@@ -10,6 +10,7 @@ import Window from '../Window';
 import ErrorBoundary from '../ErrorBoundary';
 import ContextMenu from '../ContextMenu';
 import LessonOverlay from '../LessonOverlay';
+import StickyNotesLayer from '../StickyNotesLayer';
 import XPIcon from '../XPIcon';
 import FileProperties from '../FileProperties';
 import DesktopProperties from '../DesktopProperties';
@@ -698,6 +699,8 @@ const Desktop: React.FC = () => {
           <Window windowState={win} />
         </ErrorBoundary>
       ))}
+
+      <StickyNotesLayer />
 
       <LessonOverlay />
 

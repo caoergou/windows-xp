@@ -74,6 +74,15 @@ describe('validateScenario', () => {
     expect(r.warnings).toEqual([]);
   });
 
+  it('checks note action shapes (#207)', () => {
+    const missingContent = validateScenario({ id: 's', triggers: [{ on: 'cmd:exec', do: [{ note: { id: 'x' } }] }] });
+    expect(missingContent.errors.join('\n')).toContain('triggers[0].do[0].note.content');
+    const badRemove = validateScenario({ id: 's', triggers: [{ on: 'cmd:exec', do: [{ removeNote: 123 }] }] });
+    expect(badRemove.errors.join('\n')).toContain('triggers[0].do[0].removeNote');
+    const good = validateScenario({ id: 's', triggers: [{ on: 'cmd:exec', do: [{ note: { id: 'x', content: 'hi' } }, { removeNote: 'x' }] }] });
+    expect(good.ok).toBe(true);
+  });
+
   it('rejects an oversized scenario', () => {
     const big = { id: 's', triggers: [{ on: 'cmd:exec', do: [{ setFlag: 'x'.repeat(SCENARIO_MAX_BYTES + 1) }] }] };
     const r = validateScenario(big);
