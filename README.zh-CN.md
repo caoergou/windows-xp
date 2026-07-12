@@ -9,7 +9,9 @@
 [![React](https://img.shields.io/badge/React-18%20%7C%2019-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
-[在线演示](https://eric.run.place/windows-xp/) · [使用文档](USAGE.md) · [路线图](https://github.com/caoergou/windows-xp/issues/86) · [报告问题](https://github.com/caoergou/windows-xp/issues)
+[在线演示](https://eric.run.place/windows-xp/) · [English desktop](https://eric.run.place/windows-xp/demo/en/) · [中文桌面](https://eric.run.place/windows-xp/demo/zh/) · [使用文档](USAGE.md) · [路线图](https://github.com/caoergou/windows-xp/issues/86) · [报告问题](https://github.com/caoergou/windows-xp/issues)
+
+> 在线演示是一个真实运行、可以拖动的桌面——无需登录（演示页自动登录）。上面两个桌面链接可直接进入英文 / 中文世界。
 
 [English](README.md) | 简体中文
 
@@ -46,7 +48,7 @@ function App() {
 - 📡 **万物皆事件** —— `onEvent` 以类型化事件流送出用户的每个动作：`file:open`、`app:launch`、`cmd:exec`、`session:login`、窗口生命周期……埋点分析、引导演示、解谜逻辑都挂在这一个 prop 上。
 - 🎮 **用代码驱动** —— 命令式 `ref` 句柄（`XPHandle`）可以打开应用和文件、读写文件系统、控制会话与壁纸，还能把整台机器快照成可分享的 JSON 存档（`getSnapshot`/`loadSnapshot`）。
 - 📦 **你的世界，不是我们的** —— `customFileSystem` + `fileSystemMode="replace"` 把整个桌面换成你的内容；壁纸、头像、自定义应用、整个文化包都以 props 注入。新增内容永远不需要写 React。
-- 🧱 **同时是一套组件库** —— `XPButton`、`XPDialog`、`XPTabs`、`XPProgressBar` 等可零 Provider 独立使用，与 xp.css 逐值对齐（见[组件画廊](https://eric.run.place/windows-xp/?gallery)）。
+- 🧱 **同时是一套组件库** —— `XPButton`、`XPDialog`、`XPTabs`、`XPProgressBar` 等可零 Provider 独立使用，与 xp.css 逐值对齐（见[组件画廊](https://eric.run.place/windows-xp/gallery/)）。
 - 🔍 **把保真当纪律** —— 每个视觉与行为细节都在 [FIDELITY.md](FIDELITY.md) 中对照真实 XP SP3 逐项打分，design token 全部标注出处，CI 挂视觉回归基线。这里没有"现代化改良"的圆角。
 
 ## 大家用它做什么

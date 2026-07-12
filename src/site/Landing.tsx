@@ -4,6 +4,7 @@ import blissUrl from '../assets/images/desktop_bg.jpg';
 import { useSiteI18n } from './siteI18n';
 
 const HeroDesktop = React.lazy(() => import('./HeroDesktop'));
+const GlassBox = React.lazy(() => import('./GlassBox'));
 
 /**
  * Landing page (#160) — "Three Desktops, One Engine". Phase 1 of the spec:
@@ -427,6 +428,9 @@ const Landing: React.FC = () => {
   const [poweredOn, setPoweredOn] = useState(false);
   const [clock, setClock] = useState('');
   const idleRef = useRef<number | null>(null);
+  // Lazy-mount the (heavy, second-engine) glass box only when scrolled near it.
+  const [showGlass, setShowGlass] = useState(false);
+  const glassSentinel = useRef<HTMLDivElement>(null);
 
   // Auto power-on the hero shortly after load (interaction also triggers it),
   // so a first-time visitor can drag a real window within ~5s (acceptance #1).
@@ -452,6 +456,22 @@ const Landing: React.FC = () => {
     const id = window.setInterval(tick, 15000);
     return () => window.clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    const el = glassSentinel.current;
+    if (!el || showGlass) return;
+    const io = new IntersectionObserver(
+      entries => {
+        if (entries.some(e => e.isIntersecting)) {
+          setShowGlass(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: '250px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [showGlass]);
 
   return (
     <Page>
@@ -512,6 +532,14 @@ const Landing: React.FC = () => {
         </MonitorRow>
       </Section>
 
+      {/* Act 3 — the glass box (lazy, mounts on scroll) */}
+      <div ref={glassSentinel} />
+      {showGlass && (
+        <Suspense fallback={<Section style={{ minHeight: 460 }} aria-hidden />}>
+          <GlassBox />
+        </Suspense>
+      )}
+
       {/* Act 4 — two doors + roadmap */}
       <Section id="demos">
         <Eyebrow>{t('act4.eyebrow')}</Eyebrow>
@@ -558,6 +586,7 @@ const Landing: React.FC = () => {
         </StartBtn>
         <NavStrip>
           <a href="#engine">{t('act2.title')}</a>
+          <a href="#glassbox">{t('glass.title')}</a>
           <a href="demo/en/">{t('nav.demoEn')}</a>
           <a href="demo/zh/">{t('nav.demoZh')}</a>
           <a href="gallery/">{t('nav.gallery')}</a>

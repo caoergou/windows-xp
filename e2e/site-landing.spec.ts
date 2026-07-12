@@ -50,6 +50,36 @@ test.describe('Landing page (#160)', () => {
     await expect(page.locator('[data-testid="taskbar"]')).toBeVisible({ timeout: 20000 });
   });
 
+  test('glass box streams real onEvent traffic when driven (#160 Phase 2)', async ({ page }) => {
+    test.setTimeout(60000);
+    await page.goto('./');
+    // Progressively scroll so the sentinel crosses the viewport and the lazy
+    // glass-box section (engine + terminal) mounts via its IntersectionObserver.
+    for (let y = 0; y <= 4000; y += 400) {
+      await page.evaluate(yy => window.scrollTo(0, yy), y);
+      await page.waitForTimeout(120);
+    }
+    await page.locator('#glassbox').scrollIntoViewIfNeeded();
+    const ticker = page.locator('[data-testid="glass-ticker"]');
+    await expect(ticker).toBeVisible({ timeout: 15000 });
+    // Its embedded desktop boots and emits at least session:boot-complete.
+    await expect(ticker).toContainText('session:boot-complete', { timeout: 20000 });
+
+    // "Haunt it" drives the desktop over the ref handle → app:launch events.
+    const haunt = page.locator('[data-testid="glass-haunt"]');
+    await haunt.click();
+    await expect(ticker).toContainText('app:launch', { timeout: 10000 });
+    // The tour disables the proof buttons while it runs; wait for it to finish.
+    await expect(haunt).toBeEnabled({ timeout: 15000 });
+    // It ends on a modal alert ("Haunted") — dismiss it so it stops intercepting.
+    const okBtn = page.locator('.xp-alert button', { hasText: /OK|确定/ }).first();
+    if (await okBtn.count()) await okBtn.click();
+
+    // "Break it" trips a real lock → a genuine file:unlock event on the feed.
+    await page.locator('[data-testid="glass-break"]').click();
+    await expect(ticker).toContainText('file:unlock', { timeout: 12000 });
+  });
+
   test('reduced motion keeps the content complete (SEO/a11y floor)', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('./');
