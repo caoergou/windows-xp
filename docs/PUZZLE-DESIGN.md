@@ -406,7 +406,7 @@ skill gates need mercy bypasses.
 | `time:hour`, `user:idle`, persisted scheduler | #130 |
 | Event journal + `happened()`/`count()` predicates | #84 schema (runtime), #117 (persistence/snapshot) |
 | FS predicates, counters, string vars, AND/OR, once/repeat, hint ladders | #84 schema |
-| `hidden`/`protected`/`mtime` node attrs, `game:win/lose`, `setNodeIcon`, virtual clock, takeover component | follow-up implementation issues after #84 schema settles |
+| `hidden`/`protected`/`mtime` node attrs ✅ #219 (Explorer show-hidden toggle + delete/rename guard); `game:win/lose`, `setNodeIcon`, virtual clock, takeover component | follow-up implementation issues after #84 schema settles |
 | `search:query` + query table; injectable IE pages | #84 content model (builds on round-1 C3/C4) |
 | `msg:*`/`buddy:*` event names | #119 |
 | Deduction Sheet, Evidence Board apps | v2 candidates after #84 MVP (Notepad + `contentContains` is the day-one substitute) |

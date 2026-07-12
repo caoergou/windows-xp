@@ -594,10 +594,12 @@ export const FileSystemProvider: React.FC<{
         childCount,
         icon: node.icon,
         created: XP_DATE,
-        modified: XP_DATE,
-        accessed: XP_DATE,
+        modified: node.mtime ?? XP_DATE,
+        accessed: node.mtime ?? XP_DATE,
         locked: !!node.locked,
         broken: !!node.broken,
+        hidden: !!node.hidden,
+        readOnly: !!node.protected,
       };
     },
     [getFile]

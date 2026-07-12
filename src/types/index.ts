@@ -44,6 +44,24 @@ interface BaseFileNode {
   password?: string;
   broken?: boolean;
   hint?: string;
+  /**
+   * XP "Hidden" attribute (#219). Filtered out of Explorer unless the user turns
+   * on "show hidden files"; shown ghosted (dimmed) when revealed. Lets a scenario
+   * hide a clue the player must go looking for.
+   */
+  hidden?: boolean;
+  /**
+   * Protected/system file (#219). The in-fiction UI refuses to delete or rename
+   * it (a "you can't just trash this" beat); the host's imperative `fs.*` API is
+   * unaffected.
+   */
+  protected?: boolean;
+  /**
+   * Last-modified timestamp, ISO 8601 (#219). Surfaces in the Details "Date
+   * Modified" column (and its sort) and the Properties dialog; absent falls back
+   * to the stable XP-era date.
+   */
+  mtime?: string;
   /** 指向 EXIF JSON 文件的路径（src/data/photos 下） */
   exifPath?: string;
   /** 直接内嵌的 EXIF 数据 */
@@ -140,6 +158,8 @@ export interface FileProperties {
   accessed: string;
   locked: boolean;
   broken: boolean;
+  hidden: boolean;
+  readOnly: boolean;
 }
 
 /** 搜索结果项 */

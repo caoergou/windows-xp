@@ -241,7 +241,7 @@ Use `resolveFileOpen(key, item)` to resolve a filesystem node to window props, a
 
 - Structure defined in `src/data/filesystem.json`
 - Recycle Bin items loaded dynamically from `src/data/recycle_bin/*.json`
-- File node properties: `type`, `name`, `icon`, `locked`, `password`, `broken`, `children`
+- File node properties: `type`, `name`, `icon`, `locked`, `password`, `broken`, `children`, `hidden` (filtered from Explorer unless "show hidden files" is on), `protected` (in-fiction UI refuses delete/rename), `mtime` (ISO 8601, feeds Details "Date Modified" + Properties)
 
 ### User Session (`src/context/UserSessionContext.tsx`)
 

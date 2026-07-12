@@ -66,6 +66,28 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
       return next;
     });
 
+  // Show-hidden-files toggle (#219). Off by default, persisted per instance;
+  // when off, nodes flagged `hidden` are filtered out of the listing (and the
+  // object count / keyboard nav), matching XP's Folder Options. When on they
+  // show ghosted. Toggling is a user-visible control change → `ui:action`.
+  const showHiddenKey = storage.key('explorer_show_hidden');
+  const [showHidden, setShowHidden] = useState<boolean>(
+    () => storage.local.getItem(showHiddenKey) === '1'
+  );
+  const toggleShowHidden = () =>
+    setShowHidden(prev => {
+      const next = !prev;
+      storage.local.setItem(showHiddenKey, next ? '1' : '0');
+      bus.emit({ type: 'ui:action', appId: 'Explorer', control: 'show-hidden', value: next });
+      return next;
+    });
+
+  // The children of the current folder that should be visible given the
+  // show-hidden setting. Every listing/count/nav path routes through this so a
+  // hidden node is uniformly absent (not just visually gone).
+  const visibleEntries = (entries: [string, FileNode][]): [string, FileNode][] =>
+    showHidden ? entries : entries.filter(([, item]) => !item.hidden);
+
   // Address-bar history (#120, EXP-08): an MRU of visited paths, persisted per
   // instance, surfaced in the address-bar dropdown.
   const addrHistoryKey = storage.key('explorer_address_history');
@@ -326,14 +348,15 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   };
   const formatBytes = (bytes: number | null): string =>
     bytes === null ? '' : t('fileProperties.bytes', { count: bytes });
-  const detailsDate = () => {
-    const d = new Date('2003-10-25');
+  const detailsDate = (item?: FileNode) => {
+    const d = new Date(item?.mtime ?? '2003-10-25');
     return new Intl.DateTimeFormat(i18n.language, {
       year: 'numeric',
       month: 'numeric',
       day: 'numeric',
     }).format(d);
   };
+  const nodeMtime = (item: FileNode): string => item.mtime ?? '2003-10-25';
 
   const openItemMenuAt = (x: number, y: number, key: string, item: FileNode) => {
     // Right-clicking an already-selected item keeps the whole multi-selection
@@ -377,6 +400,18 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
       if (!single) return;
       keys = [single.key];
     }
+    // Protected/system files resist deletion in-fiction (#219).
+    const guarded = keys.find(k => folder.children[k]?.protected);
+    if (guarded) {
+      api.dialog.alert({
+        title: t('explorer.protected.title'),
+        message: t('explorer.protected.deleteMessage', {
+          name: getFileDisplayName(guarded, folder.children[guarded], t),
+        }),
+        type: 'error',
+      });
+      return;
+    }
     const message =
       keys.length === 1
         ? t('common.deleteConfirmSingle', { name: getFileDisplayName(keys[0], folder.children[keys[0]], t) })
@@ -395,6 +430,16 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   const handleRename = (override?: { key: string; item: FileNode }) => {
     const targetItem = override ?? contextMenu.targetItem;
     if (targetItem) {
+      if (targetItem.item.protected) {
+        api.dialog.alert({
+          title: t('explorer.protected.title'),
+          message: t('explorer.protected.renameMessage', {
+            name: getFileDisplayName(targetItem.key, targetItem.item, t),
+          }),
+          type: 'error',
+        });
+        return;
+      }
       api.dialog
         .prompt({
           title: t('common.renameTitle'),
@@ -531,6 +576,15 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
         { label: t('contextMenu.delete'), action: handleDeleteSelection, disabled: selection.size === 0 },
         { type: 'separator' },
         {
+          label: showHidden
+            ? `✓ ${t('explorer.showHiddenFiles')}`
+            : t('explorer.showHiddenFiles'),
+          action: () => {
+            toggleShowHidden();
+            closeContextMenu();
+          },
+        },
+        {
           label: t('contextMenu.properties'),
           action: handleProperties,
           disabled: selection.size !== 1,
@@ -564,20 +618,21 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
 
   const childCount =
     currentFolder && isContainerNode(currentFolder)
-      ? Object.keys(currentFolder.children).length
+      ? visibleEntries(Object.entries(currentFolder.children)).length
       : 0;
 
   // Child keys in the same order the list shows them (insertion order for the
   // icon grid; the active sort for Details) — used for arrow-key selection.
   const orderedKeys = (): string[] => {
     if (!currentFolder || !isContainerNode(currentFolder)) return [];
-    const entries = Object.entries(currentFolder.children);
+    const entries = visibleEntries(Object.entries(currentFolder.children));
     if (viewMode !== 'details') return entries.map(([k]) => k);
     const dir = sort.dir === 'asc' ? 1 : -1;
     return [...entries]
       .sort(([ka, a], [kb, b]) => {
         if (sort.key === 'size') return ((nodeSizeBytes(a) ?? -1) - (nodeSizeBytes(b) ?? -1)) * dir;
         if (sort.key === 'type') return nodeTypeLabel(a).localeCompare(nodeTypeLabel(b)) * dir;
+        if (sort.key === 'modified') return nodeMtime(a).localeCompare(nodeMtime(b)) * dir;
         return getFileDisplayName(ka, a, t).localeCompare(getFileDisplayName(kb, b, t)) * dir;
       })
       .map(([k]) => k);
@@ -659,6 +714,8 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     toggleSort,
     showFolders,
     toggleFolders,
+    showHidden,
+    visibleEntries,
     addrHistory,
     history,
     historyIndex,
