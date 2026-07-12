@@ -5,6 +5,8 @@ export const LOGIN_PASSWORD = 'forthe2000s';
 export interface LoginOptions {
   lang?: 'en' | 'zh';
   skipBoot?: boolean;
+  /** Extra query string appended to the URL (no leading `&`/`?`), e.g. `open=Notepad&history=1`. */
+  query?: string;
 }
 
 /**
@@ -15,7 +17,10 @@ export interface LoginOptions {
  * for the desktop/taskbar to be visible.
  */
 export async function login(page: Page, options: LoginOptions = {}) {
-  const path = options.lang ? `./?lang=${options.lang}` : './';
+  const qs = [options.lang ? `lang=${options.lang}` : '', options.query ?? '']
+    .filter(Boolean)
+    .join('&');
+  const path = qs ? `./?${qs}` : './';
 
   if (options.skipBoot !== false) {
     await page.addInitScript(() => {

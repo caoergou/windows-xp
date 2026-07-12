@@ -322,6 +322,7 @@ conventions live in [`docs/EVENTS.md`](docs/EVENTS.md).
 | `qq:open` | `buddyId?` | The QQ client opened, or a specific buddy chat was opened (`buddyId`). |
 | `qq:online` | `buddyId`, `nickname` | A buddy came online. |
 | `qq:message` | `buddyId`, `direction`, `text` | A QQ message was sent or received; `direction` is 'incoming' (from the buddy) or 'outgoing' (from the player). |
+| `qq:reply` | `buddyId`, `text` | The player sent a reply to a buddy (the puzzle-relevant "player answered" beat). |
 
 _Generated from `src/events.ts` by `npm run docs:events` — do not edit by hand._
 
@@ -464,6 +465,72 @@ async function uploadSave(xp, file) {
 Loading a snapshot whose `version` is newer than the running build throws
 `XPSnapshotVersionError` (exported) rather than corrupting state — so guard the
 import with a `try/catch` and surface a "please update" message.
+
+### Permalinks & share links (#136)
+
+Map URLs to desktop state so a blog post, a search result, or a campaign QR
+code can land the visitor on a specific open window.
+
+**Inbound — open a window from a URL.** `openOnLoad` takes one or more *key
+paths* (the sequence of filesystem keys from the desktop root, joined with `/`).
+Windows open once the desktop is interactive (after `skipBoot`/`autoLogin`);
+invalid paths fail silently to the plain desktop. Wire it to your own URL — the
+component takes no router dependency:
+
+```jsx
+import { WindowsXP } from '@caoergou/windows-xp';
+
+const open = new URLSearchParams(location.search).getAll('open');
+// e.g. visiting …?open=My Documents/readme.txt&lang=en opens that file, focused.
+export default () => <WindowsXP openOnLoad={open} />;
+```
+
+For prettier URLs, pass a host-router-agnostic `routes` map plus the current
+`location` (any framework — you supply the string):
+
+```jsx
+<WindowsXP
+  location={location.pathname}
+  routes={{ '/blog/:slug': ({ slug }) => ({ open: `D:/posts/${slug}.md` }) }}
+/>
+```
+
+**Share links.** `getShareUrl(windowId)` returns a `?open=…` permalink that
+reproduces a path-opened window on a fresh profile (component-only windows
+return `null`). A share button captures "this window, open, focused"; encode the
+same URL into a QR code for print/campaign use:
+
+```jsx
+const url = xp.current?.getShareUrl(windowId); // …/?open=D%3A/posts/hello.md&lang=en
+```
+
+**Browser Back.** Set `historyIntegration` so opening/closing top-level windows
+push/pop `history` and Back closes the last-opened window — expected on content
+sites, off by default (games and embeds don't want it):
+
+```jsx
+<WindowsXP openOnLoad={open} historyIntegration />
+```
+
+**Outbound — links that leave the fiction.** An `external_link` filesystem node
+is a desktop shortcut that opens a real URL instead of a window; or call
+`openExternal(url, { newTab })` from the handle. Either way a `link:external`
+event fires — the conversion signal every campaign funnel measures. Feed it to
+your analytics:
+
+```jsx
+<WindowsXP
+  customFileSystem={{
+    'Buy tickets': { type: 'external_link', name: 'Buy tickets', href: 'https://example.com/tickets', icon: 'ie' },
+  }}
+  onEvent={e => {
+    if (e.type === 'link:external') gtag('event', 'outbound_click', { url: e.url });
+  }}
+/>
+```
+
+New tabs open with `noopener,noreferrer`, so an embedded desktop never hijacks
+its host page.
 
 ## Embedding in a host app
 

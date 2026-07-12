@@ -15,6 +15,19 @@ const initialLanguage = urlLang === 'zh' || urlLang === 'en' ? urlLang : undefin
 // catalog used for visual-regression baselines instead of the desktop.
 const showGallery = params.has('gallery');
 
+// Deep linking (#136): ?open=<key/path> (repeatable) opens windows on load;
+// ?history=1 makes browser Back close the last-opened window.
+const openOnLoad = params.getAll('open');
+const historyIntegration = params.get('history') === '1';
+
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  showGallery ? <Gallery /> : <AppProviders language={initialLanguage} />
+  showGallery ? (
+    <Gallery />
+  ) : (
+    <AppProviders
+      language={initialLanguage}
+      openOnLoad={openOnLoad}
+      historyIntegration={historyIntegration}
+    />
+  )
 );

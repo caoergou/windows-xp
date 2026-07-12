@@ -106,7 +106,10 @@ export type XPEvent =
   /** A QQ message was sent or received; `direction` is 'incoming' (from the buddy) or 'outgoing' (from the player). */
   | { type: 'qq:message'; buddyId: string; direction: 'incoming' | 'outgoing'; text: string }
   /** The player sent a reply to a buddy (the puzzle-relevant "player answered" beat). */
-  | { type: 'qq:reply'; buddyId: string; text: string };
+  | { type: 'qq:reply'; buddyId: string; text: string }
+  // ── link: outbound navigation (#136) ────────────────────────────────────────
+  /** The visitor followed a link out of the fiction to an external URL — the conversion signal campaigns measure. `newTab` is whether it opened in a new tab; `source` is the originating window id or file path, when known. */
+  | { type: 'link:external'; url: string; newTab: boolean; source?: string };
 
 export type XPEventType = XPEvent['type'];
 export type XPEventListener = (event: XPEvent) => void;

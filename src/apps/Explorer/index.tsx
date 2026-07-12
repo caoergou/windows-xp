@@ -14,6 +14,7 @@ import ContextMenu from '../../components/ContextMenu';
 import FileProperties from '../../components/FileProperties';
 import { FileNode, MenuItem, isContainerNode, isFileContentNode } from '../../types';
 import { getFileDisplayName } from '../../utils/fileDisplayName';
+import { openExternalUrl } from '../../utils/externalLink';
 import {
   getSystemPathDisplay,
   getSystemPathTitle,
@@ -188,18 +189,29 @@ const Explorer: React.FC<ExplorerProps> = ({ initialPath = [], windowId }) => {
       setHistory(newHistory);
       setHistoryIndex(newHistory.length - 1);
       setSelectedItem(null);
+    } else if (target.type === 'external_link') {
+      // External-link shortcut: leave the fiction instead of opening a window (#136).
+      const newTab = target.newTab ?? true;
+      openExternalUrl(target.href, newTab);
+      bus.emit({
+        type: 'link:external',
+        url: target.href,
+        newTab,
+        source: [...currentPath, name].join('/'),
+      });
     } else if (target.type === 'file' || target.type === 'app_shortcut') {
       // Load associations on demand to avoid a static Explorer <-> app registry cycle.
       const { resolveFileOpen } = await import('../../registry/apps');
       const resolved = resolveFileOpen(name, target);
-      bus.emit({ type: 'file:open', path: [...currentPath, name], name: target.name, nodeType: target.type, app: (target as { app?: string }).app });
+      const sourcePath = [...currentPath, name];
+      bus.emit({ type: 'file:open', path: sourcePath, name: target.name, nodeType: target.type, app: (target as { app?: string }).app });
       if (resolved) {
         api.openWindow(
           resolved.appId,
           getFileDisplayName(name, target, t),
           resolved.component,
           resolved.icon,
-          resolved.windowProps
+          { ...resolved.windowProps, sourcePath }
         );
       }
     }

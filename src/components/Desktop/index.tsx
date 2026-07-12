@@ -14,7 +14,8 @@ import DesktopProperties from '../DesktopProperties';
 import { resolveFileOpen } from '../../registry/apps';
 import StartupNotifier from '../StartupNotifier';
 import { useModal } from '../../context/ModalContext';
-import { FileNode, MenuItem, RootNode, isContainerNode } from '../../types';
+import { FileNode, MenuItem, RootNode, isContainerNode, isExternalLinkNode } from '../../types';
+import { openExternalUrl } from '../../utils/externalLink';
 import { getFileIconName } from '../../utils/fileIcon';
 import { getFileDisplayName } from '../../utils/fileDisplayName';
 import { DesktopContainer, SelectionBox, IconGrid, DesktopIcon } from './styled';
@@ -169,6 +170,13 @@ const Desktop: React.FC = () => {
   };
 
   const handleIconDoubleClick = (key: string, item: FileNode) => {
+    // External-link shortcut: leave the fiction instead of opening a window (#136).
+    if (isExternalLinkNode(item)) {
+      const newTab = item.newTab ?? true;
+      openExternalUrl(item.href, newTab);
+      bus.emit({ type: 'link:external', url: item.href, newTab, source: key });
+      return;
+    }
     const resolved = resolveFileOpen(key, item);
     bus.emit({ type: 'file:open', path: [key], name: item.name, nodeType: item.type, app: (item as { app?: string }).app });
     const displayName = getFileDisplayName(key, item, t);
@@ -180,7 +188,10 @@ const Desktop: React.FC = () => {
       );
       return;
     }
-    openWindow(resolved.appId, displayName, resolved.component, resolved.icon, resolved.windowProps);
+    openWindow(resolved.appId, displayName, resolved.component, resolved.icon, {
+      ...resolved.windowProps,
+      sourcePath: [key],
+    });
   };
 
   const handleDragStart = (e: React.DragEvent, key: string) => {

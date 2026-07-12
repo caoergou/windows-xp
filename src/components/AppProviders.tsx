@@ -16,6 +16,8 @@ import { EventBusProvider } from '../context/EventBusContext';
 import { StorageProvider } from '../context/StorageContext';
 import { SchedulerProvider } from '../context/SchedulerContext';
 import { XPEventBridge, XPImperativeApi, type XPHandle } from './XPBridge';
+import { DeepLinkLoader } from './DeepLinkLoader';
+import type { DeepLinkRoutes } from '../utils/deepLink';
 import { XPEventBus } from '../events';
 import type { XPEventListener } from '../events';
 import { setStoragePrefix } from '../utils/storage';
@@ -51,6 +53,14 @@ export interface AppProvidersProps {
   hourlyChime?: boolean;
   /** Inactivity threshold (ms) before `user:idle` fires. Default 60000 (#130). */
   idleThresholdMs?: number;
+  /** Deep-link key path(s) to open once interactive (#136). */
+  openOnLoad?: string | string[];
+  /** Pretty URL routes matched against `location` (#136). */
+  routes?: DeepLinkRoutes;
+  /** Host's current location for `routes` matching (#136). */
+  location?: string;
+  /** Push/pop history as top-level windows open/close (#136). Default off. */
+  historyIntegration?: boolean;
 }
 
 const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
@@ -73,6 +83,10 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   disableScreenSaver,
   hourlyChime,
   idleThresholdMs,
+  openOnLoad,
+  routes,
+  location,
+  historyIntegration,
 }) => {
   // Configure storage namespace synchronously before any context reads/writes storage.
   setStoragePrefix(storagePrefix || 'xp_');
@@ -159,6 +173,12 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
             <TrayProvider>
               <ModalProvider>
                 <XPImperativeApi ref={handleRef} storagePrefix={storagePrefix} />
+                <DeepLinkLoader
+                  open={openOnLoad}
+                  routes={routes}
+                  location={location}
+                  historyIntegration={historyIntegration}
+                />
                 <App
                   initialLanguage={language}
                   skipBoot={skipBoot}

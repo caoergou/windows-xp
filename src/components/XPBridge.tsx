@@ -14,6 +14,8 @@ import { canUseDOM } from '../utils/storage';
 import { saveLanguage, getSavedLanguage } from '../utils/language';
 import { XP_SNAPSHOT_VERSION, assertLoadableSnapshot, type XPSnapshot } from '../snapshot';
 import { sounds, playSound } from '../utils/soundManager';
+import { openExternalUrl } from '../utils/externalLink';
+import { serializeOpenPath } from '../utils/deepLink';
 import i18n from '../i18n';
 import type { XPEvent, XPEventListener } from '../events';
 import { qqStore } from '../apps/QQ/qqStore';
@@ -97,6 +99,17 @@ export interface XPHandle {
   openApp: (appId: string, props?: Record<string, unknown>) => string | null;
   /** Open a filesystem node by absolute path (resolves the right app). */
   openFile: (path: string[]) => string | null;
+  /**
+   * Follow a link out of the fiction to a real URL (#136). New tab by default;
+   * pass `{ newTab: false }` to navigate the current tab. Emits `link:external`.
+   */
+  openExternal: (url: string, opts?: { newTab?: boolean }) => void;
+  /**
+   * Build a shareable permalink (`?open=…`) that reproduces `windowId` on a
+   * fresh load (#136). Returns null for component-only windows (no source path)
+   * or without a DOM.
+   */
+  getShareUrl: (windowId: string) => string | null;
   /** Close a window by id. */
   closeWindow: (id: string) => void;
   /** Show an XP dialog. */
@@ -205,13 +218,24 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             const key = path[path.length - 1] ?? node.name;
             const resolved = resolveFileOpen(key, node);
             if (!resolved) return null;
-            return openWindow(
-              resolved.appId,
-              node.name,
-              resolved.component,
-              resolved.icon,
-              resolved.windowProps
-            );
+            return openWindow(resolved.appId, node.name, resolved.component, resolved.icon, {
+              ...resolved.windowProps,
+              sourcePath: path,
+            });
+          },
+          openExternal: (url, opts) => {
+            const newTab = opts?.newTab ?? true;
+            openExternalUrl(url, newTab);
+            bus.emit({ type: 'link:external', url, newTab });
+          },
+          getShareUrl: windowId => {
+            if (!canUseDOM) return null;
+            const win = windows.find(w => w.id === windowId);
+            const path = win?.props?.sourcePath;
+            if (!path || path.length === 0) return null;
+            const lang = getSavedLanguage();
+            const query = `open=${serializeOpenPath(path)}${lang ? `&lang=${lang}` : ''}`;
+            return `${window.location.origin}${window.location.pathname}?${query}`;
           },
           closeWindow,
           showAlert: (title, message) => {

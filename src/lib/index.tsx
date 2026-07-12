@@ -2,6 +2,7 @@ import React from 'react';
 import { AppProviders } from '../components/AppProviders';
 import { FileNode, AppRegistryEntry } from '../types';
 import { CulturePackage } from '../data/culture';
+import type { DeepLinkRoutes } from '../utils/deepLink';
 import type { WallpaperItem } from '../data/wallpapers';
 import type { XPEventListener } from '../events';
 import type { XPHandle } from '../components/XPBridge';
@@ -73,6 +74,24 @@ export interface WindowsXPProps {
   hourlyChime?: boolean;
   /** Inactivity threshold in ms before `user:idle` fires (default 60000, #130). */
   idleThresholdMs?: number;
+  /**
+   * Deep link (#136): key path(s) — the `?open=` value(s), e.g.
+   * `'我的文档/readme.txt'` — to open once the desktop is interactive (after
+   * `skipBoot`/`autoLogin`). Invalid paths fail silently to the plain desktop.
+   */
+  openOnLoad?: string | string[];
+  /**
+   * Pretty URL routes (`{ '/blog/:slug': ({ slug }) => ({ open: `D:/posts/${slug}.md` }) }`),
+   * matched against `location` (#136). Host-router-agnostic — no router dependency.
+   */
+  routes?: DeepLinkRoutes;
+  /** The host's current location (path[+search]) used for `routes` matching (#136). */
+  location?: string;
+  /**
+   * Push/pop browser history as top-level windows open/close so Back closes the
+   * last-opened window on content sites (#136). Off by default — games/embeds skip it.
+   */
+  historyIntegration?: boolean;
   /** Subscribe to desktop events (app launches, file opens, session, cmd...). */
   onEvent?: XPEventListener;
 }
@@ -114,6 +133,10 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     disableScreenSaver,
     hourlyChime,
     idleThresholdMs,
+    openOnLoad,
+    routes,
+    location,
+    historyIntegration,
     onEvent,
   },
   ref
@@ -136,6 +159,10 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       storagePrefix={storagePrefix}
       hourlyChime={hourlyChime}
       idleThresholdMs={idleThresholdMs}
+      openOnLoad={openOnLoad}
+      routes={routes}
+      location={location}
+      historyIntegration={historyIntegration}
       onEvent={onEvent}
       handleRef={ref}
       disableContextMenuBlock={disableContextMenuBlock ?? embedded}
@@ -204,6 +231,7 @@ export type {
   CultureKey,
 } from '../data/culture';
 export type { WallpaperItem } from '../data/wallpapers';
+export type { DeepLinkRoute, DeepLinkRoutes } from '../utils/deepLink';
 export type { FileSystemMode } from '../context/FileSystemContext';
 export type { ModalContextType } from '../context/ModalContext';
 export type { TrayItem, TrayContextType, NotifyOptions } from '../context/TrayContext';
