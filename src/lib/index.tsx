@@ -70,6 +70,18 @@ export interface WindowsXPProps {
    * default. Individual `disable*` props still override these defaults.
    */
   mode?: 'fullscreen' | 'embedded';
+  /**
+   * Small-screen / portrait strategy (#215). Defaults to `'auto'` in
+   * `'fullscreen'` mode and `'native'` in `'embedded'` mode (the host controls
+   * an embedded desktop's size, so it isn't auto-scaled). `'auto'` keeps the
+   * pixel-identical native layout on any container at least a 1024×768 baseline
+   * wide, and scale-to-fits the whole desktop (letterboxed) when it's narrower —
+   * so a phone gets a real, drivable desktop instead of just a warning.
+   * `'scale'` always fits the baseline to the container; `'native'` never scales
+   * (the pre-#215 fixed layout); `'warn'` never scales and shows the mobile hint.
+   * See `docs/VIEWPORT.md`.
+   */
+  viewportPolicy?: 'auto' | 'scale' | 'native' | 'warn';
   /** Disable the global right-click context menu block. */
   disableContextMenuBlock?: boolean;
   /** Disable blocking of F12 / Ctrl+Shift+I/J/C / Ctrl+U. */
@@ -178,6 +190,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     storagePrefix,
     persistence,
     mode = 'fullscreen',
+    viewportPolicy,
     disableContextMenuBlock,
     disableDevToolsBlock,
     disableGlobalShortcuts,
@@ -233,6 +246,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       disableGlobalShortcuts={disableGlobalShortcuts ?? embedded}
       keymap={keymap}
       disableScreenSaver={disableScreenSaver ?? embedded}
+      viewportPolicy={viewportPolicy ?? (embedded ? 'native' : 'auto')}
     />
   );
 });

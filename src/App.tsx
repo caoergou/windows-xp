@@ -10,7 +10,6 @@ import Desktop from './components/Desktop';
 import BootScreen from './components/BootScreen';
 import BsodScreen from './components/BsodScreen';
 import XPIcon from './components/XPIcon';
-import MobileWarning from './components/MobileWarning';
 import windowsIcon from './assets/icons/windows.svg';
 import { TIME } from './constants';
 import { canUseDOM, STORAGE_ERROR_EVENT, type Storage } from './utils/storage';
@@ -402,7 +401,6 @@ function App({
 
   return (
     <Container>
-      <MobileWarning />
       {bootPhase === 'BOOTING' ? (
         <BootScreen onComplete={handleBootComplete} branding={boot} />
       ) : isLoggedIn ? (

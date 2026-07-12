@@ -1051,7 +1051,8 @@
   "mobileWarning": {
     "title": "触摸操作",
     "message": "点按即单击，双击可打开，长按弹出右键菜单。拖动标题栏可移动窗口。",
-    "gotIt": "知道了"
+    "gotIt": "知道了",
+    "rotateHint": "横屏可获得更大的视图。"
   },
   "storage": {
     "errorTitle": "Windows XP",

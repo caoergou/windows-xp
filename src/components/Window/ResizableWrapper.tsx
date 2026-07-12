@@ -2,6 +2,7 @@ import React from 'react';
 import Draggable from 'react-draggable';
 import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
+import { useViewportScaleValue } from '../../context/ViewportScaleContext';
 
 interface ResizableWrapperProps {
   id: string;
@@ -35,12 +36,17 @@ const ResizableWrapper: React.FC<ResizableWrapperProps> = ({
   children,
 }) => {
   const nodeRef = React.useRef<HTMLDivElement>(null);
+  // Under a scaled stage (#215) pointer deltas are in screen px but positions
+  // are in stage px — react-draggable's `scale` reconciles the two so a window
+  // tracks the finger 1:1. It's 1 (a no-op) when the shell renders natively.
+  const scale = useViewportScaleValue();
 
   return (
     <Draggable
       handle=".title-bar"
       nodeRef={nodeRef}
       disabled={false}
+      scale={scale}
       defaultPosition={{ x: left, y: top }}
       onMouseDown={(e) => {
         e.stopPropagation();
