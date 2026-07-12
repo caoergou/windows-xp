@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
 import { useUserSession } from './context/UserSessionContext';
 import { useWindowManager } from './context/WindowManagerContext';
+import { useShortcut } from './context/KeymapContext';
 import LoginScreen from './components/LoginScreen';
 import Desktop from './components/Desktop';
 import BootScreen from './components/BootScreen';
@@ -151,7 +152,6 @@ export interface AppProps {
   skipBoot?: boolean;
   disableContextMenuBlock?: boolean;
   disableDevToolsBlock?: boolean;
-  disableGlobalShortcuts?: boolean;
   disableScreenSaver?: boolean;
   /** Boot-screen branding (#139). */
   boot?: BootBranding;
@@ -164,7 +164,6 @@ function App({
   skipBoot,
   disableContextMenuBlock,
   disableDevToolsBlock,
-  disableGlobalShortcuts,
   disableScreenSaver,
   boot,
   login,
@@ -245,41 +244,23 @@ function App({
   useEffect(() => {
     if (!canUseDOM) return undefined;
 
+    // Dev-tools / view-source blocker. Not a user shortcut and gated by
+    // `disableDevToolsBlock` (not `disableGlobalShortcuts`), so it stays a
+    // dedicated listener rather than a keymap binding. The user-facing shortcuts
+    // (Alt+F4 / Alt+Tab / BSOD) are registered via the keymap below (#132).
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!disableDevToolsBlock) {
-        if (e.key === 'F12' || e.code === 'F12') {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-        if (e.ctrlKey && e.shiftKey && ['KeyI', 'KeyJ', 'KeyC'].includes(e.code)) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-        if (e.ctrlKey && e.code === 'KeyU') {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      }
-      // Alt+F4: close focused window
-      if (!disableGlobalShortcuts && e.altKey && e.key === 'F4' && activeWindowId) {
+      if (disableDevToolsBlock) return;
+      if (e.key === 'F12' || e.code === 'F12') {
         e.preventDefault();
-        closeWindow(activeWindowId);
+        e.stopPropagation();
       }
-      // Alt+Tab: show/cycle switcher
-      if (!disableGlobalShortcuts && e.altKey && e.key === 'Tab' && windows.length > 0) {
+      if (e.ctrlKey && e.shiftKey && ['KeyI', 'KeyJ', 'KeyC'].includes(e.code)) {
         e.preventDefault();
-        if (!altTabVisible) {
-          setAltTabVisible(true);
-          const currentIdx = windows.findIndex(w => w.id === activeWindowId);
-          setAltTabIndex((currentIdx + 1) % windows.length);
-        } else {
-          setAltTabIndex(prev => (prev + 1) % windows.length);
-        }
+        e.stopPropagation();
       }
-      // BSOD easter egg: Ctrl+Shift+Alt+B
-      if (!disableGlobalShortcuts && e.ctrlKey && e.shiftKey && e.altKey && e.key.toLowerCase() === 'b') {
+      if (e.ctrlKey && e.code === 'KeyU') {
         e.preventDefault();
-        setBsodVisible(true);
+        e.stopPropagation();
       }
     };
 
@@ -302,16 +283,34 @@ function App({
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener(BSOD_EVENT, handleBsodEvent);
     };
-  }, [
-    activeWindowId,
-    altTabVisible,
-    altTabIndex,
-    windows,
-    closeWindow,
-    focusWindow,
-    disableDevToolsBlock,
-    disableGlobalShortcuts,
-  ]);
+  }, [altTabVisible, altTabIndex, windows, focusWindow, disableDevToolsBlock]);
+
+  // User-facing global shortcuts via the central keymap (#132). Registered here
+  // (not as a raw window listener) so they honor `disableGlobalShortcuts` and the
+  // host `keymap` prop, and so conflicts are detectable.
+  useShortcut(
+    { id: 'window.close', combo: 'Alt+F4', scope: 'global', label: 'Close focused window' },
+    () => {
+      if (activeWindowId) closeWindow(activeWindowId);
+    }
+  );
+  useShortcut(
+    { id: 'switcher.next', combo: 'Alt+Tab', scope: 'global', label: 'App switcher' },
+    () => {
+      if (windows.length === 0) return;
+      if (!altTabVisible) {
+        setAltTabVisible(true);
+        const currentIdx = windows.findIndex(w => w.id === activeWindowId);
+        setAltTabIndex((currentIdx + 1) % windows.length);
+      } else {
+        setAltTabIndex(prev => (prev + 1) % windows.length);
+      }
+    }
+  );
+  useShortcut(
+    { id: 'egg.bsod', combo: 'Ctrl+Shift+Alt+B', scope: 'global', label: 'Blue Screen of Death' },
+    () => setBsodVisible(true)
+  );
 
   const dismissScreenSaver = useCallback(() => {
     if (bootPhase === 'SCREENSAVER' && !screenSaverFading) {

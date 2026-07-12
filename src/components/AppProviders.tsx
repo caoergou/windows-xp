@@ -5,6 +5,7 @@ import xpI18n, { NAMESPACE } from '../i18n';
 import { FileSystemProvider, type FileSystemMode } from '../context/FileSystemContext';
 import type { WallpaperItem } from '../data/wallpapers';
 import { WindowManagerProvider } from '../context/WindowManagerContext';
+import { KeymapProvider } from '../context/KeymapContext';
 import { UserSessionProvider } from '../context/UserSessionContext';
 import { TrayProvider } from '../context/TrayContext';
 import { ModalProvider } from '../context/ModalContext';
@@ -53,6 +54,8 @@ export interface AppProvidersProps {
   disableContextMenuBlock?: boolean;
   disableDevToolsBlock?: boolean;
   disableGlobalShortcuts?: boolean;
+  /** Per-shortcut overrides (#132): map a shortcut id to a new combo, or `null` to disable it. */
+  keymap?: Record<string, string | null>;
   disableScreenSaver?: boolean;
   /** Play the classic hourly chime on `time:hour`. Off by default (#130). */
   hourlyChime?: boolean;
@@ -95,6 +98,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   disableContextMenuBlock,
   disableDevToolsBlock,
   disableGlobalShortcuts,
+  keymap,
   disableScreenSaver,
   hourlyChime,
   idleThresholdMs,
@@ -190,6 +194,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
           fileSystemMode={fileSystemMode}
         >
           <WindowManagerProvider registry={registry}>
+            <KeymapProvider keymap={keymap} disableGlobalShortcuts={disableGlobalShortcuts}>
             <TrayProvider>
               <ModalProvider>
                 <LessonProvider lessons={lessons}>
@@ -206,7 +211,6 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
                     skipBoot={skipBoot}
                     disableContextMenuBlock={disableContextMenuBlock}
                     disableDevToolsBlock={disableDevToolsBlock}
-                    disableGlobalShortcuts={disableGlobalShortcuts}
                     disableScreenSaver={disableScreenSaver}
                     boot={boot}
                     login={login}
@@ -214,6 +218,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
                 </LessonProvider>
               </ModalProvider>
             </TrayProvider>
+            </KeymapProvider>
           </WindowManagerProvider>
         </FileSystemProvider>
       </UserSessionProvider>

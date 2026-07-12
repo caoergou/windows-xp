@@ -7,9 +7,11 @@ import { login, LOGIN_PASSWORD } from './helpers/login';
  */
 test.describe('Keyboard a11y (#124)', () => {
   test('keyboard-only: boot → login → desktop, no mouse', async ({ page }) => {
-    // Fresh load → the boot screen plays, then the login screen appears.
+    // Fresh load → the boot screen plays, then the login screen appears. Since
+    // #160 the live desktop lives at the per-locale demo route; the branded
+    // variant keeps boot + login (no auto-login) so we can exercise the keys.
     await page.addInitScript(() => localStorage.clear());
-    await page.goto('./?lang=en');
+    await page.goto('demo/en/?brand=demo');
     const pw = page.locator('input[type="password"]').first();
     await pw.waitFor({ state: 'visible', timeout: 20000 });
     // Type the password and submit with the keyboard only.
