@@ -34,6 +34,7 @@ const XPCSS_ENTRIES = new Set([
   'src/demo/mountDemo.tsx',
   'src/gallery/gallery-main.tsx',
   'src/site/landing-main.tsx',
+  'src/site/lab-main.tsx',
 ]);
 
 const HEX_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/g;

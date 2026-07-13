@@ -1,29 +1,31 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import blissUrl from '../assets/images/desktop_bg.jpg';
 import { useSiteI18n } from './siteI18n';
 
 const HeroDesktop = React.lazy(() => import('./HeroDesktop'));
-const GlassBox = React.lazy(() => import('./GlassBox'));
 
 /**
- * Landing page (#160) — "Three Desktops, One Engine". Phase 1 of the spec:
- * Act 1 (a real, self-driving desktop embed), Act 2 (static three-monitor
- * reveal), Act 4 (diegetic demo doors + roadmap + taskbar footer), site i18n,
- * SEO copy in real DOM, and `prefers-reduced-motion` support. Phases 2–3
- * (glass-box event ticker, Display Properties theming, pull-back camera,
- * cross-bezel drag, sound, exit dialog) are tracked as follow-ups.
+ * Landing page v3 (#250) — "one monitor, one room, the millennium internet".
+ * A single act: a CRT monitor glowing in a dark room, running the real engine.
+ * All explanation is diegetic (readme + desktop shortcuts inside the screen) or
+ * lives in docs; the page carries one tagline, one install command and one
+ * quiet line of links. No sections, no page-level XP chrome — the only taskbar
+ * anywhere is the genuine one inside the desktop.
  */
 
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
   window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
+const isSmallViewport = () =>
+  typeof window !== 'undefined' && window.matchMedia?.('(max-width: 520px)').matches;
+
 const GlobalReset = createGlobalStyle`
   #ssr-floor { display: none !important; }
   html, body {
     margin: 0;
-    background: #0b1220;
+    background: #07090f;
     height: auto;
     min-height: 100%;
     overflow-x: hidden;
@@ -39,13 +41,20 @@ const GlobalReset = createGlobalStyle`
 
 const NOISE_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
-const Page = styled.div`
+// The room: near-black, one light source (the screen), a breath of noise.
+const Page = styled.main`
   font-family: 'Trebuchet MS', Tahoma, 'Microsoft YaHei', sans-serif;
   color: #e8eef7;
   background:
-    radial-gradient(1200px 600px at 50% -10%, #2a63c9 0%, transparent 60%),
-    linear-gradient(180deg, #0e1830 0%, #0b1220 100%);
+    radial-gradient(900px 520px at 50% 32%, rgba(38, 90, 187, 0.2) 0%, transparent 65%),
+    #07090f;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  padding: 40px 20px 48px;
   position: relative;
   &::after {
     content: '';
@@ -60,67 +69,27 @@ const Page = styled.div`
   }
 `;
 
-const Section = styled.section`
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 56px 20px;
-`;
-
-const Eyebrow = styled.div`
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-size: 12px;
-  color: #8fb4f0;
-  margin-bottom: 10px;
-`;
-
-// ── Act 1: the live desktop ─────────────────────────────────────────────────
-const HeroWrap = styled(Section)`
-  padding-top: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-`;
-
-const Badge = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #bfe8c9;
-  background: rgba(46, 160, 90, 0.16);
-  border: 1px solid rgba(94, 214, 138, 0.5);
-  border-radius: 999px;
-  padding: 5px 12px;
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #56d68a;
-    box-shadow: 0 0 8px #56d68a;
-  }
-`;
-
+// Sized from BOTH axes so monitor + tagline + install + links fit one viewport:
+// width is capped by the height budget times 4:3 — the non-monitor stack
+// (page padding + gaps + tagline + pill + quiet line) plus the bezel's own
+// vertical chrome comes to ≈ 320px on a desktop viewport.
 const Monitor = styled.div`
   position: relative;
-  width: 100%;
-  max-width: 900px;
-  aspect-ratio: 4 / 3;
-  max-height: 68vh;
+  width: min(880px, 94vw, calc((100vh - 320px) * 4 / 3));
   border-radius: 18px;
-  padding: 18px 18px 40px;
+  padding: 16px 16px 34px;
   background: linear-gradient(180deg, #3a3f4a 0%, #23262d 60%, #16181d 100%);
   box-shadow:
     0 2px 0 rgba(255, 255, 255, 0.08) inset,
     0 30px 60px rgba(0, 0, 0, 0.55),
+    0 0 90px rgba(46, 104, 205, 0.14),
     0 0 0 1px #000;
   &::after {
     /* power LED */
     content: '';
     position: absolute;
-    right: 26px;
-    bottom: 14px;
+    right: 24px;
+    bottom: 12px;
     width: 7px;
     height: 7px;
     border-radius: 50%;
@@ -129,17 +98,37 @@ const Monitor = styled.div`
   }
 `;
 
+// The screen owns the 4:3 ratio (not the outer bezel), so the engine's
+// scaled viewport fills it edge-to-edge with no pillarbox bars.
 const Screen = styled.div`
   position: relative;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 4 / 3;
   border-radius: 6px;
   overflow: hidden;
   background: #000;
   box-shadow: 0 0 0 2px #0a0a0a, 0 0 30px rgba(0, 0, 0, 0.6) inset;
 `;
 
-const Poster = styled.button`
+// One-time CRT power-on blink: a bright horizontal beam that snaps open.
+const crtOn = keyframes`
+  0%   { opacity: 1; transform: scaleY(0.004); }
+  55%  { opacity: 1; transform: scaleY(0.012); }
+  80%  { opacity: 0.9; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(1); }
+`;
+
+const PowerFlash = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(closest-side, #f4f9ff 0%, #bcd6ff 55%, transparent 100%);
+  transform-origin: center;
+  animation: ${crtOn} 0.34s ease-out forwards;
+`;
+
+const Poster = styled.button<{ $as?: string }>`
   position: absolute;
   inset: 0;
   border: 0;
@@ -147,10 +136,9 @@ const Poster = styled.button`
   color: #fff;
   font-family: inherit;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  text-decoration: none;
   background:
     linear-gradient(rgba(0, 30, 80, 0.25), rgba(0, 30, 80, 0.45)),
     url(${blissUrl}) center / cover no-repeat;
@@ -173,343 +161,107 @@ const EngineHost = styled.div`
   }
 `;
 
-const HeroCaption = styled.p`
-  max-width: 680px;
+// The page's entire visible copy: one line.
+const Tagline = styled.h1`
+  margin: 0;
+  max-width: 720px;
   text-align: center;
-  color: #c7d4ea;
-  font-size: 16px;
-  line-height: 1.6;
-  margin: 4px 0 0;
+  font-size: clamp(17px, 2.4vw, 24px);
+  font-weight: normal;
+  line-height: 1.55;
+  color: #dbe5f5;
+  text-wrap: balance;
 `;
 
-// ── Act 2: three monitors ───────────────────────────────────────────────────
-const Title = styled.h1`
-  font-size: clamp(30px, 5vw, 50px);
-  margin: 6px 0 12px;
-  color: #fff;
-  span {
-    color: #8fb4f0;
-  }
-`;
-
-const Lead = styled.p`
-  max-width: 760px;
-  color: #c2d0e6;
-  font-size: 17px;
-  line-height: 1.65;
-`;
-
-const MonitorRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 22px;
-  margin-top: 34px;
-  @media (max-width: 680px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const MiniMonitor = styled.a<{ $variant: 'xp' | 'netcafe' | 'echo' }>`
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  border-radius: 14px;
-  padding: 12px 12px 22px;
-  background: linear-gradient(180deg, #2f333c, #191b20);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px #000;
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  &::after {
-    content: '';
-    position: absolute;
-    right: 16px;
-    bottom: 8px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #3a4a3a;
-    transition: background 0.25s ease, box-shadow 0.25s ease;
-  }
-  &:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow:
-      0 20px 40px rgba(0, 0, 0, 0.5),
-      0 0 0 1px #000,
-      0 0 40px ${p => (p.$variant === 'netcafe' ? 'rgba(27, 79, 138, 0.25)' : 'rgba(36, 94, 219, 0.25)')};
-    &::after {
-      background: #6fe38a;
-      box-shadow: 0 0 8px #6fe38a;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-    &:hover { transform: none; }
-  }
-`;
-
-const MiniScreen = styled.div<{ $variant: 'xp' | 'netcafe' | 'echo' }>`
-  height: 170px;
-  border-radius: 5px;
-  overflow: hidden;
-  position: relative;
-  box-shadow: 0 0 0 2px #0a0a0a;
-  background: ${p =>
-    p.$variant === 'xp'
-      ? `url(${blissUrl}) center / cover no-repeat`
-      : p.$variant === 'netcafe'
-        ? 'radial-gradient(120% 90% at 30% 0%, #10233f 0%, #050912 70%)'
-        : 'linear-gradient(160deg, #0d5c63 0%, #0a3b45 55%, #06232b 100%)'};
-  .enter-hint {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(2px);
-    color: #fff;
-    font-size: 15px;
-    font-weight: bold;
-    letter-spacing: 1px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    z-index: 2;
-    pointer-events: none;
-  }
-  ${MiniMonitor}:hover & .enter-hint {
-    opacity: 1;
-  }
-`;
-
-const MiniOverlay = styled.div<{ $variant: 'xp' | 'netcafe' | 'echo' }>`
-  position: absolute;
-  inset: 0;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 6px;
-  .win {
-    align-self: flex-start;
-    width: 62%;
-    height: 46px;
-    border-radius: 4px 4px 0 0;
-    background: rgba(255, 255, 255, 0.9);
-    border-top: 14px solid
-      ${p => (p.$variant === 'netcafe' ? '#1b4f8a' : p.$variant === 'echo' ? '#0e8f9e' : '#245edb')};
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
-  }
-  .bar {
-    height: 22px;
-    border-radius: 3px;
-    background: ${p =>
-      p.$variant === 'netcafe'
-        ? 'linear-gradient(#2a5fa0,#173a63)'
-        : p.$variant === 'echo'
-          ? 'rgba(255,255,255,0.22)'
-          : 'linear-gradient(#3d95f5,#1b62c9)'};
-    ${p => (p.$variant === 'echo' ? 'width: 60%; margin: 0 auto; border-radius: 14px;' : '')}
-  }
-`;
-
-const Tag = styled.span<{ $concept?: boolean }>`
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  font-size: 10px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 999px;
-  color: ${p => (p.$concept ? '#0b1220' : '#032')};
-  background: ${p => (p.$concept ? '#7fd3d9' : '#6fe38a')};
-  font-weight: bold;
-`;
-
-const MiniLabel = styled.div`
-  margin-top: 12px;
-  .n {
-    font-weight: bold;
-    color: #fff;
-    font-size: 14px;
-  }
-  .d {
-    color: #a9b8d2;
-    font-size: 12.5px;
-    line-height: 1.5;
-    margin-top: 3px;
-  }
-`;
-
-// ── Act 4: doors + roadmap ──────────────────────────────────────────────────
-const Doors = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
-  margin-top: 30px;
-  @media (max-width: 760px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const Door = styled.a<{ $accent: string }>`
-  display: block;
-  text-decoration: none;
-  color: #10203a;
-  background: linear-gradient(180deg, #ffffff, #eef4ff);
-  border: 1px solid ${p => p.$accent};
-  border-top: 6px solid ${p => p.$accent};
-  border-radius: 10px;
-  padding: 22px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
-  }
-  .t {
-    font-size: 20px;
-    font-weight: bold;
-  }
-  .d {
-    color: #405274;
-    font-size: 14px;
-    line-height: 1.55;
-    margin: 8px 0 16px;
-  }
-  .cta {
-    font-weight: bold;
-    color: ${p => p.$accent};
-  }
-`;
-
-const Roadmap = styled.ol`
-  list-style: none;
-  padding: 0;
-  margin: 34px 0 0;
-  display: grid;
-  gap: 12px;
-`;
-
-const RoadItem = styled.li<{ $tone: string }>`
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-left: 4px solid ${p => p.$tone};
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-size: 15px;
-  color: #d6e0f2;
-  .when {
-    flex-shrink: 0;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: ${p => p.$tone};
-    width: 70px;
-    font-weight: bold;
-  }
-`;
-
-// ── Taskbar footer ──────────────────────────────────────────────────────────
-// A static footer at the end of the page (NOT sticky) — a floating taskbar
-// would collide with the hero desktop's own taskbar (two taskbars on screen).
-const Taskbar = styled.footer`
-  height: 34px;
-  display: flex;
-  align-items: stretch;
-  background: linear-gradient(180deg, #245edb 0%, #1941a5 8%, #2461db 45%, #2461db 90%, #1c50c0 100%);
-  border-top: 1px solid #4b8bf5;
-  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.3);
-  z-index: 50;
-  font-size: 12px;
-`;
-
-const StartBtn = styled.button`
-  border: 0;
-  cursor: pointer;
-  color: #fff;
-  font-weight: bold;
-  font-style: italic;
-  font-size: 15px;
-  padding: 0 22px 0 14px;
-  background: linear-gradient(180deg, #3aa740 0%, #2a8f36 45%, #1f7a2c 100%);
-  border-radius: 0 12px 12px 0;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  .flag {
-    width: 15px;
-    height: 15px;
-    border-radius: 3px;
-    background: conic-gradient(#f35b2c 0 25%, #6fbf3b 0 50%, #3d95f5 0 75%, #f5c33b 0);
-  }
-`;
-
-const NavStrip = styled.nav`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0 8px;
-  overflow: hidden;
-  a {
-    color: #fff;
-    text-decoration: none;
-    padding: 4px 10px;
-    border-radius: 3px;
-    white-space: nowrap;
-    &:hover {
-      background: rgba(255, 255, 255, 0.18);
-    }
-  }
-`;
-
-const Tray = styled.div`
-  display: flex;
+// …and one command.
+const InstallPill = styled.button`
+  display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 0 12px 0 10px;
-  background: linear-gradient(180deg, #1288e4 0%, #0e6fc0 100%);
-  border-left: 1px solid #0d5aa0;
+  border: 1px solid rgba(143, 180, 240, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #b9c9e4;
+  font-family: 'Courier New', monospace;
+  font-size: 13.5px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(143, 180, 240, 0.5);
+  }
+  .ver {
+    color: #64748f;
+    font-size: 11.5px;
+  }
+  .copied {
+    color: #7fe0a6;
+    font-size: 11.5px;
+  }
+`;
+
+// …and one quiet line of links. A museum placard's credit line, not a menu.
+const QuietLine = styled.nav`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 0;
+  font-size: 12.5px;
+  letter-spacing: 0.4px;
+  color: #4c5a75;
   a,
   button {
-    color: #fff;
+    color: #7c8aa5;
     text-decoration: none;
     background: none;
     border: 0;
     cursor: pointer;
-    font-size: 12px;
     font-family: inherit;
+    font-size: inherit;
+    letter-spacing: inherit;
+    padding: 2px 4px;
+    &:hover {
+      color: #cfdcf2;
+      text-decoration: underline;
+    }
   }
-  .clock {
-    color: #fff;
-    min-width: 48px;
-    text-align: center;
+  .sep {
+    padding: 0 6px;
+    user-select: none;
+  }
+  @media (max-width: 520px) {
+    font-size: 15px;
+    gap: 10px 0;
+    a[data-demo],
+    button {
+      padding: 8px 10px;
+    }
+    a[data-demo] {
+      border: 1px solid rgba(143, 180, 240, 0.35);
+      border-radius: 6px;
+    }
   }
 `;
 
-const monitors = [
-  { key: 'xp', variant: 'xp' as const, live: true, href: 'demo/en/' },
-  { key: 'netcafe', variant: 'netcafe' as const, href: 'demo/zh/' },
-];
+const INSTALL_CMD = 'npm install @caoergou/windows-xp';
 
 const Landing: React.FC = () => {
   const { t, lang, setLang } = useSiteI18n();
   const reduced = prefersReducedMotion();
+  // ≤520px the live desktop is illegible — serve the poster + big demo links
+  // instead of a shrunken engine (honest and fast beats interactive and broken).
+  const [mobile] = useState(isSmallViewport);
   const [poweredOn, setPoweredOn] = useState(false);
-  const [clock, setClock] = useState('');
+  const [flash, setFlash] = useState(false);
+  const [copied, setCopied] = useState(false);
   const idleRef = useRef<number | null>(null);
-  // Lazy-mount the (heavy, second-engine) glass box only when scrolled near it.
-  const [showGlass, setShowGlass] = useState(false);
-  const glassSentinel = useRef<HTMLDivElement>(null);
 
-  // Auto power-on the hero shortly after load (interaction also triggers it),
-  // so a first-time visitor can drag a real window within ~5s (acceptance #1).
+  // Auto power-on shortly after load (interaction also triggers it), so a
+  // first-time visitor can drag a real window within ~5s (#160 acceptance #1).
   useEffect(() => {
+    if (mobile) return;
     const start = () => setPoweredOn(true);
     const w = window as unknown as { requestIdleCallback?: (cb: () => void) => number };
     if (typeof w.requestIdleCallback === 'function') {
@@ -517,152 +269,88 @@ const Landing: React.FC = () => {
     }
     const t0 = window.setTimeout(start, 1400);
     return () => window.clearTimeout(t0);
-  }, []);
+  }, [mobile]);
 
+  // One-time CRT blink when the screen comes alive (skipped under reduced motion).
   useEffect(() => {
-    const tick = () => {
-      const d = new Date();
-      let h = d.getHours();
-      const ampm = h >= 12 ? 'PM' : 'AM';
-      h = h % 12 || 12;
-      setClock(`${h}:${d.getMinutes().toString().padStart(2, '0')} ${ampm}`);
-    };
-    tick();
-    const id = window.setInterval(tick, 15000);
-    return () => window.clearInterval(id);
-  }, []);
+    if (!poweredOn || reduced) return;
+    setFlash(true);
+    const t0 = window.setTimeout(() => setFlash(false), 400);
+    return () => window.clearTimeout(t0);
+  }, [poweredOn, reduced]);
 
-  useEffect(() => {
-    const el = glassSentinel.current;
-    if (!el || showGlass) return;
-    const io = new IntersectionObserver(
-      entries => {
-        if (entries.some(e => e.isIntersecting)) {
-          setShowGlass(true);
-          io.disconnect();
-        }
-      },
-      { rootMargin: '250px' }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [showGlass]);
+  const copyInstall = async () => {
+    try {
+      await navigator.clipboard.writeText(INSTALL_CMD);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard unavailable — the command is selectable text either way */
+    }
+  };
+
+  const demoHref = lang === 'zh' ? 'demo/zh/' : 'demo/en/';
 
   return (
     <Page>
       <GlobalReset />
 
-      {/* Act 1 — you're already inside */}
-      <HeroWrap id="top">
-        <Badge>
-          <span className="dot" />
-          {t('hero.badge')}
-        </Badge>
-        <Monitor>
-          <Screen>
-            {poweredOn ? (
-              <EngineHost>
-                <Suspense fallback={<Poster as="div" aria-hidden />}>
-                  <HeroDesktop
-                    greeterTitle={t('greeter.title')}
-                    greeterBody={t('greeter.body')}
-                    reduced={reduced}
-                  />
-                </Suspense>
-              </EngineHost>
-            ) : (
-              <Poster onClick={() => setPoweredOn(true)} aria-label={t('hero.powerOn')}>
-                <span className="pill">▶ {t('hero.powerOn')}</span>
-              </Poster>
-            )}
-          </Screen>
-        </Monitor>
-        <HeroCaption>{t('hero.tagline')}</HeroCaption>
-      </HeroWrap>
+      <Monitor>
+        <Screen>
+          {poweredOn && !mobile ? (
+            <EngineHost>
+              <Suspense fallback={<Poster as="div" aria-hidden />}>
+                <HeroDesktop
+                  key={lang}
+                  greeterFileName={t('greeter.fileName')}
+                  greeterBody={t('greeter.body')}
+                  language={lang}
+                />
+              </Suspense>
+              {flash && <PowerFlash aria-hidden />}
+            </EngineHost>
+          ) : mobile ? (
+            <Poster as="a" href={demoHref} aria-label={t('hero.mobileOpen')}>
+              <span className="pill">{t('hero.mobileOpen')} →</span>
+            </Poster>
+          ) : (
+            <Poster onClick={() => setPoweredOn(true)} aria-label={t('hero.powerOn')}>
+              <span className="pill">▶ {t('hero.powerOn')}</span>
+            </Poster>
+          )}
+        </Screen>
+      </Monitor>
 
-      {/* Act 2 — two worlds, one engine */}
-      <Section id="engine">
-        <Eyebrow>{t('act2.eyebrow')}</Eyebrow>
-        <Title>
-          Two Worlds, One Engine <span>· 两个世界，一个引擎</span>
-        </Title>
-        <Lead>{t('act2.body')}</Lead>
-        <MonitorRow>
-          {monitors.map(m => (
-            <MiniMonitor key={m.key} $variant={m.variant} href={m.href}>
-              {m.live && <Tag>{t('monitor.live')}</Tag>}
-              <MiniScreen $variant={m.variant}>
-                <MiniOverlay $variant={m.variant}>
-                  <div className="win" />
-                  <div className="bar" />
-                </MiniOverlay>
-                <span className="enter-hint">{m.variant === 'netcafe' ? t('door.zh.cta') : t('door.en.cta')}</span>
-              </MiniScreen>
-              <MiniLabel>
-                <div className="n">{t(`monitor.${m.key}`)}</div>
-                <div className="d">{t(`monitor.${m.key}Desc`)}</div>
-              </MiniLabel>
-            </MiniMonitor>
-          ))}
-        </MonitorRow>
-      </Section>
+      <Tagline>{t('tagline')}</Tagline>
 
-      {/* Act 3 — the glass box (lazy, mounts on scroll) */}
-      <div ref={glassSentinel} />
-      {showGlass && (
-        <Suspense fallback={<Section style={{ minHeight: 460 }} aria-hidden />}>
-          <GlassBox />
-        </Suspense>
-      )}
+      <InstallPill onClick={copyInstall} title={t('install.copy')} data-testid="install-pill">
+        <span>{INSTALL_CMD}</span>
+        {copied ? (
+          <span className="copied">✓ {t('install.copied')}</span>
+        ) : (
+          <span className="ver">v{__SITE_VERSION__}</span>
+        )}
+      </InstallPill>
 
-      {/* Roadmap */}
-      <Section id="roadmap">
-        <h2 style={{ marginTop: 0, color: '#fff' }}>{t('roadmap.title')}</h2>
-        <Roadmap>
-          <RoadItem $tone="#6fe38a">
-            <span className="when">{t('roadmap.now')}</span>
-            {t('roadmap.1')}
-          </RoadItem>
-          <RoadItem $tone="#8fb4f0">
-            <span className="when">{t('roadmap.next')}</span>
-            {t('roadmap.2')}
-          </RoadItem>
-          <RoadItem $tone="#c7a3f0">
-            <span className="when">{t('roadmap.later')}</span>
-            {t('roadmap.3')}
-          </RoadItem>
-          <RoadItem $tone="#c7a3f0">
-            <span className="when">{t('roadmap.later')}</span>
-            {t('roadmap.4')}
-          </RoadItem>
-        </Roadmap>
-      </Section>
-
-      {/* Footer as a real XP taskbar */}
-      <Taskbar>
-        <StartBtn onClick={() => document.getElementById('top')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' })}>
-          <span className="flag" />
-          {t('footer.start')}
-        </StartBtn>
-        <NavStrip>
-          <a href="#engine">{t('act2.title')}</a>
-          <a href="#glassbox">{t('glass.title')}</a>
-          <a href="demo/en/">{t('nav.demoEn')}</a>
-          <a href="demo/zh/">{t('nav.demoZh')}</a>
-          <a href="gallery/">{t('nav.gallery')}</a>
-        </NavStrip>
-        <Tray>
-          <button onClick={() => setLang(lang === 'en' ? 'zh' : 'en')} title="language">
-            {t('lang.switch')}
-          </button>
-          <a href="https://github.com/caoergou/windows-xp" title="GitHub">
-            GitHub
-          </a>
-          <span className="clock" aria-hidden>
-            {clock}
-          </span>
-        </Tray>
-      </Taskbar>
+      <QuietLine aria-label="site">
+        <a href="demo/zh/" data-demo>
+          {t('links.demoZh')}
+        </a>
+        <span className="sep">·</span>
+        <a href="demo/en/" data-demo>
+          {t('links.demoEn')}
+        </a>
+        <span className="sep">·</span>
+        <a href="docs/">{t('links.docs')}</a>
+        <span className="sep">·</span>
+        <a href="gallery/">{t('links.gallery')}</a>
+        <span className="sep">·</span>
+        <a href="https://github.com/caoergou/windows-xp">GitHub</a>
+        <span className="sep">·</span>
+        <button onClick={() => setLang(lang === 'en' ? 'zh' : 'en')} title="language">
+          {t('lang.switch')}
+        </button>
+      </QuietLine>
     </Page>
   );
 };

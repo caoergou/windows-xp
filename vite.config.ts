@@ -2,16 +2,23 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 import { xpCssScopePlugin } from './vite.xp-css-scope';
+import pkg from './package.json';
 
-// Multi-page app (#160/#161): the site is now four real HTML entries instead of
+// Multi-page app (#160/#161, reshaped by #250): real HTML entries instead of
 // query-string routing on a single bundle.
-//   /            → landing page ("Three Desktops, One Engine")
+//   /            → landing page (one monitor, the millennium internet)
 //   /demo/zh/    → Chinese-context live XP desktop
 //   /demo/en/    → English-context live XP desktop
 //   /gallery/    → component gallery (was /?gallery)
+//   /lab/        → event lab (the glass box, moved off the landing page)
 export default defineConfig({
   plugins: [react()],
   base: '/windows-xp/',
+  define: {
+    // Real installable version for the landing page's install pill (#250) —
+    // sourced from package.json at build time so it can't drift.
+    __SITE_VERSION__: JSON.stringify(pkg.version),
+  },
   css: {
     postcss: {
       plugins: [xpCssScopePlugin()],
@@ -29,6 +36,7 @@ export default defineConfig({
         demoZh: resolve(__dirname, 'demo/zh/index.html'),
         demoEn: resolve(__dirname, 'demo/en/index.html'),
         gallery: resolve(__dirname, 'gallery/index.html'),
+        lab: resolve(__dirname, 'lab/index.html'),
       },
       output: {
         // Split third-party libs and the i18n locale JSON out of the app chunk so

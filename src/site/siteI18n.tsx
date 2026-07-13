@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import en from './locales/en.json';
 import zh from './locales/zh.json';
 
@@ -37,6 +37,12 @@ const detectInitial = (): SiteLang => {
 export const SiteI18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [lang, setLangState] = useState<SiteLang>(detectInitial);
 
+  // Keep <html lang> truthful from the first paint too — a zh visitor
+  // auto-detected on load must not keep the shell's hardcoded lang="en".
+  useEffect(() => {
+    if (typeof document !== 'undefined') document.documentElement.lang = lang;
+  }, [lang]);
+
   const setLang = useCallback((next: SiteLang) => {
     setLangState(next);
     try {
@@ -44,7 +50,6 @@ export const SiteI18nProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch {
       /* ignore */
     }
-    if (typeof document !== 'undefined') document.documentElement.lang = next;
   }, []);
 
   const value = useMemo<SiteI18n>(

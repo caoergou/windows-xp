@@ -2,36 +2,55 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/windows-xp/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/windows-xp/favicon.ico" sizes="16x16 32x32" />
+    <link rel="icon" href="/windows-xp/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/windows-xp/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07090f" />
     <meta
       name="description"
-      content="Three Desktops, One Engine — an embeddable, scriptable Windows XP desktop for React. Drag a real, live desktop right on the page; drive it with an imperative API; inject your own content."
+      content="The millennium internet — a live, embeddable Windows XP desktop for React. Drag a real, running desktop right on the page; drive it with an imperative API; inject your own content."
     />
     <meta
       name="keywords"
       content="Windows XP, desktop engine, React, embeddable, scriptable, retro, Y2K, nostalgia, component library, QQ, Winamp"
     />
     <meta name="author" content="caoergou" />
-    <meta property="og:title" content="Three Desktops, One Engine · 三个桌面，一个引擎" />
+    <meta property="og:title" content="The millennium internet · 回到千禧年的互联网" />
     <meta
       property="og:description"
-      content="An embeddable, scriptable Windows XP desktop for React. The landing page IS the product — a real desktop you can drag."
+      content="A live, embeddable Windows XP desktop for React. The landing page IS the product — a real desktop you can drag."
     />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:url" content="https://eric.run.place/windows-xp/" />
-    <meta property="og:image" content="https://eric.run.place/windows-xp/images/desktop_bg.jpg" />
+    <meta property="og:image" content="https://eric.run.place/windows-xp/images/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Three Desktops, One Engine · 三个桌面，一个引擎" />
+    <meta name="twitter:title" content="The millennium internet · 回到千禧年的互联网" />
     <meta
       name="twitter:description"
-      content="An embeddable, scriptable Windows XP desktop for React. Drag a real, live desktop on the page."
+      content="A live, embeddable Windows XP desktop for React. Drag a real, running desktop on the page."
     />
-    <meta name="twitter:image" content="https://eric.run.place/windows-xp/images/desktop_bg.jpg" />
+    <meta name="twitter:image" content="https://eric.run.place/windows-xp/images/og.png" />
     <link rel="canonical" href="https://eric.run.place/windows-xp/" />
     <link rel="preload" as="image" href="/windows-xp/images/desktop_bg.jpg" />
-    <title>Three Desktops, One Engine · Windows XP Desktop Engine for React</title>
+    <title>The millennium internet · Windows XP Desktop Engine for React</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "@caoergou/windows-xp",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web",
+        "description": "A live, embeddable, scriptable Windows XP desktop engine for React — typed events, imperative ref handle, injectable filesystem and culture packages.",
+        "url": "https://eric.run.place/windows-xp/",
+        "downloadUrl": "https://www.npmjs.com/package/@caoergou/windows-xp",
+        "codeRepository": "https://github.com/caoergou/windows-xp",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
     <!-- Legacy query-string routes (#160): redirect to the new multi-page paths. -->
     <script>
       (function () {
@@ -55,7 +74,7 @@
       body {
         margin: 0;
         height: 100%;
-        background: #245edb;
+        background: #07090f;
       }
       /* Static first-paint / no-JS floor: real marketing copy for SEO and for
          the ~1s before the engine embed lazy-loads. The React landing renders
@@ -110,15 +129,16 @@
       <!-- First-paint poster + real marketing copy (replaced by the React landing,
            which re-renders the same copy as real DOM). -->
       <div id="ssr-floor">
-        <h1>Three Desktops, One Engine</h1>
+        <h1>The millennium internet</h1>
         <p>
-          An embeddable, scriptable Windows&nbsp;XP desktop for React. This page is not a
-          screenshot — it loads a real, running desktop you can drag, and drives itself with the
-          same imperative API you get. 三个桌面，一个引擎：可嵌入、可编剧的桌面引擎。
+          A live, embeddable Windows&nbsp;XP desktop for React. This page is not a screenshot —
+          it loads a real, running desktop you can drag, and drives itself with the same
+          imperative API you get. 回到千禧年的互联网：实机运行、可嵌入的桌面引擎。
         </p>
         <div class="links">
-          <a href="demo/en/">Enter the English desktop</a>
           <a href="demo/zh/">进入中文桌面</a>
+          <a href="demo/en/">Enter the English desktop</a>
+          <a href="docs/">Docs</a>
           <a href="gallery/">Component gallery</a>
           <a href="https://github.com/caoergou/windows-xp">GitHub</a>
         </div>
@@ -126,14 +146,15 @@
     </div>
     <noscript>
       <div style="padding: 24px; font-family: Tahoma, sans-serif">
-        <h1>Three Desktops, One Engine · 三个桌面，一个引擎</h1>
+        <h1>The millennium internet · 回到千禧年的互联网</h1>
         <p>
-          An embeddable, scriptable Windows XP desktop for React. JavaScript is required for the
-          live desktop, but you can still open the demos directly:
+          A live, embeddable Windows XP desktop for React. JavaScript is required for the live
+          desktop, but you can still open the demos directly:
         </p>
         <ul>
-          <li><a href="demo/en/">English desktop demo</a></li>
           <li><a href="demo/zh/">中文桌面 demo</a></li>
+          <li><a href="demo/en/">English desktop demo</a></li>
+          <li><a href="docs/">Documentation</a></li>
           <li><a href="gallery/">Component gallery</a></li>
           <li><a href="https://github.com/caoergou/windows-xp">GitHub repository</a></li>
         </ul>

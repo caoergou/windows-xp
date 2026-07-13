@@ -1,16 +1,20 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Landing page acceptance (#160, Phase 1). The page IS the product: a real,
- * self-driving desktop the visitor can drag within seconds; the demo doors are
- * real links; legacy query routes redirect; reduced-motion keeps content whole.
+ * Landing page acceptance (#250 — "one monitor, one room"). The page IS the
+ * product: a real, self-driving desktop the visitor can drag within seconds;
+ * the zh/en worlds are desktop shortcuts inside the screen; navigation is one
+ * quiet line of real links; the glass box lives on at /lab/.
  */
 
-test.describe('Landing page (#160)', () => {
+test.describe('Landing page (#250)', () => {
   test('boots a real, draggable desktop within a few seconds', async ({ page }) => {
     await page.goto('./');
-    // The engine lazy-loads and drives itself: a self-typing Notepad appears.
-    await expect(page.locator('[data-testid="greeter-notepad"]')).toBeVisible({ timeout: 8000 });
+    // The engine lazy-loads and drives itself: the REAL Notepad opens in
+    // auto-type mode over the public handle (#250 — no mock greeter).
+    const editor = page.locator('[data-xp-anchor="notepad.textarea"]');
+    await expect(editor).toBeVisible({ timeout: 8000 });
+    await expect(editor).toHaveValue(/This is not a video|这不是一段视频/, { timeout: 15000 });
 
     // It's a real window, not a screenshot — drag it and assert it moved.
     const win = page.locator('.xp-window').first();
@@ -27,26 +31,42 @@ test.describe('Landing page (#160)', () => {
     expect(Math.abs(after.x - before.x)).toBeGreaterThan(25);
   });
 
-  test('scrolls past the hero desktop after interacting with it', async ({ page }) => {
+  test('desktop shortcuts inside the hero navigate to the demos', async ({ page }) => {
     await page.goto('./');
-    await expect(page.locator('[data-testid="greeter-notepad"]')).toBeVisible({ timeout: 8000 });
+    await expect(page.locator('[data-xp-anchor="notepad.textarea"]')).toBeVisible({ timeout: 8000 });
 
-    const scrollable = await page.evaluate(
-      () => document.documentElement.scrollHeight > window.innerHeight + 100
-    );
-    expect(scrollable).toBe(true);
+    const shortcut = page.locator('[data-english-testid="desktop-icon-English Desktop"]');
+    await expect(shortcut).toBeVisible();
+    await shortcut.dblclick();
+    await expect(page).toHaveURL(/\/demo\/en\/$/);
+    await expect(page.locator('[data-testid="taskbar"]')).toBeVisible({ timeout: 20000 });
+  });
 
-    // Focus lands in the engine after a click — scrolling must still work.
-    await page.locator('.xp-window').first().click();
-    const beforeScroll = await page.evaluate(() => window.scrollY);
-    await page.mouse.wheel(0, 600);
-    await page.waitForTimeout(200);
-    const afterScroll = await page.evaluate(() => window.scrollY);
-    expect(afterScroll).toBeGreaterThan(beforeScroll);
-    await expect(page.locator('#engine')).toBeInViewport();
+  test('the quiet line links every destination and the demos are real links', async ({ page }) => {
+    await page.goto('./');
+    const nav = page.locator('nav[aria-label="site"]');
+    await expect(nav.locator('a[href="demo/zh/"]')).toBeVisible();
+    await expect(nav.locator('a[href="demo/en/"]')).toBeVisible();
+    await expect(nav.locator('a[href="docs/"]')).toBeVisible();
+    await expect(nav.locator('a[href="gallery/"]')).toBeVisible();
+    await expect(nav.locator('a[href="https://github.com/caoergou/windows-xp"]')).toBeVisible();
 
-    await page.keyboard.press('End');
-    await expect(page.locator('#demos')).toBeInViewport();
+    await nav.locator('a[href="demo/zh/"]').click();
+    await expect(page).toHaveURL(/\/demo\/zh\/$/);
+    await expect(page.locator('[data-testid="taskbar"]')).toBeVisible({ timeout: 20000 });
+  });
+
+  test('install pill shows the real version and copies the command', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('./');
+    const pill = page.locator('[data-testid="install-pill"]');
+    await expect(pill).toBeVisible();
+    await expect(pill).toContainText('npm install @caoergou/windows-xp');
+    await expect(pill).toContainText(/v\d+\.\d+\.\d+/);
+    await pill.click();
+    await expect(pill).toContainText(/Copied|已复制/);
+    const clip = await page.evaluate(() => navigator.clipboard.readText());
+    expect(clip).toBe('npm install @caoergou/windows-xp');
   });
 
   test('legacy query routes redirect to the new paths', async ({ page }) => {
@@ -61,27 +81,34 @@ test.describe('Landing page (#160)', () => {
     await expect(page).toHaveURL(/\/demo\/en\/$/);
   });
 
-  test('demo doors are real links to the two desktops', async ({ page }) => {
+  test('reduced motion keeps the content complete (SEO/a11y floor)', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('./');
-    const zhDoor = page.locator('a[href="demo/zh/"]').first();
-    const enDoor = page.locator('a[href="demo/en/"]').first();
-    await expect(zhDoor).toBeVisible();
-    await expect(enDoor).toBeVisible();
-    await enDoor.click();
-    await expect(page).toHaveURL(/\/demo\/en\/$/);
-    await expect(page.locator('[data-testid="taskbar"]')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByRole('heading', { name: /millennium/i })).toBeVisible();
+    await expect(page.locator('a[href="demo/zh/"]').first()).toBeVisible();
+    await expect(page.locator('a[href="demo/en/"]').first()).toBeVisible();
+    // The desktop still comes up, with the greeter fully typed instantly.
+    const editor = page.locator('[data-xp-anchor="notepad.textarea"]');
+    await expect(editor).toBeVisible({ timeout: 8000 });
+    await expect(editor).toHaveValue(/XPHandle/, { timeout: 4000 });
   });
 
-  test('glass box streams real onEvent traffic when driven (#160 Phase 2)', async ({ page }) => {
-    test.setTimeout(60000);
+  test('small screens get the poster fallback, not a shrunken engine', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('./');
-    // Progressively scroll so the sentinel crosses the viewport and the lazy
-    // glass-box section (engine + terminal) mounts via its IntersectionObserver.
-    for (let y = 0; y <= 4000; y += 400) {
-      await page.evaluate(yy => window.scrollTo(0, yy), y);
-      await page.waitForTimeout(120);
-    }
-    await page.locator('#glassbox').scrollIntoViewIfNeeded();
+    // No engine mounts at this width; the screen is a poster linking to a demo.
+    const poster = page.locator('a[aria-label]').filter({ hasText: /→/ }).first();
+    await expect(poster).toBeVisible();
+    await expect(poster).toHaveAttribute('href', /demo\/(zh|en)\/$/);
+    await page.waitForTimeout(2500); // past the auto power-on window
+    await expect(page.locator('[data-xp-anchor="notepad.textarea"]')).toHaveCount(0);
+  });
+});
+
+test.describe('Event lab at /lab/ (glass box, moved off the landing by #250)', () => {
+  test('streams real onEvent traffic when driven', async ({ page }) => {
+    test.setTimeout(60000);
+    await page.goto('./lab/');
     const ticker = page.locator('[data-testid="glass-ticker"]');
     await expect(ticker).toBeVisible({ timeout: 15000 });
     // Its embedded desktop boots and emits at least session:boot-complete.
@@ -100,15 +127,5 @@ test.describe('Landing page (#160)', () => {
     // "Break it" trips a real lock → a genuine file:unlock event on the feed.
     await page.locator('[data-testid="glass-break"]').click();
     await expect(ticker).toContainText('file:unlock', { timeout: 12000 });
-  });
-
-  test('reduced motion keeps the content complete (SEO/a11y floor)', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('./');
-    await expect(page.getByRole('heading', { name: /Three Desktops, One Engine/ })).toBeVisible();
-    await expect(page.locator('a[href="demo/zh/"]').first()).toBeVisible();
-    await expect(page.locator('a[href="demo/en/"]').first()).toBeVisible();
-    // The desktop still comes up (content is complete, just without self-typing motion).
-    await expect(page.locator('[data-testid="greeter-notepad"]')).toBeVisible({ timeout: 8000 });
   });
 });

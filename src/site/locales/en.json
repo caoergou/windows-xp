@@ -1,45 +1,15 @@
 {
-  "nav.demoEn": "English desktop",
-  "nav.demoZh": "中文桌面",
-  "nav.gallery": "Components",
-  "nav.github": "GitHub",
-  "nav.docs": "Docs",
-
-  "hero.badge": "Live — not a screenshot",
-  "hero.tagline": "An embeddable, scriptable Windows XP desktop for React. This page doesn't describe the engine — it runs it, and drives itself with the same public API you get.",
-  "hero.powerOn": "Click to power on the desktop",
-  "hero.dragHint": "Drag the window. It's real.",
-
-  "greeter.title": "Welcome - Notepad",
-  "greeter.body": "This is not a video.\nDrag this window. →\n\nEverything on this page is the real\n@caoergou/windows-xp engine — and it's\ntyping this by driving itself through its\npublic ref handle (XPHandle).\n\nembed it. script it. make it yours.",
-
-  "act2.eyebrow": "One engine, two worlds",
-  "act2.title": "Two Worlds, One Engine",
-  "act2.body": "Same <WindowsXP />, different culture packages. Swap language='zh' and QQ, 360, Thunder replace Winamp, Norton, iTunes — the 2000s Chinese desktop, pixel-perfect.",
-  "monitor.live": "LIVE",
-  "monitor.xp": "Windows XP · Luna",
-  "monitor.xpDesc": "The faithful baseline. 20+ real apps, pixel-accurate chrome, Luna windows.",
-  "monitor.netcafe": "Chinese · 2000s",
-  "monitor.netcafeDesc": "QQ, 360, Thunder, Kugou, Baofeng — the 2000s Chinese desktop with every nostalgic app.",
-
-  "act4.eyebrow": "Two doors",
-  "act4.title": "Pick a world and step in",
-  "door.zh.title": "中文桌面 · Net-café",
-  "door.zh.desc": "QQ 上线、360 体检、迅雷下载、暴风影音 — a 2000s 中国互联网 desktop.",
-  "door.zh.cta": "进入中文桌面 →",
-  "door.en.title": "English desktop",
-  "door.en.desc": "Winamp, Norton AntiVirus, uTorrent, iTunes, Office — the Western 2000s PC.",
-  "door.en.cta": "Enter the English desktop →",
-
-  "roadmap.title": "Where this is",
-  "roadmap.now": "✅ Shipped",
-  "roadmap.next": "🔜 Next",
-  "roadmap.later": "💭 Future",
-  "roadmap.1": "Embeddable engine: 20+ apps, typed events, imperative ref, content injection, two culture packages",
-  "roadmap.2": "Scenario system: JSON-driven scripted stories with flags, triggers, and dynamic sticky notes",
-  "roadmap.3": "npm 0.3.0 release, scenario authoring CLI, more fidelity polish",
-  "roadmap.4": "OS packages beyond XP — defineOS, alternative themes (Win7 / macOS-like)",
-
+  "tagline": "The millennium internet — a live, embeddable Windows XP desktop for React.",
+  "hero.powerOn": "Click to power on",
+  "hero.mobileOpen": "Open the desktop",
+  "install.copy": "Copy the install command",
+  "install.copied": "Copied",
+  "links.demoZh": "中文桌面",
+  "links.demoEn": "English desktop",
+  "links.docs": "Docs",
+  "links.gallery": "Gallery",
+  "greeter.fileName": "Welcome",
+  "greeter.body": "This is not a video.\nDrag this window. →\n\nEverything on this page is the real\n@caoergou/windows-xp engine — and it's\ntyping this by driving itself through its\npublic ref handle (XPHandle).\n\nDouble-click a desktop shortcut to step\ninto the millennium — 中文 or English.",
   "glass.eyebrow": "Observe · Drive · Rewrite",
   "glass.title": "Watch it think",
   "glass.body": "Every action inside the desktop is a typed event. Touch the desktop on the left and the real onEvent feed scrolls by on the right — the same stream your app subscribes to. Then drive it, or rewrite its whole world.",
@@ -57,9 +27,5 @@
   "glass.breakTitle": "psst…",
   "glass.breakBody": "The lock on secret.txt is about to trip. Watch the events on the right.",
   "glass.tickerIdle": "// touch the desktop — events will stream here",
-
-  "footer.start": "start",
-  "footer.tagline": "Two Worlds, One Engine",
-
   "lang.switch": "中文"
 }
