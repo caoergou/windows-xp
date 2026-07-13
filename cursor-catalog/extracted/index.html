@@ -1,0 +1,2022 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Windows XP 提取鼠标样式汇总 · xp-research/extracted</title>
+  <style>
+    :root {
+      --bg: #f0f0f0;
+      --card-bg: #ffffff;
+      --text: #222222;
+      --muted: #666666;
+      --border: #d0d0d0;
+      --accent: #003399;
+      --grid-gap: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 32px;
+      font-family: "Tahoma", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--var(--text));
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      color: var(--accent);
+    }
+    .subtitle {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .summary {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .summary code {
+      background: #e8e8e8;
+      padding: 1px 4px;
+      font-family: Consolas, monospace;
+      font-size: 12px;
+    }
+    .controls {
+      margin-bottom: 16px;
+    }
+    .controls button {
+      margin-right: 8px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: var(--grid-gap);
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .card.hidden { display: none; }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .id {
+      font-weight: bold;
+      font-size: 12px;
+      color: var(--accent);
+      font-family: Consolas, monospace;
+    }
+    .type {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: Consolas, monospace;
+      text-transform: uppercase;
+    }
+    .preview {
+      width: 72px;
+      height: 72px;
+      background:
+        linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0),
+        linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0);
+      background-size: 12px 12px;
+      background-position: 0 0, 6px 6px;
+      background-color: #ffffff;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: flex-start;
+    }
+    .preview img {
+      max-width: 48px;
+      max-height: 48px;
+      image-rendering: pixelated;
+    }
+    .filename {
+      font-family: Consolas, monospace;
+      font-size: 11px;
+      color: var(--muted);
+      word-break: break-all;
+    }
+    .desc {
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--text);
+    }
+    .source {
+      font-size: 10px;
+      color: #999;
+      word-break: break-all;
+    }
+    .section-title {
+      margin: 24px 0 12px;
+      font-size: 18px;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
+    .footer {
+      margin-top: 32px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Windows XP 提取鼠标样式汇总</h1>
+  <p class="subtitle">
+    来源：<code>xp-research/extracted</code> · 共 184 个指针资源
+    （150 个静态 .cur + 34 个动画 .ani）
+  </p>
+
+  <div class="summary">
+    <strong>数据说明：</strong>
+    本页汇总了 <code>xp-research/extracted</code> 中提取出的全部 Windows XP 鼠标指针资源。
+    <code>.cur</code> 文件已直接转换为 PNG；<code>.ani</code> 动画光标提取了第一帧作为静态预览。
+    每个样式均使用与 <code>CURSOR-INDEX.md</code> 一致的编号：
+    <code>EXT-CUR-###</code>（静态）与 <code>EXT-ANI-###</code>（动画）。
+  </div>
+
+  <div class="controls">
+    <button onclick="filter('all')">全部</button>
+    <button onclick="filter('cur')">仅 .cur（150）</button>
+    <button onclick="filter('ani')">仅 .ani（34）</button>
+  </div>
+
+  <h2 class="section-title">动画光标 .ani（首帧预览）</h2>
+  <div class="grid">
+
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-001</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-001.png" alt="appstar2.ani" loading="lazy" /></div>
+      <div class="filename">appstar2.ani</div>
+      <div class="desc">动画：应用程序启动变体 2</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/appstar2.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-002</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-002.png" alt="appstar3.ani" loading="lazy" /></div>
+      <div class="filename">appstar3.ani</div>
+      <div class="desc">动画：应用程序启动变体 3</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/appstar3.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-003</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-003.png" alt="appstart.ani" loading="lazy" /></div>
+      <div class="filename">appstart.ani</div>
+      <div class="desc">动画：应用程序启动（旋转指示器）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/appstart.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-004</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-004.png" alt="banana.ani" loading="lazy" /></div>
+      <div class="filename">banana.ani</div>
+      <div class="desc">动画：香蕉</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/banana.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-005</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-005.png" alt="barber.ani" loading="lazy" /></div>
+      <div class="filename">barber.ani</div>
+      <div class="desc">动画：理发店转灯</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/barber.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-006</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-006.png" alt="coin.ani" loading="lazy" /></div>
+      <div class="filename">coin.ani</div>
+      <div class="desc">动画：硬币</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/coin.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-007</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-007.png" alt="counter.ani" loading="lazy" /></div>
+      <div class="filename">counter.ani</div>
+      <div class="desc">动画：计数器</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/counter.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-008</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-008.png" alt="dinosau2.ani" loading="lazy" /></div>
+      <div class="filename">dinosau2.ani</div>
+      <div class="desc">动画：恐龙变体 2</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/dinosau2.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-009</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-009.png" alt="dinosaur.ani" loading="lazy" /></div>
+      <div class="filename">dinosaur.ani</div>
+      <div class="desc">动画：恐龙</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/dinosaur.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-010</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-010.png" alt="drum.ani" loading="lazy" /></div>
+      <div class="filename">drum.ani</div>
+      <div class="desc">动画：鼓</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/drum.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-011</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-011.png" alt="fillitup.ani" loading="lazy" /></div>
+      <div class="filename">fillitup.ani</div>
+      <div class="desc">动画：液体填充</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/fillitup.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-012</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-012.png" alt="hand.ani" loading="lazy" /></div>
+      <div class="filename">hand.ani</div>
+      <div class="desc">手型链接指针</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/hand.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-013</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-013.png" alt="handapst.ani" loading="lazy" /></div>
+      <div class="filename">handapst.ani</div>
+      <div class="desc">应用程序启动手型指针</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/handapst.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-014</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-014.png" alt="handnesw.ani" loading="lazy" /></div>
+      <div class="filename">handnesw.ani</div>
+      <div class="desc">手型对角线调整（东北-西南）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/handnesw.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-015</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-015.png" alt="handno.ani" loading="lazy" /></div>
+      <div class="filename">handno.ani</div>
+      <div class="desc">手型不可用 / 禁止</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/handno.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-016</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-016.png" alt="handns.ani" loading="lazy" /></div>
+      <div class="filename">handns.ani</div>
+      <div class="desc">手型垂直调整</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/handns.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-017</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-017.png" alt="handnwse.ani" loading="lazy" /></div>
+      <div class="filename">handnwse.ani</div>
+      <div class="desc">手型对角线调整（西北-东南）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/handnwse.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-018</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-018.png" alt="handwait.ani" loading="lazy" /></div>
+      <div class="filename">handwait.ani</div>
+      <div class="desc">手型等待</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/handwait.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-019</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-019.png" alt="handwe.ani" loading="lazy" /></div>
+      <div class="filename">handwe.ani</div>
+      <div class="desc">手型水平调整</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/handwe.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-020</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-020.png" alt="horse.ani" loading="lazy" /></div>
+      <div class="filename">horse.ani</div>
+      <div class="desc">动画：马</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/horse.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-021</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-021.png" alt="hourgla2.ani" loading="lazy" /></div>
+      <div class="filename">hourgla2.ani</div>
+      <div class="desc">动画：沙漏变体 2</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/hourgla2.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-022</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-022.png" alt="hourgla3.ani" loading="lazy" /></div>
+      <div class="filename">hourgla3.ani</div>
+      <div class="desc">动画：沙漏变体 3</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/hourgla3.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-023</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-023.png" alt="hourglas.ani" loading="lazy" /></div>
+      <div class="filename">hourglas.ani</div>
+      <div class="desc">动画：沙漏</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/hourglas.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-024</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-024.png" alt="metronom.ani" loading="lazy" /></div>
+      <div class="filename">metronom.ani</div>
+      <div class="desc">动画：节拍器</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/metronom.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-025</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-025.png" alt="piano.ani" loading="lazy" /></div>
+      <div class="filename">piano.ani</div>
+      <div class="desc">动画：钢琴</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/piano.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-026</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-026.png" alt="rainbow.ani" loading="lazy" /></div>
+      <div class="filename">rainbow.ani</div>
+      <div class="desc">动画：彩虹</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/rainbow.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-027</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-027.png" alt="raindrop.ani" loading="lazy" /></div>
+      <div class="filename">raindrop.ani</div>
+      <div class="desc">动画：雨滴</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/raindrop.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-028</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-028.png" alt="sizenesw.ani" loading="lazy" /></div>
+      <div class="filename">sizenesw.ani</div>
+      <div class="desc">动画：对角线调整大小（东北-西南）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/sizenesw.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-029</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-029.png" alt="sizens.ani" loading="lazy" /></div>
+      <div class="filename">sizens.ani</div>
+      <div class="desc">动画：垂直调整大小</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/sizens.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-030</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-030.png" alt="sizenwse.ani" loading="lazy" /></div>
+      <div class="filename">sizenwse.ani</div>
+      <div class="desc">动画：对角线调整大小（西北-东南）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/sizenwse.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-031</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-031.png" alt="sizewe.ani" loading="lazy" /></div>
+      <div class="filename">sizewe.ani</div>
+      <div class="desc">动画：水平调整大小</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/sizewe.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-032</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-032.png" alt="stopwtch.ani" loading="lazy" /></div>
+      <div class="filename">stopwtch.ani</div>
+      <div class="desc">动画：秒表</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/stopwtch.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-033</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-033.png" alt="vanisher.ani" loading="lazy" /></div>
+      <div class="filename">vanisher.ani</div>
+      <div class="desc">动画：消失 / 淡入淡出</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/vanisher.ani</div>
+    </div>
+    <div class="card" data-type="ani">
+      <div class="card-header">
+        <span class="id">EXT-ANI-034</span>
+        <span class="type">ani</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-ANI-034.png" alt="wagtail.ani" loading="lazy" /></div>
+      <div class="filename">wagtail.ani</div>
+      <div class="desc">动画：摇尾巴</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/wagtail.ani</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">静态光标 .cur</h2>
+  <div class="grid">
+
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-001</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-001.png" alt="3dgarro.cur" loading="lazy" /></div>
+      <div class="filename">3dgarro.cur</div>
+      <div class="desc">3D 绿色方案默认箭头</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dgarro.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-002</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-002.png" alt="3dgmove.cur" loading="lazy" /></div>
+      <div class="filename">3dgmove.cur</div>
+      <div class="desc">3D 绿色方案移动</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dgmove.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-003</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-003.png" alt="3dgnesw.cur" loading="lazy" /></div>
+      <div class="filename">3dgnesw.cur</div>
+      <div class="desc">3D 绿色方案对角线调整（东北-西南）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dgnesw.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-004</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-004.png" alt="3dgno.cur" loading="lazy" /></div>
+      <div class="filename">3dgno.cur</div>
+      <div class="desc">3D 绿色方案不可用</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dgno.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-005</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-005.png" alt="3dgns.cur" loading="lazy" /></div>
+      <div class="filename">3dgns.cur</div>
+      <div class="desc">3D 绿色方案垂直调整</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dgns.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-006</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-006.png" alt="3dgnwse.cur" loading="lazy" /></div>
+      <div class="filename">3dgnwse.cur</div>
+      <div class="desc">3D 绿色方案对角线调整（西北-东南）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dgnwse.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-007</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-007.png" alt="3dgwe.cur" loading="lazy" /></div>
+      <div class="filename">3dgwe.cur</div>
+      <div class="desc">3D 绿色方案水平调整</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dgwe.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-008</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-008.png" alt="3dsmove.cur" loading="lazy" /></div>
+      <div class="filename">3dsmove.cur</div>
+      <div class="desc">3D 小型方案移动</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dsmove.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-009</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-009.png" alt="3dsns.cur" loading="lazy" /></div>
+      <div class="filename">3dsns.cur</div>
+      <div class="desc">3D 小型方案垂直调整</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dsns.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-010</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-010.png" alt="3dsnwse.cur" loading="lazy" /></div>
+      <div class="filename">3dsnwse.cur</div>
+      <div class="desc">3D 小型方案对角线调整（西北-东南）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dsnwse.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-011</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-011.png" alt="3dwarro.cur" loading="lazy" /></div>
+      <div class="filename">3dwarro.cur</div>
+      <div class="desc">3D 白色方案默认箭头</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dwarro.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-012</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-012.png" alt="3dwmove.cur" loading="lazy" /></div>
+      <div class="filename">3dwmove.cur</div>
+      <div class="desc">3D 白色方案移动</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dwmove.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-013</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-013.png" alt="3dwnesw.cur" loading="lazy" /></div>
+      <div class="filename">3dwnesw.cur</div>
+      <div class="desc">3D 白色方案对角线调整（东北-西南）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dwnesw.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-014</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-014.png" alt="3dwno.cur" loading="lazy" /></div>
+      <div class="filename">3dwno.cur</div>
+      <div class="desc">3D 白色方案不可用</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dwno.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-015</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-015.png" alt="3dwns.cur" loading="lazy" /></div>
+      <div class="filename">3dwns.cur</div>
+      <div class="desc">3D 白色方案垂直调整</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dwns.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-016</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-016.png" alt="3dwnwse.cur" loading="lazy" /></div>
+      <div class="filename">3dwnwse.cur</div>
+      <div class="desc">3D 白色方案对角线调整（西北-东南）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dwnwse.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-017</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-017.png" alt="3dwwe.cur" loading="lazy" /></div>
+      <div class="filename">3dwwe.cur</div>
+      <div class="desc">3D 白色方案水平调整</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/3dwwe.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-018</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-018.png" alt="arrow_i.cur" loading="lazy" /></div>
+      <div class="filename">arrow_i.cur</div>
+      <div class="desc">默认指针（箭头）（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/arrow_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-019</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-019.png" alt="arrow_il.cur" loading="lazy" /></div>
+      <div class="filename">arrow_il.cur</div>
+      <div class="desc">默认指针（箭头）（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/arrow_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-020</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-020.png" alt="arrow_im.cur" loading="lazy" /></div>
+      <div class="filename">arrow_im.cur</div>
+      <div class="desc">默认指针（箭头）（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/arrow_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-021</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-021.png" alt="arrow_l.cur" loading="lazy" /></div>
+      <div class="filename">arrow_l.cur</div>
+      <div class="desc">默认指针（箭头）（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/arrow_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-022</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-022.png" alt="arrow_m.cur" loading="lazy" /></div>
+      <div class="filename">arrow_m.cur</div>
+      <div class="desc">默认指针（箭头）（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/arrow_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-023</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-023.png" alt="arrow_r.cur" loading="lazy" /></div>
+      <div class="filename">arrow_r.cur</div>
+      <div class="desc">默认指针（箭头）（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/arrow_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-024</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-024.png" alt="arrow_rl.cur" loading="lazy" /></div>
+      <div class="filename">arrow_rl.cur</div>
+      <div class="desc">默认指针（箭头）（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/arrow_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-025</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-025.png" alt="arrow_rm.cur" loading="lazy" /></div>
+      <div class="filename">arrow_rm.cur</div>
+      <div class="desc">默认指针（箭头）（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/arrow_rm.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-026</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-026.png" alt="beam_i.cur" loading="lazy" /></div>
+      <div class="filename">beam_i.cur</div>
+      <div class="desc">文本选择 I-beam（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/beam_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-027</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-027.png" alt="beam_il.cur" loading="lazy" /></div>
+      <div class="filename">beam_il.cur</div>
+      <div class="desc">文本选择 I-beam（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/beam_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-028</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-028.png" alt="beam_im.cur" loading="lazy" /></div>
+      <div class="filename">beam_im.cur</div>
+      <div class="desc">文本选择 I-beam（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/beam_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-029</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-029.png" alt="beam_l.cur" loading="lazy" /></div>
+      <div class="filename">beam_l.cur</div>
+      <div class="desc">文本选择 I-beam（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/beam_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-030</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-030.png" alt="beam_m.cur" loading="lazy" /></div>
+      <div class="filename">beam_m.cur</div>
+      <div class="desc">文本选择 I-beam（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/beam_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-031</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-031.png" alt="beam_r.cur" loading="lazy" /></div>
+      <div class="filename">beam_r.cur</div>
+      <div class="desc">文本选择 I-beam（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/beam_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-032</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-032.png" alt="beam_rl.cur" loading="lazy" /></div>
+      <div class="filename">beam_rl.cur</div>
+      <div class="desc">文本选择 I-beam（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/beam_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-033</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-033.png" alt="beam_rm.cur" loading="lazy" /></div>
+      <div class="filename">beam_rm.cur</div>
+      <div class="desc">文本选择 I-beam（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/beam_rm.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-034</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-034.png" alt="busy_i.cur" loading="lazy" /></div>
+      <div class="filename">busy_i.cur</div>
+      <div class="desc">忙碌指针（箭头+沙漏）（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/busy_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-035</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-035.png" alt="busy_il.cur" loading="lazy" /></div>
+      <div class="filename">busy_il.cur</div>
+      <div class="desc">忙碌指针（箭头+沙漏）（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/busy_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-036</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-036.png" alt="busy_im.cur" loading="lazy" /></div>
+      <div class="filename">busy_im.cur</div>
+      <div class="desc">忙碌指针（箭头+沙漏）（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/busy_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-037</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-037.png" alt="busy_l.cur" loading="lazy" /></div>
+      <div class="filename">busy_l.cur</div>
+      <div class="desc">忙碌指针（箭头+沙漏）（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/busy_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-038</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-038.png" alt="busy_m.cur" loading="lazy" /></div>
+      <div class="filename">busy_m.cur</div>
+      <div class="desc">忙碌指针（箭头+沙漏）（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/busy_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-039</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-039.png" alt="busy_r.cur" loading="lazy" /></div>
+      <div class="filename">busy_r.cur</div>
+      <div class="desc">忙碌指针（箭头+沙漏）（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/busy_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-040</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-040.png" alt="busy_rl.cur" loading="lazy" /></div>
+      <div class="filename">busy_rl.cur</div>
+      <div class="desc">忙碌指针（箭头+沙漏）（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/busy_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-041</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-041.png" alt="busy_rm.cur" loading="lazy" /></div>
+      <div class="filename">busy_rm.cur</div>
+      <div class="desc">忙碌指针（箭头+沙漏）（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/busy_rm.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-042</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-042.png" alt="cross.cur" loading="lazy" /></div>
+      <div class="filename">cross.cur</div>
+      <div class="desc">十字准星 / 精确定位</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/cross.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-043</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-043.png" alt="cross_i.cur" loading="lazy" /></div>
+      <div class="filename">cross_i.cur</div>
+      <div class="desc">十字准星 / 精确定位（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/cross_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-044</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-044.png" alt="cross_il.cur" loading="lazy" /></div>
+      <div class="filename">cross_il.cur</div>
+      <div class="desc">十字准星 / 精确定位（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/cross_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-045</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-045.png" alt="cross_im.cur" loading="lazy" /></div>
+      <div class="filename">cross_im.cur</div>
+      <div class="desc">十字准星 / 精确定位（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/cross_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-046</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-046.png" alt="cross_l.cur" loading="lazy" /></div>
+      <div class="filename">cross_l.cur</div>
+      <div class="desc">十字准星 / 精确定位（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/cross_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-047</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-047.png" alt="cross_m.cur" loading="lazy" /></div>
+      <div class="filename">cross_m.cur</div>
+      <div class="desc">十字准星 / 精确定位（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/cross_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-048</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-048.png" alt="cross_r.cur" loading="lazy" /></div>
+      <div class="filename">cross_r.cur</div>
+      <div class="desc">十字准星 / 精确定位（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/cross_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-049</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-049.png" alt="cross_rl.cur" loading="lazy" /></div>
+      <div class="filename">cross_rl.cur</div>
+      <div class="desc">十字准星 / 精确定位（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/cross_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-050</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-050.png" alt="cross_rm.cur" loading="lazy" /></div>
+      <div class="filename">cross_rm.cur</div>
+      <div class="desc">十字准星 / 精确定位（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/cross_rm.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-051</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-051.png" alt="harrow.cur" loading="lazy" /></div>
+      <div class="filename">harrow.cur</div>
+      <div class="desc">高对比度 / 辅助功能默认箭头</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/harrow.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-052</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-052.png" alt="hcross.cur" loading="lazy" /></div>
+      <div class="filename">hcross.cur</div>
+      <div class="desc">高对比度 / 辅助功能十字准星</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/hcross.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-053</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-053.png" alt="help_i.cur" loading="lazy" /></div>
+      <div class="filename">help_i.cur</div>
+      <div class="desc">帮助指针（箭头+问号）（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/help_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-054</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-054.png" alt="help_il.cur" loading="lazy" /></div>
+      <div class="filename">help_il.cur</div>
+      <div class="desc">帮助指针（箭头+问号）（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/help_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-055</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-055.png" alt="help_im.cur" loading="lazy" /></div>
+      <div class="filename">help_im.cur</div>
+      <div class="desc">帮助指针（箭头+问号）（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/help_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-056</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-056.png" alt="help_l.cur" loading="lazy" /></div>
+      <div class="filename">help_l.cur</div>
+      <div class="desc">帮助指针（箭头+问号）（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/help_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-057</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-057.png" alt="help_m.cur" loading="lazy" /></div>
+      <div class="filename">help_m.cur</div>
+      <div class="desc">帮助指针（箭头+问号）（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/help_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-058</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-058.png" alt="help_r.cur" loading="lazy" /></div>
+      <div class="filename">help_r.cur</div>
+      <div class="desc">帮助指针（箭头+问号）（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/help_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-059</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-059.png" alt="help_rl.cur" loading="lazy" /></div>
+      <div class="filename">help_rl.cur</div>
+      <div class="desc">帮助指针（箭头+问号）（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/help_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-060</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-060.png" alt="help_rm.cur" loading="lazy" /></div>
+      <div class="filename">help_rm.cur</div>
+      <div class="desc">帮助指针（箭头+问号）（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/help_rm.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-061</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-061.png" alt="hibeam.cur" loading="lazy" /></div>
+      <div class="filename">hibeam.cur</div>
+      <div class="desc">高对比度 / 辅助功能文本 I-beam</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/hibeam.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-062</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-062.png" alt="hmove.cur" loading="lazy" /></div>
+      <div class="filename">hmove.cur</div>
+      <div class="desc">高对比度 / 辅助功能移动</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/hmove.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-063</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-063.png" alt="hnesw.cur" loading="lazy" /></div>
+      <div class="filename">hnesw.cur</div>
+      <div class="desc">高对比度 / 辅助功能对角线调整（东北-西南）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/hnesw.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-064</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-064.png" alt="hnodrop.cur" loading="lazy" /></div>
+      <div class="filename">hnodrop.cur</div>
+      <div class="desc">高对比度 / 辅助功能禁止</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/hnodrop.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-065</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-065.png" alt="hns.cur" loading="lazy" /></div>
+      <div class="filename">hns.cur</div>
+      <div class="desc">高对比度 / 辅助功能垂直调整</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/hns.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-066</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-066.png" alt="hnwse.cur" loading="lazy" /></div>
+      <div class="filename">hnwse.cur</div>
+      <div class="desc">高对比度 / 辅助功能对角线调整（西北-东南）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/hnwse.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-067</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-067.png" alt="hwe.cur" loading="lazy" /></div>
+      <div class="filename">hwe.cur</div>
+      <div class="desc">高对比度 / 辅助功能水平调整</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/hwe.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-068</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-068.png" alt="lappstrt.cur" loading="lazy" /></div>
+      <div class="filename">lappstrt.cur</div>
+      <div class="desc">大型方案应用程序启动</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/lappstrt.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-069</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-069.png" alt="larrow.cur" loading="lazy" /></div>
+      <div class="filename">larrow.cur</div>
+      <div class="desc">大型方案默认箭头</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/larrow.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-070</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-070.png" alt="lcross.cur" loading="lazy" /></div>
+      <div class="filename">lcross.cur</div>
+      <div class="desc">大型方案十字准星</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/lcross.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-071</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-071.png" alt="libeam.cur" loading="lazy" /></div>
+      <div class="filename">libeam.cur</div>
+      <div class="desc">大型方案文本 I-beam</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/libeam.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-072</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-072.png" alt="lmove.cur" loading="lazy" /></div>
+      <div class="filename">lmove.cur</div>
+      <div class="desc">大型方案移动</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/lmove.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-073</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-073.png" alt="lnesw.cur" loading="lazy" /></div>
+      <div class="filename">lnesw.cur</div>
+      <div class="desc">大型方案对角线调整（东北-西南）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/lnesw.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-074</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-074.png" alt="lnodrop.cur" loading="lazy" /></div>
+      <div class="filename">lnodrop.cur</div>
+      <div class="desc">大型方案禁止</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/lnodrop.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-075</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-075.png" alt="lns.cur" loading="lazy" /></div>
+      <div class="filename">lns.cur</div>
+      <div class="desc">大型方案垂直调整</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/lns.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-076</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-076.png" alt="lnwse.cur" loading="lazy" /></div>
+      <div class="filename">lnwse.cur</div>
+      <div class="desc">大型方案对角线调整（西北-东南）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/lnwse.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-077</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-077.png" alt="lwait.cur" loading="lazy" /></div>
+      <div class="filename">lwait.cur</div>
+      <div class="desc">大型方案等待</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/lwait.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-078</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-078.png" alt="lwe.cur" loading="lazy" /></div>
+      <div class="filename">lwe.cur</div>
+      <div class="desc">大型方案水平调整</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/lwe.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-079</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-079.png" alt="move_i.cur" loading="lazy" /></div>
+      <div class="filename">move_i.cur</div>
+      <div class="desc">移动 / 四向箭头（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/move_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-080</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-080.png" alt="move_il.cur" loading="lazy" /></div>
+      <div class="filename">move_il.cur</div>
+      <div class="desc">移动 / 四向箭头（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/move_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-081</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-081.png" alt="move_im.cur" loading="lazy" /></div>
+      <div class="filename">move_im.cur</div>
+      <div class="desc">移动 / 四向箭头（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/move_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-082</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-082.png" alt="move_l.cur" loading="lazy" /></div>
+      <div class="filename">move_l.cur</div>
+      <div class="desc">移动 / 四向箭头（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/move_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-083</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-083.png" alt="move_m.cur" loading="lazy" /></div>
+      <div class="filename">move_m.cur</div>
+      <div class="desc">移动 / 四向箭头（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/move_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-084</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-084.png" alt="move_r.cur" loading="lazy" /></div>
+      <div class="filename">move_r.cur</div>
+      <div class="desc">移动 / 四向箭头（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/move_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-085</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-085.png" alt="move_rl.cur" loading="lazy" /></div>
+      <div class="filename">move_rl.cur</div>
+      <div class="desc">移动 / 四向箭头（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/move_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-086</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-086.png" alt="move_rm.cur" loading="lazy" /></div>
+      <div class="filename">move_rm.cur</div>
+      <div class="desc">移动 / 四向箭头（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/move_rm.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-087</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-087.png" alt="no_i.cur" loading="lazy" /></div>
+      <div class="filename">no_i.cur</div>
+      <div class="desc">不可用 / 禁止（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/no_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-088</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-088.png" alt="no_il.cur" loading="lazy" /></div>
+      <div class="filename">no_il.cur</div>
+      <div class="desc">不可用 / 禁止（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/no_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-089</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-089.png" alt="no_im.cur" loading="lazy" /></div>
+      <div class="filename">no_im.cur</div>
+      <div class="desc">不可用 / 禁止（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/no_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-090</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-090.png" alt="no_l.cur" loading="lazy" /></div>
+      <div class="filename">no_l.cur</div>
+      <div class="desc">不可用 / 禁止（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/no_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-091</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-091.png" alt="no_m.cur" loading="lazy" /></div>
+      <div class="filename">no_m.cur</div>
+      <div class="desc">不可用 / 禁止（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/no_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-092</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-092.png" alt="no_r.cur" loading="lazy" /></div>
+      <div class="filename">no_r.cur</div>
+      <div class="desc">不可用 / 禁止（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/no_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-093</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-093.png" alt="no_rl.cur" loading="lazy" /></div>
+      <div class="filename">no_rl.cur</div>
+      <div class="desc">不可用 / 禁止（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/no_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-094</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-094.png" alt="no_rm.cur" loading="lazy" /></div>
+      <div class="filename">no_rm.cur</div>
+      <div class="desc">不可用 / 禁止（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/no_rm.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-095</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-095.png" alt="pen_i.cur" loading="lazy" /></div>
+      <div class="filename">pen_i.cur</div>
+      <div class="desc">笔 / 手写（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/pen_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-096</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-096.png" alt="pen_il.cur" loading="lazy" /></div>
+      <div class="filename">pen_il.cur</div>
+      <div class="desc">笔 / 手写（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/pen_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-097</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-097.png" alt="pen_im.cur" loading="lazy" /></div>
+      <div class="filename">pen_im.cur</div>
+      <div class="desc">笔 / 手写（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/pen_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-098</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-098.png" alt="pen_l.cur" loading="lazy" /></div>
+      <div class="filename">pen_l.cur</div>
+      <div class="desc">笔 / 手写（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/pen_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-099</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-099.png" alt="pen_m.cur" loading="lazy" /></div>
+      <div class="filename">pen_m.cur</div>
+      <div class="desc">笔 / 手写（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/pen_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-100</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-100.png" alt="pen_r.cur" loading="lazy" /></div>
+      <div class="filename">pen_r.cur</div>
+      <div class="desc">笔 / 手写（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/pen_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-101</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-101.png" alt="pen_rl.cur" loading="lazy" /></div>
+      <div class="filename">pen_rl.cur</div>
+      <div class="desc">笔 / 手写（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/pen_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-102</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-102.png" alt="pen_rm.cur" loading="lazy" /></div>
+      <div class="filename">pen_rm.cur</div>
+      <div class="desc">笔 / 手写（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/pen_rm.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-103</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-103.png" alt="size1_i.cur" loading="lazy" /></div>
+      <div class="filename">size1_i.cur</div>
+      <div class="desc">对角线调整大小（东北-西南）（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size1_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-104</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-104.png" alt="size1_il.cur" loading="lazy" /></div>
+      <div class="filename">size1_il.cur</div>
+      <div class="desc">对角线调整大小（东北-西南）（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size1_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-105</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-105.png" alt="size1_im.cur" loading="lazy" /></div>
+      <div class="filename">size1_im.cur</div>
+      <div class="desc">对角线调整大小（东北-西南）（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size1_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-106</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-106.png" alt="size1_l.cur" loading="lazy" /></div>
+      <div class="filename">size1_l.cur</div>
+      <div class="desc">对角线调整大小（东北-西南）（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size1_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-107</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-107.png" alt="size1_m.cur" loading="lazy" /></div>
+      <div class="filename">size1_m.cur</div>
+      <div class="desc">对角线调整大小（东北-西南）（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size1_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-108</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-108.png" alt="size1_r.cur" loading="lazy" /></div>
+      <div class="filename">size1_r.cur</div>
+      <div class="desc">对角线调整大小（东北-西南）（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size1_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-109</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-109.png" alt="size1_rl.cur" loading="lazy" /></div>
+      <div class="filename">size1_rl.cur</div>
+      <div class="desc">对角线调整大小（东北-西南）（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size1_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-110</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-110.png" alt="size1_rm.cur" loading="lazy" /></div>
+      <div class="filename">size1_rm.cur</div>
+      <div class="desc">对角线调整大小（东北-西南）（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size1_rm.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-111</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-111.png" alt="size2_i.cur" loading="lazy" /></div>
+      <div class="filename">size2_i.cur</div>
+      <div class="desc">对角线调整大小（西北-东南）（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size2_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-112</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-112.png" alt="size2_il.cur" loading="lazy" /></div>
+      <div class="filename">size2_il.cur</div>
+      <div class="desc">对角线调整大小（西北-东南）（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size2_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-113</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-113.png" alt="size2_im.cur" loading="lazy" /></div>
+      <div class="filename">size2_im.cur</div>
+      <div class="desc">对角线调整大小（西北-东南）（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size2_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-114</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-114.png" alt="size2_l.cur" loading="lazy" /></div>
+      <div class="filename">size2_l.cur</div>
+      <div class="desc">对角线调整大小（西北-东南）（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size2_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-115</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-115.png" alt="size2_m.cur" loading="lazy" /></div>
+      <div class="filename">size2_m.cur</div>
+      <div class="desc">对角线调整大小（西北-东南）（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size2_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-116</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-116.png" alt="size2_r.cur" loading="lazy" /></div>
+      <div class="filename">size2_r.cur</div>
+      <div class="desc">对角线调整大小（西北-东南）（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size2_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-117</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-117.png" alt="size2_rl.cur" loading="lazy" /></div>
+      <div class="filename">size2_rl.cur</div>
+      <div class="desc">对角线调整大小（西北-东南）（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size2_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-118</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-118.png" alt="size2_rm.cur" loading="lazy" /></div>
+      <div class="filename">size2_rm.cur</div>
+      <div class="desc">对角线调整大小（西北-东南）（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size2_rm.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-119</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-119.png" alt="size3_i.cur" loading="lazy" /></div>
+      <div class="filename">size3_i.cur</div>
+      <div class="desc">水平调整大小（西-东）（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size3_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-120</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-120.png" alt="size3_il.cur" loading="lazy" /></div>
+      <div class="filename">size3_il.cur</div>
+      <div class="desc">水平调整大小（西-东）（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size3_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-121</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-121.png" alt="size3_im.cur" loading="lazy" /></div>
+      <div class="filename">size3_im.cur</div>
+      <div class="desc">水平调整大小（西-东）（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size3_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-122</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-122.png" alt="size3_l.cur" loading="lazy" /></div>
+      <div class="filename">size3_l.cur</div>
+      <div class="desc">水平调整大小（西-东）（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size3_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-123</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-123.png" alt="size3_m.cur" loading="lazy" /></div>
+      <div class="filename">size3_m.cur</div>
+      <div class="desc">水平调整大小（西-东）（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size3_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-124</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-124.png" alt="size3_r.cur" loading="lazy" /></div>
+      <div class="filename">size3_r.cur</div>
+      <div class="desc">水平调整大小（西-东）（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size3_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-125</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-125.png" alt="size3_rl.cur" loading="lazy" /></div>
+      <div class="filename">size3_rl.cur</div>
+      <div class="desc">水平调整大小（西-东）（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size3_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-126</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-126.png" alt="size3_rm.cur" loading="lazy" /></div>
+      <div class="filename">size3_rm.cur</div>
+      <div class="desc">水平调整大小（西-东）（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size3_rm.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-127</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-127.png" alt="size4_i.cur" loading="lazy" /></div>
+      <div class="filename">size4_i.cur</div>
+      <div class="desc">垂直调整大小（北-南）（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size4_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-128</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-128.png" alt="size4_il.cur" loading="lazy" /></div>
+      <div class="filename">size4_il.cur</div>
+      <div class="desc">垂直调整大小（北-南）（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size4_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-129</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-129.png" alt="size4_im.cur" loading="lazy" /></div>
+      <div class="filename">size4_im.cur</div>
+      <div class="desc">垂直调整大小（北-南）（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size4_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-130</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-130.png" alt="size4_l.cur" loading="lazy" /></div>
+      <div class="filename">size4_l.cur</div>
+      <div class="desc">垂直调整大小（北-南）（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size4_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-131</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-131.png" alt="size4_m.cur" loading="lazy" /></div>
+      <div class="filename">size4_m.cur</div>
+      <div class="desc">垂直调整大小（北-南）（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size4_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-132</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-132.png" alt="size4_r.cur" loading="lazy" /></div>
+      <div class="filename">size4_r.cur</div>
+      <div class="desc">垂直调整大小（北-南）（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size4_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-133</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-133.png" alt="size4_rl.cur" loading="lazy" /></div>
+      <div class="filename">size4_rl.cur</div>
+      <div class="desc">垂直调整大小（北-南）（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size4_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-134</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-134.png" alt="size4_rm.cur" loading="lazy" /></div>
+      <div class="filename">size4_rm.cur</div>
+      <div class="desc">垂直调整大小（北-南）（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/size4_rm.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-135</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-135.png" alt="up_i.cur" loading="lazy" /></div>
+      <div class="filename">up_i.cur</div>
+      <div class="desc">向上箭头 / 备选选择（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/up_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-136</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-136.png" alt="up_il.cur" loading="lazy" /></div>
+      <div class="filename">up_il.cur</div>
+      <div class="desc">向上箭头 / 备选选择（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/up_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-137</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-137.png" alt="up_im.cur" loading="lazy" /></div>
+      <div class="filename">up_im.cur</div>
+      <div class="desc">向上箭头 / 备选选择（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/up_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-138</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-138.png" alt="up_l.cur" loading="lazy" /></div>
+      <div class="filename">up_l.cur</div>
+      <div class="desc">向上箭头 / 备选选择（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/up_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-139</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-139.png" alt="up_m.cur" loading="lazy" /></div>
+      <div class="filename">up_m.cur</div>
+      <div class="desc">向上箭头 / 备选选择（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/up_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-140</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-140.png" alt="up_r.cur" loading="lazy" /></div>
+      <div class="filename">up_r.cur</div>
+      <div class="desc">向上箭头 / 备选选择（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/up_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-141</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-141.png" alt="up_rl.cur" loading="lazy" /></div>
+      <div class="filename">up_rl.cur</div>
+      <div class="desc">向上箭头 / 备选选择（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/up_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-142</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-142.png" alt="up_rm.cur" loading="lazy" /></div>
+      <div class="filename">up_rm.cur</div>
+      <div class="desc">向上箭头 / 备选选择（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/up_rm.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-143</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-143.png" alt="wait_i.cur" loading="lazy" /></div>
+      <div class="filename">wait_i.cur</div>
+      <div class="desc">等待 / 沙漏（反色变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/wait_i.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-144</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-144.png" alt="wait_il.cur" loading="lazy" /></div>
+      <div class="filename">wait_il.cur</div>
+      <div class="desc">等待 / 沙漏（反色大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/wait_il.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-145</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-145.png" alt="wait_im.cur" loading="lazy" /></div>
+      <div class="filename">wait_im.cur</div>
+      <div class="desc">等待 / 沙漏（反色中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/wait_im.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-146</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-146.png" alt="wait_l.cur" loading="lazy" /></div>
+      <div class="filename">wait_l.cur</div>
+      <div class="desc">等待 / 沙漏（大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/wait_l.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-147</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-147.png" alt="wait_m.cur" loading="lazy" /></div>
+      <div class="filename">wait_m.cur</div>
+      <div class="desc">等待 / 沙漏（中等 / 标准变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/wait_m.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-148</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-148.png" alt="wait_r.cur" loading="lazy" /></div>
+      <div class="filename">wait_r.cur</div>
+      <div class="desc">等待 / 沙漏（镜像 / 反向变体（左利手方案））</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/wait_r.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-149</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-149.png" alt="wait_rl.cur" loading="lazy" /></div>
+      <div class="filename">wait_rl.cur</div>
+      <div class="desc">等待 / 沙漏（镜像大型变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/wait_rl.cur</div>
+    </div>
+    <div class="card" data-type="cur">
+      <div class="card-header">
+        <span class="id">EXT-CUR-150</span>
+        <span class="type">cur</span>
+      </div>
+      <div class="preview"><img src="pngs/EXT-CUR-150.png" alt="wait_rm.cur" loading="lazy" /></div>
+      <div class="filename">wait_rm.cur</div>
+      <div class="desc">等待 / 沙漏（镜像中等变体）</div>
+      <div class="source">windows-ui-assets/Cursors/Windows XP/wait_rm.cur</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    生成时间：2026-07-13 · 数据来源：xp-research/extracted/CURSOR-INDEX.md
+  </div>
+
+  <script>
+    function filter(type) {
+      document.querySelectorAll('.card').forEach(card => {
+        card.classList.toggle('hidden', type !== 'all' && card.dataset.type !== type);
+      });
+    }
+  </script>
+</body>
+</html>

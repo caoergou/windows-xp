@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Windows XP 桌面引擎 — 真实使用的鼠标样式汇总</title>
+  <style>
+    :root {
+      --bg: #f0f0f0;
+      --card-bg: #ffffff;
+      --text: #222222;
+      --muted: #666666;
+      --border: #d0d0d0;
+      --accent: #003399;
+      --grid-gap: 20px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 32px;
+      font-family: "Tahoma", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      color: var(--accent);
+    }
+    .subtitle {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .summary {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .summary code {
+      background: #e8e8e8;
+      padding: 1px 4px;
+      font-family: Consolas, monospace;
+      font-size: 12px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: var(--grid-gap);
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .id {
+      font-weight: bold;
+      font-size: 13px;
+      color: var(--accent);
+      font-family: Consolas, monospace;
+    }
+    .role {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: Consolas, monospace;
+    }
+    .preview {
+      width: 96px;
+      height: 96px;
+      background:
+        linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0),
+        linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0);
+      background-size: 12px 12px;
+      background-position: 0 0, 6px 6px;
+      background-color: #ffffff;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: flex-start;
+    }
+    .preview img {
+      max-width: 64px;
+      max-height: 64px;
+      image-rendering: pixelated;
+    }
+    .preview.empty {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 8px;
+    }
+    .hotspot {
+      font-family: Consolas, monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: -4px;
+    }
+    .filename {
+      font-family: Consolas, monospace;
+      font-size: 12px;
+      color: var(--muted);
+      word-break: break-all;
+    }
+    .usage {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text);
+    }
+    .usage strong {
+      color: var(--accent);
+    }
+    .footer {
+      margin-top: 32px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Windows XP 桌面引擎 — 真实使用的鼠标样式汇总</h1>
+  <p class="subtitle">
+    本页汇总了当前项目（<code>src/</code>）中真实使用到的全部鼠标指针样式。
+    每个样式均已转换为 PNG 并分配唯一编号，同时标注对应的 CSS <code>cursor</code> 角色与实际使用场景。
+  </p>
+
+  <div class="summary">
+    <strong>数据来源：</strong>
+    <code>src/assets/cursors/xp/</code> 目录下的 14 个 <code>.cur</code> 文件，
+    这些资源在 <code>src/scoped.css</code> 中通过 <code>cursor: url(...)</code> 映射到具体 CSS 角色。
+    此外，<code>cursor: none</code> 用于需要隐藏鼠标的特殊场景，也作为独立条目列出。
+    <br><br>
+    <strong>总数：</strong>14 个真实使用的鼠标样式（13 个图片 + 1 个透明/隐藏样式）。
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-001</span>
+        <span class="role">default</span>
+      </div>
+      <div class="preview"><img src="pngs/arrow_r.png" alt="arrow_r" /></div>
+      <div class="filename">arrow_r.cur → arrow_r.png</div>
+      <div class="hotspot">热点：(0, 0)</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        整个 <code>.windows-xp-root</code> 范围的默认鼠标指针；未覆盖其他光标样式时的缺省指针。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-002</span>
+        <span class="role">pointer</span>
+      </div>
+      <div class="preview"><img src="pngs/harrow.png" alt="harrow" /></div>
+      <div class="filename">harrow.cur → harrow.png</div>
+      <div class="hotspot">热点：(12, 1)</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        高对比度 / 辅助功能默认手型链接指针（来源：windows-ui-assets/Cursors/Windows XP/harrow.cur）。
+        用于链接（<code>&lt;a&gt;</code>）、按钮（<code>&lt;button&gt;</code>）、<code>[role="button"]</code>、
+        <code>.xp-clickable</code> 等全部可点击元素；项目中最常用的交互指针。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-003</span>
+        <span class="role">text</span>
+      </div>
+      <div class="preview"><img src="pngs/beam_r.png" alt="beam_r" /></div>
+      <div class="filename">beam_r.cur → beam_r.png</div>
+      <div class="hotspot">热点：(15, 16)</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        输入框（<code>&lt;input&gt;</code>）、文本域（<code>&lt;textarea&gt;</code>）、
+        <code>[contenteditable]</code> 以及命令提示符等需要文本输入的光标区域。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-004</span>
+        <span class="role">help</span>
+      </div>
+      <div class="preview"><img src="pngs/help_r.png" alt="help_r" /></div>
+      <div class="filename">help_r.cur → help_r.png</div>
+      <div class="hotspot">热点：(5, 7)</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        带有 <code>.xp-help</code> 类名的帮助提示区域，表示该元素可点击查看帮助或提示信息。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-005</span>
+        <span class="role">wait</span>
+      </div>
+      <div class="preview"><img src="pngs/busy_r.png" alt="busy_r" /></div>
+      <div class="filename">busy_r.cur → busy_r.png</div>
+      <div class="hotspot">热点：(16, 16)</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        带有 <code>.xp-busy</code> 类名的繁忙状态区域，提示当前操作阻塞、需要等待。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-006</span>
+        <span class="role">progress</span>
+      </div>
+      <div class="preview"><img src="pngs/wait_r.png" alt="wait_r" /></div>
+      <div class="filename">wait_r.cur → wait_r.png</div>
+      <div class="hotspot">热点：(0, 0)</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        带有 <code>.xp-progress</code> 类名的进度状态区域，表示后台正在处理但仍可与界面部分交互。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-007</span>
+        <span class="role">move</span>
+      </div>
+      <div class="preview"><img src="pngs/move_r.png" alt="move_r" /></div>
+      <div class="filename">move_r.cur → move_r.png</div>
+      <div class="hotspot">热点：(15, 16)</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        带有 <code>.xp-move</code> 类名的可移动/拖拽元素，表示按住后可拖动位置。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-008</span>
+        <span class="role">not-allowed</span>
+      </div>
+      <div class="preview"><img src="pngs/no_r.png" alt="no_r" /></div>
+      <div class="filename">no_r.cur → no_r.png</div>
+      <div class="hotspot">热点：(15, 15)</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        带有 <code>.xp-not-allowed</code> 类名的禁用区域，以及部分禁用按钮/控件（如 Thunder、BaofengPlayer 中的不可用状态）。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-009</span>
+        <span class="role">crosshair</span>
+      </div>
+      <div class="preview"><img src="pngs/cross_r.png" alt="cross_r" /></div>
+      <div class="filename">cross_r.cur → cross_r.png</div>
+      <div class="hotspot">热点：(15, 16)</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        带有 <code>.xp-crosshair</code> 类名的区域；Microsoft Paint 的画布在绘制/取色等精确操作时使用。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-010</span>
+        <span class="role">nesw-resize</span>
+      </div>
+      <div class="preview"><img src="pngs/size1_r.png" alt="size1_r" /></div>
+      <div class="filename">size1_r.cur → size1_r.png</div>
+      <div class="hotspot">热点：(16, 16)</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        带有 <code>.resize-nesw</code> 类名的元素，表示沿东北-西南对角线调整大小。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-011</span>
+        <span class="role">nwse-resize / se-resize</span>
+      </div>
+      <div class="preview"><img src="pngs/size2_r.png" alt="size2_r" /></div>
+      <div class="filename">size2_r.cur → size2_r.png</div>
+      <div class="hotspot">热点：(16, 16)</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        带有 <code>.resize-nwse</code> 类名的元素，以及窗口右下角缩放柄（<code>.react-resizable-handle-se</code>，对应 <code>se-resize</code>）。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-012</span>
+        <span class="role">ew-resize</span>
+      </div>
+      <div class="preview"><img src="pngs/size3_r.png" alt="size3_r" /></div>
+      <div class="filename">size3_r.cur → size3_r.png</div>
+      <div class="hotspot">热点：(16, 16)</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        带有 <code>.resize-ew</code> 类名的元素，表示沿水平方向（东西向）调整大小。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-013</span>
+        <span class="role">ns-resize</span>
+      </div>
+      <div class="preview"><img src="pngs/size4_r.png" alt="size4_r" /></div>
+      <div class="filename">size4_r.cur → size4_r.png</div>
+      <div class="hotspot">热点：(15, 16)</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        带有 <code>.resize-ns</code> 类名的元素，表示沿垂直方向（南北向）调整大小。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="id">XP-CUR-014</span>
+        <span class="role">none</span>
+      </div>
+      <div class="preview empty">透明 / 隐藏</div>
+      <div class="filename">无文件（CSS cursor: none）</div>
+      <div class="hotspot">无热点（CSS 隐藏）</div>
+      <div class="usage">
+        <strong>使用场景：</strong>
+        <code>cursor: none</code> 用于需要完全隐藏鼠标指针的特殊场景，例如 <code>BootScreen</code>（开机画面）与 <code>BsodScreen</code>（蓝屏画面）。
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    生成时间：2026-07-13 · 生成位置：<code>cursor-catalog/</code> · 说明：
+    <code>.cur</code> 文件已通过 ImageMagick 转换为 PNG。
+  </div>
+</body>
+</html>
