@@ -26,17 +26,15 @@ const MenuBar = styled.div`
   font-family: Tahoma, sans-serif;
   font-size: 11px;
   flex-shrink: 0;
+  color: #808080;
   span {
     padding: 2px 6px;
     cursor: default;
-  }
-  span:hover {
-    background: #316ac5;
-    color: #fff;
+    pointer-events: none;
   }
 `;
 
-const Paper = styled.pre`
+const paperBase = `
   flex: 1;
   margin: 0;
   padding: 6px 8px;
@@ -48,6 +46,18 @@ const Paper = styled.pre`
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
+`;
+
+const Paper = styled.pre<{ $typing?: boolean }>`
+  ${paperBase}
+  cursor: ${p => (p.$typing ? 'wait' : 'text')};
+`;
+
+const EditArea = styled.textarea`
+  ${paperBase}
+  border: 0;
+  outline: none;
+  resize: none;
 `;
 
 const Caret = styled.span`
@@ -117,10 +127,14 @@ const GreeterNotepad: React.FC<GreeterNotepadProps> = ({ body = '', reduced = fa
         <span>View</span>
         <span>Help</span>
       </MenuBar>
-      <Paper>
-        {body.slice(0, count)}
-        {!done && !reduced && <Caret />}
-      </Paper>
+      {done ? (
+        <EditArea defaultValue={body} />
+      ) : (
+        <Paper $typing>
+          {body.slice(0, count)}
+          {!reduced && <Caret />}
+        </Paper>
+      )}
     </Root>
   );
 };

@@ -37,6 +37,8 @@ const GlobalReset = createGlobalStyle`
   * { box-sizing: border-box; }
 `;
 
+const NOISE_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
+
 const Page = styled.div`
   font-family: 'Trebuchet MS', Tahoma, 'Microsoft YaHei', sans-serif;
   color: #e8eef7;
@@ -44,6 +46,18 @@ const Page = styled.div`
     radial-gradient(1200px 600px at 50% -10%, #2a63c9 0%, transparent 60%),
     linear-gradient(180deg, #0e1830 0%, #0b1220 100%);
   min-height: 100vh;
+  position: relative;
+  &::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: ${NOISE_SVG};
+    background-size: 200px 200px;
+    opacity: 0.03;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    z-index: 100;
+  }
 `;
 
 const Section = styled.section`
@@ -187,20 +201,51 @@ const Lead = styled.p`
 
 const MonitorRow = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 22px;
   margin-top: 34px;
-  @media (max-width: 820px) {
+  @media (max-width: 680px) {
     grid-template-columns: 1fr;
   }
 `;
 
-const MiniMonitor = styled.div<{ $variant: 'xp' | 'netcafe' | 'echo' }>`
+const MiniMonitor = styled.a<{ $variant: 'xp' | 'netcafe' | 'echo' }>`
+  display: block;
+  text-decoration: none;
+  color: inherit;
   border-radius: 14px;
   padding: 12px 12px 22px;
   background: linear-gradient(180deg, #2f333c, #191b20);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px #000;
   position: relative;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  &::after {
+    content: '';
+    position: absolute;
+    right: 16px;
+    bottom: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #3a4a3a;
+    transition: background 0.25s ease, box-shadow 0.25s ease;
+  }
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.5),
+      0 0 0 1px #000,
+      0 0 40px ${p => (p.$variant === 'netcafe' ? 'rgba(27, 79, 138, 0.25)' : 'rgba(36, 94, 219, 0.25)')};
+    &::after {
+      background: #6fe38a;
+      box-shadow: 0 0 8px #6fe38a;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &:hover { transform: none; }
+  }
 `;
 
 const MiniScreen = styled.div<{ $variant: 'xp' | 'netcafe' | 'echo' }>`
@@ -215,7 +260,26 @@ const MiniScreen = styled.div<{ $variant: 'xp' | 'netcafe' | 'echo' }>`
       : p.$variant === 'netcafe'
         ? 'radial-gradient(120% 90% at 30% 0%, #10233f 0%, #050912 70%)'
         : 'linear-gradient(160deg, #0d5c63 0%, #0a3b45 55%, #06232b 100%)'};
-  /* faint scanlines live on the room/bezel context, not over XP pixels */
+  .enter-hint {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 2;
+    pointer-events: none;
+  }
+  ${MiniMonitor}:hover & .enter-hint {
+    opacity: 1;
+  }
 `;
 
 const MiniOverlay = styled.div<{ $variant: 'xp' | 'netcafe' | 'echo' }>`
@@ -429,9 +493,8 @@ const Tray = styled.div`
 `;
 
 const monitors = [
-  { key: 'xp', variant: 'xp' as const, live: true },
-  { key: 'netcafe', variant: 'netcafe' as const },
-  { key: 'echo', variant: 'echo' as const, concept: true },
+  { key: 'xp', variant: 'xp' as const, live: true, href: 'demo/en/' },
+  { key: 'netcafe', variant: 'netcafe' as const, href: 'demo/zh/' },
 ];
 
 const Landing: React.FC = () => {
@@ -517,23 +580,23 @@ const Landing: React.FC = () => {
         <HeroCaption>{t('hero.tagline')}</HeroCaption>
       </HeroWrap>
 
-      {/* Act 2 — three desktops, one engine */}
+      {/* Act 2 — two worlds, one engine */}
       <Section id="engine">
         <Eyebrow>{t('act2.eyebrow')}</Eyebrow>
         <Title>
-          Three Desktops, One Engine <span>· 三个桌面，一个引擎</span>
+          Two Worlds, One Engine <span>· 两个世界，一个引擎</span>
         </Title>
         <Lead>{t('act2.body')}</Lead>
         <MonitorRow>
           {monitors.map(m => (
-            <MiniMonitor key={m.key} $variant={m.variant}>
+            <MiniMonitor key={m.key} $variant={m.variant} href={m.href}>
               {m.live && <Tag>{t('monitor.live')}</Tag>}
-              {m.concept && <Tag $concept>{t('monitor.concept')}</Tag>}
               <MiniScreen $variant={m.variant}>
                 <MiniOverlay $variant={m.variant}>
                   <div className="win" />
                   <div className="bar" />
                 </MiniOverlay>
+                <span className="enter-hint">{m.variant === 'netcafe' ? t('door.zh.cta') : t('door.en.cta')}</span>
               </MiniScreen>
               <MiniLabel>
                 <div className="n">{t(`monitor.${m.key}`)}</div>
@@ -552,24 +615,9 @@ const Landing: React.FC = () => {
         </Suspense>
       )}
 
-      {/* Act 4 — two doors + roadmap */}
-      <Section id="demos">
-        <Eyebrow>{t('act4.eyebrow')}</Eyebrow>
-        <Title>{t('act4.title')}</Title>
-        <Doors>
-          <Door href="demo/zh/" $accent="#d43a2f">
-            <div className="t">{t('door.zh.title')}</div>
-            <div className="d">{t('door.zh.desc')}</div>
-            <div className="cta">{t('door.zh.cta')}</div>
-          </Door>
-          <Door href="demo/en/" $accent="#2b6fd6">
-            <div className="t">{t('door.en.title')}</div>
-            <div className="d">{t('door.en.desc')}</div>
-            <div className="cta">{t('door.en.cta')}</div>
-          </Door>
-        </Doors>
-
-        <h2 style={{ marginTop: 44, color: '#fff' }}>{t('roadmap.title')}</h2>
+      {/* Roadmap */}
+      <Section id="roadmap">
+        <h2 style={{ marginTop: 0, color: '#fff' }}>{t('roadmap.title')}</h2>
         <Roadmap>
           <RoadItem $tone="#6fe38a">
             <span className="when">{t('roadmap.now')}</span>

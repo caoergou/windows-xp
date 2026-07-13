@@ -405,3 +405,31 @@ apply on top of that — they OVERRIDE any default behavior:
   If a commit was already created with the wrong identity, repair it with
   `git commit --amend --reset-author --no-edit` (or rebase for multiple
   commits) before pushing.
+
+## Landing Page Redesign — Remaining TODO
+
+Items identified during the `site/landing-page-honest-redesign` branch work
+that are not yet completed:
+
+- [ ] **GreeterNotepad → real Notepad upgrade**: Add an `autoType` mode to the
+  real `Notepad` component (props: `autoTypeText`, `autoTypeSpeed`,
+  `onAutoTypeComplete`) so the landing page hero can use a fully functional
+  Notepad instead of a stripped-down custom component. Menus, editing, and
+  save-to-FS would all work after the typing animation finishes.
+- [ ] **Hero monitor aspect-ratio black bars**: The outer `Monitor` uses
+  `aspect-ratio: 4/3` with asymmetric padding (`18px 18px 40px`), causing the
+  inner `Screen` area to be wider than 4:3. The XP engine preserves 4:3 and
+  leaves black side bars. Fix: move `aspect-ratio: 4/3` to `Screen` and remove
+  it from `Monitor`, or compute the correct outer ratio.
+- [ ] **Landing page background noise texture**: CSS `feTurbulence` SVG noise
+  overlay on `Page::after` (`opacity: 0.03`, `mix-blend-mode: overlay`). Code
+  was written but reverted during layout iteration; re-apply on the final
+  layout.
+- [ ] **More dramatic scroll / entrance animations**: CRT power-on flash
+  (`crtFlash` keyframe), monitor LED pulse, badge dot pulse, ambient glow
+  behind monitors. Partially implemented, needs integration with the current
+  static layout.
+- [ ] **Landing page hero boot animation**: Remove `skipBoot` from
+  `HeroDesktop` so visitors see the XP boot screen before the desktop appears.
+  Adjust GreeterNotepad open timing to fire after `session:login` event instead
+  of a fixed 900ms timeout.

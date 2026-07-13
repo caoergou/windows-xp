@@ -316,7 +316,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     name: '网络连接',
     nameKey: 'apps.networkConnections',
     icon: 'network',
-    window: { width: 388, height: 452, resizable: false },
+    window: { width: 388, height: 452, resizable: false, singleton: true },
     lifecycle: {},
     restore: restoreApp(NetworkConnections),
   },

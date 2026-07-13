@@ -13,17 +13,14 @@
   "greeter.title": "Welcome - Notepad",
   "greeter.body": "This is not a video.\nDrag this window. →\n\nEverything on this page is the real\n@caoergou/windows-xp engine — and it's\ntyping this by driving itself through its\npublic ref handle (XPHandle).\n\nembed it. script it. make it yours.",
 
-  "act2.eyebrow": "One codebase, many worlds",
-  "act2.title": "Three Desktops, One Engine",
-  "act2.body": "Windows XP is only the first OS package. The same engine renders a late-night net-café desktop and a fictional teal OS — swap the culture package, keep the engine.",
+  "act2.eyebrow": "One engine, two worlds",
+  "act2.title": "Two Worlds, One Engine",
+  "act2.body": "Same <WindowsXP />, different culture packages. Swap language='zh' and QQ, 360, Thunder replace Winamp, Norton, iTunes — the 2000s Chinese desktop, pixel-perfect.",
   "monitor.live": "LIVE",
-  "monitor.concept": "concept",
   "monitor.xp": "Windows XP · Luna",
-  "monitor.xpDesc": "The faithful baseline. Pixel-accurate chrome, real windows, real apps.",
-  "monitor.netcafe": "Night Net-café · 中文",
-  "monitor.netcafeDesc": "QQ, 360, Thunder, Kugou — the 2005–2007 Chinese-internet mood and its ARG puzzles.",
-  "monitor.echo": "EchoOS · fictional",
-  "monitor.echoDesc": "A made-up teal OS with a Dock — proof the shell is a definable package, not a hard-coded skin.",
+  "monitor.xpDesc": "The faithful baseline. 20+ real apps, pixel-accurate chrome, Luna windows.",
+  "monitor.netcafe": "Chinese · 2000s",
+  "monitor.netcafeDesc": "QQ, 360, Thunder, Kugou, Baofeng — the 2000s Chinese desktop with every nostalgic app.",
 
   "act4.eyebrow": "Two doors",
   "act4.title": "Pick a world and step in",
@@ -34,14 +31,14 @@
   "door.en.desc": "Winamp, Norton AntiVirus, uTorrent, iTunes, Office — the Western 2000s PC.",
   "door.en.cta": "Enter the English desktop →",
 
-  "roadmap.title": "Where this is going",
-  "roadmap.now": "Now",
-  "roadmap.next": "Next",
-  "roadmap.later": "Later",
-  "roadmap.1": "Embeddable engine: events, imperative ref, content injection, culture packages",
-  "roadmap.2": "Scenario runtime — declarative triggers/flags for scriptable ARG stories",
-  "roadmap.3": "OS packages beyond XP (Win7 / macOS-like / defineOS)",
-  "roadmap.4": "LLM bridges: an agent-perceivable, agent-operable desktop",
+  "roadmap.title": "Where this is",
+  "roadmap.now": "✅ Shipped",
+  "roadmap.next": "🔜 Next",
+  "roadmap.later": "💭 Future",
+  "roadmap.1": "Embeddable engine: 20+ apps, typed events, imperative ref, content injection, two culture packages",
+  "roadmap.2": "Scenario system: JSON-driven scripted stories with flags, triggers, and dynamic sticky notes",
+  "roadmap.3": "npm 0.3.0 release, scenario authoring CLI, more fidelity polish",
+  "roadmap.4": "OS packages beyond XP — defineOS, alternative themes (Win7 / macOS-like)",
 
   "glass.eyebrow": "Observe · Drive · Rewrite",
   "glass.title": "Watch it think",
@@ -62,7 +59,7 @@
   "glass.tickerIdle": "// touch the desktop — events will stream here",
 
   "footer.start": "start",
-  "footer.tagline": "Three Desktops, One Engine",
+  "footer.tagline": "Two Worlds, One Engine",
 
   "lang.switch": "中文"
 }
