@@ -21,10 +21,12 @@ test.describe('Tray volume (#223)', () => {
 
     // Interacting inside the popup used to bubble to the tray toggle and close
     // it on release. The slider must move the value AND leave the popup open.
-    const slider = popup.locator('input[type="range"]');
+    // (#224 C) The popup is a vertical XP slider — no percentage label; assert
+    // the range value instead (same pattern as volumeMixer.spec.ts).
+    const slider = popup.locator('[data-testid="volume-popup-slider"]');
     await slider.fill('40');
     await expect(popup).toBeVisible();
-    await expect(popup.getByText('40%')).toBeVisible();
+    await expect(slider).toHaveValue('40');
 
     // Only a genuine click outside dismisses it.
     await page.mouse.click(500, 300);
