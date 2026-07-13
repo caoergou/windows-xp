@@ -5,6 +5,8 @@ export const LOGIN_PASSWORD = 'forthe2000s';
 export interface LoginOptions {
   lang?: 'en' | 'zh';
   skipBoot?: boolean;
+  /** Skip the password login screen by pre-setting logged-in state (default: true). */
+  skipLogin?: boolean;
   /** Extra query string appended to the URL (no leading `&`/`?`), e.g. `open=Notepad&history=1`. */
   query?: string;
 }
@@ -24,12 +26,17 @@ export async function login(page: Page, options: LoginOptions = {}) {
   const base = `demo/${lang}/`;
   const path = options.query ? `${base}?${options.query}` : base;
 
+  const skipLogin = options.skipLogin !== false;
+
   if (options.skipBoot !== false) {
-    await page.addInitScript(() => {
+    await page.addInitScript((autoLogin: boolean) => {
       localStorage.clear();
       localStorage.setItem('xp_first_boot_done', 'true');
       localStorage.setItem('xp_power_state', 'running');
-    });
+      if (autoLogin) {
+        localStorage.setItem('xp_logged_in', 'true');
+      }
+    }, skipLogin);
   }
 
   await page.goto(path);
@@ -56,14 +63,16 @@ export async function login(page: Page, options: LoginOptions = {}) {
     // Screensaver not shown; continue.
   }
 
-  // Login screen: fill password and submit.
-  const passwordInput = page.locator('input[type="password"]').first();
-  try {
-    await passwordInput.waitFor({ state: 'visible', timeout: 10000 });
-    await passwordInput.fill(LOGIN_PASSWORD);
-    await page.keyboard.press('Enter');
-  } catch {
-    // Already logged in or no password field present.
+  if (!skipLogin) {
+    // Login screen: fill password and submit.
+    const passwordInput = page.locator('input[type="password"]').first();
+    try {
+      await passwordInput.waitFor({ state: 'visible', timeout: 10000 });
+      await passwordInput.fill(LOGIN_PASSWORD);
+      await page.keyboard.press('Enter');
+    } catch {
+      // Already logged in or no password field present.
+    }
   }
 
   // Wait for the desktop / taskbar to confirm login succeeded.
