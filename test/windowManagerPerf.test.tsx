@@ -43,11 +43,13 @@ const getWindows = () => windowsSnapshot;
 // Desktop maps windows straight onto the memoized <Window/>, so this row
 // mirrors production behavior.
 const stableOnRender: React.ProfilerOnRenderCallback = id => countRender(String(id));
-const WindowRow = React.memo(({ win }: { win: ReturnType<typeof useWindowManager>['windows'][number] }) => (
-  <Profiler id={win.appId} onRender={stableOnRender}>
-    <Window windowState={win} />
-  </Profiler>
-));
+const WindowRow = React.memo(
+  ({ win }: { win: ReturnType<typeof useWindowManager>['windows'][number] }) => (
+    <Profiler id={win.appId} onRender={stableOnRender}>
+      <Window windowState={win} />
+    </Profiler>
+  )
+);
 WindowRow.displayName = 'WindowRow';
 
 const WindowsHarness: React.FC = () => {

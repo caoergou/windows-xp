@@ -12,8 +12,7 @@ import FileProperties from '../src/components/FileProperties';
 const STORAGE_KEY = getStorageKey('open_windows');
 
 /** Extract the element type of a restored node (null when not an element). */
-const typeOf = (node: React.ReactNode): unknown =>
-  React.isValidElement(node) ? node.type : null;
+const typeOf = (node: React.ReactNode): unknown => (React.isValidElement(node) ? node.type : null);
 
 /** Extract the props of a restored element. */
 const propsOf = (node: React.ReactNode): Record<string, unknown> =>
@@ -79,10 +78,9 @@ describe('restoreComponent — unknown appId fallback', () => {
     try {
       const node = restoreComponent('TotallyUnknownApp', { some: 'prop' });
       expect(node).toBeNull();
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('TotallyUnknownApp'),
-        { some: 'prop' }
-      );
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('TotallyUnknownApp'), {
+        some: 'prop',
+      });
     } finally {
       warnSpy.mockRestore();
     }
@@ -100,12 +98,10 @@ const PersistenceHarness = () => {
   return (
     <div>
       <div data-testid="count">{windows.length}</div>
-      <div data-testid="app-ids">{windows.map((w) => w.appId).join(',')}</div>
-      <div data-testid="component-props">
-        {JSON.stringify(windows.map((w) => w.componentProps))}
-      </div>
+      <div data-testid="app-ids">{windows.map(w => w.appId).join(',')}</div>
+      <div data-testid="component-props">{JSON.stringify(windows.map(w => w.componentProps))}</div>
       <div data-testid="all-have-components">
-        {windows.every((w) => React.isValidElement(w.component)) ? 'yes' : 'no'}
+        {windows.every(w => React.isValidElement(w.component)) ? 'yes' : 'no'}
       </div>
       <button
         onClick={() =>
@@ -264,5 +260,7 @@ describe('WindowManagerContext — persistence to localStorage', () => {
   // baked into the `component` React element are never captured. A caller doing
   // openWindow('Notepad', 't', <Notepad content="hi" />) gets an empty-props Notepad
   // after refresh. Known bug, do not assert the lossy behavior as green.
-  it.todo('#81: windows opened without explicit componentProps lose their component props on restore');
+  it.todo(
+    '#81: windows opened without explicit componentProps lose their component props on restore'
+  );
 });

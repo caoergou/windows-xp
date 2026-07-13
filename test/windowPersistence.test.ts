@@ -13,7 +13,10 @@ describe('windowPersistence — versioned open_windows codec (#163 C)', () => {
   });
 
   it('round-trips an encoded payload back to the window list', () => {
-    const wins = [{ id: 'w1', appId: 'Explorer' }, { id: 'w2', appId: 'Notepad' }];
+    const wins = [
+      { id: 'w1', appId: 'Explorer' },
+      { id: 'w2', appId: 'Notepad' },
+    ];
     expect(decodeOpenWindows(encodeOpenWindows(wins))).toEqual(wins);
   });
 

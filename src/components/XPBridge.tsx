@@ -199,266 +199,263 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
     const { schedule, cancelSchedule } = useScheduler();
     const { start: startLesson, stop: stopLesson } = useLesson();
 
-    useImperativeHandle(
-      ref,
-      (): XPHandle => {
-        const powerOff = (state: 'shutdown' | 'restart') => {
-          storage.local.removeItem(storage.key('open_windows'));
-          storage.local.setItem(storage.key('power_state'), state);
-          bus.emit({ type: 'session:shutdown', mode: state });
-          sounds.shutdown();
-          if (canUseDOM) setTimeout(() => window.location.reload(), 600);
-        };
+    useImperativeHandle(ref, (): XPHandle => {
+      const powerOff = (state: 'shutdown' | 'restart') => {
+        storage.local.removeItem(storage.key('open_windows'));
+        storage.local.setItem(storage.key('power_state'), state);
+        bus.emit({ type: 'session:shutdown', mode: state });
+        sounds.shutdown();
+        if (canUseDOM) setTimeout(() => window.location.reload(), 600);
+      };
 
-        return {
-          openApp: (appId, props = {}) => {
-            const def = registry[appId] ?? APP_REGISTRY[appId];
-            if (!def) {
-              console.warn(`[windows-xp] openApp: unknown appId "${appId}"`);
-              return null;
-            }
-            return openWindow(appId, def.name ?? appId, def.restore(props), def.icon, {
-              ...(def.window ?? {}),
-              componentProps: props,
-            });
-          },
-          openFile: path => {
-            const node = getFile(path);
-            if (!node) {
-              console.warn(`[windows-xp] openFile: no node at ${path.join('/')}`);
-              return null;
-            }
-            const key = path[path.length - 1] ?? node.name;
-            const resolved = resolveFileOpen(key, node);
-            if (!resolved) return null;
-            return openWindow(resolved.appId, node.name, resolved.component, resolved.icon, {
-              ...resolved.windowProps,
-              sourcePath: path,
-            });
-          },
-          openExternal: (url, opts) => {
-            const newTab = opts?.newTab ?? true;
-            openExternalUrl(url, newTab);
-            bus.emit({ type: 'link:external', url, newTab });
-          },
-          getShareUrl: windowId => {
-            if (!canUseDOM) return null;
-            const win = windows.find(w => w.id === windowId);
-            const path = win?.props?.sourcePath;
-            if (!path || path.length === 0) return null;
-            const lang = getSavedLanguage();
-            const query = `open=${serializeOpenPath(path)}${lang ? `&lang=${lang}` : ''}`;
-            return `${window.location.origin}${window.location.pathname}?${query}`;
-          },
-          closeWindow,
-          showAlert: (title, message) => {
-            void dialog.alert({ title, message, type: 'info' });
-          },
-          reset: () => {
-            if (!canUseDOM) return;
-            const done = () => window.location.reload();
-            // Clear both storage layers for this instance through the storage
-            // util (no raw window.localStorage access here), then reload (#163/C).
-            storage.clearPrefixedLocal();
-            storage.clearAllStorage().then(done, done);
-          },
-
-          fs: {
-            readFile: path => {
-              const node = getFile(path);
-              return node && isFileContentNode(node) ? (node.content ?? null) : null;
-            },
-            writeFile: (path, content) => updateFile(path, { content }),
-            createFile: (path, node = {}) => {
-              const parent = path.slice(0, -1);
-              const name = path[path.length - 1];
-              if (!name) return;
-              const { type = 'file', name: _n, ...rest } = node as Partial<FileNode> & {
-                type?: 'file' | 'folder';
-              };
-              void _n;
-              fsCreateFile(parent, name, type, rest);
-            },
-            deleteFile: path => {
-              const parent = path.slice(0, -1);
-              const name = path[path.length - 1];
-              if (!name) return;
-              const node = getFile(path);
-              if (node && isContainerNode(node)) deleteFolder(parent, name);
-              else fsDeleteFile(parent, name);
-            },
-            getNode: getFile,
-            exists: path => getFile(path) !== null,
-            unlockNode,
-          },
-
-          session: {
-            login: password => login(password ?? ''),
-            logout,
-            shutdown: () => powerOff('shutdown'),
-            restart: () => powerOff('restart'),
-          },
-
-          appearance: {
-            setWallpaper,
-            setLanguage: lang => {
-              saveLanguage(lang);
-              void i18n.changeLanguage(lang);
-            },
-          },
-
-          windows: {
-            list: () =>
-              windows.map(w => ({
-                id: w.id,
-                appId: w.appId,
-                title: w.title,
-                isMinimized: w.isMinimized,
-                isMaximized: w.isMaximized,
-              })),
-            focus: focusWindow,
-            minimize: minimizeWindow,
-            maximize: maximizeWindow,
-            restore: focusWindow,
-          },
-
-          qq: {
-            open: buddyId => {
-              const def = registry.QQ ?? APP_REGISTRY.QQ;
-              if (!def) {
-                console.warn('[windows-xp] qq.open: QQ app is not registered');
-                return null;
-              }
-              const clientId = openWindow('QQ', def.name ?? 'QQ', def.restore({}), def.icon, {
-                ...(def.window ?? {}),
-                componentProps: {},
-              });
-              if (buddyId) {
-                const existing = windows.find(
-                  w =>
-                    w.appId === 'QQ' &&
-                    (w.componentProps as { buddyId?: string })?.buddyId === buddyId
-                );
-                if (existing) {
-                  focusWindow(existing.id);
-                } else {
-                  const buddy = qqStore.buddy(buddyId);
-                  openWindow(
-                    'QQ',
-                    buddy ? `与 ${buddy.nickname} 聊天中` : 'QQ',
-                    def.restore({ view: 'chat', buddyId }),
-                    def.icon,
-                    {
-                      width: 516,
-                      height: 476,
-                      resizable: false,
-                      componentProps: { view: 'chat', buddyId },
-                    }
-                  );
-                }
-                bus.emit({ type: 'qq:open', buddyId });
-              }
-              return clientId;
-            },
-            sendMessage: (buddyId, text) => {
-              if (!qqStore.receiveMessage(buddyId, text)) {
-                console.warn(
-                  `[windows-xp] qq.sendMessage: no buddy "${buddyId}" (open QQ / loadProfile first)`
-                );
-              }
-            },
-            bringOnline: buddyId =>
-              qqStore.bringOnline(buddyId, { announce: true, runScript: true }),
-            loadProfile: profile => {
-              qqStore.reset();
-              qqStore.start(profile);
-            },
-          },
-
-          sound: { play: name => playSound(name as Parameters<typeof playSound>[0]) },
-
-          notify,
-
-          emit: event => bus.emit(event),
-
-          schedule: options => schedule(options),
-          cancelSchedule: id => cancelSchedule(id),
-
-          startLesson: (lessonId, lessonMode) => startLesson(lessonId, lessonMode),
-          stopLesson,
-
-          getSnapshot: (): XPSnapshot => {
-            const openWindows = decodeOpenWindows(
-              storage.local.getItem(storage.key('open_windows'))
-            );
-            // Scenario progress (#84) lives under the canonical flags key.
-            let flags: Record<string, unknown> = {};
-            try {
-              const raw = storage.local.getItem(storage.key(SCENARIO_FLAGS_KEY));
-              if (raw) flags = JSON.parse(raw);
-            } catch (e) {
-              console.warn('[windows-xp] getSnapshot: scenario flags parse failed', e);
-            }
-            return {
-              version: XP_SNAPSHOT_VERSION,
-              fs: getFsSnapshot(),
-              recycleBin: getRecycleBinItems(),
-              openWindows,
-              wallpaper: wallpaper ?? null,
-              language: getSavedLanguage(),
-              flags,
-            };
-          },
-
-          loadSnapshot: async (snapshot: XPSnapshot) => {
-            assertLoadableSnapshot(snapshot);
-            await loadFsSnapshot(snapshot.fs, snapshot.recycleBin ?? {});
-            storage.local.setItem(
-              storage.key('open_windows'),
-              encodeOpenWindows(snapshot.openWindows ?? [])
-            );
-            if (snapshot.wallpaper) {
-              storage.local.setItem(storage.key('wallpaper'), snapshot.wallpaper);
-            }
-            if (snapshot.flags && Object.keys(snapshot.flags).length > 0) {
-              storage.local.setItem(storage.key(SCENARIO_FLAGS_KEY), JSON.stringify(snapshot.flags));
-            }
-            if (snapshot.language) saveLanguage(snapshot.language);
-            if (canUseDOM) window.location.reload();
-          },
-        };
-      },
-      [
-        openWindow,
+      return {
+        openApp: (appId, props = {}) => {
+          const def = registry[appId] ?? APP_REGISTRY[appId];
+          if (!def) {
+            console.warn(`[windows-xp] openApp: unknown appId "${appId}"`);
+            return null;
+          }
+          return openWindow(appId, def.name ?? appId, def.restore(props), def.icon, {
+            ...(def.window ?? {}),
+            componentProps: props,
+          });
+        },
+        openFile: path => {
+          const node = getFile(path);
+          if (!node) {
+            console.warn(`[windows-xp] openFile: no node at ${path.join('/')}`);
+            return null;
+          }
+          const key = path[path.length - 1] ?? node.name;
+          const resolved = resolveFileOpen(key, node);
+          if (!resolved) return null;
+          return openWindow(resolved.appId, node.name, resolved.component, resolved.icon, {
+            ...resolved.windowProps,
+            sourcePath: path,
+          });
+        },
+        openExternal: (url, opts) => {
+          const newTab = opts?.newTab ?? true;
+          openExternalUrl(url, newTab);
+          bus.emit({ type: 'link:external', url, newTab });
+        },
+        getShareUrl: windowId => {
+          if (!canUseDOM) return null;
+          const win = windows.find(w => w.id === windowId);
+          const path = win?.props?.sourcePath;
+          if (!path || path.length === 0) return null;
+          const lang = getSavedLanguage();
+          const query = `open=${serializeOpenPath(path)}${lang ? `&lang=${lang}` : ''}`;
+          return `${window.location.origin}${window.location.pathname}?${query}`;
+        },
         closeWindow,
-        focusWindow,
-        minimizeWindow,
-        maximizeWindow,
-        windows,
-        getFile,
-        updateFile,
-        fsCreateFile,
-        fsDeleteFile,
-        deleteFolder,
-        unlockNode,
-        getFsSnapshot,
-        getRecycleBinItems,
-        loadFsSnapshot,
-        login,
-        logout,
-        setWallpaper,
-        wallpaper,
-        dialog,
+        showAlert: (title, message) => {
+          void dialog.alert({ title, message, type: 'info' });
+        },
+        reset: () => {
+          if (!canUseDOM) return;
+          const done = () => window.location.reload();
+          // Clear both storage layers for this instance through the storage
+          // util (no raw window.localStorage access here), then reload (#163/C).
+          storage.clearPrefixedLocal();
+          storage.clearAllStorage().then(done, done);
+        },
+
+        fs: {
+          readFile: path => {
+            const node = getFile(path);
+            return node && isFileContentNode(node) ? (node.content ?? null) : null;
+          },
+          writeFile: (path, content) => updateFile(path, { content }),
+          createFile: (path, node = {}) => {
+            const parent = path.slice(0, -1);
+            const name = path[path.length - 1];
+            if (!name) return;
+            const {
+              type = 'file',
+              name: _n,
+              ...rest
+            } = node as Partial<FileNode> & {
+              type?: 'file' | 'folder';
+            };
+            void _n;
+            fsCreateFile(parent, name, type, rest);
+          },
+          deleteFile: path => {
+            const parent = path.slice(0, -1);
+            const name = path[path.length - 1];
+            if (!name) return;
+            const node = getFile(path);
+            if (node && isContainerNode(node)) deleteFolder(parent, name);
+            else fsDeleteFile(parent, name);
+          },
+          getNode: getFile,
+          exists: path => getFile(path) !== null,
+          unlockNode,
+        },
+
+        session: {
+          login: password => login(password ?? ''),
+          logout,
+          shutdown: () => powerOff('shutdown'),
+          restart: () => powerOff('restart'),
+        },
+
+        appearance: {
+          setWallpaper,
+          setLanguage: lang => {
+            saveLanguage(lang);
+            void i18n.changeLanguage(lang);
+          },
+        },
+
+        windows: {
+          list: () =>
+            windows.map(w => ({
+              id: w.id,
+              appId: w.appId,
+              title: w.title,
+              isMinimized: w.isMinimized,
+              isMaximized: w.isMaximized,
+            })),
+          focus: focusWindow,
+          minimize: minimizeWindow,
+          maximize: maximizeWindow,
+          restore: focusWindow,
+        },
+
+        qq: {
+          open: buddyId => {
+            const def = registry.QQ ?? APP_REGISTRY.QQ;
+            if (!def) {
+              console.warn('[windows-xp] qq.open: QQ app is not registered');
+              return null;
+            }
+            const clientId = openWindow('QQ', def.name ?? 'QQ', def.restore({}), def.icon, {
+              ...(def.window ?? {}),
+              componentProps: {},
+            });
+            if (buddyId) {
+              const existing = windows.find(
+                w =>
+                  w.appId === 'QQ' &&
+                  (w.componentProps as { buddyId?: string })?.buddyId === buddyId
+              );
+              if (existing) {
+                focusWindow(existing.id);
+              } else {
+                const buddy = qqStore.buddy(buddyId);
+                openWindow(
+                  'QQ',
+                  buddy ? `与 ${buddy.nickname} 聊天中` : 'QQ',
+                  def.restore({ view: 'chat', buddyId }),
+                  def.icon,
+                  {
+                    width: 516,
+                    height: 476,
+                    resizable: false,
+                    componentProps: { view: 'chat', buddyId },
+                  }
+                );
+              }
+              bus.emit({ type: 'qq:open', buddyId });
+            }
+            return clientId;
+          },
+          sendMessage: (buddyId, text) => {
+            if (!qqStore.receiveMessage(buddyId, text)) {
+              console.warn(
+                `[windows-xp] qq.sendMessage: no buddy "${buddyId}" (open QQ / loadProfile first)`
+              );
+            }
+          },
+          bringOnline: buddyId => qqStore.bringOnline(buddyId, { announce: true, runScript: true }),
+          loadProfile: profile => {
+            qqStore.reset();
+            qqStore.start(profile);
+          },
+        },
+
+        sound: { play: name => playSound(name as Parameters<typeof playSound>[0]) },
+
         notify,
-        registry,
-        bus,
-        storage,
-        schedule,
-        cancelSchedule,
-        startLesson,
+
+        emit: event => bus.emit(event),
+
+        schedule: options => schedule(options),
+        cancelSchedule: id => cancelSchedule(id),
+
+        startLesson: (lessonId, lessonMode) => startLesson(lessonId, lessonMode),
         stopLesson,
-      ]
-    );
+
+        getSnapshot: (): XPSnapshot => {
+          const openWindows = decodeOpenWindows(storage.local.getItem(storage.key('open_windows')));
+          // Scenario progress (#84) lives under the canonical flags key.
+          let flags: Record<string, unknown> = {};
+          try {
+            const raw = storage.local.getItem(storage.key(SCENARIO_FLAGS_KEY));
+            if (raw) flags = JSON.parse(raw);
+          } catch (e) {
+            console.warn('[windows-xp] getSnapshot: scenario flags parse failed', e);
+          }
+          return {
+            version: XP_SNAPSHOT_VERSION,
+            fs: getFsSnapshot(),
+            recycleBin: getRecycleBinItems(),
+            openWindows,
+            wallpaper: wallpaper ?? null,
+            language: getSavedLanguage(),
+            flags,
+          };
+        },
+
+        loadSnapshot: async (snapshot: XPSnapshot) => {
+          assertLoadableSnapshot(snapshot);
+          await loadFsSnapshot(snapshot.fs, snapshot.recycleBin ?? {});
+          storage.local.setItem(
+            storage.key('open_windows'),
+            encodeOpenWindows(snapshot.openWindows ?? [])
+          );
+          if (snapshot.wallpaper) {
+            storage.local.setItem(storage.key('wallpaper'), snapshot.wallpaper);
+          }
+          if (snapshot.flags && Object.keys(snapshot.flags).length > 0) {
+            storage.local.setItem(storage.key(SCENARIO_FLAGS_KEY), JSON.stringify(snapshot.flags));
+          }
+          if (snapshot.language) saveLanguage(snapshot.language);
+          if (canUseDOM) window.location.reload();
+        },
+      };
+    }, [
+      openWindow,
+      closeWindow,
+      focusWindow,
+      minimizeWindow,
+      maximizeWindow,
+      windows,
+      getFile,
+      updateFile,
+      fsCreateFile,
+      fsDeleteFile,
+      deleteFolder,
+      unlockNode,
+      getFsSnapshot,
+      getRecycleBinItems,
+      loadFsSnapshot,
+      login,
+      logout,
+      setWallpaper,
+      wallpaper,
+      dialog,
+      notify,
+      registry,
+      bus,
+      storage,
+      schedule,
+      cancelSchedule,
+      startLesson,
+      stopLesson,
+    ]);
 
     void fs;
     return null;
