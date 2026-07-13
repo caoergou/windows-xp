@@ -27,6 +27,28 @@ test.describe('Landing page (#160)', () => {
     expect(Math.abs(after.x - before.x)).toBeGreaterThan(25);
   });
 
+  test('scrolls past the hero desktop after interacting with it', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.locator('[data-testid="greeter-notepad"]')).toBeVisible({ timeout: 8000 });
+
+    const scrollable = await page.evaluate(
+      () => document.documentElement.scrollHeight > window.innerHeight + 100
+    );
+    expect(scrollable).toBe(true);
+
+    // Focus lands in the engine after a click — scrolling must still work.
+    await page.locator('.xp-window').first().click();
+    const beforeScroll = await page.evaluate(() => window.scrollY);
+    await page.mouse.wheel(0, 600);
+    await page.waitForTimeout(200);
+    const afterScroll = await page.evaluate(() => window.scrollY);
+    expect(afterScroll).toBeGreaterThan(beforeScroll);
+    await expect(page.locator('#engine')).toBeInViewport();
+
+    await page.keyboard.press('End');
+    await expect(page.locator('#demos')).toBeInViewport();
+  });
+
   test('legacy query routes redirect to the new paths', async ({ page }) => {
     await page.goto('./?gallery');
     await expect(page).toHaveURL(/\/gallery\/$/);
