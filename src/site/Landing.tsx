@@ -21,7 +21,19 @@ const prefersReducedMotion = () =>
 
 const GlobalReset = createGlobalStyle`
   #ssr-floor { display: none !important; }
-  html, body { margin: 0; background: #0b1220; }
+  html, body {
+    margin: 0;
+    background: #0b1220;
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  #root {
+    min-height: 100vh;
+    height: auto;
+    width: 100%;
+  }
   * { box-sizing: border-box; }
 `;
 
