@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { CultureAppShell } from './culture/shell';
+import { CultureAppShell, CultureHeader, CultureHeaderText, CultureLogoBox, CultureStatusBar } from './culture/shell';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
 
@@ -14,26 +14,12 @@ const Wrap = styled(CultureAppShell)`
   color: #eeeeee;
 `;
 
-const Header = styled.div`
-  background: linear-gradient(to bottom, #2a3a5a 0%, #1a2338 50%, #101520 100%);
+const Header = styled(CultureHeader)`
   padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid #0a0f18;
-  flex-shrink: 0;
 `;
 
-const LogoBox = styled.div`
-  width: 34px;
-  height: 34px;
-  background: linear-gradient(135deg, #ffdd55 0%, #ff8800 100%);
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+const LogoBox = styled(CultureLogoBox)`
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 4px rgba(0, 0, 0, 0.4);
-  flex-shrink: 0;
 `;
 
 const LogoIcon = () => (
@@ -46,19 +32,14 @@ const LogoIcon = () => (
   </svg>
 );
 
-const HeaderText = styled.div`
-  color: white;
-  line-height: 1.3;
-
+const HeaderText = styled(CultureHeaderText)`
   .title {
     font-size: 15px;
-    font-weight: bold;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
   }
 
   .version {
     font-size: 10px;
-    color: #aabbdd;
   }
 `;
 
@@ -274,17 +255,9 @@ const PlaylistItem = styled.div<{ $active?: boolean }>`
   }
 `;
 
-const StatusBar = styled.div`
+const StatusBar = styled(CultureStatusBar)`
   height: 22px;
-  background: linear-gradient(to bottom, #2a2e35 0%, #1a1d22 100%);
-  border-top: 1px solid #3a3f4a;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 0 10px;
-  font-size: 11px;
-  color: #8899aa;
-  flex-shrink: 0;
 `;
 
 interface PlaylistEntry {
@@ -387,11 +360,14 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
 
   return (
     <Wrap>
-      <Header>
-        <LogoBox>
+      <Header
+        $gradient="linear-gradient(to bottom, #2a3a5a 0%, #1a2338 50%, #101520 100%)"
+        $borderColor="#0a0f18"
+      >
+        <LogoBox $gradient="linear-gradient(135deg, #ffdd55 0%, #ff8800 100%)" $size={34}>
           <LogoIcon />
         </LogoBox>
-        <HeaderText>
+        <HeaderText $versionColor="#aabbdd">
           <div className="title">{t('baofengPlayer.title', '暴风影音')}</div>
           <div className="version">{t('baofengPlayer.version', '3.6 智能版')}</div>
         </HeaderText>
@@ -473,7 +449,11 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
         </Playlist>
       </Main>
 
-      <StatusBar>
+      <StatusBar
+        $gradient="linear-gradient(to bottom, #2a2e35 0%, #1a1d22 100%)"
+        $borderColor="#3a3f4a"
+        $color="#8899aa"
+      >
         <span>{statusText}</span>
         <span>{t('baofengPlayer.volumeLabel', '音量')}: {volume}%</span>
       </StatusBar>
