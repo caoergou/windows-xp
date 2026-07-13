@@ -230,8 +230,10 @@ interface XPIconProps {
   [key: string]: unknown;
 }
 
+const isUrl = (s: string) => s.startsWith('/') || s.startsWith('http') || s.startsWith('data:') || s.startsWith('blob:');
+
 const XPIcon = ({ name, size = 32, className, _color, style, ...rest }: XPIconProps) => {
-    const iconSrc = IconMap[name] || fileIcon;
+    const iconSrc = isUrl(name) ? name : (IconMap[name] || fileIcon);
 
     return (
         <img

@@ -1,9 +1,13 @@
 import styled, { keyframes } from 'styled-components';
 import { qqUrl } from './assets';
 
-// 未读消息时好友头像闪动（经典 QQ：头像与空白交替）。
-const avatarBlink = keyframes`
-  50% { opacity: 0.2; }
+// 未读消息时好友头像抖动（经典 QQ：头像左右快速摇晃）。
+const avatarShake = keyframes`
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-2px); }
+  40% { transform: translateX(2px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(1px); }
 `;
 
 /**
@@ -140,7 +144,7 @@ export const PanelRoot = styled.div`
   .qq-friend-item.selected .qq-friend-name,
   .qq-friend-item.selected .qq-friend-motto { color: #fff; }
   .qq-friend-avatar { width: 40px; height: 40px; flex-shrink: 0; }
-  .qq-friend-item.has-unread .qq-friend-avatar { animation: ${avatarBlink} 0.6s steps(1, end) infinite; }
+  .qq-friend-item.has-unread .qq-friend-avatar { animation: ${avatarShake} 0.4s ease-in-out infinite; }
   .qq-friend-info { flex: 1; min-width: 0; padding: 0 2px 0 6px; line-height: 1.3; }
   .qq-friend-info p { margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .qq-friend-name { color: #000400; }

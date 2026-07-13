@@ -29,10 +29,13 @@ interface WindowManagerActions {
   resizeWindow: (id: string, width: number, height: number) => void;
   moveWindow: (id: string, left: number, top: number) => void;
   focusWindow: (id: string) => void;
+  hideWindow: (id: string) => void;
   setWindowTitle: (id: string, title: string) => void;
   setWindowBadge: (id: string, badge: string | number | null) => void;
   setWindowProgress: (id: string, progress: number | null) => void;
   flashWindow: (id: string) => void;
+  setCloseGuard: (id: string, guard: ((forceClose: () => void) => void) | null) => void;
+  setMinimizeGuard: (id: string, guard: ((defaultMinimize: () => void) => void) | null) => void;
 }
 
 interface WindowManagerContextType extends WindowManagerActions {
@@ -166,9 +169,12 @@ export const WindowManagerProvider: React.FC<{
         onOpen: _onOpen,
         onClose: _onClose,
         onFocus: _onFocus,
+        closeGuard: _closeGuard,
+        minimizeGuard: _minimizeGuard,
         badge: _badge,
         progress: _progress,
         isFlashing: _isFlashing,
+        isHidden: _isHidden,
         ...rest
       }) => rest
     );
@@ -216,9 +222,9 @@ export const WindowManagerProvider: React.FC<{
         return;
       }
 
-      if (win.isMinimized) {
+      if (win.isMinimized || win.isHidden) {
         commitWindows(prev =>
-          prev.map(w => (w.id === id ? { ...w, isMinimized: false, isFlashing: false } : w))
+          prev.map(w => (w.id === id ? { ...w, isMinimized: false, isHidden: false, isFlashing: false } : w))
         );
       }
     },
@@ -287,6 +293,8 @@ export const WindowManagerProvider: React.FC<{
         top: props.top || defaultTop,
         onClose: props.onClose || null,
         onFocus: props.onFocus || null,
+        closeGuard: props.closeGuard || null,
+        minimizeGuard: props.minimizeGuard || null,
         badge: null,
         progress: null,
         isFlashing: false,
@@ -303,7 +311,7 @@ export const WindowManagerProvider: React.FC<{
     [commitWindows, focusWindow, setActiveWindowId, bus]
   );
 
-  const closeWindow = useCallback(
+  const doClose = useCallback(
     (id: string) => {
       const current = windowsRef.current;
       const win = current.find(w => w.id === id);
@@ -331,17 +339,52 @@ export const WindowManagerProvider: React.FC<{
     [commitWindows, setActiveWindowId, bus]
   );
 
-  const minimizeWindow = useCallback(
+  const closeWindow = useCallback(
+    (id: string) => {
+      const win = windowsRef.current.find(w => w.id === id);
+      if (!win) return;
+      if (win.closeGuard) {
+        win.closeGuard(() => doClose(id));
+        return;
+      }
+      doClose(id);
+    },
+    [doClose]
+  );
+
+  const doMinimize = useCallback(
     (id: string) => {
       const win = windowsRef.current.find(w => w.id === id);
       commitWindows(prev => prev.map(w => (w.id === id ? { ...w, isMinimized: true } : w)));
-      // Only clear focus if the minimized window WAS the active one (#80).
       if (activeWindowIdRef.current === id) {
         setActiveWindowId(null);
       }
       if (win) bus.emit({ type: 'window:minimize', windowId: id, appId: win.appId });
     },
     [commitWindows, setActiveWindowId, bus]
+  );
+
+  const minimizeWindow = useCallback(
+    (id: string) => {
+      const win = windowsRef.current.find(w => w.id === id);
+      if (!win) return;
+      if (win.minimizeGuard) {
+        win.minimizeGuard(() => doMinimize(id));
+        return;
+      }
+      doMinimize(id);
+    },
+    [doMinimize]
+  );
+
+  const hideWindow = useCallback(
+    (id: string) => {
+      commitWindows(prev => prev.map(w => (w.id === id ? { ...w, isHidden: true, isMinimized: true } : w)));
+      if (activeWindowIdRef.current === id) {
+        setActiveWindowId(null);
+      }
+    },
+    [commitWindows, setActiveWindowId]
   );
 
   const maximizeWindow = useCallback(
@@ -396,6 +439,20 @@ export const WindowManagerProvider: React.FC<{
     [commitWindows]
   );
 
+  const setCloseGuard = useCallback(
+    (id: string, guard: ((forceClose: () => void) => void) | null) => {
+      commitWindows(prev => prev.map(w => (w.id === id ? { ...w, closeGuard: guard } : w)));
+    },
+    [commitWindows]
+  );
+
+  const setMinimizeGuard = useCallback(
+    (id: string, guard: ((defaultMinimize: () => void) => void) | null) => {
+      commitWindows(prev => prev.map(w => (w.id === id ? { ...w, minimizeGuard: guard } : w)));
+    },
+    [commitWindows]
+  );
+
   const flashWindow = useCallback(
     (id: string) => {
       // Restart the flash if one is already running; timers are tracked so
@@ -422,10 +479,13 @@ export const WindowManagerProvider: React.FC<{
       resizeWindow,
       moveWindow,
       focusWindow,
+      hideWindow,
       setWindowTitle,
       setWindowBadge,
       setWindowProgress,
       flashWindow,
+      setCloseGuard,
+      setMinimizeGuard,
     };
     if (!value) return base;
     // Test/advanced override hook: only function overrides belong here.
@@ -441,10 +501,13 @@ export const WindowManagerProvider: React.FC<{
     resizeWindow,
     moveWindow,
     focusWindow,
+    hideWindow,
     setWindowTitle,
     setWindowBadge,
     setWindowProgress,
     flashWindow,
+    setCloseGuard,
+    setMinimizeGuard,
     value,
   ]);
 

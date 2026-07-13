@@ -60,6 +60,9 @@ export function useApp(windowId?: string) {
       setBadge:    (value: string | number | null)  => windowManagerRef.current.setWindowBadge(resolvedWindowId, value),
       setProgress: (pct: number | null)    => windowManagerRef.current.setWindowProgress(resolvedWindowId, pct),
       flash:       ()       => windowManagerRef.current.flashWindow(resolvedWindowId),
+      hide:        ()       => windowManagerRef.current.hideWindow(resolvedWindowId),
+      setCloseGuard:    (guard: ((forceClose: () => void) => void) | null) => windowManagerRef.current.setCloseGuard(resolvedWindowId, guard),
+      setMinimizeGuard: (guard: ((defaultMinimize: () => void) => void) | null) => windowManagerRef.current.setMinimizeGuard(resolvedWindowId, guard),
     },
 
     // ── 打开新窗口（与 WindowManagerContext.openWindow 签名相同）────────────

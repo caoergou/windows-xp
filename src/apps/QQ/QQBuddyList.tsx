@@ -3,6 +3,8 @@ import { PanelRoot } from './styles';
 import { qqImg, qqAvatar } from './assets';
 import { qqStore } from './qqStore';
 import { useQQStore } from './useQQStore';
+import { useWindowManagerActions } from '../../context/WindowManagerContext';
+import { APP_REGISTRY } from '../../registry/apps';
 import type { RuntimeBuddy } from './qqStore';
 
 /**
@@ -32,12 +34,12 @@ const PANEL_BAR: Array<{ img: string; title: string; active?: boolean }> = [
 
 const TOOLBAR_BTNS: Array<{ img: string; title: string; url?: string }> = [
   { img: 'MobileMsgButton.png', title: '发送手机消息' },
-  { img: 'GameButton.png', title: 'QQ游戏', url: 'https://game.qq.com/' },
-  { img: 'TTButton.png', title: '腾讯TT浏览器', url: 'https://browser.qq.com/' },
-  { img: 'QQHome.png', title: 'QQ空间', url: 'https://qzone.qq.com/' },
-  { img: 'QQMusicButton.png', title: 'QQ音乐', url: 'https://y.qq.com/' },
-  { img: 'QQTVButton.png', title: '网络电视(QQLive)', url: 'https://v.qq.com/' },
-  { img: 'OpenPet.png', title: 'QQ宠物', url: 'https://pet.qq.com/' },
+  { img: 'GameButton.png', title: 'QQ游戏', url: 'https://web.archive.org/web/20061205080044/http://game.qq.com/' },
+  { img: 'TTButton.png', title: '腾讯TT浏览器', url: 'https://web.archive.org/web/20061017120334/http://im.qq.com/tt/' },
+  { img: 'QQHome.png', title: 'QQ空间', url: 'https://web.archive.org/web/20061214025556/http://qzone.qq.com/' },
+  { img: 'QQMusicButton.png', title: 'QQ音乐', url: 'https://web.archive.org/web/20061205/http://music.qq.com/' },
+  { img: 'QQTVButton.png', title: '网络电视(QQLive)', url: 'https://web.archive.org/web/20061020082618/http://www.qqlive.com/' },
+  { img: 'OpenPet.png', title: 'QQ宠物', url: 'https://web.archive.org/web/20061105063630/http://pet.qq.com/' },
 ];
 
 const STATUS_LABEL: Record<string, string> = {
@@ -56,6 +58,16 @@ interface QQBuddyListProps {
 const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat }) => {
   const state = useQQStore();
   const { me, groups, buddies, openGroups, unread } = state;
+  const { openWindow } = useWindowManagerActions();
+
+  const openInIE = (url: string, title: string) => {
+    const ie = APP_REGISTRY.InternetExplorer;
+    if (!ie) return;
+    openWindow('InternetExplorer', title, ie.restore({ url }), ie.icon, {
+      isMaximized: true,
+      componentProps: { url },
+    });
+  };
 
   const buddiesOf = (groupId: string): RuntimeBuddy[] =>
     buddies.filter(b => b.group === groupId);
@@ -177,7 +189,7 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat }) => {
               key={i}
               title={b.title}
               style={{ backgroundImage: `url(${qqImg(b.img)})` }}
-              onClick={() => b.url && window.open(b.url, '_blank', 'noopener')}
+              onClick={() => b.url && openInIE(b.url, b.title)}
             />
           ))}
         </div>

@@ -7,6 +7,7 @@ import { useCulture } from '../../context/CultureContext';
 import { defaultQQProfile } from '../../data/qq/defaultProfile';
 import { qqStore, QQDriver } from './qqStore';
 import { useQQStore } from './useQQStore';
+import { qqAvatar } from './assets';
 import QQLoginPanel from './QQLoginPanel';
 import QQLoadingPanel from './QQLoadingPanel';
 import QQBuddyList from './QQBuddyList';
@@ -63,6 +64,8 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
         wmRef.current.focusWindow(existing.id);
         return;
       }
+      const screenW = window.innerWidth || 1280;
+      const chatLeft = Math.max(0, Math.round((screenW - SIZE.chat.w) / 2 - SIZE.panel.w));
       wmRef.current.openWindow(
         'QQ',
         `与 ${buddy.nickname} 聊天中`,
@@ -73,6 +76,7 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
           height: SIZE.chat.h,
           minWidth: SIZE.chat.w,
           minHeight: SIZE.chat.h,
+          left: chatLeft,
           resizable: false,
           componentProps: { view: 'chat', buddyId },
         }
@@ -142,19 +146,21 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
     };
   }, [phase, profile, api, bus]);
 
-  // ── 未读时托盘图标闪动（头像 ↔ 消息图标交替，经典 QQ 行为）──────────────
+  // ── 未读时托盘图标闪动（发信人头像 ↔ 透明交替，经典 QQ 行为）──────────
   useEffect(() => {
     if (phase !== 'panel' || totalUnread === 0) return;
+    const firstUnread = state.buddies.find(b => (state.unread[b.id] ?? 0) > 0);
+    const avatarIcon = firstUnread ? qqAvatar(firstUnread.avatar) : 'qq';
     let on = false;
     const iv = setInterval(() => {
       on = !on;
-      trayRef.current.update('qq', { icon: on ? 'email' : 'qq' });
+      trayRef.current.update('qq', { icon: on ? avatarIcon : 'qq' });
     }, 500);
     return () => {
       clearInterval(iv);
       trayRef.current.update('qq', { icon: 'qq' });
     };
-  }, [phase, totalUnread]);
+  }, [phase, totalUnread, state.buddies, state.unread]);
 
   const handleLogin = useCallback(() => {
     setPhase('loading');
