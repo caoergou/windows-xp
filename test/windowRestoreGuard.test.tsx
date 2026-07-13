@@ -6,6 +6,7 @@ import { WindowManagerProvider } from '../src/context/WindowManagerContext';
 import { ModalProvider } from '../src/context/ModalContext';
 import { UserSessionProvider } from '../src/context/UserSessionContext';
 import { TrayProvider } from '../src/context/TrayContext';
+import { encodeOpenWindows } from '../src/utils/windowPersistence';
 
 // Keep the render light and deterministic.
 vi.mock('../src/components/XPIcon', () => ({
@@ -62,7 +63,7 @@ test('a persisted window record missing `props` does not white-screen the deskto
     isMaximized: false,
     // NOTE: no `props` field on purpose.
   };
-  localStorage.setItem(OPEN_WINDOWS_KEY, JSON.stringify([malformed]));
+  localStorage.setItem(OPEN_WINDOWS_KEY, encodeOpenWindows([malformed]));
 
   expect(() => renderDesktop()).not.toThrow();
   // The desktop itself is still mounted (a desktop icon is present).
@@ -89,7 +90,7 @@ test('an unregistered appId record leaves the desktop and its icons intact', () 
     isMinimized: false,
     isMaximized: false,
   };
-  localStorage.setItem(OPEN_WINDOWS_KEY, JSON.stringify([unknownApp]));
+  localStorage.setItem(OPEN_WINDOWS_KEY, encodeOpenWindows([unknownApp]));
 
   expect(() => renderDesktop()).not.toThrow();
   expect(screen.getByText('My Computer')).toBeDefined();

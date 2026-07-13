@@ -235,7 +235,7 @@ describe('WindowManager performance (#80)', () => {
     );
     expect(persistCalls).toHaveLength(1);
     const saved = JSON.parse(persistCalls[0][1] as string);
-    expect(saved.find((w: { id: string }) => w.id === id).left).toBe(33);
+    expect(saved.windows.find((w: { id: string }) => w.id === id).left).toBe(33);
     setItemSpy.mockRestore();
   });
 });

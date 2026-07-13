@@ -11,6 +11,7 @@ import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
 import { useAppRegistry } from '../context/AppRegistryContext';
 import { isContainerNode, isFileContentNode, type FileNode } from '../types';
 import { canUseDOM } from '../utils/storage';
+import { decodeOpenWindows, encodeOpenWindows } from '../utils/windowPersistence';
 import { saveLanguage, getSavedLanguage } from '../utils/language';
 import { XP_SNAPSHOT_VERSION, assertLoadableSnapshot, type XPSnapshot } from '../snapshot';
 import { sounds, playSound } from '../utils/soundManager';
@@ -387,13 +388,9 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
           stopLesson,
 
           getSnapshot: (): XPSnapshot => {
-            let openWindows: unknown[] = [];
-            try {
-              const raw = storage.local.getItem(storage.key('open_windows'));
-              if (raw) openWindows = JSON.parse(raw);
-            } catch (e) {
-              console.warn('[windows-xp] getSnapshot: open_windows parse failed', e);
-            }
+            const openWindows = decodeOpenWindows(
+              storage.local.getItem(storage.key('open_windows'))
+            );
             // Scenario progress (#84) lives under the canonical flags key.
             let flags: Record<string, unknown> = {};
             try {
@@ -418,7 +415,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             await loadFsSnapshot(snapshot.fs, snapshot.recycleBin ?? {});
             storage.local.setItem(
               storage.key('open_windows'),
-              JSON.stringify(snapshot.openWindows ?? [])
+              encodeOpenWindows(snapshot.openWindows ?? [])
             );
             if (snapshot.wallpaper) {
               storage.local.setItem(storage.key('wallpaper'), snapshot.wallpaper);
