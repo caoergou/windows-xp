@@ -31,7 +31,7 @@ test('PhotoViewer renders image and properties button when fileItem provided', (
 });
 
 test('FileProperties renders general info correctly', () => {
-  // 直接测试 FileProperties 组件，提供必要的属性
+  // Test the FileProperties component directly, providing the required properties
   const fileItem = {
     name: 'test.jpg',
     type: 'file',
@@ -53,10 +53,10 @@ test('FileProperties renders general info correctly', () => {
     </UserSessionProvider>
   );
 
-  // 检查是否有常规标签
+  // Check for the General tab
   expect(screen.getByText('General')).toBeInTheDocument();
 
-  // 检查是否有摘要标签
+  // Check for the Summary tab
   expect(screen.getByText('Summary')).toBeInTheDocument();
 });
 

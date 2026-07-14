@@ -35,7 +35,7 @@ const MenuItem = styled.div<{ $active?: boolean }>`
   }
 `;
 
-/* Windows XP 风格下拉菜单 */
+/* Windows XP style dropdown menu */
 const DropdownMenu = styled.div`
   position: absolute;
   top: 100%;

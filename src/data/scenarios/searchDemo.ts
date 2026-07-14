@@ -1,13 +1,13 @@
 /**
  * Reference search corpus (#219 / #134). A small in-world "web" for the 序章
- * fiction — period pages a player digs up through the search engine inside IE.
+ * fiction - period pages a player digs up through the search engine inside IE.
  * Open the browser at the search engine and hand it this corpus:
  *
  *   ref.openApp('InternetExplorer', { url: 'http://www.baidu.com', searchCorpus: demoSearchCorpus })
  *
- * Each result carries the `html` landing page IE renders when it's clicked, so
+ * Each result carries the 'html' landing page IE renders when it's clicked, so
  * the player can actually read into a clue. A scenario then gates on
- * `searched('水晶女孩')` or `found('bbs-thread')`.
+ * 'searched('水晶女孩')' or 'found('bbs-thread')'.
  */
 import type { SearchResultPage } from '../../apps/InternetExplorer/types';
 

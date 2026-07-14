@@ -454,7 +454,7 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
         t('common.propertiesTitle', { name: displayName }),
         React.createElement(FileProperties, componentProps),
         'properties',
-        { componentProps } // 显式传递 componentProps 用于持久化
+        { componentProps } // Pass componentProps explicitly for persistence
       );
       closeContextMenu();
     }

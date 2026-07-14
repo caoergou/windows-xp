@@ -1,7 +1,7 @@
 import { CulturePackage } from '../types';
 
 /**
- * 默认英文文化包：西方 2000s 互联网记忆。
+ * Default English culture package: Western 2000s internet memories.
  */
 export const enCulture: CulturePackage = {
   id: 'en',

@@ -69,8 +69,8 @@ interface ErrorBoundaryState {
 }
 
 /**
- * 应用错误边界组件
- * 捕获子组件中的错误，防止整个桌面崩溃
+ * Application error boundary component.
+ * Catches errors in child components to prevent the whole desktop from crashing.
  */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
@@ -134,12 +134,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   render(): ReactNode {
     if (this.state.hasError) {
-      // 如果提供了自定义 fallback，使用它
+      // If a custom fallback is provided, use it
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
-      // 否则使用默认错误界面
+      // Otherwise use the default error UI
       return (
         <ErrorBoundaryFallback
           error={this.state.error}
@@ -153,7 +153,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 }
 
-// 默认错误回退组件
+// Default error fallback component
 const ErrorBoundaryFallback: React.FC<{
   error: Error | null;
   errorInfo: React.ErrorInfo | null;
@@ -166,11 +166,16 @@ const ErrorBoundaryFallback: React.FC<{
       <ErrorIcon>
         <XPIcon name="dialog_error" size={48} />
       </ErrorIcon>
-      <ErrorTitle>{t('errorBoundary.title', '应用程序出错')}</ErrorTitle>
-      <ErrorMessage>{t('errorBoundary.message', '此应用遇到了问题，无法继续运行。')}</ErrorMessage>
+      <ErrorTitle>{t('errorBoundary.title', 'Application Error')}</ErrorTitle>
+      <ErrorMessage>
+        {t(
+          'errorBoundary.message',
+          'This application has encountered a problem and cannot continue.'
+        )}
+      </ErrorMessage>
       {error && (
         <ErrorDetails>
-          <summary>{t('errorBoundary.details', '查看详细信息')}</summary>
+          <summary>{t('errorBoundary.details', 'View details')}</summary>
           <pre>
             {error.toString()}
             {errorInfo?.componentStack}
@@ -181,7 +186,7 @@ const ErrorBoundaryFallback: React.FC<{
   );
 };
 
-// Hook 版本的错误边界包装器
+// Hook version of the error boundary wrapper
 export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
   errorBoundaryProps?: Omit<ErrorBoundaryProps, 'children'>

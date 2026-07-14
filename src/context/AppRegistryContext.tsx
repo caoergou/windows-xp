@@ -11,9 +11,9 @@ import { APP_REGISTRY } from '../registry/apps';
 import { AppRegistryEntry } from '../types';
 
 export interface AppRegistryContextType {
-  /** 当前合并后的应用注册表 */
+  /** Currently merged application registry */
   registry: Record<string, AppRegistryEntry>;
-  /** 注册一个新应用；同 id 会覆盖 */
+  /** Register a new app; same id will overwrite */
   registerApp: (entry: AppRegistryEntry) => void;
 }
 
@@ -41,7 +41,7 @@ const mergeRegistry = (userApps: AppRegistryEntry[]): Record<string, AppRegistry
 
 export interface AppRegistryProviderProps {
   children: React.ReactNode;
-  /** 自定义应用，会与内置 APP_REGISTRY 合并 */
+  /** Custom apps, merged with the built-in APP_REGISTRY */
   apps?: AppRegistryEntry[];
 }
 

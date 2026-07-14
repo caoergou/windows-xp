@@ -1,6 +1,6 @@
 // MicrosoftPaint constants (#163/A).
 
-/** Default folder for File → Save (我的文档/我的图片). */
+/** Default folder for File -> Save (我的文档/我的图片). */
 export const DEFAULT_SAVE_DIR = ['我的文档', '我的图片'];
 
 /** The classic 16-colour Paint palette. */

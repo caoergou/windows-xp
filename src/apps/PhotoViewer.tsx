@@ -77,7 +77,7 @@ interface PhotoViewerProps {
   windowId?: string;
 }
 
-// windowId 由 Window.jsx 通过 cloneElement 自动注入
+// windowId is auto-injected by Window.jsx via cloneElement
 const normalizeImageSrc = (src?: string): string | undefined => {
   if (!src) return undefined;
   // Handle legacy absolute paths under the deployed base URL.

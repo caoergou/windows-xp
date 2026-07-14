@@ -9,15 +9,15 @@ import { sounds } from '../utils/soundManager';
 import { FileNode, isContainerNode } from '../types';
 
 /**
- * useApp(windowId) — App 组件与系统交互的唯一入口。
+ * useApp(windowId) - the single entry point for App components to interact with the system.
  *
- * 通过 Window.jsx 的 cloneElement 注入 windowId 后，App 组件只需调用此 hook，
- * 无需直接 import 任何 Context。
+ * After Window.jsx injects windowId via cloneElement, the App component only needs to call this hook,
+ * without directly importing any Context.
  *
- * 用法：
+ * Usage:
  *   function MyApp({ windowId, ...props }) {
  *     const api = useApp(windowId);
- *     await api.dialog.alert({ title: '提示', message: '你好' });
+ *     await api.dialog.alert({ title: 'Tip', message: 'Hello' });
  *   }
  */
 export function useApp(windowId?: string) {
@@ -48,7 +48,7 @@ export function useApp(windowId?: string) {
 
   return useMemo(
     () => ({
-      // ── 当前窗口控制 ────────────────────────────────────────────────────────
+      // --- Current window controls ------------------------------------------------
       window: {
         id: resolvedWindowId,
         setTitle: (title: string) =>
@@ -60,7 +60,7 @@ export function useApp(windowId?: string) {
           windowManagerRef.current.resizeWindow(resolvedWindowId, width, height),
         move: (left: number, top: number) =>
           windowManagerRef.current.moveWindow(resolvedWindowId, left, top),
-        // 任务栏指示器
+        // Taskbar indicator
         setBadge: (value: string | number | null) =>
           windowManagerRef.current.setWindowBadge(resolvedWindowId, value),
         setProgress: (pct: number | null) =>
@@ -75,19 +75,19 @@ export function useApp(windowId?: string) {
           windowManagerRef.current.setMinimizeGuard(resolvedWindowId, guard),
       },
 
-      // ── 打开新窗口（与 WindowManagerContext.openWindow 签名相同）────────────
+      // --- Open a new window (same signature as WindowManagerContext.openWindow) -----------
       openWindow: (...args: Parameters<typeof windowManager.openWindow>) =>
         windowManagerRef.current.openWindow(...args),
 
-      // ── Promise-based 对话框 ─────────────────────────────────────────────
+      // --- Promise-based dialogs ------------------------------------------------
       dialog: modalRef.current.dialog,
 
-      // ── 声音 ────────────────────────────────────────────────────────────────
+      // --- Sound ------------------------------------------------------------------
       sound: {
         play: (name: string) => (sounds as Record<string, (() => void) | undefined>)[name]?.(),
       },
 
-      // ── 文件系统（读 + 写）────────────────────────────────────────────────
+      // --- File system (read + write) ---------------------------------------------
       // Write access mirrors the imperative XPHandle.fs surface (#115/#122) so a
       // custom app can persist files through the sanctioned `useApp` API without
       // reaching into `useFileSystem` internals.
@@ -121,13 +121,13 @@ export function useApp(windowId?: string) {
         },
       },
 
-      // ── 用户会话 ─────────────────────────────────────────────────────────
+      // --- User session -----------------------------------------------------------
       session: {
         user: userSessionRef.current.user?.name,
         logout: () => userSessionRef.current.logout(),
       },
 
-      // ── 系统托盘 ─────────────────────────────────────────────────────────
+      // --- System tray ------------------------------------------------------------
       tray: {
         register: (config: Omit<TrayItem, 'id'>) => trayRef.current.register(trayId, config),
         unregister: () => trayRef.current.unregister(trayId),

@@ -1,9 +1,9 @@
 import { normalizeCultureLang, StartMenuApp, StartMenuProfile } from './types';
 
 /**
- * 开始菜单左侧“所有程序”下方的应用列表文化包。
+ * Start-menu app-list culture package, located below "All Programs" on the left.
  *
- * 这些是高频/彩蛋性质的应用，按语言展示不同的 2000s 记忆符号。
+ * These are high-frequency / easter-egg apps, showing different 2000s memory symbols per language.
  */
 const START_MENU_BY_LOCALE: Record<string, StartMenuProfile> = {
   zh: {

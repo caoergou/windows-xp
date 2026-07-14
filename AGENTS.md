@@ -1,50 +1,50 @@
-# AGENTS.md — 项目总览与核心原则
+# AGENTS.md — Project Overview & Core Principles
 
-> 这是总览性文件（定位类似 `CLAUDE.md`）：只讲项目是什么、三条核心原则和"去哪查细则"。**不要在本文件堆砌具体规则**——细则各有其家（见文档地图）。
+> This is the high-level overview (similar in role to `CLAUDE.md`): it only explains what the project is, the three core principles, and "where to find the detailed rules". **Do not pile concrete rules into this file** — each rule has its proper home (see the doc map).
 
-## 项目定位
+## Project Positioning
 
-一个**可嵌入、可定制、可编剧的 Windows XP 桌面引擎 npm 包**（`@caoergou/windows-xp`），不只是一次性的模拟器页面。目标场景：个人主页外壳、品牌营销页、网页解谜游戏、怀旧内容站、教学沙盒（逐场景需求推导见 `docs/USE-CASES.md`）。
+An **embeddable, customizable, scriptable Windows XP desktop engine npm package** (`@caoergou/windows-xp`), not a one-off simulator page. Target scenarios: personal homepage shell, brand marketing pages, web puzzle games, nostalgia content sites, teaching sandbox (scenario-by-scenario requirements are derived in `docs/USE-CASES.md`).
 
-平台级远景（#143 RFC，`docs/OS-PLATFORM-VISION.md`）：引擎与"XP"逐步解耦，OS 本身成为可定义的包——XP 是第一个也是默认的 OS 包。在此之前，保真第一的原则不变。
+Platform-level vision (#143 RFC, `docs/OS-PLATFORM-VISION.md`): the engine gradually decouples from "XP"; the OS itself becomes a definable package — XP is the first and default OS package. Until then, the fidelity-first principle remains unchanged.
 
-## 三大核心原则（按优先级）
+## Three Core Principles (in priority order)
 
-1. **保真第一**：忠实还原 XP，不做"现代化改良版"。每个视觉/交互决定都应能指出 XP 里的对应物（截图、录屏或参考实现）；不自行"美化"，哪怕你觉得更好看。唯一例外是无障碍改进（键盘可达、aria），且不得改变视觉呈现。
-2. **包优先（embedding-safe）**：任何代码都可能运行在别人的应用里。不新增全局副作用，不劫持宿主页面，存储一律走带前缀的工具层。
-3. **机制与内容分离**：桌面内容（文件、快捷方式、剧情、文化元素）用声明式数据描述，组件只实现机制。判断标准：**新增一条内容不应需要写 React 代码**。
+1. **Fidelity first**: faithfully reproduce XP, do not produce a "modernized" version. Every visual/interaction decision should map to a counterpart in XP (screenshot, screen recording, or reference implementation); do not "beautify" on your own, even if it looks better. The only exception is accessibility improvements (keyboard reachability, ARIA), and these must not change the visual presentation.
+2. **Package-first (embedding-safe)**: any code may run inside someone else's application. Do not add new global side effects, do not hijack the host page, and storage must always go through the prefixed utility layer.
+3. **Mechanism and content separation**: desktop content (files, shortcuts, story, cultural elements) is described with declarative data; components only implement mechanisms. Test: **adding one piece of content should not require writing React code**.
 
-## 文档地图
+## Doc Map
 
-| 你想知道… | 去这里 |
+| You want to know… | Go here |
 |-----------|--------|
-| 使用方 API：props、事件、ref、子路径导入、内容/文化包编写 | `USAGE.md` |
-| 架构、目录结构、开发命令、如何加应用/文件 | `CLAUDE.md` |
-| 某个视觉/交互在真实 XP 里长什么样、现在差多少、颜色字体的**权威 token 值** | `FIDELITY.md`（§K.1 token 表，每个值带出处） |
-| 代码怎么写：组件规范、质量红线、i18n、彩蛋政策、提交前检查清单 | `docs/DEVELOPMENT.md` |
-| 工作流：如何跑检查、发 PR | `CONTRIBUTING.md` |
-| 路线图与任务拆分 | GitHub issue #86（Roadmap）+ #143（平台化 RFC） |
-| 五个使用场景各需要什么（博客/营销/游戏/怀旧/教学） | `docs/USE-CASES.md` |
-| 解谜游戏的机制→事件→编排推导 | `docs/PUZZLE-DESIGN.md` |
-| 多 OS / 自定义 OS 的平台化架构 | `docs/OS-PLATFORM-VISION.md` |
-| 2026-07 全面审计（现状、缺口、issue 索引） | `docs/PROJECT-ANALYSIS-2026-07.md` |
+| Consumer API: props, events, ref, subpath imports, content/culture package authoring | `USAGE.md` |
+| Architecture, directory structure, dev commands, how to add an app/file | `CLAUDE.md` |
+| What a visual/interaction looks like in real XP, how far it is now, authoritative **token values** for colors/fonts | `FIDELITY.md` (§K.1 token table, every value with source) |
+| How to write code: component conventions, quality red lines, i18n, Easter-egg policy, pre-commit checklist | `docs/DEVELOPMENT.md` |
+| Workflow: how to run checks, open PRs | `CONTRIBUTING.md` |
+| Roadmap and task breakdown | GitHub issue #86 (Roadmap) + #143 (platformization RFC) |
+| What each of the five usage scenarios needs (blog/marketing/game/nostalgia/teaching) | `docs/USE-CASES.md` |
+| Mechanism → event → orchestration derivation for the puzzle game | `docs/PUZZLE-DESIGN.md` |
+| Multi-OS / custom OS platform architecture | `docs/OS-PLATFORM-VISION.md` |
+| July 2026 full audit (current state, gaps, issue index) | `docs/PROJECT-ANALYSIS-2026-07.md` |
 
-## 十条最常犯的红线（速查）
+## Top Ten Most Frequently Violated Red Lines (quick reference)
 
-1. 不加 XP 没有的视觉/交互（现代圆角、柔和阴影、边缘吸附、平滑滚动）
-2. 颜色/字体只用 `FIDELITY.md` §K.1 的 token 值，**不许拍脑袋写色值**；中文字体宋体优先（雅黑是 Vista+）
-3. 不新增 `window` 级监听、全局 CSS 裸选择器、模块级单例
-4. localStorage/IndexedDB 必须走带 `storagePrefix` 的工具层
-5. 窗口 `componentProps` 必须可序列化（刷新恢复的命门）
-6. styled-components 非 DOM 属性加 `$` 前缀
-7. 禁止新增 `@ts-nocheck` / `any`
-8. 面向用户的文案一律 i18n key，禁止硬编码中英文
-9. 声音走 `soundManager` 的事件映射，禁止 `new Audio`
-10. 改交互/样式的 PR 必须同步更新 `FIDELITY.md` 对应条目状态
-11. **机制与"XP 的样子"分层**（#143 预备）：引擎目录（`context`/`hooks`/`utils`/`events.ts`/`snapshot.ts`）禁止出现颜色字面量、xp.css 依赖和 XP 专属 chrome 假设——`guard:purity` 在 CI 强制
-12. 内联 hex 色值存量**只减不增**（`guard:purity` 棘轮计数）；新应用菜单只传结构化数据给 `XPMenuBar`，不自绘菜单 DOM（为 #128 `menus:` 迁移留路）
+1. Do not add visuals/interactions that XP did not have (modern rounded corners, soft shadows, edge snapping, smooth scrolling).
+2. Colors/fonts must use the token values in `FIDELITY.md` §K.1, **no ad-hoc color values**; for Chinese fonts prefer Songti (YaHei is Vista+).
+3. No new `window`-level listeners, bare global CSS selectors, or module-level singletons.
+4. localStorage/IndexedDB must go through the `storagePrefix`-aware utility layer.
+5. Window `componentProps` must be serializable (the key to refresh recovery).
+6. Non-DOM props on styled-components must be prefixed with `$`.
+7. Do not add new `@ts-nocheck` / `any`.
+8. All user-facing copy must be i18n keys; hardcoded Chinese or English is forbidden.
+9. Sounds must go through the `soundManager` event mapping; `new Audio` is forbidden.
+10. PRs that change interaction/style must update the corresponding entry status in `FIDELITY.md`.
+11. **Mechanism and "the XP look" must be layered** (preparation for #143): engine directories (`context`/`hooks`/`utils`/`events.ts`/`snapshot.ts`) must not contain color literals, xp.css dependencies, or XP-specific chrome assumptions — `guard:purity` is enforced in CI.
+12. Inline hex color stock must only **decrease** (`guard:purity` ratchet count); new app menus pass structured data to `XPMenuBar`, never hand-roll menu DOM (paving the way for #128 `menus:` migration).
 
-## 参考资源
+## Reference Resources
 
-- `FIDELITY.md` 附录列出全部权威参考（xp.css、winXP、系统色对照表、声音方案文档）
-- 最终仲裁：真实 Windows XP SP3 虚拟机实测
+- `FIDELITY.md` appendix lists all authoritative references (xp.css, winXP, system color对照表 / system color mapping table, sound scheme documentation).
+- Final arbiter: real Windows XP SP3 virtual machine testing.

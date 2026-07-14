@@ -9,16 +9,16 @@ import type { XPEvent } from '../events';
  * Timer / scheduler subsystem (#130).
  *
  * Three time-based signal sources, all emitting on the same event bus so
- * `onEvent` consumers and scenario (#84) triggers see them uniformly:
+ * 'onEvent' consumers and scenario (#84) triggers see them uniformly:
  *
- *  1. **Persisted scheduler** — `schedule({ delayMs | at })` registers a task
- *     that fires a `time:fire` (or a caller-supplied event) after the delay.
- *     Pending tasks are stored per `storagePrefix` and reconciled on mount:
+ *  1. **Persisted scheduler** - 'schedule({ delayMs | at })' registers a task
+ *     that fires a 'time:fire' (or a caller-supplied event) after the delay.
+ *     Pending tasks are stored per 'storagePrefix' and reconciled on mount:
  *     anything whose deadline passed *while the page was closed* fires on load
- *     ("compute elapsed effects at launch" — honest about no background exec).
- *  2. **`time:hour`** — wall-clock, fires on the top of each hour. Derived from
- *     the clock (not persisted); the 整点报时 chime is an opt-in consumer.
- *  3. **`user:idle` / `user:active`** — inactivity detection at a configurable
+ *     ("compute elapsed effects at launch" - honest about no background exec).
+ *  2. **'time:hour'** - wall-clock, fires on the top of each hour. Derived from
+ *     the clock (not persisted); the hourly chime is an opt-in consumer.
+ *  3. **'user:idle' / 'user:active'** - inactivity detection at a configurable
  *     threshold, for scenario hint escalation and screensaver logic.
  */
 

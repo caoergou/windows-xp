@@ -1,6 +1,4 @@
-/**
- * CMD 风格参数解析：支持双引号包裹的含空格参数。
- */
+/** CMD-style argument parsing: supports space-containing arguments wrapped in double quotes. */
 export const parseCmdArgs = (cmd: string): string[] => {
   const args: string[] = [];
   let current = '';
@@ -27,11 +25,11 @@ export const parseCmdArgs = (cmd: string): string[] => {
 };
 
 /**
- * CMD 风格路径解析：支持 C:\、\、.\、..\ 以及引号路径。
+ * CMD-style path parsing: supports C:, , ., .., and quoted paths.
  *
- * @param path 用户输入的路径字符串
- * @param currentPath 当前工作目录的完整路径数组
- * @param driveRoot C: 驱动器对应的内部路径前缀
+ * @param path User-input path string
+ * @param currentPath Full path array of the current working directory
+ * @param driveRoot Internal path prefix corresponding to the C: drive
  */
 export const resolveCmdPath = (
   path: string,

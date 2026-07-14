@@ -5,7 +5,7 @@ import XPIcon from '../XPIcon';
 import type { ExplorerViewMode } from '../../apps/Explorer/types';
 import { EXPLORER_VIEW_MODES } from '../../apps/Explorer/types';
 
-/* ── 菜单栏 ── */
+/* --- Menu bar --- */
 const MenuBar = styled.div`
   height: 20px;
   background: #ece9d8;
@@ -75,7 +75,7 @@ const DropdownSeparator = styled.div`
   margin: 3px 2px;
 `;
 
-/* ── 工具栏 ── */
+/* --- Toolbar --- */
 const ToolbarContainer = styled.div`
   height: 36px;
   background: linear-gradient(to right, #edede5 0%, #ede8cd 100%);
@@ -86,7 +86,7 @@ const ToolbarContainer = styled.div`
   gap: 0;
 `;
 
-/* 后退/前进按钮（直接显示绿色图标） */
+/* Back/forward buttons (green icons shown directly) */
 const NavBtn = styled.button<{ $disabled?: boolean }>`
   display: flex;
   align-items: center;
@@ -132,7 +132,7 @@ const NavDropArrow = styled.div`
   padding-left: 2px;
 `;
 
-/* 普通工具按钮（搜索/文件夹/上） */
+/* Normal toolbar buttons (search/folders/up) */
 const ToolBtn = styled.button<{ $disabled?: boolean; $active?: boolean }>`
   display: flex;
   flex-direction: row;
@@ -385,7 +385,7 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
         ))}
       </MenuBar>
       <ToolbarContainer>
-        {/* 后退 */}
+        {/* Back */}
         <NavBtn
           $disabled={!canGoBack}
           onClick={canGoBack ? onBack : undefined}
@@ -396,7 +396,7 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
           <NavDropArrow>▾</NavDropArrow>
         </NavBtn>
 
-        {/* 前进 */}
+        {/* Forward */}
         <NavBtn
           $disabled={!canGoForward}
           onClick={canGoForward ? onForward : undefined}
@@ -406,20 +406,20 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
           <NavDropArrow>▾</NavDropArrow>
         </NavBtn>
 
-        {/* 向上 */}
+        {/* Up */}
         <ToolBtn $disabled={!canGoUp} onClick={canGoUp ? onUp : undefined} title={t('explorer.up')}>
           <XPIcon name="up" size={24} />
         </ToolBtn>
 
         <Separator />
 
-        {/* 搜索 */}
+        {/* Search */}
         <ToolBtn title={t('explorer.search')}>
           <XPIcon name="search" size={16} />
           {t('explorer.search')}
         </ToolBtn>
 
-        {/* 文件夹 — toggles the Folders tree pane (#120) */}
+        {/* Folders - toggles the Folders tree pane (#120) */}
         <ToolBtn
           title={t('explorer.folders')}
           $active={foldersOpen}
@@ -432,7 +432,7 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
 
         <Separator />
 
-        {/* 视图 — opens the five-view chooser dropdown, XP-style (#211) */}
+        {/* View - opens the five-view chooser dropdown, XP-style (#211) */}
         <MenuBarItemWrapper ref={viewsBtnRef}>
           <ToolBtn
             title={t('explorer.view')}

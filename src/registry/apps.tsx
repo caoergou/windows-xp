@@ -47,7 +47,7 @@ import type { TFunction } from 'i18next';
 import XPIcon from '../components/XPIcon';
 import { restoreApp } from './defineApp';
 
-// 占位应用 - 用于尚未实现的应用
+// Placeholder app - used for apps not yet implemented
 const DummyAppContainer = styled.div`
   width: 100%;
   height: 100%;
@@ -84,7 +84,7 @@ interface DummyAppProps {
   windowId?: string;
 }
 
-const DummyAppComponent: React.FC<DummyAppProps> = ({ appName = '此应用' }) => {
+const DummyAppComponent: React.FC<DummyAppProps> = ({ appName = 'This Application' }) => {
   const { t } = useTranslation();
   return (
     <DummyAppContainer>
@@ -92,7 +92,7 @@ const DummyAppComponent: React.FC<DummyAppProps> = ({ appName = '此应用' }) =
         <XPIcon name="alert" size={64} />
       </IconWrapper>
       <Title>{appName}</Title>
-      <Message>{t('apps.comingSoon', '此功能正在开发中，敬请期待！')}</Message>
+      <Message>{t('apps.comingSoon', 'This feature is coming soon!')}</Message>
     </DummyAppContainer>
   );
 };
@@ -105,23 +105,23 @@ export const getAppDisplayName = (def: AppRegistryEntry, t: TFunction): string =
 };
 
 /**
- * APP_REGISTRY — 所有可打开应用的唯一注册中心。
+ * APP_REGISTRY - the single registry for all openable apps.
  *
- * 每条记录字段说明：
- *   id                  — 应用唯一标识（与 registry key 相同）
- *   name                — 显示名称
- *   icon                — 默认窗口图标（XPIcon key 或 data: URL）
- *   window              — 窗口默认配置
- *     .width / .height  — 初始尺寸
- *     .singleton        — true 时全局只允许一个实例，再次打开会聚焦已有窗口
- *   lifecycle           — 生命周期回调，接收 (windowId)
- *     .onOpen(id)       — 窗口创建后
- *     .onClose(id)      — 窗口关闭前
- *     .onFocus(id)      — 窗口获得焦点时
- *   associations        — 文件关联（filesystem.json 中 node.app 匹配时自动使用）
- *     .appField         — 匹配 node.app 字段值
- *     .getProps(item)   — 将文件系统节点转为组件 props
- *   restore(props)      — 从已保存的 componentProps 重建 JSX（localStorage 恢复时）
+ * Field description for each record:
+ *   id                  - unique app identifier (same as the registry key)
+ *   name                - display name
+ *   icon                - default window icon (XPIcon key or data: URL)
+ *   window              - default window configuration
+ *     .width / .height  - initial size
+ *     .singleton        - when true, only one instance is allowed globally; reopening focuses the existing window
+ *   lifecycle           - lifecycle callbacks, receiving (windowId)
+ *     .onOpen(id)       - after the window is created
+ *     .onClose(id)      - before the window is closed
+ *     .onFocus(id)      - when the window gains focus
+ *   associations        - file associations (used automatically when node.app in filesystem.json matches)
+ *     .appField         - matches the node.app field value
+ *     .getProps(item)   - converts a filesystem node into component props
+ *   restore(props)      - reconstructs JSX from saved componentProps (used during localStorage restore)
  */
 export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   Explorer: {
@@ -555,7 +555,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   },
 };
 
-// ── 按 appField 建立快速查找表（避免遍历）──────────────────────────────────
+// --- Build a fast lookup table by appField (avoid iteration) -------------------------------
 const _assocByField = Object.values(APP_REGISTRY).reduce(
   (acc, def) => {
     for (const assoc of def.associations || []) {
@@ -567,15 +567,15 @@ const _assocByField = Object.values(APP_REGISTRY).reduce(
 );
 
 /**
- * resolveFileOpen — 将文件系统节点解析为可直接传给 openWindow() 的参数对象。
+ * resolveFileOpen - resolve a filesystem node into a parameter object that can be passed directly to openWindow().
  *
- * @param {string} key   节点在父 children 中的 key（用作 Explorer 的 initialPath）
- * @param {object} item  filesystem.json 中的节点
+ * @param {string} key   The node's key among its parent's children (used as Explorer's initialPath)
+ * @param {object} item  A node from filesystem.json
  * @returns {{ appId, component, icon, windowProps } | null}
- *   返回 null 表示无法打开（DummyApp 或未注册），调用方负责给出提示。
+ *   Returns null when the node cannot be opened (DummyApp or unregistered); the caller is responsible for showing a hint.
  */
 export const resolveFileOpen = (key: string, item: FileNode) => {
-  // 文件夹 / 根目录 / 驱动器 → 用 Explorer 打开
+  // Folder / root / drive -> open with Explorer
   if (item.type === 'folder' || item.type === 'root' || item.type === 'drive') {
     const def = APP_REGISTRY.Explorer;
     const componentProps = { initialPath: [key] };
@@ -585,12 +585,12 @@ export const resolveFileOpen = (key: string, item: FileNode) => {
       icon: item.icon || def.icon,
       windowProps: {
         ..._buildWindowProps(def),
-        componentProps, // 显式传递 componentProps 用于持久化
+        componentProps, // Pass componentProps explicitly for persistence
       },
     };
   }
 
-  // app_shortcut / file → 按 appField 查注册表
+  // app_shortcut / file -> look up in registry by appField
   let appField =
     item.type === 'app_shortcut' ? item.app : item.type === 'file' ? item.app : undefined;
   // Extension fallback (#137): .md files open in MarkdownViewer unless the node
@@ -612,16 +612,16 @@ export const resolveFileOpen = (key: string, item: FileNode) => {
     icon: item.icon || def.icon,
     windowProps: {
       ..._buildWindowProps(def),
-      componentProps, // 显式传递 componentProps 用于持久化
+      componentProps, // Pass componentProps explicitly for persistence
     },
   };
 };
 
-/** 将 manifest.window 映射为 openWindow 的 props 参数格式 */
+/** Map manifest.window to the props argument format of openWindow */
 function _buildWindowProps(def: AppRegistryEntry) {
   return {
     ...(def.window || {}),
-    // 传递 lifecycle 回调，供 WindowManagerContext 在适当时机调用
+    // Pass lifecycle callbacks for WindowManagerContext to invoke at the appropriate times
     onOpen: def.lifecycle?.onOpen || null,
     onClose: def.lifecycle?.onClose || null,
     onFocus: def.lifecycle?.onFocus || null,

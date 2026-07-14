@@ -92,7 +92,7 @@ const LinkItem = styled.div<{ $active?: boolean }>`
   }
 `;
 
-/* 详细信息文本 */
+/* Detail text */
 const DetailText = styled.div`
   padding: 3px 10px 2px 12px;
   font-size: 11px;

@@ -1,6 +1,6 @@
-// 将普通 URL 转为互联网档案馆（Wayback Machine）存档链接，
-// 呈现 2006 年 Windows XP 全盛期的真实网页样貌。
-// if_ 后缀使存档页面以内嵌模式呈现，不显示 Wayback 顶部工具条。
+// Convert a normal URL into an Internet Archive (Wayback Machine) snapshot link,
+// presenting the real web page look from the 2006 Windows XP heyday.
+// The if_ suffix renders the archived page in embedded mode, without the Wayback top toolbar.
 export const WAYBACK_TS = '20060615120000';
 
 export const toWaybackUrl = (url: string): string => {

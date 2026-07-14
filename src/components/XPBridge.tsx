@@ -378,7 +378,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
                 const buddy = qqStore.buddy(buddyId);
                 openWindow(
                   'QQ',
-                  buddy ? `与 ${buddy.nickname} 聊天中` : 'QQ',
+                  buddy ? i18n.t('qq.chatTitle', { nickname: buddy.nickname }) : 'QQ',
                   def.restore({ view: 'chat', buddyId }),
                   def.icon,
                   {

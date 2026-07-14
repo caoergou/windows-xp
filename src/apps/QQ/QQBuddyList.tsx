@@ -14,12 +14,15 @@ import type { RuntimeBuddy } from './qqStore';
 import type { QQStatus } from '../../data/qq/types';
 
 /**
- * QQ 主面板（好友列表窗口）—— 逐元素还原 QQ2006：个人横幅、左侧面板栏、
- * 分组手风琴（在线/总数计数）、单列好友条目（灰度离线 / 红名会员 / 业务角标）、
- * 底部业务工具栏与「菜单 / 查找」。渲染在引擎 XP 窗框内（拖动 / 关闭由窗框提供）。
+ * QQ main panel (buddy list window) - element-by-element recreation of QQ2006:
+ * personal banner, left-side panel bar, grouped accordion (online/total counts),
+ * single-column buddy entries (grayscale offline / red-name member / service badges),
+ * bottom service toolbar, and "Menu / Find". Rendered inside the engine's XP window
+ * chrome (drag/close provided by the window frame).
  *
- * 交互（#refine-qq）：好友悬停浮出资料卡（昵称/号码/状态/签名）；底部「查找」与
- * 「菜单→查找联系人」打开查找对话框；「菜单」「更改状态」用引擎共享 ContextMenu。
+ * Interactions (#refine-qq): hovering a buddy pops up a profile card (nickname/number/status/signature);
+ * the bottom "Find" and "Menu -> Find Contact" open the find dialog;
+ * "Menu" / "Change Status" use the engine's shared ContextMenu.
  */
 
 const badgeClass: Record<string, string> = {
@@ -28,7 +31,7 @@ const badgeClass: Record<string, string> = {
   mobile: 'qq-icon-mobile',
 };
 
-/** 状态圆点颜色（CSS 关键字，避免内联 hex）。 */
+/** Status dot colors (CSS keywords, avoiding inline hex). */
 const STATUS_DOT: Record<QQStatus, string> = {
   online: 'limegreen',
   away: 'orange',
@@ -85,9 +88,9 @@ const TOOLBAR_BTNS: Array<{ img: string; title: string; url?: string }> = [
 ];
 
 interface QQBuddyListProps {
-  /** 打开与某好友的聊天窗口。 */
+  /** Open a chat window with a buddy. */
   onOpenChat: (buddyId: string) => void;
-  /** 退出 QQ（关闭主面板 + 所有聊天窗 + 重置运行时）。 */
+  /** Quit QQ (close main panel + all chat windows + reset runtime). */
   onExit: () => void;
 }
 
@@ -119,13 +122,13 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onExit }) => {
 
   const showTooltip = (e: React.MouseEvent, buddy: RuntimeBuddy) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    // 浮出到条目右侧；贴近屏幕右缘时翻到左侧，避免被裁切。
+    // Pop out to the right of the item; flip to the left when near the right screen edge to avoid clipping.
     const width = 210;
     const x = rect.right + width + 8 > window.innerWidth ? rect.left - width - 4 : rect.right + 4;
     setHover({ buddy, x: Math.max(4, x), y: rect.top });
   };
 
-  // 状态切换菜单（横幅「更改状态」按钮 / 头像）。
+  // Status switch menu (banner "更改状态" button / avatar).
   const openStatusMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -139,7 +142,7 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onExit }) => {
     });
   };
 
-  // 主菜单（底部「菜单」按钮）。装饰性条目置灰，可用项：查找联系人、退出。
+  // Main menu (bottom "菜单" button). Decorative items are grayed out; available items: "查找联系人", "退出".
   const openMainMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -152,13 +155,13 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onExit }) => {
       { type: 'separator' },
       { label: '退出', action: onExit },
     ];
-    // 菜单向上弹出（贴底部工具栏）：ContextMenu 会在超出视口时自动上翻。
+    // Menu pops upward (anchored to the bottom toolbar): ContextMenu auto-flips up when it overflows the viewport.
     setMenu({ x: rect.left, y: rect.top, items });
   };
 
   return (
     <PanelRoot data-testid="qq-panel">
-      {/* 个人信息横幅 */}
+      {/* Personal info banner */}
       <div className="qq-head">
         <div className="qq-flex-bg">
           <div className="qq-head-left" />
@@ -189,7 +192,7 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onExit }) => {
         </div>
       </div>
 
-      {/* 主体区：面板栏 + 好友盒 */}
+      {/* Main area: panel bar + buddy box */}
       <div className="qq-body">
         <div className="qq-flex-bg">
           <div className="qq-body-left" />
@@ -262,7 +265,7 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onExit }) => {
         </div>
       </div>
 
-      {/* 底部工具栏 */}
+      {/* Bottom toolbar */}
       <div className="qq-toolbar">
         <div className="qq-flex-bg">
           <div className="qq-toolbar-left" />
@@ -302,7 +305,7 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onExit }) => {
         </div>
       </div>
 
-      {/* 好友悬停资料卡 */}
+      {/* Buddy hover profile card */}
       {hover &&
         createPortal(
           <BuddyTooltip data-testid="qq-buddy-tooltip" style={{ left: hover.x, top: hover.y }}>

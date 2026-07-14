@@ -2,24 +2,24 @@ import { APP_REGISTRY } from '../registry/apps';
 import { AppRegistryEntry } from '../types';
 
 /**
- * 从 localStorage 恢复窗口组件。
+ * Restore window components from localStorage.
  *
- * 持久化的窗口列表带版本号（见 `windowPersistence.ts`），版本升级后旧格式数据
- * 会被丢弃，因此每条待恢复记录都必然携带真实的注册表 `appId`。恢复只走两条
- * 路径：注册表精确匹配，以及 FileProperties 的动态 `properties-*` id。
+ * The persisted window list has a version number (see windowPersistence.ts); after a version upgrade,
+ * old-format data is discarded, so every record pending restore must carry a real registry appId.
+ * Restoration follows only two paths: exact registry match, and FileProperties' dynamic properties-* id.
  */
 export const restoreComponent = (
   appId: string,
   componentProps: Record<string, unknown> = {},
   registry: Record<string, AppRegistryEntry> = APP_REGISTRY
 ): React.ReactNode => {
-  // 1. 注册表精确匹配
+  // 1. Exact registry match
   const def = registry[appId];
   if (def?.restore) {
     return def.restore(componentProps);
   }
 
-  // 2. FileProperties 动态 appId（形如 'properties-xxx'）
+  // 2. FileProperties dynamic appId (like 'properties-xxx')
   if (appId?.startsWith('properties-')) {
     return registry.FileProperties?.restore(componentProps) ?? null;
   }

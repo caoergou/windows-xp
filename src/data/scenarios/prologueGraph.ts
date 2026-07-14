@@ -1,17 +1,17 @@
 /**
  * "序章 · 2005" as a Puzzle Dependency Graph (PUZZLE-DESIGN §4 Layer 3).
  *
- * The same prologue as `prologue.ts`, but authored as a dependency graph instead
+ * The same prologue as 'prologue.ts', but authored as a dependency graph instead
  * of hand-written triggers: four puzzle nodes in a linear chain
- * (`intro → read-letter → read-chat → unlock-windows`), each with a hint ladder,
- * with `read-chat` marked as the act gate. `compilePuzzleGraph` turns it into the
+ * ('intro -> read-letter -> read-chat -> unlock-windows'), each with a hint ladder,
+ * with 'read-chat' marked as the act gate. 'compilePuzzleGraph' turns it into the
  * Layer-1 scenario the runtime executes; the headless solver proves the
- * walkthrough completes (see `test/prologueGraph.test.ts` — "CI for stories").
+ * walkthrough completes (see 'test/prologueGraph.test.ts' - "CI for stories").
  *
  * It also demonstrates #207 "one graph, two skins": every player-visible string
- * — beat dialogue, hint ladders, and the in-world documents the grants drop on
- * the desktop — lives in per-locale `strings` tables, referenced by key
- * (`titleKey`/`bodyKey`/`textKey`/`contentKey`). Nothing player-facing is inline,
+ * - beat dialogue, hint ladders, and the in-world documents the grants drop on
+ * the desktop - lives in per-locale 'strings' tables, referenced by key
+ * ('titleKey'/'bodyKey'/'textKey'/'contentKey'). Nothing player-facing is inline,
  * so the same graph plays end-to-end in Chinese or English purely by swapping the
  * active locale. (File *names* are still structural graph identifiers.)
  */

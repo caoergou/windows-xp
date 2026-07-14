@@ -386,9 +386,9 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
   );
 
   const statusText = useMemo(() => {
-    if (isPlaying) return t('baofengPlayer.status.playing', '正在播放');
-    if (currentTime > 0) return t('baofengPlayer.status.paused', '已暂停');
-    return t('baofengPlayer.status.ready', '就绪');
+    if (isPlaying) return t('baofengPlayer.status.playing', 'Playing');
+    if (currentTime > 0) return t('baofengPlayer.status.paused', 'Paused');
+    return t('baofengPlayer.status.ready', 'Ready');
   }, [isPlaying, currentTime, t]);
 
   return (
@@ -398,8 +398,8 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
           <LogoIcon />
         </LogoBox>
         <HeaderText>
-          <div className="title">{t('baofengPlayer.title', '暴风影音')}</div>
-          <div className="version">{t('baofengPlayer.version', '3.6 智能版')}</div>
+          <div className="title">{t('baofengPlayer.title', 'Baofeng Player')}</div>
+          <div className="version">{t('baofengPlayer.version', '3.6 Smart Edition')}</div>
         </HeaderText>
       </Header>
 
@@ -409,20 +409,20 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
             {currentTime > 0 || isPlaying ? (
               <>
                 <VideoOverlay>
-                  {t('baofengPlayer.playing', '正在播放')}: {currentTrack.name}
+                  {t('baofengPlayer.playing', 'Now playing')}: {currentTrack.name}
                 </VideoOverlay>
                 <SplashLogo>
                   <LogoIcon />
                 </SplashLogo>
-                <SplashText>{t('baofengPlayer.brand', '暴风影音')}</SplashText>
+                <SplashText>{t('baofengPlayer.brand', 'Baofeng Player')}</SplashText>
               </>
             ) : (
               <>
                 <SplashLogo>
                   <LogoIcon />
                 </SplashLogo>
-                <SplashText>{t('baofengPlayer.brand', '暴风影音')}</SplashText>
-                <OpenFileHint>{t('baofengPlayer.openFileHint', '点击打开文件')}</OpenFileHint>
+                <SplashText>{t('baofengPlayer.brand', 'Baofeng Player')}</SplashText>
+                <OpenFileHint>{t('baofengPlayer.openFileHint', 'Click to open file')}</OpenFileHint>
               </>
             )}
           </Screen>
@@ -430,11 +430,13 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
           <ControlsBar>
             <ControlBtn
               onClick={togglePlay}
-              title={isPlaying ? t('baofengPlayer.pause', '暂停') : t('baofengPlayer.play', '播放')}
+              title={
+                isPlaying ? t('baofengPlayer.pause', 'Pause') : t('baofengPlayer.play', 'Play')
+              }
             >
               <XPIcon name={isPlaying ? 'media_pause' : 'media_play'} size={16} />
             </ControlBtn>
-            <ControlBtn onClick={stop} title={t('baofengPlayer.stop', '停止')}>
+            <ControlBtn onClick={stop} title={t('baofengPlayer.stop', 'Stop')}>
               <XPIcon name="media_stop" size={16} />
             </ControlBtn>
 
@@ -459,7 +461,7 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
               />
             </VolumeArea>
 
-            <ControlBtn title={t('baofengPlayer.fullscreen', '全屏')}>
+            <ControlBtn title={t('baofengPlayer.fullscreen', 'Full Screen')}>
               <svg
                 width="14"
                 height="14"
@@ -479,7 +481,7 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
         </VideoArea>
 
         <Playlist>
-          <PlaylistTitle>{t('baofengPlayer.playlist', '播放列表')}</PlaylistTitle>
+          <PlaylistTitle>{t('baofengPlayer.playlist', 'Playlist')}</PlaylistTitle>
           <PlaylistBody>
             {defaultPlaylist.map((item, index) => (
               <PlaylistItem
@@ -498,7 +500,7 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
       <StatusBar>
         <span>{statusText}</span>
         <span>
-          {t('baofengPlayer.volumeLabel', '音量')}: {volume}%
+          {t('baofengPlayer.volumeLabel', 'Volume')}: {volume}%
         </span>
       </StatusBar>
     </Wrap>

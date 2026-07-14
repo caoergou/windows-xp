@@ -10,7 +10,7 @@
  * exists).
  */
 
-/** locale → key → text. e.g. `{ zh: { 'hint.door': '看便签' }, en: { 'hint.door': 'Check the note' } }`. */
+/** locale -> key -> text. e.g. '{ zh: { 'hint.door': '看便签' }, en: { 'hint.door': 'Check the note' } }'. */
 export type ScenarioStrings = Partial<Record<string, Record<string, string>>>;
 
 /**
