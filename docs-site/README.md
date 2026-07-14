@@ -1,6 +1,6 @@
 # docs-site
 
-The VitePress documentation site for `@caoergou/windows-xp` (#214), deployed to
+The VitePress documentation site for `@caoergou/windows-xp`, deployed to
 GitHub Pages alongside the landing page at **`/windows-xp/docs/`**.
 
 It's a **self-contained workspace** — its own `package.json` and lockfile — so

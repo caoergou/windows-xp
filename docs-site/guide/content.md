@@ -4,7 +4,7 @@ title: Make the desktop yours
 
 # Content: make the desktop yours
 
-### Custom file system
+## Custom file system
 
 Top-level keys merge directly into the desktop root — a top-level key IS a
 desktop item:
@@ -33,7 +33,8 @@ const myFileSystem = {
 **Node shape** — `type` (`'file' | 'folder' | 'app_shortcut'`), `name`,
 optional `icon` (an `XPIcon` id), `app` (which registered app opens it),
 `content` (for files), `children` (for folders), and the puzzle attributes
-`locked`, `password`, `broken`.
+`locked`, `password`, `broken`. These attributes turn ordinary files and folders
+into puzzle gates; see [docs/PUZZLE-DESIGN.md](https://github.com/caoergou/windows-xp/blob/main/docs/PUZZLE-DESIGN.md) for the full interaction model.
 
 **File-type → app associations:** `Notepad` (text), `PhotoViewer` (images),
 `InternetExplorer` (html/url), `WindowsMediaPlayer` (audio/video).
@@ -44,7 +45,7 @@ an empty My Computer) and drops built-in shortcuts, preset content, and
 culture shortcuts — your `customFileSystem` becomes the whole world. That's
 the mode for portfolios, campaigns, and custom games.
 
-### Wallpapers & avatar
+## Wallpapers & avatar
 
 ```jsx
 <WindowsXP
@@ -58,11 +59,11 @@ Custom wallpapers appear in Display Settings alongside the built-ins.
 A culture package can also declare its default via `CulturePackage.wallpaper`
 (the `defaultWallpaper` prop wins).
 
-### Culture packages
+## Culture packages
 
 A culture package defines a complete regional/era experience: desktop
 shortcuts, Start menu, browser homepage, sticky note, and i18n resources.
-Built-ins: `zh` (2005–2007 Chinese internet) and `en` (Western 2000s).
+Built-ins: `zh` (2000s Chinese internet) and `en` (English-language 2000s).
 
 Author one with `defineCulture()`. It's an identity wrapper that gives you
 the `CulturePackage` type and, in dev builds, warns (naming the offending
@@ -110,8 +111,8 @@ Notes for third-language packages:
 - `app` values must be **registered app ids** — a built-in, or one you pass via
   the `apps` prop. In dev, an unregistered id logs a warning at mount.
 
-**Wiring a culture app end-to-end** (learned building the `en` Western-2000s
-pack in #123 — Winamp / Norton AntiVirus / uTorrent / iTunes / Microsoft Office):
+**Wiring a culture app end-to-end** (learned building the `en` English-language 2000s
+pack — Winamp / Norton AntiVirus / uTorrent / iTunes / Microsoft Office):
 
 1. **Build the component** under `src/apps/` (a rich flagship like Winamp can
    reuse the bundled sample clip for real audio; the rest can be themed shallow
@@ -126,7 +127,7 @@ pack in #123 — Winamp / Norton AntiVirus / uTorrent / iTunes / Microsoft Offic
 5. **Assets must be original / parody artwork** — no ripped third-party logos
    (DEVELOPMENT.md §6). The `en` app icons are hand-drawn SVGs.
 
-### Write your first app
+## Write your first app
 
 `defineApp()` turns a component into a registrable app in one typed call —
 here's a complete, refresh-restorable hello-world in under 10 lines:
@@ -175,7 +176,7 @@ Rules that matter:
   merged registry that includes your `apps`. `associations` + `getProps` let a
   filesystem node's `.app` field open an app, but that path currently resolves
   **built-in** apps only; opening a custom app straight from a desktop/Explorer
-  shortcut is being generalized (tracked with the `appRoles` work in #122).
+  shortcut is being generalized (tracked with the `appRoles` work).
 - Add `nameKey` for a translated display name; `name` is the fallback.
 - Runtime callbacks belong on the event bus (`onEvent`) or `lifecycle`, never in
   props. Reach window/session state from inside the component via `useApp()`.
@@ -183,7 +184,7 @@ Rules that matter:
   `@caoergou/windows-xp/registry` for the same `unknown → props` cast the
   built-ins use.
 
-### Build a blog on the desktop
+## Build a blog on the desktop
 
 The desktop makes a natural portfolio/blog shell — posts as `.md` files opened
 in the Markdown Viewer, permalinks, and an RSS feed + sitemap for SEO. It has

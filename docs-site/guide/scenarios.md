@@ -2,10 +2,10 @@
 title: Scenario system
 ---
 
-# 剧情系统 / Scenario system (#84)
+# Scenario system
 
 Turn the desktop into a playable story with **no React** — author a JSON
-rulebook of `{ on, when?, do }` triggers that listen to the events above, read
+rulebook of `{ on, when?, do }` triggers that listen to the [events above](/guide/events), read
 world state (flags, filesystem, event history), and drive shipped primitives
 (unlock a folder, pop a balloon, send a QQ message, write a file). Pass it via
 the `scenario` prop:
@@ -39,9 +39,9 @@ delayed `after` actions) persists per instance and resets when `scenario.id`
 changes; flags feed the snapshot `flags` slot. Full schema reference — every
 condition and action, `once`/`max` semantics, `happened`/`count` predicates,
 delayed actions, and a worked example — lives in
-[`docs/SCENARIOS.md`](./docs/SCENARIOS.md).
+[`docs/SCENARIOS.md`](https://github.com/caoergou/windows-xp/blob/main/docs/SCENARIOS.md).
 
-### Scenario DevTools (#209)
+## Scenario DevTools
 
 `onEvent={console.log}` already shows you *what* happened — so this panel doesn't
 duplicate an event stream. It surfaces the two things that live *inside* the
