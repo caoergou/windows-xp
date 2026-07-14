@@ -8,12 +8,7 @@ import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
 import { isContainerNode, isExternalLinkNode } from '../types';
 import { canUseDOM } from '../utils/storage';
 import { openExternalUrl } from '../utils/externalLink';
-import {
-  parseOpenPath,
-  resolveRoutes,
-  toOpenList,
-  type DeepLinkRoutes,
-} from '../utils/deepLink';
+import { parseOpenPath, resolveRoutes, toOpenList, type DeepLinkRoutes } from '../utils/deepLink';
 
 export interface DeepLinkLoaderProps {
   /** Key path(s) (`?open=` values) to open once the desktop is interactive (#136). */
@@ -88,8 +83,7 @@ export const DeepLinkLoader: React.FC<DeepLinkLoaderProps> = ({
   useEffect(() => {
     if (appliedRef.current || !isLoggedIn) return;
     appliedRef.current = true;
-    const routeTargets =
-      routes && location ? resolveRoutes(routes, location.split('?')[0]) : [];
+    const routeTargets = routes && location ? resolveRoutes(routes, location.split('?')[0]) : [];
     const targets = [...toOpenList(open), ...routeTargets];
     let lastId: string | null = null;
     for (const target of targets) {

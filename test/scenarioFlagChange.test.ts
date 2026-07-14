@@ -41,7 +41,11 @@ describe('flag:change (solver)', () => {
       id: 'fc-inc',
       triggers: [
         { on: 'cmd:exec', do: [{ incFlag: 'n' }] },
-        { on: 'flag:change', when: { event: { flag: 'n', value: 1 } }, do: [{ setFlag: 'sawOne' }] },
+        {
+          on: 'flag:change',
+          when: { event: { flag: 'n', value: 1 } },
+          do: [{ setFlag: 'sawOne' }],
+        },
       ],
     };
     const r = solveScenario(s, [exec]);
@@ -50,7 +54,7 @@ describe('flag:change (solver)', () => {
 });
 
 describe('same-event trigger order (declaration order)', () => {
-  it('triggers fire in array order — a later trigger sees an earlier one\'s flag', () => {
+  it("triggers fire in array order — a later trigger sees an earlier one's flag", () => {
     const inOrder: Scenario = {
       id: 'order',
       triggers: [

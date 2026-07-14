@@ -66,7 +66,12 @@ export const prologueScenario: Scenario = {
       do: [
         { setFlag: 'readChat' },
         { setFlag: 'step', value: 2 },
-        { qqMessage: { buddyId: 'crystal', text: '还记得网吧那晚吗？你把所有东西都设成了同一个密码……' } },
+        {
+          qqMessage: {
+            buddyId: 'crystal',
+            text: '还记得网吧那晚吗？你把所有东西都设成了同一个密码……',
+          },
+        },
         {
           notify: {
             title: '水晶女孩',

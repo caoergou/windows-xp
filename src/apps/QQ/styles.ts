@@ -55,7 +55,9 @@ export const PanelRoot = styled.div`
     left: 0;
   }
   ${BTN_RESET}
-  .qq-btn { ${QQ_BTN} }
+  .qq-btn {
+    ${QQ_BTN}
+  }
 
   /* 个人信息横幅 44px */
   .qq-head {
@@ -65,299 +67,827 @@ export const PanelRoot = styled.div`
     overflow: hidden;
     flex-shrink: 0;
   }
-  .qq-head-left { background-image: ${qqUrl('BackgroundTitleLeft2.png')}; width: 64px; }
-  .qq-head-center { background-image: ${qqUrl('BackgroundTitleCenter2.png')}; flex: 1; }
-  .qq-head-right { background-image: ${qqUrl('BackgroundTitleRight2.png')}; width: 14px; }
+  .qq-head-left {
+    background-image: ${qqUrl('BackgroundTitleLeft2.png')};
+    width: 64px;
+  }
+  .qq-head-center {
+    background-image: ${qqUrl('BackgroundTitleCenter2.png')};
+    flex: 1;
+  }
+  .qq-head-right {
+    background-image: ${qqUrl('BackgroundTitleRight2.png')};
+    width: 14px;
+  }
 
   .qq-status-pic {
-    position: absolute; width: 32px; height: 32px; left: 8px; top: 6px;
-    cursor: pointer; background-size: cover; border: 0;
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    left: 8px;
+    top: 6px;
+    cursor: pointer;
+    background-size: cover;
+    border: 0;
   }
   .qq-status-btn {
-    position: absolute; width: 11px; height: 36px; left: 41px; top: 4px;
+    position: absolute;
+    width: 11px;
+    height: 36px;
+    left: 41px;
+    top: 4px;
     background-image: ${qqUrl('StatusButton_Normal.png')};
-    &:hover { background-image: ${qqUrl('StatusButton_Hover.png')}; }
-    &:active { background-image: ${qqUrl('StatusButton_Down.png')}; }
+    &:hover {
+      background-image: ${qqUrl('StatusButton_Hover.png')};
+    }
+    &:active {
+      background-image: ${qqUrl('StatusButton_Down.png')};
+    }
   }
   .qq-num {
-    position: absolute; left: 54px; top: 9px; width: 109px; height: 13px;
-    font-family: "MS Sans Serif", SimSun; font-size: 8pt; font-weight: 700; color: #071E81;
-    white-space: nowrap; overflow: hidden;
+    position: absolute;
+    left: 54px;
+    top: 9px;
+    width: 109px;
+    height: 13px;
+    font-family: 'MS Sans Serif', SimSun;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #071e81;
+    white-space: nowrap;
+    overflow: hidden;
   }
   .qq-head-btns {
-    position: absolute; left: 54px; top: 24px; display: flex; gap: 6px;
+    position: absolute;
+    left: 54px;
+    top: 24px;
+    display: flex;
+    gap: 6px;
   }
-  .qq-head-btns button { height: 16px; display: flex; align-items: center; }
-  .qq-head-btns button > img { vertical-align: middle; }
+  .qq-head-btns button {
+    height: 16px;
+    display: flex;
+    align-items: center;
+  }
+  .qq-head-btns button > img {
+    vertical-align: middle;
+  }
   .qq-head-btns button > label {
-    color: #071E81; font-family: "MS Sans Serif", SimSun; font-size: 8pt; font-weight: 400;
-    cursor: pointer; height: 16px; padding-left: 2px;
+    color: #071e81;
+    font-family: 'MS Sans Serif', SimSun;
+    font-size: 8pt;
+    font-weight: 400;
+    cursor: pointer;
+    height: 16px;
+    padding-left: 2px;
   }
 
   /* 主体区 */
-  .qq-body { flex: 1; position: relative; min-height: 0; }
-  .qq-body-left { background-image: ${qqUrl('BackgroundL.png')}; width: 11px; }
-  .qq-body-center { background-image: ${qqUrl('BackgroundC.png')}; flex: 1; }
-  .qq-body-right { background-image: ${qqUrl('BackgroundR.png')}; width: 8px; }
+  .qq-body {
+    flex: 1;
+    position: relative;
+    min-height: 0;
+  }
+  .qq-body-left {
+    background-image: ${qqUrl('BackgroundL.png')};
+    width: 11px;
+  }
+  .qq-body-center {
+    background-image: ${qqUrl('BackgroundC.png')};
+    flex: 1;
+  }
+  .qq-body-right {
+    background-image: ${qqUrl('BackgroundR.png')};
+    width: 8px;
+  }
 
   .qq-panel-bar {
-    position: absolute; left: 3px; top: 4px; width: 29px; height: 100%;
-    display: flex; flex-direction: column;
+    position: absolute;
+    left: 3px;
+    top: 4px;
+    width: 29px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
   .qq-panel-bar button {
     background: ${qqUrl('panel-bar/barback2_normal.png')};
-    height: 37px; width: 27px; margin-top: -4px; border: 0;
-    &:hover { background: ${qqUrl('panel-bar/barback2_over.png')}; }
+    height: 37px;
+    width: 27px;
+    margin-top: -4px;
+    border: 0;
+    &:hover {
+      background: ${qqUrl('panel-bar/barback2_over.png')};
+    }
   }
-  .qq-panel-bar button > img { vertical-align: super; width: 22px; height: 22px; }
-  .qq-panel-bar button.active { background: ${qqUrl('panel-bar/barback_disabled.png')}; z-index: 1; }
+  .qq-panel-bar button > img {
+    vertical-align: super;
+    width: 22px;
+    height: 22px;
+  }
+  .qq-panel-bar button.active {
+    background: ${qqUrl('panel-bar/barback_disabled.png')};
+    z-index: 1;
+  }
 
   /* 好友列表盒 */
   .qq-friend-box {
-    position: absolute; left: 29px; right: 4px; top: 0; height: 100%;
-    background: #fff; border: 1px solid #2367c3; border-radius: 2px;
-    overflow: hidden; padding: 1px; display: flex; gap: 1px; flex-direction: column;
+    position: absolute;
+    left: 29px;
+    right: 4px;
+    top: 0;
+    height: 100%;
+    background: #fff;
+    border: 1px solid #2367c3;
+    border-radius: 2px;
+    overflow: hidden;
+    padding: 1px;
+    display: flex;
+    gap: 1px;
+    flex-direction: column;
   }
   .qq-friend-box > button {
-    text-align: center; font-size: 12px; width: 100%; color: #183c94; padding: 1px 0;
+    text-align: center;
+    font-size: 12px;
+    width: 100%;
+    color: #183c94;
+    padding: 1px 0;
     ${QQ_BTN}
   }
-  .qq-friend-list { flex: 1; overflow-y: auto; min-height: 0; }
+  .qq-friend-list {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
 
   .qq-friend-group {
     background-image: ${qqUrl('group_close.png')};
-    background-repeat: no-repeat; background-position: 2px 4px;
-    padding: 5px 0 5px 20px; color: #101c4a; cursor: pointer;
-    overflow: hidden; white-space: nowrap;
+    background-repeat: no-repeat;
+    background-position: 2px 4px;
+    padding: 5px 0 5px 20px;
+    color: #101c4a;
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
   }
-  .qq-friend-group.on { background-image: ${qqUrl('group_open.png')}; }
+  .qq-friend-group.on {
+    background-image: ${qqUrl('group_open.png')};
+  }
 
   /* 统一的好友条目：头像 40px 与右侧信息块垂直居中；名字/签名各占一行、
      行高一致、超出省略号，避免因签名有无 / 角标多少造成条目高低不齐。 */
-  .qq-friend-item { display: flex; align-items: center; padding: 3px 4px 3px 4px; cursor: pointer; }
-  .qq-friend-item:hover { background: #eaf2ff; }
-  .qq-friend-item.selected { background: #316AC5; }
+  .qq-friend-item {
+    display: flex;
+    align-items: center;
+    padding: 3px 4px 3px 4px;
+    cursor: pointer;
+  }
+  .qq-friend-item:hover {
+    background: #eaf2ff;
+  }
+  .qq-friend-item.selected {
+    background: #316ac5;
+  }
   .qq-friend-item.selected .qq-friend-name,
-  .qq-friend-item.selected .qq-friend-motto { color: #fff; }
-  .qq-friend-avatar { width: 40px; height: 40px; flex-shrink: 0; }
-  .qq-friend-item.has-unread .qq-friend-avatar { animation: ${avatarBlink} 0.6s steps(1, end) infinite; }
-  .qq-friend-info { flex: 1; min-width: 0; padding: 0 2px 0 6px; line-height: 1.3; }
-  .qq-friend-info p { margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-  .qq-friend-name { color: #000400; }
-  .qq-friend-motto { color: #808080; }
-  .qq-friend-item.qq-vip .qq-friend-name { color: #f00; }
-  .qq-friend-item.qq-vip .qq-friend-motto { color: #ff7d7b; }
-  .qq-friend-item.qq-offline { filter: grayscale(100%); }
+  .qq-friend-item.selected .qq-friend-motto {
+    color: #fff;
+  }
+  .qq-friend-avatar {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+  .qq-friend-item.has-unread .qq-friend-avatar {
+    animation: ${avatarBlink} 0.6s steps(1, end) infinite;
+  }
+  .qq-friend-info {
+    flex: 1;
+    min-width: 0;
+    padding: 0 2px 0 6px;
+    line-height: 1.3;
+  }
+  .qq-friend-info p {
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .qq-friend-name {
+    color: #000400;
+  }
+  .qq-friend-motto {
+    color: #808080;
+  }
+  .qq-friend-item.qq-vip .qq-friend-name {
+    color: #f00;
+  }
+  .qq-friend-item.qq-vip .qq-friend-motto {
+    color: #ff7d7b;
+  }
+  .qq-friend-item.qq-offline {
+    filter: grayscale(100%);
+  }
   .qq-friend-item.qq-offline .qq-friend-name,
-  .qq-friend-item.qq-offline .qq-friend-motto { color: #a8a8a8; }
+  .qq-friend-item.qq-offline .qq-friend-motto {
+    color: #a8a8a8;
+  }
 
-  .qq-friend-icons { display: flex; gap: 3px; margin-top: 1px; }
-  .qq-friend-icons div { width: 15px; height: 15px; background-size: contain; background-repeat: no-repeat; }
-  .qq-icon-music { background-image: ${qqUrl('mms-bar/MMSBar_MediaRing.png')}; }
-  .qq-icon-ring { background-image: ${qqUrl('mms-bar/MMSBar_PhoneRing.png')}; }
-  .qq-icon-mobile { background-image: ${qqUrl('mms-bar/MMSBar_MobileQQ.png')}; }
+  .qq-friend-icons {
+    display: flex;
+    gap: 3px;
+    margin-top: 1px;
+  }
+  .qq-friend-icons div {
+    width: 15px;
+    height: 15px;
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+  .qq-icon-music {
+    background-image: ${qqUrl('mms-bar/MMSBar_MediaRing.png')};
+  }
+  .qq-icon-ring {
+    background-image: ${qqUrl('mms-bar/MMSBar_PhoneRing.png')};
+  }
+  .qq-icon-mobile {
+    background-image: ${qqUrl('mms-bar/MMSBar_MobileQQ.png')};
+  }
 
   /* 底部工具栏 62px */
-  .qq-toolbar { height: 62px; position: relative; flex-shrink: 0; }
-  .qq-toolbar-left { background-image: ${qqUrl('ToolBarBackgroundL.png')}; width: 15px; }
-  .qq-toolbar-center { background-image: ${qqUrl('ToolBarBackgroundC.png')}; flex: 1; }
-  .qq-toolbar-right { background-image: ${qqUrl('ToolBarBackgroundR.png')}; width: 15px; }
+  .qq-toolbar {
+    height: 62px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .qq-toolbar-left {
+    background-image: ${qqUrl('ToolBarBackgroundL.png')};
+    width: 15px;
+  }
+  .qq-toolbar-center {
+    background-image: ${qqUrl('ToolBarBackgroundC.png')};
+    flex: 1;
+  }
+  .qq-toolbar-right {
+    background-image: ${qqUrl('ToolBarBackgroundR.png')};
+    width: 15px;
+  }
   .qq-toolbar-btns {
-    position: absolute; display: flex; overflow: hidden; gap: 8px; height: auto;
-    left: 10px; right: 10px; top: 12px;
+    position: absolute;
+    display: flex;
+    overflow: hidden;
+    gap: 8px;
+    height: auto;
+    left: 10px;
+    right: 10px;
+    top: 12px;
   }
-  .qq-toolbar-btns > button { width: 16px; height: 16px; background-size: cover; flex-shrink: 0; border: 0; }
+  .qq-toolbar-btns > button {
+    width: 16px;
+    height: 16px;
+    background-size: cover;
+    flex-shrink: 0;
+    border: 0;
+  }
   .qq-menu-button {
-    position: absolute; left: 0; top: 32px; width: 65px; height: 24px; display: block;
-    background-image: ${qqUrl('MenuButton_Normal.png')}; background-size: cover; cursor: pointer; border: 0;
-    &:hover { background-image: ${qqUrl('MenuButton_Hover.png')}; }
-    &:active { background-image: ${qqUrl('MenuButton_Down.png')}; }
+    position: absolute;
+    left: 0;
+    top: 32px;
+    width: 65px;
+    height: 24px;
+    display: block;
+    background-image: ${qqUrl('MenuButton_Normal.png')};
+    background-size: cover;
+    cursor: pointer;
+    border: 0;
+    &:hover {
+      background-image: ${qqUrl('MenuButton_Hover.png')};
+    }
+    &:active {
+      background-image: ${qqUrl('MenuButton_Down.png')};
+    }
   }
-  .qq-toolbar-2 { top: 37px; left: 74px; }
+  .qq-toolbar-2 {
+    top: 37px;
+    left: 74px;
+  }
   .qq-search-button {
-    width: 47px; height: 20px; background-image: ${qqUrl('SearchButton.png')};
-    background-size: auto 100%; background-repeat: no-repeat; padding-left: 18px;
-    color: #fff; font-family: 'MS Sans Serif', SimSun; font-weight: 400; font-size: 8pt; border: 0; cursor: pointer;
-    &:hover { color: #000; }
+    width: 47px;
+    height: 20px;
+    background-image: ${qqUrl('SearchButton.png')};
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+    padding-left: 18px;
+    color: #fff;
+    font-family: 'MS Sans Serif', SimSun;
+    font-weight: 400;
+    font-size: 8pt;
+    border: 0;
+    cursor: pointer;
+    &:hover {
+      color: #000;
+    }
   }
-  .qq-msgmgr-button { width: 19px; height: 16px; background-repeat: no-repeat; border: 0; background-color: transparent; cursor: pointer; }
+  .qq-msgmgr-button {
+    width: 19px;
+    height: 16px;
+    background-repeat: no-repeat;
+    border: 0;
+    background-color: transparent;
+    cursor: pointer;
+  }
 `;
 
 // ─── 登录窗口 ────────────────────────────────────────────────────────────────
 export const LoginRoot = styled.div`
-  width: 100%; height: 100%;
-  background-color: #ECF6FF;
-  font-family: SimSun, serif; font-size: 12px; user-select: none;
-  display: flex; flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: #ecf6ff;
+  font-family: SimSun, serif;
+  font-size: 12px;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
 
   ${BTN_RESET}
-  .qq-btn { ${QQ_BTN} }
+  .qq-btn {
+    ${QQ_BTN}
+  }
   .qq-login-banner {
-    text-align: center; height: 47px; flex-shrink: 0;
+    text-align: center;
+    height: 47px;
+    flex-shrink: 0;
     background-image: ${qqUrl('login_banner.png')};
-    background-size: 100%; background-position: top; background-repeat: no-repeat;
+    background-size: 100%;
+    background-position: top;
+    background-repeat: no-repeat;
   }
   .qq-login-form {
-    background: linear-gradient(to bottom, #E4F3FF, #F0F8FF, #F0F8FF, #F0F8FF, #E4F3FF);
-    border: 1px solid #2F74C5; padding: 18px; margin: 6px;
+    background: linear-gradient(to bottom, #e4f3ff, #f0f8ff, #f0f8ff, #f0f8ff, #e4f3ff);
+    border: 1px solid #2f74c5;
+    padding: 18px;
+    margin: 6px;
   }
-  .qq-login-form-row { margin-bottom: 18px; display: flex; align-items: center; position: relative; }
-  .qq-login-form-row label { width: 55px; text-align: left; margin-right: 7px; flex-shrink: 0; }
-  .qq-login-form-row input[type="text"],
-  .qq-login-form-row input[type="password"] {
-    width: 150px; height: 18px; border: 1px solid #7F9DB9; padding: 0 2px; font-size: 12px; font-family: SimSun, serif; flex-shrink: 0;
+  .qq-login-form-row {
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    position: relative;
   }
-  .qq-login-form-row .qq-btn { flex-shrink: 0; white-space: nowrap; }
-  .qq-login-method { position: absolute; left: 46px; top: 4px; }
+  .qq-login-form-row label {
+    width: 55px;
+    text-align: left;
+    margin-right: 7px;
+    flex-shrink: 0;
+  }
+  .qq-login-form-row input[type='text'],
+  .qq-login-form-row input[type='password'] {
+    width: 150px;
+    height: 18px;
+    border: 1px solid #7f9db9;
+    padding: 0 2px;
+    font-size: 12px;
+    font-family: SimSun, serif;
+    flex-shrink: 0;
+  }
+  .qq-login-form-row .qq-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .qq-login-method {
+    position: absolute;
+    left: 46px;
+    top: 4px;
+  }
   /* 号码组合框：输入框 + 内嵌下拉钮，下拉钮紧贴输入框右内缘（无间隙）。 */
-  .qq-login-num-wrap { position: relative; width: 150px; height: 20px; flex-shrink: 0; }
+  .qq-login-num-wrap {
+    position: relative;
+    width: 150px;
+    height: 20px;
+    flex-shrink: 0;
+  }
   .qq-login-num-wrap input {
-    width: 100%; height: 20px; border: 1px solid #7F9DB9; padding: 0 20px 0 2px;
-    font-size: 12px; font-family: SimSun, serif;
+    width: 100%;
+    height: 20px;
+    border: 1px solid #7f9db9;
+    padding: 0 20px 0 2px;
+    font-size: 12px;
+    font-family: SimSun, serif;
   }
   .qq-login-num-select {
-    position: absolute; right: 1px; top: 1px; bottom: 1px; width: 17px;
-    background: ${qqUrl('dropdown.png')} no-repeat center; border: 0; cursor: pointer;
-    &:hover { background-image: ${qqUrl('dropdown_hover.png')}; }
-    &:active { background-image: ${qqUrl('dropdown_active.png')}; }
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    bottom: 1px;
+    width: 17px;
+    background: ${qqUrl('dropdown.png')} no-repeat center;
+    border: 0;
+    cursor: pointer;
+    &:hover {
+      background-image: ${qqUrl('dropdown_hover.png')};
+    }
+    &:active {
+      background-image: ${qqUrl('dropdown_active.png')};
+    }
   }
-  .qq-login-reg { width: 62px; height: 20px; margin: 0 0 0 8px; }
+  .qq-login-reg {
+    width: 62px;
+    height: 20px;
+    margin: 0 0 0 8px;
+  }
   .qq-login-forget {
-    margin: 0 0 0 10px; color: #0033cc; text-decoration: none; white-space: nowrap; cursor: pointer;
-    &:hover { text-decoration: underline; }
+    margin: 0 0 0 10px;
+    color: #0033cc;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
   }
-  .qq-login-check { margin-bottom: 0; }
-  .qq-login-check label { width: auto; text-align: left; margin: 0 12px 0 4px; }
-  .qq-login-buttons { display: flex; padding: 8px 8px 10px; align-items: center; }
-  .qq-login-buttons button { height: 22px; width: 75px; margin: 0 5px; }
-  .qq-login-buttons span { flex: 1; }
+  .qq-login-check {
+    margin-bottom: 0;
+  }
+  .qq-login-check label {
+    width: auto;
+    text-align: left;
+    margin: 0 12px 0 4px;
+  }
+  .qq-login-buttons {
+    display: flex;
+    padding: 8px 8px 10px;
+    align-items: center;
+  }
+  .qq-login-buttons button {
+    height: 22px;
+    width: 75px;
+    margin: 0 5px;
+  }
+  .qq-login-buttons span {
+    flex: 1;
+  }
 `;
 
 // ─── 登录中（窄条窗，与主面板同形） ─────────────────────────────────────────
 export const LoadingRoot = styled.div`
-  width: 100%; height: 100%;
-  display: flex; flex-direction: column;
-  font-family: SimSun, serif; font-size: 12px; user-select: none;
-  position: relative; overflow: hidden;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: SimSun, serif;
+  font-size: 12px;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
 
   ${BTN_RESET}
-  .qq-flex-bg { position: absolute; width: 100%; height: 100%; display: flex; top: 0; left: 0; }
-  .qq-logging-body { flex: 1; }
-  .qq-body-left { background-image: ${qqUrl('logging/BITMAP1736_1.png')}; width: 15px; }
-  .qq-body-center { background-image: ${qqUrl('logging/BITMAP1737_1.png')}; flex: 1; }
-  .qq-body-right { background-image: ${qqUrl('logging/BITMAP1738_1.png')}; width: 15px; }
-  .qq-logging-main {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    position: absolute; left: 0; right: 0; top: 24px; bottom: 24px; z-index: 1;
+  .qq-flex-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    top: 0;
+    left: 0;
   }
-  .qq-logging-main p { margin: 2px 0 12px; }
+  .qq-logging-body {
+    flex: 1;
+  }
+  .qq-body-left {
+    background-image: ${qqUrl('logging/BITMAP1736_1.png')};
+    width: 15px;
+  }
+  .qq-body-center {
+    background-image: ${qqUrl('logging/BITMAP1737_1.png')};
+    flex: 1;
+  }
+  .qq-body-right {
+    background-image: ${qqUrl('logging/BITMAP1738_1.png')};
+    width: 15px;
+  }
+  .qq-logging-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 24px;
+    bottom: 24px;
+    z-index: 1;
+  }
+  .qq-logging-main p {
+    margin: 2px 0 12px;
+  }
   .qq-logging-cancel {
-    width: 90px; height: 26px; border: none; outline: none; cursor: pointer;
+    width: 90px;
+    height: 26px;
+    border: none;
+    outline: none;
+    cursor: pointer;
     background-image: ${qqUrl('logging/BITMAP1742_1.png')};
-    &:hover { background-image: ${qqUrl('logging/BITMAP1744_1.png')}; }
-    &:active { background-image: ${qqUrl('logging/BITMAP1743_1.png')}; }
+    &:hover {
+      background-image: ${qqUrl('logging/BITMAP1744_1.png')};
+    }
+    &:active {
+      background-image: ${qqUrl('logging/BITMAP1743_1.png')};
+    }
   }
 `;
 
 // ─── 聊天窗口 ────────────────────────────────────────────────────────────────
 export const ChatRoot = styled.div`
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
   background: #5db7ff;
-  font-family: SimSun, serif; font-size: 12px; user-select: none;
-  display: flex; flex-direction: column;
+  font-family: SimSun, serif;
+  font-size: 12px;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 
   ${BTN_RESET}
-  .qq-btn { ${QQ_BTN} }
+  .qq-btn {
+    ${QQ_BTN}
+  }
 
   /* 大工具条 36px */
   .qq-im-big-toolbar {
-    margin: 4px 4px 0; padding-left: 6px; height: 36px; flex-shrink: 0;
+    margin: 4px 4px 0;
+    padding-left: 6px;
+    height: 36px;
+    flex-shrink: 0;
     background-image: ${qqUrl('im/IMBigToolBarBackground.png')};
-    background-repeat: repeat-x; display: flex; align-items: center;
+    background-repeat: repeat-x;
+    display: flex;
+    align-items: center;
   }
   .qq-im-big-toolbar button {
-    color: rgb(7,30,129); font-weight: bold; background-repeat: no-repeat;
-    background-position: 2px center; padding: 0 8px 0 28px; height: 28px;
-    border: 1px solid transparent; background-color: transparent; cursor: pointer;
-    &:hover { border-color: rgb(70,136,201); background-color: rgb(130,199,255); }
-    &:active { border-color: rgb(40,99,157); background-color: rgb(83,168,245); }
+    color: rgb(7, 30, 129);
+    font-weight: bold;
+    background-repeat: no-repeat;
+    background-position: 2px center;
+    padding: 0 8px 0 28px;
+    height: 28px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    cursor: pointer;
+    &:hover {
+      border-color: rgb(70, 136, 201);
+      background-color: rgb(130, 199, 255);
+    }
+    &:active {
+      border-color: rgb(40, 99, 157);
+      background-color: rgb(83, 168, 245);
+    }
   }
-  .im-big-msg { background-image: ${qqUrl('im/IMBigToolbarMQQ.png')}; }
-  .im-big-video { background-image: ${qqUrl('im/IMBigToolbarVideo.png')}; }
-  .im-big-audio { background-image: ${qqUrl('im/IMBigToolbarQQSQQ.png')}; }
-  .im-big-file { background-image: ${qqUrl('im/IMBigToolbarSendFile.png')}; }
-  .im-big-3d { background-image: ${qqUrl('im/IMBigToolbar3DShow.png')}; }
-  .im-big-invite { background-image: ${qqUrl('im/IMBigToolbarInvite.png')}; }
+  .im-big-msg {
+    background-image: ${qqUrl('im/IMBigToolbarMQQ.png')};
+  }
+  .im-big-video {
+    background-image: ${qqUrl('im/IMBigToolbarVideo.png')};
+  }
+  .im-big-audio {
+    background-image: ${qqUrl('im/IMBigToolbarQQSQQ.png')};
+  }
+  .im-big-file {
+    background-image: ${qqUrl('im/IMBigToolbarSendFile.png')};
+  }
+  .im-big-3d {
+    background-image: ${qqUrl('im/IMBigToolbar3DShow.png')};
+  }
+  .im-big-invite {
+    background-image: ${qqUrl('im/IMBigToolbarInvite.png')};
+  }
 
-  .qq-im-contant { display: flex; flex: 1; gap: 4px; padding: 4px 8px 8px; overflow: hidden; min-height: 0; }
+  .qq-im-contant {
+    display: flex;
+    flex: 1;
+    gap: 4px;
+    padding: 4px 8px 8px;
+    overflow: hidden;
+    min-height: 0;
+  }
   /* min-width:0 lets the flex children shrink below their content width so the
      nowrap friend-info line and long messages don't force horizontal overflow
      (which would otherwise push the 140px Q-show sidebar off the window). */
-  .qq-im-main { display: flex; flex-direction: column; flex: 1; gap: 6px; min-height: 0; min-width: 0; }
+  .qq-im-main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 6px;
+    min-height: 0;
+    min-width: 0;
+  }
 
   .qq-im-chat {
-    display: flex; flex-direction: column; flex: 1; width: 100%;
-    border: 1px solid rgb(53,111,175); border-radius: 4px; background: #fff;
-    overflow: hidden; min-height: 0; min-width: 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+    border: 1px solid rgb(53, 111, 175);
+    border-radius: 4px;
+    background: #fff;
+    overflow: hidden;
+    min-height: 0;
+    min-width: 0;
   }
-  .qq-im-chat-msg { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .qq-im-chat-msg {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
 
   .qq-im-friend-info {
     background: linear-gradient(to bottom, #ffffff, #b6d5f5);
-    border-bottom: 1px solid #84a6c6; padding: 1px 2px; color: rgb(7,30,129); cursor: pointer;
-    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    border-bottom: 1px solid #84a6c6;
+    padding: 1px 2px;
+    color: rgb(7, 30, 129);
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
-  .qq-im-friend-info:hover { color: rgb(99,119,190); }
-  .qq-im-friend-info img { width: 20px; height: 20px; margin-right: 5px; vertical-align: sub; float: left; }
+  .qq-im-friend-info:hover {
+    color: rgb(99, 119, 190);
+  }
+  .qq-im-friend-info img {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    vertical-align: sub;
+    float: left;
+  }
 
-  .qq-im-chat-msg-list { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 5px; min-height: 0; list-style: none; margin: 0; }
-  .qq-im-chat-msg-list li { margin-bottom: 2px; }
-  .qq-im-chat-msg-list li p { color: #000; padding-left: 15px; line-height: 1.4; margin: 0; word-break: break-all; }
-  .qq-im-chat-msg-list li p:first-of-type { color: #210f95; padding-left: 0; }
-  .qq-im-chat-msg-list li.my p:first-of-type { color: #2d794b; }
-  .qq-im-chat-msg-list li p:first-of-type span { font-size: 12px; padding-left: 8px; }
-  .qq-im-typing { color: #888; padding: 2px 5px; font-style: normal; }
+  .qq-im-chat-msg-list {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 5px;
+    min-height: 0;
+    list-style: none;
+    margin: 0;
+  }
+  .qq-im-chat-msg-list li {
+    margin-bottom: 2px;
+  }
+  .qq-im-chat-msg-list li p {
+    color: #000;
+    padding-left: 15px;
+    line-height: 1.4;
+    margin: 0;
+    word-break: break-all;
+  }
+  .qq-im-chat-msg-list li p:first-of-type {
+    color: #210f95;
+    padding-left: 0;
+  }
+  .qq-im-chat-msg-list li.my p:first-of-type {
+    color: #2d794b;
+  }
+  .qq-im-chat-msg-list li p:first-of-type span {
+    font-size: 12px;
+    padding-left: 8px;
+  }
+  .qq-im-typing {
+    color: #888;
+    padding: 2px 5px;
+    font-style: normal;
+  }
 
   /* 小工具条 20px */
   .qq-im-chat-toolbar {
-    display: flex; align-items: center; gap: 4px; height: 20px; padding-left: 4px; flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 20px;
+    padding-left: 4px;
+    flex-shrink: 0;
     background-image: ${qqUrl('im/IMSmallToolbarBackground.png')};
-    background-size: 10000px 100%; background-position: center;
+    background-size: 10000px 100%;
+    background-position: center;
   }
   .qq-im-chat-toolbar button {
-    width: 18px; height: 18px; border: 1px solid transparent; background-color: transparent; background-repeat: no-repeat; cursor: pointer;
-    &:hover { border-color: rgb(135,164,197); background-color: rgb(183,214,245); }
-    &:active { border-color: rgb(109,146,186); background-color: rgb(170,200,230); }
+    width: 18px;
+    height: 18px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    &:hover {
+      border-color: rgb(135, 164, 197);
+      background-color: rgb(183, 214, 245);
+    }
+    &:active {
+      border-color: rgb(109, 146, 186);
+      background-color: rgb(170, 200, 230);
+    }
   }
-  .im-toolbar-font { background-image: ${qqUrl('im/IMSmallToolbarFont.png')}; }
-  .im-toolbar-face { background-image: ${qqUrl('im/IMSmallToolbarFace.png')}; }
-  .im-toolbar-other { background-image: ${qqUrl('im/IMSmallToolbarOtherContent.png')}; }
-  .im-toolbar-picture { background-image: ${qqUrl('im/IMSmallToolbarPicture.png')}; }
-  .im-toolbar-catch { background-image: ${qqUrl('im/IMSmallToolbarCatch.png')}; }
-  .im-toolbar-scene { background-image: ${qqUrl('im/IMSmallToolbarScene.png')}; }
-  .im-toolbar-bag { background-image: ${qqUrl('im/IMSmallToolbarSuperbag.png')}; }
-  .im-toolbar-ptt { background-image: ${qqUrl('im/IMSmallToolbarPtt.png')}; }
-  .qq-im-chat-toolbar .sep { background: rgb(114,149,188); width: 1px; height: 80%; }
+  .im-toolbar-font {
+    background-image: ${qqUrl('im/IMSmallToolbarFont.png')};
+  }
+  .im-toolbar-face {
+    background-image: ${qqUrl('im/IMSmallToolbarFace.png')};
+  }
+  .im-toolbar-other {
+    background-image: ${qqUrl('im/IMSmallToolbarOtherContent.png')};
+  }
+  .im-toolbar-picture {
+    background-image: ${qqUrl('im/IMSmallToolbarPicture.png')};
+  }
+  .im-toolbar-catch {
+    background-image: ${qqUrl('im/IMSmallToolbarCatch.png')};
+  }
+  .im-toolbar-scene {
+    background-image: ${qqUrl('im/IMSmallToolbarScene.png')};
+  }
+  .im-toolbar-bag {
+    background-image: ${qqUrl('im/IMSmallToolbarSuperbag.png')};
+  }
+  .im-toolbar-ptt {
+    background-image: ${qqUrl('im/IMSmallToolbarPtt.png')};
+  }
+  .qq-im-chat-toolbar .sep {
+    background: rgb(114, 149, 188);
+    width: 1px;
+    height: 80%;
+  }
 
-  .qq-im-chat-send { height: 70px; padding: 4px; border: none; outline: none; resize: none; font-family: SimSun, serif; font-size: 12px; }
+  .qq-im-chat-send {
+    height: 70px;
+    padding: 4px;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: SimSun, serif;
+    font-size: 12px;
+  }
 
-  .qq-im-btns { display: flex; height: 22px; gap: 5px; align-items: center; }
-  .qq-im-btns span { flex: 1; }
-  .qq-im-btns .qq-btn { padding: 0 6px; height: 20px; }
+  .qq-im-btns {
+    display: flex;
+    height: 22px;
+    gap: 5px;
+    align-items: center;
+  }
+  .qq-im-btns span {
+    flex: 1;
+  }
+  .qq-im-btns .qq-btn {
+    padding: 0 6px;
+    height: 20px;
+  }
 
   /* 右侧栏 140px */
-  .qq-im-side { display: flex; flex-direction: column; flex-shrink: 0; border: 1px solid rgb(53,111,175); width: 140px; height: 100%; overflow: hidden; background: #fff; }
-  .qq-im-side-btn {
-    position: relative; height: 20px; width: 100%; z-index: 2; text-align: left; padding-left: 20px; border: 0; cursor: pointer;
-    color: #0f0657; font-weight: bold;
-    background-image: ${qqUrl('im/IMSidebarButtonExpand_Normal.png')}; background-size: 1000px 100%;
+  .qq-im-side {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border: 1px solid rgb(53, 111, 175);
+    width: 140px;
+    height: 100%;
+    overflow: hidden;
+    background: #fff;
   }
-  .qq-im-show { height: 100%; background-size: cover; background-position: 50%; background-repeat: no-repeat; }
+  .qq-im-side-btn {
+    position: relative;
+    height: 20px;
+    width: 100%;
+    z-index: 2;
+    text-align: left;
+    padding-left: 20px;
+    border: 0;
+    cursor: pointer;
+    color: #0f0657;
+    font-weight: bold;
+    background-image: ${qqUrl('im/IMSidebarButtonExpand_Normal.png')};
+    background-size: 1000px 100%;
+  }
+  .qq-im-show {
+    height: 100%;
+    background-size: cover;
+    background-position: 50%;
+    background-repeat: no-repeat;
+  }
   /* 单张 QQ 秀素材复用于「对方形象 / 我的形象」两栏（体积预算取舍）。 */
-  .qq-im-show-1 { background-image: ${qqUrl('im/show1.gif')}; }
-  .qq-im-show-3 { background-image: ${qqUrl('im/show1.gif')}; transform: scaleX(-1); }
-  .qq-im-zone { background: #f6f6f6; color: #0f0657; }
-  .qq-im-zone div { line-height: 1.4; padding: 0 2px; white-space: nowrap; overflow: hidden; }
-  .qq-im-zone span { color: red; }
+  .qq-im-show-1 {
+    background-image: ${qqUrl('im/show1.gif')};
+  }
+  .qq-im-show-3 {
+    background-image: ${qqUrl('im/show1.gif')};
+    transform: scaleX(-1);
+  }
+  .qq-im-zone {
+    background: #f6f6f6;
+    color: #0f0657;
+  }
+  .qq-im-zone div {
+    line-height: 1.4;
+    padding: 0 2px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .qq-im-zone span {
+    color: red;
+  }
 `;

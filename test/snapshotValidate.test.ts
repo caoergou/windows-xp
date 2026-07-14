@@ -41,7 +41,9 @@ describe('assertLoadableSnapshot', () => {
   });
 
   it('rejects a missing / non-numeric version (version error)', () => {
-    expect(() => assertLoadableSnapshot({ ...base(), version: 'x' })).toThrow(XPSnapshotVersionError);
+    expect(() => assertLoadableSnapshot({ ...base(), version: 'x' })).toThrow(
+      XPSnapshotVersionError
+    );
   });
 
   it('rejects a newer version (version error)', () => {
@@ -60,7 +62,11 @@ describe('assertLoadableSnapshot', () => {
   it('names the path of a missing name deep in the tree', () => {
     const snap = base();
     // @ts-expect-error deliberately malformed — the deep child lacks a name
-    snap.fs.root.children['Docs'] = { type: 'folder', name: 'Docs', children: { 'a.txt': { type: 'file' } } };
+    snap.fs.root.children['Docs'] = {
+      type: 'folder',
+      name: 'Docs',
+      children: { 'a.txt': { type: 'file' } },
+    };
     expect(err(snap)).toContain(`fs.root.children["Docs"].children["a.txt"].name`);
   });
 

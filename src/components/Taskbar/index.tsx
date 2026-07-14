@@ -246,7 +246,7 @@ const Taskbar = () => {
         );
       } else if (appName === 'QQMail') {
         openWindow(
-          'qqmail-browser',
+          'InternetExplorer',
           'QQ邮箱',
           ie.restore({ url: 'http://mail.qq.com', plugin: defaultPlugin }),
           ie.icon,
@@ -255,13 +255,10 @@ const Taskbar = () => {
       } else if (appName === 'Explorer') {
         if (!path) return;
         const title = getSystemPathTitle(path, t);
-        openWindow(
-          'Explorer',
-          title,
-          explorer.restore({ initialPath: path }),
-          'folder',
-          { ...explorer.window, componentProps: { initialPath: path } }
-        );
+        openWindow('Explorer', title, explorer.restore({ initialPath: path }), 'folder', {
+          ...explorer.window,
+          componentProps: { initialPath: path },
+        });
       } else if (appName === 'RunDialog') {
         openWindow(
           'RunDialog',
@@ -298,16 +295,19 @@ const Taskbar = () => {
     [openWindow, windows, focusWindow, t, showModal, i18n.language]
   );
 
-  const performPowerAction = useCallback((state: 'shutdown' | 'restart') => {
-    storage.local.removeItem(storage.key('open_windows'));
-    storage.local.setItem(storage.key('power_state'), state);
-    bus.emit({ type: 'session:shutdown', mode: state });
-    sounds.shutdown();
-    if (canUseDOM) {
-      // Give the shutdown sound a moment to start before the page reloads.
-      setTimeout(() => window.location.reload(), 600);
-    }
-  }, [bus, storage]);
+  const performPowerAction = useCallback(
+    (state: 'shutdown' | 'restart') => {
+      storage.local.removeItem(storage.key('open_windows'));
+      storage.local.setItem(storage.key('power_state'), state);
+      bus.emit({ type: 'session:shutdown', mode: state });
+      sounds.shutdown();
+      if (canUseDOM) {
+        // Give the shutdown sound a moment to start before the page reloads.
+        setTimeout(() => window.location.reload(), 600);
+      }
+    },
+    [bus, storage]
+  );
 
   const handleLogoutWithSound = useCallback(() => {
     sounds.logoff();

@@ -374,9 +374,7 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
                         setOpenMenu(null);
                       }}
                     >
-                      {entry.checked && (
-                        <span style={{ position: 'absolute', left: 8 }}>●</span>
-                      )}
+                      {entry.checked && <span style={{ position: 'absolute', left: 8 }}>●</span>}
                       {entry.label}
                     </DropdownItem>
                   );

@@ -151,7 +151,12 @@ export const LessonProvider: React.FC<{ lessons?: Lesson[]; children: React.Reac
         const timer = window.setTimeout(() => {
           hintsRef.current += 1;
           setVisibleHints(prev => (prev.includes(hint.text) ? prev : [...prev, hint.text]));
-          bus.emit({ type: 'lesson:hint-shown', lessonId: l.id, stepId: String(idx), hintId: String(hintIdx) });
+          bus.emit({
+            type: 'lesson:hint-shown',
+            lessonId: l.id,
+            stepId: String(idx),
+            hintId: String(hintIdx),
+          });
           persist(snapshot(l, m, idx, 'running'));
         }, hint.afterMs);
         hintTimers.current.push(timer);

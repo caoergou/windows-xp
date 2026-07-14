@@ -18,7 +18,13 @@ import MarkdownViewer from '../src/apps/MarkdownViewer';
 import { renderMarkdown } from '../src/apps/MarkdownViewer/markdown';
 
 const manifest: ContentManifest = [
-  { slug: 'hello', title: 'Hello World', date: 'Mon, 01 Jan 2007 00:00:00 GMT', source: '# Hello\n\nHi.', excerpt: 'A first post' },
+  {
+    slug: 'hello',
+    title: 'Hello World',
+    date: 'Mon, 01 Jan 2007 00:00:00 GMT',
+    source: '# Hello\n\nHi.',
+    excerpt: 'A first post',
+  },
   { slug: 'nested', title: 'In A Folder', source: 'Body', folder: 'posts' },
 ];
 
@@ -54,7 +60,9 @@ describe('permalinks & RSS & mirror (#137/#136)', () => {
 
   it('postPermalink builds a ?open= deep link with lang', () => {
     expect(postPermalink(manifest[0], site)).toBe('https://example.com/?open=hello.md&lang=en');
-    expect(postPermalink(manifest[1], site)).toBe('https://example.com/?open=posts/nested.md&lang=en');
+    expect(postPermalink(manifest[1], site)).toBe(
+      'https://example.com/?open=posts/nested.md&lang=en'
+    );
   });
 
   it('buildRssFeed emits items with title/link and escapes content', () => {
@@ -68,7 +76,9 @@ describe('permalinks & RSS & mirror (#137/#136)', () => {
   it('buildPostMirrorHtml is crawlable and links back to the desktop', () => {
     const html = buildPostMirrorHtml(manifest[0], site);
     expect(html).toContain('<title>Hello World — My XP Blog</title>');
-    expect(html).toContain('<link rel="canonical" href="https://example.com/?open=hello.md&amp;lang=en">');
+    expect(html).toContain(
+      '<link rel="canonical" href="https://example.com/?open=hello.md&amp;lang=en">'
+    );
     expect(html).toContain('<pre># Hello'); // raw-markdown fallback body
     const rich = buildPostMirrorHtml(manifest[0], site, '<h2>Rendered</h2>');
     expect(rich).toContain('<h2>Rendered</h2>');

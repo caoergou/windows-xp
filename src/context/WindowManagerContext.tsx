@@ -8,6 +8,7 @@ import React, {
   useRef,
 } from 'react';
 import { restoreComponent } from '../utils/WindowFactory';
+import { decodeOpenWindows, encodeOpenWindows } from '../utils/windowPersistence';
 import { APP_REGISTRY } from '../registry/apps';
 import { WindowState, WindowProps, AppRegistryEntry } from '../types';
 import { WINDOW_DEFAULTS } from '../constants';
@@ -99,17 +100,16 @@ export const WindowManagerProvider: React.FC<{
   const storage = useStorage();
   const [windows, setWindows] = useState<WindowState[]>(() => {
     try {
-      const saved = storage.local.getItem(storage.key('open_windows'));
-      if (saved) {
-        const parsed: WindowState[] = JSON.parse(saved);
-        const restored = parsed
-          .map(w => {
-            const component = restoreComponent(w.appId, w.componentProps || w.props, registry);
-            return component ? { ...w, component } : null;
-          })
-          .filter(Boolean);
-        return restored as WindowState[];
-      }
+      const parsed = decodeOpenWindows(
+        storage.local.getItem(storage.key('open_windows'))
+      ) as WindowState[];
+      const restored = parsed
+        .map(w => {
+          const component = restoreComponent(w.appId, w.componentProps || w.props, registry);
+          return component ? { ...w, component } : null;
+        })
+        .filter(Boolean);
+      return restored as WindowState[];
     } catch (e) {
       console.error('Failed to restore windows:', e);
     }
@@ -172,7 +172,7 @@ export const WindowManagerProvider: React.FC<{
         ...rest
       }) => rest
     );
-    storage.local.setItem(storage.key('open_windows'), JSON.stringify(windowsToSave));
+    storage.local.setItem(storage.key('open_windows'), encodeOpenWindows(windowsToSave));
   }, [storage]);
 
   useEffect(() => {

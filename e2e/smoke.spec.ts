@@ -55,11 +55,15 @@ test.describe('Windows XP Simulator - Basic Access Test', () => {
     await page.locator('[data-testid="start-menu"]').getByText('Run...').click();
 
     // Type calc and submit
-    await page.locator('[data-testid="run-dialog-input"], input[placeholder*="program"]').fill('calc');
+    await page
+      .locator('[data-testid="run-dialog-input"], input[placeholder*="program"]')
+      .fill('calc');
     await page.getByRole('button', { name: 'OK' }).click();
 
     // Calculator window should appear
-    await expect(page.locator('[data-testid="window-title"]').filter({ hasText: 'Calculator' })).toBeVisible();
+    await expect(
+      page.locator('[data-testid="window-title"]').filter({ hasText: 'Calculator' })
+    ).toBeVisible();
 
     // eslint-disable-next-line no-console -- Playwright test logging
     console.log('✓ Run Dialog launches Calculator');

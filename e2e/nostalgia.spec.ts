@@ -9,7 +9,9 @@ async function openStartMenu(page: Page) {
 
 async function closeAllWindows(page: Page) {
   // Close any open window via the close button in title bar
-  const closeButtons = page.locator('[data-testid="window-close"], .window-close, [title="关闭"], [title="Close"]');
+  const closeButtons = page.locator(
+    '[data-testid="window-close"], .window-close, [title="关闭"], [title="Close"]'
+  );
   let attempts = 0;
   while ((await closeButtons.count()) > 0 && attempts < 10) {
     const firstClose = closeButtons.first();
@@ -30,7 +32,9 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
   });
 
   test('desktop loads with essential icons', async ({ page }) => {
-    await expect(page.locator('[data-english-testid="desktop-icon-Internet Explorer"]')).toBeVisible();
+    await expect(
+      page.locator('[data-english-testid="desktop-icon-Internet Explorer"]')
+    ).toBeVisible();
     await expect(page.locator('[data-english-testid="desktop-icon-Notepad"]')).toBeVisible();
     await expect(page.locator('[data-english-testid="desktop-icon-QQ"]')).toBeVisible();
 
@@ -66,7 +70,9 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
     await expect(page.locator('text=Internet Explorer').nth(1)).toBeVisible();
 
     // The address bar should contain the wayback hao123 URL
-    const addressBar = page.locator('input[value*="hao123"], input[value*="web.archive.org"]').first();
+    const addressBar = page
+      .locator('input[value*="hao123"], input[value*="web.archive.org"]')
+      .first();
     await expect(addressBar).toBeVisible({ timeout: 10000 });
   });
 
@@ -106,7 +112,9 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
     await expect(safeGuardItem).toBeVisible();
     await safeGuardItem.click();
 
-    await expect(page.locator('[data-testid="window-title"]:has-text("360 安全卫士")')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="window-title"]:has-text("360 安全卫士")')
+    ).toBeVisible();
 
     // Click scan button
     const scanBtn = page.locator('[data-testid="safe-guard-scan-button"]');
@@ -163,7 +171,11 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
   // ── Easter eggs (#85) ──────────────────────────────────────────────────
   test('Run dialog: winver shows the About Windows dialog', async ({ page }) => {
     await openStartMenu(page);
-    await page.locator('[data-testid="start-menu"]').getByText('运行', { exact: false }).first().click();
+    await page
+      .locator('[data-testid="start-menu"]')
+      .getByText('运行', { exact: false })
+      .first()
+      .click();
     await page.locator('[data-testid="run-dialog-input"]').fill('winver');
     await page.keyboard.press('Enter');
     await expect(page.locator('text=Version 5.1').first()).toBeVisible({ timeout: 5000 });
@@ -171,7 +183,11 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
 
   test('CMD: format c: crashes to the BSOD, which reboots on click', async ({ page }) => {
     await openStartMenu(page);
-    await page.locator('[data-testid="start-menu"]').getByText('运行', { exact: false }).first().click();
+    await page
+      .locator('[data-testid="start-menu"]')
+      .getByText('运行', { exact: false })
+      .first()
+      .click();
     await page.locator('[data-testid="run-dialog-input"]').fill('cmd');
     await page.keyboard.press('Enter');
 

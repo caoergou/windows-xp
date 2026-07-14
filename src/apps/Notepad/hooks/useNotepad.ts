@@ -8,7 +8,9 @@ import { useApp } from '../../../hooks/useApp';
 import { useFileSystem } from '../../../context/FileSystemContext';
 import { isContainerNode, isFileContentNode } from '../../../types';
 import { MAX_HISTORY } from '../constants';
-import { getCursorPosition, findNextIndex, countOccurrences, replaceAll, equalsIgnoreCase } from '../logic';
+import { getCursorPosition } from '../logic';
+import { dispatchNotepadShortcut, type NotepadShortcutHandlers } from '../keyboard';
+import { useNotepadFindReplace } from './useNotepadFindReplace';
 import type { MenuKey, HistoryState, DialogMode, NotepadProps } from '../types';
 
 export function useNotepad({
@@ -39,15 +41,8 @@ export function useNotepad({
   const [wordWrap, setWordWrap] = useState(false);
   const [showStatusBar, setShowStatusBar] = useState(true);
 
-  // Dialog state
+  // Dialog state (find/replace query state lives in useNotepadFindReplace).
   const [dialogMode, setDialogMode] = useState<DialogMode>(null);
-  const [findQuery, setFindQuery] = useState('');
-  const [replaceQuery, setReplaceQuery] = useState('');
-  const [replaceWith, setReplaceWith] = useState('');
-  const findStartIndexRef = useRef(0);
-  const replaceStartIndexRef = useRef(0);
-  const findInputRef = useRef<HTMLInputElement>(null);
-  const replaceFindInputRef = useRef<HTMLInputElement>(null);
 
   // Status bar state
   const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
@@ -115,24 +110,7 @@ export function useNotepad({
   }, [autoTypeText, autoTypeSpeed]);
 
   // Ref to always access the latest keyboard handlers without re-registering the listener
-  const keyboardHandlersRef = useRef<{
-    handleNew: () => void;
-    handleOpen: () => void;
-    handleSave: () => Promise<void>;
-    handleSaveAs: () => Promise<void>;
-    handleUndo: () => void;
-    handleRedo: () => void;
-    handleCut: () => void;
-    handlePaste: () => void;
-    handleDelete: () => void;
-    handleSelectAll: () => void;
-    handleCopy: () => void;
-    handleFind: () => void;
-    handleOpenReplace: () => void;
-    handleToggleWrap: () => void;
-    handleToggleStatusBar: () => void;
-    handleAbout: () => void;
-  } | null>(null);
+  const keyboardHandlersRef = useRef<NotepadShortcutHandlers | null>(null);
 
   // Update window title when file changes
   useEffect(() => {
@@ -335,110 +313,39 @@ export function useNotepad({
     }
   };
 
-  // Find / Replace
-  const handleFind = () => {
-    const ta = textareaRef.current;
-    const selected = ta ? ta.value.substring(ta.selectionStart, ta.selectionEnd) : '';
-    setFindQuery(selected || findQuery);
-    findStartIndexRef.current = ta ? ta.selectionEnd : 0;
-    setDialogMode('find');
-    setTimeout(() => findInputRef.current?.focus(), 0);
-  };
-
-  const handleOpenReplace = () => {
-    const ta = textareaRef.current;
-    const selected = ta ? ta.value.substring(ta.selectionStart, ta.selectionEnd) : '';
-    setReplaceQuery(selected || replaceQuery);
-    replaceStartIndexRef.current = ta ? ta.selectionEnd : 0;
-    setDialogMode('replace');
-    setTimeout(() => replaceFindInputRef.current?.focus(), 0);
-  };
-
-  const findNext = (query: string, startIndexRef: React.MutableRefObject<number>): boolean => {
-    if (!query) return false;
-    const idx = findNextIndex(content, query, startIndexRef.current);
-    if (idx !== -1) {
-      setTextareaSelection(idx, idx + query.length);
-      startIndexRef.current = idx + query.length;
-      textareaRef.current?.focus();
-      return true;
-    }
-    return false;
-  };
-
-  const handleFindNext = () => {
-    if (!findNext(findQuery, findStartIndexRef)) {
-      api.dialog.alert({
-        title: t('notepad.find.title'),
-        message: t('notepad.find.notFound', { query: findQuery }),
-        type: 'info',
-      });
-    }
-  };
-
-  const handleReplaceFindNext = () => {
-    if (!findNext(replaceQuery, replaceStartIndexRef)) {
-      api.dialog.alert({
-        title: t('notepad.replace.title'),
-        message: t('notepad.find.notFound', { query: replaceQuery }),
-        type: 'info',
-      });
-    }
-  };
-
-  const handleReplace = () => {
-    const ta = textareaRef.current;
-    if (!ta || !replaceQuery) return;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const selected = content.substring(start, end);
-    if (equalsIgnoreCase(selected, replaceQuery)) {
-      const newValue = content.substring(0, start) + replaceWith + content.substring(end);
-      pushHistory();
-      setContent(newValue);
-      setIsModified(true);
-      const newCursor = start + replaceWith.length;
-      editorStateRef.current = {
-        content: newValue,
-        selectionStart: newCursor,
-        selectionEnd: newCursor,
-      };
-      replaceStartIndexRef.current = newCursor;
-      setTimeout(() => {
-        setTextareaSelection(newCursor, newCursor);
-        ta.focus();
-      }, 0);
-    }
-    handleReplaceFindNext();
-  };
-
-  const handleReplaceAll = () => {
-    if (!replaceQuery || replaceQuery === replaceWith) return;
-    const count = countOccurrences(content, replaceQuery);
-    if (count <= 0) {
-      api.dialog.alert({
-        title: t('notepad.replace.title'),
-        message: t('notepad.find.notFound', { query: replaceQuery }),
-        type: 'info',
-      });
-      return;
-    }
-    const newValue = replaceAll(content, replaceQuery, replaceWith);
-    pushHistory();
-    setContent(newValue);
-    setIsModified(true);
-    editorStateRef.current = { content: newValue, selectionStart: 0, selectionEnd: 0 };
-    replaceStartIndexRef.current = 0;
-    setTimeout(() => {
-      setTextareaSelection(0, 0);
-      textareaRef.current?.focus();
-    }, 0);
-    api.dialog.alert({
-      title: t('notepad.replace.title'),
-      message: t('notepad.replace.replacedCount', { count }),
-      type: 'info',
-    });
-  };
+  // Find / Replace lives in its own hook (#163/A), operating on the editor
+  // handle below. Declared after the editor primitives it depends on.
+  const {
+    findQuery,
+    setFindQuery,
+    replaceQuery,
+    setReplaceQuery,
+    replaceWith,
+    setReplaceWith,
+    findInputRef,
+    replaceFindInputRef,
+    findStartIndexRef,
+    replaceStartIndexRef,
+    handleFind,
+    handleOpenReplace,
+    handleFindNext,
+    handleReplaceFindNext,
+    handleReplace,
+    handleReplaceAll,
+  } = useNotepadFindReplace({
+    editor: {
+      content,
+      setContent,
+      setIsModified,
+      pushHistory,
+      editorStateRef,
+      setTextareaSelection,
+      textareaRef,
+    },
+    api,
+    t,
+    setDialogMode,
+  });
 
   const handleToggleWrap = () => {
     setWordWrap(prev => !prev);
@@ -743,75 +650,8 @@ export function useNotepad({
   // this window has focus and never leak Ctrl+S/F/H into the host page or a
   // second Notepad instance (#121, DEVELOPMENT.md §3).
   const handleShortcutKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
-      const handlers = keyboardHandlersRef.current;
-      if (!handlers) return;
-
-      if (dialogMode) {
-        // Let Escape close the dialog via the dialog's own handler
-        if (e.key === 'Escape') return;
-        // Don't intercept typing in dialogs
-        if (e.ctrlKey && ['f', 'h'].includes(e.key.toLowerCase())) {
-          e.preventDefault();
-          return;
-        }
-        return;
-      }
-
-      if (e.ctrlKey) {
-        switch (e.key.toLowerCase()) {
-          // Ctrl+N intentionally NOT bound: it opens a new browser window
-          // (browser-reserved, uncancelable). "New" stays on the menu. (#132)
-          case 'o':
-            e.preventDefault();
-            handlers.handleOpen();
-            break;
-          case 's':
-            e.preventDefault();
-            if (e.shiftKey) {
-              handlers.handleSaveAs();
-            } else {
-              handlers.handleSave();
-            }
-            break;
-          case 'a':
-            e.preventDefault();
-            handlers.handleSelectAll();
-            break;
-          case 'x':
-            e.preventDefault();
-            handlers.handleCut();
-            break;
-          case 'c':
-            e.preventDefault();
-            handlers.handleCopy();
-            break;
-          case 'v':
-            e.preventDefault();
-            handlers.handlePaste();
-            break;
-          case 'z':
-            e.preventDefault();
-            handlers.handleUndo();
-            break;
-          case 'y':
-            e.preventDefault();
-            handlers.handleRedo();
-            break;
-          case 'f':
-            e.preventDefault();
-            handlers.handleFind();
-            break;
-          case 'h':
-            e.preventDefault();
-            handlers.handleOpenReplace();
-            break;
-        }
-      } else if (e.key === 'Delete') {
-        e.preventDefault();
-        handlers.handleDelete();
-      }
-    },
+    (e: React.KeyboardEvent<HTMLDivElement>) =>
+      dispatchNotepadShortcut(e, keyboardHandlersRef.current, dialogMode),
     [dialogMode]
   );
 

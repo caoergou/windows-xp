@@ -7,7 +7,7 @@ const Container = styled.div`
   height: 100%;
   background: white;
   padding: 40px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 12px;
   color: #000;
   overflow-y: auto;
@@ -73,7 +73,7 @@ const ActionButton = styled.button`
   cursor: pointer;
   border: 1px solid #7f9db9;
   background: linear-gradient(to bottom, #ffffff, #ece9d8);
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 
   &:hover {
     background: linear-gradient(to bottom, #f0f0f0, #dcd9c9);

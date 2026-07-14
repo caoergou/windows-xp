@@ -232,7 +232,15 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     // panel on successful login (one window that morphs across phases, #119).
     // Fixed top so the window fits on screen both as the short login box and
     // after it morphs into the 600px-tall buddy-list panel (#119).
-    window: { width: 352, height: 266, top: 40, minWidth: 190, minHeight: 200, resizable: false, singleton: true },
+    window: {
+      width: 352,
+      height: 266,
+      top: 40,
+      minWidth: 190,
+      minHeight: 200,
+      resizable: false,
+      singleton: true,
+    },
     lifecycle: {},
     associations: [{ appField: 'QQ', getProps: () => ({}) }],
     restore: restoreApp(QQ),
@@ -477,7 +485,14 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     name: 'Winamp',
     icon: 'winamp',
     locales: ['en'],
-    window: { width: 380, height: 440, minWidth: 300, minHeight: 320, resizable: true, singleton: true },
+    window: {
+      width: 380,
+      height: 440,
+      minWidth: 300,
+      minHeight: 320,
+      resizable: true,
+      singleton: true,
+    },
     lifecycle: {},
     associations: [{ appField: 'Winamp', getProps: () => ({}) }],
     restore: restoreApp(Winamp),

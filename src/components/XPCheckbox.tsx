@@ -108,7 +108,13 @@ type BaseProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> & {
   className?: string;
 };
 
-export const XPCheckbox: React.FC<BaseProps> = ({ label, className, disabled, checked, ...rest }) => (
+export const XPCheckbox: React.FC<BaseProps> = ({
+  label,
+  className,
+  disabled,
+  checked,
+  ...rest
+}) => (
   <Root className={className} $disabled={disabled}>
     <input type="checkbox" disabled={disabled} checked={checked} {...rest} />
     <CheckBox $checked={!!checked} $disabled={disabled} aria-hidden="true" />

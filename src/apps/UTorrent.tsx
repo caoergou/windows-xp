@@ -198,7 +198,9 @@ const UTorrent: React.FC<{ windowId?: string }> = () => {
         })}
       </List>
       <Status>
-        <span>{active.length} downloading · {torrents.length - active.length} complete</span>
+        <span>
+          {active.length} downloading · {torrents.length - active.length} complete
+        </span>
         <span>▼ {totalDown} KB/s · ▲ 32 KB/s</span>
       </Status>
     </Wrap>

@@ -25,7 +25,14 @@ async function dispatchTouch(
       const r = el.getBoundingClientRect();
       const x = r.left + r.width / 2 + offset.dx;
       const y = r.top + r.height / 2 + offset.dy;
-      const touch = new Touch({ identifier: 1, target: el, clientX: x, clientY: y, pageX: x, pageY: y });
+      const touch = new Touch({
+        identifier: 1,
+        target: el,
+        clientX: x,
+        clientY: y,
+        pageX: x,
+        pageY: y,
+      });
       const isEnd = type === 'touchend';
       el.dispatchEvent(
         new TouchEvent(type, {
@@ -68,7 +75,9 @@ test.describe('Touch support (#125)', () => {
 
     // My Documents opens an Explorer window with its contents.
     await expect(page.locator('.xp-window')).toBeVisible({ timeout: 8000 });
-    await expect(page.locator('[data-testid="file-item-readme.txt"]')).toBeVisible({ timeout: 8000 });
+    await expect(page.locator('[data-testid="file-item-readme.txt"]')).toBeVisible({
+      timeout: 8000,
+    });
   });
 
   test('long-press a desktop icon shows the context menu', async ({ page }) => {
@@ -104,7 +113,10 @@ test.describe('Touch support (#125)', () => {
     // Touch-drag the title bar by (120, 90).
     await dispatchTouch(page, '.xp-window .title-bar', 'touchstart');
     for (let i = 1; i <= 6; i++) {
-      await dispatchTouch(page, '.xp-window .title-bar', 'touchmove', { dx: (120 / 6) * i, dy: (90 / 6) * i });
+      await dispatchTouch(page, '.xp-window .title-bar', 'touchmove', {
+        dx: (120 / 6) * i,
+        dy: (90 / 6) * i,
+      });
     }
     await dispatchTouch(page, '.xp-window .title-bar', 'touchend', { dx: 120, dy: 90 });
 

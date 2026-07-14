@@ -25,4 +25,5 @@ export const qqUrl = (rel: string): string => {
 };
 
 /** 取头像 URL（`assets/img/avatar/<n>.png`），越界时回退到 1 号。 */
-export const qqAvatar = (n: number | string): string => qqImg(`avatar/${n}.png`) || qqImg('avatar/1.png');
+export const qqAvatar = (n: number | string): string =>
+  qqImg(`avatar/${n}.png`) || qqImg('avatar/1.png');

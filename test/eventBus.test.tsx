@@ -12,7 +12,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import PasswordDialog from '../src/components/PasswordDialog';
 import { XPEventBus, type XPEvent } from '../src/events';
 import { EventBusProvider } from '../src/context/EventBusContext';
-import { WindowManagerProvider, useWindowManagerActions } from '../src/context/WindowManagerContext';
+import {
+  WindowManagerProvider,
+  useWindowManagerActions,
+} from '../src/context/WindowManagerContext';
 import { FileSystemProvider, useFileSystem } from '../src/context/FileSystemContext';
 
 let bus: XPEventBus;
@@ -100,11 +103,14 @@ describe('expanded event catalog', () => {
     { type: 'ui:action', appId: 'ControlPanel', control: 'screensaver.enabled', value: true },
   ];
 
-  it.each(samples.map(s => [s.type, s] as const))('delivers %s with its payload intact', (_type, sample) => {
-    bus.emit(sample);
-    expect(events).toHaveLength(1);
-    expect(events[0]).toEqual(sample);
-  });
+  it.each(samples.map(s => [s.type, s] as const))(
+    'delivers %s with its payload intact',
+    (_type, sample) => {
+      bus.emit(sample);
+      expect(events).toHaveLength(1);
+      expect(events[0]).toEqual(sample);
+    }
+  );
 });
 
 describe('WindowManager emits lifecycle events (#76)', () => {
@@ -157,9 +163,7 @@ describe('imperative XPHandle (#76)', () => {
     const { WindowsXP } = await import('../src/lib');
     const seen: string[] = [];
     const ref = React.createRef<import('../src/components/XPBridge').XPHandle>();
-    render(
-      <WindowsXP ref={ref} autoLogin skipBoot onEvent={e => seen.push(e.type)} />
-    );
+    render(<WindowsXP ref={ref} autoLogin skipBoot onEvent={e => seen.push(e.type)} />);
 
     // The handle is wired once the provider tree mounts.
     await act(async () => {
@@ -254,9 +258,9 @@ describe('imperative XPHandle v2 (#115)', () => {
     act(() => {
       ref.current!.emit({ type: 'cmd:exec', command: 'from-host' });
     });
-    expect(seen.some(e => e.type === 'cmd:exec' && 'command' in e && e.command === 'from-host')).toBe(
-      true
-    );
+    expect(
+      seen.some(e => e.type === 'cmd:exec' && 'command' in e && e.command === 'from-host')
+    ).toBe(true);
 
     // setWallpaper does not throw and is callable from the handle.
     act(() => {
@@ -336,7 +340,11 @@ describe('FileSystem emits expanded coverage events (#116)', () => {
       fsApi!.updateFile(['note.txt'], { content: 'passphrase' });
     });
     // Carries the new content so scenarios can react to what was typed (#116).
-    expect(byType('file:update')).toMatchObject({ path: ['note.txt'], name: 'note.txt', content: 'passphrase' });
+    expect(byType('file:update')).toMatchObject({
+      path: ['note.txt'],
+      name: 'note.txt',
+      content: 'passphrase',
+    });
   });
 
   it('emits folder:delete when a folder is removed', () => {
@@ -363,8 +371,16 @@ describe('FileSystem emits expanded coverage events (#116)', () => {
     act(() => {
       fsApi!.copyFile([], 'c.txt', ['Dest']);
     });
-    expect(byType('file:move')).toMatchObject({ from: ['m.txt'], to: ['Dest', 'm.txt'], name: 'm.txt' });
-    expect(byType('file:copy')).toMatchObject({ from: ['c.txt'], to: ['Dest', 'c.txt'], name: 'c.txt' });
+    expect(byType('file:move')).toMatchObject({
+      from: ['m.txt'],
+      to: ['Dest', 'm.txt'],
+      name: 'm.txt',
+    });
+    expect(byType('file:copy')).toMatchObject({
+      from: ['c.txt'],
+      to: ['Dest', 'c.txt'],
+      name: 'c.txt',
+    });
   });
 
   it('emits recyclebin:empty', () => {
@@ -377,7 +393,13 @@ describe('FileSystem emits expanded coverage events (#116)', () => {
 
   it('emits password:fail with an incrementing attempt count, then file:unlock', () => {
     mountFs();
-    const locked = { type: 'folder', name: 'Secret', locked: true, password: 'open', children: {} } as never;
+    const locked = {
+      type: 'folder',
+      name: 'Secret',
+      locked: true,
+      password: 'open',
+      children: {},
+    } as never;
     act(() => {
       fsApi!.checkAccess(locked, 'wrong');
     });

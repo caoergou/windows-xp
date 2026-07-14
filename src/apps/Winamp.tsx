@@ -104,7 +104,9 @@ const Marquee = styled.div<{ $playing?: boolean }>`
     padding-left: ${p => (p.$playing ? '100%' : '0')};
     animation: ${p =>
       p.$playing
-        ? css`${keyframes`from{transform:translateX(0)}to{transform:translateX(-200%)}`} 9s linear infinite`
+        ? css`
+            ${keyframes`from{transform:translateX(0)}to{transform:translateX(-200%)}`} 9s linear infinite
+          `
         : 'none'};
   }
 `;
@@ -124,7 +126,12 @@ const Bar = styled.div<{ $active?: boolean; $delay: number }>`
   transform-origin: bottom;
   background: linear-gradient(to top, #1f7a3a 0%, #35ff6a 100%);
   opacity: ${p => (p.$active ? 1 : 0.25)};
-  animation: ${p => (p.$active ? css`${pulse} 0.7s ease-in-out infinite` : 'none')};
+  animation: ${p =>
+    p.$active
+      ? css`
+          ${pulse} 0.7s ease-in-out infinite
+        `
+      : 'none'};
   animation-delay: ${p => p.$delay}s;
 `;
 
@@ -347,12 +354,18 @@ const Winamp: React.FC<WinampProps> = () => {
           aria-label="seek"
         />
         <Transport>
-          <Btn onClick={() => skip(-1)} title="Previous">⏮</Btn>
+          <Btn onClick={() => skip(-1)} title="Previous">
+            ⏮
+          </Btn>
           <Btn data-testid="winamp-play" onClick={toggle} title="Play/Pause">
             {playing ? '⏸' : '▶'}
           </Btn>
-          <Btn onClick={stop} title="Stop">⏹</Btn>
-          <Btn onClick={() => skip(1)} title="Next">⏭</Btn>
+          <Btn onClick={stop} title="Stop">
+            ⏹
+          </Btn>
+          <Btn onClick={() => skip(1)} title="Next">
+            ⏭
+          </Btn>
           <KnobRow style={{ flex: 1, marginTop: 0, marginLeft: 6 }}>
             <span>VOL</span>
             <Slider

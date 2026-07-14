@@ -92,13 +92,15 @@ export const UserSessionProvider: React.FC<{
     [wallpapers]
   );
 
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => getInitialLoginState(storage, autoLogin));
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() =>
+    getInitialLoginState(storage, autoLogin)
+  );
   const [user, setUser] = useState<{ name: string; avatar: string }>({
     name: username,
-    avatar: avatar ?? userConfig.avatar
+    avatar: avatar ?? userConfig.avatar,
   });
-  const [wallpaper, setWallpaperState] = useState<string>(() =>
-    storage.local.getItem(wallpaperKey) || defaultWallpaper || DEFAULT_WALLPAPER_ID
+  const [wallpaper, setWallpaperState] = useState<string>(
+    () => storage.local.getItem(wallpaperKey) || defaultWallpaper || DEFAULT_WALLPAPER_ID
   );
   const [screensaverEnabled, setScreensaverEnabledState] = useState<boolean>(() => {
     const stored = storage.local.getItem(screensaverKey);
@@ -118,17 +120,20 @@ export const UserSessionProvider: React.FC<{
 
   const bus = useXPEventBus();
 
-  const login = useCallback((inputPassword: string): boolean => {
-    if (inputPassword === password) {
-      setIsLoggedIn(true);
-      storage.local.setItem(storage.key('logged_in'), 'true');
-      storage.local.setItem(storage.key('power_state'), 'running');
-      bus.emit({ type: 'session:login' });
-      return true;
-    }
-    bus.emit({ type: 'session:login-fail' });
-    return false;
-  }, [password, bus, storage]);
+  const login = useCallback(
+    (inputPassword: string): boolean => {
+      if (inputPassword === password) {
+        setIsLoggedIn(true);
+        storage.local.setItem(storage.key('logged_in'), 'true');
+        storage.local.setItem(storage.key('power_state'), 'running');
+        bus.emit({ type: 'session:login' });
+        return true;
+      }
+      bus.emit({ type: 'session:login-fail' });
+      return false;
+    },
+    [password, bus, storage]
+  );
 
   const logout = useCallback(() => {
     setIsLoggedIn(false);
@@ -136,16 +141,22 @@ export const UserSessionProvider: React.FC<{
     bus.emit({ type: 'session:logout' });
   }, [bus, storage]);
 
-  const setWallpaper = useCallback((id: string) => {
-    setWallpaperState(id);
-    storage.local.setItem(wallpaperKey, id);
-    bus.emit({ type: 'wallpaper:change', wallpaper: id });
-  }, [storage, wallpaperKey, bus]);
+  const setWallpaper = useCallback(
+    (id: string) => {
+      setWallpaperState(id);
+      storage.local.setItem(wallpaperKey, id);
+      bus.emit({ type: 'wallpaper:change', wallpaper: id });
+    },
+    [storage, wallpaperKey, bus]
+  );
 
-  const setScreensaverEnabled = useCallback((enabled: boolean) => {
-    setScreensaverEnabledState(enabled);
-    storage.local.setItem(screensaverKey, String(enabled));
-  }, [storage, screensaverKey]);
+  const setScreensaverEnabled = useCallback(
+    (enabled: boolean) => {
+      setScreensaverEnabledState(enabled);
+      storage.local.setItem(screensaverKey, String(enabled));
+    },
+    [storage, screensaverKey]
+  );
 
   const contextValue: UserSessionContextType = {
     isLoggedIn,
@@ -157,12 +168,8 @@ export const UserSessionProvider: React.FC<{
     screensaverEnabled,
     setScreensaverEnabled,
     login,
-    logout
+    logout,
   };
 
-  return (
-    <UserSessionContext.Provider value={contextValue}>
-      {children}
-    </UserSessionContext.Provider>
-  );
+  return <UserSessionContext.Provider value={contextValue}>{children}</UserSessionContext.Provider>;
 };

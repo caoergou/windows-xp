@@ -217,7 +217,9 @@ function App({
 
   const { isLoggedIn, screensaverEnabled } = useUserSession();
   const { windows, activeWindowId, closeWindow, focusWindow } = useWindowManager();
-  const [bootPhase, setBootPhase] = useState<BootPhase>(() => getInitialBootPhase(storage, skipBoot));
+  const [bootPhase, setBootPhase] = useState<BootPhase>(() =>
+    getInitialBootPhase(storage, skipBoot)
+  );
   const [screenSaverFading, setScreenSaverFading] = useState(false);
   const [altTabVisible, setAltTabVisible] = useState(false);
   const [altTabIndex, setAltTabIndex] = useState(0);

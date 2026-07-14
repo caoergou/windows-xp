@@ -24,7 +24,12 @@ describe('lesson engine — expectMatches / isWrongAction', () => {
   });
 
   it('flags a wrong action only for the right type with a wrong payload', () => {
-    const wrongApp: XPEvent = { type: 'app:launch', appId: 'Calculator', windowId: 'w', title: 'C' };
+    const wrongApp: XPEvent = {
+      type: 'app:launch',
+      appId: 'Calculator',
+      windowId: 'w',
+      title: 'C',
+    };
     const unrelated: XPEvent = { type: 'window:focus', windowId: 'w', appId: 'Calculator' };
     const expect_ = { on: 'app:launch' as const, appId: 'Notepad' };
     expect(isWrongAction(expect_, wrongApp)).toBe(true); // right type, wrong app
@@ -44,27 +49,53 @@ describe('lesson linter', () => {
       id: 'g',
       title: 'g',
       steps: [
-        { instruction: 'i', anchor: 'a', expect: { on: 'app:launch' }, hints: [{ afterMs: 1000, text: 'h' }], demonstrate: { openApp: 'X' } },
+        {
+          instruction: 'i',
+          anchor: 'a',
+          expect: { on: 'app:launch' },
+          hints: [{ afterMs: 1000, text: 'h' }],
+          demonstrate: { openApp: 'X' },
+        },
       ],
     };
     expect(lintLesson(good)).toHaveLength(0);
     expect(isLessonValid(good)).toBe(true);
 
-    const bad = { id: '', title: '', steps: [{ instruction: '', expect: {} }] } as unknown as Lesson;
+    const bad = {
+      id: '',
+      title: '',
+      steps: [{ instruction: '', expect: {} }],
+    } as unknown as Lesson;
     const issues = lintLesson(bad);
     expect(issues.some(i => i.level === 'error')).toBe(true);
     expect(isLessonValid(bad)).toBe(false);
   });
 
   it('warns on missing hints / anchor / demonstrate but does not error', () => {
-    const l: Lesson = { id: 'x', title: 'x', steps: [{ instruction: 'i', expect: { on: 'app:launch' } }] };
+    const l: Lesson = {
+      id: 'x',
+      title: 'x',
+      steps: [{ instruction: 'i', expect: { on: 'app:launch' } }],
+    };
     const issues = lintLesson(l);
     expect(issues.every(i => i.level === 'warn')).toBe(true);
     expect(issues.map(i => i.message).join(' ')).toMatch(/hint|anchor|demonstrate/);
   });
 
   it('checks i18n key resolution when a resolver is supplied', () => {
-    const l: Lesson = { id: 'x', title: 'lesson.missing.title', steps: [{ instruction: 'i', anchor: 'a', expect: { on: 'app:launch' }, hints: [{ afterMs: 1, text: 'h' }], demonstrate: { emit: { type: 'session:login' } } }] };
+    const l: Lesson = {
+      id: 'x',
+      title: 'lesson.missing.title',
+      steps: [
+        {
+          instruction: 'i',
+          anchor: 'a',
+          expect: { on: 'app:launch' },
+          hints: [{ afterMs: 1, text: 'h' }],
+          demonstrate: { emit: { type: 'session:login' } },
+        },
+      ],
+    };
     const issues = lintLesson(l, () => false);
     expect(issues.some(i => i.message.includes('no translation'))).toBe(true);
   });
@@ -78,7 +109,13 @@ describe('lesson runtime — <WindowsXP lessons/> + startLesson', () => {
     const seen: XPEvent[] = [];
     const ref = React.createRef<import('../src/components/XPBridge').XPHandle>();
     render(
-      <WindowsXP ref={ref} autoLogin skipBoot lessons={[notepadBasicsLesson]} onEvent={e => seen.push(e)} />
+      <WindowsXP
+        ref={ref}
+        autoLogin
+        skipBoot
+        lessons={[notepadBasicsLesson]}
+        onEvent={e => seen.push(e)}
+      />
     );
     await act(async () => {
       await Promise.resolve();
@@ -98,18 +135,27 @@ describe('lesson runtime — <WindowsXP lessons/> + startLesson', () => {
     expect(types(seen)).toContain('lesson:start');
 
     // Wrong app: right event type, wrong payload → step-failed, no advance.
-    act(() => ref.current!.emit({ type: 'app:launch', appId: 'Calculator', windowId: 'c', title: 'C' }));
+    act(() =>
+      ref.current!.emit({ type: 'app:launch', appId: 'Calculator', windowId: 'c', title: 'C' })
+    );
     expect(types(seen)).toContain('lesson:step-failed');
     expect(types(seen)).not.toContain('lesson:complete');
 
     // Step 1: open Notepad.
-    act(() => ref.current!.emit({ type: 'app:launch', appId: 'Notepad', windowId: 'n', title: 'Notepad' }));
+    act(() =>
+      ref.current!.emit({ type: 'app:launch', appId: 'Notepad', windowId: 'n', title: 'Notepad' })
+    );
     const stepDone = seen.filter(e => e.type === 'lesson:step-complete');
     expect(stepDone.length).toBe(1);
 
     // Step 2: save a new file.
     act(() =>
-      ref.current!.emit({ type: 'file:create', path: ['我的文档', 'note.txt'], name: 'note.txt', nodeType: 'file' })
+      ref.current!.emit({
+        type: 'file:create',
+        path: ['我的文档', 'note.txt'],
+        name: 'note.txt',
+        nodeType: 'file',
+      })
     );
     const complete = seen.find(e => e.type === 'lesson:complete') as
       | Extract<XPEvent, { type: 'lesson:complete' }>
@@ -134,11 +180,23 @@ describe('lesson runtime — <WindowsXP lessons/> + startLesson', () => {
       id: 'w-auto',
       title: 'w',
       steps: [
-        { instruction: 'a', anchor: 'start-button', expect: { on: 'cmd:exec', command: 'one' }, demonstrate: { emit: { type: 'cmd:exec', command: 'one' } } },
-        { instruction: 'b', anchor: 'taskbar.clock', expect: { on: 'cmd:exec', command: 'two' }, demonstrate: { emit: { type: 'cmd:exec', command: 'two' } } },
+        {
+          instruction: 'a',
+          anchor: 'start-button',
+          expect: { on: 'cmd:exec', command: 'one' },
+          demonstrate: { emit: { type: 'cmd:exec', command: 'one' } },
+        },
+        {
+          instruction: 'b',
+          anchor: 'taskbar.clock',
+          expect: { on: 'cmd:exec', command: 'two' },
+          demonstrate: { emit: { type: 'cmd:exec', command: 'two' } },
+        },
       ],
     };
-    render(<WindowsXP ref={ref} autoLogin skipBoot lessons={[watchLesson]} onEvent={e => seen.push(e)} />);
+    render(
+      <WindowsXP ref={ref} autoLogin skipBoot lessons={[watchLesson]} onEvent={e => seen.push(e)} />
+    );
     await act(async () => {
       await Promise.resolve();
     });
@@ -163,7 +221,15 @@ describe('lesson runtime — <WindowsXP lessons/> + startLesson', () => {
     const undoLesson: Lesson = {
       id: 'undo-x',
       title: 'u',
-      steps: [{ instruction: 'x', anchor: 'start-button', expect: { on: 'app:launch', appId: 'Notepad' }, onWrongAction: 'undo', demonstrate: { openApp: 'Notepad' } }],
+      steps: [
+        {
+          instruction: 'x',
+          anchor: 'start-button',
+          expect: { on: 'app:launch', appId: 'Notepad' },
+          onWrongAction: 'undo',
+          demonstrate: { openApp: 'Notepad' },
+        },
+      ],
     };
     render(<WindowsXP ref={ref} autoLogin skipBoot lessons={[undoLesson]} />);
     await act(async () => {
@@ -186,7 +252,15 @@ describe('lesson runtime — <WindowsXP lessons/> + startLesson', () => {
     const shieldLesson: Lesson = {
       id: 'shield-x',
       title: 's',
-      steps: [{ instruction: 'x', anchor: 'start-button', expect: { on: 'file:create' }, onWrongAction: 'shield', demonstrate: { emit: { type: 'file:create', path: ['a'], name: 'a', nodeType: 'file' } } }],
+      steps: [
+        {
+          instruction: 'x',
+          anchor: 'start-button',
+          expect: { on: 'file:create' },
+          onWrongAction: 'shield',
+          demonstrate: { emit: { type: 'file:create', path: ['a'], name: 'a', nodeType: 'file' } },
+        },
+      ],
     };
     render(<WindowsXP ref={ref} autoLogin skipBoot lessons={[shieldLesson]} />);
     await act(async () => {

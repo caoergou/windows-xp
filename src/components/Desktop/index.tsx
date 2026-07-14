@@ -1,5 +1,5 @@
 // Desktop shell — icons, box-selection, context menus, window host (#163/A split).
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFileSystem } from '../../context/FileSystemContext';
 import { useXPEventBus } from '../../context/EventBusContext';
@@ -22,7 +22,8 @@ import { openExternalUrl } from '../../utils/externalLink';
 import { getFileIconName } from '../../utils/fileIcon';
 import { getFileDisplayName } from '../../utils/fileDisplayName';
 import { DesktopContainer, SelectionBox, IconGrid, DesktopIcon } from './styled';
-import { BOX_SELECT_IGNORE, SYSTEM_ICON_KEYS, getEnglishTestId } from './constants';
+import { SYSTEM_ICON_KEYS, getEnglishTestId } from './constants';
+import { useBoxSelection } from './hooks/useBoxSelection';
 import { useTapGestures } from '../../hooks/useTapGestures';
 import { useMultiSelect } from '../../hooks/useMultiSelect';
 import { useShortcut } from '../../context/KeymapContext';
@@ -31,13 +32,28 @@ const Desktop: React.FC = () => {
   const { t } = useTranslation();
   const { wallpaper, resolveWallpaperSrc } = useUserSession();
   const desktopBg = resolveWallpaperSrc(wallpaper);
-  const { fs, moveFile, deleteFile, renameFile, createFile, copyToClipboard, cutFile, pasteFile, clipboard } = useFileSystem();
+  const {
+    fs,
+    moveFile,
+    deleteFile,
+    renameFile,
+    createFile,
+    copyToClipboard,
+    cutFile,
+    pasteFile,
+    clipboard,
+  } = useFileSystem();
   const rootChildren = (fs.root as RootNode).children;
   const { windows, openWindow } = useWindowManager();
   const bus = useXPEventBus();
   const { showModal, showConfirm, showInput } = useModal();
 
-  const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; iconKey: string | null }>({ visible: false, x: 0, y: 0, iconKey: null });
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    iconKey: string | null;
+  }>({ visible: false, x: 0, y: 0, iconKey: null });
   // Icon selection uses the same model as Explorer (#211). `selectedIcons` is a
   // read-only view of the set; writes go through the hook's methods.
   const iconSelection = useMultiSelect();
@@ -47,60 +63,12 @@ const Desktop: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [dragOver, setDragOver] = useState<string | null>(null);
 
-  // Box selection state
-  const [isSelecting, setIsSelecting] = useState(false);
-  const [selectionStart, setSelectionStart] = useState({ x: 0, y: 0 });
-  const [selectionEnd, setSelectionEnd] = useState({ x: 0, y: 0 });
+  // Box selection (drag a rectangle to select icons). The desktop owns the two
+  // refs used in render; the hook owns the selection state + drag cycle (#163/A).
   const iconRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const containerRef = useRef<HTMLDivElement>(null);
-  const isSelectingRef = useRef(false);
-  const selectionStartRef = useRef({ x: 0, y: 0 });
-  const selectionEndRef = useRef({ x: 0, y: 0 });
-  const baseSelectedRef = useRef<Set<string>>(new Set());
-  const ctrlKeyRef = useRef(false);
-  const suppressClickClearRef = useRef(false);
-
-  const updateSelectionFromBox = useCallback((start: { x: number; y: number }, end: { x: number; y: number }, ctrlKey: boolean) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-
-    const newSelected = new Set(ctrlKey ? baseSelectedRef.current : []);
-    const left = Math.min(start.x, end.x);
-    const right = Math.max(start.x, end.x);
-    const top = Math.min(start.y, end.y);
-    const bottom = Math.max(start.y, end.y);
-
-    iconRefs.current.forEach((iconEl, key) => {
-      if (!iconEl) return;
-
-      const iconRect = iconEl.getBoundingClientRect();
-      const iconLeft = iconRect.left - rect.left;
-      const iconRight = iconRect.right - rect.left;
-      const iconTop = iconRect.top - rect.top;
-      const iconBottom = iconRect.bottom - rect.top;
-
-      const intersects = !(iconRight < left || iconLeft > right ||
-                           iconBottom < top || iconTop > bottom);
-
-      if (intersects) {
-        if (ctrlKey && baseSelectedRef.current.has(key)) {
-          newSelected.delete(key);
-        } else {
-          newSelected.add(key);
-        }
-      } else if (ctrlKey && baseSelectedRef.current.has(key)) {
-        newSelected.add(key);
-      }
-    });
-
-    iconSelection.setSelection(newSelected);
-  }, [iconSelection]);
-
-  useEffect(() => {
-    return () => {
-      isSelectingRef.current = false;
-    };
-  }, []);
+  const { isSelecting, selectionStart, selectionEnd, handleMouseDown, suppressClickClearRef } =
+    useBoxSelection({ containerRef, iconRefs, selectedIcons, iconSelection });
 
   const selectIcon = (key: string, additive: boolean) => {
     if (additive) iconSelection.handleItemClick(key, orderedIconKeys(), { ctrlKey: true });
@@ -120,69 +88,6 @@ const Desktop: React.FC = () => {
   const lastTouchAt = useRef(0);
   const isSyntheticAfterTouch = () => Date.now() - lastTouchAt.current < 700;
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (target.closest(BOX_SELECT_IGNORE)) {
-      return;
-    }
-
-    if (e.button !== 0) return;
-
-    e.preventDefault();
-    containerRef.current?.focus(); // desktop owns keyboard input (#87)
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-
-    const start = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    isSelectingRef.current = true;
-    selectionStartRef.current = start;
-    selectionEndRef.current = start;
-    ctrlKeyRef.current = e.ctrlKey;
-    baseSelectedRef.current = e.ctrlKey ? new Set(selectedIcons) : new Set();
-    setIsSelecting(true);
-    setSelectionStart(start);
-    setSelectionEnd(start);
-
-    if (!e.ctrlKey) {
-      iconSelection.clear();
-    }
-
-    const onMouseMove = (ev: MouseEvent) => {
-      if (!isSelectingRef.current) return;
-      const containerRect = containerRef.current?.getBoundingClientRect();
-      if (!containerRect) return;
-
-      const current = {
-        x: ev.clientX - containerRect.left,
-        y: ev.clientY - containerRect.top,
-      };
-      selectionEndRef.current = current;
-      setSelectionEnd(current);
-      updateSelectionFromBox(selectionStartRef.current, current, ctrlKeyRef.current);
-    };
-
-    const onMouseUp = () => {
-      if (!isSelectingRef.current) return;
-
-      const startPos = selectionStartRef.current;
-      const endPos = selectionEndRef.current;
-      const dragged = Math.abs(endPos.x - startPos.x) > 4 || Math.abs(endPos.y - startPos.y) > 4;
-
-      if (dragged) {
-        updateSelectionFromBox(startPos, endPos, ctrlKeyRef.current);
-        suppressClickClearRef.current = true;
-      }
-
-      isSelectingRef.current = false;
-      setIsSelecting(false);
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  };
-
   const handleIconDoubleClick = (key: string, item: FileNode) => {
     // External-link shortcut: leave the fiction instead of opening a window (#136).
     if (isExternalLinkNode(item)) {
@@ -192,7 +97,13 @@ const Desktop: React.FC = () => {
       return;
     }
     const resolved = resolveFileOpen(key, item);
-    bus.emit({ type: 'file:open', path: [key], name: item.name, nodeType: item.type, app: (item as { app?: string }).app });
+    bus.emit({
+      type: 'file:open',
+      path: [key],
+      name: item.name,
+      nodeType: item.type,
+      app: (item as { app?: string }).app,
+    });
     const displayName = getFileDisplayName(key, item, t);
     if (!resolved) {
       showModal(
@@ -305,7 +216,11 @@ const Desktop: React.FC = () => {
     const target = e.target as HTMLElement;
     // Leave windows, dialogs, menus, the taskbar and resize handles alone —
     // only the desktop plane and its icons opt into these gestures.
-    if (target.closest('[data-xp-context-boundary="true"], [data-testid="taskbar"], .windows-xp-portal, .react-resizable-handle')) {
+    if (
+      target.closest(
+        '[data-xp-context-boundary="true"], [data-testid="taskbar"], .windows-xp-portal, .react-resizable-handle'
+      )
+    ) {
       touchIgnoreRef.current = true;
       return;
     }
@@ -328,9 +243,12 @@ const Desktop: React.FC = () => {
   };
 
   const handleIconDelete = (key: string) => {
-    const keysToDelete = selectedIcons.size > 0 && selectedIcons.has(key)
-      ? getOperableKeys(Array.from(selectedIcons))
-      : SYSTEM_ICON_KEYS.has(key) ? [] : [key];
+    const keysToDelete =
+      selectedIcons.size > 0 && selectedIcons.has(key)
+        ? getOperableKeys(Array.from(selectedIcons))
+        : SYSTEM_ICON_KEYS.has(key)
+          ? []
+          : [key];
 
     const itemsToDelete = keysToDelete
       .map(k => ({ key: k, item: rootChildren[k] }))
@@ -341,9 +259,12 @@ const Desktop: React.FC = () => {
       return;
     }
 
-    const message = itemsToDelete.length === 1
-      ? t('common.deleteConfirmSingle', { name: getFileDisplayName(itemsToDelete[0].key, itemsToDelete[0].item, t) })
-      : t('common.deleteConfirmMultiple', { count: itemsToDelete.length });
+    const message =
+      itemsToDelete.length === 1
+        ? t('common.deleteConfirmSingle', {
+            name: getFileDisplayName(itemsToDelete[0].key, itemsToDelete[0].item, t),
+          })
+        : t('common.deleteConfirmMultiple', { count: itemsToDelete.length });
 
     showConfirm(t('common.deleteConfirmTitle'), message, 'warning').then(confirmed => {
       if (confirmed) {
@@ -466,7 +387,7 @@ const Desktop: React.FC = () => {
       ],
     },
     { type: 'separator' },
-    { label: t('contextMenu.properties'), action: handleDesktopProperties }
+    { label: t('contextMenu.properties'), action: handleDesktopProperties },
   ];
 
   const buildIconMenuItems = (keys: string[]): MenuItem[] => {
@@ -497,10 +418,22 @@ const Desktop: React.FC = () => {
 
     if (!isSystem || operable.length > 0) {
       items.push(
-        { label: t('contextMenu.cut'), action: () => handleIconCut(keys), disabled: operable.length === 0 },
-        { label: t('contextMenu.copy'), action: () => handleIconCopy(keys), disabled: operable.length === 0 },
+        {
+          label: t('contextMenu.cut'),
+          action: () => handleIconCut(keys),
+          disabled: operable.length === 0,
+        },
+        {
+          label: t('contextMenu.copy'),
+          action: () => handleIconCopy(keys),
+          disabled: operable.length === 0,
+        },
         { type: 'separator' },
-        { label: t('contextMenu.delete'), action: () => handleIconDelete(primaryKey), disabled: operable.length === 0 },
+        {
+          label: t('contextMenu.delete'),
+          action: () => handleIconDelete(primaryKey),
+          disabled: operable.length === 0,
+        }
       );
       if (!isMulti && !isSystem) {
         items.push({ label: t('contextMenu.rename'), action: () => handleIconRename(primaryKey) });
@@ -513,7 +446,7 @@ const Desktop: React.FC = () => {
         label: t('contextMenu.properties'),
         action: () => handleIconProperties(primaryKey),
         disabled: isMulti,
-      },
+      }
     );
 
     return items;
@@ -563,34 +496,51 @@ const Desktop: React.FC = () => {
     iconSelection.selectOnly(keys[next]);
   };
 
-  useShortcut({ id: 'desktop.selectAll', combo: 'Mod+A', scope: 'desktop', label: 'Select all icons' }, () => {
-    const ops = keyOpsRef.current;
-    if (ops.contextMenuVisible) return;
-    const keys = Object.keys(ops.rootChildren);
-    if (keys.length > 0) iconSelection.selectAll(keys);
-  });
-  useShortcut({ id: 'desktop.delete', combo: 'Delete', scope: 'desktop', label: 'Delete to Recycle Bin' }, () => {
-    const ops = keyOpsRef.current;
-    if (ops.contextMenuVisible) return;
-    const selectedArr = Array.from(ops.selectedIcons);
-    if (selectedArr.length > 0) ops.handleIconDelete(selectedArr[0]);
-  });
+  useShortcut(
+    { id: 'desktop.selectAll', combo: 'Mod+A', scope: 'desktop', label: 'Select all icons' },
+    () => {
+      const ops = keyOpsRef.current;
+      if (ops.contextMenuVisible) return;
+      const keys = Object.keys(ops.rootChildren);
+      if (keys.length > 0) iconSelection.selectAll(keys);
+    }
+  );
+  useShortcut(
+    { id: 'desktop.delete', combo: 'Delete', scope: 'desktop', label: 'Delete to Recycle Bin' },
+    () => {
+      const ops = keyOpsRef.current;
+      if (ops.contextMenuVisible) return;
+      const selectedArr = Array.from(ops.selectedIcons);
+      if (selectedArr.length > 0) ops.handleIconDelete(selectedArr[0]);
+    }
+  );
   useShortcut({ id: 'desktop.rename', combo: 'F2', scope: 'desktop', label: 'Rename' }, () => {
     const ops = keyOpsRef.current;
     if (ops.contextMenuVisible) return;
     const selectedArr = Array.from(ops.selectedIcons);
     if (selectedArr.length === 1) ops.handleIconRename(selectedArr[0]);
   });
-  useShortcut({ id: 'desktop.open', combo: 'Enter', scope: 'desktop', label: 'Open selection' }, () => {
-    const ops = keyOpsRef.current;
-    if (ops.contextMenuVisible) return;
-    const selectedArr = Array.from(ops.selectedIcons);
-    if (selectedArr.length > 0) ops.handleOpenSelection(selectedArr);
-  });
-  useShortcut({ id: 'desktop.moveDown', combo: 'ArrowDown', scope: 'desktop' }, () => moveSelection(true));
-  useShortcut({ id: 'desktop.moveUp', combo: 'ArrowUp', scope: 'desktop' }, () => moveSelection(false));
-  useShortcut({ id: 'desktop.moveRight', combo: 'ArrowRight', scope: 'desktop' }, () => moveSelection(true));
-  useShortcut({ id: 'desktop.moveLeft', combo: 'ArrowLeft', scope: 'desktop' }, () => moveSelection(false));
+  useShortcut(
+    { id: 'desktop.open', combo: 'Enter', scope: 'desktop', label: 'Open selection' },
+    () => {
+      const ops = keyOpsRef.current;
+      if (ops.contextMenuVisible) return;
+      const selectedArr = Array.from(ops.selectedIcons);
+      if (selectedArr.length > 0) ops.handleOpenSelection(selectedArr);
+    }
+  );
+  useShortcut({ id: 'desktop.moveDown', combo: 'ArrowDown', scope: 'desktop' }, () =>
+    moveSelection(true)
+  );
+  useShortcut({ id: 'desktop.moveUp', combo: 'ArrowUp', scope: 'desktop' }, () =>
+    moveSelection(false)
+  );
+  useShortcut({ id: 'desktop.moveRight', combo: 'ArrowRight', scope: 'desktop' }, () =>
+    moveSelection(true)
+  );
+  useShortcut({ id: 'desktop.moveLeft', combo: 'ArrowLeft', scope: 'desktop' }, () =>
+    moveSelection(false)
+  );
 
   return (
     <DesktopContainer
@@ -600,15 +550,17 @@ const Desktop: React.FC = () => {
       style={{ outline: 'none' }}
       $bgUrl={desktopBg}
       onContextMenu={handleContextMenu}
-      onClick={(e) => {
+      onClick={e => {
         if (isSyntheticAfterTouch()) return; // a touch tap already handled this
         if (suppressClickClearRef.current) {
           suppressClickClearRef.current = false;
           return;
         }
         const target = e.target as HTMLElement;
-        if (!target.closest('.desktop-icon-selectable') &&
-            !target.closest('[data-testid^="desktop-icon-"]')) {
+        if (
+          !target.closest('.desktop-icon-selectable') &&
+          !target.closest('[data-testid^="desktop-icon-"]')
+        ) {
           iconSelection.clear();
         }
       }}
@@ -619,14 +571,18 @@ const Desktop: React.FC = () => {
     >
       <IconGrid key={refreshKey} style={{ opacity: isRefreshing ? 0 : 1 }}>
         {Object.entries(desktopItems || {}).map(([key, item]: [string, FileNode]) => {
-          const iconName = (key === '回收站' && isContainerNode(item) && item.children && Object.keys(item.children).length > 0)
-            ? 'recycle_bin_full'
-            : getFileIconName(item.name, item.type, item.icon);
+          const iconName =
+            key === '回收站' &&
+            isContainerNode(item) &&
+            item.children &&
+            Object.keys(item.children).length > 0
+              ? 'recycle_bin_full'
+              : getFileIconName(item.name, item.type, item.icon);
           const displayName = getFileDisplayName(key, item, t);
           return (
             <DesktopIcon
               key={key}
-              ref={(el) => {
+              ref={el => {
                 if (el) {
                   iconRefs.current.set(key, el);
                 } else {
@@ -640,7 +596,7 @@ const Desktop: React.FC = () => {
               className="desktop-icon-selectable"
               data-icon-key={key}
               title={displayName}
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 if (isSyntheticAfterTouch()) return; // a touch tap already handled this
                 // Focus the desktop so keyboard ops (F2/Del/Enter…) target it,
@@ -656,21 +612,25 @@ const Desktop: React.FC = () => {
                 if (isSyntheticAfterTouch()) return; // a double-tap already handled this
                 handleIconDoubleClick(key, item);
               }}
-              onContextMenu={(e) => handleIconContextMenu(e, key)}
+              onContextMenu={e => handleIconContextMenu(e, key)}
               draggable
-              onDragStart={(e) => handleDragStart(e, key)}
-              onDragOver={(e) => {
+              onDragStart={e => handleDragStart(e, key)}
+              onDragOver={e => {
                 if (item.type === 'folder') {
                   e.preventDefault();
                   setDragOver(key);
                 }
               }}
               onDragLeave={() => setDragOver(null)}
-              onDrop={(e) => handleDropOnFolder(e, key)}
-              style={dragOver === key && item.type === 'folder' ? {
-                background: 'rgba(193, 210, 238, 0.5)',
-                border: '1px dashed #316AC5'
-              } : undefined}
+              onDrop={e => handleDropOnFolder(e, key)}
+              style={
+                dragOver === key && item.type === 'folder'
+                  ? {
+                      background: 'rgba(193, 210, 238, 0.5)',
+                      border: '1px dashed #316AC5',
+                    }
+                  : undefined
+              }
             >
               <div className="icon-wrapper">
                 <XPIcon name={iconName || 'app_window'} size={32} />

@@ -10,7 +10,9 @@ test.describe('MarkdownViewer (#137)', () => {
     const viewer = page.locator('[data-testid="markdown-viewer"]');
     await expect(viewer).toBeVisible();
     // Markdown is rendered, not shown as raw text.
-    await expect(viewer.getByRole('heading', { level: 1, name: 'About This Desktop' })).toBeVisible();
+    await expect(
+      viewer.getByRole('heading', { level: 1, name: 'About This Desktop' })
+    ).toBeVisible();
     await expect(viewer.locator('strong', { hasText: 'Windows XP' }).first()).toBeVisible();
     await expect(viewer.locator('code', { hasText: 'ref' }).first()).toBeVisible();
   });

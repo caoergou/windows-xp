@@ -2,7 +2,14 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../../../components/XPIcon';
 import { FavoriteItem } from '../types';
-import { Sidebar, SidebarHeader, HistoryList, FavoritesItem, FavoritesToolbar, ToolbarButton } from '../styled';
+import {
+  Sidebar,
+  SidebarHeader,
+  HistoryList,
+  FavoritesItem,
+  FavoritesToolbar,
+  ToolbarButton,
+} from '../styled';
 
 interface FavoritesPanelProps {
   favorites: FavoriteItem[];
@@ -27,7 +34,13 @@ const FavoritesPanel: React.FC<FavoritesPanelProps> = ({
     <Sidebar>
       <SidebarHeader>
         <span>{t('explorer.favorites')}</span>
-        <XPIcon name="close" size={14} color="white" style={{ cursor: 'pointer' }} onClick={onClose} />
+        <XPIcon
+          name="close"
+          size={14}
+          color="white"
+          style={{ cursor: 'pointer' }}
+          onClick={onClose}
+        />
       </SidebarHeader>
       <FavoritesToolbar>
         <ToolbarButton onClick={onAdd}>{t('contextMenu.new')}</ToolbarButton>

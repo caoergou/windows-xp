@@ -14,7 +14,7 @@ import { COLORS } from './tokens';
  * Apply to styled-components that render native <button> elements.
  */
 export const xpButtonStyles = css`
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 11px;
   box-sizing: border-box;
   border: 1px solid ${COLORS.BUTTON_BORDER};
@@ -92,7 +92,7 @@ export const xpScrollbarStyles = css`
 export const xpTitleBarStyles = css`
   background: ${COLORS.TITLE_BAR_GRADIENT};
   color: #fff;
-  text-shadow: 1px 1px #0F1089;
+  text-shadow: 1px 1px #0f1089;
 `;
 
 /**
@@ -112,9 +112,14 @@ const trackGroove = css`
   border-right: 1px solid grey;
   border-bottom: 1px solid grey;
   box-shadow:
-    1px 0 0 white, 1px 1px 0 white, 0 1px 0 white,
-    -1px 0 0 darkgrey, -1px -1px 0 darkgrey, 0 -1px 0 darkgrey,
-    -1px 1px 0 white, 1px -1px darkgrey;
+    1px 0 0 white,
+    1px 1px 0 white,
+    0 1px 0 white,
+    -1px 0 0 darkgrey,
+    -1px -1px 0 darkgrey,
+    0 -1px 0 darkgrey,
+    -1px 1px 0 white,
+    1px -1px darkgrey;
 `;
 
 export const xpTrackbarStyles = css`

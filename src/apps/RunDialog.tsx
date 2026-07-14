@@ -15,7 +15,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 11px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 11px;
 `;
 
@@ -199,7 +199,7 @@ const RunDialog = ({ windowId = '' }: RunDialogProps) => {
           id="run-open"
           type="text"
           value={command}
-          onChange={(e) => setCommand(e.target.value)}
+          onChange={e => setCommand(e.target.value)}
           onKeyDown={handleKeyDown}
           data-testid="run-dialog-input"
           autoFocus

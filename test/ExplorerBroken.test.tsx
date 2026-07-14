@@ -9,12 +9,12 @@ import { TrayProvider } from '../src/context/TrayContext';
 
 // Mock XPIcon
 vi.mock('../src/components/XPIcon', () => ({
-  default: () => <div data-testid="xp-icon">Icon</div>
+  default: () => <div data-testid="xp-icon">Icon</div>,
 }));
 
 // Mock components used in Explorer
 vi.mock('../src/components/Explorer/ExplorerSidebar', () => ({
-    default: () => <div>Sidebar</div>
+  default: () => <div>Sidebar</div>,
 }));
 interface ToolbarProps {
   onBack: () => void;
@@ -23,46 +23,46 @@ interface ToolbarProps {
 }
 
 vi.mock('../src/components/Explorer/ExplorerToolbar', () => ({
-    default: ({ onBack, onForward, onUp }: ToolbarProps) => (
-        <div>
-            <button onClick={onBack}>Back</button>
-            <button onClick={onForward}>Forward</button>
-            <button onClick={onUp}>Up</button>
-        </div>
-    )
+  default: ({ onBack, onForward, onUp }: ToolbarProps) => (
+    <div>
+      <button onClick={onBack}>Back</button>
+      <button onClick={onForward}>Forward</button>
+      <button onClick={onUp}>Up</button>
+    </div>
+  ),
 }));
 vi.mock('../src/components/Explorer/AddressBar', () => ({
-    default: () => <div>AddressBar</div>
+  default: () => <div>AddressBar</div>,
 }));
 
 // Mock filesystem data to include broken files/folders
 vi.mock('../src/data/filesystem.json', () => ({
   default: {
-    "root": {
-      "type": "folder",
-      "name": "root",
-      "children": {
-        "BrokenFolder": {
-          "type": "folder",
-          "name": "损坏的文件夹",
-          "broken": true,
-          "children": {}
+    root: {
+      type: 'folder',
+      name: 'root',
+      children: {
+        BrokenFolder: {
+          type: 'folder',
+          name: '损坏的文件夹',
+          broken: true,
+          children: {},
         },
-        "BrokenFile.txt": {
-          "type": "file",
-          "name": "损坏的文件.txt",
-          "broken": true,
-          "app": "Notepad",
-          "content": "..."
+        'BrokenFile.txt': {
+          type: 'file',
+          name: '损坏的文件.txt',
+          broken: true,
+          app: 'Notepad',
+          content: '...',
         },
-        "NormalFolder": {
-           "type": "folder",
-           "name": "正常文件夹",
-           "children": {}
-        }
-      }
-    }
-  }
+        NormalFolder: {
+          type: 'folder',
+          name: '正常文件夹',
+          children: {},
+        },
+      },
+    },
+  },
 }));
 
 test('Opening a broken folder shows error message', async () => {
@@ -89,41 +89,47 @@ test('Opening a broken folder shows error message', async () => {
   fireEvent.doubleClick(brokenFolderWrapper); // Click the wrapper
 
   // Check for error modal
-  await waitFor(() => {
-     const errorMsg = screen.queryByText(/disk or file is damaged/i);
-     expect(errorMsg).toBeInTheDocument();
-  }, { timeout: 1000 }).catch(() => {
-     throw new Error("Expected error message not found!");
+  await waitFor(
+    () => {
+      const errorMsg = screen.queryByText(/disk or file is damaged/i);
+      expect(errorMsg).toBeInTheDocument();
+    },
+    { timeout: 1000 }
+  ).catch(() => {
+    throw new Error('Expected error message not found!');
   });
 });
 
 test('Opening a broken file shows error message', async () => {
-    render(
-      <UserSessionProvider>
-        <FileSystemProvider>
-          <ModalProvider>
-            <WindowManagerProvider>
-              <TrayProvider>
-                <Explorer initialPath={[]} />
-              </TrayProvider>
-            </WindowManagerProvider>
-          </ModalProvider>
-        </FileSystemProvider>
-      </UserSessionProvider>
-    );
+  render(
+    <UserSessionProvider>
+      <FileSystemProvider>
+        <ModalProvider>
+          <WindowManagerProvider>
+            <TrayProvider>
+              <Explorer initialPath={[]} />
+            </TrayProvider>
+          </WindowManagerProvider>
+        </ModalProvider>
+      </FileSystemProvider>
+    </UserSessionProvider>
+  );
 
-    // Find the broken file
-    const brokenFile = screen.getByText('损坏的文件.txt');
+  // Find the broken file
+  const brokenFile = screen.getByText('损坏的文件.txt');
 
-    // Double click to open
-    const brokenFileWrapper = brokenFile.closest('div');
-    if (!brokenFileWrapper) throw new Error('Broken file wrapper not found');
-    fireEvent.doubleClick(brokenFileWrapper); // Click the wrapper
+  // Double click to open
+  const brokenFileWrapper = brokenFile.closest('div');
+  if (!brokenFileWrapper) throw new Error('Broken file wrapper not found');
+  fireEvent.doubleClick(brokenFileWrapper); // Click the wrapper
 
-    await waitFor(() => {
-       const errorMsg = screen.queryByText(/disk or file is damaged/i);
-       expect(errorMsg).toBeInTheDocument();
-    }, { timeout: 1000 }).catch(() => {
-        throw new Error("Expected error message not found!");
-    });
+  await waitFor(
+    () => {
+      const errorMsg = screen.queryByText(/disk or file is damaged/i);
+      expect(errorMsg).toBeInTheDocument();
+    },
+    { timeout: 1000 }
+  ).catch(() => {
+    throw new Error('Expected error message not found!');
   });
+});

@@ -4,10 +4,11 @@ import { useFileSystem } from '../../../context/FileSystemContext';
 import { useXPEventBus } from '../../../context/EventBusContext';
 import { useStorage } from '../../../context/StorageContext';
 import { useApp } from '../../../hooks/useApp';
-import { useTapGestures } from '../../../hooks/useTapGestures';
 import { useMultiSelect } from '../../../hooks/useMultiSelect';
+import { useExplorerPreferences } from './useExplorerPreferences';
+import { useExplorerTouch } from './useExplorerTouch';
 import FileProperties from '../../../components/FileProperties';
-import { FileNode, MenuItem, isContainerNode, isFileContentNode } from '../../../types';
+import { FileNode, MenuItem, isContainerNode } from '../../../types';
 import { getFileDisplayName } from '../../../utils/fileDisplayName';
 import { openExternalUrl } from '../../../utils/externalLink';
 import {
@@ -15,6 +16,8 @@ import {
   getSystemPathTitle,
   resolveSystemPathDisplay,
 } from '../../../data/systemPaths';
+import { makeDetailsHelpers } from '../helpers';
+import { makeExplorerKeyDown } from '../keyboard';
 import type { ExplorerProps, ExplorerViewMode } from '../types';
 
 export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
@@ -37,73 +40,28 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   const api = useApp(windowId);
   const storage = useStorage();
 
-  // View mode (#120 EXP-02 / #211): one of the five XP views. Persisted PER
-  // FOLDER (a JSON path→mode map) so each folder remembers how it was last
-  // shown. A folder with no saved choice defaults by content — picture folders
-  // open in Thumbnails, everything else in Tiles (XP's defaults).
-  const viewStorageKey = storage.key('explorer_view_by_path');
-  const [viewByPath, setViewByPath] = useState<Record<string, ExplorerViewMode>>(() => {
-    try {
-      const raw = storage.local.getItem(viewStorageKey);
-      const parsed = raw ? JSON.parse(raw) : {};
-      return parsed && typeof parsed === 'object' ? (parsed as Record<string, ExplorerViewMode>) : {};
-    } catch {
-      return {};
-    }
-  });
-  const [sort, setSort] = useState<{ key: 'name' | 'size' | 'type' | 'modified'; dir: 'asc' | 'desc' }>(
-    { key: 'name', dir: 'asc' }
-  );
-  const toggleSort = (key: 'name' | 'size' | 'type' | 'modified') =>
-    setSort(prev => (prev.key === key ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' }));
-
-  // Folders tree pane (#120, EXP): toggled by the toolbar Folders button,
-  // persisted per instance. Replaces the blue task sidebar when on.
-  const foldersStorageKey = storage.key('explorer_folders');
-  const [showFolders, setShowFolders] = useState<boolean>(
-    () => storage.local.getItem(foldersStorageKey) === '1'
-  );
-  const toggleFolders = () =>
-    setShowFolders(prev => {
-      const next = !prev;
-      storage.local.setItem(foldersStorageKey, next ? '1' : '0');
-      return next;
-    });
-
-  // Show-hidden-files toggle (#219). Off by default, persisted per instance;
-  // when off, nodes flagged `hidden` are filtered out of the listing (and the
-  // object count / keyboard nav), matching XP's Folder Options. When on they
-  // show ghosted. Toggling is a user-visible control change → `ui:action`.
-  const showHiddenKey = storage.key('explorer_show_hidden');
-  const [showHidden, setShowHidden] = useState<boolean>(
-    () => storage.local.getItem(showHiddenKey) === '1'
-  );
-  const toggleShowHidden = () =>
-    setShowHidden(prev => {
-      const next = !prev;
-      storage.local.setItem(showHiddenKey, next ? '1' : '0');
-      bus.emit({ type: 'ui:action', appId: 'Explorer', control: 'show-hidden', value: next });
-      return next;
-    });
+  // Persisted UI preferences (view mode, sort, Folders pane, show-hidden,
+  // address-bar MRU) live in their own storage-backed hook (#163/A).
+  const {
+    viewStorageKey,
+    viewByPath,
+    setViewByPath,
+    sort,
+    toggleSort,
+    showFolders,
+    toggleFolders,
+    showHidden,
+    toggleShowHidden,
+    addrHistoryKey,
+    addrHistory,
+    setAddrHistory,
+  } = useExplorerPreferences();
 
   // The children of the current folder that should be visible given the
   // show-hidden setting. Every listing/count/nav path routes through this so a
   // hidden node is uniformly absent (not just visually gone).
   const visibleEntries = (entries: [string, FileNode][]): [string, FileNode][] =>
     showHidden ? entries : entries.filter(([, item]) => !item.hidden);
-
-  // Address-bar history (#120, EXP-08): an MRU of visited paths, persisted per
-  // instance, surfaced in the address-bar dropdown.
-  const addrHistoryKey = storage.key('explorer_address_history');
-  const [addrHistory, setAddrHistory] = useState<string[][]>(() => {
-    try {
-      const raw = storage.local.getItem(addrHistoryKey);
-      const parsed = raw ? JSON.parse(raw) : [];
-      return Array.isArray(parsed) ? (parsed as string[][]) : [];
-    } catch {
-      return [];
-    }
-  });
 
   const [history, setHistory] = useState<string[][]>([initialPath]);
   const [historyIndex, setHistoryIndex] = useState(0);
@@ -113,10 +71,6 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   const selection = useMultiSelect();
   const [refreshKey, setRefreshKey] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  // Touch gestures (#125): synthetic mouse clicks that follow a handled tap are
-  // ignored so behavior isn't doubled; a real mouse never sets this.
-  const lastTouchAt = useRef(0);
-  const isSyntheticAfterTouch = () => Date.now() - lastTouchAt.current < 700;
   const [address, setAddress] = useState<string>(initialPath.join('\\'));
   const [dragOver, setDragOver] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<{
@@ -144,7 +98,8 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     const images = kids.filter(n => n.type === 'file' && /\.(jpe?g|png|gif|bmp)$/i.test(n.name));
     return kids.length > 0 && images.length >= Math.ceil(kids.length / 2);
   };
-  const viewMode: ExplorerViewMode = viewByPath[pathKey] ?? (isPictureFolder() ? 'thumbnails' : 'tiles');
+  const viewMode: ExplorerViewMode =
+    viewByPath[pathKey] ?? (isPictureFolder() ? 'thumbnails' : 'tiles');
   const changeView = (mode: ExplorerViewMode) => {
     setViewByPath(prev => {
       const next = { ...prev, [pathKey]: mode };
@@ -165,7 +120,11 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
       : undefined;
   const selectedItem =
     selection.active && activeNode
-      ? { name: getFileDisplayName(selection.active, activeNode, t), type: activeNode.type, key: selection.active }
+      ? {
+          name: getFileDisplayName(selection.active, activeNode, t),
+          type: activeNode.type,
+          key: selection.active,
+        }
       : null;
 
   // Keys currently selected that still exist in the folder — the working set for
@@ -266,7 +225,13 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
       const { resolveFileOpen } = await import('../../../registry/apps');
       const resolved = resolveFileOpen(name, target);
       const sourcePath = [...currentPath, name];
-      bus.emit({ type: 'file:open', path: sourcePath, name: target.name, nodeType: target.type, app: (target as { app?: string }).app });
+      bus.emit({
+        type: 'file:open',
+        path: sourcePath,
+        name: target.name,
+        nodeType: target.type,
+        app: (target as { app?: string }).app,
+      });
       if (resolved) {
         api.openWindow(
           resolved.appId,
@@ -313,77 +278,25 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     selection.clear();
   };
 
-  // Touch (#125): resolve the file item under the finger (via `data-item-key`)
-  // and map tap → select, double-tap → open/navigate, long-press → its context
-  // menu. List scrolling still works — the hook uses passive listeners and
-  // cancels a tap once the finger moves past tolerance. Declared before the
+  // Touch gestures (#125) live in their own hook (#163/A). Declared before the
   // early return below so the hooks run on every render.
-  const touchTargetRef = useRef<{ key: string; item: FileNode } | null>(null);
-  const resolveTouchItem = (key: string): FileNode | undefined =>
-    currentFolder && isContainerNode(currentFolder) ? currentFolder.children[key] : undefined;
-
-  const fileTouchGestures = useTapGestures({
-    onTap: () => {
-      lastTouchAt.current = Date.now();
-      const target = touchTargetRef.current;
-      if (target) selection.selectOnly(target.key);
-      else selection.clear();
-    },
-    onDoubleTap: () => {
-      lastTouchAt.current = Date.now();
-      const target = touchTargetRef.current;
-      if (target) handleNavigate(target.key);
-    },
-    onLongPress: ({ x, y }) => {
-      lastTouchAt.current = Date.now();
-      const target = touchTargetRef.current;
-      if (target) {
-        selection.selectOnly(target.key);
-        setContextMenu({ visible: true, x, y, targetItem: { key: target.key, item: target.item } });
-      } else {
-        selection.clear();
-        setContextMenu({ visible: true, x, y, targetItem: null });
-      }
-    },
+  const { isSyntheticAfterTouch, fileTouchGestures, handleFileAreaTouchStart } = useExplorerTouch({
+    currentFolder,
+    selection,
+    onOpen: handleNavigate,
+    setContextMenu,
   });
-
-  const handleFileAreaTouchStart = (e: React.TouchEvent) => {
-    const el = (e.target as HTMLElement).closest('[data-item-key]') as HTMLElement | null;
-    const key = el?.dataset.itemKey;
-    const item = key ? resolveTouchItem(key) : undefined;
-    touchTargetRef.current = key && item ? { key, item } : null;
-    fileTouchGestures.onTouchStart(e);
-  };
 
   // Grouping Logic for "My Computer" (Root or Explicit 'My Computer' path)
   const isRoot =
     currentPath.length === 0 || (currentPath.length === 1 && currentPath[0] === '我的电脑');
 
-  // Details view (#120, EXP-02): sortable Name / Size / Type / Date columns.
-  const nodeSizeBytes = (item: FileNode): number | null =>
-    isContainerNode(item) ? null : isFileContentNode(item) && item.content ? item.content.length : 0;
-  const nodeTypeLabel = (item: FileNode): string => {
-    if (item.type === 'folder') return t('explorer.types.folder');
-    const dot = item.name.lastIndexOf('.');
-    if (dot <= 0 || dot === item.name.length - 1) return t('explorer.fileTypes.noExtension');
-    const ext = item.name.slice(dot + 1).toLowerCase();
-    // Known extensions map to a friendly XP name; unknown ones fall back to
-    // "EXT File" (e.g. "M3U File"), matching how XP labels unregistered types.
-    return t(`explorer.fileTypes.${ext}`, {
-      defaultValue: t('explorer.fileTypes.generic', { ext: ext.toUpperCase() }),
-    });
-  };
-  const formatBytes = (bytes: number | null): string =>
-    bytes === null ? '' : t('fileProperties.bytes', { count: bytes });
-  const detailsDate = (item?: FileNode) => {
-    const d = new Date(item?.mtime ?? '2003-10-25');
-    return new Intl.DateTimeFormat(i18n.language, {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-    }).format(d);
-  };
-  const nodeMtime = (item: FileNode): string => item.mtime ?? '2003-10-25';
+  // Details view (#120, EXP-02): sortable Name / Size / Type / Date column
+  // formatters, bound to the active locale (#163/A).
+  const { nodeSizeBytes, nodeTypeLabel, formatBytes, detailsDate, nodeMtime } = makeDetailsHelpers(
+    t,
+    i18n.language
+  );
 
   const openItemMenuAt = (x: number, y: number, key: string, item: FileNode) => {
     // Right-clicking an already-selected item keeps the whole multi-selection
@@ -441,7 +354,9 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     }
     const message =
       keys.length === 1
-        ? t('common.deleteConfirmSingle', { name: getFileDisplayName(keys[0], folder.children[keys[0]], t) })
+        ? t('common.deleteConfirmSingle', {
+            name: getFileDisplayName(keys[0], folder.children[keys[0]], t),
+          })
         : t('common.deleteConfirmMultiple', { count: keys.length });
     api.dialog
       .confirm({ title: t('common.deleteConfirmTitle'), message, type: 'warning' })
@@ -600,12 +515,14 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
         { label: t('contextMenu.paste'), action: handlePaste, disabled: !clipboard },
         { type: 'separator' },
         { label: t('contextMenu.rename'), action: handleRename, disabled: selection.size !== 1 },
-        { label: t('contextMenu.delete'), action: handleDeleteSelection, disabled: selection.size === 0 },
+        {
+          label: t('contextMenu.delete'),
+          action: handleDeleteSelection,
+          disabled: selection.size === 0,
+        },
         { type: 'separator' },
         {
-          label: showHidden
-            ? `✓ ${t('explorer.showHiddenFiles')}`
-            : t('explorer.showHiddenFiles'),
+          label: showHidden ? `✓ ${t('explorer.showHiddenFiles')}` : t('explorer.showHiddenFiles'),
           action: () => {
             toggleShowHidden();
             closeContextMenu();
@@ -669,68 +586,17 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   // level, F5 refresh, F2 rename / Delete on the selected item, Enter opens the
   // selection, and arrows/Home/End move the selection. Ignored while typing in
   // the address bar.
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLElement;
-    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
-      return;
-    }
-    const folder = currentFolder && isContainerNode(currentFolder) ? currentFolder : null;
-    const selKey = selection.active;
-    const selNode = selKey && folder ? folder.children[selKey] : undefined;
-
-    // Ctrl/Cmd+A selects every item in the folder (#211).
-    if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
-      if (!folder) return;
-      e.preventDefault();
-      selection.selectAll(orderedKeys());
-      return;
-    }
-
-    if (e.key === 'Backspace') {
-      if (currentPath.length > 0) {
-        e.preventDefault();
-        handleUp();
-      }
-    } else if (e.key === 'F5') {
-      e.preventDefault();
-      setRefreshKey(k => k + 1);
-    } else if (e.key === 'F2') {
-      if (selKey && selNode) {
-        e.preventDefault();
-        handleRename({ key: selKey, item: selNode });
-      }
-    } else if (e.key === 'Delete') {
-      if (selection.size > 0) {
-        e.preventDefault();
-        handleDeleteSelection(selKey && selNode ? { key: selKey, item: selNode } : undefined);
-      }
-    } else if (e.key === 'Enter') {
-      if (selKey && selNode) {
-        e.preventDefault();
-        handleNavigate(selKey);
-      }
-    } else if (
-      e.key === 'ArrowDown' ||
-      e.key === 'ArrowUp' ||
-      e.key === 'ArrowRight' ||
-      e.key === 'ArrowLeft' ||
-      e.key === 'Home' ||
-      e.key === 'End'
-    ) {
-      if (!folder) return;
-      const keys = orderedKeys();
-      if (keys.length === 0) return;
-      e.preventDefault();
-      const cur = selKey ? keys.indexOf(selKey) : -1;
-      let idx: number;
-      if (e.key === 'Home') idx = 0;
-      else if (e.key === 'End') idx = keys.length - 1;
-      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') idx = cur <= 0 ? 0 : cur - 1;
-      else idx = cur < 0 ? 0 : Math.min(cur + 1, keys.length - 1);
-      // Shift+Arrow extends the range from the anchor; a plain arrow moves it.
-      selection.moveActive(keys, keys[idx], e.shiftKey);
-    }
-  };
+  const handleKeyDown = makeExplorerKeyDown({
+    currentFolder,
+    currentPath,
+    selection,
+    orderedKeys,
+    setRefreshKey,
+    handleUp,
+    handleRename,
+    handleDeleteSelection,
+    handleNavigate,
+  });
 
   return {
     t,

@@ -10,14 +10,35 @@ import { FileNode, isContainerNode } from '../../types';
 import { getFileDisplayName } from '../../utils/fileDisplayName';
 import { getSystemPathDisplay } from '../../data/systemPaths';
 import {
-  Container, DetailsTable, DetailsHeadCell, DetailsRow, DetailsCell, DetailsNameCell, MainContent, FileArea, GroupHeader, StatusBar, EmptyRecycleBinMessage,
-  ThumbsGrid, ThumbItem, ThumbBox, ThumbName, IconsVGrid, IconVItem, IconVName, ListGrid, ListItem, TilesGrid, TileItem, TileMeta,
+  Container,
+  DetailsTable,
+  DetailsHeadCell,
+  DetailsRow,
+  DetailsCell,
+  DetailsNameCell,
+  MainContent,
+  FileArea,
+  GroupHeader,
+  StatusBar,
+  EmptyRecycleBinMessage,
+  ThumbsGrid,
+  ThumbItem,
+  ThumbBox,
+  ThumbName,
+  IconsVGrid,
+  IconVItem,
+  IconVName,
+  ListGrid,
+  ListItem,
+  TilesGrid,
+  TileItem,
+  TileMeta,
 } from './styled';
 import { isOpticalDrive } from './helpers';
 import type { ExplorerProps } from './types';
 import { useExplorer } from './hooks/useExplorer';
 
-const Explorer: React.FC<ExplorerProps> = (props) => {
+const Explorer: React.FC<ExplorerProps> = props => {
   const x = useExplorer(props);
   const {
     t,
@@ -159,7 +180,8 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
       }
       return getFileDisplayName(ka, a, t).localeCompare(getFileDisplayName(kb, b, t)) * dir;
     });
-    const arrow = (key: typeof sort.key) => (sort.key === key ? (sort.dir === 'asc' ? ' ▲' : ' ▼') : '');
+    const arrow = (key: typeof sort.key) =>
+      sort.key === key ? (sort.dir === 'asc' ? ' ▲' : ' ▼') : '';
     return (
       <DetailsTable role="table">
         <colgroup>
@@ -336,7 +358,12 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
     const displayName = getFileDisplayName(key, item, t);
     const isSelected = selection.isSelected(key);
     return (
-      <ListItem key={key} $selected={isSelected} {...itemProps(key, item)} style={dropStyle(key, item)}>
+      <ListItem
+        key={key}
+        $selected={isSelected}
+        {...itemProps(key, item)}
+        style={dropStyle(key, item)}
+      >
         <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={16} />
         <span>
           {displayName}
@@ -357,7 +384,12 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
         ? t('explorer.types.folder')
         : `${nodeTypeLabel(item)}${formatBytes(nodeSizeBytes(item)) ? `  ${formatBytes(nodeSizeBytes(item))}` : ''}`;
     return (
-      <TileItem key={key} $selected={isSelected} {...itemProps(key, item)} style={dropStyle(key, item)}>
+      <TileItem
+        key={key}
+        $selected={isSelected}
+        {...itemProps(key, item)}
+        style={dropStyle(key, item)}
+      >
         <XPIcon name={getFileIconName(item.name, item.type, item.icon)} size={48} />
         <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <span
@@ -459,9 +491,7 @@ const Explorer: React.FC<ExplorerProps> = (props) => {
           )}
         </FileArea>
       </MainContent>
-      <StatusBar>
-        {t('explorer.objectCount', { count: childCount })}
-      </StatusBar>
+      <StatusBar>{t('explorer.objectCount', { count: childCount })}</StatusBar>
       <ContextMenu
         visible={contextMenu.visible}
         x={contextMenu.x}

@@ -57,7 +57,12 @@ function resolve(policy: ViewportPolicy, w: number, h: number): ViewportScale {
     // Always fit the baseline into the container (may upscale to fill an
     // embedded box); clamp to a sane ceiling.
     const scale = Math.min(Math.max(fit, 0.1), 3);
-    return { ...base, active: true, scale, showRotateHint: orientation === 'portrait' && scale < 1 };
+    return {
+      ...base,
+      active: true,
+      scale,
+      showRotateHint: orientation === 'portrait' && scale < 1,
+    };
   }
   // 'auto': only step in when the baseline width can't fit — i.e. a phone. Any
   // container at least a baseline wide keeps the pixel-identical native layout,
@@ -83,7 +88,7 @@ export function useViewportScale(
     raf.current = requestAnimationFrame(() => {
       raf.current = null;
       const { w, h } = measure(containerRef?.current ?? null);
-      setSize((prev) => (prev.w === w && prev.h === h ? prev : { w, h }));
+      setSize(prev => (prev.w === w && prev.h === h ? prev : { w, h }));
     });
   }, [containerRef]);
 

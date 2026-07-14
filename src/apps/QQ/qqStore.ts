@@ -145,7 +145,10 @@ export const qqStore = {
     // 排程延迟上线的好友。
     buddies.forEach(b => {
       if (b.onlineDelayMs && b.onlineDelayMs > 0 && !isOnline(b.status)) {
-        schedule(() => this.bringOnline(b.id, { announce: true, runScript: true }), b.onlineDelayMs);
+        schedule(
+          () => this.bringOnline(b.id, { announce: true, runScript: true }),
+          b.onlineDelayMs
+        );
       }
     });
   },

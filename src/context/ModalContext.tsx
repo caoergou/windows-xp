@@ -8,15 +8,47 @@ export interface ModalContextType {
   showModal: (title: string, message: string, type?: 'info' | 'warning' | 'error') => Promise<void>;
   hideModal: () => void;
   showInput: (title: string, message: string, defaultValue?: string) => Promise<string | null>;
-  showPasswordDialog: (options: { title: string; message: string; hint?: string; correctPassword: string; onFail?: () => void }) => Promise<boolean>;
-  showConfirm: (title: string, message: string, type?: 'question' | 'info' | 'warning' | 'error', confirmLabel?: string, cancelLabel?: string) => Promise<boolean>;
+  showPasswordDialog: (options: {
+    title: string;
+    message: string;
+    hint?: string;
+    correctPassword: string;
+    onFail?: () => void;
+  }) => Promise<boolean>;
+  showConfirm: (
+    title: string,
+    message: string,
+    type?: 'question' | 'info' | 'warning' | 'error',
+    confirmLabel?: string,
+    cancelLabel?: string
+  ) => Promise<boolean>;
   dialog: {
-    alert: (opts: { title: string; message: string; type?: 'info' | 'warning' | 'error' }) => Promise<void>;
-    confirm: (opts: { title: string; message: string; type?: 'question' | 'info' | 'warning' | 'error'; confirmLabel?: string; cancelLabel?: string }) => Promise<boolean>;
-    prompt: (opts: { title: string; message: string; defaultValue?: string }) => Promise<string | null>;
+    alert: (opts: {
+      title: string;
+      message: string;
+      type?: 'info' | 'warning' | 'error';
+    }) => Promise<void>;
+    confirm: (opts: {
+      title: string;
+      message: string;
+      type?: 'question' | 'info' | 'warning' | 'error';
+      confirmLabel?: string;
+      cancelLabel?: string;
+    }) => Promise<boolean>;
+    prompt: (opts: {
+      title: string;
+      message: string;
+      defaultValue?: string;
+    }) => Promise<string | null>;
     // onFail fires on each incorrect entry (the dialog stays open for retries)
     // so callers can surface a password:fail event with the target/attempt (#116).
-    password: (opts: { title: string; message: string; hint?: string; correctPassword: string; onFail?: () => void }) => Promise<boolean>;
+    password: (opts: {
+      title: string;
+      message: string;
+      hint?: string;
+      correctPassword: string;
+      onFail?: () => void;
+    }) => Promise<boolean>;
   };
 }
 
@@ -50,69 +82,135 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }>(null);
 
   // Show alert modal (Promise<void>)
-  const showModal = useCallback((title: string, message: string, type: 'info' | 'warning' | 'error' = 'info'): Promise<void> => {
-    return new Promise((resolve) => {
-      setModal({
-        mode: 'alert',
-        title,
-        message,
-        type,
-        onClose: () => { setModal(null); resolve(); },
+  const showModal = useCallback(
+    (
+      title: string,
+      message: string,
+      type: 'info' | 'warning' | 'error' = 'info'
+    ): Promise<void> => {
+      return new Promise(resolve => {
+        setModal({
+          mode: 'alert',
+          title,
+          message,
+          type,
+          onClose: () => {
+            setModal(null);
+            resolve();
+          },
+        });
       });
-    });
-  }, []);
+    },
+    []
+  );
 
   const hideModal = useCallback(() => setModal(null), []);
 
   // Show confirm modal (Promise<boolean>)
-  const showConfirm = useCallback((title: string, message: string, type: 'question' | 'info' | 'warning' | 'error' = 'question', confirmLabel?: string, cancelLabel?: string): Promise<boolean> => {
-    return new Promise((resolve) => {
-      setModal({
-        mode: 'confirm',
-        title,
-        message,
-        type,
-        confirmLabel,
-        cancelLabel,
-        onConfirm: () => { setModal(null); resolve(true); },
-        onCancel: () => { setModal(null); resolve(false); },
+  const showConfirm = useCallback(
+    (
+      title: string,
+      message: string,
+      type: 'question' | 'info' | 'warning' | 'error' = 'question',
+      confirmLabel?: string,
+      cancelLabel?: string
+    ): Promise<boolean> => {
+      return new Promise(resolve => {
+        setModal({
+          mode: 'confirm',
+          title,
+          message,
+          type,
+          confirmLabel,
+          cancelLabel,
+          onConfirm: () => {
+            setModal(null);
+            resolve(true);
+          },
+          onCancel: () => {
+            setModal(null);
+            resolve(false);
+          },
+        });
       });
-    });
-  }, []);
+    },
+    []
+  );
 
   // Show input modal (Promise<string | null>)
-  const showInput = useCallback((title: string, message: string, defaultValue = ''): Promise<string | null> => {
-    return new Promise((resolve) => {
-      setModal({
-        mode: 'input',
-        title,
-        message,
-        defaultValue,
-        onOk: (value) => { setModal(null); resolve(value); },
-        onCancel: () => { setModal(null); resolve(null); },
+  const showInput = useCallback(
+    (title: string, message: string, defaultValue = ''): Promise<string | null> => {
+      return new Promise(resolve => {
+        setModal({
+          mode: 'input',
+          title,
+          message,
+          defaultValue,
+          onOk: value => {
+            setModal(null);
+            resolve(value);
+          },
+          onCancel: () => {
+            setModal(null);
+            resolve(null);
+          },
+        });
       });
-    });
-  }, []);
+    },
+    []
+  );
 
   // Show password dialog (Promise<boolean>)
-  const showPasswordDialog = useCallback((options: { title: string; message: string; hint?: string; correctPassword: string; onFail?: () => void }): Promise<boolean> => {
-    return new Promise((resolve) => {
-      setModal({
-        mode: 'password',
-        ...options,
-        onSuccess: () => { setModal(null); resolve(true); },
-        onCancel: () => { setModal(null); resolve(false); },
+  const showPasswordDialog = useCallback(
+    (options: {
+      title: string;
+      message: string;
+      hint?: string;
+      correctPassword: string;
+      onFail?: () => void;
+    }): Promise<boolean> => {
+      return new Promise(resolve => {
+        setModal({
+          mode: 'password',
+          ...options,
+          onSuccess: () => {
+            setModal(null);
+            resolve(true);
+          },
+          onCancel: () => {
+            setModal(null);
+            resolve(false);
+          },
+        });
       });
-    });
-  }, []);
+    },
+    []
+  );
 
   // Unified dialog object for useApp
-  const dialog = useMemo(() => ({
-    alert: (opts: { title: string; message: string; type?: 'info' | 'warning' | 'error' }) => showModal(opts.title, opts.message, opts.type),
-    confirm: (opts: { title: string; message: string; type?: 'question' | 'info' | 'warning' | 'error'; confirmLabel?: string; cancelLabel?: string }) => showConfirm(opts.title, opts.message, opts.type, opts.confirmLabel, opts.cancelLabel),
-    prompt: (opts: { title: string; message: string; defaultValue?: string }) => showInput(opts.title, opts.message, opts.defaultValue),
-    password: (opts: { title: string; message: string; hint?: string; correctPassword: string; onFail?: () => void }) => showPasswordDialog(opts),
-  }), [showModal, showConfirm, showInput, showPasswordDialog]);
+  const dialog = useMemo(
+    () => ({
+      alert: (opts: { title: string; message: string; type?: 'info' | 'warning' | 'error' }) =>
+        showModal(opts.title, opts.message, opts.type),
+      confirm: (opts: {
+        title: string;
+        message: string;
+        type?: 'question' | 'info' | 'warning' | 'error';
+        confirmLabel?: string;
+        cancelLabel?: string;
+      }) => showConfirm(opts.title, opts.message, opts.type, opts.confirmLabel, opts.cancelLabel),
+      prompt: (opts: { title: string; message: string; defaultValue?: string }) =>
+        showInput(opts.title, opts.message, opts.defaultValue),
+      password: (opts: {
+        title: string;
+        message: string;
+        hint?: string;
+        correctPassword: string;
+        onFail?: () => void;
+      }) => showPasswordDialog(opts),
+    }),
+    [showModal, showConfirm, showInput, showPasswordDialog]
+  );
 
   const contextValue: ModalContextType = {
     showModal,
@@ -120,7 +218,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showInput,
     showPasswordDialog,
     showConfirm,
-    dialog
+    dialog,
   };
 
   return (

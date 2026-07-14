@@ -337,7 +337,15 @@ export type {
 export { useXPEvents, useXPEventBus } from '../context/EventBusContext';
 export { EventBusProvider } from '../context/EventBusContext';
 export { XPEventBus, createXPEventBus } from '../events';
-export type { Scenario, Trigger, Condition, Action, FlagValue, ScenarioNote, NoteColor } from '../scenario/types';
+export type {
+  Scenario,
+  Trigger,
+  Condition,
+  Action,
+  FlagValue,
+  ScenarioNote,
+  NoteColor,
+} from '../scenario/types';
 export { resolveText, pickText, type ScenarioStrings } from '../scenario/strings';
 export { prologueScenario } from '../data/scenarios/prologue';
 // Author toolchain (PUZZLE-DESIGN §4): Layer-2 fluent builder + headless solver.
@@ -346,11 +354,22 @@ export * as scenarioHelpers from '../scenario/builder';
 export { solveScenario, ranAction } from '../scenario/solver';
 export type { SolveOptions, SolveResult, SolveFsNode } from '../scenario/solver';
 // Load-time validation (#208): deep, path-named checks for untrusted JSON.
-export { validateScenario, assertValidScenario, ScenarioValidationError, SCENARIO_MAX_BYTES } from '../scenario/validate';
+export {
+  validateScenario,
+  assertValidScenario,
+  ScenarioValidationError,
+  SCENARIO_MAX_BYTES,
+} from '../scenario/validate';
 export type { ScenarioValidation } from '../scenario/validate';
 // Layer 3: the Puzzle Dependency Graph — compiler + graph linter.
 export { compilePuzzleGraph, lintPuzzleGraph, solvedFlag, ladder } from '../scenario/puzzleGraph';
-export type { PuzzleGraph, PuzzleNode, PuzzleHint, GraphLintIssue, PuzzleGraphReport } from '../scenario/puzzleGraph';
+export type {
+  PuzzleGraph,
+  PuzzleNode,
+  PuzzleHint,
+  GraphLintIssue,
+  PuzzleGraphReport,
+} from '../scenario/puzzleGraph';
 export { prologueGraph, prologueGraphScenario } from '../data/scenarios/prologueGraph';
 // Scenario / event DevTools (#209): the `devtools` prop mounts the panel, or a
 // host can mount it directly and read the same trace channel.
@@ -365,9 +384,24 @@ export type { EvidenceBoardProps, EvidenceItem } from '../apps/EvidenceBoard';
 export { demoEvidence } from '../data/scenarios/evidenceDemo';
 export type { SearchResultPage } from '../apps/InternetExplorer/types';
 export { demoSearchCorpus } from '../data/scenarios/searchDemo';
-export type { Lesson, LessonStep, LessonHint, LessonMode, LessonScore, ExpectPattern, WrongActionPolicy, WatchAction } from '../lesson/types';
+export type {
+  Lesson,
+  LessonStep,
+  LessonHint,
+  LessonMode,
+  LessonScore,
+  ExpectPattern,
+  WrongActionPolicy,
+  WatchAction,
+} from '../lesson/types';
 export { defineLesson } from '../lesson/types';
 export { lintLesson, isLessonValid, type LintIssue } from '../lesson/lint';
 export { notepadBasicsLesson } from '../data/lessons/notepadBasics';
 export type { XPSnapshot } from '../snapshot';
-export { XP_SNAPSHOT_VERSION, XPSnapshotError, XPSnapshotVersionError, assertLoadableSnapshot, SNAPSHOT_MAX_BYTES } from '../snapshot';
+export {
+  XP_SNAPSHOT_VERSION,
+  XPSnapshotError,
+  XPSnapshotVersionError,
+  assertLoadableSnapshot,
+  SNAPSHOT_MAX_BYTES,
+} from '../snapshot';

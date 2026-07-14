@@ -44,16 +44,21 @@ export const COLORS = {
 
   // XP.css button gradients
   BUTTON_GRADIENT: 'linear-gradient(180deg, #FFFFFF 0%, #ECEBE5 86%, #D8D0C4 100%)',
-  BUTTON_ACTIVE_GRADIENT: 'linear-gradient(180deg, #CDCAC3 0%, #E3E3DB 8%, #E5E5DE 94%, #F2F2F1 100%)',
-  BUTTON_HOVER_SHADOW: 'inset -1px 1px #FFF0CF, inset 1px 2px #FDD889, inset -2px 2px #FBC761, inset 2px -2px #E5A01A',
-  BUTTON_FOCUS_SHADOW: 'inset -1px 1px #CEE7FF, inset 1px 2px #98B8EA, inset -2px 2px #BCD4F6, inset 1px -1px #89ADE4, inset 2px -2px #89ADE4',
+  BUTTON_ACTIVE_GRADIENT:
+    'linear-gradient(180deg, #CDCAC3 0%, #E3E3DB 8%, #E5E5DE 94%, #F2F2F1 100%)',
+  BUTTON_HOVER_SHADOW:
+    'inset -1px 1px #FFF0CF, inset 1px 2px #FDD889, inset -2px 2px #FBC761, inset 2px -2px #E5A01A',
+  BUTTON_FOCUS_SHADOW:
+    'inset -1px 1px #CEE7FF, inset 1px 2px #98B8EA, inset -2px 2px #BCD4F6, inset 1px -1px #89ADE4, inset 2px -2px #89ADE4',
 
   // XP.css title-bar (from xp.css window.scss)
-  TITLE_BAR_GRADIENT: 'linear-gradient(180deg, #0997FF 0%, #0053EE 8%, #0050EE 40%, #0066FF 88%, #0066FF 93%, #005BFF 95%, #003DD7 96%, #003DD7 100%)',
+  TITLE_BAR_GRADIENT:
+    'linear-gradient(180deg, #0997FF 0%, #0053EE 8%, #0050EE 40%, #0066FF 88%, #0066FF 93%, #005BFF 95%, #003DD7 96%, #003DD7 100%)',
 
   // XP.css scrollbar
   SCROLLBAR_BG: 'linear-gradient(90deg, #C5D5FF 0%, #B5D3FF 86%, #B6CAF7 100%)',
-  SCROLLBAR_SHADOW: 'inset 1px 1px white, inset -1px -1px white, inset 2px 2px #B9CDFA, inset -2px -2px #B6C9F7',
+  SCROLLBAR_SHADOW:
+    'inset 1px 1px white, inset -1px -1px white, inset 2px 2px #B9CDFA, inset -2px -2px #B6C9F7',
 
   // XP dialog / group-box greys (status dialogs, group boxes, tabs, list separators).
   // BORDER_GREY / DIVIDER_GREY already exist above; only the hilight is new.

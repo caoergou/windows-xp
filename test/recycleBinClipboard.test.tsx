@@ -136,8 +136,7 @@ describe('recycle bin', () => {
 
     // Both entries live in the bin under distinct keys.
     const bin = result.current.getFile(['回收站']);
-    const binChildren =
-      bin && 'children' in bin ? (bin.children as Record<string, unknown>) : {};
+    const binChildren = bin && 'children' in bin ? (bin.children as Record<string, unknown>) : {};
     const keys = Object.keys(binChildren).filter(k => k.startsWith('f.txt'));
     expect(keys).toHaveLength(2);
 

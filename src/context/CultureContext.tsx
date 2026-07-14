@@ -1,17 +1,5 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useMemo,
-  useEffect,
-} from 'react';
-import {
-  CulturePackage,
-  resolveCulture,
-  enCulture,
-  zhCulture,
-} from '../data/culture';
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
+import { CulturePackage, resolveCulture, enCulture, zhCulture } from '../data/culture';
 
 export interface CultureContextType {
   /** 当前生效的文化包 */
@@ -34,9 +22,15 @@ const defaultCultureContext: CultureContextType = {
   culture: enCulture,
   cultureKey: enCulture.id,
   cultures: [enCulture, zhCulture],
-  registerCulture: () => { /* no-op: used when rendered outside CultureProvider */ },
-  setCulture: () => { /* no-op: used when rendered outside CultureProvider */ },
-  setCultureByLang: () => { /* no-op: used when rendered outside CultureProvider */ },
+  registerCulture: () => {
+    /* no-op: used when rendered outside CultureProvider */
+  },
+  setCulture: () => {
+    /* no-op: used when rendered outside CultureProvider */
+  },
+  setCultureByLang: () => {
+    /* no-op: used when rendered outside CultureProvider */
+  },
 };
 
 export const useCulture = (): CultureContextType => {
@@ -65,9 +59,7 @@ export const CultureProvider: React.FC<CultureProviderProps> = ({
   cultures: userCultures = [],
   defaultLanguage = 'en',
 }) => {
-  const [cultures, setCultures] = useState<CulturePackage[]>(() =>
-    mergeCultures(userCultures)
-  );
+  const [cultures, setCultures] = useState<CulturePackage[]>(() => mergeCultures(userCultures));
 
   const [cultureId, setCultureId] = useState<string>(() => {
     const matched = resolveCulture(mergeCultures(userCultures), defaultLanguage);
@@ -125,9 +117,5 @@ export const CultureProvider: React.FC<CultureProviderProps> = ({
     [activeCulture, cultures, registerCulture, setCulture, setCultureByLang]
   );
 
-  return (
-    <CultureContext.Provider value={value}>
-      {children}
-    </CultureContext.Provider>
-  );
+  return <CultureContext.Provider value={value}>{children}</CultureContext.Provider>;
 };

@@ -2,10 +2,7 @@ import 'fake-indexeddb/auto';
 import React from 'react';
 import { render, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
-import {
-  AppRegistryProvider,
-  useAppRegistry,
-} from '../src/context/AppRegistryContext';
+import { AppRegistryProvider, useAppRegistry } from '../src/context/AppRegistryContext';
 import { CultureProvider, useCulture } from '../src/context/CultureContext';
 import { XPEventBus, createXPEventBus } from '../src/events';
 import { EventBusProvider } from '../src/context/EventBusContext';

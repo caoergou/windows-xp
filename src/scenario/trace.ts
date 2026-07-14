@@ -29,7 +29,8 @@ const path = (p: string[]): string => p.join('/');
 const leafLabel = (condition: Condition, ctx: EvalContext): string => {
   if ('flag' in condition) {
     const cur = fmt(ctx.flags[condition.flag]);
-    if (condition.eq !== undefined) return `flag ${condition.flag} (${cur}) == ${fmt(condition.eq)}`;
+    if (condition.eq !== undefined)
+      return `flag ${condition.flag} (${cur}) == ${fmt(condition.eq)}`;
     if (condition.gte !== undefined) return `flag ${condition.flag} (${cur}) >= ${condition.gte}`;
     if (condition.lte !== undefined) return `flag ${condition.flag} (${cur}) <= ${condition.lte}`;
     return `flag ${condition.flag} (${cur}) is truthy`;
@@ -66,7 +67,10 @@ const leafLabel = (condition: Condition, ctx: EvalContext): string => {
 };
 
 /** Build the truth-annotated trace tree for a condition. */
-export const traceCondition = (condition: Condition | undefined, ctx: EvalContext): ConditionTrace => {
+export const traceCondition = (
+  condition: Condition | undefined,
+  ctx: EvalContext
+): ConditionTrace => {
   if (!condition) return { label: '(no condition)', held: true };
 
   if ('all' in condition) {

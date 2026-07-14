@@ -1,11 +1,4 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useXPEventBus } from './EventBusContext';
 import { useStorage } from './StorageContext';
 import { canUseDOM } from '../utils/storage';
@@ -151,7 +144,11 @@ export const SchedulerProvider: React.FC<SchedulerProviderProps> = ({
       const id = options.id ?? `sched-${Date.now()}-${autoScheduleSeq++}`;
       const now = Date.now();
       const fireAt = options.at ?? now + (options.delayMs ?? 0);
-      const task: ScheduledTask = { id, fireAt, ...(options.event ? { event: options.event } : {}) };
+      const task: ScheduledTask = {
+        id,
+        fireAt,
+        ...(options.event ? { event: options.event } : {}),
+      };
 
       // Replace any existing task with this id.
       writeTasks([...readTasks().filter(t => t.id !== id), task]);

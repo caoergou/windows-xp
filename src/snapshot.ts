@@ -74,7 +74,9 @@ const validateNode = (node: unknown, path: string): void => {
   }
   if (CONTAINER_TYPES.includes(node.type)) {
     if (!isPlainObject(node.children)) {
-      throw new XPSnapshotError(`${path}.children: expected an object, got ${describe(node.children)}.`);
+      throw new XPSnapshotError(
+        `${path}.children: expected an object, got ${describe(node.children)}.`
+      );
     }
     for (const [key, child] of Object.entries(node.children)) {
       validateNode(child, `${path}.children[${JSON.stringify(key)}]`);
@@ -139,11 +141,19 @@ export function assertLoadableSnapshot(value: unknown): asserts value is XPSnaps
   if (snap.recycleBin !== undefined && !isPlainObject(snap.recycleBin)) {
     throw new XPSnapshotError(`recycleBin: expected an object, got ${describe(snap.recycleBin)}.`);
   }
-  if (snap.wallpaper !== undefined && snap.wallpaper !== null && typeof snap.wallpaper !== 'string') {
-    throw new XPSnapshotError(`wallpaper: expected a string or null, got ${describe(snap.wallpaper)}.`);
+  if (
+    snap.wallpaper !== undefined &&
+    snap.wallpaper !== null &&
+    typeof snap.wallpaper !== 'string'
+  ) {
+    throw new XPSnapshotError(
+      `wallpaper: expected a string or null, got ${describe(snap.wallpaper)}.`
+    );
   }
   if (snap.language !== undefined && snap.language !== null && typeof snap.language !== 'string') {
-    throw new XPSnapshotError(`language: expected a string or null, got ${describe(snap.language)}.`);
+    throw new XPSnapshotError(
+      `language: expected a string or null, got ${describe(snap.language)}.`
+    );
   }
   if (snap.flags !== undefined) {
     if (!isPlainObject(snap.flags)) {
@@ -151,7 +161,9 @@ export function assertLoadableSnapshot(value: unknown): asserts value is XPSnaps
     }
     for (const [key, v] of Object.entries(snap.flags)) {
       if (!isPrimitive(v)) {
-        throw new XPSnapshotError(`flags[${JSON.stringify(key)}]: expected a string/number/boolean/null, got ${describe(v)}.`);
+        throw new XPSnapshotError(
+          `flags[${JSON.stringify(key)}]: expected a string/number/boolean/null, got ${describe(v)}.`
+        );
       }
     }
   }

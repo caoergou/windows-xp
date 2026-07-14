@@ -18,13 +18,7 @@ describe('culture profiles', () => {
     // en culture package parity (#123): western 2000s apps, all functional, no DummyApp.
     const enApps = getDesktopShortcuts('en').map(item => item.app);
     expect(enApps).toEqual(
-      expect.arrayContaining([
-        'Winamp',
-        'NortonAntiVirus',
-        'UTorrent',
-        'ITunes',
-        'MicrosoftOffice',
-      ])
+      expect.arrayContaining(['Winamp', 'NortonAntiVirus', 'UTorrent', 'ITunes', 'MicrosoftOffice'])
     );
     expect(getDesktopShortcuts('en').length).toBeGreaterThanOrEqual(5);
     expect(getDesktopShortcuts('en').some(item => item.app === 'DummyApp')).toBe(false);

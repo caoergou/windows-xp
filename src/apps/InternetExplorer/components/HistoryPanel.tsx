@@ -17,7 +17,13 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onNavigate, onClos
     <Sidebar>
       <SidebarHeader>
         <span>{t('internetExplorer.history')}</span>
-        <XPIcon name="close" size={14} color="white" style={{ cursor: 'pointer' }} onClick={onClose} />
+        <XPIcon
+          name="close"
+          size={14}
+          color="white"
+          style={{ cursor: 'pointer' }}
+          onClick={onClose}
+        />
       </SidebarHeader>
       <HistoryList>
         {history.map((item, index) => (
