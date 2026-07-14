@@ -56,7 +56,7 @@ Plenty of projects *look* like Windows XP. This one is built to be **used inside
 | Scenario | The relevant pieces |
 |---|---|
 | **Portfolio / personal site** — your projects as desktop folders, About.txt in Notepad | `fileSystemMode="replace"`, custom apps, IE renders your deployed projects |
-| **Markdown blog** — posts as `.md` files opened in the Markdown Viewer, permalinks, RSS/sitemap for SEO | `buildContentFs`/`postFromMarkdown`, deep links, `buildRssFeed`/`buildSitemap` — see [Build a blog on the desktop](https://eric.run.place/windows-xp/docs/guide/content#build-a-blog-on-the-desktop) |
+| **Markdown blog** — posts as `.md` files opened in the Markdown Viewer, permalinks, RSS/sitemap for SEO | `buildContentFs`/`postFromMarkdown`, deep links, `buildRssFeed`/`buildSitemap` — see [Build a blog on the desktop](https://eric.run.place/windows-xp/docs/guide/blog) |
 | **Puzzle game / ARG** — locked folders, chat-log clues, a desktop that reacts to the player | `locked`/`password`/`broken` file attributes, `onEvent`, the [scenario system](https://github.com/caoergou/windows-xp/issues/84) (in progress) |
 | **Marketing / creative campaign** — a branded Y2K world (see A24's *Y2K* promo site for the genre) | embedded mode, content replacement, wallpaper/avatar injection |
 | **Nostalgia content site** — 2000s Chinese internet or Western Y2K, as data | culture packages (`cultures` prop) |

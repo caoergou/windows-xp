@@ -34,6 +34,7 @@ export default defineConfig({
           text: 'Content & scripting',
           items: [
             { text: 'Make the desktop yours', link: '/guide/content' },
+            { text: 'Build a blog on the desktop', link: '/guide/blog' },
             { text: 'Events & imperative control', link: '/guide/events' },
             { text: 'Scenario system', link: '/guide/scenarios' },
             { text: 'Guided lessons', link: '/guide/lessons' },
@@ -91,7 +92,8 @@ export default defineConfig({
               text: '开始',
               items: [
                 { text: '安装与快速开始', link: '/zh/guide/getting-started' },
-                { text: '打造你的专属桌面（含博客）', link: '/zh/guide/content' },
+                { text: '打造你的专属桌面', link: '/zh/guide/content' },
+                { text: '在桌面上搭建博客', link: '/zh/guide/blog' },
                 { text: '组件画廊', link: '/zh/components' },
               ],
             },
