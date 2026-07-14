@@ -8,19 +8,34 @@ import {
   type ShortcutSpec,
 } from '../src/utils/keymap';
 
-const ev = (o: Partial<KeyboardEvent> & { key: string }) => ({
-  ctrlKey: false,
-  metaKey: false,
-  altKey: false,
-  shiftKey: false,
-  preventDefault: vi.fn(),
-  ...o,
-}) as unknown as KeyboardEvent;
+const ev = (o: Partial<KeyboardEvent> & { key: string }) =>
+  ({
+    ctrlKey: false,
+    metaKey: false,
+    altKey: false,
+    shiftKey: false,
+    preventDefault: vi.fn(),
+    ...o,
+  }) as unknown as KeyboardEvent;
 
 describe('parseCombo', () => {
   it('parses modifiers and normalizes the key', () => {
-    expect(parseCombo('Mod+Shift+S')).toEqual({ mod: true, ctrl: false, meta: false, alt: false, shift: true, key: 's' });
-    expect(parseCombo('Alt+F4')).toEqual({ mod: false, ctrl: false, meta: false, alt: true, shift: false, key: 'f4' });
+    expect(parseCombo('Mod+Shift+S')).toEqual({
+      mod: true,
+      ctrl: false,
+      meta: false,
+      alt: false,
+      shift: true,
+      key: 's',
+    });
+    expect(parseCombo('Alt+F4')).toEqual({
+      mod: false,
+      ctrl: false,
+      meta: false,
+      alt: true,
+      shift: false,
+      key: 'f4',
+    });
     expect(parseCombo('Ctrl+Esc').key).toBe('escape');
     expect(parseCombo('Delete').key).toBe('delete');
     expect(parseCombo('Up').key).toBe('arrowup');
@@ -54,7 +69,9 @@ describe('comboMatchesEvent — Mod normalization', () => {
   it('requires exact modifier set (no extra modifiers)', () => {
     const altF4 = parseCombo('Alt+F4');
     expect(comboMatchesEvent(altF4, ev({ key: 'F4', altKey: true }), false)).toBe(true);
-    expect(comboMatchesEvent(altF4, ev({ key: 'F4', altKey: true, ctrlKey: true }), false)).toBe(false);
+    expect(comboMatchesEvent(altF4, ev({ key: 'F4', altKey: true, ctrlKey: true }), false)).toBe(
+      false
+    );
   });
 
   it('handles Shift with a letter (uppercase event key)', () => {
@@ -64,7 +81,9 @@ describe('comboMatchesEvent — Mod normalization', () => {
 });
 
 describe('Keymap.dispatch', () => {
-  const spec = (o: Partial<ShortcutSpec> & { id: string; combo: string; scope: ShortcutSpec['scope'] }): ShortcutSpec => o;
+  const spec = (
+    o: Partial<ShortcutSpec> & { id: string; combo: string; scope: ShortcutSpec['scope'] }
+  ): ShortcutSpec => o;
 
   it('fires a matching global binding and preventDefaults by default', () => {
     const km = new Keymap({ isMac: false });
@@ -78,12 +97,15 @@ describe('Keymap.dispatch', () => {
 
   it('disableGlobalShortcuts silences global bindings but not app ones', () => {
     const km = new Keymap({ isMac: false, disableGlobalShortcuts: true });
-    const g = vi.fn(); const a = vi.fn();
+    const g = vi.fn();
+    const a = vi.fn();
     km.register(spec({ id: 'window.close', combo: 'Alt+F4', scope: 'global' }), g);
     km.register(spec({ id: 'calc.equals', combo: 'Enter', scope: 'app', appId: 'Calculator' }), a);
     expect(km.dispatch(ev({ key: 'F4', altKey: true }), { inInput: false })).toBe(false);
     expect(g).not.toHaveBeenCalled();
-    expect(km.dispatch(ev({ key: 'Enter' }), { inInput: false, focusedAppId: 'Calculator' })).toBe(true);
+    expect(km.dispatch(ev({ key: 'Enter' }), { inInput: false, focusedAppId: 'Calculator' })).toBe(
+      true
+    );
     expect(a).toHaveBeenCalledOnce();
   });
 
@@ -91,8 +113,12 @@ describe('Keymap.dispatch', () => {
     const km = new Keymap({ isMac: false });
     const fn = vi.fn();
     km.register(spec({ id: 'mine.reset', combo: 'F2', scope: 'app', appId: 'Minesweeper' }), fn);
-    expect(km.dispatch(ev({ key: 'F2' }), { inInput: false, focusedAppId: 'Explorer' })).toBe(false);
-    expect(km.dispatch(ev({ key: 'F2' }), { inInput: false, focusedAppId: 'Minesweeper' })).toBe(true);
+    expect(km.dispatch(ev({ key: 'F2' }), { inInput: false, focusedAppId: 'Explorer' })).toBe(
+      false
+    );
+    expect(km.dispatch(ev({ key: 'F2' }), { inInput: false, focusedAppId: 'Minesweeper' })).toBe(
+      true
+    );
     expect(fn).toHaveBeenCalledOnce();
   });
 
@@ -108,9 +134,13 @@ describe('Keymap.dispatch', () => {
 
   it('stands down while typing unless allowInInput', () => {
     const km = new Keymap({ isMac: false });
-    const guarded = vi.fn(); const allowed = vi.fn();
+    const guarded = vi.fn();
+    const allowed = vi.fn();
     km.register(spec({ id: 'desktop.selectAll', combo: 'Mod+A', scope: 'global' }), guarded);
-    km.register(spec({ id: 'calc.digit', combo: '1', scope: 'app', appId: 'Calculator', allowInInput: true }), allowed);
+    km.register(
+      spec({ id: 'calc.digit', combo: '1', scope: 'app', appId: 'Calculator', allowInInput: true }),
+      allowed
+    );
     expect(km.dispatch(ev({ key: 'a', ctrlKey: true }), { inInput: true })).toBe(false);
     expect(guarded).not.toHaveBeenCalled();
     expect(km.dispatch(ev({ key: '1' }), { inInput: true, focusedAppId: 'Calculator' })).toBe(true);
@@ -118,8 +148,12 @@ describe('Keymap.dispatch', () => {
   });
 
   it('honors overrides: remap and disable', () => {
-    const km = new Keymap({ isMac: false, overrides: { 'startMenu.toggle': 'Mod+Space', 'window.close': null } });
-    const toggle = vi.fn(); const close = vi.fn();
+    const km = new Keymap({
+      isMac: false,
+      overrides: { 'startMenu.toggle': 'Mod+Space', 'window.close': null },
+    });
+    const toggle = vi.fn();
+    const close = vi.fn();
     km.register(spec({ id: 'startMenu.toggle', combo: 'Ctrl+Esc', scope: 'global' }), toggle);
     km.register(spec({ id: 'window.close', combo: 'Alt+F4', scope: 'global' }), close);
     // original combo no longer fires; the remapped one does
@@ -142,8 +176,12 @@ describe('Keymap.dispatch', () => {
 
 describe('conflict detection', () => {
   let warn: ReturnType<typeof vi.spyOn>;
-  beforeEach(() => { warn = vi.spyOn(console, 'warn').mockImplementation(() => {}); });
-  afterEach(() => { warn.mockRestore(); });
+  beforeEach(() => {
+    warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    warn.mockRestore();
+  });
 
   it('warns when two ids bind the same combo in the same scope', () => {
     const km = new Keymap({ isMac: false, warnOnConflict: true });

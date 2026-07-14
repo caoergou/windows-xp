@@ -11,9 +11,15 @@ import { ModalProvider } from '../src/context/ModalContext';
 import { UserSessionProvider } from '../src/context/UserSessionContext';
 import { TrayProvider } from '../src/context/TrayContext';
 
-vi.mock('../src/components/XPIcon', () => ({ default: () => <div data-testid="xp-icon">Icon</div> }));
-vi.mock('../src/components/Explorer/ExplorerSidebar', () => ({ default: () => <div>Sidebar</div> }));
-vi.mock('../src/components/Explorer/ExplorerToolbar', () => ({ default: () => <div>Toolbar</div> }));
+vi.mock('../src/components/XPIcon', () => ({
+  default: () => <div data-testid="xp-icon">Icon</div>,
+}));
+vi.mock('../src/components/Explorer/ExplorerSidebar', () => ({
+  default: () => <div>Sidebar</div>,
+}));
+vi.mock('../src/components/Explorer/ExplorerToolbar', () => ({
+  default: () => <div>Toolbar</div>,
+}));
 vi.mock('../src/components/Explorer/AddressBar', () => ({ default: () => <div>AddressBar</div> }));
 
 vi.mock('../src/data/filesystem.json', () => ({
@@ -23,8 +29,21 @@ vi.mock('../src/data/filesystem.json', () => ({
       name: 'root',
       children: {
         'notes.txt': { type: 'file', name: 'notes.txt', app: 'Notepad', content: 'hi' },
-        'secret.txt': { type: 'file', name: 'secret.txt', hidden: true, mtime: '2007-08-12', app: 'Notepad', content: 'clue' },
-        'boot.ini': { type: 'file', name: 'boot.ini', protected: true, app: 'Notepad', content: '[boot]' },
+        'secret.txt': {
+          type: 'file',
+          name: 'secret.txt',
+          hidden: true,
+          mtime: '2007-08-12',
+          app: 'Notepad',
+          content: 'clue',
+        },
+        'boot.ini': {
+          type: 'file',
+          name: 'boot.ini',
+          protected: true,
+          app: 'Notepad',
+          content: '[boot]',
+        },
       },
     },
   },
@@ -55,7 +74,9 @@ test('a hidden file is absent until "show hidden files" is toggled on', async ()
   expect(screen.queryByText('secret.txt')).not.toBeInTheDocument();
 
   // Right-click empty space → context menu → "Show Hidden Files".
-  fireEvent.contextMenu(screen.getByText('notes.txt').closest('div')!.parentElement!.parentElement!);
+  fireEvent.contextMenu(
+    screen.getByText('notes.txt').closest('div')!.parentElement!.parentElement!
+  );
   const toggle = await screen.findByText(/Show Hidden Files/i);
   fireEvent.click(toggle);
 
@@ -69,9 +90,7 @@ test('deleting a protected file is refused with an error', async () => {
   fireEvent.contextMenu(protectedItem);
   const del = await screen.findByText(/^Delete$/i);
   fireEvent.click(del);
-  await waitFor(() =>
-    expect(screen.getByText(/protected system file/i)).toBeInTheDocument()
-  );
+  await waitFor(() => expect(screen.getByText(/protected system file/i)).toBeInTheDocument());
   // The file is still there — deletion did not proceed.
   expect(screen.getByText('boot.ini')).toBeInTheDocument();
 });

@@ -138,7 +138,10 @@ export const compilePuzzleGraph = (graph: PuzzleGraph): Scenario => {
         on: channel,
         once: true,
         when: all(...active, count(channel, { gte: threshold })),
-        do: [setFlag(shown), notify({ title: hint.title ?? 'Hint', body: hint.text, timeout: HINT_TIMEOUT })],
+        do: [
+          setFlag(shown),
+          notify({ title: hint.title ?? 'Hint', body: hint.text, timeout: HINT_TIMEOUT }),
+        ],
       });
       if (hint.afterFails) hintTriggers.push(fire('password:fail', hint.afterFails));
       if (hint.afterIdles) hintTriggers.push(fire('user:idle', hint.afterIdles));
@@ -184,7 +187,8 @@ export const lintPuzzleGraph = (graph: PuzzleGraph): PuzzleGraphReport => {
   graph.puzzles.forEach(p => {
     (p.requires ?? []).forEach(r => {
       if (r === p.id) issues.push({ puzzle: p.id, level: 'error', message: 'requires itself' });
-      else if (!ids.has(r)) issues.push({ puzzle: p.id, level: 'error', message: `requires unknown puzzle "${r}"` });
+      else if (!ids.has(r))
+        issues.push({ puzzle: p.id, level: 'error', message: `requires unknown puzzle "${r}"` });
     });
   });
 
@@ -212,7 +216,9 @@ export const lintPuzzleGraph = (graph: PuzzleGraph): PuzzleGraphReport => {
   graph.puzzles.forEach(p => {
     if ((color.get(p.id) ?? 0) === 0) dfs(p.id);
   });
-  inCycle.forEach(id => issues.push({ puzzle: id, level: 'error', message: 'is part of a dependency cycle (deadlock)' }));
+  inCycle.forEach(id =>
+    issues.push({ puzzle: id, level: 'error', message: 'is part of a dependency cycle (deadlock)' })
+  );
 
   // Reachability: a puzzle is reachable if all its requires exist, are reachable,
   // and it is not in a cycle. Fixpoint iteration.
@@ -231,14 +237,23 @@ export const lintPuzzleGraph = (graph: PuzzleGraph): PuzzleGraphReport => {
   }
   graph.puzzles.forEach(p => {
     if (!reachable.has(p.id) && !inCycle.has(p.id)) {
-      issues.push({ puzzle: p.id, level: 'error', message: 'is unreachable (a required puzzle is missing or unreachable)' });
+      issues.push({
+        puzzle: p.id,
+        level: 'error',
+        message: 'is unreachable (a required puzzle is missing or unreachable)',
+      });
     }
   });
 
   // Trigger event derivable?
   graph.puzzles.forEach(p => {
     if (deriveOn(p).length === 0) {
-      issues.push({ puzzle: p.id, level: 'error', message: 'has no trigger event — set `on`, or use a `happened`/`count` condition so `solvedWhen` is re-checked' });
+      issues.push({
+        puzzle: p.id,
+        level: 'error',
+        message:
+          'has no trigger event — set `on`, or use a `happened`/`count` condition so `solvedWhen` is re-checked',
+      });
     }
   });
 
@@ -274,9 +289,17 @@ export const lintPuzzleGraph = (graph: PuzzleGraph): PuzzleGraphReport => {
   graph.puzzles.forEach(p => {
     if (p.hints?.length) return;
     if (isCritical(p.id)) {
-      issues.push({ puzzle: p.id, level: 'error', message: 'is on the critical path but has no hint ladder (M12 anti-stuck contract)' });
+      issues.push({
+        puzzle: p.id,
+        level: 'error',
+        message: 'is on the critical path but has no hint ladder (M12 anti-stuck contract)',
+      });
     } else {
-      issues.push({ puzzle: p.id, level: 'warn', message: 'has no hint ladder (M12 anti-stuck contract)' });
+      issues.push({
+        puzzle: p.id,
+        level: 'warn',
+        message: 'has no hint ladder (M12 anti-stuck contract)',
+      });
     }
   });
 
@@ -288,7 +311,11 @@ export const lintPuzzleGraph = (graph: PuzzleGraph): PuzzleGraphReport => {
       graph.puzzles.forEach(p => {
         if (p.id === gate.id || upstream.has(p.id)) return; // gate itself / its prereqs are fine
         if (!transReq(p.id).has(gate.id)) {
-          issues.push({ puzzle: p.id, level: 'warn', message: `bypasses gate "${gate.id}" (does not transitively require it)` });
+          issues.push({
+            puzzle: p.id,
+            level: 'warn',
+            message: `bypasses gate "${gate.id}" (does not transitively require it)`,
+          });
         }
       });
     });

@@ -17,7 +17,11 @@ export const createBoard = (config: GameConfig): CellData[][] =>
 export const cloneBoard = (board: CellData[][]): CellData[][] =>
   board.map(row => row.map(cell => ({ ...cell })));
 
-export const getNeighbors = (row: number, col: number, config: GameConfig): Array<[number, number]> => {
+export const getNeighbors = (
+  row: number,
+  col: number,
+  config: GameConfig
+): Array<[number, number]> => {
   const neighbors: Array<[number, number]> = [];
 
   for (let rowOffset = -1; rowOffset <= 1; rowOffset += 1) {
@@ -59,7 +63,12 @@ export const placeMines = (
   }
 };
 
-export const revealSafeRegion = (board: CellData[][], row: number, col: number, config: GameConfig) => {
+export const revealSafeRegion = (
+  board: CellData[][],
+  row: number,
+  col: number,
+  config: GameConfig
+) => {
   const queue: Array<[number, number]> = [[row, col]];
 
   while (queue.length > 0) {

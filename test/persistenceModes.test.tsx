@@ -22,7 +22,7 @@ describe('createStorage persistence backends (#138)', () => {
     sessionStorage.clear();
   });
 
-  it("local (default): metadata in localStorage, content round-trips via IndexedDB", async () => {
+  it('local (default): metadata in localStorage, content round-trips via IndexedDB', async () => {
     const s = createStorage('pl_', 'local');
     s.saveMetadata({ files: {}, version: 1, lastModified: 0 });
     expect(localStorage.getItem('pl_fs_metadata')).toBeTruthy();

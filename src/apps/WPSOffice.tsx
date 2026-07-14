@@ -4,14 +4,14 @@ import { CultureAppShell } from './culture/shell';
 import { useTranslation } from 'react-i18next';
 
 const Wrap = styled(CultureAppShell)`
-  background: #ECE9D8;
+  background: #ece9d8;
   color: #000;
 `;
 
 const MenuBar = styled.div`
   height: 20px;
-  background: linear-gradient(to bottom, #fff 0%, #ECE9D8 100%);
-  border-bottom: 1px solid #A0A0A0;
+  background: linear-gradient(to bottom, #fff 0%, #ece9d8 100%);
+  border-bottom: 1px solid #a0a0a0;
   display: flex;
   align-items: center;
   padding: 0 2px;
@@ -23,15 +23,15 @@ const MenuItem = styled.div`
   cursor: pointer;
 
   &:hover {
-    background: #316AC5;
+    background: #316ac5;
     color: white;
   }
 `;
 
 const Toolbar = styled.div`
   height: 28px;
-  background: linear-gradient(to bottom, #fff 0%, #ECE9D8 100%);
-  border-bottom: 1px solid #A0A0A0;
+  background: linear-gradient(to bottom, #fff 0%, #ece9d8 100%);
+  border-bottom: 1px solid #a0a0a0;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -45,23 +45,23 @@ const ToolBtn = styled.button`
   font-size: 11px;
   font-family: inherit;
   cursor: pointer;
-  border: 1px solid #7F9DB9;
+  border: 1px solid #7f9db9;
   border-radius: 2px;
-  background: linear-gradient(to bottom, #fff 0%, #ECE9D8 100%);
+  background: linear-gradient(to bottom, #fff 0%, #ece9d8 100%);
 
   &:hover {
     background: #fff;
   }
 
   &:active {
-    background: #ECE9D8;
+    background: #ece9d8;
   }
 `;
 
 const WorkArea = styled.div`
   flex: 1;
   display: flex;
-  background: #7F9DB9;
+  background: #7f9db9;
   padding: 12px;
   overflow: auto;
 `;
@@ -90,8 +90,8 @@ const Title = styled.h1`
 
 const StatusBar = styled.div`
   height: 20px;
-  background: #ECE9D8;
-  border-top: 1px solid #A0A0A0;
+  background: #ece9d8;
+  border-top: 1px solid #a0a0a0;
   display: flex;
   align-items: center;
   justify-content: space-between;

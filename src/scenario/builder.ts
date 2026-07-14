@@ -22,34 +22,72 @@ import type { Action, Condition, FlagValue, Scalar, Scenario, Trigger } from './
 export const all = (...cs: Condition[]): Condition => ({ all: cs });
 export const any = (...cs: Condition[]): Condition => ({ any: cs });
 export const not = (c: Condition): Condition => ({ not: c });
-export const flag = (name: string, cmp?: { eq?: FlagValue; gte?: number; lte?: number }): Condition => ({ flag: name, ...cmp });
-export const eventMatch = (match: Record<string, Scalar | Scalar[]>): Condition => ({ event: match });
-export const happened = (type: XPEventType, match?: Record<string, Scalar | Scalar[]>): Condition => ({ happened: { type, match } });
-export const count = (type: XPEventType, cmp: { gte?: number; lte?: number; eq?: number }, match?: Record<string, Scalar | Scalar[]>): Condition => ({ count: { type, match }, ...cmp });
+export const flag = (
+  name: string,
+  cmp?: { eq?: FlagValue; gte?: number; lte?: number }
+): Condition => ({ flag: name, ...cmp });
+export const eventMatch = (match: Record<string, Scalar | Scalar[]>): Condition => ({
+  event: match,
+});
+export const happened = (
+  type: XPEventType,
+  match?: Record<string, Scalar | Scalar[]>
+): Condition => ({ happened: { type, match } });
+export const count = (
+  type: XPEventType,
+  cmp: { gte?: number; lte?: number; eq?: number },
+  match?: Record<string, Scalar | Scalar[]>
+): Condition => ({ count: { type, match }, ...cmp });
 export const exists = (path: string[]): Condition => ({ exists: path });
 export const unlocked = (path: string[]): Condition => ({ unlocked: path });
-export const contentContains = (path: string[], contains: string): Condition => ({ contentContains: { path, contains } });
+export const contentContains = (path: string[], contains: string): Condition => ({
+  contentContains: { path, contains },
+});
 export const pinned = (itemId: string): Condition => ({ pinned: itemId });
 export const linked = (a: string, b: string): Condition => ({ linked: { a, b } });
 export const searched = (term: string): Condition => ({ searched: term });
 export const found = (resultId: string): Condition => ({ found: resultId });
 
 // ── action helpers ───────────────────────────────────────────────────────────
-export const setFlag = (name: string, value?: FlagValue): Action => ({ setFlag: name, ...(value !== undefined ? { value } : {}) });
-export const incFlag = (name: string, by?: number): Action => ({ incFlag: name, ...(by !== undefined ? { by } : {}) });
+export const setFlag = (name: string, value?: FlagValue): Action => ({
+  setFlag: name,
+  ...(value !== undefined ? { value } : {}),
+});
+export const incFlag = (name: string, by?: number): Action => ({
+  incFlag: name,
+  ...(by !== undefined ? { by } : {}),
+});
 export const unlock = (path: string[]): Action => ({ unlock: path });
-export const addFile = (path: string[], node?: Partial<FileNode>): Action => ({ addFile: { path, ...(node ? { node } : {}) } });
+export const addFile = (path: string[], node?: Partial<FileNode>): Action => ({
+  addFile: { path, ...(node ? { node } : {}) },
+});
 export const removeFile = (path: string[]): Action => ({ removeFile: path });
-export const writeFile = (path: string[], content: string): Action => ({ writeFile: { path, content } });
-export const notify = (opts: { title?: string; titleKey?: string; body?: string; bodyKey?: string; icon?: string; timeout?: number; anchorId?: string }): Action => ({ notify: opts });
-export const qqMessage = (buddyId: string, text: string): Action => ({ qqMessage: { buddyId, text } });
+export const writeFile = (path: string[], content: string): Action => ({
+  writeFile: { path, content },
+});
+export const notify = (opts: {
+  title?: string;
+  titleKey?: string;
+  body?: string;
+  bodyKey?: string;
+  icon?: string;
+  timeout?: number;
+  anchorId?: string;
+}): Action => ({ notify: opts });
+export const qqMessage = (buddyId: string, text: string): Action => ({
+  qqMessage: { buddyId, text },
+});
 export const qqOnline = (buddyId: string): Action => ({ qqOnline: buddyId });
-export const openApp = (appId: string, props?: Record<string, unknown>): Action => ({ openApp: { appId, ...(props ? { props } : {}) } });
+export const openApp = (appId: string, props?: Record<string, unknown>): Action => ({
+  openApp: { appId, ...(props ? { props } : {}) },
+});
 export const openFile = (path: string[]): Action => ({ openFile: path });
 export const playSound = (name: string): Action => ({ playSound: name });
 export const emit = (event: XPEvent): Action => ({ emit: event });
 export const alert = (title: string, message: string): Action => ({ alert: { title, message } });
-export const after = (delayMs: number, ...actions: Action[]): Action => ({ after: { ms: delayMs, do: actions } });
+export const after = (delayMs: number, ...actions: Action[]): Action => ({
+  after: { ms: delayMs, do: actions },
+});
 
 /** Parse a duration to milliseconds. Accepts a number (ms) or `'90s'`/`'10m'`/`'1h'`. */
 export const ms = (spec: number | string): number => {

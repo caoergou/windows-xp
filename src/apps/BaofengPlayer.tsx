@@ -32,7 +32,9 @@ const LogoBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 4px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.4);
   flex-shrink: 0;
 `;
 
@@ -98,7 +100,9 @@ const SplashLogo = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 `;
 
 const SplashText = styled.div`
@@ -263,14 +267,16 @@ const PlaylistItem = styled.div<{ $active?: boolean }>`
   cursor: pointer;
   font-size: 11px;
   color: ${p => (p.$active ? '#ffffff' : '#aabbcc')};
-  background: ${p => (p.$active ? 'linear-gradient(to bottom, #4a505c 0%, #363b45 100%)' : 'transparent')};
+  background: ${p =>
+    p.$active ? 'linear-gradient(to bottom, #4a505c 0%, #363b45 100%)' : 'transparent'};
   border: 1px solid ${p => (p.$active ? '#5a606c' : 'transparent')};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 
   &:hover {
-    background: ${p => (p.$active ? 'linear-gradient(to bottom, #4a505c 0%, #363b45 100%)' : '#333842')};
+    background: ${p =>
+      p.$active ? 'linear-gradient(to bottom, #4a505c 0%, #363b45 100%)' : '#333842'};
   }
 `;
 
@@ -402,7 +408,9 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
           <Screen>
             {currentTime > 0 || isPlaying ? (
               <>
-                <VideoOverlay>{t('baofengPlayer.playing', '正在播放')}: {currentTrack.name}</VideoOverlay>
+                <VideoOverlay>
+                  {t('baofengPlayer.playing', '正在播放')}: {currentTrack.name}
+                </VideoOverlay>
                 <SplashLogo>
                   <LogoIcon />
                 </SplashLogo>
@@ -420,7 +428,10 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
           </Screen>
 
           <ControlsBar>
-            <ControlBtn onClick={togglePlay} title={isPlaying ? t('baofengPlayer.pause', '暂停') : t('baofengPlayer.play', '播放')}>
+            <ControlBtn
+              onClick={togglePlay}
+              title={isPlaying ? t('baofengPlayer.pause', '暂停') : t('baofengPlayer.play', '播放')}
+            >
               <XPIcon name={isPlaying ? 'media_pause' : 'media_play'} size={16} />
             </ControlBtn>
             <ControlBtn onClick={stop} title={t('baofengPlayer.stop', '停止')}>
@@ -449,8 +460,19 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
             </VolumeArea>
 
             <ControlBtn title={t('baofengPlayer.fullscreen', '全屏')}>
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ color: '#aabbcc' }}>
-                <path d="M2 6V2h4M8 2h4v4M12 8v4H8M6 12H2V8" stroke="currentColor" strokeWidth="1.5" fill="none" />
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                style={{ color: '#aabbcc' }}
+              >
+                <path
+                  d="M2 6V2h4M8 2h4v4M12 8v4H8M6 12H2V8"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  fill="none"
+                />
               </svg>
             </ControlBtn>
           </ControlsBar>
@@ -475,7 +497,9 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
 
       <StatusBar>
         <span>{statusText}</span>
-        <span>{t('baofengPlayer.volumeLabel', '音量')}: {volume}%</span>
+        <span>
+          {t('baofengPlayer.volumeLabel', '音量')}: {volume}%
+        </span>
       </StatusBar>
     </Wrap>
   );

@@ -38,14 +38,18 @@ describe('runtime beat text resolves by locale', () => {
   const scenario: Scenario = {
     id: 'strings-demo',
     strings: { zh: { t: '标题', b: '正文中文' }, en: { t: 'Title', b: 'English body' } },
-    triggers: [{ on: 'session:boot-complete', do: [{ note: { id: 'n', titleKey: 't', contentKey: 'b' } }] }],
+    triggers: [
+      { on: 'session:boot-complete', do: [{ note: { id: 'n', titleKey: 't', contentKey: 'b' } }] },
+    ],
   };
 
   const mount = async (language: 'en' | 'zh') => {
     const { WindowsXP } = await import('../src/lib');
     const ref = React.createRef<XPHandle>();
     render(<WindowsXP ref={ref} autoLogin skipBoot language={language} scenario={scenario} />);
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
     return ref;
   };
 

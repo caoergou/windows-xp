@@ -157,7 +157,9 @@ const ScreenFrame = styled.div`
   border-radius: 12px;
   padding: 10px 10px 26px;
   background: linear-gradient(180deg, #33373f, #191b20);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px #000;
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.45),
+    0 0 0 1px #000;
   position: relative;
 `;
 const Screen = styled.div`
@@ -440,12 +442,20 @@ const GlassBox: React.FC = () => {
       </Split>
 
       <Snippet>
-        <span className="k">&lt;WindowsXP</span>{'\n'}
-        {'  '}mode=<span className="s">&quot;embedded&quot;</span>{'\n'}
-        {'  '}fileSystemMode=<span className="s">&quot;replace&quot;</span>{'\n'}
-        {'  '}customFileSystem={'{'}yourWorld{'}'}{'\n'}
-        {'  '}onEvent={'{'}e =&gt; console.log(e.type){'}'} <span className="p">{'// the feed →'}</span>{'\n'}
-        {'  '}ref={'{'}xp{'}'} <span className="p">{'// xp.current.openApp(), .fs.unlockNode()…'}</span>{'\n'}
+        <span className="k">&lt;WindowsXP</span>
+        {'\n'}
+        {'  '}mode=<span className="s">&quot;embedded&quot;</span>
+        {'\n'}
+        {'  '}fileSystemMode=<span className="s">&quot;replace&quot;</span>
+        {'\n'}
+        {'  '}customFileSystem={'{'}yourWorld{'}'}
+        {'\n'}
+        {'  '}onEvent={'{'}e =&gt; console.log(e.type){'}'}{' '}
+        <span className="p">{'// the feed →'}</span>
+        {'\n'}
+        {'  '}ref={'{'}xp{'}'}{' '}
+        <span className="p">{'// xp.current.openApp(), .fs.unlockNode()…'}</span>
+        {'\n'}
         <span className="k">/&gt;</span>
       </Snippet>
     </Wrap>

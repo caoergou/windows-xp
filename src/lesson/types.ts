@@ -38,9 +38,7 @@ export type WrongActionPolicy = 'nudge' | 'shield' | 'undo';
  * resulting event advances the step through the same gate as Try/Do). Omit and
  * Watch will fall back to emitting the step's `expect` as-is.
  */
-export type WatchAction =
-  | { openApp: string; props?: Record<string, unknown> }
-  | { emit: XPEvent };
+export type WatchAction = { openApp: string; props?: Record<string, unknown> } | { emit: XPEvent };
 
 /** A single teachable step. */
 export interface LessonStep {

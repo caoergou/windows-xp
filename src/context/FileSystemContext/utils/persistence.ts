@@ -95,8 +95,11 @@ export const loadPersistedFileSystem = async (
     const isFolder = fileMeta.type === 'folder';
     const content = isFolder ? null : await storage.getFileContent(pathParts);
 
-    const { path: _path, modifiedAt: _modifiedAt, ...restMeta } = fileMeta as FileMetadata &
-      Record<string, unknown>;
+    const {
+      path: _path,
+      modifiedAt: _modifiedAt,
+      ...restMeta
+    } = fileMeta as FileMetadata & Record<string, unknown>;
     void _path;
     void _modifiedAt;
     const existing = parent.children[fileName];
@@ -166,9 +169,7 @@ export const persistFs = async (
     const { defaultFs, dirtyContentPaths, removedContentPaths } = options;
     const files: Record<string, FileMetadata> = {};
     const contentWrites: Array<Promise<void>> = [];
-    const dirtyKeys = dirtyContentPaths
-      ? new Set(dirtyContentPaths.map(p => p.join('/')))
-      : null;
+    const dirtyKeys = dirtyContentPaths ? new Set(dirtyContentPaths.map(p => p.join('/'))) : null;
 
     const defaultNodeAt = (pathParts: string[]): FileNode | null => {
       if (!defaultFs) return null;

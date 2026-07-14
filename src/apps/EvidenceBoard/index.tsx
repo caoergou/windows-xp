@@ -171,7 +171,9 @@ const EvidenceBoard: React.FC<EvidenceBoardProps> = ({ boardId = 'board', title,
       setSelected(null);
       return;
     }
-    const exists = links.some(l => (l.a === selected && l.b === id) || (l.a === id && l.b === selected));
+    const exists = links.some(
+      l => (l.a === selected && l.b === id) || (l.a === id && l.b === selected)
+    );
     if (!exists) {
       setLinks(prev => [...prev, { a: selected, b: id }]);
       bus.emit({ type: 'evidence:link', sourceId: selected, targetId: id });
@@ -189,18 +191,39 @@ const EvidenceBoard: React.FC<EvidenceBoardProps> = ({ boardId = 'board', title,
       <Tray>
         <TrayHeading>{t('evidenceBoard.tray')}</TrayHeading>
         {items.map(i => (
-          <TrayItem key={i.id} data-testid={`tray-${i.id}`} $done={isPinned(i.id)} disabled={isPinned(i.id)} onClick={() => pin(i.id)}>
+          <TrayItem
+            key={i.id}
+            data-testid={`tray-${i.id}`}
+            $done={isPinned(i.id)}
+            disabled={isPinned(i.id)}
+            onClick={() => pin(i.id)}
+          >
             {i.label}
           </TrayItem>
         ))}
       </Tray>
       <Board>
-        <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} aria-hidden>
+        <svg
+          width="100%"
+          height="100%"
+          style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+          aria-hidden
+        >
           {links.map((l, idx) => {
             const a = center(l.a);
             const b = center(l.b);
             if (!a || !b) return null;
-            return <line key={idx} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="firebrick" strokeWidth={2} />;
+            return (
+              <line
+                key={idx}
+                x1={a.x}
+                y1={a.y}
+                x2={b.x}
+                y2={b.y}
+                stroke="firebrick"
+                strokeWidth={2}
+              />
+            );
           })}
         </svg>
         {placed.map(p => (

@@ -18,7 +18,7 @@ const Wrap = styled.div`
   flex-direction: column;
   padding: 4px;
   box-sizing: border-box;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 11px;
   user-select: none;
   overflow: hidden;
@@ -75,7 +75,7 @@ const Key = styled.button<{
   margin: 0;
   cursor: ${p => (p.$disabled ? 'default' : 'pointer')};
   font-size: 11px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   line-height: 1;
   outline: none;
   grid-column: ${p => (p.$span ? `span ${p.$span}` : 'auto')};
@@ -116,7 +116,13 @@ const Key = styled.button<{
 `;
 
 const BackspaceIcon = () => (
-  <svg width="13" height="9" viewBox="0 0 14 10" aria-hidden="true" style={{ display: 'block', margin: 'auto' }}>
+  <svg
+    width="13"
+    height="9"
+    viewBox="0 0 14 10"
+    aria-hidden="true"
+    style={{ display: 'block', margin: 'auto' }}
+  >
     <path d="M13,1 L13,9 L4,9 L0,5 L4,1 Z" fill="none" stroke="currentColor" strokeWidth="1.2" />
     <path d="M5.5,3 L9.5,7 M9.5,3 L5.5,7" stroke="currentColor" strokeWidth="1.1" />
   </svg>
@@ -151,7 +157,7 @@ const Calculator = ({ windowId }: CalculatorProps) => {
         return prev + d;
       });
     },
-    [waitNext],
+    [waitNext]
   );
 
   const inputDot = useCallback(() => {
@@ -220,7 +226,7 @@ const Calculator = ({ windowId }: CalculatorProps) => {
       setOperator(op);
       setWaitNext(true);
     },
-    [currentVal, operand, operator, waitNext, compute],
+    [currentVal, operand, operator, waitNext, compute]
   );
 
   const pressEquals = useCallback(() => {
@@ -282,7 +288,9 @@ const Calculator = ({ windowId }: CalculatorProps) => {
       // Numeric-keypad input capture: only while Calculator is the focused window
       // (#132 — previously a global listener that ran even when unfocused).
       const focusedWindow = windows.find(w => w.id === activeWindowId);
-      const isFocused = windowId ? focusedWindow?.id === windowId : focusedWindow?.appId === 'Calculator';
+      const isFocused = windowId
+        ? focusedWindow?.id === windowId
+        : focusedWindow?.appId === 'Calculator';
       if (!isFocused) return;
       const k = e.key;
       if (k >= '0' && k <= '9') inputDigit(parseInt(k, 10));
@@ -303,7 +311,21 @@ const Calculator = ({ windowId }: CalculatorProps) => {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [windows, activeWindowId, windowId, inputDigit, inputDot, backspace, clearEntry, clearAll, pressOperator, pressEquals, percent, sqrt, reciprocal]);
+  }, [
+    windows,
+    activeWindowId,
+    windowId,
+    inputDigit,
+    inputDot,
+    backspace,
+    clearEntry,
+    clearAll,
+    pressOperator,
+    pressEquals,
+    percent,
+    sqrt,
+    reciprocal,
+  ]);
 
   return (
     <Wrap>

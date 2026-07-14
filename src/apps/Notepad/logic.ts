@@ -2,7 +2,10 @@
 // text operations are unit-testable without a DOM.
 
 /** 1-based line/column of a caret index within `text` (for the status bar). */
-export const getCursorPosition = (text: string, caretIndex: number): { line: number; col: number } => {
+export const getCursorPosition = (
+  text: string,
+  caretIndex: number
+): { line: number; col: number } => {
   const before = text.slice(0, caretIndex);
   const line = before.split('\n').length;
   const lastNewline = before.lastIndexOf('\n');

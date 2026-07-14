@@ -46,5 +46,7 @@ export const judgeGroups = (
 };
 
 /** Whether every group has been verified (the sheet is solved). */
-export const allGroupsVerified = (groups: DeductionGroup[], verified: ReadonlySet<string>): boolean =>
-  groups.length > 0 && groups.every(g => verified.has(g.id));
+export const allGroupsVerified = (
+  groups: DeductionGroup[],
+  verified: ReadonlySet<string>
+): boolean => groups.length > 0 && groups.every(g => verified.has(g.id));

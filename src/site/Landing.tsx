@@ -16,8 +16,7 @@ const GlassBox = React.lazy(() => import('./GlassBox'));
  */
 
 const prefersReducedMotion = () =>
-  typeof window !== 'undefined' &&
-  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 const GlobalReset = createGlobalStyle`
   #ssr-floor { display: none !important; }
@@ -122,7 +121,9 @@ const Screen = styled.div`
   border-radius: 6px;
   overflow: hidden;
   background: #000;
-  box-shadow: 0 0 0 2px #0a0a0a, 0 0 30px rgba(0, 0, 0, 0.6) inset;
+  box-shadow:
+    0 0 0 2px #0a0a0a,
+    0 0 30px rgba(0, 0, 0, 0.6) inset;
 `;
 
 const Poster = styled.button`
@@ -199,7 +200,9 @@ const MiniMonitor = styled.div<{ $variant: 'xp' | 'netcafe' | 'echo' }>`
   border-radius: 14px;
   padding: 12px 12px 22px;
   background: linear-gradient(180deg, #2f333c, #191b20);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px #000;
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.45),
+    0 0 0 1px #000;
   position: relative;
 `;
 
@@ -298,7 +301,9 @@ const Door = styled.a<{ $accent: string }>`
   border-top: 6px solid ${p => p.$accent};
   border-radius: 10px;
   padding: 22px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
@@ -356,7 +361,14 @@ const Taskbar = styled.footer`
   height: 34px;
   display: flex;
   align-items: stretch;
-  background: linear-gradient(180deg, #245edb 0%, #1941a5 8%, #2461db 45%, #2461db 90%, #1c50c0 100%);
+  background: linear-gradient(
+    180deg,
+    #245edb 0%,
+    #1941a5 8%,
+    #2461db 45%,
+    #2461db 90%,
+    #1c50c0 100%
+  );
   border-top: 1px solid #4b8bf5;
   box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.3);
   z-index: 50;
@@ -592,7 +604,13 @@ const Landing: React.FC = () => {
 
       {/* Footer as a real XP taskbar */}
       <Taskbar>
-        <StartBtn onClick={() => document.getElementById('top')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' })}>
+        <StartBtn
+          onClick={() =>
+            document
+              .getElementById('top')
+              ?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' })
+          }
+        >
           <span className="flag" />
           {t('footer.start')}
         </StartBtn>

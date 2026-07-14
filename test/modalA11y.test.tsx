@@ -13,7 +13,9 @@ function Harness({ onResult }: { onResult?: (v: boolean) => void }) {
   const { dialog } = useModal();
   return (
     <button
-      onClick={() => dialog.confirm({ title: 'Delete file', message: 'Are you sure?' }).then(onResult)}
+      onClick={() =>
+        dialog.confirm({ title: 'Delete file', message: 'Are you sure?' }).then(onResult)
+      }
     >
       trigger
     </button>
@@ -55,9 +57,7 @@ describe('modal a11y (#124)', () => {
     fireEvent.click(screen.getByText('trigger'));
     const dialog = await screen.findByRole('dialog');
     const overlay = dialog.parentElement as HTMLElement; // the focus-trap container
-    const focusables = Array.from(
-      overlay.querySelectorAll<HTMLElement>('button')
-    );
+    const focusables = Array.from(overlay.querySelectorAll<HTMLElement>('button'));
     const first = focusables[0];
     const last = focusables[focusables.length - 1];
     expect(focusables.length).toBeGreaterThanOrEqual(2);

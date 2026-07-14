@@ -9,15 +9,15 @@ const NAMESPACE = 'windows-xp';
 const i18nConfig = {
   resources: {
     en: { [NAMESPACE]: en },
-    zh: { [NAMESPACE]: zh }
+    zh: { [NAMESPACE]: zh },
   },
   ns: [NAMESPACE],
   defaultNS: NAMESPACE,
   lng: 'en', // Default to English (matches README/USAGE)
   fallbackLng: 'en',
   interpolation: {
-    escapeValue: false
-  }
+    escapeValue: false,
+  },
 };
 
 // Isolated instance used by AppProviders so multiple WindowsXP roots on the

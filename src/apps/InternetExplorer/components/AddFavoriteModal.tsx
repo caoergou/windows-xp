@@ -31,7 +31,13 @@ const AddFavoriteModal: React.FC<AddFavoriteModalProps> = ({
     <Modal>
       <ModalHeader>
         <ModalTitle>{title}</ModalTitle>
-        <XPIcon name="close" size={14} color="white" style={{ cursor: 'pointer' }} onClick={onCancel} />
+        <XPIcon
+          name="close"
+          size={14}
+          color="white"
+          style={{ cursor: 'pointer' }}
+          onClick={onCancel}
+        />
       </ModalHeader>
       <ModalBody>
         <ModalInput

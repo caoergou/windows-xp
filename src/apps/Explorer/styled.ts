@@ -265,4 +265,3 @@ export const EmptyRecycleBinMessage = styled.div`
   gap: 10px;
   user-select: none;
 `;
-

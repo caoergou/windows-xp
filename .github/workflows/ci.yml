@@ -24,8 +24,11 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
+      - name: Dead files & dependencies (knip)
+        run: npm run knip
       - run: npm run guard:nocheck
       - run: npm run guard:purity
       - name: Unit tests (full suite)

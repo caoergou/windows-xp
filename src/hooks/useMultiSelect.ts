@@ -133,6 +133,16 @@ export function useMultiSelect(): MultiSelectApi {
       handleItemClick,
       moveActive,
     }),
-    [selected, active, isSelected, clear, selectOnly, setSelection, selectAll, handleItemClick, moveActive]
+    [
+      selected,
+      active,
+      isSelected,
+      clear,
+      selectOnly,
+      setSelection,
+      selectAll,
+      handleItemClick,
+      moveActive,
+    ]
   );
 }

@@ -61,8 +61,7 @@ const notifyStorageError = (error: unknown): void => {
 };
 
 /** True when running in a browser-like environment. */
-export const canUseDOM =
-  typeof window !== 'undefined' && typeof document !== 'undefined';
+export const canUseDOM = typeof window !== 'undefined' && typeof document !== 'undefined';
 
 // IndexedDB may be undefined in non-browser environments (e.g. jsdom, SSR)
 const idb = typeof indexedDB !== 'undefined' ? indexedDB : null;
@@ -411,9 +410,9 @@ export const getStorageKey = (key: string): string => defaultStorage.key(key);
 
 /** SSR-safe localStorage wrapper (default instance). */
 export const safeLocalStorage: SafeLocalStorage = {
-  getItem: (key) => defaultStorage.local.getItem(key),
+  getItem: key => defaultStorage.local.getItem(key),
   setItem: (key, value) => defaultStorage.local.setItem(key, value),
-  removeItem: (key) => defaultStorage.local.removeItem(key),
+  removeItem: key => defaultStorage.local.removeItem(key),
 };
 
 export const saveFileContent = (path: string[], content: string): Promise<void> =>

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "src/lib/index.tsx",
+    "src/lib/components.tsx",
+    "src/lib/apps.tsx",
+    "src/lib/hooks.tsx",
+    "src/lib/theme.tsx",
+    "src/lib/registry.tsx",
+    "src/demo/en-main.tsx",
+    "src/demo/zh-main.tsx",
+    "src/gallery/gallery-main.tsx",
+    "vite.xp-css-scope.ts",
+    "test/**/*.{ts,tsx}",
+    "e2e/**/*.ts",
+    "e2e-visual/**/*.ts",
+    "scripts/**/*.mjs"
+  ],
+  "project": ["src/**/*.{ts,tsx}"],
+  "ignoreDependencies": ["playwright"],
+  "ignoreExportsUsedInFile": true,
+  "rules": {
+    "files": "error",
+    "dependencies": "error",
+    "devDependencies": "error",
+    "optionalPeerDependencies": "error",
+    "unlisted": "error",
+    "binaries": "error",
+    "unresolved": "error",
+    "exports": "off",
+    "types": "off",
+    "nsExports": "off",
+    "nsTypes": "off",
+    "duplicates": "off",
+    "enumMembers": "off",
+    "classMembers": "off"
+  }
+}

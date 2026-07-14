@@ -22,7 +22,12 @@ export interface CmdContext {
   createFolder: (parentPath: string[], folderName: string) => void;
   deleteFolder: (parentPath: string[], folderName: string) => void;
   renameFile: (parentPath: string[], oldName: string, newName: string) => void;
-  copyFile: (sourcePath: string[], fileName: string, destinationPath: string[], newName?: string) => void;
+  copyFile: (
+    sourcePath: string[],
+    fileName: string,
+    destinationPath: string[],
+    newName?: string
+  ) => void;
   deleteFile: (parentPath: string[], fileName: string) => void;
   /** Change the shell's working directory (cd). */
   setCurrentPath: (path: string[]) => void;

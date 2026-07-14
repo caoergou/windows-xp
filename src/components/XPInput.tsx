@@ -58,51 +58,53 @@ interface XPInputProps {
 }
 
 const XPInput: React.FC<XPInputProps> = ({ title, message, defaultValue = '', onOk, onCancel }) => {
-    const { t } = useTranslation();
-    const [value, setValue] = useState(defaultValue);
-    const inputRef = useRef<HTMLInputElement>(null);
-    const { containerRef, onKeyDown } = useModalA11y(onCancel);
+  const { t } = useTranslation();
+  const [value, setValue] = useState(defaultValue);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { containerRef, onKeyDown } = useModalA11y(onCancel);
 
-    useEffect(() => {
-        if (inputRef.current) {
-            inputRef.current.focus();
-            inputRef.current.select();
-        }
-    }, []);
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            onOk(value);
-        } else if (e.key === 'Escape') {
-            onCancel();
-        }
-    };
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      onOk(value);
+    } else if (e.key === 'Escape') {
+      onCancel();
+    }
+  };
 
-    return (
-        <Overlay ref={containerRef} onKeyDown={onKeyDown} data-xp-context-boundary>
-            <XPDialogWindow role="dialog" aria-modal="true" aria-label={title}>
-                <LunaTitleBar $isFocus className="title-bar">
-                    <XPDialogTitleText>{title}</XPDialogTitleText>
-                    <CloseBtn onClick={onCancel} aria-label="Close" />
-                </LunaTitleBar>
-                <ContentArea>
-                    <MessageRow>
-                        <Message>{message}</Message>
-                    </MessageRow>
-                    <XPTextInput
-                        ref={inputRef}
-                        value={value}
-                        onChange={(e) => setValue(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                    />
-                </ContentArea>
-                <ButtonArea>
-                    <XPButton $default onClick={() => onOk(value)}>{t('common.ok')}</XPButton>
-                    <XPButton onClick={onCancel}>{t('common.cancel')}</XPButton>
-                </ButtonArea>
-            </XPDialogWindow>
-        </Overlay>
-    );
+  return (
+    <Overlay ref={containerRef} onKeyDown={onKeyDown} data-xp-context-boundary>
+      <XPDialogWindow role="dialog" aria-modal="true" aria-label={title}>
+        <LunaTitleBar $isFocus className="title-bar">
+          <XPDialogTitleText>{title}</XPDialogTitleText>
+          <CloseBtn onClick={onCancel} aria-label="Close" />
+        </LunaTitleBar>
+        <ContentArea>
+          <MessageRow>
+            <Message>{message}</Message>
+          </MessageRow>
+          <XPTextInput
+            ref={inputRef}
+            value={value}
+            onChange={e => setValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+        </ContentArea>
+        <ButtonArea>
+          <XPButton $default onClick={() => onOk(value)}>
+            {t('common.ok')}
+          </XPButton>
+          <XPButton onClick={onCancel}>{t('common.cancel')}</XPButton>
+        </ButtonArea>
+      </XPDialogWindow>
+    </Overlay>
+  );
 };
 
 export default XPInput;

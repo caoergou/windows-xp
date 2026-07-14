@@ -20,19 +20,22 @@ export const useBrowsingHistory = () => {
     }
   }, [storage]);
 
-  const addToHistory = useCallback((url: string) => {
-    if (!url || url === 'about:blank') return;
+  const addToHistory = useCallback(
+    (url: string) => {
+      if (!url || url === 'about:blank') return;
 
-    try {
-      const saved = JSON.parse(storage.local.getItem(storage.key(STORAGE_KEY)) || '[]');
-      const newItem = { url, timestamp: Date.now() };
-      const newHistory = [newItem, ...saved].slice(0, HISTORY_LIMIT);
-      storage.local.setItem(storage.key(STORAGE_KEY), JSON.stringify(newHistory));
-      setBrowsingHistory(newHistory);
-    } catch (e) {
-      console.error(e);
-    }
-  }, [storage]);
+      try {
+        const saved = JSON.parse(storage.local.getItem(storage.key(STORAGE_KEY)) || '[]');
+        const newItem = { url, timestamp: Date.now() };
+        const newHistory = [newItem, ...saved].slice(0, HISTORY_LIMIT);
+        storage.local.setItem(storage.key(STORAGE_KEY), JSON.stringify(newHistory));
+        setBrowsingHistory(newHistory);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [storage]
+  );
 
   const clearHistory = useCallback(() => {
     storage.local.removeItem(storage.key(STORAGE_KEY));

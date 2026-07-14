@@ -7,7 +7,7 @@ export const Container = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 `;
 
 export const MainArea = styled.div`
@@ -174,7 +174,7 @@ export const FooterStatus = styled.div`
   align-items: center;
   padding: 0 4px;
   font-size: 11px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   gap: 4px;
   overflow: hidden;
   border-right: 1px solid rgba(0, 0, 0, 0.12);
@@ -188,8 +188,12 @@ export const StatusIcon = styled.img<{ $spinning?: boolean }>`
   animation: ${p => (p.$spinning ? 'ieSpin 0.8s linear infinite' : 'none')};
 
   @keyframes ieSpin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 `;
 
@@ -218,7 +222,7 @@ export const FooterRight = styled.div`
   padding-left: 5px;
   position: relative;
   font-size: 11px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   gap: 4px;
   flex-shrink: 0;
 
@@ -234,11 +238,17 @@ export const FooterDots = styled.div`
   bottom: -1px;
   width: 2px;
   height: 2px;
-  box-shadow: 2px 0px rgba(0, 0, 0, 0.25), 5.5px 0px rgba(0, 0, 0, 0.25),
-    9px 0px rgba(0, 0, 0, 0.25), 5.5px -3.5px rgba(0, 0, 0, 0.25),
-    9px -3.5px rgba(0, 0, 0, 0.25), 9px -7px rgba(0, 0, 0, 0.25),
-    3px 1px rgba(255, 255, 255, 1), 6.5px 1px rgba(255, 255, 255, 1),
-    10px 1px rgba(255, 255, 255, 1), 10px -2.5px rgba(255, 255, 255, 1),
+  box-shadow:
+    2px 0px rgba(0, 0, 0, 0.25),
+    5.5px 0px rgba(0, 0, 0, 0.25),
+    9px 0px rgba(0, 0, 0, 0.25),
+    5.5px -3.5px rgba(0, 0, 0, 0.25),
+    9px -3.5px rgba(0, 0, 0, 0.25),
+    9px -7px rgba(0, 0, 0, 0.25),
+    3px 1px rgba(255, 255, 255, 1),
+    6.5px 1px rgba(255, 255, 255, 1),
+    10px 1px rgba(255, 255, 255, 1),
+    10px -2.5px rgba(255, 255, 255, 1),
     10px -6px rgba(255, 255, 255, 1);
 `;
 
@@ -264,7 +274,7 @@ export const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 `;
 
 export const ModalTitle = styled.span`
@@ -280,7 +290,7 @@ export const ModalInput = styled.input`
   padding: 3px 4px;
   border: 1px solid #7f9db9;
   font-size: 12px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   box-sizing: border-box;
 `;
 

@@ -57,8 +57,7 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat }) => {
   const state = useQQStore();
   const { me, groups, buddies, openGroups, unread } = state;
 
-  const buddiesOf = (groupId: string): RuntimeBuddy[] =>
-    buddies.filter(b => b.group === groupId);
+  const buddiesOf = (groupId: string): RuntimeBuddy[] => buddies.filter(b => b.group === groupId);
 
   return (
     <PanelRoot data-testid="qq-panel">

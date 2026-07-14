@@ -333,7 +333,11 @@ const VolumeControl = ({ windowId }: { windowId?: string }) => {
               t(`volumeControl.channels.${id}`),
               channels[id],
               v => updateChannel(id, { balance: v }),
-              v => updateChannel(id, { volume: v, ...(channels[id].muted && v > 0 ? { muted: false } : {}) }),
+              v =>
+                updateChannel(id, {
+                  volume: v,
+                  ...(channels[id].muted && v > 0 ? { muted: false } : {}),
+                }),
               m => updateChannel(id, { muted: m }),
               t('volumeControl.mute')
             )}

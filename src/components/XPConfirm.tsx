@@ -73,9 +73,11 @@ const XPConfirm = ({
   }, []);
 
   const iconName =
-    type === 'error'   ? 'alert_error'   :
-    type === 'warning' ? 'alert_warning' :
-    /* question / info */  'alert_info';
+    type === 'error'
+      ? 'alert_error'
+      : type === 'warning'
+        ? 'alert_warning'
+        : /* question / info */ 'alert_info';
 
   return (
     <Overlay ref={containerRef} onKeyDown={onKeyDown} data-xp-context-boundary>
@@ -89,7 +91,9 @@ const XPConfirm = ({
           <Message>{message}</Message>
         </ContentArea>
         <ButtonArea>
-          <XPButton ref={confirmRef} $default onClick={onConfirm}>{finalConfirmLabel}</XPButton>
+          <XPButton ref={confirmRef} $default onClick={onConfirm}>
+            {finalConfirmLabel}
+          </XPButton>
           <XPButton onClick={onCancel}>{finalCancelLabel}</XPButton>
         </ButtonArea>
       </XPDialogWindow>
