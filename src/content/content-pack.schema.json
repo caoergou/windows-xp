@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://caoergou.github.io/windows-xp/schemas/content-pack.schema.json",
+  "title": "ContentPack",
+  "description": "A content pack (#241): the top-level unit of an official game's content repository. Bundles authorized IE sites, a customFileSystem fragment, a scenario, per-culture string tables, and an asset manifest. Every field is optional.",
+  "type": "object",
+  "required": ["id"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable id — namespaces the asset cache and feeds the snapshot fingerprint.",
+      "minLength": 1
+    },
+    "assets": {
+      "type": "object",
+      "description": "Logical asset key → concrete source, resolved once when the host mounts the pack. Values should be inline or { url } sources, not { asset } (which would be an indirection loop).",
+      "additionalProperties": { "$ref": "#/definitions/contentRef" }
+    },
+    "sites": {
+      "type": "object",
+      "description": "IE authorized-site registry. Keys are URLs (normalized at load time, rules per #149); an authorized page always wins over the search corpus / Wayback fallback.",
+      "additionalProperties": { "$ref": "#/definitions/siteDef" }
+    },
+    "files": {
+      "type": "object",
+      "description": "customFileSystem fragment. File nodes may carry `contentRef` in place of inline `content`.",
+      "additionalProperties": true
+    },
+    "scenario": {
+      "type": "object",
+      "description": "The scenario rulebook (#84/#207). See docs/SCENARIOS.md for its schema."
+    },
+    "strings": {
+      "type": "object",
+      "description": "Per-culture string tables: culture id → key → text (#207 copy-extraction carrier).",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": { "type": "string" }
+      }
+    }
+  },
+  "definitions": {
+    "contentRef": {
+      "title": "ContentRef",
+      "description": "A reference to a piece of content. Three sources, one shape.",
+      "oneOf": [
+        {
+          "type": "string",
+          "description": "Inline: the content itself."
+        },
+        {
+          "type": "object",
+          "description": "A host asset URL resolved at load time (build import / public path / CDN).",
+          "required": ["url"],
+          "additionalProperties": false,
+          "properties": { "url": { "type": "string" } }
+        },
+        {
+          "type": "object",
+          "description": "A logical key resolved through the pack's `assets` manifest — the portable reference.",
+          "required": ["asset"],
+          "additionalProperties": false,
+          "properties": { "asset": { "type": "string" } }
+        }
+      ]
+    },
+    "siteDef": {
+      "title": "SiteDef",
+      "description": "An authorized IE site (#149/#241).",
+      "type": "object",
+      "required": ["html"],
+      "additionalProperties": false,
+      "properties": {
+        "html": {
+          "description": "The page body to render (inline HTML, a host url, or an asset key).",
+          "$ref": "#/definitions/contentRef"
+        },
+        "title": {
+          "type": "string",
+          "description": "Browser/tab title; falls back to the site's URL key when omitted."
+        },
+        "favicon": {
+          "description": "Optional favicon (icon id, data URI, or a ContentRef).",
+          "$ref": "#/definitions/contentRef"
+        }
+      }
+    }
+  }
+}

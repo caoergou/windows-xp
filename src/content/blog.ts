@@ -8,9 +8,11 @@
  * mirrors is the author's build step (see USAGE), not engine magic.
  */
 import type { FileNode } from '../types';
+import type { ContentRef } from './types';
+import { isInlineRef } from './types';
 import { serializeOpenPath } from '../utils/deepLink';
 
-/** One post in a content manifest. `source` is Markdown text. */
+/** One post in a content manifest. `source` is Markdown text (inline or a #241 reference). */
 export interface BlogPost {
   /** URL-safe id; becomes the `<slug>.md` filesystem key and the permalink target. */
   slug: string;
@@ -18,8 +20,14 @@ export interface BlogPost {
   title: string;
   /** ISO date string (RSS `pubDate`, sortable). */
   date?: string;
-  /** Markdown source. */
-  source: string;
+  /**
+   * Markdown source (#137), inline or referenced (#241). A `string` is the
+   * inline body (the common case); a `{ url }` / `{ asset }` {@link ContentRef}
+   * moves a long post out of the manifest. Inline sources render everywhere;
+   * referenced sources become a `contentRef` file node and must be pre-resolved
+   * (pass `bodyHtml`) for the crawlable mirror, which needs the text at build time.
+   */
+  source: ContentRef;
   /** Optional icon id for the file node. */
   icon?: string;
   /** Optional single containing folder key (posts group under it on the desktop). */
@@ -155,7 +163,9 @@ const fileNode = (post: BlogPost): FileNode => ({
   type: 'file',
   name: post.title,
   app: 'MarkdownViewer',
-  content: post.source,
+  // Inline sources embed directly; referenced ones (#241) carry a contentRef the
+  // FS layer resolves lazily when the file is opened.
+  ...(isInlineRef(post.source) ? { content: post.source } : { contentRef: post.source }),
   icon: post.icon ?? 'file',
 });
 
@@ -263,11 +273,18 @@ ${urls}
  * time — for rich content; without it the raw Markdown is escaped into a `<pre>`
  * fallback so crawlers still index the text. The page links back to the desktop
  * permalink, so search engines index content while humans get the desktop.
+ *
+ * A referenced source (#241, `{ url }`/`{ asset }`) has no text available
+ * synchronously, so pass `bodyHtml` (e.g. resolve the ref at build time) for
+ * those posts; without it the mirror body is empty.
  */
 export function buildPostMirrorHtml(post: BlogPost, site: SiteMeta, bodyHtml?: string): string {
   const permalink = postPermalink(post, site);
   // Strip any frontmatter from the raw fallback so the `---` block isn't indexed.
-  const body = bodyHtml ?? `<pre>${escapeXml(parseFrontmatter(post.source).body)}</pre>`;
+  const inlineBody = isInlineRef(post.source)
+    ? `<pre>${escapeXml(parseFrontmatter(post.source).body)}</pre>`
+    : '';
+  const body = bodyHtml ?? inlineBody;
   const desc = post.excerpt ?? '';
   const lang = site.language ?? 'en';
   return `<!doctype html>

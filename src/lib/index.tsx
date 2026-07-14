@@ -333,6 +333,23 @@ export type {
 export type { WallpaperItem } from '../data/wallpapers';
 export type { DeepLinkRoute, DeepLinkRoutes } from '../utils/deepLink';
 export type { BlogPost, ContentManifest, SiteMeta, Frontmatter } from '../content/blog';
+// Content reference & content-pack model (#241).
+export type { ContentRef, ContentPack, SiteDef, PackStrings } from '../content/types';
+export { isInlineRef, isUrlRef, isAssetRef, isContentRef } from '../content/types';
+export {
+  createContentResolver,
+  memoryContentCache,
+  storageContentCache,
+  ContentResolveError,
+} from '../content/resolver';
+export type { ContentResolver, ContentCache, ResolverOptions } from '../content/resolver';
+export {
+  normalizeSiteUrl,
+  buildSiteRegistry,
+  lookupSite,
+  mergeContentPacks,
+} from '../content/pack';
+export type { MountedContent } from '../content/pack';
 export type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 export type { FileSystemMode } from '../context/FileSystemContext';
 export type { PersistenceMode } from '../utils/storage';
