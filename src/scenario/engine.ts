@@ -6,7 +6,7 @@
  * unit-testable and so the "judging" logic has one home.
  */
 import type { XPEvent } from '../events';
-import type { Condition, FlagValue, Scalar } from './types';
+import type { Condition, FlagValue, Scalar, Scenario } from './types';
 
 /** World state a condition is evaluated against. */
 export interface EvalContext {
@@ -107,6 +107,25 @@ export const evaluateCondition = (condition: Condition | undefined, ctx: EvalCon
   if ('found' in condition) return wasFound(ctx.journal, condition.found);
 
   return false;
+};
+
+/**
+ * Collect every filesystem path a scenario reads via a `contentContains`
+ * predicate (#241). The runtime uses this to eagerly resolve those files'
+ * `contentRef` bodies up front, so `contentContains` can match referenced
+ * content while the condition evaluator stays synchronous.
+ */
+export const collectContentContainsPaths = (scenario: Scenario): string[][] => {
+  const paths: string[][] = [];
+  const walk = (c: Condition | undefined): void => {
+    if (!c) return;
+    if ('all' in c) c.all.forEach(walk);
+    else if ('any' in c) c.any.forEach(walk);
+    else if ('not' in c) walk(c.not);
+    else if ('contentContains' in c) paths.push(c.contentContains.path);
+  };
+  scenario.triggers.forEach(t => walk(t.when));
+  return paths;
 };
 
 /** Whether any `search:query` in the journal contains `term` (case-insensitive substring). */

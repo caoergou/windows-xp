@@ -1,8 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
 import IEErrorPage from '../../../components/Explorer/IEErrorPage';
 import { HistoryEntry } from '../types';
-import { toWaybackUrl } from '../constants';
+import { toWaybackUrl, IFRAME_NAVIGATE_SCRIPT } from '../constants';
 import { Content } from '../styled';
+import type { SiteDef } from '../../../content/types';
+import type { ContentResolver } from '../../../content/resolver';
+import { lookupSite } from '../../../content/pack';
+import SitePage from './SitePage';
 
 interface ContentViewProps {
   currentEntry: HistoryEntry | undefined;
@@ -16,6 +20,10 @@ interface ContentViewProps {
   onLoad: () => void;
   onError: () => void;
   onOpenHelp: () => void;
+  /** Content-pack authorized-site registry (#241), keyed by normalized URL. */
+  sites?: Record<string, SiteDef>;
+  /** Resolver for authorized-site `html` refs (#241). */
+  resolver?: ContentResolver;
 }
 
 const ContentView: React.FC<ContentViewProps> = ({
@@ -26,6 +34,8 @@ const ContentView: React.FC<ContentViewProps> = ({
   onLoad,
   onError,
   onOpenHelp,
+  sites,
+  resolver,
 }) => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -85,6 +95,10 @@ const ContentView: React.FC<ContentViewProps> = ({
 
   if (!currentEntry) return null;
 
+  // Authorized sites (#241/#149) win over the plugin/search and the Wayback
+  // fallback — but an explicit per-nav `html` (below) is still more specific.
+  const site = sites && resolver ? lookupSite(sites, currentEntry.url) : undefined;
+
   if (currentEntry.error) {
     return (
       <Content>
@@ -98,18 +112,7 @@ const ContentView: React.FC<ContentViewProps> = ({
   }
 
   if (currentEntry.html) {
-    const script = `
-      <script>
-        document.addEventListener('click', function(e) {
-          var anchor = e.target.closest('a');
-          if (anchor && anchor.href) {
-            e.preventDefault();
-            window.parent.postMessage({ type: 'NAVIGATE', href: anchor.href }, '*');
-          }
-        });
-      </script>
-    `;
-    const srcDoc = currentEntry.html + script;
+    const srcDoc = currentEntry.html + IFRAME_NAVIGATE_SCRIPT;
 
     return (
       <Content>
@@ -121,6 +124,19 @@ const ContentView: React.FC<ContentViewProps> = ({
           onLoad={onLoad}
         />
       </Content>
+    );
+  }
+
+  if (site && resolver) {
+    return (
+      <SitePage
+        site={site}
+        url={currentEntry.url}
+        resolver={resolver}
+        onNavigate={onNavigate}
+        onOpenHelp={onOpenHelp}
+        onLoad={onLoad}
+      />
     );
   }
 

@@ -40,3 +40,21 @@ export const parseSearchQuery = (url: string): string => {
   const q = url.match(/[?&]wd=([^&]*)/);
   return q ? decodeURIComponent(q[1].replace(/\+/g, ' ')) : '';
 };
+
+/**
+ * Injected into an authored-HTML iframe so in-page link clicks are forwarded to
+ * the IE shell as a `NAVIGATE` postMessage (the shell then routes them through
+ * its own history / site registry) instead of navigating the sandboxed frame.
+ * Shared by ContentView (authored `html` pages) and SitePage (authorized sites).
+ */
+export const IFRAME_NAVIGATE_SCRIPT = `
+  <script>
+    document.addEventListener('click', function(e) {
+      var anchor = e.target.closest('a');
+      if (anchor && anchor.href) {
+        e.preventDefault();
+        window.parent.postMessage({ type: 'NAVIGATE', href: anchor.href }, '*');
+      }
+    });
+  </script>
+`;

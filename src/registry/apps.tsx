@@ -168,6 +168,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
         appField: 'Notepad',
         getProps: (item: FileNode) => ({
           content: isFileContentNode(item) ? (item.content ?? '') : '',
+          contentRef: isFileContentNode(item) ? item.contentRef : undefined,
           readOnly: isFileContentNode(item) ? item.readOnly : false,
         }),
       },
@@ -187,6 +188,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
         appField: 'MarkdownViewer',
         getProps: (item: FileNode) => ({
           content: isFileContentNode(item) ? (item.content ?? '') : '',
+          contentRef: isFileContentNode(item) ? item.contentRef : undefined,
           fileName: item.name,
         }),
       },

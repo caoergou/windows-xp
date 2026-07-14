@@ -55,9 +55,13 @@ export function lookupSite(registry: Record<string, SiteDef>, url: string): Site
   return registry[normalizeSiteUrl(url)];
 }
 
-// Deep-merge two filesystem fragments: container nodes (with `children`) merge
-// recursively; anything else is replaced wholesale by the incoming node.
-function mergeFsFragment(
+/**
+ * Deep-merge two filesystem fragments: container nodes (with `children`) merge
+ * recursively; anything else is replaced wholesale by the incoming node (so
+ * `incoming` wins on leaf collisions). Used to layer content-pack files under a
+ * host's explicit `customFileSystem` and to combine two packs' fragments.
+ */
+export function mergeFsFragments(
   base: Record<string, FileNode>,
   incoming: Record<string, FileNode>
 ): Record<string, FileNode> {
@@ -68,7 +72,7 @@ function mergeFsFragment(
       out[key] = {
         ...existing,
         ...node,
-        children: mergeFsFragment(existing.children, node.children),
+        children: mergeFsFragments(existing.children, node.children),
       };
     } else {
       out[key] = node;
@@ -117,7 +121,7 @@ export function mergeContentPacks(
   for (const pack of packs) {
     result.ids.push(pack.id);
     Object.assign(result.assets, pack.assets ?? {});
-    result.files = mergeFsFragment(result.files, pack.files ?? {});
+    result.files = mergeFsFragments(result.files, pack.files ?? {});
     result.strings = mergeStrings(result.strings, pack.strings ?? {});
     const registry = buildSiteRegistry(pack.sites, onSiteConflict);
     Object.assign(result.sites, registry);

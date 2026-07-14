@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useWindowManagerActions } from '../../context/WindowManagerContext';
 import { useCulture } from '../../context/CultureContext';
+import { useContentPacks } from '../../context/ContentPackContext';
 import { useXPEventBus } from '../../context/EventBusContext';
 import { useTranslation } from 'react-i18next';
 import IEToolbar from '../../components/Explorer/IEToolbar';
@@ -29,6 +30,7 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
   const { openWindow } = useWindowManagerActions();
   const { t } = useTranslation();
   const { culture } = useCulture();
+  const { sites, resolver } = useContentPacks();
   const bus = useXPEventBus();
   const homepage = culture.browser?.homepage ?? 'about:blank';
 
@@ -237,6 +239,8 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
           onLoad={handleContentLoad}
           onError={handleContentError}
           onOpenHelp={handleHelp}
+          sites={sites}
+          resolver={resolver}
         />
       </BrowserChrome>
       {showAddFavorite && (
