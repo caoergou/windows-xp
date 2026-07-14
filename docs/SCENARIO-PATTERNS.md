@@ -97,6 +97,20 @@ Gate it behind a door if it's a payoff: mark the file `"locked": true` and have 
 trigger `unlock` it once the player earns the key — the long document becomes the
 reward for solving the step, not something they stumble into early.
 
+## A runnable template
+
+`referenceContentPack` (exported from `@caoergou/windows-xp`) is a tiny,
+self-contained pack wiring up both patterns — the `qingchun-bbs.com` authorized
+site and the `letter.md` long-document clue, assets inline so it needs no host
+files. Mount it to see the end-to-end behaviour, then swap the inline assets for
+`{ url }` references into your own repository:
+
+```jsx
+import { WindowsXP, referenceContentPack } from '@caoergou/windows-xp';
+
+<WindowsXP contentPacks={[referenceContentPack]} autoLogin />;
+```
+
 ## Authoring notes
 
 - **Keep the manifest honest.** Every `{ asset }` must have a matching `assets`

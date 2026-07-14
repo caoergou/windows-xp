@@ -366,6 +366,8 @@ export {
 export type { MountedContent } from '../content/pack';
 export { ContentPackProvider, useContentPacks } from '../context/ContentPackContext';
 export type { ContentPackContextValue } from '../context/ContentPackContext';
+// A self-contained example pack demonstrating the #241 authoring patterns.
+export { referenceContentPack } from '../data/referencePack';
 export type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 export type { FileSystemMode } from '../context/FileSystemContext';
 export type { PersistenceMode } from '../utils/storage';

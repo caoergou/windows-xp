@@ -15,10 +15,11 @@ import {
 } from './styled';
 import FindReplaceDialog from './components/FindReplaceDialog';
 import { useNotepad } from './hooks/useNotepad';
+import { useResolvedContent } from '../../hooks/useResolvedContent';
 import { buildDropdownMenus, buildContextMenuItems } from './menus';
 import type { MenuKey, NotepadProps } from './types';
 
-const Notepad = (props: NotepadProps) => {
+const NotepadEditor = (props: NotepadProps) => {
   const np = useNotepad(props);
   const menus = buildDropdownMenus(np);
   const contextMenuItems = buildContextMenuItems(np);
@@ -155,6 +156,19 @@ const Notepad = (props: NotepadProps) => {
       />
     </Container>
   );
+};
+
+/**
+ * Resolves a #241 `contentRef` before mounting the editor, so the editable
+ * buffer (seeded once) starts from the real body rather than briefly empty.
+ * Inline `content` renders immediately (no loading gate).
+ */
+const Notepad = ({ contentRef, ...props }: NotepadProps) => {
+  const resolved = useResolvedContent(props.content, contentRef);
+  if (contentRef && resolved.loading) {
+    return <Container tabIndex={-1} style={{ outline: 'none' }} />;
+  }
+  return <NotepadEditor {...props} content={resolved.content} />;
 };
 
 export default Notepad;

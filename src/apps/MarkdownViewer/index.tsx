@@ -2,12 +2,20 @@ import React from 'react';
 import styled from 'styled-components';
 import { COLORS } from '../../constants';
 import { parseFrontmatter } from '../../content/blog';
+import type { ContentRef } from '../../content/types';
+import { useResolvedContent } from '../../hooks/useResolvedContent';
 import { renderMarkdown } from './markdown';
 import { useMarkdownConfig } from './config';
 
 export interface MarkdownViewerProps {
-  /** Markdown source to render. */
+  /** Markdown source to render (inline). */
   content?: string;
+  /**
+   * A #241 reference to the Markdown source (host asset / pack asset). When
+   * present it takes over from `content`, resolved lazily through the mounted
+   * content resolver — the "long document as a `.md` file" pattern.
+   */
+  contentRef?: ContentRef;
   /** File name shown in the info bar. */
   fileName?: string;
 }
@@ -179,10 +187,15 @@ const scalar = (v: string | string[] | undefined): string | undefined =>
  * Renders Markdown with a small built-in renderer (no heavyweight dependency)
  * inside XP window chrome. Notepad stays the plain-text editor.
  */
-const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content = '', fileName }) => {
+const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, contentRef, fileName }) => {
+  // Resolve the body: inline `content` passes through; a `contentRef` (#241)
+  // loads lazily and caches.
+  const resolved = useResolvedContent(content, contentRef);
+  const source = resolved.content;
+
   // A blog post authored with frontmatter gets a rendered title/date header
   // (#254); plain Markdown renders unchanged (no header).
-  const { data } = parseFrontmatter(content);
+  const { data } = parseFrontmatter(source);
   const title = scalar(data.title);
   const date = scalar(data.date);
 
@@ -201,7 +214,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content = '', fileName 
             {date && <span className="post-date">{date}</span>}
           </PostHeader>
         )}
-        {renderMarkdown(content, {
+        {renderMarkdown(source, {
           onLinkClick,
           components: cfg.components,
           remarkPlugins: cfg.remarkPlugins,

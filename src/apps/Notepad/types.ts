@@ -17,6 +17,12 @@ export type NotepadMenuItem =
 
 export interface NotepadProps {
   content?: string;
+  /**
+   * A #241 reference to the file body (host asset / pack asset). When present it
+   * takes over from `content`, resolved lazily before the editable buffer is
+   * seeded. JSON-serializable, so it survives window restoration.
+   */
+  contentRef?: import('../../content/types').ContentRef;
   readOnly?: boolean;
   windowId?: string;
   filePath?: string[];
