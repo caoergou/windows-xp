@@ -226,7 +226,9 @@ export const WindowManagerProvider: React.FC<{
 
       if (win.isMinimized || win.isHidden) {
         commitWindows(prev =>
-          prev.map(w => (w.id === id ? { ...w, isMinimized: false, isHidden: false, isFlashing: false } : w))
+          prev.map(w =>
+            w.id === id ? { ...w, isMinimized: false, isHidden: false, isFlashing: false } : w
+          )
         );
       }
     },
@@ -386,7 +388,9 @@ export const WindowManagerProvider: React.FC<{
 
   const hideWindow = useCallback(
     (id: string) => {
-      commitWindows(prev => prev.map(w => (w.id === id ? { ...w, isHidden: true, isMinimized: true } : w)));
+      commitWindows(prev =>
+        prev.map(w => (w.id === id ? { ...w, isHidden: true, isMinimized: true } : w))
+      );
       if (activeWindowIdRef.current === id) {
         setActiveWindowId(null);
       }

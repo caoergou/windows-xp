@@ -278,9 +278,7 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   return (
     <>
       <QQBuddyList onOpenChat={openChat} onExit={exitQQ} />
-      {closeAsk && (
-        <QQCloseDialog onConfirm={onCloseChoice} onCancel={() => setCloseAsk(false)} />
-      )}
+      {closeAsk && <QQCloseDialog onConfirm={onCloseChoice} onCancel={() => setCloseAsk(false)} />}
     </>
   );
 };

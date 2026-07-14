@@ -143,9 +143,7 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
                   <button onClick={() => setShowHistory(false)}>关闭</button>
                 </div>
                 <div className="qq-im-history-list">
-                  {thread.length === 0 && (
-                    <div className="qq-im-history-empty">暂无聊天记录</div>
-                  )}
+                  {thread.length === 0 && <div className="qq-im-history-empty">暂无聊天记录</div>}
                   {thread.map(m => (
                     <div key={m.id} className={`row${m.from === 'me' ? ' my' : ''}`}>
                       <div className="meta">
@@ -163,12 +161,7 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
             {showEmoji && (
               <div className="qq-emoji-picker" data-testid="qq-emoji-picker">
                 {QQ_EMOJI_LIST.map(({ code, emoji }) => (
-                  <button
-                    key={code}
-                    type="button"
-                    title={code}
-                    onClick={() => insertEmoji(code)}
-                  >
+                  <button key={code} type="button" title={code} onClick={() => insertEmoji(code)}>
                     {emoji}
                   </button>
                 ))}

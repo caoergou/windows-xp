@@ -1,7 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { COLORS } from '../../constants';
+import { parseFrontmatter } from '../../content/blog';
 import { renderMarkdown } from './markdown';
+import { useMarkdownConfig } from './config';
 
 export interface MarkdownViewerProps {
   /** Markdown source to render. */
@@ -112,7 +114,65 @@ const Page = styled.div`
   img {
     max-width: 100%;
   }
+  table {
+    border-collapse: collapse;
+    margin: 0 0 0.75em;
+    font-size: 0.95em;
+  }
+  th,
+  td {
+    border: 1px solid ${COLORS.BUTTON_SHADOW};
+    padding: 3px 8px;
+    text-align: left;
+  }
+  th {
+    background: ${COLORS.BUTTON_FACE};
+  }
+  /* GFM task lists: drop the bullet and restore a real checkbox glyph (xp.css
+     resets checkbox appearance to a sprite that renders invisible here). */
+  .contains-task-list {
+    padding-left: 0.3em;
+  }
+  .task-list-item {
+    list-style: none;
+  }
+  .task-list-item input[type='checkbox'] {
+    appearance: auto;
+    -webkit-appearance: auto;
+    position: static;
+    opacity: 1;
+    width: 13px;
+    height: 13px;
+    margin: 0 6px 0 0;
+    vertical-align: middle;
+  }
 `;
+
+// Article header rendered from frontmatter (title + date), above the body.
+const PostHeader = styled.header`
+  margin: 0 0 1em;
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid ${COLORS.INPUT_BORDER};
+
+  h1 {
+    margin: 0;
+    border: none;
+    padding: 0;
+    font-family: 'Trebuchet MS', 'Tahoma', sans-serif;
+    color: ${COLORS.BUTTON_BORDER};
+    font-size: 1.8em;
+    line-height: 1.2;
+  }
+  .post-date {
+    display: block;
+    margin-top: 0.25em;
+    font-size: 11px;
+    color: ${COLORS.BUTTON_SHADOW};
+  }
+`;
+
+const scalar = (v: string | string[] | undefined): string | undefined =>
+  Array.isArray(v) ? v.join(', ') : v;
 
 /**
  * MarkdownViewer (#137) — an era-appropriate document viewer for `.md` files.
@@ -120,10 +180,33 @@ const Page = styled.div`
  * inside XP window chrome. Notepad stays the plain-text editor.
  */
 const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content = '', fileName }) => {
+  // A blog post authored with frontmatter gets a rendered title/date header
+  // (#254); plain Markdown renders unchanged (no header).
+  const { data } = parseFrontmatter(content);
+  const title = scalar(data.title);
+  const date = scalar(data.date);
+
+  // Author config (#254): link target (in-desktop IE vs new tab) + plugin seam.
+  const cfg = useMarkdownConfig();
+  const onLinkClick =
+    cfg.linkTarget === 'ie' && cfg.openInIE ? (href: string) => cfg.openInIE!(href) : undefined;
+
   return (
     <Container data-testid="markdown-viewer">
       {fileName && <InfoBar>{fileName}</InfoBar>}
-      <Page data-testid="markdown-page">{renderMarkdown(content)}</Page>
+      <Page data-testid="markdown-page">
+        {title && (
+          <PostHeader data-testid="markdown-post-header">
+            <h1>{title}</h1>
+            {date && <span className="post-date">{date}</span>}
+          </PostHeader>
+        )}
+        {renderMarkdown(content, {
+          onLinkClick,
+          components: cfg.components,
+          remarkPlugins: cfg.remarkPlugins,
+        })}
+      </Page>
     </Container>
   );
 };

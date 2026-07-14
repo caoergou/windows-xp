@@ -18,7 +18,7 @@ hero:
 
 features:
   - title: Inject your world
-    details: Swap the whole file system, add culture packages and custom apps. Content is data, not code.
+    details: Swap the whole file system, add culture packages and custom apps, or run it as a Markdown blog (frontmatter, RSS/sitemap, permalinks). Content is data, not code.
     link: /guide/content
   - title: Observe & drive it
     details: Every user action emits a typed event; an imperative ref handle opens apps, writes files, and loads snapshots.
