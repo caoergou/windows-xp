@@ -79,7 +79,9 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
   const { items: trayItems } = useTray();
   const { openWindow } = useWindowManagerActions();
   const [volumeOpen, setVolumeOpen] = useState(false);
-  const [trayMenu, setTrayMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null);
+  const [trayMenu, setTrayMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(
+    null
+  );
   const trayRef = useRef<HTMLDivElement>(null);
 
   const handleTrayContextMenu = useCallback((e: React.MouseEvent, items?: MenuItem[]) => {

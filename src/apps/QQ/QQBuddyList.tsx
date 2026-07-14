@@ -52,12 +52,36 @@ const PANEL_BAR: Array<{ img: string; title: string; active?: boolean }> = [
 
 const TOOLBAR_BTNS: Array<{ img: string; title: string; url?: string }> = [
   { img: 'MobileMsgButton.png', title: '发送手机消息' },
-  { img: 'GameButton.png', title: 'QQ游戏', url: 'https://web.archive.org/web/20061205080044/http://game.qq.com/' },
-  { img: 'TTButton.png', title: '腾讯TT浏览器', url: 'https://web.archive.org/web/20061017120334/http://im.qq.com/tt/' },
-  { img: 'QQHome.png', title: 'QQ空间', url: 'https://web.archive.org/web/20061214025556/http://qzone.qq.com/' },
-  { img: 'QQMusicButton.png', title: 'QQ音乐', url: 'https://web.archive.org/web/20061205/http://music.qq.com/' },
-  { img: 'QQTVButton.png', title: '网络电视(QQLive)', url: 'https://web.archive.org/web/20061020082618/http://www.qqlive.com/' },
-  { img: 'OpenPet.png', title: 'QQ宠物', url: 'https://web.archive.org/web/20061105063630/http://pet.qq.com/' },
+  {
+    img: 'GameButton.png',
+    title: 'QQ游戏',
+    url: 'https://web.archive.org/web/20061205080044/http://game.qq.com/',
+  },
+  {
+    img: 'TTButton.png',
+    title: '腾讯TT浏览器',
+    url: 'https://web.archive.org/web/20061017120334/http://im.qq.com/tt/',
+  },
+  {
+    img: 'QQHome.png',
+    title: 'QQ空间',
+    url: 'https://web.archive.org/web/20061214025556/http://qzone.qq.com/',
+  },
+  {
+    img: 'QQMusicButton.png',
+    title: 'QQ音乐',
+    url: 'https://web.archive.org/web/20061205/http://music.qq.com/',
+  },
+  {
+    img: 'QQTVButton.png',
+    title: '网络电视(QQLive)',
+    url: 'https://web.archive.org/web/20061020082618/http://www.qqlive.com/',
+  },
+  {
+    img: 'OpenPet.png',
+    title: 'QQ宠物',
+    url: 'https://web.archive.org/web/20061105063630/http://pet.qq.com/',
+  },
 ];
 
 interface QQBuddyListProps {
@@ -255,7 +279,12 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onExit }) => {
             />
           ))}
         </div>
-        <button className="qq-menu-button" title="菜单" data-testid="qq-menu-button" onClick={openMainMenu} />
+        <button
+          className="qq-menu-button"
+          title="菜单"
+          data-testid="qq-menu-button"
+          onClick={openMainMenu}
+        />
         <div className="qq-toolbar-btns qq-toolbar-2">
           <button
             className="qq-msgmgr-button"
@@ -280,13 +309,18 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onExit }) => {
             <div className="bt-head">
               <img src={qqAvatar(hover.buddy.avatar)} alt="" />
               <div>
-                <div className={`bt-name${hover.buddy.vip ? ' vip' : ''}`}>{hover.buddy.nickname}</div>
+                <div className={`bt-name${hover.buddy.vip ? ' vip' : ''}`}>
+                  {hover.buddy.nickname}
+                </div>
                 <div className="bt-num">{hover.buddy.number}</div>
               </div>
             </div>
             <div className="bt-body">
               <div className="bt-status">
-                <span className="dot" style={{ background: STATUS_DOT[hover.buddy.currentStatus] }} />
+                <span
+                  className="dot"
+                  style={{ background: STATUS_DOT[hover.buddy.currentStatus] }}
+                />
                 {QQ_STATUS_LABEL[hover.buddy.currentStatus]}
               </div>
               <div className="bt-sign">{hover.buddy.signature || '这个人很懒，什么都没留下'}</div>
