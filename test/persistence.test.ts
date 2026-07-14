@@ -254,7 +254,10 @@ describe('persistence.ts: persistFs and loadPersistedFileSystem', () => {
     };
     saveRecycleBin(binItems);
 
-    const { root, recycleBinRef } = await loadPersistedFileSystem(getDefaultStorage(), makeDefaultFs());
+    const { root, recycleBinRef } = await loadPersistedFileSystem(
+      getDefaultStorage(),
+      makeDefaultFs()
+    );
     const bin = getNode({ root }, ['回收站']);
     if (!bin || !isContainerNode(bin)) throw new Error('expected recycle bin folder');
     expect(Object.keys(bin.children)).toEqual(['trashed.txt']);

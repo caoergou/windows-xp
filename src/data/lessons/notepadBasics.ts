@@ -33,7 +33,12 @@ export const notepadBasicsLesson = defineLesson({
       hints: [{ afterMs: 15000, text: 'lesson.notepad.hint2' }],
       // Watch mode "saves" the note by creating the file the save would produce.
       demonstrate: {
-        emit: { type: 'file:create', path: ['我的文档', '便签.txt'], name: '便签.txt', nodeType: 'file' },
+        emit: {
+          type: 'file:create',
+          path: ['我的文档', '便签.txt'],
+          name: '便签.txt',
+          nodeType: 'file',
+        },
       },
     },
   ],

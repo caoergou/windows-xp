@@ -168,7 +168,9 @@ const NortonAntiVirus: React.FC<{ windowId?: string }> = () => {
     timer.current = window.setInterval(() => {
       setProgress(prev => {
         const next = prev + 4;
-        setLine(`Scanning ${SCAN_TARGETS[Math.floor((next / 100) * SCAN_TARGETS.length) % SCAN_TARGETS.length]}`);
+        setLine(
+          `Scanning ${SCAN_TARGETS[Math.floor((next / 100) * SCAN_TARGETS.length) % SCAN_TARGETS.length]}`
+        );
         if (next >= 100) {
           clear();
           setPhase('done');
@@ -228,9 +230,7 @@ const NortonAntiVirus: React.FC<{ windowId?: string }> = () => {
               <XPIcon name="nav" size={40} />
               <div className="msg">
                 <div className="big">No threats found</div>
-                <div>
-                  {SCAN_TARGETS.length * 214} files scanned · 0 infected · 0 quarantined
-                </div>
+                <div>{SCAN_TARGETS.length * 214} files scanned · 0 infected · 0 quarantined</div>
               </div>
             </StatusCard>
             <Btn onClick={() => setPhase('idle')}>Done</Btn>

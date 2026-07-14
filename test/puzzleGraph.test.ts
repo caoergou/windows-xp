@@ -4,12 +4,23 @@
  * solver, and the graph linter (cycles, reachability, gates, hints, bushiness).
  */
 import { describe, it, expect } from 'vitest';
-import { compilePuzzleGraph, lintPuzzleGraph, ladder, solvedFlag, type PuzzleGraph } from '../src/scenario/puzzleGraph';
+import {
+  compilePuzzleGraph,
+  lintPuzzleGraph,
+  ladder,
+  solvedFlag,
+  type PuzzleGraph,
+} from '../src/scenario/puzzleGraph';
 import { solveScenario, ranAction } from '../src/scenario/solver';
 import { eventMatch, happened, unlock, flag } from '../src/scenario/builder';
 import type { XPEvent } from '../src/events';
 
-const openFileEvent = (name: string): XPEvent => ({ type: 'file:open', path: [name], name, nodeType: 'file' });
+const openFileEvent = (name: string): XPEvent => ({
+  type: 'file:open',
+  path: [name],
+  name,
+  nodeType: 'file',
+});
 
 describe('hint ladders (M12)', () => {
   it('ladder() escalates thresholds at base*(i+1)', () => {
@@ -18,19 +29,27 @@ describe('hint ladders (M12)', () => {
       { text: 'b', afterFails: 4 },
       { text: 'c', afterFails: 6 },
     ]);
-    expect(ladder({ idles: 1, title: '提示' }, 'x')).toEqual([{ text: 'x', title: '提示', afterIdles: 1 }]);
+    expect(ladder({ idles: 1, title: '提示' }, 'x')).toEqual([
+      { text: 'x', title: '提示', afterIdles: 1 },
+    ]);
   });
 
   it('compiles a fails ladder to a password:fail hint — matching the hand-written prologue trigger', () => {
     const scenario = compilePuzzleGraph({
       id: 'g',
       puzzles: [
-        { id: 'door', on: 'file:unlock', solvedWhen: happened('file:unlock', { name: 'WINDOWS' }),
-          hints: ladder({ fails: 2, title: '提示' }, '看便签。') },
+        {
+          id: 'door',
+          on: 'file:unlock',
+          solvedWhen: happened('file:unlock', { name: 'WINDOWS' }),
+          hints: ladder({ fails: 2, title: '提示' }, '看便签。'),
+        },
       ],
     });
     // Below the threshold: no hint.
-    const one = solveScenario(scenario, [{ type: 'password:fail', path: ['x'], name: 'x', attempt: 1 }]);
+    const one = solveScenario(scenario, [
+      { type: 'password:fail', path: ['x'], name: 'x', attempt: 1 },
+    ]);
     expect(one.actions.some(a => 'notify' in a)).toBe(false);
     // At 2 fails the hint balloons — equivalent to the hand-written count>=2 trigger.
     const two = solveScenario(scenario, [
@@ -45,8 +64,12 @@ describe('hint ladders (M12)', () => {
     const scenario = compilePuzzleGraph({
       id: 'g',
       puzzles: [
-        { id: 'door', on: 'file:unlock', solvedWhen: happened('file:unlock', { name: 'WINDOWS' }),
-          hints: ladder({ fails: 1 }, 'hint') },
+        {
+          id: 'door',
+          on: 'file:unlock',
+          solvedWhen: happened('file:unlock', { name: 'WINDOWS' }),
+          hints: ladder({ fails: 1 }, 'hint'),
+        },
       ],
     });
     // Solve first, then fail: the door is solved, so no hint fires.
@@ -64,7 +87,14 @@ describe('compilePuzzleGraph', () => {
       id: 'g',
       puzzles: [
         { id: 'a', on: 'file:open', solvedWhen: eventMatch({ name: 'x' }), hints: [{ text: 'h' }] },
-        { id: 'b', requires: ['a'], on: 'file:open', solvedWhen: eventMatch({ name: 'y' }), grants: [unlock(['D', 'z'])], hints: [{ text: 'h' }] },
+        {
+          id: 'b',
+          requires: ['a'],
+          on: 'file:open',
+          solvedWhen: eventMatch({ name: 'y' }),
+          grants: [unlock(['D', 'z'])],
+          hints: [{ text: 'h' }],
+        },
       ],
     };
     const scenario = compilePuzzleGraph(graph);
@@ -87,7 +117,9 @@ describe('compilePuzzleGraph', () => {
   it('derives `on` from happened/count when omitted', () => {
     const scenario = compilePuzzleGraph({
       id: 'g',
-      puzzles: [{ id: 'a', solvedWhen: happened('file:unlock', { name: 'W' }), hints: [{ text: 'h' }] }],
+      puzzles: [
+        { id: 'a', solvedWhen: happened('file:unlock', { name: 'W' }), hints: [{ text: 'h' }] },
+      ],
     });
     expect(scenario.triggers[0].on).toEqual(['file:unlock']);
   });
@@ -97,8 +129,20 @@ describe('compile → solve (end to end)', () => {
   const graph: PuzzleGraph = {
     id: 'story',
     puzzles: [
-      { id: 'diary', on: 'file:open', solvedWhen: eventMatch({ name: 'diary.txt' }), hints: [{ text: 'h' }] },
-      { id: 'chat', requires: ['diary'], on: 'file:open', solvedWhen: eventMatch({ name: 'chat.txt' }), grants: [unlock(['D', '私人'])], hints: [{ text: 'h' }] },
+      {
+        id: 'diary',
+        on: 'file:open',
+        solvedWhen: eventMatch({ name: 'diary.txt' }),
+        hints: [{ text: 'h' }],
+      },
+      {
+        id: 'chat',
+        requires: ['diary'],
+        on: 'file:open',
+        solvedWhen: eventMatch({ name: 'chat.txt' }),
+        grants: [unlock(['D', '私人'])],
+        hints: [{ text: 'h' }],
+      },
     ],
   };
   const scenario = compilePuzzleGraph(graph);
@@ -111,7 +155,11 @@ describe('compile → solve (end to end)', () => {
   });
 
   it('reaches the ending via the intended walkthrough', () => {
-    const r = solveScenario(scenario, [openFileEvent('chat.txt'), openFileEvent('diary.txt'), openFileEvent('chat.txt')]);
+    const r = solveScenario(scenario, [
+      openFileEvent('chat.txt'),
+      openFileEvent('diary.txt'),
+      openFileEvent('chat.txt'),
+    ]);
     expect(r.flags[solvedFlag('diary')]).toBe(true);
     expect(r.flags[solvedFlag('chat')]).toBe(true);
     expect(ranAction(r, 'unlock')).toBe(true);
@@ -119,14 +167,22 @@ describe('compile → solve (end to end)', () => {
 });
 
 describe('lintPuzzleGraph', () => {
-  const hinted = (extra: Partial<PuzzleGraph['puzzles'][number]>) => ({ hints: [{ text: 'h' }], ...extra });
+  const hinted = (extra: Partial<PuzzleGraph['puzzles'][number]>) => ({
+    hints: [{ text: 'h' }],
+    ...extra,
+  });
 
   it('passes a well-formed graph', () => {
     const report = lintPuzzleGraph({
       id: 'g',
       puzzles: [
         hinted({ id: 'a', on: 'file:open', solvedWhen: eventMatch({ name: 'x' }) }),
-        hinted({ id: 'b', requires: ['a'], on: 'file:open', solvedWhen: eventMatch({ name: 'y' }) }),
+        hinted({
+          id: 'b',
+          requires: ['a'],
+          on: 'file:open',
+          solvedWhen: eventMatch({ name: 'y' }),
+        }),
       ] as PuzzleGraph['puzzles'],
     });
     expect(report.ok).toBe(true);
@@ -136,7 +192,14 @@ describe('lintPuzzleGraph', () => {
   it('errors on missing requires and self-reference', () => {
     const report = lintPuzzleGraph({
       id: 'g',
-      puzzles: [hinted({ id: 'a', requires: ['ghost', 'a'], on: 'file:open', solvedWhen: eventMatch({ name: 'x' }) })] as PuzzleGraph['puzzles'],
+      puzzles: [
+        hinted({
+          id: 'a',
+          requires: ['ghost', 'a'],
+          on: 'file:open',
+          solvedWhen: eventMatch({ name: 'x' }),
+        }),
+      ] as PuzzleGraph['puzzles'],
     });
     expect(report.ok).toBe(false);
     expect(report.issues.some(i => i.message.includes('unknown puzzle "ghost"'))).toBe(true);
@@ -147,8 +210,18 @@ describe('lintPuzzleGraph', () => {
     const report = lintPuzzleGraph({
       id: 'g',
       puzzles: [
-        hinted({ id: 'a', requires: ['b'], on: 'file:open', solvedWhen: eventMatch({ name: 'x' }) }),
-        hinted({ id: 'b', requires: ['a'], on: 'file:open', solvedWhen: eventMatch({ name: 'y' }) }),
+        hinted({
+          id: 'a',
+          requires: ['b'],
+          on: 'file:open',
+          solvedWhen: eventMatch({ name: 'x' }),
+        }),
+        hinted({
+          id: 'b',
+          requires: ['a'],
+          on: 'file:open',
+          solvedWhen: eventMatch({ name: 'y' }),
+        }),
       ] as PuzzleGraph['puzzles'],
     });
     expect(report.ok).toBe(false);
@@ -161,7 +234,12 @@ describe('lintPuzzleGraph', () => {
       puzzles: [{ id: 'a', on: 'file:open', solvedWhen: eventMatch({ name: 'x' }) }],
     });
     expect(
-      report.issues.some(i => i.level === 'error' && i.message.includes('critical path') && i.message.includes('hint ladder'))
+      report.issues.some(
+        i =>
+          i.level === 'error' &&
+          i.message.includes('critical path') &&
+          i.message.includes('hint ladder')
+      )
     ).toBe(true);
     expect(report.ok).toBe(false);
   });
@@ -171,11 +249,21 @@ describe('lintPuzzleGraph', () => {
       id: 'g',
       puzzles: [
         { id: 'a', on: 'file:open', solvedWhen: eventMatch({ name: 'x' }), hints: [{ text: 'h' }] },
-        { id: 'main', requires: ['a'], on: 'file:open', solvedWhen: eventMatch({ name: 'y' }), hints: [{ text: 'h' }] },
+        {
+          id: 'main',
+          requires: ['a'],
+          on: 'file:open',
+          solvedWhen: eventMatch({ name: 'y' }),
+          hints: [{ text: 'h' }],
+        },
         { id: 'side', requires: ['a'], on: 'file:open', solvedWhen: eventMatch({ name: 'z' }) }, // optional terminal, unhinted
       ],
     });
-    expect(report.issues.some(i => i.puzzle === 'side' && i.level === 'warn' && i.message.includes('hint ladder'))).toBe(true);
+    expect(
+      report.issues.some(
+        i => i.puzzle === 'side' && i.level === 'warn' && i.message.includes('hint ladder')
+      )
+    ).toBe(true);
     expect(report.ok).toBe(true); // a warning, not an error — it's off the critical path
   });
 
@@ -193,13 +281,33 @@ describe('lintPuzzleGraph', () => {
       id: 'g',
       puzzles: [
         hinted({ id: 'intro', on: 'file:open', solvedWhen: eventMatch({ name: 'i' }) }),
-        hinted({ id: 'gate', gate: true, requires: ['intro'], on: 'file:open', solvedWhen: eventMatch({ name: 'g' }) }),
-        hinted({ id: 'proper', requires: ['gate'], on: 'file:open', solvedWhen: eventMatch({ name: 'p' }) }),
-        hinted({ id: 'sneaky', requires: ['intro'], on: 'file:open', solvedWhen: eventMatch({ name: 's' }) }), // skips the gate
+        hinted({
+          id: 'gate',
+          gate: true,
+          requires: ['intro'],
+          on: 'file:open',
+          solvedWhen: eventMatch({ name: 'g' }),
+        }),
+        hinted({
+          id: 'proper',
+          requires: ['gate'],
+          on: 'file:open',
+          solvedWhen: eventMatch({ name: 'p' }),
+        }),
+        hinted({
+          id: 'sneaky',
+          requires: ['intro'],
+          on: 'file:open',
+          solvedWhen: eventMatch({ name: 's' }),
+        }), // skips the gate
       ] as PuzzleGraph['puzzles'],
     });
-    expect(report.issues.some(i => i.puzzle === 'sneaky' && i.message.includes('bypasses gate'))).toBe(true);
-    expect(report.issues.some(i => i.puzzle === 'proper' && i.message.includes('bypasses'))).toBe(false);
+    expect(
+      report.issues.some(i => i.puzzle === 'sneaky' && i.message.includes('bypasses gate'))
+    ).toBe(true);
+    expect(report.issues.some(i => i.puzzle === 'proper' && i.message.includes('bypasses'))).toBe(
+      false
+    );
   });
 
   it('reports bushiness by dependency depth', () => {
@@ -209,7 +317,12 @@ describe('lintPuzzleGraph', () => {
         hinted({ id: 'r1', on: 'file:open', solvedWhen: eventMatch({ name: '1' }) }),
         hinted({ id: 'r2', on: 'file:open', solvedWhen: eventMatch({ name: '2' }) }),
         hinted({ id: 'r3', on: 'file:open', solvedWhen: eventMatch({ name: '3' }) }),
-        hinted({ id: 'leaf', requires: ['r1', 'r2'], on: 'file:open', solvedWhen: eventMatch({ name: '4' }) }),
+        hinted({
+          id: 'leaf',
+          requires: ['r1', 'r2'],
+          on: 'file:open',
+          solvedWhen: eventMatch({ name: '4' }),
+        }),
       ] as PuzzleGraph['puzzles'],
     });
     expect(report.bushiness[0]).toBe(3); // three roots open in parallel

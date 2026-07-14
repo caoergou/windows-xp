@@ -41,7 +41,7 @@ const Wrap = styled.div`
   flex-direction: column;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 12px;
   user-select: none;
   color: #ffffff;
@@ -109,7 +109,7 @@ const cardBase = css`
   position: absolute;
   top: 0;
   left: 0;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 `;
 
 const FaceUpCard = styled.div<{ $suit?: string }>`
@@ -126,8 +126,20 @@ const FaceDownCard = styled.div`
   ${cardBase}
   background: #1a3c8a;
   background-image:
-    repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(255, 255, 255, 0.08) 6px, rgba(255, 255, 255, 0.08) 12px),
-    repeating-linear-gradient(-45deg, transparent, transparent 6px, rgba(0, 0, 0, 0.08) 6px, rgba(0, 0, 0, 0.08) 12px);
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 6px,
+      rgba(255, 255, 255, 0.08) 6px,
+      rgba(255, 255, 255, 0.08) 12px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 6px,
+      rgba(0, 0, 0, 0.08) 6px,
+      rgba(0, 0, 0, 0.08) 12px
+    );
   border: 1px solid #003366;
 `;
 
@@ -269,40 +281,37 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
     setGameState(prev => dealFromStock(prev));
   }, []);
 
-  const findDropTarget = useCallback(
-    (clientX: number, clientY: number): PileLocation | null => {
-      for (let i = 0; i < foundationRefs.current.length; i++) {
-        const el = foundationRefs.current[i];
-        if (!el) continue;
-        const rect = el.getBoundingClientRect();
-        if (
-          clientX >= rect.left &&
-          clientX <= rect.right &&
-          clientY >= rect.top &&
-          clientY <= rect.bottom
-        ) {
-          return { type: 'foundation', index: i };
-        }
+  const findDropTarget = useCallback((clientX: number, clientY: number): PileLocation | null => {
+    for (let i = 0; i < foundationRefs.current.length; i++) {
+      const el = foundationRefs.current[i];
+      if (!el) continue;
+      const rect = el.getBoundingClientRect();
+      if (
+        clientX >= rect.left &&
+        clientX <= rect.right &&
+        clientY >= rect.top &&
+        clientY <= rect.bottom
+      ) {
+        return { type: 'foundation', index: i };
       }
+    }
 
-      for (let i = 0; i < tableauRefs.current.length; i++) {
-        const el = tableauRefs.current[i];
-        if (!el) continue;
-        const rect = el.getBoundingClientRect();
-        if (
-          clientX >= rect.left &&
-          clientX <= rect.right &&
-          clientY >= rect.top &&
-          clientY <= rect.bottom
-        ) {
-          return { type: 'tableau', index: i };
-        }
+    for (let i = 0; i < tableauRefs.current.length; i++) {
+      const el = tableauRefs.current[i];
+      if (!el) continue;
+      const rect = el.getBoundingClientRect();
+      if (
+        clientX >= rect.left &&
+        clientX <= rect.right &&
+        clientY >= rect.top &&
+        clientY <= rect.bottom
+      ) {
+        return { type: 'tableau', index: i };
       }
+    }
 
-      return null;
-    },
-    []
-  );
+    return null;
+  }, []);
 
   const tryAutoMoveToFoundation = useCallback(
     (card: Card, source: PileLocation): boolean => {
@@ -318,7 +327,13 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
   );
 
   const startDrag = useCallback(
-    (cards: Card[], source: PileLocation, cardEl: HTMLElement, clientX: number, clientY: number) => {
+    (
+      cards: Card[],
+      source: PileLocation,
+      cardEl: HTMLElement,
+      clientX: number,
+      clientY: number
+    ) => {
       const rect = cardEl.getBoundingClientRect();
       setDrag({
         cards,
@@ -364,7 +379,13 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
       const movable = getMovableCards(gameState, { type: 'waste' });
       if (!movable) return;
 
-      startDrag(movable.cards, movable.source, e.currentTarget as HTMLElement, e.clientX, e.clientY);
+      startDrag(
+        movable.cards,
+        movable.source,
+        e.currentTarget as HTMLElement,
+        e.clientX,
+        e.clientY
+      );
     },
     [gameState, startDrag]
   );
@@ -377,7 +398,13 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
       const movable = getMovableCards(gameState, { type: 'foundation', index });
       if (!movable) return;
 
-      startDrag(movable.cards, movable.source, e.currentTarget as HTMLElement, e.clientX, e.clientY);
+      startDrag(
+        movable.cards,
+        movable.source,
+        e.currentTarget as HTMLElement,
+        e.clientX,
+        e.clientY
+      );
     },
     [gameState, startDrag]
   );
@@ -543,7 +570,13 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
           {gameState.foundations.map((foundation, index) => {
             const top = getTopCard(foundation);
             return (
-              <PileSlot $empty={!top} key={index} ref={el => { foundationRefs.current[index] = el; }}>
+              <PileSlot
+                $empty={!top}
+                key={index}
+                ref={el => {
+                  foundationRefs.current[index] = el;
+                }}
+              >
                 {top && (
                   <SolitaireCard
                     card={top}
@@ -561,7 +594,9 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
           {gameState.tableaus.map((pile, pileIndex) => (
             <TableauPile
               key={pileIndex}
-              ref={el => { tableauRefs.current[pileIndex] = el; }}
+              ref={el => {
+                tableauRefs.current[pileIndex] = el;
+              }}
               onMouseDown={e => handleTableauMouseDown(e, pileIndex)}
               onDoubleClick={e => handleTableauDoubleClick(e, pileIndex)}
             >
@@ -581,7 +616,12 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
 
       {drag &&
         createPortal(
-          <DragOverlay $x={drag.x} $y={drag.y} $bouncing={drag.bouncing} className="windows-xp-portal">
+          <DragOverlay
+            $x={drag.x}
+            $y={drag.y}
+            $bouncing={drag.bouncing}
+            className="windows-xp-portal"
+          >
             {drag.cards.map((card, index) => (
               <DragStackCard key={card.id} $offset={index * TABLEAU_OFFSET} $suit={card.suit}>
                 <CardRank>{RANK_LABELS[card.rank]}</CardRank>

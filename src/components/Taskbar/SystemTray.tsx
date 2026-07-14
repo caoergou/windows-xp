@@ -130,7 +130,14 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
           data-tray-id={item.id}
           $clickable={!!item.onClick}
           title={item.tooltip || ''}
-          onClick={item.onClick ? (e) => { e.stopPropagation(); item.onClick?.(); } : undefined}
+          onClick={
+            item.onClick
+              ? e => {
+                  e.stopPropagation();
+                  item.onClick?.();
+                }
+              : undefined
+          }
         >
           <XPIcon name={item.icon} size={16} color="white" />
         </TrayIconWrapper>

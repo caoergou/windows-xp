@@ -24,21 +24,71 @@ export const SCENARIO_MAX_BYTES = 2 * 1024 * 1024;
 
 /** Event domains the engine emits (the prefix before `:`). Keep in sync with `events.ts`. */
 const KNOWN_EVENT_DOMAINS = new Set([
-  'app', 'cmd', 'contextmenu', 'deduction', 'evidence', 'file', 'flag', 'folder', 'game', 'ie',
-  'install', 'lesson', 'link', 'media', 'notification', 'password', 'qq', 'recyclebin',
-  'screensaver', 'search', 'session', 'startmenu', 'time', 'ui', 'user', 'wallpaper', 'window',
+  'app',
+  'cmd',
+  'contextmenu',
+  'deduction',
+  'evidence',
+  'file',
+  'flag',
+  'folder',
+  'game',
+  'ie',
+  'install',
+  'lesson',
+  'link',
+  'media',
+  'notification',
+  'password',
+  'qq',
+  'recyclebin',
+  'screensaver',
+  'search',
+  'session',
+  'startmenu',
+  'time',
+  'ui',
+  'user',
+  'wallpaper',
+  'window',
 ]);
 
 /** Known action keys and the required shape of each (beyond the discriminant). */
 const ACTION_KEYS = new Set([
-  'setFlag', 'incFlag', 'unlock', 'addFile', 'removeFile', 'writeFile', 'notify',
-  'qqMessage', 'qqOnline', 'openApp', 'openFile', 'playSound', 'emit', 'alert',
-  'note', 'removeNote', 'after',
+  'setFlag',
+  'incFlag',
+  'unlock',
+  'addFile',
+  'removeFile',
+  'writeFile',
+  'notify',
+  'qqMessage',
+  'qqOnline',
+  'openApp',
+  'openFile',
+  'playSound',
+  'emit',
+  'alert',
+  'note',
+  'removeNote',
+  'after',
 ]);
 
 const CONDITION_KEYS = new Set([
-  'all', 'any', 'not', 'flag', 'event', 'happened', 'count', 'exists', 'unlocked',
-  'contentContains', 'pinned', 'linked', 'searched', 'found',
+  'all',
+  'any',
+  'not',
+  'flag',
+  'event',
+  'happened',
+  'count',
+  'exists',
+  'unlocked',
+  'contentContains',
+  'pinned',
+  'linked',
+  'searched',
+  'found',
 ]);
 
 export interface ScenarioValidation {
@@ -56,9 +106,16 @@ export class ScenarioValidationError extends Error {
 
 const isObj = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
-const isStringArray = (v: unknown): v is string[] => Array.isArray(v) && v.every(x => typeof x === 'string');
+const isStringArray = (v: unknown): v is string[] =>
+  Array.isArray(v) && v.every(x => typeof x === 'string');
 const desc = (v: unknown): string =>
-  v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v === 'undefined' ? 'undefined' : typeof v;
+  v === null
+    ? 'null'
+    : Array.isArray(v)
+      ? 'array'
+      : typeof v === 'undefined'
+        ? 'undefined'
+        : typeof v;
 
 /**
  * Validate a scenario object. Returns collected `errors` / `warnings`, each
@@ -72,7 +129,9 @@ export const validateScenario = (scenario: unknown): ScenarioValidation => {
   try {
     const bytes = JSON.stringify(scenario)?.length ?? 0;
     if (bytes > SCENARIO_MAX_BYTES) {
-      errors.push(`scenario is too large (${Math.round(bytes / 1024)} KB > ${SCENARIO_MAX_BYTES / 1024} KB limit)`);
+      errors.push(
+        `scenario is too large (${Math.round(bytes / 1024)} KB > ${SCENARIO_MAX_BYTES / 1024} KB limit)`
+      );
       return { ok: false, errors, warnings };
     }
   } catch {
@@ -108,11 +167,17 @@ export const validateScenario = (scenario: unknown): ScenarioValidation => {
 
   // Check a beat action's text fields (#207): a `*Key` must resolve to a defined
   // string; remaining inline literals are counted for one summary nudge below.
-  const checkText = (obj: Record<string, unknown>, path: string, pairs: [string, string][]): void => {
+  const checkText = (
+    obj: Record<string, unknown>,
+    path: string,
+    pairs: [string, string][]
+  ): void => {
     for (const [literalField, keyField] of pairs) {
       const key = obj[keyField];
       if (typeof key === 'string' && !stringKeys.has(key)) {
-        warnings.push(`${path}.${keyField}: references string key "${key}" not found in any locale table`);
+        warnings.push(
+          `${path}.${keyField}: references string key "${key}" not found in any locale table`
+        );
       }
       if (hasStrings && key === undefined && typeof obj[literalField] === 'string') {
         inlineTextCount += 1;
@@ -167,13 +232,15 @@ export const validateScenario = (scenario: unknown): ScenarioValidation => {
         return;
       }
       if (key === 'setFlag' || key === 'incFlag') {
-        if (typeof action[key] !== 'string') errors.push(`${ap}.${key}: expected a flag name (string)`);
+        if (typeof action[key] !== 'string')
+          errors.push(`${ap}.${key}: expected a flag name (string)`);
         else setFlags.add(action[key] as string);
       } else if (key === 'unlock' || key === 'removeFile' || key === 'openFile') {
         if (!isStringArray(action[key])) errors.push(`${ap}.${key}: expected a string[] path`);
       } else if (key === 'addFile' || key === 'writeFile') {
         const v = action[key];
-        if (!isObj(v) || !isStringArray(v.path)) errors.push(`${ap}.${key}.path: expected a string[] path`);
+        if (!isObj(v) || !isStringArray(v.path))
+          errors.push(`${ap}.${key}.path: expected a string[] path`);
         if (key === 'writeFile' && isObj(v) && typeof v.content !== 'string') {
           errors.push(`${ap}.writeFile.content: expected a string`);
         }
@@ -183,21 +250,37 @@ export const validateScenario = (scenario: unknown): ScenarioValidation => {
         if (isObj(v) && typeof v.content !== 'string' && typeof v.contentKey !== 'string') {
           errors.push(`${ap}.note: needs a content or contentKey`);
         }
-        if (isObj(v)) checkText(v, `${ap}.note`, [['title', 'titleKey'], ['content', 'contentKey']]);
+        if (isObj(v))
+          checkText(v, `${ap}.note`, [
+            ['title', 'titleKey'],
+            ['content', 'contentKey'],
+          ]);
       } else if (key === 'notify') {
-        if (isObj(action.notify)) checkText(action.notify, `${ap}.notify`, [['title', 'titleKey'], ['body', 'bodyKey']]);
+        if (isObj(action.notify))
+          checkText(action.notify, `${ap}.notify`, [
+            ['title', 'titleKey'],
+            ['body', 'bodyKey'],
+          ]);
       } else if (key === 'alert') {
-        if (isObj(action.alert)) checkText(action.alert, `${ap}.alert`, [['title', 'titleKey'], ['message', 'messageKey']]);
+        if (isObj(action.alert))
+          checkText(action.alert, `${ap}.alert`, [
+            ['title', 'titleKey'],
+            ['message', 'messageKey'],
+          ]);
       } else if (key === 'qqMessage') {
-        if (isObj(action.qqMessage)) checkText(action.qqMessage, `${ap}.qqMessage`, [['text', 'textKey']]);
+        if (isObj(action.qqMessage))
+          checkText(action.qqMessage, `${ap}.qqMessage`, [['text', 'textKey']]);
       } else if (key === 'removeNote') {
-        if (typeof action.removeNote !== 'string') errors.push(`${ap}.removeNote: expected a note id (string)`);
+        if (typeof action.removeNote !== 'string')
+          errors.push(`${ap}.removeNote: expected a note id (string)`);
       } else if (key === 'openApp') {
         const v = action.openApp;
-        if (!isObj(v) || typeof v.appId !== 'string') errors.push(`${ap}.openApp.appId: expected a string`);
+        if (!isObj(v) || typeof v.appId !== 'string')
+          errors.push(`${ap}.openApp.appId: expected a string`);
       } else if (key === 'emit') {
         const v = action.emit;
-        if (!isObj(v) || typeof v.type !== 'string') errors.push(`${ap}.emit.type: expected an event with a string type`);
+        if (!isObj(v) || typeof v.type !== 'string')
+          errors.push(`${ap}.emit.type: expected an event with a string type`);
       } else if (key === 'after') {
         const v = action.after;
         if (!isObj(v) || typeof v.ms !== 'number') errors.push(`${ap}.after.ms: expected a number`);
@@ -228,7 +311,8 @@ export const validateScenario = (scenario: unknown): ScenarioValidation => {
     // `when`
     if (trigger.when !== undefined) checkCondition(trigger.when, `${tp}.when`);
     // `do`
-    if (trigger.do === undefined) errors.push(`${tp}.do: missing (a trigger needs at least one action)`);
+    if (trigger.do === undefined)
+      errors.push(`${tp}.do: missing (a trigger needs at least one action)`);
     else checkActions(trigger.do, `${tp}.do`);
     // `once` / `max`
     if (trigger.once !== undefined && typeof trigger.once !== 'boolean') {
@@ -242,14 +326,18 @@ export const validateScenario = (scenario: unknown): ScenarioValidation => {
   // Dangling flag references: read in a `when` but never set anywhere.
   for (const f of readFlags) {
     if (!setFlags.has(f)) {
-      warnings.push(`flag "${f}" is read in a condition but never set (setFlag/incFlag/initialFlags) — the gate may never open`);
+      warnings.push(
+        `flag "${f}" is read in a condition but never set (setFlag/incFlag/initialFlags) — the gate may never open`
+      );
     }
   }
 
   // One nudge (not per-field spam): a string table exists but some beat text is
   // still inline — extract it so the whole script localizes (#207).
   if (inlineTextCount > 0) {
-    warnings.push(`${inlineTextCount} beat text field(s) are still inline — extract to string keys so the whole script localizes`);
+    warnings.push(
+      `${inlineTextCount} beat text field(s) are still inline — extract to string keys so the whole script localizes`
+    );
   }
 
   return { ok: errors.length === 0, errors, warnings };

@@ -10,7 +10,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 11px;
   color: #000;
 `;
@@ -96,10 +96,14 @@ const PlayButton = styled.button`
   border: 1px solid #003c74;
   background: linear-gradient(180deg, #ffffff 0%, #ecebe5 86%, #d8d0c4 100%);
   cursor: pointer;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 
   &:hover {
-    box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a;
+    box-shadow:
+      inset -1px 1px #fff0cf,
+      inset 1px 2px #fdd889,
+      inset -2px 2px #fbc761,
+      inset 2px -2px #e5a01a;
   }
 `;
 
@@ -117,10 +121,14 @@ const Button = styled.button`
   border: 1px solid #003c74;
   background: linear-gradient(180deg, #ffffff 0%, #ecebe5 86%, #d8d0c4 100%);
   cursor: pointer;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 
   &:hover {
-    box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a;
+    box-shadow:
+      inset -1px 1px #fff0cf,
+      inset 1px 2px #fdd889,
+      inset -2px 2px #fbc761,
+      inset 2px -2px #e5a01a;
   }
 `;
 
@@ -178,7 +186,9 @@ const SoundSettings: React.FC<SoundSettingsProps> = ({ onBack }) => {
       <GroupBox>
         <GroupTitle>{t('controlPanel.soundSettings.volume', 'Device volume')}</GroupTitle>
         <VolumeContainer>
-          <VolumeIcon><XPIcon name={getVolumeIcon()} size={24} /></VolumeIcon>
+          <VolumeIcon>
+            <XPIcon name={getVolumeIcon()} size={24} />
+          </VolumeIcon>
           <SliderContainer>
             <Slider
               type="range"

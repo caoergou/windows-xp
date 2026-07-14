@@ -58,9 +58,18 @@ const Ring = styled.div<{ $shake: number }>`
   border: 2px solid ${COLORS.DIALOG_BLUE};
   border-radius: 2px;
   box-shadow: 0 0 6px rgba(10, 80, 200, 0.7);
-  transition: left 90ms linear, top 90ms linear, width 90ms linear, height 90ms linear;
+  transition:
+    left 90ms linear,
+    top 90ms linear,
+    width 90ms linear,
+    height 90ms linear;
   pointer-events: none;
-  ${p => (p.$shake > 0 ? css`animation: ${ringShake} 320ms ease;` : '')}
+  ${p =>
+    p.$shake > 0
+      ? css`
+          animation: ${ringShake} 320ms ease;
+        `
+      : ''}
 `;
 
 // Watch-mode ghost cursor: an XP-style pointer that glides to each step's
@@ -72,7 +81,9 @@ const GhostCursor = styled.div`
   width: 20px;
   height: 28px;
   pointer-events: none;
-  transition: left 1100ms cubic-bezier(0.4, 0, 0.2, 1), top 1100ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    left 1100ms cubic-bezier(0.4, 0, 0.2, 1),
+    top 1100ms cubic-bezier(0.4, 0, 0.2, 1);
   filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.5));
   z-index: 2147483647;
 `;
@@ -199,7 +210,22 @@ interface Box {
 
 export const LessonOverlay: React.FC = () => {
   const { t } = useTranslation();
-  const { status, lesson, step, stepIndex, totalSteps, visibleHints, nudgeSeq, score, stop, isWatch, watchPaused, demoSeq, pauseWatch, resumeWatch } = useLesson();
+  const {
+    status,
+    lesson,
+    step,
+    stepIndex,
+    totalSteps,
+    visibleHints,
+    nudgeSeq,
+    score,
+    stop,
+    isWatch,
+    watchPaused,
+    demoSeq,
+    pauseWatch,
+    resumeWatch,
+  } = useLesson();
   const rootRef = useRef<HTMLDivElement>(null);
   const [rect, setRect] = useState<Box | null>(null);
   const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(null);
@@ -213,7 +239,8 @@ export const LessonOverlay: React.FC = () => {
     placement: 'bottom-start',
     strategy: 'fixed',
     middleware: [offset(12), flip({ padding: 8 }), shift({ padding: 8 })],
-    whileElementsMounted: (ref, float, update) => autoUpdate(ref, float, update, { animationFrame: true }),
+    whileElementsMounted: (ref, float, update) =>
+      autoUpdate(ref, float, update, { animationFrame: true }),
   });
 
   const running = status === 'running';
@@ -241,9 +268,18 @@ export const LessonOverlay: React.FC = () => {
       }
       if (el && origin) {
         const r = el.getBoundingClientRect();
-        const next = { left: r.left - origin.left, top: r.top - origin.top, width: r.width, height: r.height };
+        const next = {
+          left: r.left - origin.left,
+          top: r.top - origin.top,
+          width: r.width,
+          height: r.height,
+        };
         setRect(prev =>
-          prev && prev.left === next.left && prev.top === next.top && prev.width === next.width && prev.height === next.height
+          prev &&
+          prev.left === next.left &&
+          prev.top === next.top &&
+          prev.width === next.width &&
+          prev.height === next.height
             ? prev
             : next
         );
@@ -268,8 +304,18 @@ export const LessonOverlay: React.FC = () => {
     ? [
         { left: 0, right: 0, top: 0, height: Math.max(0, rect.top - 4) },
         { left: 0, right: 0, top: rect.top + rect.height + 4, bottom: 0 },
-        { left: 0, width: Math.max(0, rect.left - 4), top: Math.max(0, rect.top - 4), height: rect.height + 8 },
-        { left: rect.left + rect.width + 4, right: 0, top: Math.max(0, rect.top - 4), height: rect.height + 8 },
+        {
+          left: 0,
+          width: Math.max(0, rect.left - 4),
+          top: Math.max(0, rect.top - 4),
+          height: rect.height + 8,
+        },
+        {
+          left: rect.left + rect.width + 4,
+          right: 0,
+          top: Math.max(0, rect.top - 4),
+          height: rect.height + 8,
+        },
       ]
     : [{ inset: 0 }];
 
@@ -286,7 +332,15 @@ export const LessonOverlay: React.FC = () => {
             key={i}
             data-testid="lesson-shade"
             style={{ ...s, pointerEvents: shieldOn ? 'auto' : 'none' }}
-            onClick={shieldOn ? e => { e.preventDefault(); e.stopPropagation(); setBlockSeq(n => n + 1); } : undefined}
+            onClick={
+              shieldOn
+                ? e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setBlockSeq(n => n + 1);
+                  }
+                : undefined
+            }
           />
         ))}
 
@@ -295,7 +349,12 @@ export const LessonOverlay: React.FC = () => {
           data-testid="lesson-spotlight"
           key={shakeSeq}
           $shake={shakeSeq}
-          style={{ left: rect.left - 4, top: rect.top - 4, width: rect.width + 8, height: rect.height + 8 }}
+          style={{
+            left: rect.left - 4,
+            top: rect.top - 4,
+            width: rect.width + 8,
+            height: rect.height + 8,
+          }}
         />
       )}
 
@@ -303,17 +362,31 @@ export const LessonOverlay: React.FC = () => {
         isWatch &&
         cursorPos &&
         createPortal(
-          <GhostCursor data-testid="lesson-ghost-cursor" style={{ left: cursorPos.x, top: cursorPos.y }}>
+          <GhostCursor
+            data-testid="lesson-ghost-cursor"
+            style={{ left: cursorPos.x, top: cursorPos.y }}
+          >
             <ClickPulse key={demoSeq} />
             <svg width="20" height="28" viewBox="0 0 12 19" aria-hidden>
-              <path d="M1 1 L1 15 L4.5 11.5 L7 17.5 L9 16.5 L6.5 11 L11 11 Z" fill="white" stroke="black" strokeWidth="1" strokeLinejoin="round" />
+              <path
+                d="M1 1 L1 15 L4.5 11.5 L7 17.5 L9 16.5 L6.5 11 L11 11 Z"
+                fill="white"
+                stroke="black"
+                strokeWidth="1"
+                strokeLinejoin="round"
+              />
             </svg>
           </GhostCursor>,
           document.body
         )}
 
       {running && step && anchorElRef.current && (
-        <Balloon ref={refs.setFloating} style={floatingStyles} key={nudgeSeq} data-testid="lesson-balloon">
+        <Balloon
+          ref={refs.setFloating}
+          style={floatingStyles}
+          key={nudgeSeq}
+          data-testid="lesson-balloon"
+        >
           <BalloonInstruction>{t(step.instruction)}</BalloonInstruction>
           {visibleHints.map((h, i) => (
             <Hint key={i}>{t(h)}</Hint>
@@ -329,10 +402,15 @@ export const LessonOverlay: React.FC = () => {
         <PanelBody>
           {running ? (
             <>
-              <Progress>{t('lesson.progress', { current: stepIndex + 1, total: totalSteps })}</Progress>
+              <Progress>
+                {t('lesson.progress', { current: stepIndex + 1, total: totalSteps })}
+              </Progress>
               <StepList>
                 {lesson.steps.map((s, i) => (
-                  <StepItem key={i} $state={i < stepIndex ? 'done' : i === stepIndex ? 'current' : 'todo'}>
+                  <StepItem
+                    key={i}
+                    $state={i < stepIndex ? 'done' : i === stepIndex ? 'current' : 'todo'}
+                  >
                     {t(s.instruction)}
                   </StepItem>
                 ))}

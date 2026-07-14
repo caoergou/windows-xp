@@ -101,13 +101,31 @@ const Gallery: React.FC = () => {
         <Section data-testid="gallery-checkboxes">
           <Title>Checkbox / Radio — XPCheckbox / XPRadio</Title>
           <Row>
-            <XPCheckbox checked={check} onChange={e => setCheck(e.target.checked)} label="Checked" />
-            <XPCheckbox checked={check2} onChange={e => setCheck2(e.target.checked)} label="Unchecked" />
+            <XPCheckbox
+              checked={check}
+              onChange={e => setCheck(e.target.checked)}
+              label="Checked"
+            />
+            <XPCheckbox
+              checked={check2}
+              onChange={e => setCheck2(e.target.checked)}
+              label="Unchecked"
+            />
             <XPCheckbox checked disabled readOnly label="Disabled" />
           </Row>
           <Row>
-            <XPRadio name="g" checked={radio === 'a'} onChange={() => setRadio('a')} label="Option A" />
-            <XPRadio name="g" checked={radio === 'b'} onChange={() => setRadio('b')} label="Option B" />
+            <XPRadio
+              name="g"
+              checked={radio === 'a'}
+              onChange={() => setRadio('a')}
+              label="Option A"
+            />
+            <XPRadio
+              name="g"
+              checked={radio === 'b'}
+              onChange={() => setRadio('b')}
+              label="Option B"
+            />
             <XPRadio name="g" checked={false} disabled readOnly label="Disabled" />
           </Row>
         </Section>

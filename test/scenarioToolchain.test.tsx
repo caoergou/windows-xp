@@ -54,10 +54,18 @@ describe('headless solver', () => {
   it('runs a gated story to its ending and records actions', () => {
     const s = defineScenario('gate');
     s.on('file:open', { name: 'diary.txt' }).once().do(setFlag('readDiary'));
-    s.on('file:open', { name: 'chat.txt' }).when(flag('readDiary')).once().do(unlock(['D:', '私人']), setFlag('done'));
+    s.on('file:open', { name: 'chat.txt' })
+      .when(flag('readDiary'))
+      .once()
+      .do(unlock(['D:', '私人']), setFlag('done'));
     const scenario = s.build();
 
-    const ev = (name: string): XPEvent => ({ type: 'file:open', path: [name], name, nodeType: 'file' });
+    const ev = (name: string): XPEvent => ({
+      type: 'file:open',
+      path: [name],
+      name,
+      nodeType: 'file',
+    });
     // chat opened too early does nothing; then diary, then chat unlocks.
     const early = solveScenario(scenario, [ev('chat.txt')]);
     expect(early.flags.done).toBeUndefined();
@@ -80,11 +88,15 @@ describe('headless solver', () => {
 
   it('evaluates FS predicates against the seeded virtual filesystem', () => {
     const s = defineScenario('fs');
-    s.on('cmd:exec').when(flag('x', { eq: true })).do(setFlag('noop'));
+    s.on('cmd:exec')
+      .when(flag('x', { eq: true }))
+      .do(setFlag('noop'));
     // exists/unlocked read the seeded fs
-    const r = solveScenario(defineScenario('fs2').on('session:login').do(setFlag('a')).build(), [
-      { type: 'session:login' },
-    ], { fs: [{ path: ['C:', 'W'], locked: true }] });
+    const r = solveScenario(
+      defineScenario('fs2').on('session:login').do(setFlag('a')).build(),
+      [{ type: 'session:login' }],
+      { fs: [{ path: ['C:', 'W'], locked: true }] }
+    );
     expect(r.flags.a).toBe(true);
     void s;
   });
@@ -92,7 +104,9 @@ describe('headless solver', () => {
   it('caps runaway emit cycles', () => {
     const s = defineScenario('loop');
     s.on('cmd:exec').do({ emit: { type: 'cmd:exec', command: 'again' } } as never);
-    expect(() => solveScenario(s.build(), [{ type: 'cmd:exec', command: 'start' }], { maxEvents: 200 })).toThrow(/emit cycle/);
+    expect(() =>
+      solveScenario(s.build(), [{ type: 'cmd:exec', command: 'start' }], { maxEvents: 200 })
+    ).toThrow(/emit cycle/);
   });
 });
 
@@ -102,7 +116,10 @@ describe('solver ↔ runtime fidelity', () => {
   it('produces the same flags as the live ScenarioRunner', async () => {
     const s = defineScenario('fidelity').initialFlag('count', 0);
     s.on('cmd:exec', { command: 'a' }).do(setFlag('sawA'), incFlag('count'));
-    s.on('cmd:exec', { command: 'b' }).when(flag('sawA')).once().do(setFlag('done'), incFlag('count'));
+    s.on('cmd:exec', { command: 'b' })
+      .when(flag('sawA'))
+      .once()
+      .do(setFlag('done'), incFlag('count'));
     const scenario = s.build();
 
     const events: XPEvent[] = [

@@ -25,8 +25,16 @@ describe('scenario sticky notes', () => {
     const scenario: Scenario = {
       id: 'notes-test',
       triggers: [
-        { on: 'cmd:exec', when: { event: { command: 'pin' } }, do: [{ note: { id: 'clue', title: 'Clue', content: 'Check the cafe.' } }] },
-        { on: 'cmd:exec', when: { event: { command: 'update' } }, do: [{ note: { id: 'clue', content: 'The cafe burned down.' } }] },
+        {
+          on: 'cmd:exec',
+          when: { event: { command: 'pin' } },
+          do: [{ note: { id: 'clue', title: 'Clue', content: 'Check the cafe.' } }],
+        },
+        {
+          on: 'cmd:exec',
+          when: { event: { command: 'update' } },
+          do: [{ note: { id: 'clue', content: 'The cafe burned down.' } }],
+        },
         { on: 'cmd:exec', when: { event: { command: 'clear' } }, do: [{ removeNote: 'clue' }] },
       ],
     };
@@ -50,7 +58,9 @@ describe('scenario sticky notes', () => {
   it('lets the player dismiss a note with its ×', async () => {
     const scenario: Scenario = {
       id: 'notes-dismiss',
-      triggers: [{ on: 'session:boot-complete', do: [{ note: { id: 'hi', content: 'Welcome.' } }] }],
+      triggers: [
+        { on: 'session:boot-complete', do: [{ note: { id: 'hi', content: 'Welcome.' } }] },
+      ],
     };
     const ref = await mount(scenario);
     act(() => ref.current!.emit({ type: 'session:boot-complete' }));

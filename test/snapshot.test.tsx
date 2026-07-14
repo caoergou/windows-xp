@@ -17,9 +17,7 @@ const flush = async () => {
 const mount = async (prefix: string) => {
   const { WindowsXP } = await import('../src/lib');
   const ref = React.createRef<XPHandle>();
-  const utils = render(
-    <WindowsXP ref={ref} autoLogin skipBoot storagePrefix={prefix} />
-  );
+  const utils = render(<WindowsXP ref={ref} autoLogin skipBoot storagePrefix={prefix} />);
   await flush();
   expect(ref.current).not.toBeNull();
   return { ref, utils };

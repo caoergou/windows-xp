@@ -64,7 +64,10 @@ export default tseslint.config(
       // `caughtErrors: 'none'` matches the typescript-eslint v5 default the old
       // config relied on, so the migration doesn't newly flag unused `catch (e)`
       // bindings.
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', caughtErrors: 'none' }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', caughtErrors: 'none' },
+      ],
       '@typescript-eslint/no-explicit-any': 'warn',
       // typescript-eslint v5 `recommended` warned on non-null assertions; v8
       // moved it to `strict`. Keep it on so the migration preserves the warning

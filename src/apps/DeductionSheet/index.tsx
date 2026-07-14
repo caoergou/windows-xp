@@ -11,7 +11,13 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { COLORS } from '../../constants';
 import { useXPEventBus } from '../../context/EventBusContext';
-import { judgeGroups, allGroupsVerified, type Assignment, type DeductionGroup, type DeductionSlot } from './logic';
+import {
+  judgeGroups,
+  allGroupsVerified,
+  type Assignment,
+  type DeductionGroup,
+  type DeductionSlot,
+} from './logic';
 
 export interface DeductionSheetProps {
   /** Stable form id carried on the emitted events. */
@@ -104,7 +110,8 @@ const VerifyButton = styled.button`
 
 const Status = styled.div<{ $state: 'verified' | 'failed' | 'pending' }>`
   margin: 4px 0;
-  color: ${p => (p.$state === 'verified' ? 'green' : p.$state === 'failed' ? 'firebrick' : COLORS.BUTTON_SHADOW)};
+  color: ${p =>
+    p.$state === 'verified' ? 'green' : p.$state === 'failed' ? 'firebrick' : COLORS.BUTTON_SHADOW};
 `;
 
 const Solved = styled.div`
@@ -188,9 +195,9 @@ const DeductionSheet: React.FC<DeductionSheetProps> = ({
 
       {prompt ? (
         <Prompt>
-          {prompt.split(/\[([^\]]+)\]/).map((part, i) =>
-            i % 2 === 1 ? renderSelect(part) : <span key={i}>{part}</span>
-          )}
+          {prompt
+            .split(/\[([^\]]+)\]/)
+            .map((part, i) => (i % 2 === 1 ? renderSelect(part) : <span key={i}>{part}</span>))}
         </Prompt>
       ) : (
         <div>

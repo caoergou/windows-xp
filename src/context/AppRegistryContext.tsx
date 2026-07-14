@@ -21,7 +21,9 @@ const AppRegistryContext = createContext<AppRegistryContextType | undefined>(und
 
 const defaultRegistryContext: AppRegistryContextType = {
   registry: APP_REGISTRY,
-  registerApp: () => { /* no-op: used when rendered outside AppRegistryProvider */ },
+  registerApp: () => {
+    /* no-op: used when rendered outside AppRegistryProvider */
+  },
 };
 
 export const useAppRegistry = (): AppRegistryContextType => {
@@ -29,9 +31,7 @@ export const useAppRegistry = (): AppRegistryContextType => {
   return context ?? defaultRegistryContext;
 };
 
-const mergeRegistry = (
-  userApps: AppRegistryEntry[]
-): Record<string, AppRegistryEntry> => {
+const mergeRegistry = (userApps: AppRegistryEntry[]): Record<string, AppRegistryEntry> => {
   const merged: Record<string, AppRegistryEntry> = { ...APP_REGISTRY };
   userApps.forEach(entry => {
     merged[entry.id] = entry;
@@ -84,9 +84,5 @@ export const AppRegistryProvider: React.FC<AppRegistryProviderProps> = ({
     [registry, registerApp]
   );
 
-  return (
-    <AppRegistryContext.Provider value={value}>
-      {children}
-    </AppRegistryContext.Provider>
-  );
+  return <AppRegistryContext.Provider value={value}>{children}</AppRegistryContext.Provider>;
 };

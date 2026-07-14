@@ -250,15 +250,7 @@
       "November",
       "December"
     ],
-    "weekdays": [
-      "Su",
-      "Mo",
-      "Tu",
-      "We",
-      "Th",
-      "Fr",
-      "Sa"
-    ],
+    "weekdays": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
     "today": "Today"
   },
   "window": {

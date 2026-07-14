@@ -68,7 +68,9 @@ describe('defineCulture validation (#129)', () => {
         recent: [],
       },
     });
-    expect(warn.mock.calls.map(c => String(c[0])).some(m => /nameKey "apps.doesNotExist"/.test(m))).toBe(true);
+    expect(
+      warn.mock.calls.map(c => String(c[0])).some(m => /nameKey "apps.doesNotExist"/.test(m))
+    ).toBe(true);
     warn.mockRestore();
   });
 });

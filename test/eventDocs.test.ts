@@ -23,7 +23,10 @@ describe('event reference docs', () => {
       output = execFileSync('node', [SCRIPT, '--check'], { cwd: ROOT, encoding: 'utf8' });
     } catch (e) {
       ok = false;
-      output = (e as { stderr?: string; stdout?: string }).stderr || (e as { stdout?: string }).stdout || String(e);
+      output =
+        (e as { stderr?: string; stdout?: string }).stderr ||
+        (e as { stdout?: string }).stdout ||
+        String(e);
     }
     expect(ok, output).toBe(true);
   });

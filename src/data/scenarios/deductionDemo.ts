@@ -8,7 +8,8 @@ import type { DeductionSheetProps } from '../../apps/DeductionSheet';
 
 export const demoDeduction: DeductionSheetProps = {
   formId: 'county-finale',
-  prompt: '那年夏天，凶手是 [who]，凶器是 [weapon]，案发地点在 [where]。\n那天晚上负责望风的，是 [lookout]。',
+  prompt:
+    '那年夏天，凶手是 [who]，凶器是 [weapon]，案发地点在 [where]。\n那天晚上负责望风的，是 [lookout]。',
   wordBank: ['阿哲', '水晶女孩', '老板', '球棒', '网线', '网吧', '录像厅', '小卖部'],
   slots: [{ id: 'who' }, { id: 'weapon' }, { id: 'where' }, { id: 'lookout' }],
   groups: [

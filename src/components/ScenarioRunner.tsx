@@ -102,7 +102,9 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
     // A different scenario.id than last time = a fresh story: ignore stale save.
     const fresh = storage.local.getItem(storage.key(SCENARIO_ID_KEY)) !== scenario.id;
     stateRef.current = {
-      flags: fresh ? { ...(scenario.initialFlags ?? {}) } : read(keys.flags, { ...(scenario.initialFlags ?? {}) }),
+      flags: fresh
+        ? { ...(scenario.initialFlags ?? {}) }
+        : read(keys.flags, { ...(scenario.initialFlags ?? {}) }),
       journal: fresh ? [] : read<XPEvent[]>(keys.journal, []),
       fires: fresh ? {} : read<Record<string, number>>(keys.fires, {}),
       pending: fresh ? {} : read<Record<string, Action[]>>(keys.pending, {}),
@@ -123,7 +125,9 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
     const { ok, errors, warnings } = validateScenario(scenario);
     validRef.current = { id: scenario.id, ok };
     if (errors.length) {
-      console.error(`[windows-xp] scenario "${scenario.id}" is invalid — not running:\n- ${errors.join('\n- ')}`);
+      console.error(
+        `[windows-xp] scenario "${scenario.id}" is invalid — not running:\n- ${errors.join('\n- ')}`
+      );
     }
     if (warnings.length) {
       console.warn(`[windows-xp] scenario "${scenario.id}" warnings:\n- ${warnings.join('\n- ')}`);
@@ -223,7 +227,11 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
         const { path, node = {} } = action.addFile;
         const name = path[path.length - 1];
         if (!name) return;
-        const { type = 'file', name: _n, ...rest } = node as Partial<FileNode> & {
+        const {
+          type = 'file',
+          name: _n,
+          ...rest
+        } = node as Partial<FileNode> & {
           type?: 'file' | 'folder';
         };
         void _n;
@@ -256,10 +264,16 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
           return;
         }
         const props = action.openApp.props ?? {};
-        openWindow(action.openApp.appId, def.name ?? action.openApp.appId, def.restore(props), def.icon, {
-          ...(def.window ?? {}),
-          componentProps: props,
-        });
+        openWindow(
+          action.openApp.appId,
+          def.name ?? action.openApp.appId,
+          def.restore(props),
+          def.icon,
+          {
+            ...(def.window ?? {}),
+            componentProps: props,
+          }
+        );
       } else if ('openFile' in action) {
         const node = getFile(action.openFile);
         if (!node) return;
@@ -282,7 +296,11 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
         });
       } else if ('note' in action) {
         const n = action.note;
-        setNote({ ...n, title: text(n.title, n.titleKey), content: text(n.content, n.contentKey) ?? '' });
+        setNote({
+          ...n,
+          title: text(n.title, n.titleKey),
+          content: text(n.content, n.contentKey) ?? '',
+        });
       } else if ('removeNote' in action) {
         removeNote(action.removeNote);
       } else if ('after' in action) {
@@ -310,7 +328,14 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
 
       if (!matchOn(trigger.on, event.type)) {
         if (tracing) {
-          reports.push({ id: fireKey, index, on: trigger.on, matchedOn: false, fired: false, fireCount: count });
+          reports.push({
+            id: fireKey,
+            index,
+            on: trigger.on,
+            matchedOn: false,
+            fired: false,
+            fireCount: count,
+          });
         }
         return;
       }
@@ -320,7 +345,12 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
       if (trigger.once && count >= 1) skip = 'once';
       else if (trigger.max !== undefined && count >= trigger.max) skip = 'max';
 
-      const ctx: EvalContext = { flags: state.flags, event, journal: state.journal, fs: fsPredicates };
+      const ctx: EvalContext = {
+        flags: state.flags,
+        event,
+        journal: state.journal,
+        fs: fsPredicates,
+      };
       let whenTrace: ConditionTrace | undefined;
       if (!skip) {
         if (!evaluateCondition(trigger.when, ctx)) skip = 'when';

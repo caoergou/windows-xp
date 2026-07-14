@@ -32,7 +32,11 @@ describe('BootScreen branding (#139)', () => {
     render(
       <BootScreen
         onComplete={() => {}}
-        branding={{ logo: 'https://x.dev/logo.png', text: 'ACME OS', startupSound: 'https://x.dev/boot.mp3' }}
+        branding={{
+          logo: 'https://x.dev/logo.png',
+          text: 'ACME OS',
+          startupSound: 'https://x.dev/boot.mp3',
+        }}
       />
     );
     expect(screen.getByText('ACME OS')).toBeInTheDocument();
@@ -62,7 +66,11 @@ describe('LoginScreen branding through <WindowsXP/> (#139)', () => {
       <WindowsXP
         skipBoot
         disableScreenSaver
-        login={{ title: 'ACME Portal', userName: 'Guest', background: 'linear-gradient(#111, #222)' }}
+        login={{
+          title: 'ACME Portal',
+          userName: 'Guest',
+          background: 'linear-gradient(#111, #222)',
+        }}
       />
     );
     await waitFor(() => expect(screen.getByTestId('login-screen')).toBeInTheDocument());

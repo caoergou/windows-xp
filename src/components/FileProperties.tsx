@@ -9,10 +9,9 @@ import XPIcon from './XPIcon';
 import { FileNode, ExifData } from '../types';
 
 // Load all EXIF data files eagerly
-const exifFiles = import.meta.glob<ExifData & { default?: ExifData }>(
-  '../data/photos/**/*.json',
-  { eager: true }
-);
+const exifFiles = import.meta.glob<ExifData & { default?: ExifData }>('../data/photos/**/*.json', {
+  eager: true,
+});
 
 const WindowContainer = styled.div`
   display: flex;
@@ -122,7 +121,11 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
   // observable — emit once per open so scenarios can treat it as a clue channel.
   useEffect(() => {
     if (!fileItem) return;
-    bus.emit({ type: 'file:properties', path: [...(parentPath || []), fileItem.name], name: fileItem.name });
+    bus.emit({
+      type: 'file:properties',
+      path: [...(parentPath || []), fileItem.name],
+      name: fileItem.name,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -9,12 +9,12 @@ import { TrayProvider } from '../src/context/TrayContext';
 
 // Mock PhotoViewer since we're testing integration
 vi.mock('../src/apps/PhotoViewer', () => ({
-  default: ({ src }: { src: string }) => <div data-testid="photo-viewer">Viewing: {src}</div>
+  default: ({ src }: { src: string }) => <div data-testid="photo-viewer">Viewing: {src}</div>,
 }));
 
 // Mock XPIcon to avoid svg issues in test
 vi.mock('../src/components/XPIcon', () => ({
-  default: ({ name }: { name: string }) => <span data-testid={`icon-${name}`}>{name}</span>
+  default: ({ name }: { name: string }) => <span data-testid={`icon-${name}`}>{name}</span>,
 }));
 
 const renderDesktop = () => {
@@ -43,19 +43,19 @@ describe('Image File Integration', () => {
 
     // 2. Open My Pictures
     await waitFor(() => {
-        const myPictures = screen.getByText('My Pictures');
-        fireEvent.doubleClick(myPictures);
+      const myPictures = screen.getByText('My Pictures');
+      fireEvent.doubleClick(myPictures);
     });
 
     // 3. Open Sample Pictures
     await waitFor(() => {
-        const samplePictures = screen.getByText('Sample Pictures');
-        fireEvent.doubleClick(samplePictures);
+      const samplePictures = screen.getByText('Sample Pictures');
+      fireEvent.doubleClick(samplePictures);
     });
 
     // 4. Check for Bliss.jpg
     await waitFor(() => {
-        expect(screen.getByText('Bliss.jpg')).toBeDefined();
+      expect(screen.getByText('Bliss.jpg')).toBeDefined();
     });
 
     // 5. Double click Bliss.jpg
@@ -64,8 +64,8 @@ describe('Image File Integration', () => {
 
     // 6. Check for PhotoViewer
     await waitFor(() => {
-        expect(screen.getByTestId('photo-viewer')).toBeDefined();
-        expect(screen.getByText('Viewing: /images/desktop_bg.jpg')).toBeDefined();
+      expect(screen.getByTestId('photo-viewer')).toBeDefined();
+      expect(screen.getByText('Viewing: /images/desktop_bg.jpg')).toBeDefined();
     });
   });
 });

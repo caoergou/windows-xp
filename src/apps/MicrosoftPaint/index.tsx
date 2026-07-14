@@ -45,7 +45,6 @@ const MicrosoftPaint = ({
   const [currentFileName, setCurrentFileName] = useState<string | undefined>(initialFileName);
   const [openMenu, setOpenMenu] = useState<MenuKey>(null);
 
-
   const keyboardHandlersRef = useRef<{
     handleNew: () => void;
     handleOpen: () => void;
@@ -553,7 +552,6 @@ const MicrosoftPaint = ({
       </DropdownMenu>
     );
   };
-
 
   return (
     <Wrap ref={menuRef}>

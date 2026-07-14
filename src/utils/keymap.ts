@@ -70,8 +70,18 @@ export function normalizeKey(raw: string): string {
 
 /** Parse a combo string like `'Mod+Shift+S'` into its canonical parts. */
 export function parseCombo(combo: string): ParsedCombo {
-  const parts = combo.split('+').map(p => p.trim()).filter(Boolean);
-  const out: ParsedCombo = { mod: false, ctrl: false, meta: false, alt: false, shift: false, key: '' };
+  const parts = combo
+    .split('+')
+    .map(p => p.trim())
+    .filter(Boolean);
+  const out: ParsedCombo = {
+    mod: false,
+    ctrl: false,
+    meta: false,
+    alt: false,
+    shift: false,
+    key: '',
+  };
   for (const part of parts) {
     switch (part.toLowerCase()) {
       case 'mod':
@@ -143,7 +153,14 @@ function conflictKey(spec: ShortcutSpec, combo: string): string {
 /** Canonicalize a combo string so `'Shift+Mod+s'` and `'mod+shift+S'` collide. */
 export function normalizeCombo(combo: string): string {
   const p = parseCombo(combo);
-  return [p.mod && 'mod', p.ctrl && 'ctrl', p.meta && 'meta', p.alt && 'alt', p.shift && 'shift', p.key]
+  return [
+    p.mod && 'mod',
+    p.ctrl && 'ctrl',
+    p.meta && 'meta',
+    p.alt && 'alt',
+    p.shift && 'shift',
+    p.key,
+  ]
     .filter(Boolean)
     .join('+');
 }
@@ -188,7 +205,7 @@ export class Keymap {
     this.isMac = opts.isMac ?? detectIsMac();
     this.overrides = opts.overrides ?? {};
     this.disableGlobal = opts.disableGlobalShortcuts ?? false;
-    this.warn = opts.warnOnConflict ?? (import.meta.env?.DEV ?? false);
+    this.warn = opts.warnOnConflict ?? import.meta.env?.DEV ?? false;
   }
 
   setOverrides(overrides: Record<string, string | null>): void {

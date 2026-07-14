@@ -36,7 +36,9 @@ const LogoBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
 `;
 
@@ -191,8 +193,8 @@ const ProgressFill = styled.div<{ $value: number; $status: DownloadItem['status'
     p.$status === 'completed'
       ? 'linear-gradient(to bottom, #88cc88 0%, #55aa55 100%)'
       : p.$status === 'error'
-      ? 'linear-gradient(to bottom, #ff9999 0%, #cc5555 100%)'
-      : 'linear-gradient(to bottom, #66bbff 0%, #0088ff 100%)'};
+        ? 'linear-gradient(to bottom, #ff9999 0%, #cc5555 100%)'
+        : 'linear-gradient(to bottom, #66bbff 0%, #0088ff 100%)'};
   transition: width 0.2s linear;
 `;
 
@@ -243,19 +245,47 @@ const StatusBadge = styled.span<{ $status: DownloadItem['status'] }>`
     p.$status === 'completed'
       ? '#55aa55'
       : p.$status === 'downloading'
-      ? '#0088ff'
-      : p.$status === 'paused'
-      ? '#ffaa33'
-      : p.$status === 'error'
-      ? '#cc5555'
-      : '#999'};
+        ? '#0088ff'
+        : p.$status === 'paused'
+          ? '#ffaa33'
+          : p.$status === 'error'
+            ? '#cc5555'
+            : '#999'};
 `;
 
 const defaultDownloads: DownloadItem[] = [
-  { id: '1', name: '暴风影音.exe', size: '28.5 MB', progress: 100, speed: '0 KB/s', status: 'completed' },
-  { id: '2', name: 'QQ2007.exe', size: '18.2 MB', progress: 62, speed: '156 KB/s', status: 'downloading' },
-  { id: '3', name: '魔兽争霸3.mpq', size: '512 MB', progress: 24, speed: '128 KB/s', status: 'downloading' },
-  { id: '4', name: '卡巴斯基2009.exe', size: '42.0 MB', progress: 0, speed: '0 KB/s', status: 'waiting' },
+  {
+    id: '1',
+    name: '暴风影音.exe',
+    size: '28.5 MB',
+    progress: 100,
+    speed: '0 KB/s',
+    status: 'completed',
+  },
+  {
+    id: '2',
+    name: 'QQ2007.exe',
+    size: '18.2 MB',
+    progress: 62,
+    speed: '156 KB/s',
+    status: 'downloading',
+  },
+  {
+    id: '3',
+    name: '魔兽争霸3.mpq',
+    size: '512 MB',
+    progress: 24,
+    speed: '128 KB/s',
+    status: 'downloading',
+  },
+  {
+    id: '4',
+    name: '卡巴斯基2009.exe',
+    size: '42.0 MB',
+    progress: 0,
+    speed: '0 KB/s',
+    status: 'waiting',
+  },
 ];
 
 interface ThunderProps {
@@ -419,7 +449,10 @@ const Thunder: React.FC<ThunderProps> = () => {
         <ToolbarBtn onClick={handleStartClick} disabled={items.length === 0}>
           <XPIcon name="media_play" size={16} /> {t('thunder.start')}
         </ToolbarBtn>
-        <ToolbarBtn onClick={handlePauseClick} disabled={!selectedItem || selectedItem.status !== 'downloading'}>
+        <ToolbarBtn
+          onClick={handlePauseClick}
+          disabled={!selectedItem || selectedItem.status !== 'downloading'}
+        >
           <XPIcon name="media_pause" size={16} /> {t('thunder.pause')}
         </ToolbarBtn>
         <ToolbarBtn onClick={handleDeleteClick} disabled={!selectedItem}>
@@ -471,9 +504,7 @@ const Thunder: React.FC<ThunderProps> = () => {
       </Main>
 
       <StatusBar>
-        <span>
-          {t('thunder.statusCount', { count: items.length })}
-        </span>
+        <span>{t('thunder.statusCount', { count: items.length })}</span>
         <span>
           {t('thunder.statusSpeed')}: <StatusMetric>{totalSpeed}</StatusMetric>
         </span>

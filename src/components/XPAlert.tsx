@@ -15,7 +15,12 @@ const Overlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0); /* Transparent overlay usually for XP, but maybe slight dim? XP didn't dim. */
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0
+  ); /* Transparent overlay usually for XP, but maybe slight dim? XP didn't dim. */
   /* However, to block interaction with background, we need this overlay. */
   z-index: 99999;
   display: flex;
@@ -51,40 +56,54 @@ interface XPAlertProps {
 }
 
 const XPAlert = ({ title, message, type = 'info', onClose }: XPAlertProps) => {
-    const { t } = useTranslation();
-    const okButtonRef = useRef<HTMLButtonElement>(null);
-    const { containerRef, onKeyDown } = useModalA11y(onClose);
+  const { t } = useTranslation();
+  const okButtonRef = useRef<HTMLButtonElement>(null);
+  const { containerRef, onKeyDown } = useModalA11y(onClose);
 
-    useEffect(() => {
-        if (okButtonRef.current) {
-            okButtonRef.current.focus();
-        }
-    }, []);
+  useEffect(() => {
+    if (okButtonRef.current) {
+      okButtonRef.current.focus();
+    }
+  }, []);
 
-    const iconName = type === 'error' ? 'alert_error' :
-                     type === 'warning' ? 'alert_warning' : 'alert_info';
+  const iconName =
+    type === 'error' ? 'alert_error' : type === 'warning' ? 'alert_warning' : 'alert_info';
 
-    const nodeRef = useRef<HTMLDivElement>(null);
+  const nodeRef = useRef<HTMLDivElement>(null);
 
-    return (
-        <Overlay ref={containerRef} onKeyDown={onKeyDown} data-xp-context-boundary className="xp-alert" onMouseDown={(e) => e.stopPropagation()}>
-            <Draggable nodeRef={nodeRef} handle=".title-bar">
-                <XPDialogWindow ref={nodeRef} role="dialog" aria-modal="true" aria-label={title} onMouseDown={(e) => e.stopPropagation()}>
-                    <LunaTitleBar $isFocus className="title-bar">
-                        <XPDialogTitleText>{title}</XPDialogTitleText>
-                        <CloseBtn onClick={onClose} aria-label="Close" />
-                    </LunaTitleBar>
-                    <ContentArea>
-                        <XPIcon name={iconName} size={32} />
-                        <Message>{message}</Message>
-                    </ContentArea>
-                    <ButtonArea>
-                        <XPButton ref={okButtonRef} $default onClick={onClose}>{t('common.ok')}</XPButton>
-                    </ButtonArea>
-                </XPDialogWindow>
-            </Draggable>
-        </Overlay>
-    );
+  return (
+    <Overlay
+      ref={containerRef}
+      onKeyDown={onKeyDown}
+      data-xp-context-boundary
+      className="xp-alert"
+      onMouseDown={e => e.stopPropagation()}
+    >
+      <Draggable nodeRef={nodeRef} handle=".title-bar">
+        <XPDialogWindow
+          ref={nodeRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
+          onMouseDown={e => e.stopPropagation()}
+        >
+          <LunaTitleBar $isFocus className="title-bar">
+            <XPDialogTitleText>{title}</XPDialogTitleText>
+            <CloseBtn onClick={onClose} aria-label="Close" />
+          </LunaTitleBar>
+          <ContentArea>
+            <XPIcon name={iconName} size={32} />
+            <Message>{message}</Message>
+          </ContentArea>
+          <ButtonArea>
+            <XPButton ref={okButtonRef} $default onClick={onClose}>
+              {t('common.ok')}
+            </XPButton>
+          </ButtonArea>
+        </XPDialogWindow>
+      </Draggable>
+    </Overlay>
+  );
 };
 
 export default XPAlert;

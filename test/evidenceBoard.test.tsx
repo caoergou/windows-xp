@@ -23,7 +23,11 @@ const ctx = (journal: XPEvent[]): EvalContext => ({
 
 const pin = (id: string): XPEvent => ({ type: 'evidence:pin', itemId: id });
 const unpin = (id: string): XPEvent => ({ type: 'evidence:unpin', itemId: id });
-const link = (a: string, b: string): XPEvent => ({ type: 'evidence:link', sourceId: a, targetId: b });
+const link = (a: string, b: string): XPEvent => ({
+  type: 'evidence:link',
+  sourceId: a,
+  targetId: b,
+});
 
 describe('evidence predicates (journal-derived)', () => {
   it('pinned tracks pin/unpin net count', () => {
@@ -65,17 +69,24 @@ describe('EvidenceBoard app emits evidence:*', () => {
     const view = mount();
     fireEvent.click(view.getByTestId('tray-diary'));
     fireEvent.click(view.getByTestId('tray-chatlog'));
-    expect(events.filter(e => e.type === 'evidence:pin').map(e => (e as { itemId: string }).itemId)).toEqual(['diary', 'chatlog']);
+    expect(
+      events.filter(e => e.type === 'evidence:pin').map(e => (e as { itemId: string }).itemId)
+    ).toEqual(['diary', 'chatlog']);
 
     // Link the two pinned cards.
     fireEvent.click(view.getByTestId('card-diary'));
     fireEvent.click(view.getByTestId('card-chatlog'));
-    const linkEv = events.find(e => e.type === 'evidence:link') as Extract<XPEvent, { type: 'evidence:link' }>;
+    const linkEv = events.find(e => e.type === 'evidence:link') as Extract<
+      XPEvent,
+      { type: 'evidence:link' }
+    >;
     expect(linkEv).toMatchObject({ sourceId: 'diary', targetId: 'chatlog' });
 
     // Unpin one.
     fireEvent.click(view.getByTestId('unpin-diary'));
-    expect(events.some(e => e.type === 'evidence:unpin' && (e as { itemId: string }).itemId === 'diary')).toBe(true);
+    expect(
+      events.some(e => e.type === 'evidence:unpin' && (e as { itemId: string }).itemId === 'diary')
+    ).toBe(true);
   });
 });
 
@@ -89,7 +100,12 @@ describe('scenario gates on linked()', () => {
     const before = solveScenario(scenario, [trigger]);
     expect(before.flags.connected).toBeUndefined();
 
-    const after = solveScenario(scenario, [pin('diary'), pin('chatlog'), link('diary', 'chatlog'), trigger]);
+    const after = solveScenario(scenario, [
+      pin('diary'),
+      pin('chatlog'),
+      link('diary', 'chatlog'),
+      trigger,
+    ]);
     expect(after.flags.connected).toBe(true);
   });
 });

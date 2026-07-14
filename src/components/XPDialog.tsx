@@ -1,11 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import XPIcon from './XPIcon';
-import {
-  XPDialogWindow,
-  XPDialogContent,
-  XPDialogButtonRow,
-} from './XPDialogChrome';
+import { XPDialogWindow, XPDialogContent, XPDialogButtonRow } from './XPDialogChrome';
 import { TitleBar } from './Window/WindowChrome';
 import { CloseBtn } from './Window/WindowControls';
 

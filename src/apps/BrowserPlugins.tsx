@@ -537,7 +537,16 @@ function MsnPage({ onNavigate }: { onNavigate: (url: string) => void }) {
 
 // 4399 小游戏——2000 年代中文互联网的课后回忆（#85 怀旧页）。
 function Game4399Page() {
-  const games = ['黄金矿工', '合金弹头', '连连看', '泡泡堂', '造梦西游', '奥特曼打怪兽', '双人闯关', '植物大战僵尸'];
+  const games = [
+    '黄金矿工',
+    '合金弹头',
+    '连连看',
+    '泡泡堂',
+    '造梦西游',
+    '奥特曼打怪兽',
+    '双人闯关',
+    '植物大战僵尸',
+  ];
   return (
     <PageWrap style={{ background: '#fff7e6' }}>
       <div

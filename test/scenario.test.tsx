@@ -9,7 +9,12 @@
 import React from 'react';
 import { render, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { evaluateCondition, matchOn, appendJournal, type EvalContext } from '../src/scenario/engine';
+import {
+  evaluateCondition,
+  matchOn,
+  appendJournal,
+  type EvalContext,
+} from '../src/scenario/engine';
 import type { Scenario } from '../src/scenario/types';
 import type { XPEvent } from '../src/events';
 
@@ -62,7 +67,12 @@ describe('scenario engine — evaluateCondition', () => {
   });
 
   it('event payload match (scalars and path arrays)', () => {
-    const event: XPEvent = { type: 'file:open', path: ['D:', 'x.txt'], name: 'x.txt', nodeType: 'file' };
+    const event: XPEvent = {
+      type: 'file:open',
+      path: ['D:', 'x.txt'],
+      name: 'x.txt',
+      nodeType: 'file',
+    };
     const c = ctx({ event });
     expect(evaluateCondition({ event: { name: 'x.txt' } }, c)).toBe(true);
     expect(evaluateCondition({ event: { path: ['D:', 'x.txt'] } }, c)).toBe(true);
@@ -78,7 +88,9 @@ describe('scenario engine — evaluateCondition', () => {
     ];
     const c = ctx({ journal });
     expect(evaluateCondition({ happened: { type: 'cmd:exec' } }, c)).toBe(true);
-    expect(evaluateCondition({ happened: { type: 'cmd:exec', match: { command: 'dir' } } }, c)).toBe(true);
+    expect(
+      evaluateCondition({ happened: { type: 'cmd:exec', match: { command: 'dir' } } }, c)
+    ).toBe(true);
     expect(evaluateCondition({ happened: { type: 'session:login' } }, c)).toBe(false);
     expect(evaluateCondition({ count: { type: 'file:open' }, gte: 2 }, c)).toBe(true);
     expect(evaluateCondition({ count: { type: 'file:open' }, eq: 2 }, c)).toBe(true);
@@ -96,8 +108,12 @@ describe('scenario engine — evaluateCondition', () => {
     expect(evaluateCondition({ exists: ['here'] }, c)).toBe(true);
     expect(evaluateCondition({ exists: ['nope'] }, c)).toBe(false);
     expect(evaluateCondition({ unlocked: ['open'] }, c)).toBe(true);
-    expect(evaluateCondition({ contentContains: { path: ['note'], contains: '0318' } }, c)).toBe(true);
-    expect(evaluateCondition({ contentContains: { path: ['note'], contains: 'zzz' } }, c)).toBe(false);
+    expect(evaluateCondition({ contentContains: { path: ['note'], contains: '0318' } }, c)).toBe(
+      true
+    );
+    expect(evaluateCondition({ contentContains: { path: ['note'], contains: 'zzz' } }, c)).toBe(
+      false
+    );
   });
 });
 
@@ -162,7 +178,9 @@ describe('scenario runtime — <WindowsXP scenario/>', () => {
     expect(ref.current!.getSnapshot().flags).toMatchObject({ booted: true });
 
     for (let i = 0; i < 5; i++) {
-      act(() => ref.current!.emit({ type: 'app:launch', appId: 'X', windowId: `w${i}`, title: 'X' }));
+      act(() =>
+        ref.current!.emit({ type: 'app:launch', appId: 'X', windowId: `w${i}`, title: 'X' })
+      );
     }
     // max: 2 caps the counter at 2.
     expect(ref.current!.getSnapshot().flags).toMatchObject({ visits: 2 });
@@ -176,13 +194,27 @@ describe('scenario runtime — <WindowsXP scenario/>', () => {
           on: 'file:open',
           when: { happened: { type: 'file:open', match: { name: 'diary.txt' } } },
           once: true,
-          do: [{ addFile: { path: ['clue.txt'], node: { type: 'file', content: 'found', app: 'Notepad' } } }],
+          do: [
+            {
+              addFile: {
+                path: ['clue.txt'],
+                node: { type: 'file', content: 'found', app: 'Notepad' },
+              },
+            },
+          ],
         },
       ],
     };
     const ref = await mount(scenario);
 
-    act(() => ref.current!.emit({ type: 'file:open', path: ['diary.txt'], name: 'diary.txt', nodeType: 'file' }));
+    act(() =>
+      ref.current!.emit({
+        type: 'file:open',
+        path: ['diary.txt'],
+        name: 'diary.txt',
+        nodeType: 'file',
+      })
+    );
     expect(ref.current!.fs.exists(['clue.txt'])).toBe(true);
     expect(ref.current!.fs.readFile(['clue.txt'])).toBe('found');
   });
@@ -203,12 +235,21 @@ describe('scenario runtime — <WindowsXP scenario/>', () => {
 
     // Read the letter, then the chat log: the clue file is planted.
     act(() =>
-      ref.current!.emit({ type: 'file:open', path: ['x'], name: '写给未来的信.txt', nodeType: 'file' })
+      ref.current!.emit({
+        type: 'file:open',
+        path: ['x'],
+        name: '写给未来的信.txt',
+        nodeType: 'file',
+      })
     );
     act(() =>
       ref.current!.emit({ type: 'file:open', path: ['x'], name: '聊天记录.txt', nodeType: 'file' })
     );
-    expect(ref.current!.getSnapshot().flags).toMatchObject({ readLetter: true, readChat: true, step: 2 });
+    expect(ref.current!.getSnapshot().flags).toMatchObject({
+      readLetter: true,
+      readChat: true,
+      step: 2,
+    });
     expect(ref.current!.fs.exists(['密码便签.txt'])).toBe(true);
 
     // Unlocking C:\WINDOWS completes the prologue.
@@ -222,7 +263,12 @@ describe('scenario runtime — <WindowsXP scenario/>', () => {
       id: 'test-flagchange',
       triggers: [
         { id: 'grant', on: 'cmd:exec', do: [{ setFlag: 'have_key' }] },
-        { id: 'react', on: 'flag:change', when: { event: { flag: 'have_key' } }, do: [{ setFlag: 'reacted' }] },
+        {
+          id: 'react',
+          on: 'flag:change',
+          when: { event: { flag: 'have_key' } },
+          do: [{ setFlag: 'reacted' }],
+        },
       ],
     };
     const ref = await mount(scenario);

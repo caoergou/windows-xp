@@ -11,10 +11,20 @@ import { solveScenario, ranAction } from '../src/scenario/solver';
 import type { XPEvent } from '../src/events';
 
 const boot: XPEvent = { type: 'session:boot-complete' };
-const open = (name: string): XPEvent => ({ type: 'file:open', path: [name], name, nodeType: 'file' });
+const open = (name: string): XPEvent => ({
+  type: 'file:open',
+  path: [name],
+  name,
+  nodeType: 'file',
+});
 const unlockWindows: XPEvent = { type: 'file:unlock', name: 'WINDOWS' };
 
-const WALKTHROUGH: XPEvent[] = [boot, open('写给未来的信.txt'), open('聊天记录.txt'), unlockWindows];
+const WALKTHROUGH: XPEvent[] = [
+  boot,
+  open('写给未来的信.txt'),
+  open('聊天记录.txt'),
+  unlockWindows,
+];
 
 describe('prologue PDG demo', () => {
   it('lints with zero issues (reachable, hinted, gated)', () => {
@@ -37,7 +47,11 @@ describe('prologue PDG demo', () => {
   });
 
   it('cannot be sequence-broken: the gate holds out of order', () => {
-    const r = solveScenario(prologueGraphScenario, [unlockWindows, open('聊天记录.txt'), open('写给未来的信.txt')]);
+    const r = solveScenario(prologueGraphScenario, [
+      unlockWindows,
+      open('聊天记录.txt'),
+      open('写给未来的信.txt'),
+    ]);
     // Nothing downstream of the boot/letter gate should have solved.
     expect(r.flags[solvedFlag('unlock-windows')]).toBeUndefined();
     expect(r.flags[solvedFlag('read-chat')]).toBeUndefined();

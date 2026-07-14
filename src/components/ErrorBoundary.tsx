@@ -12,7 +12,7 @@ const ErrorContainer = styled.div`
   justify-content: center;
   background: #f0f0f0;
   padding: 20px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 `;
 
 const ErrorIcon = styled.div`
@@ -78,7 +78,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     this.state = {
       hasError: false,
       error: null,
-      errorInfo: null
+      errorInfo: null,
     };
   }
 
@@ -94,7 +94,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (import.meta.env?.DEV) {
       const { windowId } = this.props;
 
-      console.group('%c🚨 ErrorBoundary: Application crashed', 'color: #c00; font-size: 14px; font-weight: bold;');
+      console.group(
+        '%c🚨 ErrorBoundary: Application crashed',
+        'color: #c00; font-size: 14px; font-weight: bold;'
+      );
 
       if (windowId) {
         console.log(`%cWindow ID:`, 'color: #666; font-weight: bold;', windowId);
@@ -125,7 +128,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     this.setState({
       hasError: false,
       error: null,
-      errorInfo: null
+      errorInfo: null,
     });
   };
 
@@ -160,11 +163,11 @@ const ErrorBoundaryFallback: React.FC<{
 
   return (
     <ErrorContainer>
-      <ErrorIcon><XPIcon name="dialog_error" size={48} /></ErrorIcon>
+      <ErrorIcon>
+        <XPIcon name="dialog_error" size={48} />
+      </ErrorIcon>
       <ErrorTitle>{t('errorBoundary.title', '应用程序出错')}</ErrorTitle>
-      <ErrorMessage>
-        {t('errorBoundary.message', '此应用遇到了问题，无法继续运行。')}
-      </ErrorMessage>
+      <ErrorMessage>{t('errorBoundary.message', '此应用遇到了问题，无法继续运行。')}</ErrorMessage>
       {error && (
         <ErrorDetails>
           <summary>{t('errorBoundary.details', '查看详细信息')}</summary>
@@ -183,7 +186,7 @@ export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
   errorBoundaryProps?: Omit<ErrorBoundaryProps, 'children'>
 ): React.FC<P> {
-  const WrappedComponent: React.FC<P> = (props) => (
+  const WrappedComponent: React.FC<P> = props => (
     <ErrorBoundary {...errorBoundaryProps}>
       <Component {...props} />
     </ErrorBoundary>

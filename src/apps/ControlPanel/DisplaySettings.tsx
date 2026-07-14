@@ -8,7 +8,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 11px;
   color: #000;
 `;
@@ -70,10 +70,14 @@ const Button = styled.button`
   border: 1px solid #003c74;
   background: linear-gradient(180deg, #ffffff 0%, #ecebe5 86%, #d8d0c4 100%);
   cursor: pointer;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 
   &:hover {
-    box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a;
+    box-shadow:
+      inset -1px 1px #fff0cf,
+      inset 1px 2px #fdd889,
+      inset -2px 2px #fbc761,
+      inset 2px -2px #e5a01a;
   }
 `;
 
@@ -89,10 +93,19 @@ const SCREENSAVER_OPTIONS = [
 
 const DisplaySettings: React.FC<DisplaySettingsProps> = ({ onBack }) => {
   const { t } = useTranslation();
-  const { wallpaper, setWallpaper, screensaverEnabled, setScreensaverEnabled, wallpapers, resolveWallpaperSrc } = useUserSession();
+  const {
+    wallpaper,
+    setWallpaper,
+    screensaverEnabled,
+    setScreensaverEnabled,
+    wallpapers,
+    resolveWallpaperSrc,
+  } = useUserSession();
   const [selectedWallpaper, setSelectedWallpaper] = useState(wallpaper);
   const [selectedResolution, setSelectedResolution] = useState('1024x768');
-  const [selectedScreensaver, setSelectedScreensaver] = useState(screensaverEnabled ? 'logo' : 'none');
+  const [selectedScreensaver, setSelectedScreensaver] = useState(
+    screensaverEnabled ? 'logo' : 'none'
+  );
 
   const previewBg = resolveWallpaperSrc(selectedWallpaper);
 
@@ -115,23 +128,21 @@ const DisplaySettings: React.FC<DisplaySettingsProps> = ({ onBack }) => {
       <GroupBox>
         <Row>
           <Label>{t('controlPanel.displaySettings.wallpaper', 'Wallpaper:')}</Label>
-          <Select
-            value={selectedWallpaper}
-            onChange={(e) => setSelectedWallpaper(e.target.value)}
-          >
+          <Select value={selectedWallpaper} onChange={e => setSelectedWallpaper(e.target.value)}>
             {wallpapers.map(w => (
-              <option key={w.id} value={w.id}>{w.name}</option>
+              <option key={w.id} value={w.id}>
+                {w.name}
+              </option>
             ))}
           </Select>
         </Row>
         <Row>
           <Label>{t('controlPanel.displaySettings.resolution', 'Screen resolution:')}</Label>
-          <Select
-            value={selectedResolution}
-            onChange={(e) => setSelectedResolution(e.target.value)}
-          >
+          <Select value={selectedResolution} onChange={e => setSelectedResolution(e.target.value)}>
             {RESOLUTIONS.map(r => (
-              <option key={r} value={r}>{r}</option>
+              <option key={r} value={r}>
+                {r}
+              </option>
             ))}
           </Select>
         </Row>
@@ -139,7 +150,7 @@ const DisplaySettings: React.FC<DisplaySettingsProps> = ({ onBack }) => {
           <Label>{t('controlPanel.displaySettings.screensaver', 'Screen saver:')}</Label>
           <Select
             value={selectedScreensaver}
-            onChange={(e) => setSelectedScreensaver(e.target.value)}
+            onChange={e => setSelectedScreensaver(e.target.value)}
           >
             {SCREENSAVER_OPTIONS.map(o => (
               <option key={o.value} value={o.value}>

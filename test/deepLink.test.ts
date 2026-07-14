@@ -2,12 +2,7 @@
  * Deep-link URL ⇆ path utilities (#136).
  */
 import { describe, it, expect } from 'vitest';
-import {
-  parseOpenPath,
-  serializeOpenPath,
-  resolveRoutes,
-  toOpenList,
-} from '../src/utils/deepLink';
+import { parseOpenPath, serializeOpenPath, resolveRoutes, toOpenList } from '../src/utils/deepLink';
 
 describe('parseOpenPath / serializeOpenPath (#136)', () => {
   it('splits a "/"-joined key path into segments', () => {
