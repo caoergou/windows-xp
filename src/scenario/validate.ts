@@ -244,6 +244,19 @@ export const validateScenario = (scenario: unknown): ScenarioValidation => {
         if (key === 'writeFile' && isObj(v) && typeof v.content !== 'string') {
           errors.push(`${ap}.writeFile.content: expected a string`);
         }
+        // A `contentKey` (#207) must resolve to a defined string; unlike beat
+        // text it isn't counted for the extraction nudge (file bodies are often
+        // legitimately inline and large — see SCENARIO_MAX_BYTES).
+        if (
+          key === 'addFile' &&
+          isObj(v) &&
+          typeof v.contentKey === 'string' &&
+          !stringKeys.has(v.contentKey)
+        ) {
+          warnings.push(
+            `${ap}.addFile.contentKey: references string key "${v.contentKey}" not found in any locale table`
+          );
+        }
       } else if (key === 'note') {
         const v = action.note;
         if (!isObj(v) || typeof v.id !== 'string') errors.push(`${ap}.note.id: expected a string`);

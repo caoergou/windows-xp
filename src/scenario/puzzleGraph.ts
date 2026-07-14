@@ -21,14 +21,30 @@ import type { ScenarioStrings } from './strings';
  * Prefer the {@link ladder} helper over writing rungs by hand.
  */
 export interface PuzzleHint {
-  text: string;
+  /** Inline balloon body (quick prototyping); `textKey` wins when both are set. */
+  text?: string;
+  /** String-table key for the body (#207); resolves over `text`. */
+  textKey?: string;
   /** Balloon title (default `'Hint'`). */
   title?: string;
+  /** String-table key for the title (#207); resolves over `title`. */
+  titleKey?: string;
   /** Reveal after this many `password:fail` events (journal count ≥). */
   afterFails?: number;
   /** Reveal after this many `user:idle` periods (journal count ≥). */
   afterIdles?: number;
 }
+
+/** The cadence options shared by {@link ladder} and {@link ladderKeys}. */
+interface LadderCadence {
+  fails?: number;
+  idles?: number;
+}
+
+const rungCadence = (opts: LadderCadence, i: number) => ({
+  ...(opts.fails ? { afterFails: opts.fails * (i + 1) } : {}),
+  ...(opts.idles ? { afterIdles: opts.idles * (i + 1) } : {}),
+});
 
 /**
  * Build an escalating hint ladder (M12): each text becomes a rung, and `fails` /
@@ -36,16 +52,33 @@ export interface PuzzleHint {
  * `ladder({ fails: 2 }, a, b)` shows `a` after 2 fails, `b` after 4. Give both
  * `fails` and `idles` to reveal on either channel. Compiles (via
  * {@link compilePuzzleGraph}) to `password:fail` / `user:idle` count triggers.
+ *
+ * Inline text is for prototyping; prefer {@link ladderKeys} once a string table
+ * exists so the hints localize with the rest of the beat text (#207).
  */
 export const ladder = (
-  opts: { fails?: number; idles?: number; title?: string },
+  opts: LadderCadence & { title?: string },
   ...texts: string[]
 ): PuzzleHint[] =>
   texts.map((text, i) => ({
     text,
     ...(opts.title ? { title: opts.title } : {}),
-    ...(opts.fails ? { afterFails: opts.fails * (i + 1) } : {}),
-    ...(opts.idles ? { afterIdles: opts.idles * (i + 1) } : {}),
+    ...rungCadence(opts, i),
+  }));
+
+/**
+ * Like {@link ladder}, but each rung references a string-table key (#207)
+ * instead of an inline literal, so the hint ladder localizes with the rest of
+ * the beat text. `titleKey` names the shared balloon title key.
+ */
+export const ladderKeys = (
+  opts: LadderCadence & { titleKey?: string },
+  ...textKeys: string[]
+): PuzzleHint[] =>
+  textKeys.map((textKey, i) => ({
+    textKey,
+    ...(opts.titleKey ? { titleKey: opts.titleKey } : {}),
+    ...rungCadence(opts, i),
   }));
 
 /** One node in the dependency graph. */
@@ -140,7 +173,11 @@ export const compilePuzzleGraph = (graph: PuzzleGraph): Scenario => {
         when: all(...active, count(channel, { gte: threshold })),
         do: [
           setFlag(shown),
-          notify({ title: hint.title ?? 'Hint', body: hint.text, timeout: HINT_TIMEOUT }),
+          notify({
+            ...(hint.titleKey ? { titleKey: hint.titleKey } : { title: hint.title ?? 'Hint' }),
+            ...(hint.textKey ? { bodyKey: hint.textKey } : { body: hint.text }),
+            timeout: HINT_TIMEOUT,
+          }),
         ],
       });
       if (hint.afterFails) hintTriggers.push(fire('password:fail', hint.afterFails));

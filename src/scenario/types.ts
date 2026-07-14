@@ -81,8 +81,15 @@ export type Action =
   | { incFlag: string; by?: number }
   /** Clear a node's `locked` flag (the "door opens" beat). */
   | { unlock: string[] }
-  /** Create a file/folder node at `path` (a scripted "new file appeared"). */
-  | { addFile: { path: string[]; node?: Partial<import('../types').FileNode> } }
+  /**
+   * Create a file/folder node at `path` (a scripted "new file appeared").
+   * `contentKey` resolves the file's text body against the scenario's string
+   * table (#207) at fire time, overriding `node.content` — so an in-world
+   * document the player reads localizes with the rest of the beat text.
+   */
+  | {
+      addFile: { path: string[]; node?: Partial<import('../types').FileNode>; contentKey?: string };
+    }
   /** Delete the node at `path`. */
   | { removeFile: string[] }
   /** Overwrite a text file's content at `path`. */
