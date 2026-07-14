@@ -3,14 +3,17 @@
  * MarkdownViewer rendering, and an end-to-end deep-linked post open.
  */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   buildContentFs,
   buildRssFeed,
+  buildSitemap,
   buildPostMirrorHtml,
   postPermalink,
   postPath,
+  parseFrontmatter,
+  postFromMarkdown,
   WindowsXP,
 } from '../src/lib';
 import type { ContentManifest, SiteMeta } from '../src/lib';
@@ -107,6 +110,141 @@ describe('renderMarkdown / MarkdownViewer (#137)', () => {
     render(<MarkdownViewer content={'## Heading\n\nbody text'} fileName="post.md" />);
     expect(screen.getByText('post.md')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'Heading' })).toBeInTheDocument();
+  });
+});
+
+describe('frontmatter authoring (#254)', () => {
+  const raw = [
+    '---',
+    'title: My First Post',
+    'date: 2007-03-15',
+    'excerpt: "A hello, world."',
+    'folder: Posts',
+    'tags: [xp, blog]',
+    '---',
+    '# Body heading',
+    '',
+    'Real content here.',
+  ].join('\n');
+
+  it('parseFrontmatter splits data from body and parses scalars + inline lists', () => {
+    const { data, body } = parseFrontmatter(raw);
+    expect(data.title).toBe('My First Post');
+    expect(data.date).toBe('2007-03-15');
+    expect(data.excerpt).toBe('A hello, world.'); // quotes stripped
+    expect(data.tags).toEqual(['xp', 'blog']);
+    expect(body.startsWith('# Body heading')).toBe(true);
+    expect(body).not.toContain('---');
+  });
+
+  it('parseFrontmatter parses block lists and returns raw body when absent', () => {
+    const block = ['---', 'tags:', '  - a', '  - b', '---', 'x'].join('\n');
+    expect(parseFrontmatter(block).data.tags).toEqual(['a', 'b']);
+    expect(parseFrontmatter('no frontmatter here')).toEqual({
+      data: {},
+      body: 'no frontmatter here',
+    });
+  });
+
+  it('postFromMarkdown builds a BlogPost, keeping frontmatter in source', () => {
+    const post = postFromMarkdown(raw, { slug: 'first' });
+    expect(post).toMatchObject({
+      slug: 'first',
+      title: 'My First Post',
+      date: '2007-03-15',
+      excerpt: 'A hello, world.',
+      folder: 'Posts',
+      tags: ['xp', 'blog'],
+    });
+    expect(post.source).toBe(raw); // frontmatter preserved for the viewer header
+  });
+
+  it('postFromMarkdown requires a slug', () => {
+    expect(() => postFromMarkdown('# no slug', {})).toThrow(/slug/);
+  });
+
+  it('a frontmatter post round-trips through the pipeline without leaking ---', () => {
+    const post = postFromMarkdown(raw, { slug: 'first' });
+    const mirror = buildPostMirrorHtml(post, site);
+    expect(mirror).not.toContain('---'); // raw fallback body is frontmatter-stripped
+    expect(mirror).toContain('# Body heading');
+  });
+});
+
+describe('buildSitemap (#254)', () => {
+  it('emits a sitemaps.org urlset with the root, per-post loc and lastmod', () => {
+    const xml = buildSitemap(manifest, site);
+    expect(xml).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+    expect(xml).toContain('<loc>https://example.com/</loc>'); // site root
+    expect(xml).toContain('<loc>https://example.com/?open=hello.md&amp;lang=en</loc>');
+    expect(xml).toContain('<lastmod>Mon, 01 Jan 2007 00:00:00 GMT</lastmod>');
+    // manifest[1] has no date → no lastmod for it
+    expect(xml).toContain('<loc>https://example.com/?open=posts/nested.md&amp;lang=en</loc>');
+  });
+});
+
+describe('markdown images + frontmatter (#254)', () => {
+  it('renders ![alt](url) as an <img>, not a literal "!" plus link', () => {
+    render(<div>{renderMarkdown('![a cat](https://x.dev/cat.png)')}</div>);
+    const img = screen.getByRole('img', { name: 'a cat' });
+    expect(img).toHaveAttribute('src', 'https://x.dev/cat.png');
+  });
+
+  it('renderMarkdown strips a leading frontmatter block', () => {
+    render(<div>{renderMarkdown('---\ntitle: T\n---\n# Real')}</div>);
+    expect(screen.getByRole('heading', { level: 1, name: 'Real' })).toBeInTheDocument();
+    expect(screen.queryByText('---')).not.toBeInTheDocument();
+  });
+
+  it('MarkdownViewer renders a title/date header from frontmatter', () => {
+    render(
+      <MarkdownViewer
+        content={'---\ntitle: Hello Post\ndate: 2007-03-15\n---\n\nBody.'}
+        fileName="hello.md"
+      />
+    );
+    const header = screen.getByTestId('markdown-post-header');
+    expect(header).toHaveTextContent('Hello Post');
+    expect(header).toHaveTextContent('2007-03-15');
+    expect(screen.getByRole('heading', { level: 1, name: 'Hello Post' })).toBeInTheDocument();
+  });
+
+  it('MarkdownViewer renders no header for plain Markdown', () => {
+    render(<MarkdownViewer content={'## Plain\n\nbody'} fileName="p.md" />);
+    expect(screen.queryByTestId('markdown-post-header')).not.toBeInTheDocument();
+  });
+});
+
+describe('MarkdownViewer link target + plugin seam (#254)', () => {
+  it('routes link clicks through onLinkClick instead of navigating', () => {
+    const clicks: string[] = [];
+    render(
+      <div>{renderMarkdown('[go](https://x.dev)', { onLinkClick: u => clicks.push(u) })}</div>
+    );
+    const link = screen.getByRole('link', { name: 'go' });
+    expect(link).not.toHaveAttribute('target'); // not a plain new-tab anchor
+    fireEvent.click(link);
+    expect(clicks).toEqual(['https://x.dev']);
+  });
+
+  it('falls back to a safe new-tab anchor without onLinkClick', () => {
+    render(<div>{renderMarkdown('[go](https://x.dev)')}</div>);
+    const link = screen.getByRole('link', { name: 'go' });
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('honors custom component overrides (the mermaid-style plugin seam)', () => {
+    render(
+      <div>
+        {renderMarkdown('```mermaid\ngraph TD; A-->B\n```', {
+          components: {
+            code: ({ children }) => <div data-testid="custom-code">{children}</div>,
+          },
+        })}
+      </div>
+    );
+    expect(screen.getByTestId('custom-code')).toHaveTextContent('graph TD; A-->B');
   });
 });
 

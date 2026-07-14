@@ -101,20 +101,34 @@ const CloseBox = styled.button`
   position: absolute;
   top: 3px;
   right: 4px;
+  /* Reset xp.css's global button box (min-width:75px / min-height:23px /
+     padding / bevel box-shadow) — otherwise the close box blows up into a wide
+     grey button instead of the small 15px close square. */
+  min-width: 0;
+  min-height: 0;
   width: 15px;
   height: 15px;
+  box-sizing: border-box;
   padding: 0;
+  margin: 0;
+  box-shadow: none;
   background: transparent;
   border: 1px solid transparent;
+  border-radius: 0;
   font-family: Tahoma, sans-serif;
   font-size: 12px;
   line-height: 12px;
+  text-align: center;
   cursor: pointer;
   color: #404040;
 
   &:hover {
     background: #e5e5c5;
     border-color: #aca899;
+  }
+
+  &:active {
+    box-shadow: none;
   }
 `;
 

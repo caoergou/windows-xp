@@ -10,6 +10,7 @@ import type { XPEventListener } from '../events';
 import type { XPHandle } from '../components/XPBridge';
 import type { Scenario } from '../scenario/types';
 import type { Lesson } from '../lesson/types';
+import type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 import '../i18n';
 import 'xp.css/dist/XP.css';
 import '../scoped.css';
@@ -62,6 +63,14 @@ export interface WindowsXPProps {
    * (campaign pages, blogs, teaching sandboxes) and no IndexedDB is opened.
    */
   persistence?: PersistenceMode;
+  /**
+   * MarkdownViewer behaviour for `.md` content (#254). `linkTarget` chooses
+   * where document links open — `'ie'` (the desktop's Internet Explorer) or
+   * `'external'` (a real browser tab, the default). `components` / `remarkPlugins`
+   * are the plugin seam for extras the core doesn't bundle (e.g. a mermaid
+   * `code` renderer). See the "Build a blog on the desktop" guide.
+   */
+  markdown?: MarkdownOptions;
   /**
    * Integration mode. `'fullscreen'` (default) keeps the classic kiosk
    * behavior. `'embedded'` makes the component a well-behaved guest inside a
@@ -189,6 +198,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     autoLogin = false,
     storagePrefix,
     persistence,
+    markdown,
     mode = 'fullscreen',
     viewportPolicy,
     disableContextMenuBlock,
@@ -228,6 +238,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       autoLogin={autoLogin}
       storagePrefix={storagePrefix}
       persistence={persistence}
+      markdown={markdown}
       hourlyChime={hourlyChime}
       idleThresholdMs={idleThresholdMs}
       openOnLoad={openOnLoad}
@@ -260,9 +271,12 @@ export { defineCulture } from '../data/culture';
 export {
   buildContentFs,
   buildRssFeed,
+  buildSitemap,
   buildPostMirrorHtml,
   postPermalink,
   postPath,
+  parseFrontmatter,
+  postFromMarkdown,
 } from '../content/blog';
 export { FileSystemProvider } from '../context/FileSystemContext';
 export { WindowManagerProvider } from '../context/WindowManagerContext';
@@ -318,7 +332,8 @@ export type {
 } from '../data/culture';
 export type { WallpaperItem } from '../data/wallpapers';
 export type { DeepLinkRoute, DeepLinkRoutes } from '../utils/deepLink';
-export type { BlogPost, ContentManifest, SiteMeta } from '../content/blog';
+export type { BlogPost, ContentManifest, SiteMeta, Frontmatter } from '../content/blog';
+export type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 export type { FileSystemMode } from '../context/FileSystemContext';
 export type { PersistenceMode } from '../utils/storage';
 export type { BootBranding, LoginBranding } from '../branding';

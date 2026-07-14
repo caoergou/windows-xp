@@ -91,6 +91,7 @@ export default defineConfig({
               text: '开始',
               items: [
                 { text: '安装与快速开始', link: '/zh/guide/getting-started' },
+                { text: '让桌面成为你的（含博客）', link: '/zh/guide/content' },
                 { text: '组件画廊', link: '/zh/components' },
               ],
             },

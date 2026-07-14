@@ -179,7 +179,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     id: 'MarkdownViewer',
     name: 'Markdown Viewer',
     nameKey: 'apps.markdownViewer',
-    icon: 'file',
+    icon: 'markdown',
     window: { width: 560, height: 440, resizable: true },
     lifecycle: {},
     associations: [
