@@ -58,8 +58,8 @@ export const incFlag = (name: string, by?: number): Action => ({
   ...(by !== undefined ? { by } : {}),
 });
 export const unlock = (path: string[]): Action => ({ unlock: path });
-export const addFile = (path: string[], node?: Partial<FileNode>): Action => ({
-  addFile: { path, ...(node ? { node } : {}) },
+export const addFile = (path: string[], node?: Partial<FileNode>, contentKey?: string): Action => ({
+  addFile: { path, ...(node ? { node } : {}), ...(contentKey ? { contentKey } : {}) },
 });
 export const removeFile = (path: string[]): Action => ({ removeFile: path });
 export const writeFile = (path: string[], content: string): Action => ({

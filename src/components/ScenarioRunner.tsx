@@ -235,6 +235,11 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
           type?: 'file' | 'folder';
         };
         void _n;
+        // Localize the file body (#207): a `contentKey` resolves against the
+        // string table for the active locale, overriding any inline content.
+        if (action.addFile.contentKey) {
+          (rest as { content?: string }).content = text(undefined, action.addFile.contentKey);
+        }
         createFile(path.slice(0, -1), name, type, rest);
       } else if ('removeFile' in action) {
         const name = action.removeFile[action.removeFile.length - 1];

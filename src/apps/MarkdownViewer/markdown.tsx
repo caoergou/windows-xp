@@ -1,182 +1,77 @@
 import React from 'react';
+import ReactMarkdown, { type Options } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { parseFrontmatter } from '../../content/blog';
 
 /**
- * A deliberately small, dependency-free Markdown → React renderer (#137).
+ * Markdown → React rendering for the MarkdownViewer (#137, #254).
  *
- * It covers the subset a blog post needs — ATX headings, paragraphs, ordered &
- * unordered lists, blockquotes, fenced & inline code, horizontal rules, and
- * inline bold/italic/code/links — and renders to real React elements (never
- * `dangerouslySetInnerHTML`), so untrusted post content can't inject markup.
- * Anything it doesn't recognize falls through as plain text. Keeping this in the
- * app (not a markdown library) is a deliberate choice against the size budget
- * (#113): the core package gains no heavyweight dependency.
+ * Backed by `react-markdown` + `remark-gfm` (the mature, widely-used ecosystem
+ * standard) rather than a hand-rolled parser: CommonMark plus GitHub-flavoured
+ * extensions (tables, task lists, strikethrough, autolinks) come for free, and
+ * react-markdown renders to real React elements with raw HTML disabled by
+ * default — so untrusted post content can't inject markup (no
+ * `dangerouslySetInnerHTML`). MarkdownViewer is lazy-loaded, so the dependency
+ * lands in its own chunk and never weighs on the core entry (#113 size budget).
+ *
+ * A leading YAML frontmatter block is stripped before rendering (it drives the
+ * viewer's title/date header instead — see `parseFrontmatter`).
  */
 
-type Inline = React.ReactNode;
-
-/** Parse inline spans: `code`, **bold**, *italic*, [text](url). */
-function renderInline(text: string, keyPrefix: string): Inline[] {
-  const nodes: Inline[] = [];
-  let rest = text;
-  let i = 0;
-  // Ordered by precedence; code first so its contents aren't re-parsed.
-  const patterns: { re: RegExp; make: (m: RegExpExecArray, key: string) => Inline }[] = [
-    { re: /`([^`]+)`/, make: (m, key) => <code key={key}>{m[1]}</code> },
-    {
-      re: /\[([^\]]+)\]\(([^)\s]+)\)/,
-      make: (m, key) => (
-        <a key={key} href={m[2]} target="_blank" rel="noopener noreferrer">
-          {m[1]}
-        </a>
-      ),
-    },
-    {
-      re: /\*\*([^*]+)\*\*|__([^_]+)__/,
-      make: (m, key) => <strong key={key}>{m[1] ?? m[2]}</strong>,
-    },
-    {
-      re: /\*([^*]+)\*|_([^_]+)_/,
-      make: (m, key) => <em key={key}>{m[1] ?? m[2]}</em>,
-    },
-  ];
-
-  while (rest.length > 0) {
-    let best: { index: number; length: number; node: Inline } | null = null;
-    for (const { re, make } of patterns) {
-      const m = re.exec(rest);
-      if (m && (best === null || m.index < best.index)) {
-        best = { index: m.index, length: m[0].length, node: make(m, `${keyPrefix}-i${i++}`) };
-      }
-    }
-    if (!best) {
-      nodes.push(rest);
-      break;
-    }
-    if (best.index > 0) nodes.push(rest.slice(0, best.index));
-    nodes.push(best.node);
-    rest = rest.slice(best.index + best.length);
-  }
-  return nodes;
+export interface RenderMarkdownOptions {
+  /**
+   * Called instead of following a link natively (used to open the link in the
+   * desktop's Internet Explorer). When omitted, links open in a new browser tab.
+   */
+  onLinkClick?: (href: string) => void;
+  /** Extra `react-markdown` component overrides merged over the defaults (plugin seam). */
+  components?: Options['components'];
+  /** Extra remark plugins appended after `remark-gfm`. */
+  remarkPlugins?: Options['remarkPlugins'];
 }
 
-/** Render a Markdown source string into a React fragment. */
-export function renderMarkdown(src: string): React.ReactElement {
-  const lines = src.replace(/\r\n/g, '\n').split('\n');
-  const blocks: React.ReactNode[] = [];
-  let k = 0;
-  const key = () => `b${k++}`;
+type AnchorProps = React.ComponentPropsWithoutRef<'a'> & { node?: unknown };
 
-  let i = 0;
-  while (i < lines.length) {
-    const line = lines[i];
-
-    // Blank line → skip.
-    if (line.trim() === '') {
-      i++;
-      continue;
-    }
-
-    // Fenced code block.
-    if (/^```/.test(line.trim())) {
-      const body: string[] = [];
-      i++;
-      while (i < lines.length && !/^```/.test(lines[i].trim())) {
-        body.push(lines[i]);
-        i++;
-      }
-      i++; // consume closing fence
-      blocks.push(
-        <pre key={key()}>
-          <code>{body.join('\n')}</code>
-        </pre>
+// A link component that either routes clicks through `onLinkClick` (e.g. open in
+// IE) or falls back to a safe new-tab anchor.
+const makeLink = (onLinkClick?: (href: string) => void) => {
+  const MarkdownLink = ({ node: _node, href, children, ...props }: AnchorProps) => {
+    if (onLinkClick && href) {
+      return (
+        <a
+          {...props}
+          href={href}
+          onClick={e => {
+            e.preventDefault();
+            onLinkClick(href);
+          }}
+        >
+          {children}
+        </a>
       );
-      continue;
     }
+    return (
+      <a {...props} href={href} target="_blank" rel="noopener noreferrer">
+        {children}
+      </a>
+    );
+  };
+  return MarkdownLink;
+};
 
-    // Horizontal rule.
-    if (/^(-{3,}|\*{3,}|_{3,})$/.test(line.trim())) {
-      blocks.push(<hr key={key()} />);
-      i++;
-      continue;
-    }
-
-    // ATX heading.
-    const heading = /^(#{1,6})\s+(.*)$/.exec(line);
-    if (heading) {
-      const level = heading[1].length;
-      const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
-      const kk = key();
-      blocks.push(<Tag key={kk}>{renderInline(heading[2], kk)}</Tag>);
-      i++;
-      continue;
-    }
-
-    // Blockquote (consecutive `>` lines).
-    if (/^>\s?/.test(line)) {
-      const body: string[] = [];
-      while (i < lines.length && /^>\s?/.test(lines[i])) {
-        body.push(lines[i].replace(/^>\s?/, ''));
-        i++;
-      }
-      const kk = key();
-      blocks.push(<blockquote key={kk}>{renderInline(body.join(' '), kk)}</blockquote>);
-      continue;
-    }
-
-    // Unordered list.
-    if (/^[-*+]\s+/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^[-*+]\s+/.test(lines[i])) {
-        items.push(lines[i].replace(/^[-*+]\s+/, ''));
-        i++;
-      }
-      const kk = key();
-      blocks.push(
-        <ul key={kk}>
-          {items.map((it, idx) => (
-            <li key={`${kk}-${idx}`}>{renderInline(it, `${kk}-${idx}`)}</li>
-          ))}
-        </ul>
-      );
-      continue;
-    }
-
-    // Ordered list.
-    if (/^\d+\.\s+/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^\d+\.\s+/.test(lines[i])) {
-        items.push(lines[i].replace(/^\d+\.\s+/, ''));
-        i++;
-      }
-      const kk = key();
-      blocks.push(
-        <ol key={kk}>
-          {items.map((it, idx) => (
-            <li key={`${kk}-${idx}`}>{renderInline(it, `${kk}-${idx}`)}</li>
-          ))}
-        </ol>
-      );
-      continue;
-    }
-
-    // Paragraph: gather consecutive non-blank, non-block lines.
-    const para: string[] = [];
-    while (
-      i < lines.length &&
-      lines[i].trim() !== '' &&
-      !/^(#{1,6})\s+/.test(lines[i]) &&
-      !/^```/.test(lines[i].trim()) &&
-      !/^>\s?/.test(lines[i]) &&
-      !/^[-*+]\s+/.test(lines[i]) &&
-      !/^\d+\.\s+/.test(lines[i]) &&
-      !/^(-{3,}|\*{3,}|_{3,})$/.test(lines[i].trim())
-    ) {
-      para.push(lines[i]);
-      i++;
-    }
-    const kk = key();
-    blocks.push(<p key={kk}>{renderInline(para.join(' '), kk)}</p>);
-  }
-
-  return <>{blocks}</>;
+/** Render a Markdown source string (frontmatter tolerated) into React elements. */
+export function renderMarkdown(
+  src: string,
+  options: RenderMarkdownOptions = {}
+): React.ReactElement {
+  const { body } = parseFrontmatter(src);
+  const { onLinkClick, components, remarkPlugins } = options;
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm, ...(remarkPlugins ?? [])]}
+      components={{ a: makeLink(onLinkClick), ...components }}
+    >
+      {body}
+    </ReactMarkdown>
+  );
 }

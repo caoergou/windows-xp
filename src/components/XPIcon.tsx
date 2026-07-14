@@ -57,6 +57,7 @@ import emailIcon from '../assets/icons/xp/email.webp';
 import clockIcon from '../assets/icons/xp/clock.webp';
 import imageIcon from '../assets/icons/xp/image.webp';
 import htmlIcon from '../assets/icons/xp/html.webp';
+import markdownIcon from '../assets/icons/xp/markdown.svg';
 import propertiesIcon from '../assets/icons/xp/properties.webp';
 import calculatorIcon from '../assets/icons/xp/WindowsXPCalculator.webp';
 import minesweeperIcon from '../assets/icons/xp/minesweeper.webp';
@@ -120,6 +121,7 @@ const IconMap: Record<string, string> = {
   recycle_bin: recycleBinIcon,
   ie: ieIcon,
   html: htmlIcon,
+  markdown: markdownIcon,
   folder: folderIcon,
   folder_open: folderOpenIcon,
   file: fileIcon,
@@ -230,7 +232,8 @@ interface XPIconProps {
   [key: string]: unknown;
 }
 
-const isUrl = (s: string) => s.startsWith('/') || s.startsWith('http') || s.startsWith('data:') || s.startsWith('blob:');
+const isUrl = (s: string) =>
+  s.startsWith('/') || s.startsWith('http') || s.startsWith('data:') || s.startsWith('blob:');
 
 const XPIcon = ({ name, size = 32, className, _color, style, ...rest }: XPIconProps) => {
   const iconSrc = isUrl(name) ? name : IconMap[name] || fileIcon;

@@ -18,7 +18,7 @@ hero:
 
 features:
   - title: 注入你的世界
-    details: 替换整个文件系统，添加文化包和自定义应用。内容是数据，不是代码。
+    details: 替换整个文件系统，添加文化包和自定义应用，或把它当作 Markdown 博客运行（frontmatter、RSS/sitemap、永久链接）。内容是数据，不是代码。
     link: /zh/guide/content
   - title: 观察并驱动
     details: 每个用户操作都发出强类型事件；ref 句柄可打开应用、读写文件、加载快照。

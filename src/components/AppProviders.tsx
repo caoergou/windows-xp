@@ -31,6 +31,8 @@ import { NotesProvider } from '../context/NotesContext';
 import type { Scenario } from '../scenario/types';
 import type { Lesson } from '../lesson/types';
 import { DeepLinkLoader } from './DeepLinkLoader';
+import { MarkdownProvider } from './MarkdownProvider';
+import type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 import type { DeepLinkRoutes } from '../utils/deepLink';
 import { XPEventBus } from '../events';
 import type { XPEventListener } from '../events';
@@ -81,6 +83,7 @@ export interface AppProvidersProps {
   historyIntegration?: boolean;
   /** Persistence backend (#138): 'local' (default) | 'session' | 'none'. */
   persistence?: PersistenceMode;
+  markdown?: MarkdownOptions;
   /** Boot-screen branding (#139). */
   boot?: BootBranding;
   /** Login-screen branding (#139). */
@@ -125,6 +128,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   location,
   historyIntegration,
   persistence,
+  markdown,
   boot,
   login,
   scenario,
@@ -215,38 +219,40 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
               fileSystemMode={fileSystemMode}
             >
               <WindowManagerProvider registry={registry}>
-                <KeymapProvider keymap={keymap} disableGlobalShortcuts={disableGlobalShortcuts}>
-                  <TrayProvider>
-                    <ModalProvider>
-                      <NotesProvider>
-                        <LessonProvider lessons={lessons}>
-                          <XPImperativeApi ref={handleRef} storagePrefix={storagePrefix} />
-                          <ScenarioRunner scenario={scenario} />
-                          {devtools && (
-                            <React.Suspense fallback={null}>
-                              <DevToolsPanel scenario={scenario} />
-                            </React.Suspense>
-                          )}
-                          <DeepLinkLoader
-                            open={openOnLoad}
-                            routes={routes}
-                            location={location}
-                            historyIntegration={historyIntegration}
-                          />
-                          <App
-                            initialLanguage={language}
-                            skipBoot={skipBoot}
-                            disableContextMenuBlock={disableContextMenuBlock}
-                            disableDevToolsBlock={disableDevToolsBlock}
-                            disableScreenSaver={disableScreenSaver}
-                            boot={boot}
-                            login={login}
-                          />
-                        </LessonProvider>
-                      </NotesProvider>
-                    </ModalProvider>
-                  </TrayProvider>
-                </KeymapProvider>
+                <MarkdownProvider options={markdown}>
+                  <KeymapProvider keymap={keymap} disableGlobalShortcuts={disableGlobalShortcuts}>
+                    <TrayProvider>
+                      <ModalProvider>
+                        <NotesProvider>
+                          <LessonProvider lessons={lessons}>
+                            <XPImperativeApi ref={handleRef} storagePrefix={storagePrefix} />
+                            <ScenarioRunner scenario={scenario} />
+                            {devtools && (
+                              <React.Suspense fallback={null}>
+                                <DevToolsPanel scenario={scenario} />
+                              </React.Suspense>
+                            )}
+                            <DeepLinkLoader
+                              open={openOnLoad}
+                              routes={routes}
+                              location={location}
+                              historyIntegration={historyIntegration}
+                            />
+                            <App
+                              initialLanguage={language}
+                              skipBoot={skipBoot}
+                              disableContextMenuBlock={disableContextMenuBlock}
+                              disableDevToolsBlock={disableDevToolsBlock}
+                              disableScreenSaver={disableScreenSaver}
+                              boot={boot}
+                              login={login}
+                            />
+                          </LessonProvider>
+                        </NotesProvider>
+                      </ModalProvider>
+                    </TrayProvider>
+                  </KeymapProvider>
+                </MarkdownProvider>
               </WindowManagerProvider>
             </FileSystemProvider>
           </UserSessionProvider>

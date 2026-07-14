@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Document body with a folded top-right corner -->
+  <path d="M112 52 H289 L400 163 V330 H112 Z" fill="#ffffff" stroke="#1b3a5f" stroke-width="22" stroke-linejoin="round"/>
+  <path d="M289 52 V163 H400" fill="#ffffff" stroke="#1b3a5f" stroke-width="22" stroke-linejoin="round"/>
+  <!-- Three text lines -->
+  <g stroke="#8ecde8" stroke-width="22" stroke-linecap="round">
+    <line x1="150" y1="118" x2="246" y2="118"/>
+    <line x1="150" y1="168" x2="246" y2="168"/>
+    <line x1="150" y1="218" x2="214" y2="218"/>
+  </g>
+  <!-- "MD" badge -->
+  <rect x="56" y="332" width="400" height="140" rx="22" fill="#ffffff" stroke="#1b3a5f" stroke-width="24"/>
+  <text x="256" y="437" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="120" fill="#8ecde8" text-anchor="middle">MD</text>
+</svg>

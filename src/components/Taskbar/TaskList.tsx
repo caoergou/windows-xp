@@ -99,22 +99,24 @@ const TaskList: React.FC<TaskListProps> = ({
   return (
     <>
       <TaskItems>
-        {windows.filter(w => !w.isHidden).map(win => (
-          <TaskItem
-            key={win.id}
-            $active={activeWindowId === win.id && !win.isMinimized}
-            $flashing={win.isFlashing}
-            title={win.title}
-            onClick={e => {
-              e.stopPropagation();
-              onTaskClick(win);
-            }}
-            onContextMenu={e => onTaskContextMenu(e, win)}
-          >
-            <XPIcon name={win.icon || 'app_window'} size={16} className="task-icon" />
-            {win.title}
-          </TaskItem>
-        ))}
+        {windows
+          .filter(w => !w.isHidden)
+          .map(win => (
+            <TaskItem
+              key={win.id}
+              $active={activeWindowId === win.id && !win.isMinimized}
+              $flashing={win.isFlashing}
+              title={win.title}
+              onClick={e => {
+                e.stopPropagation();
+                onTaskClick(win);
+              }}
+              onContextMenu={e => onTaskContextMenu(e, win)}
+            >
+              <XPIcon name={win.icon || 'app_window'} size={16} className="task-icon" />
+              {win.title}
+            </TaskItem>
+          ))}
       </TaskItems>
 
       {contextMenu && (

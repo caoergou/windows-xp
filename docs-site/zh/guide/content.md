@@ -1,8 +1,11 @@
 ---
-title: 定制你的桌面
+title: 打造你的专属桌面
 ---
 
-# 内容：定制你的桌面
+# 内容：打造你的专属桌面
+
+桌面上的一切——文件、快捷方式、壁纸、文化元素——都用**声明式数据**描述，
+组件只负责机制。判断标准很简单：**新增一条内容不应该需要写 React 代码**。
 
 ## 自定义文件系统
 
@@ -142,44 +145,4 @@ const NoteApp = defineApp<{ text: string }>({
 
 ## 在桌面上搭建博客
 
-桌面天生适合做作品集/博客外壳。把文章写成 Markdown，用一个辅助函数把它们变成可打开的窗口，再镜像成静态页面，这样搜索引擎依然能找到你的内容。
-
-**1. 用 Markdown 编写，通过 `buildContentFs` 加载。** 内容清单（content manifest）就是一篇文章的列表；`buildContentFs` 会把它转换成一个 `customFileSystem` 片段，其中每篇文章都是一个 `<slug>.md` 文件，并在内置的 **MarkdownViewer** 中打开（Notepad 仍然是纯文本编辑器）。共享同一个 `folder` 的文章会嵌套在该文件夹下。
-
-```jsx
-import { WindowsXP, buildContentFs } from '@caoergou/windows-xp';
-
-// 使用打包工具时，你可以在构建期 glob 整个 .md 文件夹：
-//   const files = import.meta.glob('./posts/*.md', { as: 'raw', eager: true });
-const manifest = [
-  { slug: 'hello-world', title: 'Hello, World', date: '2007-01-01', source: '# Hi\n\nMy first post.', folder: 'Posts' },
-  { slug: 'about-me', title: 'About Me', source: '# About\n\nI build things.' },
-];
-
-export default () => <WindowsXP customFileSystem={buildContentFs(manifest)} />;
-```
-
-**2. 永久链接开箱即用。** 因为文章都是真实的文件系统节点，[深度链接 API](/guide/events#permalinks-share-links) 可以直接定位它们：`postPermalink(post, siteMeta)` 会返回一个 `?open=…` URL，打开对应文章的窗口，`WindowsXP` 的 `openOnLoad` 会消费该 URL。分享按钮或二维码只需指向这个 URL。
-
-**3. 可被检索——SEO 镜像。** 爬虫不会运行你的桌面，因此要为每篇文章生成一个携带正文并链接回桌面永久链接的静态 HTML 页面。在构建时将正文渲染出来，然后交给 `buildPostMirrorHtml`（渲染步骤由你负责，因此核心库不附带 markdown-to-HTML 依赖）：
-
-```jsx
-import { renderToStaticMarkup } from 'react-dom/server';
-import { buildPostMirrorHtml, buildRssFeed } from '@caoergou/windows-xp';
-import { MarkdownViewer } from '@caoergou/windows-xp/apps';
-
-const site = { title: 'My XP Blog', siteUrl: 'https://me.dev/', language: 'en' };
-
-// 每篇文章生成一个可被爬取的页面（在构建期写入 /blog/<slug>.html）：
-for (const post of manifest) {
-  // 可以复用桌面内的渲染器以获得字节级一致的输出，也可以使用任意 md→HTML 库：
-  const bodyHtml = renderToStaticMarkup(<MarkdownViewer content={post.source} />);
-  const page = buildPostMirrorHtml(post, site, bodyHtml);
-  // fs.writeFileSync(`dist/blog/${post.slug}.html`, page)
-}
-
-// RSS feed 的条目会链接到桌面永久链接：
-const rss = buildRssFeed(manifest, { ...site, description: 'Posts from a Windows XP desktop' });
-```
-
-按框架接入：在 **Next.js** 中，把镜像页面生成为静态路由（`generateStaticParams`），并从 `app/rss.xml/route.ts` 提供 `rss.xml`；在 **纯 Vite** 项目中，可以在一个小的构建后脚本中写出页面和 feed。无论哪种方式，人类用户看到桌面，爬虫获得可索引的 HTML，并深度链接回桌面。
+这个桌面天然适合做作品集/博客外壳——文章作为 `.md` 文件在 Markdown 查看器中打开、永久链接、用 RSS + sitemap 做 SEO。它有独立的一页：**[在桌面上搭建博客](/zh/guide/blog)**。

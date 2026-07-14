@@ -137,7 +137,9 @@ test.describe('QQ refinements (#refine-qq)', () => {
     await expect(page.locator('[data-testid="qq-panel"]')).toBeVisible();
   });
 
-  test('chat emoji picker inserts a code and the history viewer lists messages', async ({ page }) => {
+  test('chat emoji picker inserts a code and the history viewer lists messages', async ({
+    page,
+  }) => {
     await openQQPanel(page);
     await page.locator('[data-testid="qq-buddy-ahui"]').dblclick();
     await expect(page.locator('[data-testid="qq-chat"]')).toBeVisible();
