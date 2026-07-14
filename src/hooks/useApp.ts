@@ -66,6 +66,13 @@ export function useApp(windowId?: string) {
         setProgress: (pct: number | null) =>
           windowManagerRef.current.setWindowProgress(resolvedWindowId, pct),
         flash: () => windowManagerRef.current.flashWindow(resolvedWindowId),
+        // Hide without minimizing to the taskbar (e.g. QQ minimize-to-tray).
+        hide: () => windowManagerRef.current.hideWindow(resolvedWindowId),
+        // Intercept close/minimize for this window (pass null to clear).
+        setCloseGuard: (guard: ((forceClose: () => void) => void) | null) =>
+          windowManagerRef.current.setCloseGuard(resolvedWindowId, guard),
+        setMinimizeGuard: (guard: ((defaultMinimize: () => void) => void) | null) =>
+          windowManagerRef.current.setMinimizeGuard(resolvedWindowId, guard),
       },
 
       // ── 打开新窗口（与 WindowManagerContext.openWindow 签名相同）────────────

@@ -34,9 +34,8 @@ type AnchorProps = React.ComponentPropsWithoutRef<'a'> & { node?: unknown };
 
 // A link component that either routes clicks through `onLinkClick` (e.g. open in
 // IE) or falls back to a safe new-tab anchor.
-const makeLink =
-  (onLinkClick?: (href: string) => void) =>
-  ({ node: _node, href, children, ...props }: AnchorProps) => {
+const makeLink = (onLinkClick?: (href: string) => void) => {
+  const MarkdownLink = ({ node: _node, href, children, ...props }: AnchorProps) => {
     if (onLinkClick && href) {
       return (
         <a
@@ -57,6 +56,8 @@ const makeLink =
       </a>
     );
   };
+  return MarkdownLink;
+};
 
 /** Render a Markdown source string (frontmatter tolerated) into React elements. */
 export function renderMarkdown(

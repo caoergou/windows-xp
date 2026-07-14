@@ -42,7 +42,7 @@ export interface Frontmatter {
 
 // Matches a leading YAML-ish frontmatter block: `---` on its own line, content,
 // then a closing `---`. Tolerates a UTF-8 BOM and CRLF line endings.
-const FRONTMATTER_RE = /^﻿?---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
+const FRONTMATTER_RE = /^\uFEFF?---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
 
 const unquote = (s: string): string =>
   (s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))
