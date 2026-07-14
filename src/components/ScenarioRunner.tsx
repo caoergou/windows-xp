@@ -30,7 +30,14 @@ import { playSound } from '../utils/soundManager';
 import { isContainerNode, isFileContentNode, type FileNode } from '../types';
 import type { XPEvent } from '../events';
 import { useCulture } from '../context/CultureContext';
-import { appendJournal, evaluateCondition, matchOn, type EvalContext } from '../scenario/engine';
+import {
+  appendJournal,
+  collectContentContainsPaths,
+  evaluateCondition,
+  matchOn,
+  type EvalContext,
+} from '../scenario/engine';
+import { useContentPacks } from '../context/ContentPackContext';
 import { validateScenario } from '../scenario/validate';
 import { pickText } from '../scenario/strings';
 import {
@@ -107,6 +114,13 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
   const { openWindow } = useWindowManagerActions();
   const { registry } = useAppRegistry();
   const storage = useStorage();
+  const { resolver } = useContentPacks();
+
+  // Resolved bodies of `contentRef` files a scenario reads via `contentContains`
+  // (#241). Populated eagerly below so the condition evaluator can stay
+  // synchronous (`fs.content` peeks this map) instead of the whole predicate
+  // chain going async.
+  const resolvedRefContent = useRef<Map<string, string>>(new Map());
 
   // Persisted progress lives in a ref (we render nothing and want synchronous
   // reads/writes inside the bus handler), lazily hydrated once from storage.
@@ -212,7 +226,11 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
       },
       content: path => {
         const node = getFile(path);
-        return node && isFileContentNode(node) ? (node.content ?? null) : null;
+        if (!node || !isFileContentNode(node)) return null;
+        // Inline content wins; otherwise fall back to a resolved contentRef body
+        // (#241) that the eager-resolution effect loaded for this path.
+        if (node.content !== undefined) return node.content;
+        return resolvedRefContent.current.get(path.join('/')) ?? null;
       },
     };
 
@@ -612,6 +630,27 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
     if (!scenario) return undefined;
     return bus.subscribe(event => handlerRef.current(event));
   }, [bus, scenario]);
+
+  // Eagerly resolve the `contentRef` bodies of files a scenario gates on via
+  // `contentContains` (#241), so those predicates can match referenced content
+  // without turning the (synchronous) condition evaluator async. Only the files
+  // actually read this way are loaded — not every contentRef in the FS.
+  useEffect(() => {
+    if (!scenario) return undefined;
+    let cancelled = false;
+    for (const path of collectContentContainsPaths(scenario)) {
+      const node = getFile(path);
+      if (node && isFileContentNode(node) && node.content === undefined && node.contentRef) {
+        resolver.resolveOrNull(node.contentRef).then(text => {
+          if (cancelled || text === null) return;
+          resolvedRefContent.current.set(path.join('/'), text);
+        });
+      }
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [scenario, resolver, getFile]);
 
   return null;
 };
