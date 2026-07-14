@@ -2,10 +2,10 @@ import { FileNode } from '../../types';
 import { DesktopShortcut } from './types';
 
 /**
- * 桌面快捷方式文化包。
+ * Desktop shortcut culture package.
  *
- * 中文语境展示 2000s 中国网民熟悉的软件；
- * 英文语境展示同一时期具有代表性的西方软件。
+ * The Chinese context shows software familiar to Chinese netizens of the 2000s;
+ * the English context shows representative Western software from the same era.
  */
 const DESKTOP_SHORTCUTS_BY_LOCALE: Record<string, DesktopShortcut[]> = {
   zh: [
@@ -38,7 +38,7 @@ export const getDesktopShortcuts = (lang: string): DesktopShortcut[] => {
   return DESKTOP_SHORTCUTS_BY_LOCALE[normalized] ?? DESKTOP_SHORTCUTS_BY_LOCALE.zh;
 };
 
-/** 将桌面快捷方式文化包转为 FileSystemContext 可合并的 FileNode 映射 */
+/** Convert the desktop-shortcut culture package into a FileNode map mergeable by FileSystemContext */
 export const getDesktopShortcutNodes = (lang: string): Record<string, FileNode> => {
   const shortcuts = getDesktopShortcuts(lang);
   return Object.fromEntries(

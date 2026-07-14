@@ -7,8 +7,10 @@ interface QQLoadingPanelProps {
 }
 
 /**
- * 「登录中」窄条窗（190×580 同主面板形态）—— 原版蓝色滚动进度、QQ 大 logo、
- * 「正在登录」与「取消登录」。登录成功后此窗原地变成主面板（经典记忆点）。
+ * "Logging in" narrow bar window (190x580, same shape as the main panel) -
+ * original blue scrolling progress, large QQ logo, "正在登录" and "取消登录".
+ * After successful login this window morphs into the main panel in-place
+ * (classic memory point).
  */
 const QQLoadingPanel: React.FC<QQLoadingPanelProps> = ({ onCancel }) => (
   <LoadingRoot data-testid="qq-loading">

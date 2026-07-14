@@ -129,23 +129,23 @@ export const sounds = {
     tone(784, 0.12, 'sine', 0.1, 0.08);
   },
 
-  // QQ 经典敲门声
+  // Classic QQ knock sound
   qqKnock() {
     tone(800, 0.04, 'sine', 0.12, 0.0);
     tone(600, 0.06, 'sine', 0.14, 0.12);
   },
 
-  // QQ 消息提示音（原版 msg.wav：寻呼机"滴滴"）
+  // QQ message notification sound (original msg.wav: pager "beep beep")
   qqMessage() {
     playSample(qqMessageUrl);
   },
 
-  // QQ 上线提示音（原版 Global.wav：敲门"咚咚"）
+  // QQ online notification sound (original Global.wav: knock "dong dong")
   qqOnline() {
     playSample(qqOnlineUrl);
   },
 
-  // QQ 系统消息 / 加好友提示音（原版 system.wav："咳、咳"）
+  // QQ system message / add-friend notification sound (original system.wav: "ahem, ahem")
   qqSystem() {
     playSample(qqSystemUrl);
   },

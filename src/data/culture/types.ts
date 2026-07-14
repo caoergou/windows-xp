@@ -1,8 +1,9 @@
 /**
- * Cultural Localization（文化本地化）类型定义。
+ * Cultural Localization type definitions.
  *
- * 通用 UI 文本继续走 i18n；具有强烈时代/地域属性的内容（桌面快捷方式、
- * 便签、开始菜单应用等）使用本模块按语言隔离为“文化包”。
+ * Generic UI text continues to use i18n; content with strong era / region attributes
+ * (desktop shortcuts, sticky notes, start-menu apps, etc.) is isolated by language
+ * into "culture packages" through this module.
  */
 
 import { QQProfile } from '../qq/types';
@@ -49,32 +50,33 @@ export interface BrowserCultureProfile {
 }
 
 /**
- * 开机后自动弹出的托盘气泡通知（#118）。
+ * Tray balloon notification that pops up automatically after boot (#118).
  *
- * 取代原先 AntivirusPopup 里硬编码的 zh-only 判断：内容随文化包提供，
- * 只有配置了 startupNotification 的文化包才会在登录后弹出气泡。
+ * Replaces the previously hardcoded zh-only check in AntivirusPopup: content is supplied
+ * by the culture package, and only culture packages configured with startupNotification
+ * will show a balloon after login.
  */
 export interface StartupNotification {
   /** XPIcon key */
   icon?: string;
-  /** i18n key，用于标题；优先于 title */
+  /** i18n key for the title; takes precedence over title */
   titleKey?: string;
-  /** 直接给出的标题文本 */
+  /** Title text given directly */
   title?: string;
-  /** i18n key，用于正文；优先于 body */
+  /** i18n key for the body; takes precedence over body */
   bodyKey?: string;
-  /** 直接给出的正文文本 */
+  /** Body text given directly */
   body?: string;
-  /** 登录后延迟多少毫秒弹出，默认 3000 */
+  /** Delay in milliseconds before popping up after login; defaults to 3000 */
   delay?: number;
-  /** 气泡显示时长（毫秒），0 表示常驻 */
+  /** Balloon display duration in milliseconds; 0 means persistent */
   timeout?: number;
   /**
-   * 常驻托盘图标（XPIcon key）。设置后会在托盘常驻该图标，气泡的尾巴对准它，
-   * 点击图标或气泡打开 {@link app}。留空则气泡从通知区域（右侧）弹出。
+   * Resident tray icon (XPIcon key). When set, the icon stays in the tray; the balloon tail points to it,
+   * and clicking the icon or balloon opens {@link app}. Leaving it empty makes the balloon pop from the notification area (right side).
    */
   trayIcon?: string;
-  /** 点击托盘图标 / 气泡时打开的应用 ID（APP_REGISTRY key） */
+  /** App ID (APP_REGISTRY key) to open when clicking the tray icon / balloon */
   app?: string;
 }
 
@@ -151,7 +153,7 @@ export const filterByLocale = <T extends CulturalItem>(items: T[], lang: string)
   return items.filter(item => !item.locales || localeMatchesItem(item.locales, lang));
 };
 
-/** 判断某个语言是否匹配文化包 */
+/** Determine whether a given language matches the culture package */
 export const cultureMatchesLocale = (pkg: CulturePackage, lang: string): boolean => {
   const lowerLang = lang.toLowerCase();
   return pkg.locales.some(locale => {
@@ -160,24 +162,24 @@ export const cultureMatchesLocale = (pkg: CulturePackage, lang: string): boolean
   });
 };
 
-/** 为给定语言选择最佳匹配的文化包 */
+/** Select the best-matching culture package for the given language */
 export const resolveCulture = (
   cultures: CulturePackage[],
   lang: string
 ): CulturePackage | undefined => {
   if (!cultures.length) return undefined;
 
-  // 1. 精确匹配
+  // 1. Exact match
   const exact = cultures.find(pkg => cultureMatchesLocale(pkg, lang));
   if (exact) return exact;
 
-  // 2. 按语言前缀匹配，如 'en-US'  fallback 到 'en'
+  // 2. Match by language prefix, e.g. 'en-US' falls back to 'en'
   const baseLang = lang.split('-')[0].toLowerCase();
   const baseMatch = cultures.find(pkg =>
     pkg.locales.some(locale => locale.toLowerCase() === baseLang)
   );
   if (baseMatch) return baseMatch;
 
-  // 3. 返回第一个默认文化包（通常是 en）
+  // 3. Return the first default culture package (usually en)
   return cultures.find(pkg => pkg.id === 'en') ?? cultures[0];
 };

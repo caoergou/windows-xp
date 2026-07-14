@@ -1,11 +1,11 @@
 import { QQProfile } from './types';
 
 /**
- * 默认 QQ 档案：2005–2007 中国网民记忆，作为 `zh` 文化包的默认内容。
+ * Default QQ profile: 2005-2007 Chinese netizen memories, used as the default content of the 'zh' culture package.
  *
- * 「我」= 往事随风、脚本好友 = 水晶女孩，与 D 盘 `聊天记录.txt` 的两位主角呼应
- * （#119 验收场景）。其余好友的昵称 / 签名 / 头像取自 mengkunsoft/QQ2006 的
- * 原版素材，保留时代质感。宿主可经 `XPHandle.qq.loadProfile()` 覆盖。
+ * "Me" = 往事随风, scripted buddy = 水晶女孩, echoing the two protagonists of the D-drive '聊天记录.txt' (#119 acceptance scenario).
+ * Other buddies' nicknames / signatures / avatars are taken from the original assets of mengkunsoft/QQ2006, preserving the era feel.
+ * The host can override via 'XPHandle.qq.loadProfile()'.
  */
 export const defaultQQProfile: QQProfile = {
   me: {
@@ -23,8 +23,8 @@ export const defaultQQProfile: QQProfile = {
     { id: 'blacklist', name: '黑名单', system: true },
   ],
   buddies: [
-    // 脚本主角：登录后 5 秒敲门上线，主动发来两条带打字停顿的消息，
-    // 并对玩家的每条回复循环脚本作答（#119 验收）。
+    // Scripted protagonist: knocks and comes online 5 seconds after login, proactively sends two messages with typing pauses,
+    // and loops scripted replies to every player response (#119 acceptance).
     {
       id: 'crystal',
       number: '3453674',

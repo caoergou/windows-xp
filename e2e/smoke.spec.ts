@@ -3,13 +3,13 @@ import { login } from './helpers/login';
 
 test.describe('Windows XP Simulator - Basic Access Test', () => {
   test('应用能够正常加载', async ({ page }) => {
-    // 访问开发服务器（baseURL 在 playwright.config.js 中配置）
+    // Visit the dev server (baseURL is configured in playwright.config.js)
     await page.goto('./');
 
-    // 等待页面加载
+    // Wait for the page to load
     await page.waitForLoadState('networkidle');
 
-    // 检查页面标题
+    // Check the page title
     await expect(page).toHaveTitle(/Windows XP|React XP/i);
 
     // eslint-disable-next-line no-console -- Playwright test logging
@@ -20,7 +20,7 @@ test.describe('Windows XP Simulator - Basic Access Test', () => {
     await page.goto('./');
     await page.waitForLoadState('networkidle');
 
-    // 检查页面是否有内容
+    // Check that the page has content
     const bodyText = await page.textContent('body');
     expect(bodyText?.length).toBeGreaterThan(0);
 

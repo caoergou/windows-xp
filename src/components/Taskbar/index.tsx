@@ -247,7 +247,7 @@ const Taskbar = () => {
       } else if (appName === 'QQMail') {
         openWindow(
           'InternetExplorer',
-          'QQ邮箱',
+          t('startMenu.apps.qqMail'),
           ie.restore({ url: 'http://mail.qq.com', plugin: defaultPlugin }),
           ie.icon,
           { width: 1000, height: 700, componentProps: { url: 'http://mail.qq.com' } }

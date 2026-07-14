@@ -6,16 +6,18 @@ import { qqImg } from './assets';
 export type QQCloseChoice = 'hide' | 'exit';
 
 interface QQCloseDialogProps {
-  /** 「确定」后带着所选项回调（隐藏到托盘 / 退出程序）。 */
+  /** After "确定", callback with the selected option (hide to tray / quit program). */
   onConfirm: (choice: QQCloseChoice) => void;
-  /** 取消关闭（点「取消」或标题栏 ×）。 */
+  /** Cancel closing (click "取消" or the title-bar x). */
   onCancel: () => void;
 }
 
 /**
- * 关闭 QQ 时的确认对话框（#refine-qq）——还原经典 QQ2006：两个单选项
- * 「隐藏到任务栏通知区域 / 退出程序」+ 确定 / 取消，Portal 到 body、屏幕居中。
- * 「记住我的选择」为拟真装饰项（不落库），与其余在幕不落地的 QQ 业务按钮一致。
+ * Confirmation dialog when closing QQ (#refine-qq) - recreates classic QQ2006:
+ * two radio options "Hide to the taskbar notification area / Quit program"
+ * + OK / Cancel, ported to body, centered on screen.
+ * "Remember my choice" is a decorative realism item (not persisted), consistent
+ * with other QQ business buttons that are visible but not wired up.
  */
 const QQCloseDialog: React.FC<QQCloseDialogProps> = ({ onConfirm, onCancel }) => {
   const [choice, setChoice] = useState<QQCloseChoice>('hide');

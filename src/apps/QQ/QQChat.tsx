@@ -15,9 +15,10 @@ interface QQChatProps {
 }
 
 /**
- * QQ 聊天窗口 —— 还原 QQ2006 聊天窗：大工具条、对方信息条、两行式消息流
- * （对方蓝昵称行 / 自己绿昵称行，无气泡）、表情小工具条、输入框、右侧 QQ 秀 +
- * 个人空间栏。消息正文经 emojiRenderer 渲染经典表情。
+ * QQ chat window - recreation of the QQ2006 chat window: large toolbar, partner info bar,
+ * two-line message flow (partner blue nickname line / self green nickname line, no bubbles),
+ * emoji mini-toolbar, input box, right-side QQ Show + personal-space bar.
+ * Message bodies are rendered by emojiRenderer for classic emoticons.
  */
 const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
   const api = useApp(windowId);
@@ -36,7 +37,7 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
   const [showEmoji, setShowEmoji] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
-  // 设定窗口标题 + 派发打开事件（一次）。
+  // Set window title + dispatch open event (once).
   useEffect(() => {
     if (buddy) api.window.setTitle(`与 ${buddy.nickname} 聊天中`);
     bus.emit({ type: 'qq:open', buddyId });
@@ -46,14 +47,14 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buddyId]);
 
-  // 本窗获得焦点时，标记为当前聊天并清零未读。
+  // When this window gains focus, mark it as the current chat and clear unread messages.
   useEffect(() => {
     if (activeWindowId && activeWindowId === wid) {
       qqStore.setFocusedChat(buddyId);
     }
   }, [activeWindowId, wid, buddyId]);
 
-  // 新消息 / 打字状态变化时滚到底部。
+  // Scroll to the bottom on new messages / typing-status changes.
   useEffect(() => {
     const el = listRef.current;
     if (el) el.scrollTop = el.scrollHeight;
@@ -67,7 +68,7 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
     setShowEmoji(false);
   };
 
-  // 在光标处插入 `[微笑]` 表情码（输入框为非受控，直接改 value 并复位光标）。
+  // Insert the "[微笑]" emoticon code at the cursor (the input is uncontrolled, so mutate value directly and restore cursor).
   const insertEmoji = (code: string) => {
     const el = inputRef.current;
     if (!el) return;
@@ -81,7 +82,7 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    // 默认 Enter 发送，Shift+Enter 换行（经典 QQ 行为）。
+    // Default: Enter sends, Shift+Enter inserts a newline (classic QQ behavior).
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       send();
@@ -94,7 +95,7 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
 
   return (
     <ChatRoot data-testid="qq-chat">
-      {/* 大工具条 */}
+      {/* Large toolbar */}
       <div className="qq-im-big-toolbar">
         <button className="im-big-msg" onClick={() => api.sound.play('qqSystem')}>
           短信
@@ -135,7 +136,7 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
               </ul>
             </div>
 
-            {/* 聊天记录查看器：当前会话历史（含收发双方、时间戳）覆盖在消息区上。 */}
+            {/* Chat history viewer: current conversation history (sender/receiver, timestamps) overlays the message area. */}
             {showHistory && (
               <div className="qq-im-history" data-testid="qq-chat-history">
                 <div className="qq-im-history-head">
@@ -157,7 +158,7 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
               </div>
             )}
 
-            {/* 表情选择面板：经典黄脸网格，点选把 [微笑] 码插入输入框。 */}
+            {/* Emoji picker panel: classic yellow-face grid; clicking inserts the "[微笑]" code into the input box. */}
             {showEmoji && (
               <div className="qq-emoji-picker" data-testid="qq-emoji-picker">
                 {QQ_EMOJI_LIST.map(({ code, emoji }) => (
@@ -168,7 +169,7 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
               </div>
             )}
 
-            {/* 小工具条 */}
+            {/* Mini toolbar */}
             <div className="qq-im-chat-toolbar">
               <button className="im-toolbar-font" title="字体" />
               <button
@@ -214,7 +215,7 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
           </div>
         </div>
 
-        {/* 右侧栏：QQ 秀 + 个人空间 */}
+        {/* Right sidebar: QQ Show + personal space */}
         <div className="qq-im-side">
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <button className="qq-im-side-btn">对方形象</button>

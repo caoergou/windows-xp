@@ -773,7 +773,8 @@
       "captchaError": "验证码错误，请重新输入",
       "loggingIn": "正在登录…",
       "versionTooOld": "您使用的 QQ 版本过低，无法登录。\n请前往官网下载最新版本的 QQ。"
-    }
+    },
+    "chatTitle": "与 {{nickname}} 聊天中"
   },
   "safeGuard360": {
     "title": "360 安全卫士",

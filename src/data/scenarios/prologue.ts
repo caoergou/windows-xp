@@ -1,16 +1,16 @@
 /**
- * "序章 · 2005" — the reference prologue scenario (#84).
+ * "序章 · 2005" - the reference prologue scenario (#84).
  *
- * A ~5–10 minute, fully declarative story built entirely on the built-in seed
- * content (the recycle-bin letter, the D-drive chat log, the locked `C:\WINDOWS`
+ * A ~5-10 minute, fully declarative story built entirely on the built-in seed
+ * content (the recycle-bin letter, the D-drive chat log, the locked 'C:WINDOWS'
  * folder, the QQ buddy 水晶女孩). It demonstrates the three scenario mechanics
  * end-to-end without a line of React:
- *   • doors & keys  — the finale gates on unlocking `C:\WINDOWS`;
- *   • pushes        — tray balloons + a QQ line + a planted clue file;
- *   • progress      — flags advance and persist across refresh.
+ *   - doors & keys  - the finale gates on unlocking 'C:WINDOWS';
+ *   - pushes        - tray balloons + a QQ line + a planted clue file;
+ *   - progress      - flags advance and persist across refresh.
  *
- * This is plain, JSON-serializable data. Pass it to `<WindowsXP scenario={…}/>`
- * (or copy it into a `.json` file) — see `docs/SCENARIOS.md`.
+ * This is plain, JSON-serializable data. Pass it to '<WindowsXP scenario={...}/>'
+ * (or copy it into a '.json' file) - see 'docs/SCENARIOS.md'.
  */
 import type { Scenario } from '../../scenario/types';
 
@@ -21,7 +21,7 @@ export const prologueScenario: Scenario = {
   id: 'prologue-2005',
   initialFlags: { step: 0 },
   triggers: [
-    // 开场：桌面就绪后给一个方向。
+    // Opening: give a direction once the desktop is ready.
     {
       id: 'intro',
       on: 'session:boot-complete',
@@ -38,7 +38,7 @@ export const prologueScenario: Scenario = {
       ],
     },
 
-    // 第一条线索：回收站里的《写给未来的信》。
+    // First clue: "写给未来的信" in 回收站.
     {
       id: 'read-letter',
       on: 'file:open',
@@ -57,7 +57,7 @@ export const prologueScenario: Scenario = {
       ],
     },
 
-    // 第二条线索：D 盘聊天记录 —— 需要先读过信（关联机制）。
+    // Second clue: D 盘 chat log - must read the letter first (linkage mechanic).
     {
       id: 'read-chat',
       on: 'file:open',
@@ -79,7 +79,7 @@ export const prologueScenario: Scenario = {
             timeout: 12000,
           },
         },
-        // 埋下解锁 C:\WINDOWS 的钥匙。
+        // Plant the key to unlock C:WINDOWS.
         {
           addFile: {
             path: ['密码便签.txt'],
@@ -94,7 +94,7 @@ export const prologueScenario: Scenario = {
       ],
     },
 
-    // 反卡关：连续输错 2 次，把答案再推一次（M12 提示阶梯）。
+    // Anti-stuck: after 2 consecutive wrong attempts, push the answer one more time (M12 hint ladder).
     {
       id: 'password-hint',
       on: 'password:fail',
@@ -111,7 +111,7 @@ export const prologueScenario: Scenario = {
       ],
     },
 
-    // 收尾：解锁 C:\WINDOWS 即通关。
+    // Finale: unlocking C:WINDOWS clears the scenario.
     {
       id: 'finale',
       on: 'file:unlock',

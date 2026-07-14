@@ -1,11 +1,11 @@
 import React from 'react';
 
 /**
- * QQ 表情映射表 - 将文本表情转换为 emoji
- * 基于 2015 年左右的 QQ 表情
+ * QQ emoticon mapping table - convert text emoticons to emoji.
+ * Based on QQ emoticons from around 2015.
  */
 const EMOJI_MAP: Record<string, string> = {
-  // 常用表情
+  // Common emoticons
   '[微笑]': '😊',
   '[撇嘴]': '😒',
   '[色]': '😍',
@@ -27,7 +27,7 @@ const EMOJI_MAP: Record<string, string> = {
   '[抓狂]': '😫',
   '[吐]': '🤮',
 
-  // 手势表情
+  // Gesture emoticons
   '[偷笑]': '🤭',
   '[可爱]': '🥰',
   '[白眼]': '🙄',
@@ -48,7 +48,7 @@ const EMOJI_MAP: Record<string, string> = {
   '[敲打]': '🔨',
   '[再见]': '👋',
 
-  // 其他表情
+  // Other emoticons
   '[擦汗]': '😅',
   '[抠鼻]': '🤧',
   '[鼓掌]': '👏',
@@ -111,27 +111,28 @@ const EMOJI_MAP: Record<string, string> = {
 };
 
 /**
- * 表情选择面板用的有序列表：`code` 为 `[微笑]` 方括号码（插入输入框的文本），
- * `emoji` 为对应的 Unicode 黄脸（网格里显示）。派生自 {@link EMOJI_MAP}，
- * 让表情选择器与消息渲染共用同一份映射（#refine-qq 表情面板）。
+ * Ordered list for the emoji picker panel: 'code' is the bracketed code like "[微笑]"
+ * inserted into the input box, 'emoji' is the corresponding Unicode yellow face
+ * displayed in the grid. Derived from {@link EMOJI_MAP}, so the picker and message
+ * rendering share the same mapping (#refine-qq emoji panel).
  */
 export const QQ_EMOJI_LIST: ReadonlyArray<{ code: string; emoji: string }> = Object.entries(
   EMOJI_MAP
 ).map(([code, emoji]) => ({ code, emoji }));
 
 /**
- * 将消息文本中的表情符号转换为 emoji
- * @param {string} text - 原始消息文本
- * @returns {string} 转换后的文本
+ * Convert emoticon symbols in message text to emoji.
+ * @param {string} text - Original message text
+ * @returns {string} Converted text
  */
 export const renderEmoji = (text: string): string => {
   if (!text) return text;
 
   let result = text;
 
-  // 替换所有匹配的表情
+  // Replace all matched emoticons
   Object.entries(EMOJI_MAP).forEach(([key, emoji]) => {
-    // 转义特殊字符
+    // Escape special characters
     const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(escapedKey, 'g');
     result = result.replace(regex, emoji);
@@ -141,16 +142,16 @@ export const renderEmoji = (text: string): string => {
 };
 
 /**
- * 将消息文本中的表情符号转换为带样式的 HTML
- * @param {string} text - 原始消息文本
- * @returns {string} 转换后的 HTML 字符串
+ * Convert emoticon symbols in message text to styled HTML.
+ * @param {string} text - Original message text
+ * @returns {string} Converted HTML string
  */
 export const renderEmojiHTML = (text: string): string => {
   if (!text) return text;
 
   let result = text;
 
-  // 替换所有匹配的表情,添加 span 包裹以便样式控制
+  // Replace all matched emoticons and wrap them in spans for styling control
   Object.entries(EMOJI_MAP).forEach(([key, emoji]) => {
     const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(escapedKey, 'g');
@@ -161,8 +162,9 @@ export const renderEmojiHTML = (text: string): string => {
 };
 
 /**
- * 经典 QQ 表情拼音缩写码（千禧年代真实写法）→ `[中文名]` 方括号码。
- * 输入层支持 `/wx` 等缩写；数据层保留 `[微笑]` 以便可读。见 docs/QQ-CLASSIC-UI.md §3。
+ * Classic QQ emoticon pinyin abbreviations (real millennium-era notation) -> "[中文名]" bracketed codes.
+ * The input layer supports abbreviations like /wx; the data layer keeps "[微笑]" for readability.
+ * See docs/QQ-CLASSIC-UI.md §3.
  */
 const SHORTHAND_MAP: Record<string, string> = {
   wx: '[微笑]',
@@ -201,17 +203,17 @@ const SHORTHAND_MAP: Record<string, string> = {
   dg: '[大哭]',
 };
 
-/** 将 `/wx` 等缩写码规范化为 `[微笑]` 方括号码。 */
+/** Normalize abbreviations like '/wx' into bracketed codes like "[微笑]". */
 export const normalizeShorthand = (text: string): string => {
   if (!text) return text;
-  // 匹配 /字母（可含数字），最长优先
+  // Match /letter (may contain digits), longest first
   return text.replace(/\/([a-z]+)/gi, (whole, code: string) => {
     const mapped = SHORTHAND_MAP[code.toLowerCase()];
     return mapped ?? whole;
   });
 };
 
-/** 单个表情 emoji（供渲染层加样式：16px、提高饱和度，逼近经典黄脸观感）。 */
+/** Single emoticon emoji (for the rendering layer to style: 16px, increased saturation, approaching the classic yellow-face look). */
 const EMOTICON_STYLE: React.CSSProperties = {
   display: 'inline-block',
   fontSize: '16px',
@@ -220,7 +222,7 @@ const EMOTICON_STYLE: React.CSSProperties = {
   filter: 'saturate(1.4)',
 };
 
-// 匹配任意已知 `[中文名]` 表情码
+// Match any known "[中文名]" emoticon code
 const EMOJI_TOKEN = new RegExp(
   '(' +
     Object.keys(EMOJI_MAP)
@@ -231,11 +233,12 @@ const EMOJI_TOKEN = new RegExp(
 );
 
 /**
- * 将消息文本渲染为 React 节点数组：先把 `/wx` 缩写归一化为 `[微笑]`，
- * 再把 `[微笑]` 等表情码替换为 16px 内联「经典黄脸」（emoji + 饱和度增强，
- * 遵循 docs/QQ-CLASSIC-UI.md §7 的零图片自绘策略）。纯文本原样保留。
+ * Render message text as a React node array: first normalize /wx abbreviations to "[微笑]",
+ * then replace "[微笑]"-style emoticon codes with 16px inline "classic yellow faces"
+ * (emoji + saturation boost, following docs/QQ-CLASSIC-UI.md §7 zero-image self-draw strategy).
+ * Plain text is preserved as-is.
  *
- * 这让此前的死代码 emojiRenderer 终于成为活代码（#119）。
+ * This finally turns the previously dead emojiRenderer code into live code (#119).
  */
 export const renderMessageNodes = (text: string): React.ReactNode[] => {
   if (!text) return [];

@@ -1,14 +1,14 @@
 /**
- * QQ 运行时状态（#119）。
+ * QQ runtime state (#119).
  *
- * 一个模块级单例 store，被「主面板窗口」与各「聊天窗口」共享 —— 它们是引擎里
- * 相互独立的 React 窗口，无法用普通 Context 跨窗口共享状态，故用外部 store +
- * `useSyncExternalStore` 订阅。
+ * A module-level singleton store shared by the main-panel window and each chat window -
+ * they are independent React windows inside the engine, so ordinary Context cannot share
+ * state across them; we use an external store + useSyncExternalStore subscriptions.
  *
- * store 只存**数据**并调度剧情定时器；所有需要 React 上下文的副作用（消息音、
- * 托盘闪动、任务栏闪烁、上线气泡、事件派发）通过 {@link QQDriver} 交给主面板
- * 窗口执行 —— 这样宿主经 `XPHandle.qq` 触发的消息与脚本定时器共用同一条副作用
- * 通道。
+ * The store only holds **data** and schedules story timers; all side effects that need
+ * React context (message sound, tray blink, taskbar flash, online balloon, event dispatch)
+ * are handed to the main-panel window via {@link QQDriver} - so host-triggered messages
+ * through XPHandle.qq and script timers share the same side-effect channel.
  */
 import { QQProfile, QQBuddy, QQGroup, QQMe, QQStatus, QQScriptStep } from '../../data/qq/types';
 
@@ -22,7 +22,7 @@ export interface QQMessage {
 }
 
 export interface RuntimeBuddy extends QQBuddy {
-  /** 当前生效状态（可被上线定时器 / 宿主改写）。 */
+  /** Currently active status (can be rewritten by online timers / host). */
   currentStatus: QQStatus;
 }
 
@@ -35,17 +35,17 @@ export interface QQState {
   unread: Record<string, number>;
   typing: Record<string, boolean>;
   openGroups: Record<string, boolean>;
-  /** 当前处于焦点的聊天对象（决定新消息是否需要提示）。 */
+  /** Buddy currently in focus (determines whether new messages need notification). */
   focusedChat: string | null;
 }
 
-/** 副作用通道，由主面板窗口注入（依赖 useTray / useApp / 事件总线）。 */
+/** Side-effect channel, injected by the main-panel window (depends on useTray / useApp / event bus). */
 export interface QQDriver {
-  /** 好友上线：敲门声 + 托盘闪动 + 「上线了」气泡。 */
+  /** Buddy comes online: knock sound + tray blink + "上线了" balloon. */
   onBuddyOnline?: (buddy: RuntimeBuddy) => void;
-  /** 收到未读消息：消息音 + 任务栏/托盘闪动。 */
+  /** Incoming unread message: message sound + taskbar/tray blink. */
   onIncoming?: (buddy: RuntimeBuddy, message: QQMessage) => void;
-  /** 派发事件到引擎事件总线。 */
+  /** Dispatch events to the engine event bus. */
   emit?: (event: import('../../events').XPEvent) => void;
 }
 
@@ -65,7 +65,7 @@ let state: QQState = EMPTY;
 const listeners = new Set<() => void>();
 let driver: QQDriver = {};
 const timers = new Set<ReturnType<typeof setTimeout>>();
-/** 每个好友回复脚本的循环游标。 */
+/** Per-buddy loop cursor for reply scripts. */
 const replyCursor = new Map<string, number>();
 let msgSeq = 0;
 
@@ -92,7 +92,7 @@ const schedule = (fn: () => void, ms: number) => {
 
 const isOnline = (s: QQStatus) => s !== 'offline';
 
-// ── 订阅接口 ────────────────────────────────────────────────────────────────
+// --- Subscription interface --------------------------------------------------
 export const qqStore = {
   subscribe(listener: () => void): () => void {
     listeners.add(listener);
@@ -102,7 +102,7 @@ export const qqStore = {
     return state;
   },
 
-  /** 由主面板窗口注入副作用通道；返回清理函数。 */
+  /** Inject the side-effect channel from the main-panel window; returns a cleanup function. */
   setDriver(next: QQDriver): () => void {
     driver = next;
     return () => {
@@ -115,8 +115,8 @@ export const qqStore = {
   },
 
   /**
-   * 用一份档案启动会话（登录成功后调用）。幂等：已启动则忽略。
-   * 会按 `onlineDelayMs` 排程好友上线与其上线后的主动脚本。
+   * Start a session with a profile (called after login success). Idempotent: ignored if already started.
+   * Schedules buddy online events and their post-online proactive scripts according to onlineDelayMs.
    */
   start(profile: QQProfile): void {
     if (state.started) return;
@@ -126,7 +126,7 @@ export const qqStore = {
     }));
     const openGroups: Record<string, boolean> = {};
     profile.groups.forEach(g => (openGroups[g.id] = g.open ?? false));
-    // 至少让第一个非系统分组默认展开，好友可见。
+    // Expand at least the first non-system group by default so buddies are visible.
     const firstReal = profile.groups.find(g => !g.system);
     if (firstReal) openGroups[firstReal.id] = true;
 
@@ -142,7 +142,7 @@ export const qqStore = {
       focusedChat: null,
     });
 
-    // 排程延迟上线的好友。
+    // Schedule buddies with delayed online events.
     buddies.forEach(b => {
       if (b.onlineDelayMs && b.onlineDelayMs > 0 && !isOnline(b.status)) {
         schedule(
@@ -153,7 +153,7 @@ export const qqStore = {
     });
   },
 
-  /** 让某好友上线；可选敲门提示与其主动脚本。 */
+  /** Bring a buddy online; optional knock hint and proactive script. */
   bringOnline(buddyId: string, opts: { announce?: boolean; runScript?: boolean } = {}): void {
     const buddy = state.buddies.find(b => b.id === buddyId);
     if (!buddy) return;
@@ -168,7 +168,7 @@ export const qqStore = {
     }
   },
 
-  /** 顺序播放一段脚本（等待 → 正在输入 → 落字）。 */
+  /** Play a script sequence in order (wait -> typing -> message appears). */
   playScript(buddyId: string, steps: QQScriptStep[]): void {
     let acc = 0;
     steps.forEach(step => {
@@ -190,13 +190,14 @@ export const qqStore = {
   },
 
   /**
-   * 好友发来一条消息（incoming）。宿主脚本 / 定时器 / 玩家回复触发的自动回复
-   * 都走这里。未聚焦该聊天时计未读并触发提示副作用。
+   * A buddy sends a message (incoming). Host scripts / timers / auto-replies triggered
+   * by player replies all go through here. Counts as unread and triggers notification
+   * side effects when the chat is not focused.
    */
   receiveMessage(buddyId: string, text: string): QQMessage | null {
     const buddy = state.buddies.find(b => b.id === buddyId);
     if (!buddy) return null;
-    // 收到消息时若对方仍显示离线，则顺带置为在线（不再重复敲门）。
+    // If the sender still appears offline when a message arrives, set them online as well (no repeated knock).
     let buddies = state.buddies;
     if (!isOnline(buddy.currentStatus)) {
       buddies = state.buddies.map(b =>
@@ -223,7 +224,7 @@ export const qqStore = {
     return message;
   },
 
-  /** 玩家发出一条消息（outgoing），并触发好友的脚本回复（若配置）。 */
+  /** Player sends a message (outgoing), and triggers the buddy's scripted reply (if configured). */
   sendFromMe(buddyId: string, text: string): void {
     const buddy = state.buddies.find(b => b.id === buddyId);
     if (!buddy) return;
@@ -240,7 +241,7 @@ export const qqStore = {
     driver.emit?.({ type: 'qq:message', buddyId, direction: 'outgoing', text });
     driver.emit?.({ type: 'qq:reply', buddyId, text });
 
-    // 脚本回复：逐条循环。
+    // Scripted replies: cycle through entries one by one.
     if (buddy.reply?.kind === 'script' && buddy.reply.steps.length) {
       const steps = buddy.reply.steps;
       const idx = replyCursor.get(buddyId) ?? 0;
@@ -250,7 +251,7 @@ export const qqStore = {
     }
   },
 
-  /** 标记某聊天为焦点（清零未读）。 */
+  /** Mark a chat as focused (clear unread count). */
   setFocusedChat(buddyId: string | null): void {
     const patch: Partial<QQState> = { focusedChat: buddyId };
     if (buddyId && state.unread[buddyId]) {
@@ -268,18 +269,18 @@ export const qqStore = {
     setState({ openGroups: { ...state.openGroups, [groupId]: !state.openGroups[groupId] } });
   },
 
-  /** 更改「我」的在线状态（在线 / 隐身 / 离开 / 忙碌），驱动横幅与托盘菜单勾选。 */
+  /** Change "my" online status (online / invisible / away / busy), driving the banner and tray menu checkmark. */
   setMeStatus(status: QQStatus): void {
     if (!state.me || state.me.status === status) return;
     setState({ me: { ...state.me, status } });
   },
 
-  /** 未读总数（托盘闪动判据）。 */
+  /** Total unread count (criterion for tray blinking). */
   totalUnread(): number {
     return Object.values(state.unread).reduce((a, b) => a + b, 0);
   },
 
-  /** 完全重置（登出 / 宿主 reset）。 */
+  /** Full reset (logout / host reset). */
   reset(): void {
     timers.forEach(clearTimeout);
     timers.clear();

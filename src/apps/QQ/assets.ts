@@ -1,13 +1,15 @@
 /**
- * 原版 QQ2006 皮肤 / 精灵图资源。
+ * Original QQ2006 skin / sprite assets.
  *
- * 素材由 mengkunsoft/QQ2006（https://github.com/mengkunsoft/QQ2006）从原版
- * QQ2006 安装包提取，作者声明「可自由分享和修改，请保留出处」；版权归腾讯。
- * 详见 `src/apps/QQ/assets/NOTICE.md`。为像素级还原 2005–2007 经典 QQ 界面
- * （#119，用户明确要求「仿真最重要」）而引入。
+ * Assets extracted from the original QQ2006 installer by mengkunsoft/QQ2006
+ * (https://github.com/mengkunsoft/QQ2006); the author states they "can be freely
+ * shared and modified, please keep the source"; copyright belongs to Tencent.
+ * See 'src/apps/QQ/assets/NOTICE.md'. Introduced for pixel-level recreation of the
+ * 2005-2007 classic QQ interface (#119; user explicitly requested "仿真最重要").
  *
- * 通过 `import.meta.glob` 一次性加载为 URL，交由 Vite / libAssetsPlugin
- * 抽取为独立文件（与 recycle_bin/exif 的用法一致）。
+ * Loaded in one go via 'import.meta.glob' as URLs, then handed to Vite /
+ * libAssetsPlugin to be extracted as standalone files (same pattern as
+ * recycle_bin/exif).
  */
 const imgUrls = import.meta.glob('./assets/img/**/*.{png,gif}', {
   eager: true,
@@ -15,15 +17,15 @@ const imgUrls = import.meta.glob('./assets/img/**/*.{png,gif}', {
   import: 'default',
 }) as Record<string, string>;
 
-/** 取皮肤图 URL，`rel` 相对 `assets/img/`，例如 `'BackgroundTitleLeft.png'`、`'im/icon.png'`。 */
+/** Get a skin image URL; 'rel' is relative to 'assets/img/', e.g. 'BackgroundTitleLeft.png', 'im/icon.png'. */
 export const qqImg = (rel: string): string => imgUrls[`./assets/img/${rel}`] ?? '';
 
-/** 取 `css url(...)` 形式，找不到时返回 `none` 以免报错。 */
+/** Return as a 'css url(...)' string; returns 'none' when not found to avoid errors. */
 export const qqUrl = (rel: string): string => {
   const src = qqImg(rel);
   return src ? `url(${src})` : 'none';
 };
 
-/** 取头像 URL（`assets/img/avatar/<n>.png`），越界时回退到 1 号。 */
+/** Get an avatar URL ('assets/img/avatar/<n>.png'), falling back to #1 when out of range. */
 export const qqAvatar = (n: number | string): string =>
   qqImg(`avatar/${n}.png`) || qqImg('avatar/1.png');

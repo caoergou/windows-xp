@@ -195,7 +195,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
     });
   }, [culture]);
 
-  // 用户传入的 customFileSystem 优先级高于文化包
+  // User-provided customFileSystem takes precedence over the culture package
   return (
     <StorageProvider prefix={storagePrefix || 'xp_'} persistence={persistence}>
       <EventBusProvider bus={busRef}>

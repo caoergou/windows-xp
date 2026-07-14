@@ -412,7 +412,7 @@ function App({
       )}
       {altTabVisible && windows.length > 0 && (
         <AltTabOverlay>
-          <AltTabTitle>{t('altTab.switchWindow', '切换窗口')}</AltTabTitle>
+          <AltTabTitle>{t('altTab.switchWindow', 'Switch windows')}</AltTabTitle>
           <AltTabItems>
             {windows.map((win, idx) => (
               <AltTabItem

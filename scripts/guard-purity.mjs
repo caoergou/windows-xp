@@ -1,33 +1,33 @@
 /**
- * guard:purity — 引擎纯净性护栏（#143 平台化预备，规则见 AGENTS.md 红线 11/12，
- * 细则见 docs/DEVELOPMENT.md §八）。四项检查：
+ * guard:purity - engine purity guard (#143 platformization prep; rules in AGENTS.md red lines 11/12,
+ * details in docs/DEVELOPMENT.md §8). Four checks:
  *
- *  1. 引擎目录零色值：机制层（context/hooks/utils/events/snapshot）不得出现
- *     颜色字面量——「机制」与「XP 的样子」分层，Phase B 时机制层原样成为引擎。
- *  2. xp.css 只允许入口文件引入：引擎/组件不得直接依赖 XP 皮肤表。
- *  3. 内联 hex 棘轮：src/ 全量内联色值只减不增（存量 ≈ FIDELITY §K STY-03 /
- *     #135 的 token 化欠账）。降到基线以下时按提示下调 HEX_BASELINE。
- *  4. 引擎目录禁止引入主题层（src/themes）：主题在引擎之上选定（#135 主题契约）。
+ *  1. Engine directories must contain zero color values: the mechanism layer (context/hooks/utils/events/snapshot)
+ *     must not contain color literals - "mechanism" and "what XP looks like" are layered, so in Phase B the mechanism layer becomes the engine as-is.
+ *  2. xp.css is only allowed to be imported by entry files: engine/components must not directly depend on the XP skin table.
+ *  3. Inline hex ratchet: total inline color values in src/ only decrease (current stock ~ FIDELITY §K STY-03 /
+ *     #135 tokenization debt). When it drops below the baseline, lower HEX_BASELINE accordingly.
+ *  4. Engine directories must not import the theme layer (src/themes): themes are selected above the engine (#135 theme contract).
  *
- * 计数在剥离注释后进行（issue 引用如 `#116` 常出现在注释里，是主要噪音源）。
+ * Counting is performed after stripping comments (issue references like #116 often appear in comments and are the main noise source).
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-/** src/ 内联 hex 色值存量基线：只许减少。降低后请同步更新此值。 */
-const HEX_BASELINE = 1485; // 2026-07-13：refine-qq QQ 皮肤色板归一（styles.ts 内联 hex 收敛为 C.* 色板引用）后下调；token 化欠账见 #135
+/** src/ inline hex color value stock baseline: only decrease. Update this value after lowering. */
+const HEX_BASELINE = 1485; // 2026-07-13: lowered after refine-qq normalized the QQ skin palette (inline hex in styles.ts converged to C.* palette references); tokenization debt see #135
 
-/** 机制层：必须保持零色值、零 xp.css 依赖的目录/文件。 */
+/** Mechanism layer: directories/files that must keep zero color values and zero xp.css dependencies. */
 const ENGINE_PURE = ['src/context', 'src/hooks', 'src/utils', 'src/events.ts', 'src/snapshot.ts'];
 
 /**
- * hex 棘轮豁免：营销落地页（#160）是构建在引擎之上的**消费层**，自带一套刻意
- * 非 XP Luna 的暗色/青色设计系统（COLORS token 不适用），不计入引擎的 token 化
- * 欠账。棘轮仍治理引擎与组件库代码。
+ * Hex ratchet exemption: the marketing landing page (#160) is a **consumer layer** built on top of the engine,
+ * with its own deliberately non-XP Luna dark/cyan design system (COLORS token does not apply), so it is not counted
+ * toward the engine's tokenization debt. The ratchet still governs engine and component library code.
  */
 const RATCHET_EXCLUDE = ['src/site'];
 
-/** 允许引入 xp.css 的入口文件（皮肤在入口挂载，不在模块内部渗透）。 */
+/** Entry files allowed to import xp.css (skin is mounted at the entry, not leaked inside modules). */
 const XPCSS_ENTRIES = new Set([
   'src/lib/index.tsx',
   // Multi-page site entries (#160) — the old src/main.tsx router was split into these.
@@ -73,14 +73,20 @@ for (const file of walk('src')) {
     if (hexes) {
       if (!isRatchetExcluded) totalHex += hexes.length;
       if (isEnginePure) {
-        failures.push(`引擎目录出现色值 ${posix}:${i + 1} → ${hexes.join(' ')}（红线 11：机制层禁止 XP 皮肤细节）`);
+        failures.push(
+          `引擎目录出现色值 ${posix}:${i + 1} → ${hexes.join(' ')}（红线 11：机制层禁止 XP 皮肤细节）`
+        );
       }
     }
     if (XPCSS_IMPORT_RE.test(line) && !XPCSS_ENTRIES.has(posix)) {
-      failures.push(`非入口文件引入 xp.css ${posix}:${i + 1}（仅允许：${[...XPCSS_ENTRIES].join(', ')}）`);
+      failures.push(
+        `非入口文件引入 xp.css ${posix}:${i + 1}（仅允许：${[...XPCSS_ENTRIES].join(', ')}）`
+      );
     }
     if (isEnginePure && THEMES_IMPORT_RE.test(line)) {
-      failures.push(`引擎目录引入主题层 ${posix}:${i + 1}（红线 11：机制层禁止依赖 src/themes——主题在引擎之上选定）`);
+      failures.push(
+        `引擎目录引入主题层 ${posix}:${i + 1}（红线 11：机制层禁止依赖 src/themes——主题在引擎之上选定）`
+      );
     }
   });
 }
@@ -108,5 +114,7 @@ if (totalHex < HEX_BASELINE) {
       `请把 scripts/guard-purity.mjs 的 HEX_BASELINE 下调到 ${totalHex}，锁住战果。`
   );
 } else {
-  console.log(`guard OK: 引擎目录零色值；xp.css 仅入口引入；内联 hex ${totalHex}/${HEX_BASELINE}。`);
+  console.log(
+    `guard OK: 引擎目录零色值；xp.css 仅入口引入；内联 hex ${totalHex}/${HEX_BASELINE}。`
+  );
 }

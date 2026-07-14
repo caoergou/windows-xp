@@ -1,76 +1,76 @@
 /**
- * QQ Messenger 内容数据模型（#119）。
+ * QQ Messenger content data model (#119).
  *
- * 好友、分组、脚本消息全部来自数据（文化包 / 场景 JSON），组件不硬编码任何
- * 剧情文本 —— 与「内容作者不写 React」的原则一致。回复来源采用与 #148
- * `ChatProvider` 对齐的形状：`reply: { kind: 'script' } | { kind: 'provider' }`，
- * 脚本路径为默认且离线可用。
+ * Buddies, groups, and scripted messages all come from data (culture package / scenario JSON);
+ * components hard-code no story text - consistent with the principle "content authors don't write React".
+ * Reply sources align with the #148 ChatProvider shape: 'reply: { kind: 'script' } | { kind: 'provider' }',
+ * with the script path as the default and offline-safe option.
  */
 
-/** 在线状态。灰度离线是经典 QQ 最强的状态语言。 */
+/** Online status. Grayscale offline is the strongest status language of classic QQ. */
 export type QQStatus = 'online' | 'offline' | 'away' | 'invisible' | 'busy';
 
-/** 一条脚本消息步骤：先等待 `delayMs`，再「正在输入」`typingMs`，然后落字。 */
+/** One scripted message step: wait for delayMs, then "typing" for typingMs, then the text appears. */
 export interface QQScriptStep {
-  /** 本步开始前的等待（毫秒）。 */
+  /** Wait before this step starts, in milliseconds. */
   delayMs?: number;
-  /** 「正在输入…」持续时长（毫秒），营造打字效果。默认按文本长度估算。 */
+  /** Duration of the "typing..." state in milliseconds, creating a typing effect. Defaults to an estimate based on text length. */
   typingMs?: number;
-  /** 消息正文，支持 `[微笑]` / `/wx` 表情码（见 emojiRenderer）。 */
+  /** Message body, supports "[微笑]" / "/wx" emoticon codes (see emojiRenderer). */
   text: string;
 }
 
 /**
- * 好友的回复来源。
- * - `script`：脚本回复，逐条循环播放（默认、离线安全）。
- * - `provider`：交由宿主接入的异步 Provider（#148 ChatProvider），引擎不实现。
+ * Buddy reply source.
+ * - 'script': scripted replies, played in a loop one by one (default, offline-safe).
+ * - 'provider': handed to an async Provider wired by the host (#148 ChatProvider); not implemented by the engine.
  */
 export type QQReply =
   | { kind: 'script'; steps: QQScriptStep[] }
   | { kind: 'provider'; provider: 'chat' };
 
 export interface QQBuddy {
-  /** 唯一标识。 */
+  /** Unique identifier. */
   id: string;
-  /** QQ 号码。 */
+  /** QQ number. */
   number: string;
-  /** 昵称。 */
+  /** Nickname. */
   nickname: string;
-  /** 个性签名（灰色小字，单行截断）。 */
+  /** Personal signature (gray small text, single-line truncation). */
   signature?: string;
-  /** 头像素材编号（`assets/img/avatar/<n>.png`）。 */
+  /** Avatar asset number ('assets/img/avatar/<n>.png'). */
   avatar: number | string;
-  /** 所属分组 id。 */
+  /** Group id the buddy belongs to. */
   group: string;
-  /** 初始在线状态。 */
+  /** Initial online status. */
   status: QQStatus;
-  /** 会员（红名）。 */
+  /** Member (red name). */
   vip?: boolean;
-  /** 业务角标：彩铃 / 手机 QQ / 音乐等。 */
+  /** Service badges: color ring / mobile QQ / music, etc. */
   badges?: Array<'music' | 'ring' | 'mobile'>;
   /**
-   * 登录后延迟多少毫秒「上线」。设置后好友初始离线，到点敲门上线（声音 +
-   * 托盘闪动 + 上线气泡）。省略表示保持 `status` 不变。
+   * How many milliseconds after login to "come online". When set, the buddy starts offline
+   * and knocks online at the scheduled time (sound + tray blink + online balloon). Omitting it keeps status unchanged.
    */
   onlineDelayMs?: number;
-  /** 上线后主动发来的脚本消息序列（带打字停顿）。 */
+  /** Scripted message sequence sent proactively after coming online (with typing pauses). */
   script?: QQScriptStep[];
-  /** 玩家发消息后的回复来源；省略则该好友不自动回复。 */
+  /** Reply source after the player sends a message; omitting it means the buddy does not auto-reply. */
   reply?: QQReply;
 }
 
 export interface QQGroup {
-  /** 唯一标识。 */
+  /** Unique identifier. */
   id: string;
-  /** 分组名。系统分组「陌生人」「黑名单」不显示计数。 */
+  /** Group name. System groups "陌生人" and "黑名单" do not show counts. */
   name: string;
-  /** 是否为系统分组（无计数、不可改名）。 */
+  /** Whether this is a system group (no count, not renamable). */
   system?: boolean;
-  /** 初始是否展开（手风琴）。 */
+  /** Whether initially expanded (accordion). */
   open?: boolean;
 }
 
-/** 「我」的资料（个人横幅）。 */
+/** "My" profile (personal banner). */
 export interface QQMe {
   number: string;
   nickname: string;
@@ -80,8 +80,8 @@ export interface QQMe {
 }
 
 /**
- * 一份 QQ 档案：好友列表 + 分组 + 我的资料。作为文化包字段 `qq` 提供，
- * 也可由宿主经 `XPHandle.qq` 在运行时注入。
+ * A QQ profile: buddy list + groups + my profile. Provided as the culture package field 'qq',
+ * or injected at runtime by the host via 'XPHandle.qq'.
  */
 export interface QQProfile {
   me: QQMe;

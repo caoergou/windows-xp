@@ -8,9 +8,11 @@ interface QQLoginPanelProps {
 }
 
 /**
- * QQ2006 登录表单 —— 真实结构（无验证码）：号码组合框 + 申请号码、密码 +
- * 忘了密码、自动登录 / 隐身登录、高级设置 / 登录 / 取消。渲染在引擎 XP 窗框内，
- * 顶部为原版 47px 品牌横幅 login_banner.png（"QQ®2006 网络新生活，体验新感受!"）。
+ * QQ2006 login form - authentic structure (no CAPTCHA): number combo box +
+ * register number, password + forgot password, auto-login / invisible login,
+ * advanced settings / login / cancel. Rendered inside the engine's XP window
+ * chrome; the top is the original 47px brand banner login_banner.png
+ * ("QQ(R)2006 网络新生活，体验新感受!").
  */
 const QQLoginPanel: React.FC<QQLoginPanelProps> = ({ onLogin }) => {
   const [qqNum, setQqNum] = useState('');

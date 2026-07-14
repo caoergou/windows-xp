@@ -1,10 +1,10 @@
 /**
- * URL ⇆ desktop-state mapping (#136).
+ * URL <-> desktop-state mapping (#136).
  *
- * A deep link addresses a filesystem node by its **key path** — the sequence of
- * node keys from the desktop root, joined with `/` — e.g. `我的文档/readme.txt`.
- * This is the `?open=` value; it is host-router-agnostic and reversible via
- * {@link serializeOpenPath}, which `XPHandle.getShareUrl` uses to build a
+ * A deep link addresses a filesystem node by its **key path** - the sequence of
+ * node keys from the desktop root, joined with '/' - e.g. '我的文档/readme.txt'.
+ * This is the '?open=' value; it is host-router-agnostic and reversible via
+ * {@link serializeOpenPath}, which 'XPHandle.getShareUrl' uses to build a
  * shareable permalink.
  */
 

@@ -7,14 +7,16 @@ import type { RuntimeBuddy } from './qqStore';
 
 interface QQFindDialogProps {
   buddies: RuntimeBuddy[];
-  /** 双击/回车选中一个好友：打开聊天并关闭对话框。 */
+  /** Double-click/Enter selects a buddy: open chat and close the dialog. */
   onOpenChat: (buddyId: string) => void;
   onClose: () => void;
 }
 
 /**
- * 查找联系人对话框（#refine-qq）——底部「查找」按钮 / 主菜单入口触发。按昵称或
- * 号码即时过滤好友，双击（或选中后回车）打开聊天窗口。Portal 到 body、屏幕居中。
+ * Find-contact dialog (#refine-qq) - triggered by the bottom "查找" button /
+ * main-menu entry. Filters buddies instantly by nickname or number;
+ * double-click (or Enter after selection) opens the chat window.
+ * Ported to body, centered on screen.
  */
 const QQFindDialog: React.FC<QQFindDialogProps> = ({ buddies, onOpenChat, onClose }) => {
   const [query, setQuery] = useState('');

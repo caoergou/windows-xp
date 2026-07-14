@@ -10,7 +10,7 @@ import { TrayProvider } from '../src/context/TrayContext';
 /**
  * #121: getFileProperties used to return hardcoded Chinese ("0 字节",
  * "2003年10月25日") that leaked into the FileProperties surface even under
- * `language="en"`. It now returns raw values that the UI localizes, so no
+ * 'language="en"'. It now returns raw values that the UI localizes, so no
  * Chinese should appear in the English locale.
  */
 const renderProps = () =>

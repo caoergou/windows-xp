@@ -99,7 +99,7 @@ export type XPEventBody =
   /** A tray notification balloon was clicked. */
   | { type: 'notification:click'; id: string }
   // ── time: wall-clock & scheduler (#130) ─────────────────────────────────────
-  /** Fired on the top of each hour; `hour` is 0–23 (drives the 整点报时 chime). */
+  /** Fired on the top of each hour; hour is 0-23 (drives the hourly chime). */
   | { type: 'time:hour'; hour: number }
   /** A persisted schedule fired (delay elapsed or its `at` deadline passed, incl. while the page was closed). */
   | { type: 'time:fire'; id: string }
@@ -142,7 +142,7 @@ export type XPEventBody =
   /** The playhead was moved; `position` is the new time in seconds. */
   | { type: 'media:seek'; path?: string; position: number }
   // ── search: in-world search oracle (#134, scenario-layer) ────────────────────
-  /** A query was run against an in-world search engine (a fake 百度/AltaVista); `hit` is whether authored results matched. Emitted by the scenario runtime/app, not the core engine. */
+  /** A query was run against an in-world search engine (a fake Baidu/AltaVista); hit is whether authored results matched. Emitted by the scenario runtime/app, not the core engine. */
   | { type: 'search:query'; query: string; hit: boolean; resultIds?: string[] }
   // ── evidence: clue collection & pinboard (#134, scenario-layer) ──────────────
   /** A term/clue entered the player's word bank (clicked a highlighted term, or granted by the scenario). */

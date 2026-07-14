@@ -106,16 +106,16 @@ export interface WindowsXPProps {
   /** Disable the idle screensaver. */
   disableScreenSaver?: boolean;
   /**
-   * Play the classic hourly chime (整点报时) when the `time:hour` event fires.
-   * Off by default; a culture package can also enable it via `hourlyChime` (#130).
+   * Play the classic hourly chime when the 'time:hour' event fires.
+   * Off by default; a culture package can also enable it via 'hourlyChime' (#130).
    */
   hourlyChime?: boolean;
   /** Inactivity threshold in ms before `user:idle` fires (default 60000, #130). */
   idleThresholdMs?: number;
   /**
-   * Deep link (#136): key path(s) — the `?open=` value(s), e.g.
-   * `'我的文档/readme.txt'` — to open once the desktop is interactive (after
-   * `skipBoot`/`autoLogin`). Invalid paths fail silently to the plain desktop.
+   * Deep link (#136): key path(s) - the '?open=' value(s), e.g.
+   * '我的文档/readme.txt' - to open once the desktop is interactive (after
+   * 'skipBoot'/'autoLogin'). Invalid paths fail silently to the plain desktop.
    */
   openOnLoad?: string | string[];
   /**

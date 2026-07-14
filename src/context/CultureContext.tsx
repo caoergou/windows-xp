@@ -2,17 +2,17 @@ import React, { createContext, useContext, useState, useCallback, useMemo, useEf
 import { CulturePackage, resolveCulture, enCulture, zhCulture } from '../data/culture';
 
 export interface CultureContextType {
-  /** 当前生效的文化包 */
+  /** Currently active culture package */
   culture: CulturePackage;
-  /** 当前文化包 ID */
+  /** Current culture package ID */
   cultureKey: string;
-  /** 所有已注册的文化包 */
+  /** All registered culture packages */
   cultures: CulturePackage[];
-  /** 注册一个新文化包；同 id 会覆盖已有文化包 */
+  /** Register a new culture package; same id overwrites the existing one */
   registerCulture: (pkg: CulturePackage) => void;
-  /** 按 id 切换文化包 */
+  /** Switch culture package by id */
   setCulture: (id: string) => void;
-  /** 按语言自动选择最合适的文化包 */
+  /** Automatically select the best-matching culture package by language */
   setCultureByLang: (lang: string) => void;
 }
 
@@ -48,9 +48,9 @@ const mergeCultures = (userCultures: CulturePackage[]): CulturePackage[] => {
 
 export interface CultureProviderProps {
   children: React.ReactNode;
-  /** 用户自定义文化包，会与默认 en/zh 合并 */
+  /** User-defined culture package, merged with the default en/zh packages */
   cultures?: CulturePackage[];
-  /** 初始语言，用于选择默认文化包 */
+  /** Initial language, used to select the default culture package */
   defaultLanguage?: string;
 }
 

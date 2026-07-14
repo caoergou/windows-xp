@@ -535,7 +535,7 @@ function MsnPage({ onNavigate }: { onNavigate: (url: string) => void }) {
   );
 }
 
-// 4399 小游戏——2000 年代中文互联网的课后回忆（#85 怀旧页）。
+// 4399 mini-games - after-school memories of the 2000s Chinese internet (#85 nostalgia page).
 function Game4399Page() {
   const games = [
     '黄金矿工',
@@ -603,9 +603,9 @@ function Game4399Page() {
   );
 }
 
-// ─── 白名单 ───────────────────────────────────────────────────────────────────
-// 白名单内的 URL 使用自定义渲染，不走 Wayback Machine。
-// 暂时清空；需要恢复时取消下方注释即可。
+// --- Whitelist ----------------------------------------------------------------
+// URLs in the whitelist use custom rendering, not Wayback Machine.
+// Temporarily cleared; uncomment the entries below to restore.
 export const BROWSER_WHITELIST = [
   {
     match: (url: string) => {
@@ -632,8 +632,8 @@ export const BROWSER_WHITELIST = [
   },
 ];
 
-// ─── 黑名单 ───────────────────────────────────────────────────────────────────
-// 黑名单内的域名将被拦截，显示连接失败错误页。
+// --- Blacklist ----------------------------------------------------------------
+// Domains in the blacklist are blocked and show a connection-failure error page.
 export const BROWSER_BLACKLIST = [
   { match: (url: string) => url.includes('google.com'), label: 'www.google.com' },
 ];

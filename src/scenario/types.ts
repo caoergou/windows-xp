@@ -186,9 +186,9 @@ export interface RehearsalStep {
 
 /**
  * A canonical walkthrough the rehearsal/seek engine (#207) replays to jump to
- * any story beat deterministically ("排练模式"). Because triggers and events are
+ * any story beat deterministically ("rehearsal mode"). Because triggers and events are
  * data, replaying a prefix through the headless solver reconstructs the exact
- * state of having played to that beat — so an author tests the finale in a
+ * state of having played to that beat - so an author tests the finale in a
  * second instead of playing ten minutes. Authoring it also gives the solver its
  * regression walkthrough ("CI for stories").
  */

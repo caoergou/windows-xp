@@ -2,7 +2,7 @@ import { CulturePackage } from '../types';
 import { defaultQQProfile } from '../../qq/defaultProfile';
 
 /**
- * 默认中文文化包：2000s 中国网民记忆。
+ * Default Chinese culture package: 2000s Chinese netizen memories.
  */
 export const zhCulture: CulturePackage = {
   id: 'zh',

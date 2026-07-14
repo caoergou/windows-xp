@@ -313,7 +313,7 @@ export const lintPuzzleGraph = (graph: PuzzleGraph): PuzzleGraphReport => {
     return out;
   };
 
-  // Hint ladder (M12 anti-stuck contract). A node is *critical* — a 必经步骤 —
+  // Hint ladder (M12 anti-stuck contract). A node is *critical* - a required step -
   // when it's a `gate` or every ending (a puzzle nothing depends on) transitively
   // requires it. A critical node with no hints can hard-stick the player, so
   // that's an error; an optional/parallel node without hints is only a warning.

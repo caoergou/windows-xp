@@ -779,7 +779,8 @@
       "captchaError": "Incorrect captcha, please try again",
       "loggingIn": "Logging in…",
       "versionTooOld": "Your QQ version is too old to log in.\nPlease download the latest version from the official website."
-    }
+    },
+    "chatTitle": "Chat with {{nickname}}"
   },
   "safeGuard360": {
     "title": "360 Safe Guard",

@@ -2,7 +2,7 @@ import styled, { keyframes } from 'styled-components';
 import { qqUrl } from './assets';
 import { COLORS } from '../../constants';
 
-// 未读消息时好友头像抖动（经典 QQ：头像左右快速摇晃）。
+// Buddy avatar shakes on unread messages (classic QQ: avatar shakes left and right quickly).
 const avatarShake = keyframes`
   0%, 100% { transform: translateX(0); }
   20% { transform: translateX(-2px); }
@@ -12,40 +12,43 @@ const avatarShake = keyframes`
 `;
 
 /**
- * QQ2006 皮肤样式，逐行移植自 mengkunsoft/QQ2006 的原版 CSS（见 assets/NOTICE.md），
- * 仅做一处适配：主面板与聊天窗渲染在**引擎的 XP 窗框内**，故去掉复刻件自绘的
- * 外层圆角标题栏（拖动 / 最小化 / 关闭由引擎窗框提供），保留其余像素级还原的
- * 皮肤图、按钮、布局与配色。
+ * QQ2006 skin styles, ported line-by-line from the original CSS of mengkunsoft/QQ2006
+ * (see assets/NOTICE.md). One adaptation only: the main panel and chat window are rendered
+ * inside the **engine's XP window chrome**, so the reproduction's own rounded title bar is
+ * removed (drag/minimize/close are provided by the engine frame); the rest of the skin
+ * images, buttons, layout, and colors are preserved pixel-for-pixel.
  */
 
 /**
- * xp.css 给所有 <button> 强制 `min-width:75px` + 立体 box-shadow，会把 QQ 的
- * 17/27/16px 图标按钮统统撑成 75px（登录下拉框平铺出多余箭头、好友面板图标错位
- * 缺失）。QQ 的按钮尺寸全部自绘，故在每个根节点内先复位。
+ * xp.css forces min-width:75px + 3D box-shadow on all <button>, which would blow up
+ * QQ's 17/27/16px icon buttons to 75px (login dropdown spreads an extra arrow, buddy
+ * panel icons misalign / disappear). QQ draws all its own button sizes, so reset them
+ * inside each root node first.
  */
 const BTN_RESET = `
   button { min-width: 0; min-height: 0; box-shadow: none; box-sizing: border-box; padding: 0; }
 `;
 
 /**
- * QQ2006 皮肤复用色板。集中定义一次、跨样式引用，既避免字面量重复，也满足
- * #143 内联 hex 棘轮（只减不增）——原本散落的 #fff / #888 / 蓝绿昵称色等在此归一。
+ * QQ2006 skin shared palette. Defined once and referenced across styles, avoiding
+ * repeated literals and satisfying the #143 inline-hex ratchet (only decrease) -
+ * previously scattered #fff / #888 / blue-green nickname colors are normalized here.
  */
 const C = {
   white: '#fff',
   grey: '#888',
-  peerNick: '#210f95', // 对方昵称蓝
-  myNick: '#2d794b', // 自己昵称绿
-  peerNum: '#071E81', // 横幅号码/信息条蓝
-  infoBlue: '#b6d5f5', // 信息条渐变底
-  infoBorder: '#84a6c6', // 信息条下边线
-  hover: '#eaf2ff', // 好友/结果悬停浅蓝
-  closeRed: '#e8110e', // 关闭按钮 hover 红
-  selSub: '#dfe8ff', // 选中项副文本
-  zoneBg: '#f6f6f6', // 个人空间底色
+  peerNick: '#210f95', // Partner nickname blue
+  myNick: '#2d794b', // Self nickname green
+  peerNum: '#071E81', // Banner number / info bar blue
+  infoBlue: '#b6d5f5', // Info bar gradient bottom
+  infoBorder: '#84a6c6', // Info bar bottom border
+  hover: '#eaf2ff', // Buddy / result hover light blue
+  closeRed: '#e8110e', // Close button hover red
+  selSub: '#dfe8ff', // Selected item secondary text
+  zoneBg: '#f6f6f6', // Personal space background color
 };
 
-// 通用按钮（登录框 / 聊天窗 / 主面板共用）—— QQ-CLASSIC-UI §2 通用按钮样式
+// Common buttons (shared by login box / chat window / main panel) - QQ-CLASSIC-UI §2 common button style
 const QQ_BTN = `
   font-size: 12px;
   background: linear-gradient(to bottom, ${C.white}, #9FD4FF);
@@ -58,7 +61,7 @@ const QQ_BTN = `
   &:active { background: linear-gradient(to bottom, #97C5EC, #D2F8FD); }
 `;
 
-// ─── 主面板（好友列表） ──────────────────────────────────────────────────────
+// --- Main panel (buddy list) ------------------------------------------------
 export const PanelRoot = styled.div`
   width: 100%;
   height: 100%;
@@ -82,7 +85,7 @@ export const PanelRoot = styled.div`
     ${QQ_BTN}
   }
 
-  /* 个人信息横幅 44px */
+  /* Personal info banner, 44px */
   .qq-head {
     width: 100%;
     height: 44px;
@@ -165,7 +168,7 @@ export const PanelRoot = styled.div`
     padding-left: 2px;
   }
 
-  /* 主体区 */
+  /* Main body area */
   .qq-body {
     flex: 1;
     position: relative;
@@ -213,7 +216,7 @@ export const PanelRoot = styled.div`
     z-index: 1;
   }
 
-  /* 好友列表盒 */
+  /* Buddy list box */
   .qq-friend-box {
     position: absolute;
     left: 29px;
@@ -257,8 +260,9 @@ export const PanelRoot = styled.div`
     background-image: ${qqUrl('group_open.png')};
   }
 
-  /* 统一的好友条目：头像 40px 与右侧信息块垂直居中；名字/签名各占一行、
-     行高一致、超出省略号，避免因签名有无 / 角标多少造成条目高低不齐。 */
+  /* Unified buddy row: 40px avatar vertically centered with the right info block;
+     name and signature each take one line with consistent line height and ellipsis,
+     so rows stay the same height regardless of signature or badge count. */
   .qq-friend-item {
     display: flex;
     align-items: center;
@@ -336,7 +340,7 @@ export const PanelRoot = styled.div`
     background-image: ${qqUrl('mms-bar/MMSBar_MobileQQ.png')};
   }
 
-  /* 底部工具栏 62px */
+  /* Bottom toolbar, 62px */
   .qq-toolbar {
     height: 62px;
     position: relative;
@@ -420,7 +424,7 @@ export const PanelRoot = styled.div`
   }
 `;
 
-// ─── 登录窗口 ────────────────────────────────────────────────────────────────
+// --- Login window -------------------------------------------------------------
 export const LoginRoot = styled.div`
   width: 100%;
   height: 100%;
@@ -481,7 +485,7 @@ export const LoginRoot = styled.div`
     left: 46px;
     top: 4px;
   }
-  /* 号码组合框：输入框 + 内嵌下拉钮，下拉钮紧贴输入框右内缘（无间隙）。 */
+  /* Number combo box: input field + embedded dropdown button flush against the right inner edge (no gap). */
   .qq-login-num-wrap {
     position: relative;
     width: 150px;
@@ -550,7 +554,7 @@ export const LoginRoot = styled.div`
   }
 `;
 
-// ─── 登录中（窄条窗，与主面板同形） ─────────────────────────────────────────
+// --- Logging in (narrow bar window, same shape as main panel) --------------------------------
 export const LoadingRoot = styled.div`
   width: 100%;
   height: 100%;
@@ -617,7 +621,7 @@ export const LoadingRoot = styled.div`
   }
 `;
 
-// ─── 聊天窗口 ────────────────────────────────────────────────────────────────
+// --- Chat window --------------------------------------------------------------
 export const ChatRoot = styled.div`
   width: 100%;
   height: 100%;
@@ -634,7 +638,7 @@ export const ChatRoot = styled.div`
     ${QQ_BTN}
   }
 
-  /* 大工具条 36px */
+  /* Big toolbar, 36px */
   .qq-im-big-toolbar {
     margin: 4px 4px 0;
     padding-left: 6px;
@@ -780,7 +784,7 @@ export const ChatRoot = styled.div`
     font-style: normal;
   }
 
-  /* 小工具条 20px */
+  /* Small toolbar, 20px */
   .qq-im-chat-toolbar {
     display: flex;
     align-items: center;
@@ -862,7 +866,7 @@ export const ChatRoot = styled.div`
     height: 20px;
   }
 
-  /* 右侧栏 140px */
+  /* Right sidebar, 140px */
   .qq-im-side {
     display: flex;
     flex-direction: column;
@@ -893,7 +897,7 @@ export const ChatRoot = styled.div`
     background-position: 50%;
     background-repeat: no-repeat;
   }
-  /* 单张 QQ 秀素材复用于「对方形象 / 我的形象」两栏（体积预算取舍）。 */
+  /* The same QQ Show asset is reused for both "peer look" and "my look" columns (bundle-size trade-off). */
   .qq-im-show-1 {
     background-image: ${qqUrl('im/show1.gif')};
   }
@@ -915,7 +919,7 @@ export const ChatRoot = styled.div`
     color: red;
   }
 
-  /* 聊天记录查看器：覆盖在消息区之上的历史日志面板（数据取自当前会话线程）。 */
+  /* Chat history viewer: a historical log panel overlaying the message area (data comes from the current conversation thread). */
   .qq-im-history {
     position: absolute;
     inset: 0;
@@ -968,7 +972,7 @@ export const ChatRoot = styled.div`
     padding-top: 20px;
   }
 
-  /* 表情选择面板：小工具条上方弹出的经典黄脸网格。 */
+  /* Emoji picker: classic yellow-face grid popping up above the small toolbar. */
   .qq-emoji-picker {
     position: absolute;
     z-index: 4;
@@ -1001,7 +1005,7 @@ export const ChatRoot = styled.div`
   }
 `;
 
-// ─── QQ 弹出层（关闭对话框 / 查找对话框，Portal 到 body，屏幕居中）──────────────
+// --- QQ popover layer (close dialog / find dialog, portaled to body, centered on screen) -------------
 export const QQModalLayer = styled.div`
   position: fixed;
   inset: 0;
@@ -1082,7 +1086,7 @@ export const QQModalLayer = styled.div`
     padding: 0 16px 14px;
   }
 
-  /* 查找好友对话框 */
+  /* Find-buddy dialog */
   .qq-find-input {
     flex: 1;
     height: 20px;
@@ -1134,7 +1138,7 @@ export const QQModalLayer = styled.div`
   }
 `;
 
-// ─── 好友悬停 tooltip（昵称 / 号码 / 状态 / 签名卡片）──────────────────────────
+// --- Buddy hover tooltip (nickname / number / status / signature card) --------------------------
 export const BuddyTooltip = styled.div`
   position: fixed;
   z-index: 2147483200;

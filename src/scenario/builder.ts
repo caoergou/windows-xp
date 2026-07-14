@@ -1,10 +1,10 @@
 /**
- * Scenario author toolchain — Layer 2: typed fluent builder (PUZZLE-DESIGN §4).
+ * Scenario author toolchain - Layer 2: typed fluent builder (PUZZLE-DESIGN §4).
  *
  * A TypeScript API that compiles to the Layer-1 {@link Scenario} JSON (#84), so
  * developers get autocomplete over the event catalog and compile-time payload
  * checking, while non-programmers keep hand-writing the same JSON. Both audiences
- * share one runtime, one save format, one linter — no dual implementations.
+ * share one runtime, one save format, one linter - no dual implementations.
  *
  *   const s = defineScenario('county-2007')
  *     .initialFlag('act', 1);

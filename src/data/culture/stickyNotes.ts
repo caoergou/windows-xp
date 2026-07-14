@@ -1,7 +1,7 @@
 import { StickyNoteContent } from './types';
 
 /**
- * 桌面便签文化包。
+ * Desktop sticky-note culture package.
  */
 const STICKY_NOTES_BY_LOCALE: Record<string, StickyNoteContent[]> = {
   zh: [

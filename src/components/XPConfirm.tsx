@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { useModalA11y } from '../hooks/useModalA11y';
 
-// ── Styled components（与 XPAlert 保持视觉一致）─────────────────────────────
+// --- Styled components (kept visually consistent with XPAlert) ---------------------------
 
 const Overlay = styled.div`
   position: fixed;

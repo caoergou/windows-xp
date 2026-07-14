@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { login } from './helpers/login';
 
-// `我的文档` (My Documents) holds readme.txt in the built-in filesystem, so a
+// '我的文档' (My Documents) holds readme.txt in the built-in filesystem, so a
 // deep link into that folder proves the addressed Explorer window opened.
 const MY_DOCS = encodeURIComponent('我的文档');
 

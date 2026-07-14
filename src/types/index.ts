@@ -1,5 +1,5 @@
 // ============================================================
-// 通用类型
+// Common types
 // ============================================================
 
 /**
@@ -19,10 +19,10 @@ export type JsonValue =
   | { [key: string]: JsonValue };
 
 // ============================================================
-// 文件系统类型定义
+// Filesystem type definitions
 // ============================================================
 
-/** 照片 EXIF 元数据（用于属性对话框“摘要”页） */
+/** Photo EXIF metadata (used for the "Summary" tab of the Properties dialog) */
 export interface ExifData {
   Model?: string;
   Make?: string;
@@ -33,7 +33,7 @@ export interface ExifData {
   DateTimeOriginal?: string;
 }
 
-/** 基础文件节点 - 所有文件类型的共同属性 */
+/** Base file node - common properties of all file types */
 interface BaseFileNode {
   name: string;
   icon?: string;
@@ -62,31 +62,31 @@ interface BaseFileNode {
    * to the stable XP-era date.
    */
   mtime?: string;
-  /** 指向 EXIF JSON 文件的路径（src/data/photos 下） */
+  /** Path pointing to an EXIF JSON file (under src/data/photos) */
   exifPath?: string;
-  /** 直接内嵌的 EXIF 数据 */
+  /** Directly embedded EXIF data */
   exifData?: ExifData;
 }
 
-/** 根目录节点 */
+/** Root directory node */
 export interface RootNode extends BaseFileNode {
   type: 'root';
   children: Record<string, FileNode>;
 }
 
-/** 文件夹节点 */
+/** Folder node */
 export interface FolderNode extends BaseFileNode {
   type: 'folder';
   children: Record<string, FileNode>;
 }
 
-/** 驱动器节点 */
+/** Drive node */
 export interface DriveNode extends BaseFileNode {
   type: 'drive';
   children: Record<string, FileNode>;
 }
 
-/** 普通文件节点 */
+/** Regular file node */
 export interface FileContentNode extends BaseFileNode {
   type: 'file';
   content?: string;
@@ -95,7 +95,7 @@ export interface FileContentNode extends BaseFileNode {
   description?: string;
 }
 
-/** 应用快捷方式节点 */
+/** Application shortcut node */
 export interface AppShortcutNode extends BaseFileNode {
   type: 'app_shortcut';
   app: string;
@@ -104,9 +104,9 @@ export interface AppShortcutNode extends BaseFileNode {
 }
 
 /**
- * 外部链接节点 (#136) — a desktop/Explorer shortcut that leaves the fiction.
- * Opening it navigates to `href` (a real URL) instead of a desktop window, and
- * emits `link:external`. `newTab` defaults to true (open in a new tab).
+ * External link node (#136) - a desktop/Explorer shortcut that leaves the fiction.
+ * Opening it navigates to href (a real URL) instead of a desktop window, and
+ * emits link:external. newTab defaults to true (open in a new tab).
  */
 export interface ExternalLinkNode extends BaseFileNode {
   type: 'external_link';
@@ -114,7 +114,7 @@ export interface ExternalLinkNode extends BaseFileNode {
   newTab?: boolean;
 }
 
-/** 联合类型 - 所有可能的文件节点 */
+/** Union type - all possible file nodes */
 export type FileNode =
   | RootNode
   | FolderNode
@@ -123,31 +123,31 @@ export type FileNode =
   | AppShortcutNode
   | ExternalLinkNode;
 
-/** 类型守卫 - 判断是否为可包含子节点的节点 */
+/** Type guard - determines whether a node can contain children */
 export function isContainerNode(node: FileNode): node is RootNode | FolderNode | DriveNode {
   return 'children' in node;
 }
 
-/** 类型守卫 - 判断是否为文件节点 */
+/** Type guard - determines whether a node is a file node */
 export function isFileContentNode(node: FileNode): node is FileContentNode {
   return node.type === 'file';
 }
 
-/** 类型守卫 - 判断是否为应用快捷方式节点 */
+/** Type guard - determines whether a node is an application shortcut node */
 export function isAppShortcutNode(node: FileNode): node is AppShortcutNode {
   return node.type === 'app_shortcut';
 }
 
-/** 类型守卫 - 判断是否为外部链接节点 (#136) */
+/** Type guard - determines whether a node is an external link node (#136) */
 export function isExternalLinkNode(node: FileNode): node is ExternalLinkNode {
   return node.type === 'external_link';
 }
 
 // ============================================================
-// 文件系统相关类型
+// Filesystem-related types
 // ============================================================
 
-/** 文件属性（用于属性对话框） */
+/** File properties (used for the Properties dialog) */
 export interface FileProperties {
   name: string;
   type: string;
@@ -162,7 +162,7 @@ export interface FileProperties {
   readOnly: boolean;
 }
 
-/** 搜索结果项 */
+/** Search result item */
 export interface SearchResult {
   path: string[];
   name: string;
@@ -171,10 +171,10 @@ export interface SearchResult {
 }
 
 // ============================================================
-// 窗口管理类型
+// Window management types
 // ============================================================
 
-/** 窗口状态 */
+/** Window state */
 export interface WindowState {
   id: string;
   appId: string;
@@ -201,7 +201,7 @@ export interface WindowState {
   minimizeGuard?: ((defaultMinimize: () => void) => void) | null;
 }
 
-/** 窗口配置属性 */
+/** Window configuration properties */
 export interface WindowProps {
   singleton?: boolean;
   width?: number;
@@ -227,7 +227,7 @@ export interface WindowProps {
 }
 
 // ============================================================
-// 应用注册表类型
+// Application registry types
 // ============================================================
 
 /** App lifecycle callbacks. Runtime-only — never persisted (see AppRegistryEntry). */
@@ -287,25 +287,25 @@ export interface AppRegistryEntry<TProps = unknown> {
 }
 
 // ============================================================
-// 其他类型
+// Other types
 // ============================================================
 
-/** 用户会话 */
+/** User session */
 export interface UserSession {
   isLoggedIn: boolean;
   username: string;
 }
 
-/** 剪贴板项 */
+/** Clipboard item */
 export interface ClipboardItem {
   type: 'cut' | 'copy';
   sourcePath: string[];
   fileName: string;
-  /** 批量操作时包含的全部文件名；fileName 为其中第一项 */
+  /** All file names included in a batch operation; fileName is the first of them */
   fileNames?: string[];
 }
 
-/** 右键菜单项 */
+/** Context menu item */
 export interface MenuItem {
   label?: string;
   type?: 'separator';

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../../hooks/useApp';
 import { useWindowManager } from '../../context/WindowManagerContext';
 import { useTray } from '../../context/TrayContext';
@@ -28,23 +29,29 @@ const SIZE = {
 interface QQClientProps {
   windowId?: string;
   /**
-   * 「版本过低」彩蛋（可配置）。默认关闭 —— 登录成功进入主面板；置 true 时
-   * 登录后弹「版本过低」提示并退回登录框（#119 要求把死胡同降级为配置项）。
+   * "Version too low" easter egg (configurable). Off by default - on login success
+   * the main panel opens; when set to true, a "version too low" prompt pops up
+   * after login and returns to the login box (#119 requested downgrading the dead
+   * end to a configurable option).
    */
   versionEgg?: boolean;
 }
 
 /**
- * QQ 客户端主流程：登录 → 登录中 → 主面板，三个阶段在**同一个窗口内原地变形**
- * （尺寸 / 标题随阶段切换），与真实 QQ 一致。聊天窗口作为同一应用（appId 'QQ'）
- * 的独立窗口打开。本组件同时是「运行时驱动器」：把好友上线 / 收到消息的副作用
- * （声音、托盘闪动、任务栏闪烁、上线气泡、事件派发）接到引擎上下文。
+ * QQ client main flow: login -> logging-in -> main panel, the three phases morph in-place
+ * inside the *same* window (size/title switch with the phase), matching real QQ.
+ * Chat windows open as independent windows of the same app (appId 'QQ').
+ * This component is also the "runtime driver": it wires buddy online / incoming-message
+ * side effects (sound, tray blink, taskbar flash, online balloon, event dispatch)
+ * to the engine contexts.
  *
- * 主面板阶段还接入了经典 QQ 的窗口/托盘行为（#refine-qq）：最小化 → 收进系统托盘
- * （从任务栏消失）；关闭 → 弹「隐藏到托盘 / 退出程序」确认框；托盘右键菜单可切换
- * 在线状态、打开主面板或退出。
+ * The main-panel phase also wires classic QQ window/tray behavior (#refine-qq):
+ * minimize -> collapse to system tray (disappear from taskbar);
+ * close -> show a "Hide to tray / Quit" confirmation dialog;
+ * tray context menu can switch online status, open main panel, or quit.
  */
 const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => {
+  const { t } = useTranslation();
   const api = useApp(windowId);
   const clientWindowId = api.window.id;
   const wm = useWindowManager();
@@ -63,11 +70,11 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   const meStatus = state.me?.status;
   const totalUnread = Object.values(state.unread).reduce((a, b) => a + b, 0);
 
-  // 关闭守卫回调：dialog 选「退出」时用它真正关闭主窗；程序化退出时置 bypass 直接放行。
+  // Close guard callback: the dialog uses this to actually close the main window when "退出" is chosen; programmatic quit sets bypass to skip the guard.
   const forceCloseRef = useRef<(() => void) | null>(null);
   const bypassCloseRef = useRef(false);
 
-  // ── 打开与某好友的聊天窗口（去重：已开则聚焦）────────────────────────────
+  // --- Open a chat window with a buddy (deduplicate: focus if already open) ---------------------------
   const openChat = useCallback((buddyId: string) => {
     const buddy = qqStore.buddy(buddyId);
     if (!buddy) return;
@@ -82,7 +89,7 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
     const chatLeft = Math.max(0, Math.round((screenW - SIZE.chat.w) / 2 - SIZE.panel.w));
     wmRef.current.openWindow(
       'QQ',
-      `与 ${buddy.nickname} 聊天中`,
+      t('qq.chatTitle', { nickname: buddy.nickname }),
       <QQChat buddyId={buddyId} />,
       'qq',
       {
@@ -99,7 +106,7 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   const openChatRef = useRef(openChat);
   openChatRef.current = openChat;
 
-  // ── 退出 QQ：关闭所有聊天窗、重置运行时、放行关闭主窗（绕过关闭守卫）──────
+  // --- Quit QQ: close all chat windows, reset runtime, and allow the main window to close (bypass close guard) ------
   const exitQQ = useCallback(() => {
     wmRef.current.windows
       .filter(w => w.appId === 'QQ' && w.id !== clientWindowId)
@@ -111,7 +118,7 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   const exitQQRef = useRef(exitQQ);
   exitQQRef.current = exitQQ;
 
-  // 点击托盘图标：有未读则打开发信人聊天；否则恢复/聚焦主面板（含从托盘还原）。
+  // Clicking the tray icon: if there are unread messages, open the sender's chat; otherwise restore/focus the main panel (including restoring from tray).
   const activateFromTray = useCallback(() => {
     const s = qqStore.getState();
     const firstUnread = s.buddies.find(b => (s.unread[b.id] ?? 0) > 0);
@@ -124,7 +131,7 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   const activateFromTrayRef = useRef(activateFromTray);
   activateFromTrayRef.current = activateFromTray;
 
-  // 托盘右键菜单：在线状态切换（勾选当前项）+ 打开主面板 + 退出。
+  // Tray right-click menu: online-status switch (check current item) + open main panel + quit.
   const buildTrayMenu = useCallback(
     (status?: QQStatus): MenuItem[] => [
       ...QQ_SELECTABLE_STATUS.map(s => ({
@@ -138,19 +145,19 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
     [clientWindowId]
   );
 
-  // ── 窗口尺寸 / 位置 / 标题随阶段变形 ─────────────────────────────────────
+  // --- Window size / position / title morph with the phase --------------------------------
   useEffect(() => {
     if (phase === 'login') {
       api.window.resize(SIZE.login.w, SIZE.login.h);
       api.window.setTitle('QQ用户登录');
     } else {
-      // 主面板窄长（600px 高）；窗口以固定 top 打开（见注册表）故整体在屏内。
+      // Main panel is tall and narrow (600px high); the window opens at a fixed top (see registry), so it stays on-screen.
       api.window.resize(SIZE.panel.w, SIZE.panel.h);
       api.window.setTitle('QQ2006');
     }
   }, [phase, api]);
 
-  // ── 主面板窗口行为：最小化→收托盘、关闭→确认框（仅主面板阶段生效）──────────
+  // --- Main-panel window behavior: minimize -> tray, close -> confirmation dialog (only active in main-panel phase) ----------
   useEffect(() => {
     if (phase !== 'panel') {
       api.window.setMinimizeGuard(null);
@@ -173,7 +180,7 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
     };
   }, [phase, api]);
 
-  // ── 进入主面板：启动会话 + 注册托盘 + 接入副作用驱动器 ──────────────────
+  // --- Enter main panel: start session + register tray + wire side-effect driver -----------------
   useEffect(() => {
     if (phase !== 'panel') return;
     qqStore.start(profile);
@@ -217,13 +224,13 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
     };
   }, [phase, profile, api, bus, buildTrayMenu]);
 
-  // 「我」的状态变化时刷新托盘右键菜单的勾选。
+  // Refresh the tray right-click menu checkmark when "my" status changes.
   useEffect(() => {
     if (phase !== 'panel') return;
     trayRef.current.update('qq', { contextMenuItems: buildTrayMenu(meStatus) });
   }, [phase, meStatus, buildTrayMenu]);
 
-  // ── 未读时托盘图标闪动（发信人头像 ↔ 透明交替，经典 QQ 行为）──────────
+  // --- Tray icon blinks when unread (sender avatar <-> transparent alternation, classic QQ behavior) ----------
   useEffect(() => {
     if (phase !== 'panel' || totalUnread === 0) return;
     const firstUnread = state.buddies.find(b => (state.unread[b.id] ?? 0) > 0);
@@ -241,7 +248,7 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
 
   const handleLogin = useCallback(() => {
     setPhase('loading');
-    // 登录中：约 1.8s 后进入主面板（或触发版本彩蛋）。
+    // Logging in: enter the main panel after ~1.8s (or trigger the version easter egg).
     window.setTimeout(async () => {
       if (versionEgg) {
         api.sound.play('error');

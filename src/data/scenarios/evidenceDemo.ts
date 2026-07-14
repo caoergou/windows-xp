@@ -1,7 +1,7 @@
 /**
  * Reference Evidence Board content (#219). A small pool of clues from the 序章
- * fiction. Open with `ref.openApp('EvidenceBoard', demoEvidence)`; a scenario can
- * then gate on `linked('diary', 'chatlog')` etc.
+ * fiction. Open with 'ref.openApp('EvidenceBoard', demoEvidence)'; a scenario can
+ * then gate on 'linked('diary', 'chatlog')' etc.
  */
 import type { EvidenceBoardProps } from '../../apps/EvidenceBoard';
 
