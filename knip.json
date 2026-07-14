@@ -10,6 +10,7 @@
     "src/demo/en-main.tsx",
     "src/demo/zh-main.tsx",
     "src/gallery/gallery-main.tsx",
+    "src/site/lab-main.tsx",
     "vite.xp-css-scope.ts",
     "test/**/*.{ts,tsx}",
     "e2e/**/*.ts",
