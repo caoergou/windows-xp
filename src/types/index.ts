@@ -1,3 +1,5 @@
+import type { ContentRef } from '../content/types';
+
 // ============================================================
 // Common types
 // ============================================================
@@ -90,6 +92,15 @@ export interface DriveNode extends BaseFileNode {
 export interface FileContentNode extends BaseFileNode {
   type: 'file';
   content?: string;
+  /**
+   * A reference to the file's body (#241) — a host asset URL or a content-pack
+   * asset key — for content too large to inline (a fake webpage, a long letter,
+   * media). Mutually exclusive with `content`: `content` is the inline fast
+   * path, `contentRef` moves the body out of the scenario JSON. Resolved lazily
+   * via the content resolver (`src/content/resolver.ts`); prefer `content` for
+   * short bodies. See {@link ContentRef}.
+   */
+  contentRef?: ContentRef;
   app?: string;
   readOnly?: boolean;
   description?: string;
