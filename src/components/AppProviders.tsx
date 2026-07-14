@@ -20,6 +20,9 @@ import { FileNode, AppRegistryEntry } from '../types';
 import { CulturePackage, filterByLocale } from '../data/culture';
 import { EventBusProvider } from '../context/EventBusContext';
 import { StorageProvider } from '../context/StorageContext';
+import { ContentPackProvider } from '../context/ContentPackContext';
+import { mergeContentPacks, mergeFsFragments } from '../content/pack';
+import type { ContentPack } from '../content/types';
 import { SchedulerProvider } from '../context/SchedulerContext';
 import { XPEventBridge, XPImperativeApi, type XPHandle } from './XPBridge';
 import { ScenarioRunner } from './ScenarioRunner';
@@ -90,6 +93,13 @@ export interface AppProvidersProps {
   login?: LoginBranding;
   /** Declarative scenario/story script — triggers, flags, gated actions (#84). */
   scenario?: Scenario;
+  /**
+   * Content packs (#241): bundles of authorized IE sites, a `customFileSystem`
+   * fragment, an asset manifest, and per-culture string tables. Mounted into the
+   * instance — pack files merge into the filesystem (under an explicit
+   * `customFileSystem`), and authorized sites become available to IE.
+   */
+  contentPacks?: ContentPack[];
   /** Guided lessons (#141) — data-driven tutorials, driven via `startLesson`. */
   lessons?: Lesson[];
   /**
@@ -134,9 +144,22 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   scenario,
   lessons,
   devtools,
+  contentPacks,
 }) => {
   // Configure storage namespace synchronously before any context reads/writes storage.
   setStoragePrefix(storagePrefix || 'xp_');
+
+  // Content packs (#241): merge their filesystem fragments under the host's
+  // explicit customFileSystem (which wins on leaf collisions); sites/assets/
+  // strings/resolver ride the ContentPackProvider below.
+  const packFiles = useMemo(() => mergeContentPacks(contentPacks ?? []).files, [contentPacks]);
+  const mergedCustomFileSystem = useMemo(
+    () =>
+      Object.keys(packFiles).length
+        ? mergeFsFragments(packFiles, customFileSystem ?? {})
+        : customFileSystem,
+    [packFiles, customFileSystem]
+  );
 
   // One event bus per desktop instance (#76).
   const busRef = useMemo(() => new XPEventBus(), []);
@@ -198,66 +221,68 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   // User-provided customFileSystem takes precedence over the culture package
   return (
     <StorageProvider prefix={storagePrefix || 'xp_'} persistence={persistence}>
-      <EventBusProvider bus={busRef}>
-        <XPEventBridge onEvent={onEvent} />
-        <SchedulerProvider
-          hourlyChime={hourlyChime ?? culture.hourlyChime}
-          idleThresholdMs={idleThresholdMs}
-        >
-          <UserSessionProvider
-            username={username}
-            password={password}
-            autoLogin={autoLogin}
-            avatar={avatar}
-            wallpapers={wallpapers}
-            defaultWallpaper={defaultWallpaper ?? culture.wallpaper}
+      <ContentPackProvider packs={contentPacks}>
+        <EventBusProvider bus={busRef}>
+          <XPEventBridge onEvent={onEvent} />
+          <SchedulerProvider
+            hourlyChime={hourlyChime ?? culture.hourlyChime}
+            idleThresholdMs={idleThresholdMs}
           >
-            <FileSystemProvider
-              customFileSystem={customFileSystem}
-              cultureFileSystem={culturalShortcuts}
-              cultureKey={cultureKey}
-              fileSystemMode={fileSystemMode}
+            <UserSessionProvider
+              username={username}
+              password={password}
+              autoLogin={autoLogin}
+              avatar={avatar}
+              wallpapers={wallpapers}
+              defaultWallpaper={defaultWallpaper ?? culture.wallpaper}
             >
-              <WindowManagerProvider registry={registry}>
-                <MarkdownProvider options={markdown}>
-                  <KeymapProvider keymap={keymap} disableGlobalShortcuts={disableGlobalShortcuts}>
-                    <TrayProvider>
-                      <ModalProvider>
-                        <NotesProvider>
-                          <LessonProvider lessons={lessons}>
-                            <XPImperativeApi ref={handleRef} storagePrefix={storagePrefix} />
-                            <ScenarioRunner scenario={scenario} />
-                            {devtools && (
-                              <React.Suspense fallback={null}>
-                                <DevToolsPanel scenario={scenario} />
-                              </React.Suspense>
-                            )}
-                            <DeepLinkLoader
-                              open={openOnLoad}
-                              routes={routes}
-                              location={location}
-                              historyIntegration={historyIntegration}
-                            />
-                            <App
-                              initialLanguage={language}
-                              skipBoot={skipBoot}
-                              disableContextMenuBlock={disableContextMenuBlock}
-                              disableDevToolsBlock={disableDevToolsBlock}
-                              disableScreenSaver={disableScreenSaver}
-                              boot={boot}
-                              login={login}
-                            />
-                          </LessonProvider>
-                        </NotesProvider>
-                      </ModalProvider>
-                    </TrayProvider>
-                  </KeymapProvider>
-                </MarkdownProvider>
-              </WindowManagerProvider>
-            </FileSystemProvider>
-          </UserSessionProvider>
-        </SchedulerProvider>
-      </EventBusProvider>
+              <FileSystemProvider
+                customFileSystem={mergedCustomFileSystem}
+                cultureFileSystem={culturalShortcuts}
+                cultureKey={cultureKey}
+                fileSystemMode={fileSystemMode}
+              >
+                <WindowManagerProvider registry={registry}>
+                  <MarkdownProvider options={markdown}>
+                    <KeymapProvider keymap={keymap} disableGlobalShortcuts={disableGlobalShortcuts}>
+                      <TrayProvider>
+                        <ModalProvider>
+                          <NotesProvider>
+                            <LessonProvider lessons={lessons}>
+                              <XPImperativeApi ref={handleRef} storagePrefix={storagePrefix} />
+                              <ScenarioRunner scenario={scenario} />
+                              {devtools && (
+                                <React.Suspense fallback={null}>
+                                  <DevToolsPanel scenario={scenario} />
+                                </React.Suspense>
+                              )}
+                              <DeepLinkLoader
+                                open={openOnLoad}
+                                routes={routes}
+                                location={location}
+                                historyIntegration={historyIntegration}
+                              />
+                              <App
+                                initialLanguage={language}
+                                skipBoot={skipBoot}
+                                disableContextMenuBlock={disableContextMenuBlock}
+                                disableDevToolsBlock={disableDevToolsBlock}
+                                disableScreenSaver={disableScreenSaver}
+                                boot={boot}
+                                login={login}
+                              />
+                            </LessonProvider>
+                          </NotesProvider>
+                        </ModalProvider>
+                      </TrayProvider>
+                    </KeymapProvider>
+                  </MarkdownProvider>
+                </WindowManagerProvider>
+              </FileSystemProvider>
+            </UserSessionProvider>
+          </SchedulerProvider>
+        </EventBusProvider>
+      </ContentPackProvider>
     </StorageProvider>
   );
 };

@@ -9,6 +9,7 @@ import type { WallpaperItem } from '../data/wallpapers';
 import type { XPEventListener } from '../events';
 import type { XPHandle } from '../components/XPBridge';
 import type { Scenario } from '../scenario/types';
+import type { ContentPack } from '../content/types';
 import type { Lesson } from '../lesson/types';
 import type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 import '../i18n';
@@ -150,6 +151,16 @@ export interface WindowsXPProps {
    */
   scenario?: Scenario;
   /**
+   * Content packs (#241): the top-level unit of an official game's content
+   * repository. Each pack bundles authorized IE sites (a fake webpage the
+   * player can "visit"), a `customFileSystem` fragment, an asset manifest for
+   * portable file references, and per-culture string tables. Pack files merge
+   * into the filesystem (an explicit `customFileSystem` wins on collisions) and
+   * authorized sites become available to Internet Explorer. See
+   * `docs/SCENARIO-PATTERNS.md`.
+   */
+  contentPacks?: ContentPack[];
+  /**
    * Guided lessons (#141): data-driven Watch/Try/Do tutorials. Register them
    * here, then start one via the `startLesson(id, mode)` ref handle. Steps
    * advance on real, event-verified actions; `lesson:*` events report progress.
@@ -215,6 +226,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     boot,
     login,
     scenario,
+    contentPacks,
     lessons,
     devtools,
     onEvent,
@@ -248,6 +260,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       boot={boot}
       login={login}
       scenario={scenario}
+      contentPacks={contentPacks}
       lessons={lessons}
       devtools={devtools}
       onEvent={onEvent}
@@ -348,8 +361,11 @@ export {
   buildSiteRegistry,
   lookupSite,
   mergeContentPacks,
+  mergeFsFragments,
 } from '../content/pack';
 export type { MountedContent } from '../content/pack';
+export { ContentPackProvider, useContentPacks } from '../context/ContentPackContext';
+export type { ContentPackContextValue } from '../context/ContentPackContext';
 export type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 export type { FileSystemMode } from '../context/FileSystemContext';
 export type { PersistenceMode } from '../utils/storage';
