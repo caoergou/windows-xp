@@ -11,7 +11,7 @@
  */
 import type { XPEventType } from '../events';
 import { all, count, flag, not, notify, setFlag } from './builder';
-import type { Action, Condition, FlagValue, Scenario, Trigger } from './types';
+import type { Action, Condition, FlagValue, RehearsalPlan, Scenario, Trigger } from './types';
 import type { ScenarioStrings } from './strings';
 
 /**
@@ -111,6 +111,8 @@ export interface PuzzleGraph {
   puzzles: PuzzleNode[];
   /** Per-locale beat-text tables (#207), passed through to the compiled scenario. */
   strings?: ScenarioStrings;
+  /** Canonical walkthrough for rehearsal/seek + solver CI (#207), passed through. */
+  rehearsal?: RehearsalPlan;
 }
 
 /** The flag a solved puzzle sets (and that dependents gate on). */
@@ -189,6 +191,7 @@ export const compilePuzzleGraph = (graph: PuzzleGraph): Scenario => {
     id: graph.id,
     ...(graph.initialFlags ? { initialFlags: graph.initialFlags } : {}),
     ...(graph.strings ? { strings: graph.strings } : {}),
+    ...(graph.rehearsal ? { rehearsal: graph.rehearsal } : {}),
     triggers: [...triggers, ...hintTriggers],
   };
 };

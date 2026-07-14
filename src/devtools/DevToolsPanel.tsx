@@ -22,8 +22,13 @@ import { useStorage } from '../context/StorageContext';
 import type { Scenario } from '../scenario/types';
 import type { ConditionTrace } from '../scenario/trace';
 import { subscribeTrace, type EvalReport, type SkipReason } from './traceChannel';
+import {
+  subscribeRehearsalState,
+  getRehearsalController,
+  type RehearsalState,
+} from './rehearsalChannel';
 
-type Tab = 'triggers' | 'flags';
+type Tab = 'triggers' | 'flags' | 'rehearsal';
 
 const Panel = styled.div<{ $collapsed: boolean }>`
   position: fixed;
@@ -183,17 +188,52 @@ export interface DevToolsPanelProps {
 
 const CAP_REPORTS = 60;
 
+// Seek-bar controls (#207). min-width reset so xp.css doesn't balloon them.
+const SeekBtn = styled.button<{ $active?: boolean }>`
+  min-width: 0;
+  padding: 2px 8px;
+  margin: 0 3px 3px 0;
+  font-family: Tahoma, sans-serif;
+  font-size: 11px;
+  border: 1px solid ${COLORS.BUTTON_SHADOW};
+  border-radius: 3px;
+  cursor: pointer;
+  background: ${p => (p.$active ? COLORS.MENU_HIGHLIGHT : COLORS.BUTTON_FACE)};
+  color: ${p => (p.$active ? 'white' : 'black')};
+  font-weight: ${p => (p.$active ? 'bold' : 'normal')};
+  &:disabled {
+    color: gray;
+    cursor: default;
+  }
+`;
+
 const DevToolsPanel: React.FC<DevToolsPanelProps> = ({ scenario }) => {
   const storage = useStorage();
   const [tab, setTab] = useState<Tab>('triggers');
   const [collapsed, setCollapsed] = useState(false);
   const [reports, setReports] = useState<EvalReport[]>([]);
+  const [rehearsal, setRehearsal] = useState<RehearsalState>({
+    active: false,
+    index: -1,
+    length: 0,
+    beats: [],
+  });
 
   useEffect(() => {
     return subscribeTrace(storage.prefix, report =>
       setReports(prev => [...prev.slice(-(CAP_REPORTS - 1)), report])
     );
   }, [storage.prefix]);
+
+  // Rehearsal cursor (#207): seed from the registered controller, then track
+  // live updates the runner publishes after each seek.
+  useEffect(() => {
+    const seed = getRehearsalController(storage.prefix)?.getState();
+    if (seed) setRehearsal(seed);
+    return subscribeRehearsalState(storage.prefix, setRehearsal);
+  }, [storage.prefix, scenario]);
+
+  const seek = () => getRehearsalController(storage.prefix);
 
   const latest = reports[reports.length - 1];
   const flags = latest?.flags ?? {};
@@ -230,6 +270,13 @@ const DevToolsPanel: React.FC<DevToolsPanelProps> = ({ scenario }) => {
               onClick={() => setTab('flags')}
             >
               Flags
+            </TabBtn>
+            <TabBtn
+              $active={tab === 'rehearsal'}
+              data-testid="devtools-tab-rehearsal"
+              onClick={() => setTab('rehearsal')}
+            >
+              Rehearsal
             </TabBtn>
           </Tabs>
 
@@ -286,6 +333,62 @@ const DevToolsPanel: React.FC<DevToolsPanelProps> = ({ scenario }) => {
                     ))}
                   </tbody>
                 </Table>
+              ))}
+
+            {tab === 'rehearsal' &&
+              (rehearsal.length === 0 ? (
+                <Empty>
+                  {scenario
+                    ? 'This scenario declares no `rehearsal.walkthrough` — nothing to seek.'
+                    : 'No scenario running.'}
+                </Empty>
+              ) : (
+                <div data-testid="devtools-rehearsal">
+                  <div style={{ color: 'gray', marginBottom: 6 }}>
+                    {rehearsal.active ? (
+                      <>
+                        Rehearsing — step <b>{rehearsal.index + 1}</b> / {rehearsal.length}
+                      </>
+                    ) : (
+                      <>Live save. Pick a beat to jump to its exact state.</>
+                    )}
+                  </div>
+                  <div style={{ marginBottom: 6 }}>
+                    {rehearsal.beats.map(b => (
+                      <SeekBtn
+                        key={b.beat}
+                        data-testid={`devtools-seek-${b.beat}`}
+                        $active={rehearsal.active && rehearsal.index === b.index}
+                        onClick={() => seek()?.seekTo(b.beat)}
+                      >
+                        {b.beat}
+                      </SeekBtn>
+                    ))}
+                  </div>
+                  <div>
+                    <SeekBtn
+                      data-testid="devtools-seek-back"
+                      disabled={!rehearsal.active || rehearsal.index < 0}
+                      onClick={() => seek()?.stepBack()}
+                    >
+                      ◀ Back
+                    </SeekBtn>
+                    <SeekBtn
+                      data-testid="devtools-seek-forward"
+                      disabled={rehearsal.index >= rehearsal.length - 1}
+                      onClick={() => seek()?.stepForward()}
+                    >
+                      Forward ▶
+                    </SeekBtn>
+                    <SeekBtn
+                      data-testid="devtools-seek-exit"
+                      disabled={!rehearsal.active}
+                      onClick={() => seek()?.exitRehearsal()}
+                    >
+                      Exit
+                    </SeekBtn>
+                  </div>
+                </div>
               ))}
           </Body>
         </>

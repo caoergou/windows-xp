@@ -26,23 +26,25 @@ const EVENTS_MD = join(ROOT, 'docs-site', 'guide', 'events.md');
 const START = '<!-- EVENTS:START -->';
 const END = '<!-- EVENTS:END -->';
 
-/** Extract the `export type XPEvent = …` block (up to the next declaration). */
-const extractUnionBlock = (src) => {
-  const start = src.indexOf('export type XPEvent =');
-  if (start === -1) throw new Error('XPEvent union not found in src/events.ts');
+/** Extract the `export type XPEventBody = …` union block (up to the next declaration). */
+const extractUnionBlock = src => {
+  const start = src.indexOf('export type XPEventBody =');
+  if (start === -1) throw new Error('XPEventBody union not found in src/events.ts');
   // Members contain their own `;`, so terminate at the next top-level
-  // declaration (`export type XPEventType …`) rather than the first semicolon.
-  const end = src.indexOf('export type XPEventType', start);
+  // declaration (`export type XPEvent = XPEventBody & …`) rather than the first
+  // semicolon. The `rehearsal` meta field (#207) lives on XPEvent, not in the
+  // catalog, so it is intentionally excluded from the generated table.
+  const end = src.indexOf('export type XPEvent =', start);
   return src.slice(start, end === -1 ? undefined : end);
 };
 
 /** Payload fields of a member object literal, minus the `type` discriminant. */
-const parsePayload = (objBody) => {
+const parsePayload = objBody => {
   return objBody
     .split(';')
-    .map((s) => s.trim())
+    .map(s => s.trim())
     .filter(Boolean)
-    .map((field) => {
+    .map(field => {
       const m = field.match(/^([A-Za-z0-9_]+)(\??)\s*:/);
       if (!m) return null;
       if (m[1] === 'type') return null;
@@ -51,7 +53,7 @@ const parsePayload = (objBody) => {
     .filter(Boolean);
 };
 
-const parseEvents = (block) => {
+const parseEvents = block => {
   const lines = block.split('\n');
   const events = [];
   let pendingDoc = null;
@@ -111,14 +113,14 @@ const DOMAIN_TITLES = {
   link: 'Outbound links',
 };
 
-const renderTable = (events) => {
+const renderTable = events => {
   const out = [];
   out.push(START);
   out.push('');
   out.push('| Event | Payload | Description |');
   out.push('| --- | --- | --- |');
   for (const e of events) {
-    const payload = e.payload.length ? e.payload.map((p) => `\`${p}\``).join(', ') : '—';
+    const payload = e.payload.length ? e.payload.map(p => `\`${p}\``).join(', ') : '—';
     const doc = e.doc.replace(/\|/g, '\\|');
     out.push(`| \`${e.type}\` | ${payload} | ${doc} |`);
   }
@@ -133,9 +135,11 @@ const src = readFileSync(EVENTS_TS, 'utf8');
 const events = parseEvents(extractUnionBlock(src));
 if (events.length === 0) throw new Error('No events parsed — check the union format');
 // Surface any member missing a description so the table never ships blank cells.
-const undocumented = events.filter((e) => !e.doc);
+const undocumented = events.filter(e => !e.doc);
 if (undocumented.length) {
-  console.error('Events missing a JSDoc description:\n  ' + undocumented.map((e) => e.type).join('\n  '));
+  console.error(
+    'Events missing a JSDoc description:\n  ' + undocumented.map(e => e.type).join('\n  ')
+  );
   process.exit(1);
 }
 

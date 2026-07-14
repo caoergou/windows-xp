@@ -24,6 +24,7 @@ import type { QQProfile } from '../data/qq/types';
 import { SCENARIO_FLAGS_KEY } from './ScenarioRunner';
 import { useLesson } from '../context/LessonContext';
 import type { LessonMode } from '../lesson/types';
+import { getRehearsalController, type RehearsalState } from '../devtools/rehearsalChannel';
 
 /** Filesystem actuation from outside the desktop (#115). Paths are absolute. */
 export interface XPFsApi {
@@ -93,6 +94,28 @@ export interface XPQQApi {
 }
 
 /**
+ * Rehearsal / deterministic seek (#207) — the author's iteration-loop unlock.
+ * Replays the scenario's canonical walkthrough prefix through the headless
+ * solver to jump to any beat's exact state in a second, without replaying events
+ * onto the bus (so no external side effects). Requires the scenario to declare a
+ * `rehearsal.walkthrough`; the methods no-op / return false otherwise.
+ */
+export interface XPScenarioApi {
+  /** Jump to a named beat's state. Returns false if the beat / walkthrough is unknown. */
+  seekTo: (beat: string) => boolean;
+  /** Jump to a tape index (clamped; −1 = pristine start). */
+  seekToIndex: (index: number) => void;
+  /** Step one beat back (re-solve the shorter prefix). */
+  stepBack: () => void;
+  /** Step one beat forward. */
+  stepForward: () => void;
+  /** Leave rehearsal and restore the pre-rehearsal live save. */
+  exitRehearsal: () => void;
+  /** The current rehearsal cursor (active flag, index, tape length, named beats). */
+  getState: () => RehearsalState;
+}
+
+/**
  * Imperative handle exposed via `ref` on <WindowsXP/> (#76, extended in #115):
  * lets the host drive the desktop programmatically (demos, tests, scenario
  * scripting). The five original top-level methods are kept for backward
@@ -152,6 +175,8 @@ export interface XPHandle {
   startLesson: (lessonId: string, mode?: LessonMode) => boolean;
   /** Stop the running lesson and clear its saved progress (#141). */
   stopLesson: () => void;
+  /** Rehearsal / deterministic seek over the scenario's walkthrough (#207). */
+  scenario: XPScenarioApi;
   /** Capture the full desktop state as a portable, versioned snapshot (#117). */
   getSnapshot: () => XPSnapshot;
   /**
@@ -168,7 +193,13 @@ export const XPEventBridge: React.FC<{ onEvent?: XPEventListener }> = ({ onEvent
   ref.current = onEvent;
   useEffect(() => {
     if (!ref.current) return undefined;
-    return bus.subscribe(event => ref.current?.(event));
+    // Rehearsal/seek events (#207) are engine-internal provenance: never surface
+    // them to the host, so fast-forwarding to a beat can't fire external side
+    // effects or pollute host analytics (the observer-effect guard).
+    return bus.subscribe(event => {
+      if (event.rehearsal) return;
+      ref.current?.(event);
+    });
   }, [bus]);
   return null;
 };
@@ -387,6 +418,21 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
 
         startLesson: (lessonId, lessonMode) => startLesson(lessonId, lessonMode),
         stopLesson,
+
+        scenario: {
+          seekTo: beat => getRehearsalController(storage.prefix)?.seekTo(beat) ?? false,
+          seekToIndex: index => getRehearsalController(storage.prefix)?.seekToIndex(index),
+          stepBack: () => getRehearsalController(storage.prefix)?.stepBack(),
+          stepForward: () => getRehearsalController(storage.prefix)?.stepForward(),
+          exitRehearsal: () => getRehearsalController(storage.prefix)?.exitRehearsal(),
+          getState: () =>
+            getRehearsalController(storage.prefix)?.getState() ?? {
+              active: false,
+              index: -1,
+              length: 0,
+              beats: [],
+            },
+        },
 
         getSnapshot: (): XPSnapshot => {
           const openWindows = decodeOpenWindows(storage.local.getItem(storage.key('open_windows')));

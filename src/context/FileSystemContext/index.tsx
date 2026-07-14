@@ -176,6 +176,12 @@ interface FileSystemContextType {
     tree: { root: FileNode },
     recycleBin: Record<string, RecycleBinItem>
   ) => Promise<void>;
+  /**
+   * Replace the live tree in memory (state + persist) WITHOUT a reload (#207).
+   * Unlike {@link loadFsSnapshot}, this re-renders synchronously — the rehearsal
+   * engine uses it to restore the baseline filesystem when seeking backward.
+   */
+  applyFsSnapshotInMemory: (tree: { root: FileNode }) => void;
   uploadTextFile: (parentPath: string[], fileName: string, content: string) => void;
   downloadTextFile: (path: string[], fileName: string) => void;
 }
@@ -656,6 +662,17 @@ export const FileSystemProvider: React.FC<{
     [storage]
   );
 
+  // In-memory tree replacement for rehearsal/seek (#207): re-render now, persist,
+  // no reload. A deep clone keeps the caller's baseline immutable across seeks.
+  const applyFsSnapshotInMemory = useCallback(
+    (tree: { root: FileNode }) => {
+      const cloned = JSON.parse(JSON.stringify(tree)) as { root: FileNode };
+      setFs(cloned);
+      doPersistFs(cloned);
+    },
+    [doPersistFs]
+  );
+
   const uploadTextFile = useCallback(
     (parentPath: string[], fileName: string, content: string) => {
       fileOperations.createFile(parentPath, fileName, 'file', { content, app: 'Notepad' });
@@ -707,6 +724,7 @@ export const FileSystemProvider: React.FC<{
     getFsSnapshot,
     getRecycleBinItems,
     loadFsSnapshot,
+    applyFsSnapshotInMemory,
     uploadTextFile,
     downloadTextFile,
   };
