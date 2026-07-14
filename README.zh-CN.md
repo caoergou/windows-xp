@@ -113,7 +113,8 @@ function App() {
 
 ```jsx
 import { useRef } from 'react';
-import { WindowsXP, defineApp } from '@caoergou/windows-xp';
+import { WindowsXP } from '@caoergou/windows-xp';
+import { defineApp } from '@caoergou/windows-xp/registry';
 import '@caoergou/windows-xp/style.css';
 import type { XPHandle } from '@caoergou/windows-xp';
 
