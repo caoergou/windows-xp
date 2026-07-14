@@ -71,7 +71,7 @@ function App() {
 | `screensaver:stop`      | —                                  | 屏幕保护程序被解除。                                                                                                                                   |
 | `notification:show`     | `id`, `title`, `body?`             | 托盘通知气泡被显示。                                                                                                                                   |
 | `notification:click`    | `id`                               | 托盘通知气泡被点击。                                                                                                                                   |
-| `time:hour`             | `hour`                             | 在每个整点触发；`hour` 为 0–23（驱动整点报时铃声）。                                                                                                   |
+| `time:hour`             | `hour`                             | 在每个整点触发；hour 为 0-23（驱动整点报时铃声）。                                                                                                     |
 | `time:fire`             | `id`                               | 一个定时任务（schedule）被触发（延迟已耗尽或其 `at` 截止时间已过，包括在页面关闭期间）。                                                               |
 | `user:idle`             | `idleMs`                           | 用户已连续不活跃达到空闲阈值；`idleMs` 即为该阈值。                                                                                                    |
 | `user:active`           | —                                  | 用户在空闲后恢复活动。                                                                                                                                 |
@@ -90,7 +90,7 @@ function App() {
 | `media:pause`           | `path?`                            | 媒体播放被暂停。                                                                                                                                       |
 | `media:ended`           | `path?`                            | 媒体播放到达曲目末尾。                                                                                                                                 |
 | `media:seek`            | `path?`, `position`                | 播放头被移动；`position` 为新的播放时间（秒）。                                                                                                        |
-| `search:query`          | `query`, `hit`, `resultIds?`       | 对虚构世界中的搜索引擎执行了一次查询（伪造的百度/AltaVista）；`hit` 表示是否有创作结果匹配。由场景运行时/应用发出，而非核心引擎。                      |
+| `search:query`          | `query`, `hit`, `resultIds?`       | 对虚构世界中的搜索引擎执行了一次查询（伪造的 Baidu/AltaVista）；hit 表示是否有创作结果匹配。由场景运行时/应用发出，而非核心引擎。                      |
 | `evidence:collect`      | `termId`, `source?`                | 一个术语/线索进入玩家的词库（点击了高亮术语，或由场景授予）。                                                                                          |
 | `evidence:pin`          | `itemId`                           | 一个条目被固定到证据板。                                                                                                                               |
 | `evidence:link`         | `sourceId`, `targetId`             | 两个已固定条目在证据板上被关联。                                                                                                                       |
