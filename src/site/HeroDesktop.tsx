@@ -43,7 +43,7 @@ const HERO_FS: Record<string, FileNode> = {
       'the millennium Chinese internet (QQ, 360, Thunder) or the Western one ' +
       '(Winamp, Norton, MSN).',
   },
-  '中文桌面': {
+  中文桌面: {
     type: 'external_link',
     name: '中文桌面',
     href: 'demo/zh/',

@@ -15,8 +15,7 @@ const HeroDesktop = React.lazy(() => import('./HeroDesktop'));
  */
 
 const prefersReducedMotion = () =>
-  typeof window !== 'undefined' &&
-  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 const isSmallViewport = () =>
   typeof window !== 'undefined' && window.matchMedia?.('(max-width: 520px)').matches;
@@ -46,8 +45,7 @@ const Page = styled.main`
   font-family: 'Trebuchet MS', Tahoma, 'Microsoft YaHei', sans-serif;
   color: #e8eef7;
   background:
-    radial-gradient(900px 520px at 50% 32%, rgba(38, 90, 187, 0.2) 0%, transparent 65%),
-    #07090f;
+    radial-gradient(900px 520px at 50% 32%, rgba(38, 90, 187, 0.2) 0%, transparent 65%), #07090f;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -107,7 +105,9 @@ const Screen = styled.div`
   border-radius: 6px;
   overflow: hidden;
   background: #000;
-  box-shadow: 0 0 0 2px #0a0a0a, 0 0 30px rgba(0, 0, 0, 0.6) inset;
+  box-shadow:
+    0 0 0 2px #0a0a0a,
+    0 0 30px rgba(0, 0, 0, 0.6) inset;
 `;
 
 // One-time CRT power-on blink: a bright horizontal beam that snaps open.
@@ -186,7 +186,9 @@ const InstallPill = styled.button`
   font-size: 13.5px;
   padding: 9px 14px;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
   &:hover {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(143, 180, 240, 0.5);

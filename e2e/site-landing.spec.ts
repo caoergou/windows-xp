@@ -33,7 +33,9 @@ test.describe('Landing page (#250)', () => {
 
   test('desktop shortcuts inside the hero navigate to the demos', async ({ page }) => {
     await page.goto('./');
-    await expect(page.locator('[data-xp-anchor="notepad.textarea"]')).toBeVisible({ timeout: 8000 });
+    await expect(page.locator('[data-xp-anchor="notepad.textarea"]')).toBeVisible({
+      timeout: 8000,
+    });
 
     const shortcut = page.locator('[data-english-testid="desktop-icon-English Desktop"]');
     await expect(shortcut).toBeVisible();
