@@ -28,7 +28,8 @@ function App() {
 密码 `forthe2000s`）→ 桌面。
 
 ::: tip 更多内容
+中文文档：[让桌面成为你的（含把它当博客用）](/zh/guide/content)。
 英文文档更完整：[Props 参考](/guide/props)、
-[内容与编剧](/guide/content)、[事件与命令式控制](/guide/events)、
-[嵌入宿主应用](/guide/embedding)。中文页面正逐页迁移中。
+[事件与命令式控制](/guide/events)、[嵌入宿主应用](/guide/embedding)。
+中文页面正逐页迁移中。
 :::
