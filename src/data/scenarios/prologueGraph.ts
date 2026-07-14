@@ -20,6 +20,33 @@ import { addFile, eventMatch, happened, notify } from '../../scenario/builder';
 
 export const prologueGraph: PuzzleGraph = {
   id: 'prologue-graph-2005',
+  // Canonical walkthrough (#207): the deterministic path through the four
+  // puzzles, with named beats. Doubles as the solver's regression input and the
+  // rehearsal engine's seek tape — `seekTo('finale')` replays this to the end.
+  rehearsal: {
+    walkthrough: [
+      { event: { type: 'session:boot-complete' }, beat: 'intro' },
+      {
+        event: {
+          type: 'file:open',
+          path: ['写给未来的信.txt'],
+          name: '写给未来的信.txt',
+          nodeType: 'file',
+        },
+        beat: 'letter',
+      },
+      {
+        event: {
+          type: 'file:open',
+          path: ['聊天记录.txt'],
+          name: '聊天记录.txt',
+          nodeType: 'file',
+        },
+        beat: 'chat',
+      },
+      { event: { type: 'file:unlock', name: 'WINDOWS' }, beat: 'finale' },
+    ],
+  },
   strings: {
     zh: {
       'intro.title': '还记得吗？',

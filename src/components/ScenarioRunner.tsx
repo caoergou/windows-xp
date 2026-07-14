@@ -33,6 +33,13 @@ import { useCulture } from '../context/CultureContext';
 import { appendJournal, evaluateCondition, matchOn, type EvalContext } from '../scenario/engine';
 import { validateScenario } from '../scenario/validate';
 import { pickText } from '../scenario/strings';
+import {
+  buildTape,
+  beatIndex,
+  seekResult,
+  fsTreeToSolveNodes,
+  type RehearsalTape,
+} from '../scenario/rehearsal';
 import { traceCondition, type ConditionTrace } from '../scenario/trace';
 import {
   hasTraceListeners,
@@ -41,6 +48,12 @@ import {
   type SkipReason,
   type TriggerReport,
 } from '../devtools/traceChannel';
+import {
+  registerRehearsalController,
+  publishRehearsalState,
+  type RehearsalController,
+  type RehearsalState,
+} from '../devtools/rehearsalChannel';
 import type { Action, FlagValue, Scenario } from '../scenario/types';
 
 /** In-memory + persisted progress for one running scenario. */
@@ -76,7 +89,16 @@ const JOURNAL_CAP = 500;
 
 export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) => {
   const bus = useXPEventBus();
-  const { getFile, createFile, deleteFile, deleteFolder, updateFile, unlockNode } = useFileSystem();
+  const {
+    getFile,
+    createFile,
+    deleteFile,
+    deleteFolder,
+    updateFile,
+    unlockNode,
+    getFsSnapshot,
+    applyFsSnapshotInMemory,
+  } = useFileSystem();
   const { notify } = useTray();
   const { schedule } = useScheduler();
   const { dialog } = useModal();
@@ -396,6 +418,175 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
       });
     }
   };
+
+  // ── Rehearsal / deterministic seek (#207) ────────────────────────────────
+  // The walkthrough tape (built once per scenario id) and the rehearsal cursor.
+  const tapeRef = useRef<{ id: string; tape: RehearsalTape } | null>(null);
+  if (scenario && tapeRef.current?.id !== scenario.id) {
+    tapeRef.current = { id: scenario.id, tape: buildTape(scenario.rehearsal) };
+  }
+  // Non-null while rehearsing: the baseline FS + the live save to restore on exit.
+  const rehearsalRef = useRef<{
+    baselineFs: { root: FileNode };
+    saved: ScenarioState;
+    index: number;
+  } | null>(null);
+
+  // A ref-backed controller so we register once but always call the latest
+  // closures (mirrors handlerRef). Rebuilt every render.
+  const seekRef = useRef<RehearsalController>({
+    seekTo: () => false,
+    seekToIndex: () => {},
+    stepBack: () => {},
+    stepForward: () => {},
+    exitRehearsal: () => {},
+    getState: () => ({ active: false, index: -1, length: 0, beats: [] }),
+  });
+  seekRef.current = (() => {
+    const persistAll = () => {
+      const st = stateRef.current;
+      if (!st) return;
+      const keys = stateKeys(storage.key);
+      (['flags', 'journal', 'fires', 'pending'] as const).forEach(f => {
+        try {
+          storage.local.setItem(keys[f], JSON.stringify(st[f]));
+        } catch (e) {
+          console.warn(`[windows-xp] rehearsal: failed to persist ${f}`, e);
+        }
+      });
+    };
+
+    // Replay only the filesystem-shaped actions of a solved prefix onto the live
+    // desktop; observation actions (notify/qq/sound/…) are intentionally skipped
+    // — that is how seeking avoids the observer effect.
+    const applyFsAction = (action: Action) => {
+      if ('unlock' in action) {
+        unlockNode(action.unlock);
+      } else if ('addFile' in action) {
+        const { path, node = {} } = action.addFile;
+        const name = path[path.length - 1];
+        if (!name) return;
+        const {
+          type = 'file',
+          name: _n,
+          ...rest
+        } = node as Partial<FileNode> & { type?: 'file' | 'folder' };
+        void _n;
+        if (action.addFile.contentKey) {
+          (rest as { content?: string }).content = pickText(
+            scenario?.strings,
+            cultureKey,
+            undefined,
+            action.addFile.contentKey
+          );
+        }
+        createFile(path.slice(0, -1), name, type, rest);
+      } else if ('writeFile' in action) {
+        updateFile(action.writeFile.path, { content: action.writeFile.content });
+      } else if ('removeFile' in action) {
+        const name = action.removeFile[action.removeFile.length - 1];
+        if (!name) return;
+        const parent = action.removeFile.slice(0, -1);
+        const node = getFile(action.removeFile);
+        if (node && isContainerNode(node)) deleteFolder(parent, name);
+        else deleteFile(parent, name);
+      }
+    };
+
+    const currentTape = (): RehearsalTape => tapeRef.current?.tape ?? { events: [], beats: {} };
+
+    const getState = (): RehearsalState => {
+      const tape = currentTape();
+      const beats = Object.entries(tape.beats)
+        .map(([beat, index]) => ({ beat, index }))
+        .sort((a, b) => a.index - b.index);
+      return {
+        active: rehearsalRef.current !== null,
+        index: rehearsalRef.current?.index ?? -1,
+        length: tape.events.length,
+        beats,
+      };
+    };
+
+    const publishState = () => publishRehearsalState(storage.prefix, getState());
+
+    const enterRehearsal = () => {
+      const st = stateRef.current;
+      if (rehearsalRef.current || !st) return;
+      rehearsalRef.current = {
+        baselineFs: getFsSnapshot(),
+        saved: {
+          flags: { ...st.flags },
+          journal: st.journal.slice(),
+          fires: { ...st.fires },
+          pending: { ...st.pending },
+        },
+        index: -1,
+      };
+    };
+
+    const seekToIndex = (index: number) => {
+      const st = stateRef.current;
+      const tape = tapeRef.current?.tape;
+      if (!st || !tape || !scenario) return;
+      enterRehearsal();
+      const baseFs = rehearsalRef.current!.baselineFs;
+      const seek = seekResult(scenario, tape, index, fsTreeToSolveNodes(baseFs.root));
+      // Install the deterministic engine state.
+      st.flags = { ...seek.flags };
+      st.journal = seek.journal;
+      st.fires = { ...seek.fired };
+      st.pending = {};
+      persistAll();
+      // Rebuild the live FS: restore the baseline, then replay the prefix's FS
+      // actions in order (forward or backward seeks both rebuild from baseline).
+      applyFsSnapshotInMemory(baseFs);
+      seek.actions.forEach(applyFsAction);
+      rehearsalRef.current!.index = seek.index;
+      publishState();
+    };
+
+    return {
+      seekTo: (beat: string) => {
+        const idx = beatIndex(currentTape(), beat);
+        if (idx < 0) return false;
+        seekToIndex(idx);
+        return true;
+      },
+      seekToIndex,
+      stepBack: () => seekToIndex((rehearsalRef.current?.index ?? -1) - 1),
+      stepForward: () => seekToIndex((rehearsalRef.current?.index ?? -1) + 1),
+      exitRehearsal: () => {
+        const r = rehearsalRef.current;
+        const st = stateRef.current;
+        if (!r || !st) return;
+        st.flags = r.saved.flags;
+        st.journal = r.saved.journal;
+        st.fires = r.saved.fires;
+        st.pending = r.saved.pending;
+        persistAll();
+        applyFsSnapshotInMemory(r.baselineFs);
+        rehearsalRef.current = null;
+        publishState();
+      },
+      getState,
+    };
+  })();
+
+  // Register the controller once per scenario/instance; the stable wrapper
+  // always dispatches to the latest ref-backed closures.
+  useEffect(() => {
+    if (!scenario) return undefined;
+    const stable: RehearsalController = {
+      seekTo: b => seekRef.current.seekTo(b),
+      seekToIndex: i => seekRef.current.seekToIndex(i),
+      stepBack: () => seekRef.current.stepBack(),
+      stepForward: () => seekRef.current.stepForward(),
+      exitRehearsal: () => seekRef.current.exitRehearsal(),
+      getState: () => seekRef.current.getState(),
+    };
+    return registerRehearsalController(storage.prefix, stable);
+  }, [scenario, storage.prefix]);
 
   // On (re)start, stamp the scenario id and persist the seeded flags so a fresh
   // save is snapshot-visible even before the first mutating action.

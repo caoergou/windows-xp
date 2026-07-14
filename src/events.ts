@@ -17,7 +17,7 @@
  *     in `docs/EVENTS.md`;
  *   • run `npm run docs:events` after adding or changing an event, or CI fails.
  */
-export type XPEvent =
+export type XPEventBody =
   // ── app / window: application & window lifecycle ────────────────────────────
   /** An application window was opened. */
   | { type: 'app:launch'; appId: string; windowId: string; title: string }
@@ -184,6 +184,16 @@ export type XPEvent =
   // ── link: outbound navigation (#136) ────────────────────────────────────────
   /** The visitor followed a link out of the fiction to an external URL — the conversion signal campaigns measure. `newTab` is whether it opened in a new tab; `source` is the originating window id or file path, when known. */
   | { type: 'link:external'; url: string; newTab: boolean; source?: string };
+
+/**
+ * The engine's event type. {@link XPEventBody} is the payload union; the optional
+ * `rehearsal` marker (#207) is stamped by the seek/rehearsal engine on events it
+ * replays into the journal. The `onEvent` host bridge drops rehearsal events, so
+ * fast-forwarding to a beat never fires external side effects or pollutes host
+ * analytics — while the engine's own `happened`/`count` predicates still see
+ * them (gating stays correct). Real gameplay never sets it.
+ */
+export type XPEvent = XPEventBody & { rehearsal?: boolean };
 
 export type XPEventType = XPEvent['type'];
 export type XPEventListener = (event: XPEvent) => void;

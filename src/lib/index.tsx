@@ -392,6 +392,18 @@ export type {
   PuzzleGraphReport,
 } from '../scenario/puzzleGraph';
 export { prologueGraph, prologueGraphScenario } from '../data/scenarios/prologueGraph';
+// Rehearsal / deterministic seek (#207): pure seek logic + the DevTools channel
+// the seek bar consumes. Drive it imperatively via `ref.current.scenario.*`.
+export { buildTape, beatIndex, seekResult, fsTreeToSolveNodes } from '../scenario/rehearsal';
+export type { RehearsalTape, SeekResult } from '../scenario/rehearsal';
+export type { RehearsalPlan, RehearsalStep } from '../scenario/types';
+export type { XPScenarioApi } from '../components/XPBridge';
+export { subscribeRehearsalState, getRehearsalController } from '../devtools/rehearsalChannel';
+export type {
+  RehearsalState,
+  RehearsalBeat,
+  RehearsalController,
+} from '../devtools/rehearsalChannel';
 // Scenario / event DevTools (#209): the `devtools` prop mounts the panel, or a
 // host can mount it directly and read the same trace channel.
 export { default as DevToolsPanel } from '../devtools/DevToolsPanel';

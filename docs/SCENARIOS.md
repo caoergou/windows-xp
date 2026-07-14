@@ -24,7 +24,7 @@ A scenario is passed as the `scenario` prop:
 import { WindowsXP } from '@caoergou/windows-xp';
 import prologue from './prologue.scenario.json';
 
-<WindowsXP scenario={prologue} autoLogin />
+<WindowsXP scenario={prologue} autoLogin />;
 ```
 
 The whole object is JSON-serializable, so it can equally live in a `.json` file
@@ -49,24 +49,24 @@ Everything a scenario does composes from three ideas:
 
 ### `Scenario`
 
-| Field | Type | Meaning |
-| --- | --- | --- |
-| `id` | `string` | Stable id. Namespaces all persisted progress; **changing it resets the save**. |
-| `initialFlags` | `Record<string, boolean\|number\|string>` | Flags seeded before any trigger runs. Optional. |
-| `triggers` | `Trigger[]` | The rulebook. |
+| Field          | Type                                      | Meaning                                                                        |
+| -------------- | ----------------------------------------- | ------------------------------------------------------------------------------ |
+| `id`           | `string`                                  | Stable id. Namespaces all persisted progress; **changing it resets the save**. |
+| `initialFlags` | `Record<string, boolean\|number\|string>` | Flags seeded before any trigger runs. Optional.                                |
+| `triggers`     | `Trigger[]`                               | The rulebook.                                                                  |
 
 ### `Trigger`
 
 A rule of the shape `{ on, when?, do }`.
 
-| Field | Type | Meaning |
-| --- | --- | --- |
-| `id` | `string?` | Stable id — used for `once`/`max` bookkeeping and debugging. |
-| `on` | `XPEventType \| XPEventType[]` | Event type(s) this trigger listens for. |
-| `when` | `Condition?` | Guard. Actions run only when it evaluates true. Omit = always. |
-| `do` | `Action[]` | Actions to run, in order. |
-| `once` | `boolean?` | Fire at most once for the lifetime of the save. Default `false`. |
-| `max` | `number?` | Fire at most this many times (see [semantics](#once--max)). |
+| Field  | Type                           | Meaning                                                          |
+| ------ | ------------------------------ | ---------------------------------------------------------------- |
+| `id`   | `string?`                      | Stable id — used for `once`/`max` bookkeeping and debugging.     |
+| `on`   | `XPEventType \| XPEventType[]` | Event type(s) this trigger listens for.                          |
+| `when` | `Condition?`                   | Guard. Actions run only when it evaluates true. Omit = always.   |
+| `do`   | `Action[]`                     | Actions to run, in order.                                        |
+| `once` | `boolean?`                     | Fire at most once for the lifetime of the save. Default `false`. |
+| `max`  | `number?`                      | Fire at most this many times (see [semantics](#once--max)).      |
 
 #### Triggering on progress: `on: 'flag:change'` (#207)
 
@@ -75,8 +75,11 @@ itself, not only a user action. When `setFlag`/`incFlag` changes a flag to a new
 value, the runtime emits `flag:change { flag, value }`; a trigger listens with:
 
 ```json
-{ "on": "flag:change", "when": { "event": { "flag": "have_key" } },
-  "do": [{ "notify": { "title": "You can open the door now." } }] }
+{
+  "on": "flag:change",
+  "when": { "event": { "flag": "have_key" } },
+  "do": [{ "notify": { "title": "You can open the door now." } }]
+}
 ```
 
 The synthetic event's payload is the changed `flag` and its new `value`, matched
@@ -98,20 +101,20 @@ flags for order-independent rulebooks.
 A composable predicate tree. Leaves read flags, the triggering event's payload,
 the persisted event journal, and the filesystem.
 
-| Shape | Holds when |
-| --- | --- |
-| `{ all: Condition[] }` | Every child holds (AND). |
-| `{ any: Condition[] }` | At least one child holds (OR). |
-| `{ not: Condition }` | The child does not hold (NOT). |
-| `{ flag, eq?, gte?, lte? }` | Flag test. No comparator ⇒ truthiness; `eq` ⇒ equality; `gte`/`lte` ⇒ numeric compare. |
-| `{ event: { field: value, … } }` | Every listed field equals the **triggering** event's field (deep-equal for arrays like `path`). |
-| `{ happened: { type, match? } }` | An event of `type` matching `match` has **ever** happened (event journal). |
-| `{ count: { type, match? }, gte?, lte?, eq? }` | Journal count of matching events compared with `gte`/`lte`/`eq`. |
-| `{ exists: string[] }` | A filesystem node exists at that path. |
-| `{ unlocked: string[] }` | The node at that path exists and is **not** locked. |
-| `{ contentContains: { path, contains } }` | The text file at `path` contains the `contains` substring. |
-| `{ pinned: string }` | The evidence item is currently on the board (net `evidence:pin` > `evidence:unpin` in the journal). |
-| `{ linked: { a, b } }` | Items `a` and `b` are linked and both still pinned (order-insensitive). |
+| Shape                                          | Holds when                                                                                          |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `{ all: Condition[] }`                         | Every child holds (AND).                                                                            |
+| `{ any: Condition[] }`                         | At least one child holds (OR).                                                                      |
+| `{ not: Condition }`                           | The child does not hold (NOT).                                                                      |
+| `{ flag, eq?, gte?, lte? }`                    | Flag test. No comparator ⇒ truthiness; `eq` ⇒ equality; `gte`/`lte` ⇒ numeric compare.              |
+| `{ event: { field: value, … } }`               | Every listed field equals the **triggering** event's field (deep-equal for arrays like `path`).     |
+| `{ happened: { type, match? } }`               | An event of `type` matching `match` has **ever** happened (event journal).                          |
+| `{ count: { type, match? }, gte?, lte?, eq? }` | Journal count of matching events compared with `gte`/`lte`/`eq`.                                    |
+| `{ exists: string[] }`                         | A filesystem node exists at that path.                                                              |
+| `{ unlocked: string[] }`                       | The node at that path exists and is **not** locked.                                                 |
+| `{ contentContains: { path, contains } }`      | The text file at `path` contains the `contains` substring.                                          |
+| `{ pinned: string }`                           | The evidence item is currently on the board (net `evidence:pin` > `evidence:unpin` in the journal). |
+| `{ linked: { a, b } }`                         | Items `a` and `b` are linked and both still pinned (order-insensitive).                             |
 
 Paths are `string[]` — the sequence of node keys from the desktop root, e.g.
 `["我的电脑", "本地磁盘 (D:)", "游戏", "聊天记录.txt"]`.
@@ -120,33 +123,33 @@ Paths are `string[]` — the sequence of node keys from the desktop root, e.g.
 
 Each action maps to a shipped actuation primitive.
 
-| Shape | Effect |
-| --- | --- |
-| `{ setFlag, value? }` | Set a flag (default `true`). |
-| `{ incFlag, by? }` | Increment a numeric flag by `by` (default 1); missing/non-number treated as 0. |
-| `{ unlock: string[] }` | Clear a node's `locked` flag — the "door opens" beat. |
-| `{ addFile: { path, node? } }` | Create a file/folder node at `path`. |
-| `{ removeFile: string[] }` | Delete the node at `path`. |
-| `{ writeFile: { path, content } }` | Overwrite a text file's content. |
-| `{ notify: { title, body?, icon?, timeout?, anchorId? } }` | Pop an XP tray balloon. |
-| `{ qqMessage: { buddyId, text } }` | Deliver an incoming QQ message from a buddy. |
-| `{ qqOnline: string }` | Bring a QQ buddy online (knock + tray blink + balloon). |
-| `{ openApp: { appId, props? } }` | Open a registered app by id. |
-| `{ openFile: string[] }` | Open a filesystem node by absolute path. |
-| `{ playSound: string }` | Play a named XP system sound. |
-| `{ emit: XPEvent }` | Inject an event onto the bus — visible to `onEvent` and other triggers. |
-| `{ alert: { title, message } }` | Show a modal alert dialog. |
-| `{ note: { id, content, title?, x?, y?, color? } }` | Pin or update a desktop sticky note (upsert by `id`) — the cheapest narration channel. `color`: `yellow`\|`blue`\|`pink`\|`green`. |
-| `{ removeNote: string }` | Remove a desktop sticky note by id. |
-| `{ after: { ms, do: Action[] } }` | Run nested actions after `ms` ([delayed actions](#delayed-actions)). |
+| Shape                                                      | Effect                                                                                                                             |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `{ setFlag, value? }`                                      | Set a flag (default `true`).                                                                                                       |
+| `{ incFlag, by? }`                                         | Increment a numeric flag by `by` (default 1); missing/non-number treated as 0.                                                     |
+| `{ unlock: string[] }`                                     | Clear a node's `locked` flag — the "door opens" beat.                                                                              |
+| `{ addFile: { path, node? } }`                             | Create a file/folder node at `path`.                                                                                               |
+| `{ removeFile: string[] }`                                 | Delete the node at `path`.                                                                                                         |
+| `{ writeFile: { path, content } }`                         | Overwrite a text file's content.                                                                                                   |
+| `{ notify: { title, body?, icon?, timeout?, anchorId? } }` | Pop an XP tray balloon.                                                                                                            |
+| `{ qqMessage: { buddyId, text } }`                         | Deliver an incoming QQ message from a buddy.                                                                                       |
+| `{ qqOnline: string }`                                     | Bring a QQ buddy online (knock + tray blink + balloon).                                                                            |
+| `{ openApp: { appId, props? } }`                           | Open a registered app by id.                                                                                                       |
+| `{ openFile: string[] }`                                   | Open a filesystem node by absolute path.                                                                                           |
+| `{ playSound: string }`                                    | Play a named XP system sound.                                                                                                      |
+| `{ emit: XPEvent }`                                        | Inject an event onto the bus — visible to `onEvent` and other triggers.                                                            |
+| `{ alert: { title, message } }`                            | Show a modal alert dialog.                                                                                                         |
+| `{ note: { id, content, title?, x?, y?, color? } }`        | Pin or update a desktop sticky note (upsert by `id`) — the cheapest narration channel. `color`: `yellow`\|`blue`\|`pink`\|`green`. |
+| `{ removeNote: string }`                                   | Remove a desktop sticky note by id.                                                                                                |
+| `{ after: { ms, do: Action[] } }`                          | Run nested actions after `ms` ([delayed actions](#delayed-actions)).                                                               |
 
 > These are the only fields the schema defines. Do not invent others — an
 > unknown key is authoring drift, not a feature.
 
 ## Localizing beat text: string tables (#207)
 
-A scenario's *logic* (triggers, puzzle graph) is culture-neutral, but its *beat
-text* — balloon titles, QQ lines, note bodies — is not. Keep them apart: put the
+A scenario's _logic_ (triggers, puzzle graph) is culture-neutral, but its _beat
+text_ — balloon titles, QQ lines, note bodies — is not. Keep them apart: put the
 text in a per-locale `strings` table and reference it by key.
 
 ```jsonc
@@ -154,12 +157,14 @@ text in a per-locale `strings` table and reference it by key.
   "id": "county-2007",
   "strings": {
     "zh": { "intro.title": "还记得吗？", "intro.body": "看看桌面上的便签。" },
-    "en": { "intro.title": "Remember?",  "intro.body": "Check the desktop note." }
+    "en": { "intro.title": "Remember?", "intro.body": "Check the desktop note." },
   },
   "triggers": [
-    { "on": "session:boot-complete",
-      "do": [{ "notify": { "titleKey": "intro.title", "bodyKey": "intro.body" } }] }
-  ]
+    {
+      "on": "session:boot-complete",
+      "do": [{ "notify": { "titleKey": "intro.title", "bodyKey": "intro.body" } }],
+    },
+  ],
 }
 ```
 
@@ -177,7 +182,7 @@ validator nudges you (one summary warning) to extract the rest, and flags a
 
 ## Event-history predicates: `happened` & `count`
 
-`when` normally reads the *triggering* event (via `event`), but a scenario often
+`when` normally reads the _triggering_ event (via `event`), but a scenario often
 needs to gate on the **past**. The runtime keeps a bounded, persisted journal of
 events, and two predicates read it:
 
@@ -232,12 +237,12 @@ few seconds later:
 The runtime persists progress through the per-instance storage handle, keyed
 canonically and namespaced by the instance's `storagePrefix`:
 
-| Key | Holds |
-| --- | --- |
-| `scenario_flags` | Current flag values. |
+| Key                | Holds                                               |
+| ------------------ | --------------------------------------------------- |
+| `scenario_flags`   | Current flag values.                                |
 | `scenario_journal` | The bounded event journal (for `happened`/`count`). |
-| `scenario_fires` | Per-trigger fire counts (for `once`/`max`). |
-| `scenario_pending` | Pending delayed actions (`after`). |
+| `scenario_fires`   | Per-trigger fire counts (for `once`/`max`).         |
+| `scenario_pending` | Pending delayed actions (`after`).                  |
 
 - **Reset on id change.** All scenario progress is wiped when `scenario.id`
   changes — that is the signal for "a new story starts fresh." Keep `id` stable
@@ -271,16 +276,22 @@ online and nudges the player, and a flag records the beat.
     {
       "id": "crystal-knocks",
       "on": "file:unlock",
-      "when": { "all": [
-        { "flag": "readLog" },
-        { "unlocked": ["我的电脑", "本地磁盘 (C:)", "WINDOWS"] }
-      ] },
+      "when": {
+        "all": [{ "flag": "readLog" }, { "unlocked": ["我的电脑", "本地磁盘 (C:)", "WINDOWS"] }]
+      },
       "once": true,
       "do": [
         { "qqOnline": "crystal" },
-        { "after": { "ms": 3000, "do": [
-          { "qqMessage": { "buddyId": "crystal", "text": "找到啦？记得把迅雷下好的电影拷给我~" } }
-        ] } },
+        {
+          "after": {
+            "ms": 3000,
+            "do": [
+              {
+                "qqMessage": { "buddyId": "crystal", "text": "找到啦？记得把迅雷下好的电影拷给我~" }
+              }
+            ]
+          }
+        },
         { "setFlag": "chapter", "value": "act1" }
       ]
     }
@@ -316,12 +327,12 @@ import { defineScenario, not, flag, setFlag, after, ms, qqOnline } from '@caoerg
 
 const s = defineScenario('county-2007').initialFlag('act', 1);
 
-s.on('file:open', { name: '日记.txt' })   // `match` becomes an implicit event condition
+s.on('file:open', { name: '日记.txt' }) // `match` becomes an implicit event condition
   .when(not(flag('act2')))
   .once()
   .do(setFlag('readDiary'), after(ms('3s'), qqOnline('crystal')));
 
-export default s.build();   // → the Layer-1 Scenario JSON
+export default s.build(); // → the Layer-1 Scenario JSON
 ```
 
 Condition helpers: `all` / `any` / `not` / `flag` / `eventMatch` / `happened` /
@@ -339,12 +350,16 @@ feed the walkthrough, assert the ending.
 ```ts
 import { solveScenario, ranAction } from '@caoergou/windows-xp';
 
-const r = solveScenario(scenario, [
-  { type: 'file:open', path: ['D:', '日记.txt'], name: '日记.txt', nodeType: 'file' },
-  { type: 'file:unlock', name: '私人' },
-], { fs: [{ path: ['D:', '私人'], locked: true }] });
+const r = solveScenario(
+  scenario,
+  [
+    { type: 'file:open', path: ['D:', '日记.txt'], name: '日记.txt', nodeType: 'file' },
+    { type: 'file:unlock', name: '私人' },
+  ],
+  { fs: [{ path: ['D:', '私人'], locked: true }] }
+);
 
-expect(r.flags.solved).toBe(true);      // ending reached
+expect(r.flags.solved).toBe(true); // ending reached
 expect(ranAction(r, 'unlock')).toBe(true);
 ```
 
@@ -357,7 +372,7 @@ capped by `maxEvents`). Seed FS-gated puzzles with the `fs` option.
 
 ### Layer 3 — the Puzzle Dependency Graph
 
-Ron Gilbert's Puzzle Dependency Charts as the *authoring model*. Declare puzzle
+Ron Gilbert's Puzzle Dependency Charts as the _authoring model_. Declare puzzle
 nodes with `requires` / `solvedWhen` / `grants`; `compilePuzzleGraph` derives the
 Layer-1 triggers (each puzzle → a fire-once trigger gated on its prerequisites'
 `solved:<id>` flags + its `solvedWhen`, whose actions set its own solved flag and
@@ -369,16 +384,24 @@ import { compilePuzzleGraph, lintPuzzleGraph, scenarioHelpers as h } from '@caoe
 const graph = {
   id: 'county-2007',
   puzzles: [
-    { id: 'read-diary', on: 'file:open', solvedWhen: h.eventMatch({ name: '日记.txt' }),
-      hints: [{ afterMs: 600000, text: 'hint.diary.1' }] },
-    { id: 'unlock-folder', requires: ['read-diary'], gate: true,
-      solvedWhen: h.happened('file:unlock', { name: '私人' }),   // `on` derived from `happened`
+    {
+      id: 'read-diary',
+      on: 'file:open',
+      solvedWhen: h.eventMatch({ name: '日记.txt' }),
+      hints: [{ afterMs: 600000, text: 'hint.diary.1' }],
+    },
+    {
+      id: 'unlock-folder',
+      requires: ['read-diary'],
+      gate: true,
+      solvedWhen: h.happened('file:unlock', { name: '私人' }), // `on` derived from `happened`
       grants: [h.unlock(['我的电脑', '本地磁盘 (D:)', '私人'])],
-      hints: [{ text: 'hint.folder.1' }, { text: 'hint.folder.2' }] },
+      hints: [{ text: 'hint.folder.1' }, { text: 'hint.folder.2' }],
+    },
   ],
 };
 
-const scenario = compilePuzzleGraph(graph);   // → the Layer-1 Scenario; pass as the `scenario` prop
+const scenario = compilePuzzleGraph(graph); // → the Layer-1 Scenario; pass as the `scenario` prop
 ```
 
 `solvedWhen`'s trigger event is derived from its `happened`/`count` types; for
@@ -390,7 +413,7 @@ ladder, best built with `ladder()`: `ladder({ fails: 2, title: '提示' }, a, b)
 shows `a` after 2 `password:fail`s and `b` after 4; `ladder({ idles: 1 }, …)`
 reveals a rung per `user:idle` period. `compilePuzzleGraph` turns each rung into
 a fire-once `password:fail` / `user:idle` count trigger, gated so it only
-balloons while its puzzle is *active* (prerequisites solved, itself unsolved) and
+balloons while its puzzle is _active_ (prerequisites solved, itself unsolved) and
 only once per rung — behaviorally the same as a hand-written
 `{ on: 'password:fail', when: count(...) ≥ n }` hint trigger.
 
@@ -401,7 +424,7 @@ to catch, mechanically:
   **unreachable** puzzles, puzzles with no derivable trigger event, and a
   **critical-path** puzzle (a `gate`, or one every ending transitively requires)
   with **no hint ladder** — the anti-stuck contract, mechanically enforced;
-- **warnings**: an *optional* (off-critical-path) step with no hint ladder, and
+- **warnings**: an _optional_ (off-critical-path) step with no hint ladder, and
   puzzles that **bypass a `gate`** (don't transitively require it);
 - **bushiness**: `report.bushiness[depth]` — how many puzzles are open in
   parallel at each dependency depth — and `report.maxParallel`, free pacing
@@ -414,9 +437,65 @@ walkthrough)` and assert the ending is reached — and that out-of-order play do
 **not** sequence-break the gate. A story whose walkthrough breaks fails CI like
 any other regression.
 
+## Rehearsal & deterministic seek (#207)
+
+Testing an ending shouldn't mean playing ten minutes to reach it. Because
+triggers and events are data, a scenario is a pure function of its event tape:
+replaying the walkthrough prefix up to a beat through the headless solver
+reconstructs the **exact** state of having played there. `seekTo('finale')` is
+therefore a solver call, not a playthrough.
+
+**Declare the walkthrough** on the scenario (or the puzzle graph, which passes
+it through). Name the beats you want to jump to:
+
+```ts
+const scenario = {
+  id: 'county-2007',
+  triggers: [
+    /* … */
+  ],
+  rehearsal: {
+    walkthrough: [
+      { event: { type: 'session:boot-complete' }, beat: 'intro' },
+      {
+        event: { type: 'file:open', path: ['日记.txt'], name: '日记.txt', nodeType: 'file' },
+        beat: 'diary',
+      },
+      { event: { type: 'file:unlock', name: 'WINDOWS' }, beat: 'finale' },
+    ],
+  },
+};
+```
+
+**Drive it** through the imperative handle (`ref.current.scenario.*`) or the
+DevTools **Rehearsal** tab (a seek-bar consumer):
+
+```ts
+ref.current.scenario.seekTo('finale'); // jump to the finale's exact state
+ref.current.scenario.stepBack(); // 回到上一拍 — re-solve the shorter prefix
+ref.current.scenario.exitRehearsal(); // restore the pre-rehearsal live save
+ref.current.scenario.getState(); // { active, index, length, beats }
+```
+
+**How it stays honest.** Seeking runs the solver, installs the resulting
+`flags` / `journal` / per-trigger fire budgets into the runtime, and replays only
+the **filesystem-shaped** grants (`unlock` / `addFile` / `writeFile` /
+`removeFile`) onto the live desktop. Observation actions (`notify` / `qqMessage`
+/ `playSound` / …) are recorded but **never performed**, and every replayed
+journal entry is stamped `rehearsal: true` — the `onEvent` host bridge drops
+those, so fast-forwarding fires no external side effects and pollutes no host
+analytics (the observer-effect guard). The engine's own `happened` / `count`
+predicates still see them, so gating stays correct. Stepping backward restores
+the baseline filesystem in memory (no reload) and re-applies the shorter prefix.
+
+**Fidelity limits** (same as the solver): delayed `after` actions collapse to
+"eventually" (headless has no clock), and non-filesystem world state (QQ windows,
+open apps) is not reconstructed — enough to test story state and endings, not a
+pixel-exact replay.
+
 ## Scenario-layer apps
 
-Some mechanics need a *surface* the player manipulates. These are ordinary
+Some mechanics need a _surface_ the player manipulates. These are ordinary
 registered apps, but they carry no game semantics: the engine stays ignorant
 (axiom 2). The app only **emits events**; scenarios gate on **journal-derived
 predicates**. Content (the pool of clues, the roster to accuse) is passed in via
@@ -433,7 +512,7 @@ trip reconstructs the board from replayed events.
 ```ts
 import { defineScenario, linked, demoEvidence } from '@caoergou/windows-xp';
 
-ref.openApp('EvidenceBoard', demoEvidence);   // props.items = the clue pool
+ref.openApp('EvidenceBoard', demoEvidence); // props.items = the clue pool
 
 const s = defineScenario('board');
 s.on('evidence:link').when(linked('diary', 'chatlog')).do(setFlag('connected'));
@@ -452,7 +531,7 @@ the app owns the correctness check against its scenario-provided answer key.
 
 ### In-world search (inside Internet Explorer, mechanic #134)
 
-A search engine in the XP era is a *web page*, not a desktop app — so the
+A search engine in the XP era is a _web page_, not a desktop app — so the
 in-world search lives **inside Internet Explorer** at `baidu.com`, not in a
 window of its own. The scenario hands IE a `searchCorpus` (an authored slice of
 the in-world web); the player's query rides in the URL (`/s?wd=…`) so a search is
@@ -469,10 +548,14 @@ ref.openApp('InternetExplorer', { url: 'http://www.baidu.com', searchCorpus: dem
 
 const s = defineScenario('web');
 s.on('search:query').when(searched('水晶女孩')).do(setFlag('lead'));
-s.on('search:query').when(found('cafe-news')).do(openFile([/* … */]));
+s.on('search:query').when(found('cafe-news')).do(
+  openFile([
+    /* … */
+  ])
+);
 ```
 
-Each `SearchResultPage` lists the query terms that surface it; a query *hits*
+Each `SearchResultPage` lists the query terms that surface it; a query _hits_
 when it contains any of a result's `match` terms (case-insensitive substring), so
 authors reward the **idea** of a search, not an exact string. `searched(term)`
 holds when some past query contained `term`; `found(id)` holds when some query
@@ -508,21 +591,21 @@ Every message is prefixed with the offending path.
 
 **Errors** (won't run):
 
-| Message contains | Cause |
-| --- | --- |
-| `triggers[0].on: expected an event type…` | `on` missing or not a string/string[] |
-| `triggers[0].do[1]: unknown action — expected one of …` | typo'd action key (`setFlags` for `setFlag`) |
-| `triggers[0].do[0].setFlag: expected a flag name (string)` | wrong param shape |
-| `triggers[0].when: unknown condition — expected one of …` | typo'd condition key |
-| `triggers[0].do[0].after.do[0]: …` | the same checks recurse into delayed actions |
-| `scenario is too large (… KB > 2048 KB limit)` | over the 2 MB ceiling |
+| Message contains                                           | Cause                                        |
+| ---------------------------------------------------------- | -------------------------------------------- |
+| `triggers[0].on: expected an event type…`                  | `on` missing or not a string/string[]        |
+| `triggers[0].do[1]: unknown action — expected one of …`    | typo'd action key (`setFlags` for `setFlag`) |
+| `triggers[0].do[0].setFlag: expected a flag name (string)` | wrong param shape                            |
+| `triggers[0].when: unknown condition — expected one of …`  | typo'd condition key                         |
+| `triggers[0].do[0].after.do[0]: …`                         | the same checks recurse into delayed actions |
+| `scenario is too large (… KB > 2048 KB limit)`             | over the 2 MB ceiling                        |
 
 **Warnings** (still runs, but probably a mistake):
 
-| Message contains | Cause |
-| --- | --- |
-| `"bogus:thing" has an unknown event domain — will never fire` | `on` references a domain the engine never emits |
-| `flag "ghost" is read in a condition but never set …` | a `when` gates on a flag no action or `initialFlags` ever sets |
+| Message contains                                              | Cause                                                          |
+| ------------------------------------------------------------- | -------------------------------------------------------------- |
+| `"bogus:thing" has an unknown event domain — will never fire` | `on` references a domain the engine never emits                |
+| `flag "ghost" is read in a condition but never set …`         | a `when` gates on a flag no action or `initialFlags` ever sets |
 
 ### Snapshots
 

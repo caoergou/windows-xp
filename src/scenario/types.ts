@@ -172,6 +172,30 @@ export interface Trigger {
   max?: number;
 }
 
+/** One step of a scenario's canonical walkthrough (#207 rehearsal). */
+export interface RehearsalStep {
+  /** The event that advances the story at this step. */
+  event: XPEvent;
+  /**
+   * Optional named beat reached once this step is processed — the target for
+   * `seekTo(beat)`. Beat names should be stable (they survive edits that shift
+   * indices).
+   */
+  beat?: string;
+}
+
+/**
+ * A canonical walkthrough the rehearsal/seek engine (#207) replays to jump to
+ * any story beat deterministically ("排练模式"). Because triggers and events are
+ * data, replaying a prefix through the headless solver reconstructs the exact
+ * state of having played to that beat — so an author tests the finale in a
+ * second instead of playing ten minutes. Authoring it also gives the solver its
+ * regression walkthrough ("CI for stories").
+ */
+export interface RehearsalPlan {
+  walkthrough: RehearsalStep[];
+}
+
 /** A complete scenario: initial flags + the trigger rulebook. */
 export interface Scenario {
   /** Stable id (namespaces persisted progress; changing it starts fresh). */
@@ -187,4 +211,10 @@ export interface Scenario {
    * without touching the logic.
    */
   strings?: ScenarioStrings;
+  /**
+   * Optional canonical walkthrough for the rehearsal/seek engine (#207) and the
+   * headless solver's regression input. Omit for scenarios that don't need
+   * fast-forward.
+   */
+  rehearsal?: RehearsalPlan;
 }
