@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useXPEventBus } from './EventBusContext';
 import { sounds } from '../utils/soundManager';
 import BalloonTip from '../components/BalloonTip';
+import type { MenuItem } from '../types';
 
 export interface TrayItem {
   id: string;
@@ -10,6 +11,12 @@ export interface TrayItem {
   tooltip: string;
   order: number;
   onClick?: () => void;
+  /**
+   * Right-click context-menu items for this tray icon (#refine-qq). When present,
+   * right-clicking the icon raises the shared XP {@link ContextMenu}. Structured
+   * data only — the tray owner supplies `MenuItem`s, never hand-rolled menu DOM.
+   */
+  contextMenuItems?: MenuItem[];
 }
 
 /** Options for {@link TrayContextType.notify} (#118). */

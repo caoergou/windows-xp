@@ -8,10 +8,14 @@ import { defaultQQProfile } from '../../data/qq/defaultProfile';
 import { qqStore, QQDriver } from './qqStore';
 import { useQQStore } from './useQQStore';
 import { qqAvatar } from './assets';
+import { QQ_SELECTABLE_STATUS, QQ_STATUS_LABEL } from './statusMeta';
 import QQLoginPanel from './QQLoginPanel';
 import QQLoadingPanel from './QQLoadingPanel';
 import QQBuddyList from './QQBuddyList';
 import QQChat from './QQChat';
+import QQCloseDialog, { QQCloseChoice } from './QQCloseDialog';
+import type { MenuItem } from '../../types';
+import type { QQStatus } from '../../data/qq/types';
 
 type Phase = 'login' | 'loading' | 'panel';
 
@@ -35,9 +39,14 @@ interface QQClientProps {
  * （尺寸 / 标题随阶段切换），与真实 QQ 一致。聊天窗口作为同一应用（appId 'QQ'）
  * 的独立窗口打开。本组件同时是「运行时驱动器」：把好友上线 / 收到消息的副作用
  * （声音、托盘闪动、任务栏闪烁、上线气泡、事件派发）接到引擎上下文。
+ *
+ * 主面板阶段还接入了经典 QQ 的窗口/托盘行为（#refine-qq）：最小化 → 收进系统托盘
+ * （从任务栏消失）；关闭 → 弹「隐藏到托盘 / 退出程序」确认框；托盘右键菜单可切换
+ * 在线状态、打开主面板或退出。
  */
 const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => {
   const api = useApp(windowId);
+  const clientWindowId = api.window.id;
   const wm = useWindowManager();
   const wmRef = useRef(wm);
   wmRef.current = wm;
@@ -49,8 +58,14 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   const profile = culture.qq ?? defaultQQProfile;
 
   const [phase, setPhase] = useState<Phase>('login');
+  const [closeAsk, setCloseAsk] = useState(false);
   const state = useQQStore();
+  const meStatus = state.me?.status;
   const totalUnread = Object.values(state.unread).reduce((a, b) => a + b, 0);
+
+  // 关闭守卫回调：dialog 选「退出」时用它真正关闭主窗；程序化退出时置 bypass 直接放行。
+  const forceCloseRef = useRef<(() => void) | null>(null);
+  const bypassCloseRef = useRef(false);
 
   // ── 打开与某好友的聊天窗口（去重：已开则聚焦）────────────────────────────
   const openChat = useCallback(
@@ -87,6 +102,45 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   const openChatRef = useRef(openChat);
   openChatRef.current = openChat;
 
+  // ── 退出 QQ：关闭所有聊天窗、重置运行时、放行关闭主窗（绕过关闭守卫）──────
+  const exitQQ = useCallback(() => {
+    wmRef.current.windows
+      .filter(w => w.appId === 'QQ' && w.id !== clientWindowId)
+      .forEach(w => wmRef.current.closeWindow(w.id));
+    qqStore.reset();
+    bypassCloseRef.current = true;
+    wmRef.current.closeWindow(clientWindowId);
+  }, [clientWindowId]);
+  const exitQQRef = useRef(exitQQ);
+  exitQQRef.current = exitQQ;
+
+  // 点击托盘图标：有未读则打开发信人聊天；否则恢复/聚焦主面板（含从托盘还原）。
+  const activateFromTray = useCallback(() => {
+    const s = qqStore.getState();
+    const firstUnread = s.buddies.find(b => (s.unread[b.id] ?? 0) > 0);
+    if (firstUnread) {
+      openChatRef.current(firstUnread.id);
+      return;
+    }
+    wmRef.current.focusWindow(clientWindowId);
+  }, [clientWindowId]);
+  const activateFromTrayRef = useRef(activateFromTray);
+  activateFromTrayRef.current = activateFromTray;
+
+  // 托盘右键菜单：在线状态切换（勾选当前项）+ 打开主面板 + 退出。
+  const buildTrayMenu = useCallback(
+    (status?: QQStatus): MenuItem[] => [
+      ...QQ_SELECTABLE_STATUS.map(s => ({
+        label: `${status === s ? '● ' : '　'}${QQ_STATUS_LABEL[s]}`,
+        action: () => qqStore.setMeStatus(s),
+      })),
+      { type: 'separator' as const },
+      { label: '打开主面板', action: () => wmRef.current.focusWindow(clientWindowId) },
+      { label: '退出', action: () => exitQQRef.current() },
+    ],
+    [clientWindowId]
+  );
+
   // ── 窗口尺寸 / 位置 / 标题随阶段变形 ─────────────────────────────────────
   useEffect(() => {
     if (phase === 'login') {
@@ -97,6 +151,29 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
       api.window.resize(SIZE.panel.w, SIZE.panel.h);
       api.window.setTitle('QQ2006');
     }
+  }, [phase, api]);
+
+  // ── 主面板窗口行为：最小化→收托盘、关闭→确认框（仅主面板阶段生效）──────────
+  useEffect(() => {
+    if (phase !== 'panel') {
+      api.window.setMinimizeGuard(null);
+      api.window.setCloseGuard(null);
+      return;
+    }
+    api.window.setMinimizeGuard(() => api.window.hide());
+    api.window.setCloseGuard(forceClose => {
+      if (bypassCloseRef.current) {
+        bypassCloseRef.current = false;
+        forceClose();
+        return;
+      }
+      forceCloseRef.current = forceClose;
+      setCloseAsk(true);
+    });
+    return () => {
+      api.window.setMinimizeGuard(null);
+      api.window.setCloseGuard(null);
+    };
   }, [phase, api]);
 
   // ── 进入主面板：启动会话 + 注册托盘 + 接入副作用驱动器 ──────────────────
@@ -110,11 +187,8 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
       icon: 'qq',
       tooltip: 'QQ',
       order: 40,
-      onClick: () => {
-        const s = qqStore.getState();
-        const firstUnread = s.buddies.find(b => (s.unread[b.id] ?? 0) > 0);
-        if (firstUnread) openChatRef.current(firstUnread.id);
-      },
+      onClick: () => activateFromTrayRef.current(),
+      contextMenuItems: buildTrayMenu(qqStore.getState().me?.status),
     });
 
     const driver: QQDriver = {
@@ -144,7 +218,13 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
       clearDriver();
       trayRef.current.unregister('qq');
     };
-  }, [phase, profile, api, bus]);
+  }, [phase, profile, api, bus, buildTrayMenu]);
+
+  // 「我」的状态变化时刷新托盘右键菜单的勾选。
+  useEffect(() => {
+    if (phase !== 'panel') return;
+    trayRef.current.update('qq', { contextMenuItems: buildTrayMenu(meStatus) });
+  }, [phase, meStatus, buildTrayMenu]);
 
   // ── 未读时托盘图标闪动（发信人头像 ↔ 透明交替，经典 QQ 行为）──────────
   useEffect(() => {
@@ -181,13 +261,32 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
     }, 1800);
   }, [versionEgg, api]);
 
+  const onCloseChoice = useCallback(
+    (choice: QQCloseChoice) => {
+      setCloseAsk(false);
+      if (choice === 'hide') {
+        api.window.hide();
+      } else {
+        exitQQ();
+      }
+    },
+    [api, exitQQ]
+  );
+
   if (phase === 'login') {
     return <QQLoginPanel onLogin={handleLogin} />;
   }
   if (phase === 'loading') {
     return <QQLoadingPanel onCancel={() => setPhase('login')} />;
   }
-  return <QQBuddyList onOpenChat={openChat} />;
+  return (
+    <>
+      <QQBuddyList onOpenChat={openChat} onExit={exitQQ} />
+      {closeAsk && (
+        <QQCloseDialog onConfirm={onCloseChoice} onCancel={() => setCloseAsk(false)} />
+      )}
+    </>
+  );
 };
 
 export default QQClient;

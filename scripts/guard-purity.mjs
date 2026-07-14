@@ -15,7 +15,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 /** src/ 内联 hex 色值存量基线：只许减少。降低后请同步更新此值。 */
-const HEX_BASELINE = 1491; // 2026-07-12：#224 音量/sndvol32 混音器重建，内联 hex 换成 COLORS token 后下调；token 化欠账见 #135
+const HEX_BASELINE = 1485; // 2026-07-13：refine-qq QQ 皮肤色板归一（styles.ts 内联 hex 收敛为 C.* 色板引用）后下调；token 化欠账见 #135
 
 /** 机制层：必须保持零色值、零 xp.css 依赖的目录/文件。 */
 const ENGINE_PURE = ['src/context', 'src/hooks', 'src/utils', 'src/events.ts', 'src/snapshot.ts'];

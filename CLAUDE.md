@@ -372,45 +372,6 @@ The new registry-based system:
 | My Computer, Recycle Bin, My Documents | Explorer |
 | Any appId in APP_REGISTRY | Exact match restoration |
 
-## QQ Refinement TODO (`refine-qq` branch)
-
-已完成：聊天窗口偏左定位、底部工具栏打开 IE+Wayback Machine 2006 存档、
-托盘闪烁发信人头像、好友未读头像抖动动画、窗口管理器 closeGuard/minimizeGuard/
-hideWindow 基础设施。
-
-### 窗口行为（基础设施已就位，QQClient 尚未接入）
-
-- [ ] **最小化到托盘**：主面板阶段点最小化 → 窗口从任务栏消失，仅保留托盘图标；
-      点击托盘图标恢复窗口。使用已有的 `hideWindow` + `setMinimizeGuard`。
-- [ ] **关闭确认对话框**：主面板阶段点关闭 → 弹出对话框"最小化到系统托盘 / 退出QQ"。
-      使用已有的 `setCloseGuard`，在 guard 内调用 `api.dialog` 再决定 hide 还是 forceClose。
-- [ ] **登录与主面板叠加 bug**：用户反馈有时登录页和好友列表同时显示，需排查 phase 状态切换。
-
-### 托盘
-
-- [ ] **右键上下文菜单**：右键托盘 QQ 图标 → 弹出菜单：
-      我在线上 / 隐身 / 离开 / 忙碌 / 分隔线 / 打开主面板 / 退出。
-      需在 `TrayItem` 增加 `onContextMenu` 或 `contextMenuItems`，`SystemTray` 渲染 `ContextMenu`。
-
-### 聊天窗口交互
-
-- [ ] **聊天记录查看器**：点击"聊天记录(H)"按钮 → 展开/折叠右侧或底部的历史消息面板，
-      展示当前会话的所有历史消息（数据已在 `qqStore.threads[buddyId]` 中）。
-- [ ] **表情选择面板**：点击聊天小工具条的表情按钮 → 弹出经典 QQ 表情选择器网格，
-      选中表情插入 `[微笑]` 类文本到输入框。表情码已在 `emojiRenderer.ts` 中定义。
-
-### 好友列表交互
-
-- [ ] **好友 tooltip**：鼠标悬停在好友条目上 → tooltip 显示：昵称、QQ 号、
-      在线状态（在线/离开/忙碌/隐身/离线）、个性签名。替代当前的固定"双击打开聊天窗口"。
-- [ ] **查找好友对话框**：底部"查找"按钮 → 弹出模态搜索框，可按昵称/号码过滤好友列表。
-- [ ] **菜单按钮**：底部"菜单"按钮 → 弹出 QQ 主菜单（系统设置、个人资料、帮助等）。
-
-### 已确认不需要额外工作
-
-- QQ Events 系统：已有完整事件（`qq:login`/`qq:open`/`qq:online`/`qq:message`/`qq:reply` 等）
-- JSON 定义流程：已通过 `QQProfile` + `QQScriptStep` + `QQReply` 实现脚本化对话
-
 ## Git Attribution Policy (MANDATORY)
 
 This project prohibits ALL AI/Claude attribution in anything committed or

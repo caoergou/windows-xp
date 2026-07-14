@@ -287,7 +287,9 @@ const Taskbar = () => {
         showModal(t('startMenu.allPrograms'), t('apps.comingSoon'), 'info');
       } else if (appName in APP_REGISTRY) {
         const app = APP_REGISTRY[appName];
-        const existing = windows.find(w => w.appId === app.id);
+        // Match only a singleton instance — a non-singleton child window (e.g. a
+        // QQ chat) sharing this appId must not stand in for the client (#refine-qq).
+        const existing = windows.find(w => w.appId === app.id && w.props?.singleton);
         if (existing && app.window?.singleton) {
           focusWindow(existing.id);
         } else {

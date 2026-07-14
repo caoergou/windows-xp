@@ -1,22 +1,40 @@
-import React from 'react';
-import { PanelRoot } from './styles';
+import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
+import { PanelRoot, BuddyTooltip } from './styles';
 import { qqImg, qqAvatar } from './assets';
 import { qqStore } from './qqStore';
 import { useQQStore } from './useQQStore';
 import { useWindowManagerActions } from '../../context/WindowManagerContext';
 import { APP_REGISTRY } from '../../registry/apps';
+import ContextMenu from '../../components/ContextMenu';
+import { QQ_STATUS_LABEL, QQ_SELECTABLE_STATUS } from './statusMeta';
+import QQFindDialog from './QQFindDialog';
+import type { MenuItem } from '../../types';
 import type { RuntimeBuddy } from './qqStore';
+import type { QQStatus } from '../../data/qq/types';
 
 /**
  * QQ 主面板（好友列表窗口）—— 逐元素还原 QQ2006：个人横幅、左侧面板栏、
  * 分组手风琴（在线/总数计数）、单列好友条目（灰度离线 / 红名会员 / 业务角标）、
  * 底部业务工具栏与「菜单 / 查找」。渲染在引擎 XP 窗框内（拖动 / 关闭由窗框提供）。
+ *
+ * 交互（#refine-qq）：好友悬停浮出资料卡（昵称/号码/状态/签名）；底部「查找」与
+ * 「菜单→查找联系人」打开查找对话框；「菜单」「更改状态」用引擎共享 ContextMenu。
  */
 
 const badgeClass: Record<string, string> = {
   music: 'qq-icon-music',
   ring: 'qq-icon-ring',
   mobile: 'qq-icon-mobile',
+};
+
+/** 状态圆点颜色（CSS 关键字，避免内联 hex）。 */
+const STATUS_DOT: Record<QQStatus, string> = {
+  online: 'limegreen',
+  away: 'orange',
+  busy: 'red',
+  invisible: 'gray',
+  offline: 'silver',
 };
 
 const PANEL_BAR: Array<{ img: string; title: string; active?: boolean }> = [
@@ -42,23 +60,27 @@ const TOOLBAR_BTNS: Array<{ img: string; title: string; url?: string }> = [
   { img: 'OpenPet.png', title: 'QQ宠物', url: 'https://web.archive.org/web/20061105063630/http://pet.qq.com/' },
 ];
 
-const STATUS_LABEL: Record<string, string> = {
-  online: '在线',
-  away: '离开',
-  busy: '忙碌',
-  invisible: '隐身',
-  offline: '离线',
-};
-
 interface QQBuddyListProps {
   /** 打开与某好友的聊天窗口。 */
   onOpenChat: (buddyId: string) => void;
+  /** 退出 QQ（关闭主面板 + 所有聊天窗 + 重置运行时）。 */
+  onExit: () => void;
 }
 
-const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat }) => {
+interface HoverInfo {
+  buddy: RuntimeBuddy;
+  x: number;
+  y: number;
+}
+
+const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onExit }) => {
   const state = useQQStore();
   const { me, groups, buddies, openGroups, unread } = state;
   const { openWindow } = useWindowManagerActions();
+
+  const [hover, setHover] = useState<HoverInfo | null>(null);
+  const [findOpen, setFindOpen] = useState(false);
+  const [menu, setMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null);
 
   const openInIE = (url: string, title: string) => {
     const ie = APP_REGISTRY.InternetExplorer;
@@ -72,6 +94,45 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat }) => {
   const buddiesOf = (groupId: string): RuntimeBuddy[] =>
     buddies.filter(b => b.group === groupId);
 
+  const showTooltip = (e: React.MouseEvent, buddy: RuntimeBuddy) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    // 浮出到条目右侧；贴近屏幕右缘时翻到左侧，避免被裁切。
+    const width = 210;
+    const x = rect.right + width + 8 > window.innerWidth ? rect.left - width - 4 : rect.right + 4;
+    setHover({ buddy, x: Math.max(4, x), y: rect.top });
+  };
+
+  // 状态切换菜单（横幅「更改状态」按钮 / 头像）。
+  const openStatusMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setMenu({
+      x: rect.left,
+      y: rect.bottom,
+      items: QQ_SELECTABLE_STATUS.map(s => ({
+        label: `${me?.status === s ? '● ' : '　'}${QQ_STATUS_LABEL[s]}`,
+        action: () => qqStore.setMeStatus(s),
+      })),
+    });
+  };
+
+  // 主菜单（底部「菜单」按钮）。装饰性条目置灰，可用项：查找联系人、退出。
+  const openMainMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const items: MenuItem[] = [
+      { label: '查找联系人…', action: () => setFindOpen(true) },
+      { label: '我的资料', disabled: true },
+      { label: '系统设置', disabled: true },
+      { label: '消息记录管理器', disabled: true },
+      { label: '帮助', disabled: true },
+      { type: 'separator' },
+      { label: '退出', action: onExit },
+    ];
+    // 菜单向上弹出（贴底部工具栏）：ContextMenu 会在超出视口时自动上翻。
+    setMenu({ x: rect.left, y: rect.top, items });
+  };
+
   return (
     <PanelRoot data-testid="qq-panel">
       {/* 个人信息横幅 */}
@@ -83,12 +144,13 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat }) => {
         </div>
         <div
           className="qq-status-pic"
-          title="修改个人资料"
+          title="更改状态"
           style={{ backgroundImage: `url(${qqAvatar(me?.avatar ?? 50)})` }}
+          onClick={openStatusMenu}
         />
-        <button className="qq-status-btn" title="更改状态" />
+        <button className="qq-status-btn" title="更改状态" onClick={openStatusMenu} />
         <label className="qq-num" data-testid="qq-me-nick">
-          {me ? `${me.nickname}(${STATUS_LABEL[me.status] ?? '在线'})` : ''}
+          {me ? `${me.nickname}(${QQ_STATUS_LABEL[me.status] ?? '在线'})` : ''}
         </label>
         <div className="qq-head-btns">
           <button title="收发邮件">
@@ -151,12 +213,13 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat }) => {
                           }
                           data-testid={`qq-buddy-${buddy.id}`}
                           onDoubleClick={() => onOpenChat(buddy.id)}
-                          title="双击打开聊天窗口"
+                          onMouseEnter={e => showTooltip(e, buddy)}
+                          onMouseLeave={() => setHover(null)}
                         >
                           <img className="qq-friend-avatar" src={qqAvatar(buddy.avatar)} alt="" />
                           <div className="qq-friend-info">
                             <p className="qq-friend-name">{buddy.nickname}</p>
-                            <p className="qq-friend-motto">{buddy.signature || ' '}</p>
+                            <p className="qq-friend-motto">{buddy.signature || ' '}</p>
                             <div className="qq-friend-icons">
                               {(buddy.badges ?? []).map(b => (
                                 <div key={b} className={badgeClass[b]} />
@@ -193,18 +256,63 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat }) => {
             />
           ))}
         </div>
-        <button className="qq-menu-button" title="菜单" />
+        <button className="qq-menu-button" title="菜单" data-testid="qq-menu-button" onClick={openMainMenu} />
         <div className="qq-toolbar-btns qq-toolbar-2">
           <button
             className="qq-msgmgr-button"
             title="信息管理器"
             style={{ backgroundImage: `url(${qqImg('MsgManagerButton.png')})` }}
           />
-          <button className="qq-search-button" title="查找用户">
+          <button
+            className="qq-search-button"
+            title="查找用户"
+            data-testid="qq-find-button"
+            onClick={() => setFindOpen(true)}
+          >
             查找
           </button>
         </div>
       </div>
+
+      {/* 好友悬停资料卡 */}
+      {hover &&
+        createPortal(
+          <BuddyTooltip data-testid="qq-buddy-tooltip" style={{ left: hover.x, top: hover.y }}>
+            <div className="bt-head">
+              <img src={qqAvatar(hover.buddy.avatar)} alt="" />
+              <div>
+                <div className={`bt-name${hover.buddy.vip ? ' vip' : ''}`}>{hover.buddy.nickname}</div>
+                <div className="bt-num">{hover.buddy.number}</div>
+              </div>
+            </div>
+            <div className="bt-body">
+              <div className="bt-status">
+                <span className="dot" style={{ background: STATUS_DOT[hover.buddy.currentStatus] }} />
+                {QQ_STATUS_LABEL[hover.buddy.currentStatus]}
+              </div>
+              <div className="bt-sign">{hover.buddy.signature || '这个人很懒，什么都没留下'}</div>
+            </div>
+          </BuddyTooltip>,
+          document.body
+        )}
+
+      {menu && (
+        <ContextMenu
+          visible
+          x={menu.x}
+          y={menu.y}
+          menuItems={menu.items}
+          onClose={() => setMenu(null)}
+        />
+      )}
+
+      {findOpen && (
+        <QQFindDialog
+          buddies={buddies}
+          onOpenChat={onOpenChat}
+          onClose={() => setFindOpen(false)}
+        />
+      )}
     </PanelRoot>
   );
 };

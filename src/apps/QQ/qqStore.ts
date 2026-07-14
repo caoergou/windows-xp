@@ -265,6 +265,12 @@ export const qqStore = {
     setState({ openGroups: { ...state.openGroups, [groupId]: !state.openGroups[groupId] } });
   },
 
+  /** 更改「我」的在线状态（在线 / 隐身 / 离开 / 忙碌），驱动横幅与托盘菜单勾选。 */
+  setMeStatus(status: QQStatus): void {
+    if (!state.me || state.me.status === status) return;
+    setState({ me: { ...state.me, status } });
+  },
+
   /** 未读总数（托盘闪动判据）。 */
   totalUnread(): number {
     return Object.values(state.unread).reduce((a, b) => a + b, 0);

@@ -216,7 +216,9 @@ export const WindowManagerProvider: React.FC<{
         setActiveWindowId(id);
         commitWindows(prev =>
           prev.map(w =>
-            w.id === id ? { ...w, zIndex: newZIndex, isMinimized: false, isFlashing: false } : w
+            w.id === id
+              ? { ...w, zIndex: newZIndex, isMinimized: false, isHidden: false, isFlashing: false }
+              : w
           )
         );
         return;
@@ -240,7 +242,12 @@ export const WindowManagerProvider: React.FC<{
       props: WindowProps = {}
     ): string => {
       if (props.singleton) {
-        const existing = windowsRef.current.find(w => w.appId === appId);
+        // Only collapse onto another *singleton* instance of this app. Apps like
+        // QQ open both a singleton client window and several non-singleton child
+        // windows (chat windows) under the same appId; matching any appId here
+        // would focus a chat window instead of opening/raising the client, so the
+        // main panel could never be reopened while a chat was open (#refine-qq).
+        const existing = windowsRef.current.find(w => w.appId === appId && w.props?.singleton);
         if (existing) {
           focusWindow(existing.id);
           return existing.id;

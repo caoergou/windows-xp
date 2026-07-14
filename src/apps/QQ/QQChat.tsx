@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ChatRoot } from './styles';
 import { qqAvatar } from './assets';
 import { qqStore } from './qqStore';
@@ -7,7 +7,7 @@ import { useApp } from '../../hooks/useApp';
 import { useActiveWindowId } from '../../context/WindowManagerContext';
 import { useWindowId } from '../../context/WindowIdContext';
 import { useXPEventBus } from '../../context/EventBusContext';
-import { renderMessageNodes } from '../../utils/emojiRenderer';
+import { renderMessageNodes, QQ_EMOJI_LIST } from '../../utils/emojiRenderer';
 
 interface QQChatProps {
   buddyId: string;
@@ -33,6 +33,8 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
 
   const listRef = useRef<HTMLUListElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [showEmoji, setShowEmoji] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   // 设定窗口标题 + 派发打开事件（一次）。
   useEffect(() => {
@@ -62,6 +64,20 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
     if (!text.trim()) return;
     qqStore.sendFromMe(buddyId, text.trim());
     if (inputRef.current) inputRef.current.value = '';
+    setShowEmoji(false);
+  };
+
+  // 在光标处插入 `[微笑]` 表情码（输入框为非受控，直接改 value 并复位光标）。
+  const insertEmoji = (code: string) => {
+    const el = inputRef.current;
+    if (!el) return;
+    const start = el.selectionStart ?? el.value.length;
+    const end = el.selectionEnd ?? el.value.length;
+    el.value = el.value.slice(0, start) + code + el.value.slice(end);
+    const caret = start + code.length;
+    el.focus();
+    el.setSelectionRange(caret, caret);
+    setShowEmoji(false);
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -119,10 +135,55 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
               </ul>
             </div>
 
+            {/* 聊天记录查看器：当前会话历史（含收发双方、时间戳）覆盖在消息区上。 */}
+            {showHistory && (
+              <div className="qq-im-history" data-testid="qq-chat-history">
+                <div className="qq-im-history-head">
+                  <span>消息记录 — {buddy.nickname}</span>
+                  <button onClick={() => setShowHistory(false)}>关闭</button>
+                </div>
+                <div className="qq-im-history-list">
+                  {thread.length === 0 && (
+                    <div className="qq-im-history-empty">暂无聊天记录</div>
+                  )}
+                  {thread.map(m => (
+                    <div key={m.id} className={`row${m.from === 'me' ? ' my' : ''}`}>
+                      <div className="meta">
+                        {m.from === 'me' ? me.nickname : buddy.nickname}
+                        <span>{m.time}</span>
+                      </div>
+                      <div className="body">{renderMessageNodes(m.text)}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 表情选择面板：经典黄脸网格，点选把 [微笑] 码插入输入框。 */}
+            {showEmoji && (
+              <div className="qq-emoji-picker" data-testid="qq-emoji-picker">
+                {QQ_EMOJI_LIST.map(({ code, emoji }) => (
+                  <button
+                    key={code}
+                    type="button"
+                    title={code}
+                    onClick={() => insertEmoji(code)}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* 小工具条 */}
             <div className="qq-im-chat-toolbar">
               <button className="im-toolbar-font" title="字体" />
-              <button className="im-toolbar-face" title="表情" />
+              <button
+                className="im-toolbar-face"
+                title="表情"
+                data-testid="qq-chat-face"
+                onClick={() => setShowEmoji(v => !v)}
+              />
               <button className="im-toolbar-other" title="魔法表情" />
               <span className="sep" />
               <button className="im-toolbar-picture" title="发送图片" />
@@ -142,7 +203,13 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
           </div>
 
           <div className="qq-im-btns">
-            <button className="qq-btn">聊天记录(H)</button>
+            <button
+              className="qq-btn"
+              data-testid="qq-chat-history-btn"
+              onClick={() => setShowHistory(v => !v)}
+            >
+              聊天记录(H)
+            </button>
             <button className="qq-btn">消息模式(T)</button>
             <span />
             <button className="qq-btn" onClick={() => api.window.close()}>

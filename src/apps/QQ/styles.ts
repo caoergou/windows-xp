@@ -1,5 +1,6 @@
 import styled, { keyframes } from 'styled-components';
 import { qqUrl } from './assets';
+import { COLORS } from '../../constants';
 
 // 未读消息时好友头像抖动（经典 QQ：头像左右快速摇晃）。
 const avatarShake = keyframes`
@@ -26,16 +27,34 @@ const BTN_RESET = `
   button { min-width: 0; min-height: 0; box-shadow: none; box-sizing: border-box; padding: 0; }
 `;
 
+/**
+ * QQ2006 皮肤复用色板。集中定义一次、跨样式引用，既避免字面量重复，也满足
+ * #143 内联 hex 棘轮（只减不增）——原本散落的 #fff / #888 / 蓝绿昵称色等在此归一。
+ */
+const C = {
+  white: '#fff',
+  grey: '#888',
+  peerNick: '#210f95', // 对方昵称蓝
+  myNick: '#2d794b', // 自己昵称绿
+  peerNum: '#071E81', // 横幅号码/信息条蓝
+  infoBlue: '#b6d5f5', // 信息条渐变底
+  infoBorder: '#84a6c6', // 信息条下边线
+  hover: '#eaf2ff', // 好友/结果悬停浅蓝
+  closeRed: '#e8110e', // 关闭按钮 hover 红
+  selSub: '#dfe8ff', // 选中项副文本
+  zoneBg: '#f6f6f6', // 个人空间底色
+};
+
 // 通用按钮（登录框 / 聊天窗 / 主面板共用）—— QQ-CLASSIC-UI §2 通用按钮样式
 const QQ_BTN = `
   font-size: 12px;
-  background: linear-gradient(to bottom, #ffffff, #9FD4FF);
+  background: linear-gradient(to bottom, ${C.white}, #9FD4FF);
   border: 1px solid #00558E;
   border-radius: 3px;
   cursor: pointer;
   color: #000;
   &:focus { box-shadow: inset 0 0 0 1px #ffe762, inset 0 0 0 2px #fcb833; }
-  &:hover { background: linear-gradient(to bottom, #ffffff, #B9E1FF); }
+  &:hover { background: linear-gradient(to bottom, ${C.white}, #B9E1FF); }
   &:active { background: linear-gradient(to bottom, #97C5EC, #D2F8FD); }
 `;
 
@@ -85,7 +104,7 @@ export const PanelRoot = styled.div`
   }
   .qq-num {
     position: absolute; left: 54px; top: 9px; width: 109px; height: 13px;
-    font-family: "MS Sans Serif", SimSun; font-size: 8pt; font-weight: 700; color: #071E81;
+    font-family: "MS Sans Serif", SimSun; font-size: 8pt; font-weight: 700; color: ${C.peerNum};
     white-space: nowrap; overflow: hidden;
   }
   .qq-head-btns {
@@ -94,7 +113,7 @@ export const PanelRoot = styled.div`
   .qq-head-btns button { height: 16px; display: flex; align-items: center; }
   .qq-head-btns button > img { vertical-align: middle; }
   .qq-head-btns button > label {
-    color: #071E81; font-family: "MS Sans Serif", SimSun; font-size: 8pt; font-weight: 400;
+    color: ${C.peerNum}; font-family: "MS Sans Serif", SimSun; font-size: 8pt; font-weight: 400;
     cursor: pointer; height: 16px; padding-left: 2px;
   }
 
@@ -119,7 +138,7 @@ export const PanelRoot = styled.div`
   /* 好友列表盒 */
   .qq-friend-box {
     position: absolute; left: 29px; right: 4px; top: 0; height: 100%;
-    background: #fff; border: 1px solid #2367c3; border-radius: 2px;
+    background: ${C.white}; border: 1px solid #2367c3; border-radius: 2px;
     overflow: hidden; padding: 1px; display: flex; gap: 1px; flex-direction: column;
   }
   .qq-friend-box > button {
@@ -139,10 +158,10 @@ export const PanelRoot = styled.div`
   /* 统一的好友条目：头像 40px 与右侧信息块垂直居中；名字/签名各占一行、
      行高一致、超出省略号，避免因签名有无 / 角标多少造成条目高低不齐。 */
   .qq-friend-item { display: flex; align-items: center; padding: 3px 4px 3px 4px; cursor: pointer; }
-  .qq-friend-item:hover { background: #eaf2ff; }
+  .qq-friend-item:hover { background: ${C.hover}; }
   .qq-friend-item.selected { background: #316AC5; }
   .qq-friend-item.selected .qq-friend-name,
-  .qq-friend-item.selected .qq-friend-motto { color: #fff; }
+  .qq-friend-item.selected .qq-friend-motto { color: ${C.white}; }
   .qq-friend-avatar { width: 40px; height: 40px; flex-shrink: 0; }
   .qq-friend-item.has-unread .qq-friend-avatar { animation: ${avatarShake} 0.4s ease-in-out infinite; }
   .qq-friend-info { flex: 1; min-width: 0; padding: 0 2px 0 6px; line-height: 1.3; }
@@ -181,7 +200,7 @@ export const PanelRoot = styled.div`
   .qq-search-button {
     width: 47px; height: 20px; background-image: ${qqUrl('SearchButton.png')};
     background-size: auto 100%; background-repeat: no-repeat; padding-left: 18px;
-    color: #fff; font-family: 'MS Sans Serif', SimSun; font-weight: 400; font-size: 8pt; border: 0; cursor: pointer;
+    color: ${C.white}; font-family: 'MS Sans Serif', SimSun; font-weight: 400; font-size: 8pt; border: 0; cursor: pointer;
     &:hover { color: #000; }
   }
   .qq-msgmgr-button { width: 19px; height: 16px; background-repeat: no-repeat; border: 0; background-color: transparent; cursor: pointer; }
@@ -301,15 +320,16 @@ export const ChatRoot = styled.div`
   .qq-im-main { display: flex; flex-direction: column; flex: 1; gap: 6px; min-height: 0; min-width: 0; }
 
   .qq-im-chat {
+    position: relative;
     display: flex; flex-direction: column; flex: 1; width: 100%;
-    border: 1px solid rgb(53,111,175); border-radius: 4px; background: #fff;
+    border: 1px solid rgb(53,111,175); border-radius: 4px; background: ${C.white};
     overflow: hidden; min-height: 0; min-width: 0;
   }
   .qq-im-chat-msg { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 
   .qq-im-friend-info {
-    background: linear-gradient(to bottom, #ffffff, #b6d5f5);
-    border-bottom: 1px solid #84a6c6; padding: 1px 2px; color: rgb(7,30,129); cursor: pointer;
+    background: linear-gradient(to bottom, ${C.white}, ${C.infoBlue});
+    border-bottom: 1px solid ${C.infoBorder}; padding: 1px 2px; color: rgb(7,30,129); cursor: pointer;
     overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
   }
   .qq-im-friend-info:hover { color: rgb(99,119,190); }
@@ -318,10 +338,10 @@ export const ChatRoot = styled.div`
   .qq-im-chat-msg-list { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 5px; min-height: 0; list-style: none; margin: 0; }
   .qq-im-chat-msg-list li { margin-bottom: 2px; }
   .qq-im-chat-msg-list li p { color: #000; padding-left: 15px; line-height: 1.4; margin: 0; word-break: break-all; }
-  .qq-im-chat-msg-list li p:first-of-type { color: #210f95; padding-left: 0; }
-  .qq-im-chat-msg-list li.my p:first-of-type { color: #2d794b; }
+  .qq-im-chat-msg-list li p:first-of-type { color: ${C.peerNick}; padding-left: 0; }
+  .qq-im-chat-msg-list li.my p:first-of-type { color: ${C.myNick}; }
   .qq-im-chat-msg-list li p:first-of-type span { font-size: 12px; padding-left: 8px; }
-  .qq-im-typing { color: #888; padding: 2px 5px; font-style: normal; }
+  .qq-im-typing { color: ${C.grey}; padding: 2px 5px; font-style: normal; }
 
   /* 小工具条 20px */
   .qq-im-chat-toolbar {
@@ -351,7 +371,7 @@ export const ChatRoot = styled.div`
   .qq-im-btns .qq-btn { padding: 0 6px; height: 20px; }
 
   /* 右侧栏 140px */
-  .qq-im-side { display: flex; flex-direction: column; flex-shrink: 0; border: 1px solid rgb(53,111,175); width: 140px; height: 100%; overflow: hidden; background: #fff; }
+  .qq-im-side { display: flex; flex-direction: column; flex-shrink: 0; border: 1px solid rgb(53,111,175); width: 140px; height: 100%; overflow: hidden; background: ${C.white}; }
   .qq-im-side-btn {
     position: relative; height: 20px; width: 100%; z-index: 2; text-align: left; padding-left: 20px; border: 0; cursor: pointer;
     color: #0f0657; font-weight: bold;
@@ -361,7 +381,120 @@ export const ChatRoot = styled.div`
   /* 单张 QQ 秀素材复用于「对方形象 / 我的形象」两栏（体积预算取舍）。 */
   .qq-im-show-1 { background-image: ${qqUrl('im/show1.gif')}; }
   .qq-im-show-3 { background-image: ${qqUrl('im/show1.gif')}; transform: scaleX(-1); }
-  .qq-im-zone { background: #f6f6f6; color: #0f0657; }
+  .qq-im-zone { background: ${C.zoneBg}; color: #0f0657; }
   .qq-im-zone div { line-height: 1.4; padding: 0 2px; white-space: nowrap; overflow: hidden; }
   .qq-im-zone span { color: red; }
+
+  /* 聊天记录查看器：覆盖在消息区之上的历史日志面板（数据取自当前会话线程）。 */
+  .qq-im-history {
+    position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column;
+    background: ${C.white}; border-radius: 4px;
+  }
+  .qq-im-history-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 3px 6px; color: ${COLORS.BLACK};
+    background: linear-gradient(to bottom, ${C.white}, ${C.infoBlue});
+    border-bottom: 1px solid ${C.infoBorder}; font-weight: bold;
+  }
+  .qq-im-history-head button { ${QQ_BTN} padding: 0 8px; height: 18px; }
+  .qq-im-history-list { flex: 1; overflow-y: auto; padding: 6px 8px; }
+  .qq-im-history-list .row { margin-bottom: 4px; line-height: 1.4; }
+  .qq-im-history-list .meta { color: ${C.peerNick}; }
+  .qq-im-history-list .row.my .meta { color: ${C.myNick}; }
+  .qq-im-history-list .meta span { color: ${C.grey}; padding-left: 8px; }
+  .qq-im-history-list .body { color: ${COLORS.BLACK}; word-break: break-all; }
+  .qq-im-history-empty { color: ${C.grey}; text-align: center; padding-top: 20px; }
+
+  /* 表情选择面板：小工具条上方弹出的经典黄脸网格。 */
+  .qq-emoji-picker {
+    position: absolute; z-index: 4; bottom: 96px; left: 8px;
+    width: 224px; max-height: 200px; overflow-y: auto;
+    background: ${C.white}; border: 1px solid ${COLORS.INPUT_BORDER};
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28); padding: 4px;
+    display: grid; grid-template-columns: repeat(8, 1fr); gap: 1px;
+    align-content: start;
+  }
+  .qq-emoji-picker button {
+    height: 24px; font-size: 16px; line-height: 24px; cursor: pointer;
+    border: 1px solid transparent; background: transparent; filter: saturate(1.4);
+    &:hover { border-color: ${COLORS.MENU_HIGHLIGHT}; background: ${C.hover}; }
+  }
+`;
+
+// ─── QQ 弹出层（关闭对话框 / 查找对话框，Portal 到 body，屏幕居中）──────────────
+export const QQModalLayer = styled.div`
+  position: fixed; inset: 0; z-index: 2147483000;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.12);
+  font-family: SimSun, serif; font-size: 12px; user-select: none;
+
+  ${BTN_RESET}
+  .qq-btn { ${QQ_BTN} height: 22px; padding: 0 12px; }
+
+  .qq-dlg {
+    background: ${COLORS.SURFACE};
+    border: 1px solid ${COLORS.BUTTON_BORDER};
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
+    display: flex; flex-direction: column;
+  }
+  .qq-dlg-title {
+    height: 26px; display: flex; align-items: center; gap: 5px; padding: 0 4px 0 6px;
+    background: ${COLORS.WINDOW_TITLE_ACTIVE};
+    color: ${C.white}; font-weight: bold; border-radius: 4px 4px 0 0;
+  }
+  .qq-dlg-title img { width: 16px; height: 16px; }
+  .qq-dlg-title .title-x {
+    margin-left: auto; width: 20px; height: 18px; color: ${C.white}; cursor: pointer;
+    background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 2px; line-height: 16px; text-align: center; font-family: Tahoma, sans-serif;
+    &:hover { background: ${C.closeRed}; }
+  }
+  .qq-dlg-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .qq-dlg-row { display: flex; align-items: center; gap: 8px; }
+  .qq-dlg-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .qq-dlg-btns { display: flex; justify-content: flex-end; gap: 8px; padding: 0 16px 14px; }
+
+  /* 查找好友对话框 */
+  .qq-find-input {
+    flex: 1; height: 20px; border: 1px solid ${COLORS.INPUT_BORDER}; padding: 0 4px;
+    font-size: 12px; font-family: SimSun, serif;
+  }
+  .qq-find-results {
+    height: 168px; overflow-y: auto; border: 1px solid ${COLORS.BORDER_GREY};
+    background: ${C.white}; margin: 0; padding: 0; list-style: none;
+  }
+  .qq-find-results li {
+    display: flex; align-items: center; gap: 8px; padding: 4px 6px; cursor: pointer;
+  }
+  .qq-find-results li:hover, .qq-find-results li.sel {
+    background: ${COLORS.MENU_HIGHLIGHT}; color: ${C.white};
+  }
+  .qq-find-results li img { width: 28px; height: 28px; flex-shrink: 0; }
+  .qq-find-results .fr-name { font-weight: bold; }
+  .qq-find-results .fr-sub { color: ${C.grey}; }
+  .qq-find-results li:hover .fr-sub, .qq-find-results li.sel .fr-sub { color: ${C.selSub}; }
+  .qq-find-empty { color: ${C.grey}; text-align: center; padding-top: 60px; }
+`;
+
+// ─── 好友悬停 tooltip（昵称 / 号码 / 状态 / 签名卡片）──────────────────────────
+export const BuddyTooltip = styled.div`
+  position: fixed; z-index: 2147483200; width: 210px;
+  background: ${C.white}; border: 1px solid ${COLORS.DIALOG_BLUE};
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+  font-family: SimSun, serif; font-size: 12px; user-select: none; pointer-events: none;
+
+  .bt-head {
+    display: flex; align-items: center; gap: 8px; padding: 6px;
+    background: linear-gradient(to bottom, ${C.white}, ${C.infoBlue});
+    border-bottom: 1px solid ${C.infoBorder};
+  }
+  .bt-head img { width: 36px; height: 36px; flex-shrink: 0; }
+  .bt-name { font-weight: bold; color: ${C.peerNum}; }
+  .bt-name.vip { color: red; }
+  .bt-num { color: ${C.grey}; }
+  .bt-body { padding: 5px 8px; line-height: 1.5; }
+  .bt-status .dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px;
+  }
+  .bt-sign { color: ${C.grey}; margin-top: 3px; word-break: break-all; }
 `;
