@@ -4,11 +4,40 @@ title: Scenario system
 
 # Scenario system
 
-Turn the desktop into a playable story with **no React** — author a JSON
-rulebook of `{ on, when?, do }` triggers that listen to the [events above](/guide/events), read
-world state (flags, filesystem, event history), and drive shipped primitives
-(unlock a folder, pop a balloon, send a QQ message, write a file). Pass it via
-the `scenario` prop:
+A scenario is a JSON script that makes the desktop react to the player. For
+example, when the player opens a file, you can unlock a folder, show a
+notification, or write a new file — no React code required.
+
+## Hello world trigger
+
+```jsx
+import { WindowsXP } from '@caoergou/windows-xp';
+
+const scenario = {
+  id: 'hello',
+  triggers: [
+    {
+      id: 'open-readme',
+      on: 'file:open',
+      when: { event: { name: 'ReadMe.txt' } },
+      do: [{ notify: { title: 'ReadMe', body: 'You opened it!' } }],
+    },
+  ],
+};
+
+<WindowsXP scenario={scenario} autoLogin />;
+```
+
+A trigger has three parts:
+
+- `on` — the event to listen for (here, a file was opened).
+- `when` — optional condition (here, the file name must be `ReadMe.txt`).
+- `do` — the list of actions to run.
+
+## A fuller example
+
+Once you are comfortable with the basic shape, you can combine flags,
+conditions, and multiple actions to build a puzzle beat:
 
 ```jsx
 import { WindowsXP } from '@caoergou/windows-xp';
@@ -43,8 +72,8 @@ delayed actions, and a worked example — lives in
 
 ## Scenario DevTools
 
-`onEvent={console.log}` already shows you *what* happened — so this panel doesn't
-duplicate an event stream. It surfaces the two things that live *inside* the
+`onEvent={console.log}` already shows you _what_ happened — so this panel doesn't
+duplicate an event stream. It surfaces the two things that live _inside_ the
 engine and never reach the console: **why a trigger didn't fire**, and the
 current flags. Set `devtools` to mount an XP-styled overlay:
 
@@ -58,13 +87,12 @@ Two tabs:
   `fired`, `no match` (event type didn't match `on`), or a skip reason. When a
   trigger matched but its `when` was false, the condition tree is shown annotated
   ✓/✗ so the **exact false predicate** is obvious (e.g. `✗ flag door_open
-  (undefined) is truthy` — the runtime only ever computes a single boolean, so
+(undefined) is truthy` — the runtime only ever computes a single boolean, so
   this is otherwise invisible).
-- **Flags** — every current flag with its value and *who last changed it* (which
+- **Flags** — every current flag with its value and _who last changed it_ (which
   event → which trigger).
 
 It reads the trace the runtime publishes, is opt-in, and tree-shakes out of a
 production build that never sets `devtools`. Advanced hosts can mount
 `<DevToolsPanel/>` themselves or subscribe to `subscribeTrace(prefix, …)` to feed
 their own console logging or UI.
-

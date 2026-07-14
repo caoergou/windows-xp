@@ -6,10 +6,13 @@ title: Make the desktop yours
 
 ## Custom file system
 
-Top-level keys merge directly into the desktop root — a top-level key IS a
-desktop item:
+Pass `customFileSystem` to add your own files and folders to the desktop.
+Each top-level key becomes a desktop icon:
 
 ```jsx
+import { WindowsXP } from '@caoergou/windows-xp';
+import '@caoergou/windows-xp/style.css';
+
 const myFileSystem = {
   'ReadMe.txt': {
     type: 'file',
@@ -27,17 +30,14 @@ const myFileSystem = {
   'MyApp.lnk': { type: 'app_shortcut', name: 'MyApp.lnk', app: 'Calculator', icon: 'calculator' },
 };
 
-<WindowsXP customFileSystem={myFileSystem} />
+export default function App() {
+  return <WindowsXP customFileSystem={myFileSystem} autoLogin skipBoot />;
+}
 ```
 
-**Node shape** — `type` (`'file' | 'folder' | 'app_shortcut'`), `name`,
-optional `icon` (an `XPIcon` id), `app` (which registered app opens it),
-`content` (for files), `children` (for folders), and the puzzle attributes
-`locked`, `password`, `broken`. These attributes turn ordinary files and folders
-into puzzle gates; see [docs/PUZZLE-DESIGN.md](https://github.com/caoergou/windows-xp/blob/main/docs/PUZZLE-DESIGN.md) for the full interaction model.
-
-**File-type → app associations:** `Notepad` (text), `PhotoViewer` (images),
-`InternetExplorer` (html/url), `WindowsMediaPlayer` (audio/video).
+**Node shape** — every node has a `type` (`'file' | 'folder' | 'app_shortcut'`)
+and a `name`. Files can have `content` and an `app` that opens them; folders
+have `children`. All nodes can optionally set an `icon` (an `XPIcon` id).
 
 **Merge vs replace.** The default `'merge'` overlays your nodes on the stock
 desktop. `fileSystemMode="replace"` keeps only OS scaffolding (Recycle Bin +
@@ -45,13 +45,21 @@ an empty My Computer) and drops built-in shortcuts, preset content, and
 culture shortcuts — your `customFileSystem` becomes the whole world. That's
 the mode for portfolios, campaigns, and custom games.
 
+**File-type → app associations:** `Notepad` (text), `PhotoViewer` (images),
+`InternetExplorer` (html/url), `WindowsMediaPlayer` (audio/video).
+
+**Puzzle attributes.** Files and folders can be marked `locked`, `password`,
+or `broken` to turn them into puzzle gates. See
+[docs/PUZZLE-DESIGN.md](https://github.com/caoergou/windows-xp/blob/main/docs/PUZZLE-DESIGN.md)
+for the full interaction model.
+
 ## Wallpapers & avatar
 
 ```jsx
 <WindowsXP
   wallpapers={[{ id: 'brand', name: 'Brand', src: '/brand-wallpaper.jpg' }]}
-  defaultWallpaper="brand"          // or a direct URL: "https://…/bg.jpg"
-  avatar="/me.png"                  // or an XPIcon id
+  defaultWallpaper="brand" // or a direct URL: "https://…/bg.jpg"
+  avatar="/me.png" // or an XPIcon id
 />
 ```
 
@@ -84,7 +92,14 @@ const jpRetroCulture = defineCulture({
     { id: 'nicovideo', name: 'ニコニコ動画', app: 'InternetExplorer', icon: 'ie' },
   ],
   startMenu: {
-    pinned: [{ id: 'ie', action: 'InternetExplorer', nameKey: 'startMenu.apps.internetExplorer', icon: 'ie' }],
+    pinned: [
+      {
+        id: 'ie',
+        action: 'InternetExplorer',
+        nameKey: 'startMenu.apps.internetExplorer',
+        icon: 'ie',
+      },
+    ],
     recent: [{ id: 'notepad', action: 'Notepad', nameKey: 'apps.notepad', icon: 'file' }],
   },
   stickyNote: { id: 'default', title: 'メモ', content: 'カスタム文化包のテスト' },
@@ -96,7 +111,7 @@ const jpRetroCulture = defineCulture({
   },
 });
 
-<WindowsXP language="ja" cultures={[jpRetroCulture]} />
+<WindowsXP language="ja" cultures={[jpRetroCulture]} />;
 ```
 
 Notes for third-language packages:
@@ -110,6 +125,14 @@ Notes for third-language packages:
 - Start-menu items resolve names through `nameKey` only, so provide those keys.
 - `app` values must be **registered app ids** — a built-in, or one you pass via
   the `apps` prop. In dev, an unregistered id logs a warning at mount.
+
+> **Contributor note — wiring a culture app into the library**
+>
+> The steps below are for authors who are contributing a new built-in culture
+> app to the `windows-xp` repository itself (editing `src/apps/` and
+> `APP_REGISTRY`). If you are a package consumer adding a custom app to your
+> own project, use `defineApp()` (see [Write your first app](#write-your-first-app))
+> and reference its `id` in your culture package's `desktopShortcuts`.
 
 **Wiring a culture app end-to-end** (learned building the `en` English-language 2000s
 pack — Winamp / Norton AntiVirus / uTorrent / iTunes / Microsoft Office):
@@ -150,10 +173,13 @@ non-singleton) and derives `restore` from `component` for you. Open your
 registered app from the imperative handle:
 
 ```tsx
-const xp = useRef(null);
+import { useRef } from 'react';
+import type { XPHandle } from '@caoergou/windows-xp';
+
+const xp = useRef<XPHandle>(null);
 // …
 <WindowsXP ref={xp} apps={[HelloApp]} />;
-xp.current?.openApp('Hello');   // opens a window running HelloApp
+xp.current?.openApp('Hello'); // opens a window running HelloApp
 ```
 
 **Props that survive a refresh.** A window's props are persisted so it can be
@@ -175,8 +201,8 @@ Rules that matter:
 - **Open custom apps via `ref.openApp(id)`** (above) — it resolves against the
   merged registry that includes your `apps`. `associations` + `getProps` let a
   filesystem node's `.app` field open an app, but that path currently resolves
-  **built-in** apps only; opening a custom app straight from a desktop/Explorer
-  shortcut is being generalized (tracked with the `appRoles` work).
+  **built-in** apps only; use `ref.openApp(id)` to open a custom app from your
+  host code.
 - Add `nameKey` for a translated display name; `name` is the fallback.
 - Runtime callbacks belong on the event bus (`onEvent`) or `lifecycle`, never in
   props. Reach window/session state from inside the component via `useApp()`.
@@ -189,4 +215,3 @@ Rules that matter:
 The desktop makes a natural portfolio/blog shell — posts as `.md` files opened
 in the Markdown Viewer, permalinks, and an RSS feed + sitemap for SEO. It has
 its own guide: **[Build a blog on the desktop](/guide/blog)**.
-

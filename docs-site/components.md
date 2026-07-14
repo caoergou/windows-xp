@@ -4,10 +4,10 @@ title: Component gallery
 
 # Component gallery
 
-The engine _is_ the demo. Below is the live component gallery — every shared XP
-primitive (buttons, dialogs, menus, tabs, tooltips, balloons, the status bar…)
-rendered by the real package, not a screenshot. It's the same gallery that ships
-at [`/windows-xp/gallery/`](/windows-xp/gallery/).
+Below is the live component gallery — every shared XP primitive (buttons,
+dialogs, menus, tabs, tooltips, balloons, the status bar…) rendered by the real
+published package, not a screenshot. It's the same gallery that ships at
+[`/windows-xp/gallery/`](/windows-xp/gallery/).
 
 <ClientOnly>
 <iframe
