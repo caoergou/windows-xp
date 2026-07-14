@@ -35,9 +35,9 @@ const DEV_DEPS = ['vite@5', '@vitejs/plugin-react@4', 'typescript@5'];
 const I18N_MARKER = 'This folder is encrypted. Enter the password to open it.';
 
 let failures = 0;
-const log = (m) => console.log(`\x1b[36m[consumer-smoke]\x1b[0m ${m}`);
-const ok = (m) => console.log(`  \x1b[32m✓\x1b[0m ${m}`);
-const bad = (m) => {
+const log = m => console.log(`\x1b[36m[consumer-smoke]\x1b[0m ${m}`);
+const ok = m => console.log(`  \x1b[32m✓\x1b[0m ${m}`);
+const bad = m => {
   failures++;
   console.log(`  \x1b[31m✗ ${m}\x1b[0m`);
 };
@@ -64,7 +64,7 @@ function allFiles(dir, base = dir) {
   return out;
 }
 
-const globToRe = (g) =>
+const globToRe = g =>
   new RegExp(
     '^' +
       g
@@ -89,10 +89,11 @@ function checkSideEffects(distFiles) {
     ok(`sideEffects is ${JSON.stringify(se)} (no path claims to verify)`);
     return;
   }
-  if (!Array.isArray(se)) return bad(`sideEffects is neither boolean nor array: ${JSON.stringify(se)}`);
+  if (!Array.isArray(se))
+    return bad(`sideEffects is neither boolean nor array: ${JSON.stringify(se)}`);
   for (const glob of se) {
     const re = globToRe(glob.replace(/^\.\//, ''));
-    const hit = distFiles.some((f) => re.test(f) || re.test(`dist/${f}`));
+    const hit = distFiles.some(f => re.test(f) || re.test(`dist/${f}`));
     if (hit) ok(`sideEffects entry "${glob}" matches packaged files`);
     else bad(`sideEffects entry "${glob}" matches NO packaged file — a #113-class dead path`);
   }
@@ -128,22 +129,21 @@ async function main() {
 
     const distDir = path.join(tmp, 'dist');
     const jsFiles = collectJs(distDir);
-    const jsBlob = jsFiles.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
-    const cssFiles = fs
-      .readdirSync(path.join(distDir, 'assets'))
-      .filter((f) => f.endsWith('.css'));
+    const jsBlob = jsFiles.map(f => fs.readFileSync(f, 'utf8')).join('\n');
+    const cssFiles = fs.readdirSync(path.join(distDir, 'assets')).filter(f => f.endsWith('.css'));
 
     // 4. style.css actually shipped styles into the consumer build.
     if (cssFiles.length > 0) ok(`style.css emitted (${cssFiles.join(', ')})`);
     else bad('no CSS asset in the consumer build — style.css subpath did not ship styles');
 
     // 5. i18n side-effect survived tree-shaking (the #113 time bomb).
-    if (jsBlob.includes(I18N_MARKER)) ok('i18n resources present — init side-effect survived tree-shaking');
+    if (jsBlob.includes(I18N_MARKER))
+      ok('i18n resources present — init side-effect survived tree-shaking');
     else bad('i18n marker absent — the init side-effect was tree-shaken (check `sideEffects`)');
 
     // 6. Heavy apps stay code-split: no single chunk carries the whole app set
     //    into first paint. Solitaire's win logic is a good "heavy app" canary.
-    const entry = jsFiles.find((f) => /index|main/.test(path.basename(f)));
+    const entry = jsFiles.find(f => /index|main/.test(path.basename(f)));
     const entrySrc = entry ? fs.readFileSync(entry, 'utf8') : jsBlob;
     if (!/Klondike|Solitaire win|foundationsComplete/i.test(entrySrc))
       ok('heavy apps are code-split (Solitaire not in the entry chunk)');
@@ -166,6 +166,7 @@ async function main() {
     process.exit(1);
   }
   console.log('\n\x1b[32mconsumer-smoke OK — the package is consumable.\x1b[0m');
+  process.exit(0);
 }
 
 async function renderSmoke(consumerDir) {
@@ -174,23 +175,47 @@ async function renderSmoke(consumerDir) {
     cwd: consumerDir,
     stdio: ['ignore', 'pipe', 'pipe'],
   });
+
+  // Capture and log preview output so CI failures are actionable.
+  let previewOut = '';
+  preview.stdout.on('data', d => {
+    const s = String(d);
+    previewOut += s;
+    process.stdout.write(`[preview:stdout] ${s}`);
+  });
+  preview.stderr.on('data', d => {
+    const s = String(d);
+    previewOut += s;
+    process.stderr.write(`[preview:stderr] ${s}`);
+  });
+  preview.on('exit', (code, signal) => {
+    log(`preview process exited with code ${code}, signal ${signal}`);
+  });
+
   // Vite prints the bound URL (auto-picks a free port); parse it rather than
-  // guessing, so a busy port never wedges the run.
-  const base = await new Promise((resolve) => {
-    let buf = '';
-    const onData = (d) => {
-      buf += String(d);
-      const m = buf.match(/(http:\/\/localhost:\d+\/)/);
+  // guessing, so a busy port never wedges the run. Give slow CI containers more
+  // headroom than the original 20 s.
+  const PREVIEW_TIMEOUT_MS = 60000;
+  const base = await new Promise(resolve => {
+    const onData = d => {
+      const m = String(d).match(/(http:\/\/localhost:\d+\/)/);
       if (m) resolve(m[1]);
     };
     preview.stdout.on('data', onData);
     preview.stderr.on('data', onData);
-    setTimeout(() => resolve(null), 20000);
+    setTimeout(() => resolve(null), PREVIEW_TIMEOUT_MS);
   });
 
-  const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM_PATH || undefined });
+  const browser = await chromium.launch({
+    executablePath: process.env.PW_CHROMIUM_PATH || undefined,
+  });
   try {
-    if (!base) return bad('consumer preview server never printed a URL');
+    if (!base) {
+      preview.kill('SIGTERM');
+      return bad(
+        `consumer preview server never printed a URL within ${PREVIEW_TIMEOUT_MS}ms. Preview output:\n${previewOut.slice(-2000)}`
+      );
+    }
     const page = await browser.newPage({ viewport: { width: 1024, height: 768 } });
     let up = false;
     for (let i = 0; i < 40 && !up; i++) {
@@ -198,7 +223,7 @@ async function renderSmoke(consumerDir) {
         await page.goto(base, { waitUntil: 'domcontentloaded', timeout: 1500 });
         up = true;
       } catch {
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 500));
       }
     }
     if (!up) return bad(`consumer preview server never answered at ${base}`);
@@ -208,15 +233,21 @@ async function renderSmoke(consumerDir) {
 
     const probe = page.locator('[data-testid="components-probe"]');
     const kind = await probe.getAttribute('data-kind');
-    if (kind && kind !== 'undefined') ok(`/components subpath usable at runtime (StartButton is ${kind})`);
+    if (kind && kind !== 'undefined')
+      ok(`/components subpath usable at runtime (StartButton is ${kind})`);
     else bad('/components subpath import did not resolve to a value');
 
     const body = await page.locator('body').innerText();
-    if (/Recycle Bin|My Documents/.test(body)) ok('desktop shows translated labels (i18n initialized)');
+    if (/Recycle Bin|My Documents/.test(body))
+      ok('desktop shows translated labels (i18n initialized)');
     else bad('no translated labels found — i18n did not initialize in the consumer');
   } finally {
     await browser.close();
     preview.kill('SIGTERM');
+    // Give the preview process a grace period, then force-kill if it is still
+    // alive. Without this the Node process can hang on open handles.
+    await new Promise(r => setTimeout(r, 1000));
+    if (!preview.killed) preview.kill('SIGKILL');
   }
 }
 
@@ -234,7 +265,7 @@ function typeCheck(consumerDir, reactMajor) {
   }
 }
 
-main().catch((e) => {
+main().catch(e => {
   console.error(e);
   process.exit(1);
 });
