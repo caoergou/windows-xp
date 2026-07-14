@@ -127,7 +127,7 @@ export const xpTrackbarStyles = css`
   appearance: none;
   height: 21px;
   background: transparent;
-  cursor: pointer;
+  cursor: default;
 
   &:focus {
     outline: none;
@@ -135,9 +135,11 @@ export const xpTrackbarStyles = css`
 
   &::-webkit-slider-runnable-track {
     ${trackGroove}
+    cursor: default;
   }
   &::-moz-range-track {
     ${trackGroove}
+    cursor: default;
   }
 
   &::-webkit-slider-thumb {
@@ -146,6 +148,7 @@ export const xpTrackbarStyles = css`
     width: 11px;
     background: ${TRACKBAR_THUMB} no-repeat !important;
     transform: translateY(-9px);
+    cursor: default;
   }
   &::-moz-range-thumb {
     height: 21px;
@@ -153,5 +156,6 @@ export const xpTrackbarStyles = css`
     border: 0;
     border-radius: 0;
     background: ${TRACKBAR_THUMB} no-repeat;
+    cursor: default;
   }
 `;

@@ -21,4 +21,13 @@ export interface NotepadProps {
   windowId?: string;
   filePath?: string[];
   fileName?: string;
+  /**
+   * Typewriter mode: the document types itself keystroke-by-keystroke, then
+   * becomes a fully editable, ordinary Notepad. Any pointer interaction skips
+   * to the end; `prefers-reduced-motion` renders the full text instantly.
+   * JSON-serializable by design (window-restore safe).
+   */
+  autoTypeText?: string;
+  /** Milliseconds per character for {@link NotepadProps.autoTypeText}. */
+  autoTypeSpeed?: number;
 }

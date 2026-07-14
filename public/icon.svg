@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Site logo (#250): a CRT monitor glowing with a Bliss-like screen — the
+       landing page's one image, reduced to a 16px-legible pictogram. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#57a8f7"/>
+      <stop offset="1" stop-color="#2b6bdb"/>
+    </linearGradient>
+    <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7cc94e"/>
+      <stop offset="1" stop-color="#3d9038"/>
+    </linearGradient>
+    <linearGradient id="bezel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a3f4a"/>
+      <stop offset="0.6" stop-color="#23262d"/>
+      <stop offset="1" stop-color="#16181d"/>
+    </linearGradient>
+    <clipPath id="screen">
+      <rect x="10" y="11" width="44" height="33" rx="3"/>
+    </clipPath>
+  </defs>
+
+  <!-- stand -->
+  <rect x="26" y="50" width="12" height="6" fill="#16181d"/>
+  <rect x="18" y="56" width="28" height="4" rx="2" fill="#101216"/>
+
+  <!-- bezel -->
+  <rect x="3" y="4" width="58" height="48" rx="8" fill="url(#bezel)"/>
+  <rect x="3.5" y="4.5" width="57" height="47" rx="7.5" fill="none" stroke="#000" stroke-opacity="0.85"/>
+
+  <!-- screen: sky + hill -->
+  <g clip-path="url(#screen)">
+    <rect x="10" y="11" width="44" height="33" fill="url(#sky)"/>
+    <path d="M10 44 L10 36 Q22 27 34 33 Q45 38 54 34 L54 44 Z" fill="url(#hill)"/>
+  </g>
+  <rect x="10" y="11" width="44" height="33" rx="3" fill="none" stroke="#0a0a0a" stroke-width="2"/>
+
+  <!-- power LED -->
+  <circle cx="52" cy="48" r="2" fill="#6fe38a"/>
+</svg>

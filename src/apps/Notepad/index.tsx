@@ -108,7 +108,8 @@ const Notepad = (props: NotepadProps) => {
           onKeyUp={np.updateCursorPosition}
           onClick={np.updateCursorPosition}
           onContextMenu={np.handleContextMenu}
-          readOnly={np.isReadOnly}
+          readOnly={np.isReadOnly || np.isAutoTyping}
+          style={np.isAutoTyping ? { cursor: 'wait' } : undefined}
           $wordWrap={np.wordWrap}
           wrap={np.wordWrap ? 'soft' : 'off'}
         />

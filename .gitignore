@@ -16,6 +16,7 @@ tmp/
 *.png
 !src/**/*.png
 !e2e-visual/**/*.png
+!public/**/*.png
 *.yml
 !.github/**/*.yml
 

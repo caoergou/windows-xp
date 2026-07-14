@@ -19,6 +19,8 @@ export function useNotepad({
   windowId,
   filePath,
   fileName,
+  autoTypeText,
+  autoTypeSpeed = 42,
 }: NotepadProps) {
   const { t } = useTranslation();
   const api = useApp(windowId);
@@ -56,6 +58,56 @@ export function useNotepad({
     selectionEnd: 0,
   });
   const applyingHistoryRef = useRef(false);
+
+  // Auto-type mode (#250): the document types itself keystroke-by-keystroke
+  // through the REAL editor, then hands the controls over — menus, editing and
+  // save-to-FS all work on the result. Reduced motion renders instantly; any
+  // pointer interaction skips to the end (the visitor took the controls).
+  const autoTypeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [isAutoTyping, setIsAutoTyping] = useState(
+    () => typeof autoTypeText === 'string' && autoTypeText.length > 0
+  );
+
+  const finishAutoType = useCallback(() => {
+    if (autoTypeTimerRef.current) {
+      clearInterval(autoTypeTimerRef.current);
+      autoTypeTimerRef.current = null;
+    }
+    if (typeof autoTypeText !== 'string') return;
+    setContent(autoTypeText);
+    editorStateRef.current = {
+      content: autoTypeText,
+      selectionStart: autoTypeText.length,
+      selectionEnd: autoTypeText.length,
+    };
+    setIsAutoTyping(false);
+  }, [autoTypeText]);
+
+  useEffect(() => {
+    if (typeof autoTypeText !== 'string' || autoTypeText.length === 0) return;
+    const reduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      finishAutoType();
+      return;
+    }
+    textareaRef.current?.focus({ preventScroll: true });
+    let i = 0;
+    autoTypeTimerRef.current = setInterval(() => {
+      i += 1;
+      setContent(autoTypeText.slice(0, i));
+      const ta = textareaRef.current;
+      if (ta) ta.selectionStart = ta.selectionEnd = i;
+      if (i >= autoTypeText.length) finishAutoType();
+    }, autoTypeSpeed);
+    window.addEventListener('pointerdown', finishAutoType, { once: true });
+    return () => {
+      if (autoTypeTimerRef.current) clearInterval(autoTypeTimerRef.current);
+      window.removeEventListener('pointerdown', finishAutoType);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoTypeText, autoTypeSpeed]);
 
   // Ref to always access the latest keyboard handlers without re-registering the listener
   const keyboardHandlersRef = useRef<NotepadShortcutHandlers | null>(null);
@@ -614,6 +666,7 @@ export function useNotepad({
     menuRef,
     content,
     isReadOnly,
+    isAutoTyping,
     wordWrap,
     showStatusBar,
     cursorPos,

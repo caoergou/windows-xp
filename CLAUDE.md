@@ -406,3 +406,18 @@ apply on top of that — they OVERRIDE any default behavior:
   If a commit was already created with the wrong identity, repair it with
   `git commit --amend --reset-author --no-edit` (or rebase for multiple
   commits) before pushing.
+
+## Landing Page (#250) — Remaining TODO
+
+The landing page is the single-act "one monitor, one room, the millennium
+internet" design (#250): live hero desktop with the real Notepad auto-typing
+(`autoTypeText`/`autoTypeSpeed` props), zh/en `external_link` desktop shortcuts,
+tagline + install pill + quiet link line, glass box relocated to `/lab/`.
+Still open:
+
+- [ ] **Landing page hero boot animation**: Remove `skipBoot` from
+  `HeroDesktop` so visitors see the XP boot screen before the desktop appears.
+  Fire the greeter `openApp` after the `session:login` event instead of the
+  fixed 900ms timeout.
+- [ ] **Regenerate `public/images/og.png` when the hero/tagline changes** —
+  it is a real screenshot of the page (1200×630) and drifts silently otherwise.
