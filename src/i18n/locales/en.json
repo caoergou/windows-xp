@@ -780,7 +780,7 @@
       "loggingIn": "Logging in…",
       "versionTooOld": "Your QQ version is too old to log in.\nPlease download the latest version from the official website."
     },
-    "chatTitle": "Chat with {{nickname}}"
+    "chatTitle": "与 {{nickname}} 聊天中"
   },
   "safeGuard360": {
     "title": "360 Safe Guard",
