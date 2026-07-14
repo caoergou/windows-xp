@@ -91,8 +91,7 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onExit }) => {
     });
   };
 
-  const buddiesOf = (groupId: string): RuntimeBuddy[] =>
-    buddies.filter(b => b.group === groupId);
+  const buddiesOf = (groupId: string): RuntimeBuddy[] => buddies.filter(b => b.group === groupId);
 
   const showTooltip = (e: React.MouseEvent, buddy: RuntimeBuddy) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();

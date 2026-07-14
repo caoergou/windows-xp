@@ -9,12 +9,12 @@ import { TrayProvider } from '../src/context/TrayContext';
 
 // Mock XPIcon
 vi.mock('../src/components/XPIcon', () => ({
-  default: () => <div data-testid="xp-icon">Icon</div>
+  default: () => <div data-testid="xp-icon">Icon</div>,
 }));
 
 // Mock Taskbar
 vi.mock('../src/components/Taskbar', () => ({
-  default: () => <div data-testid="taskbar">Taskbar</div>
+  default: () => <div data-testid="taskbar">Taskbar</div>,
 }));
 
 test('Desktop refresh action triggers visible blink (remount)', async () => {

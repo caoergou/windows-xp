@@ -131,7 +131,12 @@ interface SearchEnginePageProps {
   navigateTo: (url: string, html?: string) => void;
 }
 
-const SearchEnginePage: React.FC<SearchEnginePageProps> = ({ query, corpus, brand, navigateTo }) => {
+const SearchEnginePage: React.FC<SearchEnginePageProps> = ({
+  query,
+  corpus,
+  brand,
+  navigateTo,
+}) => {
   const { t } = useTranslation();
   const bus = useXPEventBus();
   const [text, setText] = useState(query);

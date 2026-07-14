@@ -16,7 +16,7 @@ const Overlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0);
+  background-color: rgba(0, 0, 0, 0);
   z-index: 99999;
   display: flex;
   justify-content: center;
@@ -51,7 +51,7 @@ const HintText = styled.div`
 
 const ErrorText = styled.div`
   font-size: 11px;
-  color: #D32F2F;
+  color: #d32f2f;
   min-height: 16px;
 `;
 
@@ -95,7 +95,10 @@ const PasswordDialog = ({
   }, []);
 
   const handleSubmit = () => {
-    if (!password) { setError(t('passwordDialog.emptyError')); return; }
+    if (!password) {
+      setError(t('passwordDialog.emptyError'));
+      return;
+    }
 
     if (password === correctPassword) {
       sounds.ding();
@@ -126,7 +129,11 @@ const PasswordDialog = ({
             <XPIcon name="lock" size={32} />
             <div style={{ flex: 1 }}>
               <Message>{dialogMessage}</Message>
-              {hint && <HintText>{t('passwordDialog.hintPrefix')} {hint}</HintText>}
+              {hint && (
+                <HintText>
+                  {t('passwordDialog.hintPrefix')} {hint}
+                </HintText>
+              )}
             </div>
           </MessageRow>
           <div>
@@ -134,7 +141,10 @@ const PasswordDialog = ({
               ref={inputRef}
               type="password"
               value={password}
-              onChange={(e) => { setPassword(e.target.value); setError(''); }}
+              onChange={e => {
+                setPassword(e.target.value);
+                setError('');
+              }}
               onKeyDown={handleKeyDown}
               placeholder={t('passwordDialog.placeholder')}
             />
@@ -143,7 +153,9 @@ const PasswordDialog = ({
         </ContentArea>
         <ButtonArea>
           <XPButton onClick={onCancel}>{t('common.cancel')}</XPButton>
-          <XPButton $default onClick={handleSubmit}>{t('common.ok')}</XPButton>
+          <XPButton $default onClick={handleSubmit}>
+            {t('common.ok')}
+          </XPButton>
         </ButtonArea>
       </XPDialogWindow>
     </Overlay>

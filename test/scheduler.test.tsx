@@ -11,7 +11,11 @@ import { render, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { XPEventBus, type XPEvent } from '../src/events';
 import { EventBusProvider } from '../src/context/EventBusContext';
-import { SchedulerProvider, useScheduler, type SchedulerApi } from '../src/context/SchedulerContext';
+import {
+  SchedulerProvider,
+  useScheduler,
+  type SchedulerApi,
+} from '../src/context/SchedulerContext';
 import { sounds } from '../src/utils/soundManager';
 
 let bus: XPEventBus;

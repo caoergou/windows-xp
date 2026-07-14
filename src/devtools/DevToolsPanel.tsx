@@ -170,7 +170,9 @@ const TraceNode: React.FC<{ node: ConditionTrace; depth?: number }> = ({ node, d
       {node.held ? '✓ ' : '✗ '}
       {node.label}
     </TraceLine>
-    {node.children?.map((c, i) => <TraceNode key={i} node={c} depth={depth + 1} />)}
+    {node.children?.map((c, i) => (
+      <TraceNode key={i} node={c} depth={depth + 1} />
+    ))}
   </>
 );
 
@@ -196,7 +198,8 @@ const DevToolsPanel: React.FC<DevToolsPanelProps> = ({ scenario }) => {
   const latest = reports[reports.length - 1];
   const flags = latest?.flags ?? {};
   const lastChangeBy: Record<string, string> = {};
-  for (const r of reports) for (const c of r.changes) lastChangeBy[c.flag] = `${r.event.type} → ${c.by}`;
+  for (const r of reports)
+    for (const c of r.changes) lastChangeBy[c.flag] = `${r.event.type} → ${c.by}`;
 
   return (
     <Panel $collapsed={collapsed} data-testid="devtools-panel">
@@ -214,10 +217,18 @@ const DevToolsPanel: React.FC<DevToolsPanelProps> = ({ scenario }) => {
       {!collapsed && (
         <>
           <Tabs>
-            <TabBtn $active={tab === 'triggers'} data-testid="devtools-tab-triggers" onClick={() => setTab('triggers')}>
+            <TabBtn
+              $active={tab === 'triggers'}
+              data-testid="devtools-tab-triggers"
+              onClick={() => setTab('triggers')}
+            >
               Triggers
             </TabBtn>
-            <TabBtn $active={tab === 'flags'} data-testid="devtools-tab-flags" onClick={() => setTab('flags')}>
+            <TabBtn
+              $active={tab === 'flags'}
+              data-testid="devtools-tab-flags"
+              onClick={() => setTab('flags')}
+            >
               Flags
             </TabBtn>
           </Tabs>
@@ -238,7 +249,8 @@ const DevToolsPanel: React.FC<DevToolsPanelProps> = ({ scenario }) => {
                   {latest.triggers.map(tr => (
                     <TrigCard key={tr.id} data-testid="devtools-trigger">
                       <div>
-                        <b>{tr.id}</b> <Muted>on {Array.isArray(tr.on) ? tr.on.join('|') : tr.on}</Muted>{' '}
+                        <b>{tr.id}</b>{' '}
+                        <Muted>on {Array.isArray(tr.on) ? tr.on.join('|') : tr.on}</Muted>{' '}
                         {tr.fired ? (
                           <Badge $bg="green">fired</Badge>
                         ) : !tr.matchedOn ? (

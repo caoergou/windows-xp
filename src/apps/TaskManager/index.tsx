@@ -55,10 +55,7 @@ const TaskManager: React.FC = () => {
   const [aboutOpen, setAboutOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const processRows = useMemo(
-    () => buildProcessRows(windows, user.name),
-    [windows, user.name]
-  );
+  const processRows = useMemo(() => buildProcessRows(windows, user.name), [windows, user.name]);
   const stats = useSystemStats(processRows.length);
 
   // Drop a stale selection when its window/process disappears.
@@ -90,7 +87,13 @@ const TaskManager: React.FC = () => {
   const openRunDialog = useCallback(() => {
     setOpenMenu(null);
     const runApp = APP_REGISTRY.RunDialog;
-    openWindow(runApp.id, getAppDisplayName(runApp, t), runApp.restore({}), runApp.icon, runApp.window);
+    openWindow(
+      runApp.id,
+      getAppDisplayName(runApp, t),
+      runApp.restore({}),
+      runApp.icon,
+      runApp.window
+    );
   }, [openWindow, t]);
 
   const exitTaskManager = useCallback(() => {
@@ -130,7 +133,11 @@ const TaskManager: React.FC = () => {
       <XPMenuBar ref={menuRef}>
         {/* File */}
         <XPMenuSlot>
-          <XPMenuBarItem type="button" $active={openMenu === 'file'} onClick={() => toggleMenu('file')}>
+          <XPMenuBarItem
+            type="button"
+            $active={openMenu === 'file'}
+            onClick={() => toggleMenu('file')}
+          >
             {t('taskManager.menu.file')}
           </XPMenuBarItem>
           {openMenu === 'file' && (
@@ -177,7 +184,11 @@ const TaskManager: React.FC = () => {
 
         {/* View (disabled placeholders) */}
         <XPMenuSlot>
-          <XPMenuBarItem type="button" $active={openMenu === 'view'} onClick={() => toggleMenu('view')}>
+          <XPMenuBarItem
+            type="button"
+            $active={openMenu === 'view'}
+            onClick={() => toggleMenu('view')}
+          >
             {t('taskManager.menu.view')}
           </XPMenuBarItem>
           {openMenu === 'view' && (
@@ -223,7 +234,11 @@ const TaskManager: React.FC = () => {
 
         {/* Help */}
         <XPMenuSlot>
-          <XPMenuBarItem type="button" $active={openMenu === 'help'} onClick={() => toggleMenu('help')}>
+          <XPMenuBarItem
+            type="button"
+            $active={openMenu === 'help'}
+            onClick={() => toggleMenu('help')}
+          >
             {t('taskManager.menu.help')}
           </XPMenuBarItem>
           {openMenu === 'help' && (
@@ -346,9 +361,7 @@ const TaskManager: React.FC = () => {
           </>
         )}
 
-        {tab === 'performance' && (
-          <Performance stats={stats} processCount={processRows.length} />
-        )}
+        {tab === 'performance' && <Performance stats={stats} processCount={processRows.length} />}
       </Panel>
 
       <StatusBar data-testid="taskmgr-statusbar">

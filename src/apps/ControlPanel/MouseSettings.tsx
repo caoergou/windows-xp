@@ -8,7 +8,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 11px;
   color: #000;
 `;
@@ -69,10 +69,14 @@ const Button = styled.button`
   border: 1px solid #003c74;
   background: linear-gradient(180deg, #ffffff 0%, #ecebe5 86%, #d8d0c4 100%);
   cursor: pointer;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 
   &:hover {
-    box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a;
+    box-shadow:
+      inset -1px 1px #fff0cf,
+      inset 1px 2px #fdd889,
+      inset -2px 2px #fbc761,
+      inset 2px -2px #e5a01a;
   }
 `;
 
@@ -100,12 +104,14 @@ const MouseSettings: React.FC<MouseSettingsProps> = ({ onBack }) => {
             min="0"
             max="100"
             value={pointerSpeed}
-            onChange={(e) => setPointerSpeed(parseInt(e.target.value))}
+            onChange={e => setPointerSpeed(parseInt(e.target.value))}
           />
         </Row>
       </GroupBox>
       <GroupBox>
-        <GroupTitle>{t('controlPanel.mouseSettings.doubleClickSpeed', 'Double-click speed:')}</GroupTitle>
+        <GroupTitle>
+          {t('controlPanel.mouseSettings.doubleClickSpeed', 'Double-click speed:')}
+        </GroupTitle>
         <Row>
           <LabelRow>
             <Label>{t('controlPanel.mouseSettings.doubleClickSpeed', 'Double-click speed:')}</Label>
@@ -116,16 +122,18 @@ const MouseSettings: React.FC<MouseSettingsProps> = ({ onBack }) => {
             min="0"
             max="100"
             value={doubleClickSpeed}
-            onChange={(e) => setDoubleClickSpeed(parseInt(e.target.value))}
+            onChange={e => setDoubleClickSpeed(parseInt(e.target.value))}
           />
         </Row>
       </GroupBox>
       <GroupBox>
-        <GroupTitle>{t('controlPanel.mouseSettings.pointerTrails', 'Show pointer trails')}</GroupTitle>
+        <GroupTitle>
+          {t('controlPanel.mouseSettings.pointerTrails', 'Show pointer trails')}
+        </GroupTitle>
         <XPCheckbox
           id="cp-pointer-trails"
           checked={pointerTrails}
-          onChange={(e) => setPointerTrails(e.target.checked)}
+          onChange={e => setPointerTrails(e.target.checked)}
           label={t('controlPanel.mouseSettings.pointerTrails', 'Show pointer trails')}
         />
       </GroupBox>

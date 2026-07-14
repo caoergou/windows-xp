@@ -67,7 +67,9 @@ const Logo = styled.div`
   font-weight: bold;
   color: #4d9a28;
   border: 3px solid #ff6600;
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    inset 0 0 8px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
 `;
 
@@ -138,7 +140,9 @@ const ShieldBox = styled.div<{ $scanning: boolean }>`
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #8fd65e 0%, #4d9a28 60%, #2f6f16 100%);
   border: 4px solid white;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.2),
+    inset 0 0 20px rgba(255, 255, 255, 0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -147,9 +151,11 @@ const ShieldBox = styled.div<{ $scanning: boolean }>`
   flex-shrink: 0;
   position: relative;
 
-  ${p => p.$scanning && css`
-    animation: ${scanPulse} 1.5s ease-in-out infinite;
-  `}
+  ${p =>
+    p.$scanning &&
+    css`
+      animation: ${scanPulse} 1.5s ease-in-out infinite;
+    `}
 
   .score {
     font-size: 36px;
@@ -225,19 +231,15 @@ const ProgressTrack = styled.div`
 const ProgressFill = styled.div<{ $value: number; $animated?: boolean }>`
   width: ${p => p.$value}%;
   height: 100%;
-  background: repeating-linear-gradient(
-    45deg,
-    #6bb33f,
-    #6bb33f 10px,
-    #5aa02f 10px,
-    #5aa02f 20px
-  );
+  background: repeating-linear-gradient(45deg, #6bb33f, #6bb33f 10px, #5aa02f 10px, #5aa02f 20px);
   border-radius: 8px 0 0 8px;
   transition: width 0.2s linear;
 
-  ${p => p.$animated && css`
-    animation: ${progressStripes} 0.5s linear infinite;
-  `}
+  ${p =>
+    p.$animated &&
+    css`
+      animation: ${progressStripes} 0.5s linear infinite;
+    `}
 `;
 
 const ActionArea = styled.div`
@@ -256,9 +258,10 @@ const ScanButton = styled.button<{ $scanning: boolean }>`
   font-family: inherit;
   color: white;
   cursor: pointer;
-  background: ${p => p.$scanning
-    ? 'linear-gradient(to bottom, #999 0%, #777 100%)'
-    : 'linear-gradient(to bottom, #ff8833 0%, #ff6600 50%, #e65c00 100%)'};
+  background: ${p =>
+    p.$scanning
+      ? 'linear-gradient(to bottom, #999 0%, #777 100%)'
+      : 'linear-gradient(to bottom, #ff8833 0%, #ff6600 50%, #e65c00 100%)'};
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 
@@ -500,7 +503,9 @@ const SafeGuard360: React.FC<SafeGuard360Props> = () => {
 
         {resultVisible && threats.length > 0 && (
           <ResultPanel>
-            <div className="icon"><XPIcon name="alert_warning" size={48} /></div>
+            <div className="icon">
+              <XPIcon name="alert_warning" size={48} />
+            </div>
             <div style={{ fontSize: 13, fontWeight: 'bold', color: '#b34700' }}>
               {t('safeGuard360.scan.threatsFound', { count: threats.length })}
             </div>
@@ -508,7 +513,9 @@ const SafeGuard360: React.FC<SafeGuard360Props> = () => {
               {threats.map(name => (
                 <li key={name}>
                   <XPIcon name="stop_xp" size={16} />
-                  <span>{t('safeGuard360.scan.threatPrefix')}.{name}.exe</span>
+                  <span>
+                    {t('safeGuard360.scan.threatPrefix')}.{name}.exe
+                  </span>
                 </li>
               ))}
             </ThreatList>
@@ -520,7 +527,9 @@ const SafeGuard360: React.FC<SafeGuard360Props> = () => {
 
         {resultVisible && threats.length === 0 && (
           <ResultPanel>
-            <div className="icon"><XPIcon name="checklist" size={48} /></div>
+            <div className="icon">
+              <XPIcon name="checklist" size={48} />
+            </div>
             <div className="text">
               {cleaned ? t('safeGuard360.scan.cleaned') : t('safeGuard360.scan.resultSafe')}
             </div>
@@ -528,14 +537,21 @@ const SafeGuard360: React.FC<SafeGuard360Props> = () => {
         )}
 
         <ActionArea>
-          <ScanButton data-testid="safe-guard-scan-button" $scanning={scanning} onClick={startScan} disabled={scanning}>
+          <ScanButton
+            data-testid="safe-guard-scan-button"
+            $scanning={scanning}
+            onClick={startScan}
+            disabled={scanning}
+          >
             {scanning ? t('safeGuard360.scan.scanning') : t('safeGuard360.scan.quickScan')}
           </ScanButton>
         </ActionArea>
       </Body>
 
       <Footer>
-        <span>{t('safeGuard360.footer.lastScan')}: {t('safeGuard360.footer.never')}</span>
+        <span>
+          {t('safeGuard360.footer.lastScan')}: {t('safeGuard360.footer.never')}
+        </span>
         <span>{t('safeGuard360.footer.updateTime')}: 2008-08-08</span>
       </Footer>
     </Wrap>

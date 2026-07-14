@@ -93,10 +93,7 @@ describe('move application', () => {
       stock: [],
       waste: [],
       foundations: [[], [], [], []],
-      tableaus: [
-        [card('spades', 6, false), card('hearts', 5, true)],
-        [card('clubs', 4, false)],
-      ],
+      tableaus: [[card('spades', 6, false), card('hearts', 5, true)], [card('clubs', 4, false)]],
     };
 
     const next = applyMove(

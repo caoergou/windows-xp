@@ -46,7 +46,9 @@ const LogoBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
 `;
 
@@ -57,17 +59,9 @@ const LogoIcon = () => (
       fill="#fff"
       fillOpacity="0.9"
     />
-    <path
-      d="M10 19c0-3 1.5-5.5 4-7 2.5 1.5 4 4 4 7H10z"
-      fill="#2e7d32"
-    />
+    <path d="M10 19c0-3 1.5-5.5 4-7 2.5 1.5 4 4 4 7H10z" fill="#2e7d32" />
     <circle cx="14" cy="10" r="2.5" fill="#2e7d32" />
-    <path
-      d="M8 9l3 3M20 9l-3 3"
-      stroke="#2e7d32"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
+    <path d="M8 9l3 3M20 9l-3 3" stroke="#2e7d32" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 );
 
@@ -176,7 +170,12 @@ const Bar = styled.div<{ $active?: boolean; $delay: number }>`
   background: ${p => (p.$active ? '#66bb6a' : '#555')};
   border-radius: 1px;
   transform-origin: bottom;
-  animation: ${p => (p.$active ? css`${pulse} 0.8s ease-in-out infinite` : 'none')};
+  animation: ${p =>
+    p.$active
+      ? css`
+          ${pulse} 0.8s ease-in-out infinite
+        `
+      : 'none'};
   animation-delay: ${p => p.$delay}s;
 `;
 
@@ -460,7 +459,9 @@ const KugouMusic: React.FC<KugouMusicProps> = () => {
         </VisualizerPanel>
 
         <ListHeader>
-          <Cell $width={24} $align="center">#</Cell>
+          <Cell $width={24} $align="center">
+            #
+          </Cell>
           <Cell $flex={3}>{t('kugouMusic.columnTitle')}</Cell>
           <Cell $flex={2}>{t('kugouMusic.columnArtist')}</Cell>
           <Cell $flex={1} $align="right">

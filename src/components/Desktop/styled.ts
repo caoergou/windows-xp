@@ -5,7 +5,7 @@ import styled from 'styled-components';
 export const DesktopContainer = styled.div<{ $bgUrl: string }>`
   width: 100%;
   height: 100%;
-  background-color: #004E98;
+  background-color: #004e98;
   background-image: url(${props => props.$bgUrl});
   background-size: cover;
   background-position: center;
@@ -16,7 +16,12 @@ export const DesktopContainer = styled.div<{ $bgUrl: string }>`
   touch-action: manipulation;
 `;
 
-export const SelectionBox = styled.div<{ $left: number; $top: number; $width: number; $height: number }>`
+export const SelectionBox = styled.div<{
+  $left: number;
+  $top: number;
+  $width: number;
+  $height: number;
+}>`
   position: absolute;
   left: ${props => props.$left}px;
   top: ${props => props.$top}px;
@@ -57,13 +62,17 @@ export const DesktopIcon = styled.div<{ $selected?: boolean }>`
   touch-action: manipulation;
   -webkit-touch-callout: none;
 
-  ${props => props.$selected && `
+  ${props =>
+    props.$selected &&
+    `
     background-color: rgba(49, 106, 197, 0.55);
     border: 1px dotted rgba(255, 255, 255, 0.9);
   `}
 
   &:hover {
-    ${props => !props.$selected && `
+    ${props =>
+      !props.$selected &&
+      `
       background-color: rgba(49, 106, 197, 0.3);
       border: 1px dotted rgba(255, 255, 255, 0.5);
     `}
@@ -77,7 +86,7 @@ export const DesktopIcon = styled.div<{ $selected?: boolean }>`
 
   .icon-label {
     font-size: 11px;
-    font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+    font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
     text-align: center;
     max-width: 100%;
     display: block;
@@ -97,7 +106,9 @@ export const DesktopIcon = styled.div<{ $selected?: boolean }>`
       background: transparent;
     }
 
-    ${props => props.$selected && `
+    ${props =>
+      props.$selected &&
+      `
       color: #ffffff;
       text-shadow: none;
     `}

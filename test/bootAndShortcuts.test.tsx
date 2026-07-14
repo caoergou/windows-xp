@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, cleanup, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { WindowsXP } from '../src/lib';
+import { encodeOpenWindows } from '../src/utils/windowPersistence';
 
 // Storage keys use the default 'xp_' prefix (see src/utils/storage.ts).
 const KEY_FIRST_BOOT = 'xp_first_boot_done';
@@ -48,7 +49,7 @@ const makeSavedWindow = (id: string, title: string, zIndex: number) => ({
 
 const seedOpenWindows = (...titles: string[]) => {
   const wins = titles.map((title, i) => makeSavedWindow(`win-${i + 1}`, title, 10001 + i));
-  localStorage.setItem(KEY_OPEN_WINDOWS, JSON.stringify(wins));
+  localStorage.setItem(KEY_OPEN_WINDOWS, encodeOpenWindows(wins));
 };
 
 beforeEach(() => {

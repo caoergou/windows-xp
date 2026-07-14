@@ -68,37 +68,34 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   const bypassCloseRef = useRef(false);
 
   // ── 打开与某好友的聊天窗口（去重：已开则聚焦）────────────────────────────
-  const openChat = useCallback(
-    (buddyId: string) => {
-      const buddy = qqStore.buddy(buddyId);
-      if (!buddy) return;
-      const existing = wmRef.current.windows.find(
-        w => w.appId === 'QQ' && (w.componentProps as { buddyId?: string })?.buddyId === buddyId
-      );
-      if (existing) {
-        wmRef.current.focusWindow(existing.id);
-        return;
+  const openChat = useCallback((buddyId: string) => {
+    const buddy = qqStore.buddy(buddyId);
+    if (!buddy) return;
+    const existing = wmRef.current.windows.find(
+      w => w.appId === 'QQ' && (w.componentProps as { buddyId?: string })?.buddyId === buddyId
+    );
+    if (existing) {
+      wmRef.current.focusWindow(existing.id);
+      return;
+    }
+    const screenW = window.innerWidth || 1280;
+    const chatLeft = Math.max(0, Math.round((screenW - SIZE.chat.w) / 2 - SIZE.panel.w));
+    wmRef.current.openWindow(
+      'QQ',
+      `与 ${buddy.nickname} 聊天中`,
+      <QQChat buddyId={buddyId} />,
+      'qq',
+      {
+        width: SIZE.chat.w,
+        height: SIZE.chat.h,
+        minWidth: SIZE.chat.w,
+        minHeight: SIZE.chat.h,
+        left: chatLeft,
+        resizable: false,
+        componentProps: { view: 'chat', buddyId },
       }
-      const screenW = window.innerWidth || 1280;
-      const chatLeft = Math.max(0, Math.round((screenW - SIZE.chat.w) / 2 - SIZE.panel.w));
-      wmRef.current.openWindow(
-        'QQ',
-        `与 ${buddy.nickname} 聊天中`,
-        <QQChat buddyId={buddyId} />,
-        'qq',
-        {
-          width: SIZE.chat.w,
-          height: SIZE.chat.h,
-          minWidth: SIZE.chat.w,
-          minHeight: SIZE.chat.h,
-          left: chatLeft,
-          resizable: false,
-          componentProps: { view: 'chat', buddyId },
-        }
-      );
-    },
-    []
-  );
+    );
+  }, []);
   const openChatRef = useRef(openChat);
   openChatRef.current = openChat;
 
@@ -250,8 +247,7 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
         api.sound.play('error');
         await api.dialog.alert({
           title: 'QQ',
-          message:
-            '您使用的 QQ 版本过低，无法登录。\n请前往官网下载最新版本的 QQ。',
+          message: '您使用的 QQ 版本过低，无法登录。\n请前往官网下载最新版本的 QQ。',
           type: 'error',
         });
         setPhase('login');

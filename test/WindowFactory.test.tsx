@@ -4,26 +4,19 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { restoreComponent } from '../src/utils/WindowFactory';
 import { useWindowManager } from '../src/context/WindowManagerContext';
 import { getStorageKey } from '../src/utils/storage';
+import { encodeOpenWindows } from '../src/utils/windowPersistence';
 import { renderWithProviders } from './utils';
-import Explorer from '../src/apps/Explorer';
 import Calculator from '../src/apps/Calculator';
-import PhotoViewer from '../src/apps/PhotoViewer';
 import FileProperties from '../src/components/FileProperties';
 
 const STORAGE_KEY = getStorageKey('open_windows');
 
 /** Extract the element type of a restored node (null when not an element). */
-const typeOf = (node: React.ReactNode): unknown =>
-  React.isValidElement(node) ? node.type : null;
+const typeOf = (node: React.ReactNode): unknown => (React.isValidElement(node) ? node.type : null);
 
 /** Extract the props of a restored element. */
 const propsOf = (node: React.ReactNode): Record<string, unknown> =>
   React.isValidElement(node) ? (node.props as Record<string, unknown>) : {};
-
-const isLazyType = (type: unknown): boolean =>
-  typeof type === 'object' &&
-  type !== null &&
-  (type as { $$typeof?: symbol }).$$typeof === Symbol.for('react.lazy');
 
 beforeEach(() => {
   localStorage.clear();
@@ -36,7 +29,7 @@ describe('restoreComponent — registry exact match', () => {
     expect(propsOf(node)).toEqual({ windowId: 'w1' });
   });
 
-  it('registry match wins over legacy prop heuristics (Notepad appId with a url prop stays Notepad)', () => {
+  it('restores strictly by appId — props never divert a registered appId (Notepad with a url prop stays Notepad)', () => {
     const notepadType = typeOf(restoreComponent('Notepad', {}));
     const node = restoreComponent('Notepad', { url: 'https://example.com' });
     expect(typeOf(node)).toBe(notepadType);
@@ -53,87 +46,30 @@ describe('restoreComponent — dynamic FileProperties appId', () => {
   });
 });
 
-describe('restoreComponent — legacy prop heuristics', () => {
-  it('restores unknown appIds with initialPath as Explorer', () => {
-    const node = restoreComponent('some-legacy-id', { initialPath: ['C:', 'Documents'] });
-    expect(typeOf(node)).toBe(Explorer);
-    expect(propsOf(node)).toEqual({ initialPath: ['C:', 'Documents'] });
-  });
-
-  it("restores appId 'Internet Explorer' (with space, old format) as InternetExplorer", () => {
-    const ieType = typeOf(restoreComponent('InternetExplorer', {}));
-    expect(isLazyType(ieType)).toBe(true); // sanity: IE is a lazy component
-    const node = restoreComponent('Internet Explorer', { url: 'https://example.com' });
-    expect(typeOf(node)).toBe(ieType);
-    expect(propsOf(node).url).toBe('https://example.com');
-  });
-
-  it('restores unknown appIds with a url prop as InternetExplorer', () => {
-    const ieType = typeOf(restoreComponent('InternetExplorer', {}));
-    expect(typeOf(restoreComponent('legacy-window', { url: 'about:blank' }))).toBe(ieType);
-  });
-
-  it('restores unknown appIds with an html prop as InternetExplorer', () => {
-    const ieType = typeOf(restoreComponent('InternetExplorer', {}));
-    const node = restoreComponent('legacy-window', { html: '<h1>hi</h1>' });
-    expect(typeOf(node)).toBe(ieType);
-    expect(propsOf(node)).toEqual({ html: '<h1>hi</h1>' });
-  });
-
-  it('restores unknown appIds with a content prop (and no url/html) as Notepad', () => {
-    const notepadType = typeOf(restoreComponent('Notepad', {}));
-    const node = restoreComponent('readme.txt', { content: 'hello', readOnly: true });
-    expect(typeOf(node)).toBe(notepadType);
-    expect(propsOf(node)).toEqual({ content: 'hello', readOnly: true });
-  });
-
-  it('content prop takes precedence over src (branch order: Notepad before PhotoViewer)', () => {
-    const notepadType = typeOf(restoreComponent('Notepad', {}));
-    expect(typeOf(restoreComponent('legacy', { content: 'x', src: 'a.png' }))).toBe(notepadType);
-  });
-
-  it('restores unknown appIds with a src prop as PhotoViewer', () => {
-    const node = restoreComponent('picture-window', { src: '/img/photo.jpg' });
-    expect(typeOf(node)).toBe(PhotoViewer);
-    expect(propsOf(node)).toEqual({ src: '/img/photo.jpg' });
-  });
+describe('restoreComponent — retired legacy paths (#163 C)', () => {
+  // The pre-registry prop-sniffing heuristics (initialPath/url/html/content/src)
+  // and the id/中文名 aliases were retired behind the open_windows storage version
+  // bump. Folder windows now persist appId 'Explorer', IE persists
+  // 'InternetExplorer', etc., so these spellings must fall through to null.
+  const warn = () => vi.spyOn(console, 'warn').mockImplementation(vi.fn());
 
   it.each([
-    ['run', 'RunDialog'],
-    ['cmd', 'CommandPrompt'],
-    ['Command Prompt', 'CommandPrompt'],
-    ['volume', 'VolumeControl'],
-    ['network', 'NetworkConnections'],
-    ['controlpanel', 'ControlPanel'],
-    ['paint', 'MicrosoftPaint'],
-    ['画图', 'MicrosoftPaint'],
-    ['minesweeper', 'Minesweeper'],
-    ['扫雷', 'Minesweeper'],
-  ])('restores legacy alias appId %j as %s', (legacyAppId, registryId) => {
-    const expectedType = typeOf(restoreComponent(registryId, {}));
-    expect(expectedType).not.toBeNull();
-    expect(typeOf(restoreComponent(legacyAppId, {}))).toBe(expectedType);
-  });
-});
-
-describe('restoreComponent — My Computer / Recycle Bin / My Documents', () => {
-  // In the current code these windows are restored via the initialPath heuristic
-  // (resolveFileOpen always persists componentProps.initialPath for folder-like nodes).
-  it.each([['My Computer'], ['Recycle Bin'], ['My Documents']])(
-    'restores appId %j with initialPath as Explorer',
-    (appId) => {
-      const node = restoreComponent(appId, { initialPath: [appId] });
-      expect(typeOf(node)).toBe(Explorer);
-      expect(propsOf(node)).toEqual({ initialPath: [appId] });
+    ['unknown id + initialPath (was Explorer)', 'some-legacy-id', { initialPath: ['C:'] }],
+    ["'Internet Explorer' with a space (was InternetExplorer)", 'Internet Explorer', { url: 'x' }],
+    ['unknown id + url (was InternetExplorer)', 'legacy-window', { url: 'about:blank' }],
+    ['unknown id + content (was Notepad)', 'readme.txt', { content: 'hi' }],
+    ['unknown id + src (was PhotoViewer)', 'picture-window', { src: '/img/photo.jpg' }],
+    ['legacy alias 画图 (was MicrosoftPaint)', '画图', {}],
+    ['legacy alias 扫雷 (was Minesweeper)', '扫雷', {}],
+    ['legacy alias run (was RunDialog)', 'run', {}],
+  ])('returns null for %s', (_label, appId, props) => {
+    const spy = warn();
+    try {
+      expect(restoreComponent(appId, props as Record<string, unknown>)).toBeNull();
+    } finally {
+      spy.mockRestore();
     }
-  );
-
-  // CLAUDE.md documents a dedicated "My Computer / Recycle Bin / My Documents -> Explorer"
-  // appId branch, but restoreComponent has no such branch: without componentProps.initialPath
-  // these appIds fall through to the unknown-appId fallback and return null.
-  it.todo(
-    'documented appId-only branch: "My Computer" without initialPath should restore as Explorer (currently returns null)'
-  );
+  });
 });
 
 describe('restoreComponent — unknown appId fallback', () => {
@@ -142,10 +78,9 @@ describe('restoreComponent — unknown appId fallback', () => {
     try {
       const node = restoreComponent('TotallyUnknownApp', { some: 'prop' });
       expect(node).toBeNull();
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('TotallyUnknownApp'),
-        { some: 'prop' }
-      );
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('TotallyUnknownApp'), {
+        some: 'prop',
+      });
     } finally {
       warnSpy.mockRestore();
     }
@@ -163,12 +98,10 @@ const PersistenceHarness = () => {
   return (
     <div>
       <div data-testid="count">{windows.length}</div>
-      <div data-testid="app-ids">{windows.map((w) => w.appId).join(',')}</div>
-      <div data-testid="component-props">
-        {JSON.stringify(windows.map((w) => w.componentProps))}
-      </div>
+      <div data-testid="app-ids">{windows.map(w => w.appId).join(',')}</div>
+      <div data-testid="component-props">{JSON.stringify(windows.map(w => w.componentProps))}</div>
       <div data-testid="all-have-components">
-        {windows.every((w) => React.isValidElement(w.component)) ? 'yes' : 'no'}
+        {windows.every(w => React.isValidElement(w.component)) ? 'yes' : 'no'}
       </div>
       <button
         onClick={() =>
@@ -204,7 +137,10 @@ describe('WindowManagerContext — persistence to localStorage', () => {
 
     const raw = localStorage.getItem(STORAGE_KEY);
     expect(raw).not.toBeNull();
-    const saved = JSON.parse(raw as string);
+    const envelope = JSON.parse(raw as string);
+    // Persisted under the versioned envelope (#163 C).
+    expect(envelope.version).toBe(1);
+    const saved = envelope.windows;
     expect(saved).toHaveLength(1);
 
     const win = saved[0];
@@ -257,12 +193,12 @@ describe('WindowManagerContext — persistence to localStorage', () => {
     };
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify([
+      encodeOpenWindows([
         { ...baseWindow, id: '1', appId: 'Calculator', componentProps: {} },
         {
           ...baseWindow,
           id: '2',
-          appId: 'old-explorer-window',
+          appId: 'Explorer',
           componentProps: { initialPath: ['My Documents'] },
         },
         { ...baseWindow, id: '3', appId: 'NoSuchApp', componentProps: {} },
@@ -277,24 +213,54 @@ describe('WindowManagerContext — persistence to localStorage', () => {
     });
     vi.useRealTimers();
 
-    // Calculator (registry match) and legacy Explorer (initialPath heuristic) survive;
-    // the unknown app restores to null and is filtered out.
+    // Calculator and Explorer (both registry matches) survive; the unknown app
+    // restores to null and is filtered out.
     expect(screen.getByTestId('count').textContent).toBe('2');
-    expect(screen.getByTestId('app-ids').textContent).toBe('Calculator,old-explorer-window');
+    expect(screen.getByTestId('app-ids').textContent).toBe('Calculator,Explorer');
     expect(screen.getByTestId('all-have-components').textContent).toBe('yes');
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('NoSuchApp'), {});
 
-    // The persist effect rewrites storage with only the restorable windows
+    // The persist effect rewrites storage (versioned) with only the restorable windows
     const resaved = JSON.parse(localStorage.getItem(STORAGE_KEY) as string);
-    expect(resaved.map((w: { appId: string }) => w.appId)).toEqual([
+    expect(resaved.windows.map((w: { appId: string }) => w.appId)).toEqual([
       'Calculator',
-      'old-explorer-window',
+      'Explorer',
     ]);
+  });
+
+  it('discards a pre-#163 unversioned (bare-array) window list on load', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(vi.fn());
+    // Old format: a bare array, no version envelope.
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([
+        {
+          id: '1',
+          appId: 'Calculator',
+          title: 't',
+          componentProps: {},
+          props: {},
+          isMinimized: false,
+          isMaximized: false,
+          zIndex: 10001,
+          left: 10,
+          top: 10,
+        },
+      ])
+    );
+
+    renderWithProviders(<PersistenceHarness />, onlyWindowManager);
+
+    // The whole legacy payload is dropped — nothing is fed to restoreComponent.
+    expect(screen.getByTestId('count').textContent).toBe('0');
+    warnSpy.mockRestore();
   });
 
   // openWindow only persists props explicitly passed as props.componentProps; the props
   // baked into the `component` React element are never captured. A caller doing
   // openWindow('Notepad', 't', <Notepad content="hi" />) gets an empty-props Notepad
   // after refresh. Known bug, do not assert the lossy behavior as green.
-  it.todo('#81: windows opened without explicit componentProps lose their component props on restore');
+  it.todo(
+    '#81: windows opened without explicit componentProps lose their component props on restore'
+  );
 });

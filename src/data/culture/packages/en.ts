@@ -45,7 +45,12 @@ export const enCulture: CulturePackage = {
       { id: 'norton', action: 'NortonAntiVirus', nameKey: 'startMenu.apps.norton', icon: 'nav' },
       { id: 'itunes', action: 'ITunes', nameKey: 'startMenu.apps.itunes', icon: 'itunes' },
       { id: 'utorrent', action: 'UTorrent', nameKey: 'startMenu.apps.utorrent', icon: 'utorrent' },
-      { id: 'ms-office', action: 'MicrosoftOffice', nameKey: 'startMenu.apps.microsoftOffice', icon: 'msoffice' },
+      {
+        id: 'ms-office',
+        action: 'MicrosoftOffice',
+        nameKey: 'startMenu.apps.microsoftOffice',
+        icon: 'msoffice',
+      },
       { id: 'notepad', action: 'Notepad', nameKey: 'apps.notepad', icon: 'file' },
       { id: 'solitaire', action: 'Solitaire', nameKey: 'apps.solitaire', icon: 'solitaire' },
     ],

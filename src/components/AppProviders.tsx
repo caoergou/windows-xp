@@ -168,7 +168,9 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
     });
     (culture.requiredApps ?? []).forEach(appId => {
       if (!known.has(appId)) {
-        console.warn(`[windows-xp] culture "${culture.id}": requiredApp "${appId}" is not registered.`);
+        console.warn(
+          `[windows-xp] culture "${culture.id}": requiredApp "${appId}" is not registered.`
+        );
       }
     });
   }, [culture, registry]);
@@ -193,62 +195,62 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   return (
     <StorageProvider prefix={storagePrefix || 'xp_'} persistence={persistence}>
       <EventBusProvider bus={busRef}>
-      <XPEventBridge onEvent={onEvent} />
-      <SchedulerProvider
-        hourlyChime={hourlyChime ?? culture.hourlyChime}
-        idleThresholdMs={idleThresholdMs}
-      >
-      <UserSessionProvider
-        username={username}
-        password={password}
-        autoLogin={autoLogin}
-        avatar={avatar}
-        wallpapers={wallpapers}
-        defaultWallpaper={defaultWallpaper ?? culture.wallpaper}
-      >
-        <FileSystemProvider
-          customFileSystem={customFileSystem}
-          cultureFileSystem={culturalShortcuts}
-          cultureKey={cultureKey}
-          fileSystemMode={fileSystemMode}
+        <XPEventBridge onEvent={onEvent} />
+        <SchedulerProvider
+          hourlyChime={hourlyChime ?? culture.hourlyChime}
+          idleThresholdMs={idleThresholdMs}
         >
-          <WindowManagerProvider registry={registry}>
-            <KeymapProvider keymap={keymap} disableGlobalShortcuts={disableGlobalShortcuts}>
-            <TrayProvider>
-              <ModalProvider>
-                <NotesProvider>
-                <LessonProvider lessons={lessons}>
-                  <XPImperativeApi ref={handleRef} storagePrefix={storagePrefix} />
-                  <ScenarioRunner scenario={scenario} />
-                  {devtools && (
-                    <React.Suspense fallback={null}>
-                      <DevToolsPanel scenario={scenario} />
-                    </React.Suspense>
-                  )}
-                  <DeepLinkLoader
-                    open={openOnLoad}
-                    routes={routes}
-                    location={location}
-                    historyIntegration={historyIntegration}
-                  />
-                  <App
-                    initialLanguage={language}
-                    skipBoot={skipBoot}
-                    disableContextMenuBlock={disableContextMenuBlock}
-                    disableDevToolsBlock={disableDevToolsBlock}
-                    disableScreenSaver={disableScreenSaver}
-                    boot={boot}
-                    login={login}
-                  />
-                </LessonProvider>
-                </NotesProvider>
-              </ModalProvider>
-            </TrayProvider>
-            </KeymapProvider>
-          </WindowManagerProvider>
-        </FileSystemProvider>
-      </UserSessionProvider>
-      </SchedulerProvider>
+          <UserSessionProvider
+            username={username}
+            password={password}
+            autoLogin={autoLogin}
+            avatar={avatar}
+            wallpapers={wallpapers}
+            defaultWallpaper={defaultWallpaper ?? culture.wallpaper}
+          >
+            <FileSystemProvider
+              customFileSystem={customFileSystem}
+              cultureFileSystem={culturalShortcuts}
+              cultureKey={cultureKey}
+              fileSystemMode={fileSystemMode}
+            >
+              <WindowManagerProvider registry={registry}>
+                <KeymapProvider keymap={keymap} disableGlobalShortcuts={disableGlobalShortcuts}>
+                  <TrayProvider>
+                    <ModalProvider>
+                      <NotesProvider>
+                        <LessonProvider lessons={lessons}>
+                          <XPImperativeApi ref={handleRef} storagePrefix={storagePrefix} />
+                          <ScenarioRunner scenario={scenario} />
+                          {devtools && (
+                            <React.Suspense fallback={null}>
+                              <DevToolsPanel scenario={scenario} />
+                            </React.Suspense>
+                          )}
+                          <DeepLinkLoader
+                            open={openOnLoad}
+                            routes={routes}
+                            location={location}
+                            historyIntegration={historyIntegration}
+                          />
+                          <App
+                            initialLanguage={language}
+                            skipBoot={skipBoot}
+                            disableContextMenuBlock={disableContextMenuBlock}
+                            disableDevToolsBlock={disableDevToolsBlock}
+                            disableScreenSaver={disableScreenSaver}
+                            boot={boot}
+                            login={login}
+                          />
+                        </LessonProvider>
+                      </NotesProvider>
+                    </ModalProvider>
+                  </TrayProvider>
+                </KeymapProvider>
+              </WindowManagerProvider>
+            </FileSystemProvider>
+          </UserSessionProvider>
+        </SchedulerProvider>
       </EventBusProvider>
     </StorageProvider>
   );

@@ -115,7 +115,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
           width: '100%',
           height: 'calc(100% - 30px)',
         }}
-        onMouseDown={(e) => e.stopPropagation()}
+        onMouseDown={e => e.stopPropagation()}
       >
         {chrome}
       </div>

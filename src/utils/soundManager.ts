@@ -43,13 +43,7 @@ const getCtx = (): AudioContext => {
   return audioCtx;
 };
 
-const tone = (
-  freq: number,
-  dur: number,
-  type: OscillatorType = 'sine',
-  vol = 0.25,
-  delay = 0
-) => {
+const tone = (freq: number, dur: number, type: OscillatorType = 'sine', vol = 0.25, delay = 0) => {
   if (isMuted) return;
   try {
     const ctx = getCtx();
@@ -81,7 +75,7 @@ const playSample = (url: string) => {
   audio.currentTime = 0;
   const playPromise = audio.play?.();
   if (playPromise && typeof playPromise.catch === 'function') {
-    playPromise.catch((error) => {
+    playPromise.catch(error => {
       console.warn('Sample playback failed:', error);
     });
   }

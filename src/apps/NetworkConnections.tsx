@@ -323,9 +323,7 @@ const NetworkConnections = () => {
                 </FieldRow>
                 <FieldRow>
                   <span>{t('networkConnections.duration')}:</span>
-                  <FieldValue data-testid="netconn-duration">
-                    {formatDuration(duration)}
-                  </FieldValue>
+                  <FieldValue data-testid="netconn-duration">{formatDuration(duration)}</FieldValue>
                 </FieldRow>
                 <FieldRow>
                   <span>{t('networkConnections.speed')}:</span>
@@ -360,9 +358,7 @@ const NetworkConnections = () => {
               <ButtonRow>
                 <XPButton disabled>{t('networkConnections.properties')}</XPButton>
                 <XPButton disabled>{t('networkConnections.disable')}</XPButton>
-                <XPButton onClick={handleCloseDetail}>
-                  {t('networkConnections.close')}
-                </XPButton>
+                <XPButton onClick={handleCloseDetail}>{t('networkConnections.close')}</XPButton>
               </ButtonRow>
             </TabPane>
           ) : (
@@ -404,9 +400,7 @@ const NetworkConnections = () => {
               )}
 
               <ButtonRow>
-                <XPButton onClick={handleCloseDetail}>
-                  {t('networkConnections.close')}
-                </XPButton>
+                <XPButton onClick={handleCloseDetail}>{t('networkConnections.close')}</XPButton>
               </ButtonRow>
             </TabPane>
           )}

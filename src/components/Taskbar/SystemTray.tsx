@@ -141,8 +141,15 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
           data-tray-id={item.id}
           $clickable={!!item.onClick || !!item.contextMenuItems?.length}
           title={item.tooltip || ''}
-          onClick={item.onClick ? (e) => { e.stopPropagation(); item.onClick?.(); } : undefined}
-          onContextMenu={(e) => handleTrayContextMenu(e, item.contextMenuItems)}
+          onClick={
+            item.onClick
+              ? e => {
+                  e.stopPropagation();
+                  item.onClick?.();
+                }
+              : undefined
+          }
+          onContextMenu={e => handleTrayContextMenu(e, item.contextMenuItems)}
         >
           <XPIcon name={item.icon} size={16} color="white" />
         </TrayIconWrapper>

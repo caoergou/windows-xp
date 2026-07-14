@@ -28,11 +28,7 @@ interface RowFigures {
   memKB: number;
 }
 
-const computeFigures = (
-  row: ProcessRow,
-  stats: SystemStats,
-  cpuRemainder: number
-): RowFigures => {
+const computeFigures = (row: ProcessRow, stats: SystemStats, cpuRemainder: number): RowFigures => {
   if (row.imageName === 'System Idle Process') {
     return { cpu: pad2(cpuRemainder), memKB: 28 };
   }

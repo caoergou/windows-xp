@@ -11,7 +11,11 @@ import { evaluateCondition, type EvalContext } from '../src/scenario/engine';
 import { defineScenario, searched, found, setFlag } from '../src/scenario/builder';
 import { solveScenario } from '../src/scenario/solver';
 import SearchEnginePage from '../src/apps/InternetExplorer/components/SearchEnginePage';
-import { isSearchEngineUrl, parseSearchQuery, searchResultsUrl } from '../src/apps/InternetExplorer/constants';
+import {
+  isSearchEngineUrl,
+  parseSearchQuery,
+  searchResultsUrl,
+} from '../src/apps/InternetExplorer/constants';
 import { demoSearchCorpus } from '../src/data/scenarios/searchDemo';
 import xpI18n from '../src/i18n';
 import { XPEventBus, type XPEvent } from '../src/events';
@@ -90,7 +94,10 @@ describe('SearchEnginePage (inside IE)', () => {
 
   it('a results page emits a hit with the matching result ids and renders them', () => {
     const view = mount('水晶女孩');
-    const ev = events.find(e => e.type === 'search:query') as Extract<XPEvent, { type: 'search:query' }>;
+    const ev = events.find(e => e.type === 'search:query') as Extract<
+      XPEvent,
+      { type: 'search:query' }
+    >;
     expect(ev.hit).toBe(true);
     expect(ev.resultIds).toEqual(expect.arrayContaining(['bbs-thread', 'qq-space']));
     expect(view.getByTestId('result-bbs-thread')).toBeTruthy();
@@ -108,7 +115,10 @@ describe('SearchEnginePage (inside IE)', () => {
 
   it('a miss emits hit:false with no result ids', () => {
     mount('不存在的东西');
-    const ev = events.find(e => e.type === 'search:query') as Extract<XPEvent, { type: 'search:query' }>;
+    const ev = events.find(e => e.type === 'search:query') as Extract<
+      XPEvent,
+      { type: 'search:query' }
+    >;
     expect(ev.hit).toBe(false);
     expect(ev.resultIds).toEqual([]);
   });

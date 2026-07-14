@@ -8,7 +8,7 @@ import { useUserSession } from '../context/UserSessionContext';
 const Container = styled.div`
   width: 360px;
   background: #ece9d8;
-  font-family: "Tahoma", "SimSun", "Microsoft YaHei", sans-serif;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
   font-size: 11px;
   color: #000;
   display: flex;
@@ -83,7 +83,11 @@ const Button = styled.button`
   cursor: pointer;
 
   &:hover {
-    box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a;
+    box-shadow:
+      inset -1px 1px #fff0cf,
+      inset 1px 2px #fdd889,
+      inset -2px 2px #fbc761,
+      inset 2px -2px #e5a01a;
   }
 `;
 
@@ -122,9 +126,11 @@ const DesktopProperties: React.FC<DesktopPropertiesProps> = ({ onClose }) => {
             <Preview $bgUrl={previewBg} />
             <Row>
               <Label>{t('desktopProperties.background', 'Background:')}</Label>
-              <Select value={selected} onChange={(e) => setSelected(e.target.value)}>
+              <Select value={selected} onChange={e => setSelected(e.target.value)}>
                 {wallpapers.map(w => (
-                  <option key={w.id} value={w.id}>{w.name}</option>
+                  <option key={w.id} value={w.id}>
+                    {w.name}
+                  </option>
                 ))}
               </Select>
             </Row>

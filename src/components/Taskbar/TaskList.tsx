@@ -61,7 +61,9 @@ const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
 
   &:active {
     background-color: #1e52b7;
-    box-shadow: inset 0 0 1px 1px rgba(0, 0, 0, 0.3), inset 1px 0 1px rgba(0, 0, 0, 0.7);
+    box-shadow:
+      inset 0 0 1px 1px rgba(0, 0, 0, 0.3),
+      inset 1px 0 1px rgba(0, 0, 0, 0.7);
   }
 
   .task-icon {

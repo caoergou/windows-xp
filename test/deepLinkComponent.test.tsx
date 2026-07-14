@@ -47,7 +47,9 @@ describe('deep linking through <WindowsXP/> (#136)', () => {
     );
 
     // The Notepad window opened with the file's content.
-    await waitFor(() => expect(screen.getByDisplayValue('hi from a deep link')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByDisplayValue('hi from a deep link')).toBeInTheDocument()
+    );
 
     const notepad = ref.current!.windows.list().find(w => w.appId === 'Notepad');
     expect(notepad).toBeTruthy();
@@ -101,9 +103,7 @@ describe('deep linking through <WindowsXP/> (#136)', () => {
     const icon = await screen.findByTestId('desktop-icon-Anthropic');
     fireEvent.doubleClick(icon);
 
-    await waitFor(() =>
-      expect(events.some(e => e.type === 'link:external')).toBe(true)
-    );
+    await waitFor(() => expect(events.some(e => e.type === 'link:external')).toBe(true));
     expect(openSpy).toHaveBeenCalledWith(
       'https://example.com/tickets',
       '_blank',
@@ -121,8 +121,16 @@ describe('deep linking through <WindowsXP/> (#136)', () => {
 
     ref.current!.openExternal('https://example.com/buy');
 
-    expect(openSpy).toHaveBeenCalledWith('https://example.com/buy', '_blank', 'noopener,noreferrer');
+    expect(openSpy).toHaveBeenCalledWith(
+      'https://example.com/buy',
+      '_blank',
+      'noopener,noreferrer'
+    );
     const ext = events.find(e => e.type === 'link:external');
-    expect(ext).toMatchObject({ type: 'link:external', url: 'https://example.com/buy', newTab: true });
+    expect(ext).toMatchObject({
+      type: 'link:external',
+      url: 'https://example.com/buy',
+      newTab: true,
+    });
   });
 });

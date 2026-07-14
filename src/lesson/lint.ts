@@ -27,26 +27,62 @@ export const lintLesson = (lesson: Lesson, hasI18nKey?: (key: string) => boolean
   const key = (k: string) => (hasI18nKey && k.includes('.') ? hasI18nKey(k) : true);
 
   if (!lesson.id) issues.push({ step: -1, level: 'error', message: 'lesson is missing an `id`' });
-  if (!lesson.title) issues.push({ step: -1, level: 'error', message: 'lesson is missing a `title`' });
-  else if (!key(lesson.title)) issues.push({ step: -1, level: 'warn', message: `title i18n key "${lesson.title}" has no translation` });
-  if (!lesson.steps?.length) issues.push({ step: -1, level: 'error', message: 'lesson has no steps' });
+  if (!lesson.title)
+    issues.push({ step: -1, level: 'error', message: 'lesson is missing a `title`' });
+  else if (!key(lesson.title))
+    issues.push({
+      step: -1,
+      level: 'warn',
+      message: `title i18n key "${lesson.title}" has no translation`,
+    });
+  if (!lesson.steps?.length)
+    issues.push({ step: -1, level: 'error', message: 'lesson has no steps' });
 
   (lesson.steps ?? []).forEach((step, i) => {
-    if (!step.anchor) issues.push({ step: i, level: 'warn', message: 'step has no `anchor` — nothing to spotlight' });
+    if (!step.anchor)
+      issues.push({
+        step: i,
+        level: 'warn',
+        message: 'step has no `anchor` — nothing to spotlight',
+      });
     if (!step.expect || !step.expect.on) {
-      issues.push({ step: i, level: 'error', message: 'step has no `expect.on` — it can never advance' });
+      issues.push({
+        step: i,
+        level: 'error',
+        message: 'step has no `expect.on` — it can never advance',
+      });
     }
-    if (!step.instruction) issues.push({ step: i, level: 'error', message: 'step has no `instruction`' });
-    else if (!key(step.instruction)) issues.push({ step: i, level: 'warn', message: `instruction i18n key "${step.instruction}" has no translation` });
+    if (!step.instruction)
+      issues.push({ step: i, level: 'error', message: 'step has no `instruction`' });
+    else if (!key(step.instruction))
+      issues.push({
+        step: i,
+        level: 'warn',
+        message: `instruction i18n key "${step.instruction}" has no translation`,
+      });
     if (!step.hints?.length) {
-      issues.push({ step: i, level: 'warn', message: 'step has no hints — the learner can get stuck (M12)' });
+      issues.push({
+        step: i,
+        level: 'warn',
+        message: 'step has no hints — the learner can get stuck (M12)',
+      });
     } else {
       step.hints.forEach(h => {
-        if (h.text && !key(h.text)) issues.push({ step: i, level: 'warn', message: `hint i18n key "${h.text}" has no translation` });
+        if (h.text && !key(h.text))
+          issues.push({
+            step: i,
+            level: 'warn',
+            message: `hint i18n key "${h.text}" has no translation`,
+          });
       });
     }
     // A step with no demonstrate can't be auto-played in Watch mode.
-    if (!step.demonstrate) issues.push({ step: i, level: 'warn', message: 'step has no `demonstrate` — Watch mode cannot auto-play it' });
+    if (!step.demonstrate)
+      issues.push({
+        step: i,
+        level: 'warn',
+        message: 'step has no `demonstrate` — Watch mode cannot auto-play it',
+      });
   });
 
   return issues;

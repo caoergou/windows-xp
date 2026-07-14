@@ -125,9 +125,7 @@ const NotificationHost: React.FC<{
     // matches the balloon's `icon` (so a `network` balloon emanates from the
     // network icon without the caller wiring `anchorId`). Otherwise, corner.
     const anchor = current.anchorId ?? current.icon;
-    const el = anchor
-      ? document.querySelector<HTMLElement>(`[data-tray-id="${anchor}"]`)
-      : null;
+    const el = anchor ? document.querySelector<HTMLElement>(`[data-tray-id="${anchor}"]`) : null;
     if (!el) {
       setPosition(FALLBACK_POSITION);
       return;
@@ -136,7 +134,10 @@ const NotificationHost: React.FC<{
     const viewportWidth = window.innerWidth;
     const iconCenterX = rect.left + rect.width / 2;
     // Right edge of the bubble measured from the viewport's right edge.
-    let right = Math.max(4, viewportWidth - (iconCenterX + FALLBACK_POSITION.tailOffset + TAIL_SIZE / 2));
+    let right = Math.max(
+      4,
+      viewportWidth - (iconCenterX + FALLBACK_POSITION.tailOffset + TAIL_SIZE / 2)
+    );
     // Keep the bubble fully on-screen.
     right = Math.min(right, viewportWidth - BALLOON_WIDTH - 4);
     right = Math.max(right, 4);

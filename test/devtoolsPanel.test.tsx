@@ -32,27 +32,30 @@ beforeEach(() => localStorage.clear());
 describe('DevToolsPanel', () => {
   it('shows why a matched trigger did not fire (when: false + the false leaf)', async () => {
     mount();
-    publishTrace(PREFIX, report({
-      triggers: [
-        {
-          id: 'open-door',
-          index: 0,
-          on: 'cmd:exec',
-          matchedOn: true,
-          fired: false,
-          skip: 'when',
-          fireCount: 0,
-          when: {
-            label: 'AND (2)',
-            held: false,
-            children: [
-              { label: 'flag have_key (true) is truthy', held: true },
-              { label: 'flag door_open (undefined) is truthy', held: false },
-            ],
+    publishTrace(
+      PREFIX,
+      report({
+        triggers: [
+          {
+            id: 'open-door',
+            index: 0,
+            on: 'cmd:exec',
+            matchedOn: true,
+            fired: false,
+            skip: 'when',
+            fireCount: 0,
+            when: {
+              label: 'AND (2)',
+              held: false,
+              children: [
+                { label: 'flag have_key (true) is truthy', held: true },
+                { label: 'flag door_open (undefined) is truthy', held: false },
+              ],
+            },
           },
-        },
-      ],
-    }));
+        ],
+      })
+    );
 
     fireEvent.click(screen.getByTestId('devtools-tab-triggers'));
     await waitFor(() => expect(screen.getByTestId('devtools-trigger')).toBeInTheDocument());
@@ -63,10 +66,13 @@ describe('DevToolsPanel', () => {
 
   it('lists flags with their value and the trigger that changed them', async () => {
     mount();
-    publishTrace(PREFIX, report({
-      flags: { connected: true },
-      changes: [{ flag: 'connected', value: true, by: 'link-clue' }],
-    }));
+    publishTrace(
+      PREFIX,
+      report({
+        flags: { connected: true },
+        changes: [{ flag: 'connected', value: true, by: 'link-clue' }],
+      })
+    );
 
     fireEvent.click(screen.getByTestId('devtools-tab-flags'));
     await waitFor(() => expect(screen.getByTestId('devtools-flag')).toBeInTheDocument());

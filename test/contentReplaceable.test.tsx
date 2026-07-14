@@ -20,9 +20,7 @@ describe('content replaceability (#77)', () => {
   });
 
   it('replace mode drops built-in shortcuts and shows only injected content', async () => {
-    render(
-      <WindowsXP skipBoot autoLogin fileSystemMode="replace" customFileSystem={customFs} />
-    );
+    render(<WindowsXP skipBoot autoLogin fileSystemMode="replace" customFileSystem={customFs} />);
     await waitFor(() => expect(screen.getByTestId('taskbar')).toBeInTheDocument());
 
     // Built-in app shortcuts and culture shortcuts are gone.

@@ -69,9 +69,15 @@ describe('DeductionSheet app emits deduction:*', () => {
 
     const submit = events.find(e => e.type === 'deduction:submit');
     expect(submit).toMatchObject({ formId: 'county-finale' });
-    const verified = events.find(e => e.type === 'deduction:verified') as Extract<XPEvent, { type: 'deduction:verified' }>;
+    const verified = events.find(e => e.type === 'deduction:verified') as Extract<
+      XPEvent,
+      { type: 'deduction:verified' }
+    >;
     expect(verified.groups).toEqual(['the-crime']);
-    const failed = events.find(e => e.type === 'deduction:failed') as Extract<XPEvent, { type: 'deduction:failed' }>;
+    const failed = events.find(e => e.type === 'deduction:failed') as Extract<
+      XPEvent,
+      { type: 'deduction:failed' }
+    >;
     expect(failed.groups).toEqual(['the-lookout']);
   });
 

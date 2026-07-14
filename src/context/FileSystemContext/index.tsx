@@ -2,11 +2,7 @@ import React, { createContext, useState, useContext, useCallback, useEffect, use
 import initialFileSystem from '../../data/filesystem.json';
 import recycleBinManifest from '../../data/recycle_bin/index.json';
 import { FileNode, ClipboardItem, isContainerNode, isFileContentNode } from '../../types';
-import {
-  loadPersistedFileSystem,
-  persistFs,
-  RecycleBinItem,
-} from './utils/persistence';
+import { loadPersistedFileSystem, persistFs, RecycleBinItem } from './utils/persistence';
 import type { PersistChanges } from './hooks/useFileOperations';
 import { useFileOperations } from './hooks/useFileOperations';
 import { getAllCultureShortcutNames } from '../../data/culture';
@@ -202,7 +198,13 @@ export const FileSystemProvider: React.FC<{
   /** 'merge' (default) layers custom content over the built-ins; 'replace'
    * keeps only OS scaffolding so the consumer owns the whole tree (#77). */
   fileSystemMode?: FileSystemMode;
-}> = ({ children, customFileSystem, cultureFileSystem, cultureKey = 'en', fileSystemMode = 'merge' }) => {
+}> = ({
+  children,
+  customFileSystem,
+  cultureFileSystem,
+  cultureKey = 'en',
+  fileSystemMode = 'merge',
+}) => {
   const storage = useStorage();
   const customFsRef = useRef(customFileSystem);
   const cultureFsRef = useRef(cultureFileSystem);
@@ -223,9 +225,7 @@ export const FileSystemProvider: React.FC<{
     [fileSystemMode]
   );
 
-  const [fs, setFs] = useState<{ root: FileNode }>(() =>
-    withConfiguredLayers(baseFsRef.current)
-  );
+  const [fs, setFs] = useState<{ root: FileNode }>(() => withConfiguredLayers(baseFsRef.current));
   const [clipboard, setClipboard] = useState<ClipboardItem | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   // Preset recycle-bin metadata only applies to the full built-in tree.
@@ -236,15 +236,15 @@ export const FileSystemProvider: React.FC<{
   useEffect(() => {
     const loadPersistedData = async () => {
       try {
-        const { root, recycleBinRef: savedRecycleBinRef } =
-          await loadPersistedFileSystem(storage, baseFsRef.current);
+        const { root, recycleBinRef: savedRecycleBinRef } = await loadPersistedFileSystem(
+          storage,
+          baseFsRef.current
+        );
         recycleBinRef.current = savedRecycleBinRef;
 
         // Re-attach preset recycle-bin metadata for any preset items still present.
         // This keeps restore working when no persisted recycle-bin state exists yet.
-        const currentRecycleBin = isContainerNode(root)
-          ? root.children['回收站']
-          : undefined;
+        const currentRecycleBin = isContainerNode(root) ? root.children['回收站'] : undefined;
         if (currentRecycleBin && isContainerNode(currentRecycleBin)) {
           for (const fileName of Object.keys(presetRecycleBinRef)) {
             if (currentRecycleBin.children?.[fileName] && !recycleBinRef.current[fileName]) {
@@ -356,7 +356,12 @@ export const FileSystemProvider: React.FC<{
       properties: Partial<FileNode> = {}
     ) => {
       fileOperations.createFile(parentPath, fileName, type, properties);
-      bus.emit({ type: 'file:create', path: [...parentPath, fileName], name: fileName, nodeType: type });
+      bus.emit({
+        type: 'file:create',
+        path: [...parentPath, fileName],
+        name: fileName,
+        nodeType: type,
+      });
     },
     [fileOperations, bus]
   );
@@ -420,7 +425,12 @@ export const FileSystemProvider: React.FC<{
   );
 
   const moveFile = useCallback(
-    (sourcePath: string[], fileName: string, destinationPath: string[], newName: string = fileName) => {
+    (
+      sourcePath: string[],
+      fileName: string,
+      destinationPath: string[],
+      newName: string = fileName
+    ) => {
       fileOperations.moveFile(sourcePath, fileName, destinationPath, newName);
       bus.emit({
         type: 'file:move',
@@ -433,7 +443,12 @@ export const FileSystemProvider: React.FC<{
   );
 
   const copyFile = useCallback(
-    (sourcePath: string[], fileName: string, destinationPath: string[], newName: string = fileName) => {
+    (
+      sourcePath: string[],
+      fileName: string,
+      destinationPath: string[],
+      newName: string = fileName
+    ) => {
       fileOperations.copyFile(sourcePath, fileName, destinationPath, newName);
       bus.emit({
         type: 'file:copy',

@@ -60,7 +60,13 @@ const collectDocImports = (): DocImport[] => {
       if (match[1]) continue;
       const names = match[2]
         .split(',')
-        .map(name => name.trim().replace(/^type\s+/, '').split(/\s+as\s+/)[0].trim())
+        .map(name =>
+          name
+            .trim()
+            .replace(/^type\s+/, '')
+            .split(/\s+as\s+/)[0]
+            .trim()
+        )
         .filter(Boolean);
       results.push({ file, subpath: match[3] ?? '', names });
     }

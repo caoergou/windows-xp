@@ -21,7 +21,9 @@ export const XPStatusBar = styled.div`
 `;
 
 export const XPStatusBarField = styled.div`
-  box-shadow: inset -1px -1px #dfdfdf, inset 1px 1px grey;
+  box-shadow:
+    inset -1px -1px #dfdfdf,
+    inset 1px 1px grey;
   flex-grow: 1;
   padding: 2px 3px;
   margin: 0;

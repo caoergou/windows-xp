@@ -48,7 +48,12 @@ export type Condition =
   /** True if an event of `type` matching `match` has ever happened (event journal). */
   | { happened: { type: XPEventType; match?: Record<string, Scalar | Scalar[]> } }
   /** Count of journal events of `type` matching `match`, compared with `gte`/`lte`/`eq`. */
-  | { count: { type: XPEventType; match?: Record<string, Scalar | Scalar[]> }; gte?: number; lte?: number; eq?: number }
+  | {
+      count: { type: XPEventType; match?: Record<string, Scalar | Scalar[]> };
+      gte?: number;
+      lte?: number;
+      eq?: number;
+    }
   /** FS predicate: a node exists at `path`. */
   | { exists: string[] }
   /** FS predicate: the node at `path` exists and is not locked. */
@@ -83,7 +88,17 @@ export type Action =
   /** Overwrite a text file's content at `path`. */
   | { writeFile: { path: string[]; content: string } }
   /** Pop an XP tray balloon (the `showPopup` beat). `titleKey`/`bodyKey` resolve against the scenario's string table (#207). */
-  | { notify: { title?: string; titleKey?: string; body?: string; bodyKey?: string; icon?: string; timeout?: number; anchorId?: string } }
+  | {
+      notify: {
+        title?: string;
+        titleKey?: string;
+        body?: string;
+        bodyKey?: string;
+        icon?: string;
+        timeout?: number;
+        anchorId?: string;
+      };
+    }
   /** Deliver an incoming QQ message from a buddy. `textKey` resolves against the string table (#207). */
   | { qqMessage: { buddyId: string; text?: string; textKey?: string } }
   /** Bring a QQ buddy online (knock + tray blink + balloon). */

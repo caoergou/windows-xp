@@ -47,9 +47,15 @@ const ContentView: React.FC<ContentViewProps> = ({
     const checkUrl = setInterval(() => {
       try {
         const currentIframeUrl = iframe.contentWindow?.location.href;
-        if (currentIframeUrl && currentIframeUrl !== lastUrl && currentIframeUrl !== 'about:blank') {
+        if (
+          currentIframeUrl &&
+          currentIframeUrl !== lastUrl &&
+          currentIframeUrl !== 'about:blank'
+        ) {
           lastUrl = currentIframeUrl;
-          const match = currentIframeUrl.match(/web\.archive\.org\/web\/\d+[a-z_]*\/(https?:\/\/.+)/);
+          const match = currentIframeUrl.match(
+            /web\.archive\.org\/web\/\d+[a-z_]*\/(https?:\/\/.+)/
+          );
           if (match) {
             const originalUrl = match[1];
             iframe.contentWindow?.stop();

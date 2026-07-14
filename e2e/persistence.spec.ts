@@ -109,11 +109,7 @@ test.describe('Persistence across reload', () => {
     await loginPreservingStorage(page);
 
     await page.locator('[data-testid="start-button"]').click();
-    await page
-      .locator('[data-testid="start-menu"]')
-      .getByText('Internet Explorer')
-      .first()
-      .click();
+    await page.locator('[data-testid="start-menu"]').getByText('Internet Explorer').first().click();
 
     const address = page.locator('[data-testid="ie-address-input"]');
     await expect(address).toBeVisible();

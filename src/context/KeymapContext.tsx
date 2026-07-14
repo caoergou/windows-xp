@@ -1,11 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef } from 'react';
 import { useWindowManager } from './WindowManagerContext';
-import {
-  Keymap,
-  isTextEntryElement,
-  isInsideWindow,
-  type ShortcutSpec,
-} from '../utils/keymap';
+import { Keymap, isTextEntryElement, isInsideWindow, type ShortcutSpec } from '../utils/keymap';
 
 /**
  * Keymap wiring (#132).
@@ -87,7 +82,15 @@ export function useShortcut(spec: ShortcutSpec | null, handler: () => void): voi
     return km.register(spec, () => handlerRef.current());
     // Re-register only when the binding's identity/shape changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [km, spec?.id, spec?.combo, spec?.scope, spec?.appId, spec?.allowInInput, spec?.preventDefault]);
+  }, [
+    km,
+    spec?.id,
+    spec?.combo,
+    spec?.scope,
+    spec?.appId,
+    spec?.allowInInput,
+    spec?.preventDefault,
+  ]);
 }
 
 export interface ShortcutBinding {

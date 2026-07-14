@@ -19,8 +19,16 @@ export const SEARCH_ENGINE_HOME = 'http://www.baidu.com';
 
 /** Whether `url` is the in-world search engine (its home or a results page). */
 export const isSearchEngineUrl = (url: string): boolean => {
-  const u = url.toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
-  return u === 'www.baidu.com' || u === 'baidu.com' || u.startsWith('www.baidu.com/s') || u.startsWith('baidu.com/s');
+  const u = url
+    .toLowerCase()
+    .replace(/^https?:\/\//, '')
+    .replace(/\/$/, '');
+  return (
+    u === 'www.baidu.com' ||
+    u === 'baidu.com' ||
+    u.startsWith('www.baidu.com/s') ||
+    u.startsWith('baidu.com/s')
+  );
 };
 
 /** The results-page URL for a query (baidu's real `?wd=` param). */

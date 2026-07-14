@@ -51,7 +51,7 @@ const ResizableWrapper: React.FC<ResizableWrapperProps> = ({
       disabled={false}
       scale={scale}
       defaultPosition={{ x: left, y: top }}
-      onMouseDown={(e) => {
+      onMouseDown={e => {
         e.stopPropagation();
         onFocus();
       }}
@@ -71,14 +71,14 @@ const ResizableWrapper: React.FC<ResizableWrapperProps> = ({
           height,
           display: hidden ? 'none' : undefined,
         }}
-        onMouseDown={(e) => e.stopPropagation()}
+        onMouseDown={e => e.stopPropagation()}
       >
         <ResizableBox
           width={width}
           height={height}
           minConstraints={[minWidth, minHeight]}
           maxConstraints={[2000, 2000]}
-          onResizeStart={(e) => e.stopPropagation()}
+          onResizeStart={e => e.stopPropagation()}
           onResizeStop={(_e, { size }) => {
             onResize(id, size.width, size.height);
           }}

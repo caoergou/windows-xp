@@ -9,7 +9,7 @@ const BsodContainer = styled.div`
   height: 100%;
   background-color: #0033a0;
   color: white;
-  font-family: "Perfect DOS VGA 437 Win", "Lucida Console", "Courier New", monospace;
+  font-family: 'Perfect DOS VGA 437 Win', 'Lucida Console', 'Courier New', monospace;
   font-size: 14px;
   padding: 40px 60px;
   z-index: 2147483647;
@@ -27,7 +27,9 @@ const BsodHeader = styled.div`
 const BsodScreen: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   return (
     <BsodContainer onClick={onClick} data-testid="bsod-screen">
-      <BsodHeader>{'*** STOP: 0x0000007B (0xF78D2524, 0xC0000034, 0x00000000, 0x00000000)'}</BsodHeader>
+      <BsodHeader>
+        {'*** STOP: 0x0000007B (0xF78D2524, 0xC0000034, 0x00000000, 0x00000000)'}
+      </BsodHeader>
       {`A problem has been detected and Windows has been shut down to prevent damage
 
 to your computer.

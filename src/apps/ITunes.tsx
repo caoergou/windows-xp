@@ -162,10 +162,7 @@ const ITunes: React.FC<{ windowId?: string }> = () => {
       <NowBar>
         <Transport>
           <button title="Previous">⏮</button>
-          <button
-            title="Play/Pause"
-            onClick={() => setPlaying(p => (p === null ? 0 : null))}
-          >
+          <button title="Play/Pause" onClick={() => setPlaying(p => (p === null ? 0 : null))}>
             {playing === null ? '▶' : '⏸'}
           </button>
           <button title="Next">⏭</button>
