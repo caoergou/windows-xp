@@ -2,10 +2,10 @@
 title: Guided lessons
 ---
 
-# 引导课程 / Guided lessons (#141)
+# Guided lessons
 
 A **lesson** is a linear scenario with a pedagogy layer: the [event
-stream](#events) is the action-verifier, so a step advances only when the
+stream](/guide/events) is the action-verifier, so a step advances only when the
 learner performs a real, event-verified action (open Notepad, save a file) —
 there is no click-`Next` button. Register lessons via the `lessons` prop, then
 start one through the `ref` handle in `try` (hinted), `do` (scored), or `watch`
@@ -32,7 +32,18 @@ function App() {
 }
 ```
 
+## Modes
+
+Lessons can run in three modes:
+
+- `try` — guided practice. Hints are available; the step advances once the correct
+  event fires, and wrong actions only trigger feedback rather than failing the lesson.
+- `do` — scored assessment. The learner must complete each step correctly; final
+  score and completion are emitted as `lesson:*` events.
+- `watch` — demonstration. The engine plays the steps automatically so the learner
+  can observe before attempting them.
+
 Progress persists per instance (`lesson_progress`) and resumes after a refresh;
 the `lesson:*` events flow through `onEvent` (map them to xAPI for an LMS). Full
-schema, modes, anchors, and a worked example — [`docs/LESSONS.md`](./docs/LESSONS.md).
+schema, modes, anchors, and a worked example — [`docs/LESSONS.md`](https://github.com/caoergou/windows-xp/blob/main/docs/LESSONS.md).
 

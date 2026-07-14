@@ -23,7 +23,7 @@ title: Embedding in a host app
   initializes the global singleton, so it cannot conflict with your app's
   i18next setup.
 
-### Persistence modes (#138)
+## Persistence modes
 
 Persistence is per-instance and selectable — because a campaign page wants
 every visitor to start clean, while a game wants progress saved:
@@ -47,7 +47,7 @@ every visitor to start clean, while a game wants progress saved:
   toy") from an otherwise-ephemeral `'none'` or `'session'` desktop.
 - Window-restore-on-reload simply no-ops in `'session'`/`'none'` — expected.
 
-### Campaign skinning (#139)
+## Campaign skinning
 
 For a marketing or personal-brand deployment, the boot and login screens are
 the opening shot. Skin them with the `boot` and `login` prop groups — image
@@ -63,7 +63,7 @@ import { WindowsXP } from '@caoergou/windows-xp';
   fileSystemMode="replace"
   persistence="none"
   customFileSystem={campaignFiles}
-  openOnLoad="Teaser.txt"           // land straight on the hero content (#136)
+  openOnLoad="Teaser.txt"           // land straight on the hero content
   // …behind a branded first five seconds:
   boot={{ logo: '/brand/logo.png', text: 'ACME 2000', progressColor: '#ff6600', startupSound: '/brand/chime.mp3' }}
   login={{ title: 'ACME Portal', background: '/brand/login-bg.jpg', userTile: '/brand/tile.png', userName: 'Guest' }}
@@ -76,17 +76,17 @@ import { WindowsXP } from '@caoergou/windows-xp';
   plumbing; `boot.progressColor` swaps the XP loading GIF for a branded bar.
 - Shutdown and BSOD text stay XP (BSOD copy is a scenario action, not branding).
 
-Combine with `fileSystemMode="replace"` (#77), `persistence="none"` (above), and
-deep links (#136) and you have boot → login → desktop with zero Microsoft
+Combine with `fileSystemMode="replace"`, `persistence="none"` (above), and
+deep links and you have boot → login → desktop with zero Microsoft
 branding, from props alone — no fork, no CSS surgery.
 
 
-## Small screens & mobile (#215)
+## Small screens & mobile
 
 The shell is authored against a **1024×768 baseline**. Rather than reflow it on
 a phone (XP has no portrait form — reflowing would break the simulation), the
 whole desktop **scales to fit**, letterboxed. Nothing moves; it's just smaller,
-and every #125 touch gesture still drives it. The full rationale and the
+and every touch gesture still drives it. The full rationale and the
 rejected alternatives live in
 [`docs/VIEWPORT.md`](https://github.com/caoergou/windows-xp/blob/main/docs/VIEWPORT.md).
 

@@ -4,8 +4,7 @@ title: Keyboard shortcuts
 
 # Keyboard shortcuts
 
-Every **global** and **app-command** shortcut goes through one central keymap
-(#132). `Mod` is the platform primary modifier — **Ctrl** on Windows/Linux,
+Every **global** and **app-command** shortcut goes through one central keymap. `Mod` is the platform primary modifier — **Ctrl** on Windows/Linux,
 **⌘ Cmd** on macOS — so bindings work on a Mac without extra config.
 
 | id | Default | Scope | Action |
@@ -39,5 +38,5 @@ reclaim keys without forking:
 `Ctrl+L`, `F11`) — pressing them can close the visitor's tab or open a new
 window, and the page can't stop it. None of those ship as bindings (e.g. Notepad
 "New" is menu-only, not `Ctrl+N`). The full per-OS/browser audit and the
-substitutes for blocked XP keys live in [`docs/KEYMAP.md`](docs/KEYMAP.md).
+substitutes for blocked XP keys live in [`docs/KEYMAP.md`](https://github.com/caoergou/windows-xp/blob/main/docs/KEYMAP.md).
 

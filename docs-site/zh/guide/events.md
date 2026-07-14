@@ -1,12 +1,10 @@
 ---
-title: Events & imperative control
+title: 事件与命令式控制
 ---
 
-# Events and imperative control
+# 事件与命令式控制
 
-Subscribe to everything happening inside the desktop with `onEvent`, and
-drive it programmatically with a `ref` — the foundation for analytics,
-guided demos, and the scenario system.
+通过 `onEvent` 订阅桌面内发生的一切，并通过 `ref` 以编程方式驱动它——这是实现埋点分析、引导式演示以及场景系统的基础。
 
 ```jsx
 import { useRef } from 'react';
@@ -32,9 +30,7 @@ function App() {
 }
 ```
 
-**Event types** (typed payloads on the `XPEvent` union). The catalog below is
-generated from `src/events.ts`; the naming grammar, domain list and payload
-conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/blob/main/docs/EVENTS.md).
+**事件类型**（`XPEvent` 联合类型上的带类型负载）。下方目录由 `src/events.ts` 自动生成；命名词法、领域列表与负载约定见 [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/blob/main/docs/EVENTS.md)。
 
 <!-- EVENTS:START -->
 
@@ -117,24 +113,16 @@ _Generated from `src/events.ts` by `npm run docs:events` — do not edit by hand
 
 <!-- EVENTS:END -->
 
-## The XPHandle
+## XPHandle
 
-The `XPHandle` (via `ref`) exposes the top-level `openApp(appId, props?)`,
-`openFile(path)`, `closeWindow(id)`, `showAlert(title, message)` and
-`reset()`, plus grouped actuation APIs:
+`XPHandle`（通过 `ref`）暴露了顶层方法 `openApp(appId, props?)`、`openFile(path)`、`closeWindow(id)`、`showAlert(title, message)` 以及 `reset()`，还有若干分组执行 API：
 
 - `fs`: `readFile(path)`, `writeFile(path, content)`, `createFile(path, node?)`, `deleteFile(path)`, `getNode(path)`, `exists(path)`, `unlockNode(path)`
 - `session`: `login(password?)`, `logout()`, `shutdown()`, `restart()`
 - `appearance`: `setWallpaper(idOrUrl)`, `setLanguage(lang)`
 - `windows`: `list()`, `focus(id)`, `minimize(id)`, `maximize(id)`, `restore(id)`
-- `sound.play(name)` and `emit(event)` (inject onto the same bus `onEvent` and scenario triggers read)
-- `schedule({ id?, delayMs?, at?, event? })` / `cancelSchedule(id)` — time-based
-  triggers. A schedule fires a `time:fire` event (or a caller-supplied
-  `event`) after `delayMs` or at the `at` epoch-ms deadline. **Pending schedules
-  persist per instance and fire on the next load if the deadline passed while
-  the page was closed** ("compute elapsed effects at launch" — there is no
-  background execution). The same subsystem emits the wall-clock `time:hour`
-  and `user:idle` / `user:active` events on the bus.
+- `sound.play(name)` 与 `emit(event)`（注入到 `onEvent` 和场景触发器读取的同一总线）
+- `schedule({ id?, delayMs?, at?, event? })` / `cancelSchedule(id)` —— 基于时间的触发器。schedule 在 `delayMs` 之后或在 `at` 指定的时间戳（epoch 毫秒）到达后触发 `time:fire` 事件（或调用方传入的 `event`）。**待执行的 schedule 会按实例持久化：如果页面关闭期间截止时间已过，下次加载时仍会被触发**（即“在启动时补算已流逝的效果”——并没有后台执行）。同一个子系统还会在总线上发出整点 `time:hour` 以及 `user:idle` / `user:active` 事件。
 
 ```jsx
 // Remind the player 90s after they lock a folder — survives a reload.
@@ -142,17 +130,13 @@ ref.current.schedule({ id: 'hint', delayMs: 90_000,
   event: { type: 'notification:show', id: 'hint', title: 'Psst… try 2003' } });
 ```
 
-The classic hourly chime (整点报时) is an opt-in consumer of `time:hour`:
-`<WindowsXP hourlyChime />` (or a culture package's `hourlyChime: true`); it is
-off by default. `idleThresholdMs` tunes when `user:idle` fires (default 60000).
+经典的整点报时是 `time:hour` 的可选消费者：`<WindowsXP hourlyChime />`（或文化包的 `hourlyChime: true`）；默认关闭。`idleThresholdMs` 用于调整触发 `user:idle` 的阈值（默认 60000）。
 
-`reset()` clears **both** storage layers (localStorage + IndexedDB file
-contents) for the instance's `storagePrefix`, then reloads. For save/load,
-see "Save / load a snapshot" below.
+`reset()` 会清除该实例 `storagePrefix` 对应的**两层**存储（localStorage + IndexedDB 文件内容），然后重新加载。保存与加载请见下文“保存与加载快照”。
 
-### Inside the tree
+### 组件树内部
 
-Inside the tree (custom apps), subscribe without prop-drilling:
+在组件树内部（自定义应用），无需 prop drilling 即可订阅：
 
 ```jsx
 import { useXPEvents } from '@caoergou/windows-xp';
@@ -167,11 +151,9 @@ function EventLogger() {
 }
 ```
 
-### Bare-provider composition
+### 裸 Provider 组合
 
-Advanced composers using the bare
-providers (the `AppProviders` escape hatch) can create their own bus and
-observe the exact instance the desktop emits on:
+高级开发者如使用裸 Provider（`AppProviders` 逃生舱），可以创建自己的总线，并观察桌面实例实际发出的同一对象：
 
 ```jsx
 import { createXPEventBus, EventBusProvider } from '@caoergou/windows-xp';
@@ -181,10 +163,9 @@ bus.subscribe((e) => console.log(e.type));
 // <EventBusProvider bus={bus}> … your providers … </EventBusProvider>
 ```
 
-## Driving the desktop from the host
+## 从宿主驱动桌面
 
-With only a `ref` — no custom apps, no context access — a host can plant a
-clue file and react when the player opens it (the core ARG loop):
+仅用一个 `ref`——无需自定义应用，也无需访问 context——宿主应用就能植入线索文件，并在玩家打开它时作出反应（核心 ARG 循环）：
 
 ```jsx
 import { useRef, useEffect } from 'react';
@@ -219,21 +200,16 @@ function Arg() {
 }
 ```
 
-Later, unlock the folder programmatically and theme the desktop:
+之后，可通过编程方式解锁文件夹并更换桌面主题：
 
 ```jsx
 xp.current?.fs.unlockNode(['vault']);
 xp.current?.appearance.setWallpaper('bliss');
 ```
 
-## Save / load a snapshot
+## 保存与加载快照
 
-`getSnapshot()` captures the whole instance — filesystem (with file contents),
-recycle bin, open windows, wallpaper, language, and a reserved `flags` slot —
-as a portable, versioned `XPSnapshot` JSON object. `loadSnapshot()` replaces
-this instance's state with a snapshot and reloads to rehydrate. Snapshots move
-between machines/browsers, so a player can share a save or an author can ship a
-checkpoint.
+`getSnapshot()` 会捕获整个实例——文件系统（含文件内容）、回收站、打开的窗口、壁纸、语言，以及预留的 `flags` 槽位——并输出为可移植、带版本号的 `XPSnapshot` JSON 对象。`loadSnapshot()` 会用快照替换当前实例的状态并重新加载以恢复状态。快照可在不同机器或浏览器之间迁移，玩家可以分享存档，作者也可以分发检查点。
 
 ```jsx
 import type { XPSnapshot } from '@caoergou/windows-xp';
@@ -257,20 +233,13 @@ async function uploadSave(xp, file) {
 }
 ```
 
-Loading a snapshot whose `version` is newer than the running build throws
-`XPSnapshotVersionError` (exported) rather than corrupting state — so guard the
-import with a `try/catch` and surface a "please update" message.
+如果快照的 `version` 高于当前运行版本，`loadSnapshot()` 会抛出 `XPSnapshotVersionError`（已导出）而不是破坏状态——因此请用 `try/catch` 包裹导入逻辑，并提示用户“请更新版本”。
 
-## Permalinks & share links
+## 永久链接与分享链接
 
-Map URLs to desktop state so a blog post, a search result, or a campaign QR
-code can land the visitor on a specific open window.
+把 URL 映射到桌面状态，博客文章、搜索结果或活动二维码就能让访问者直接落在某个打开的窗口。
 
-**Inbound — open a window from a URL.** `openOnLoad` takes one or more *key
-paths* (the sequence of filesystem keys from the desktop root, joined with `/`).
-Windows open once the desktop is interactive (after `skipBoot`/`autoLogin`);
-invalid paths fail silently to the plain desktop. Wire it to your own URL — the
-component takes no router dependency:
+**入站——从 URL 打开窗口。**`openOnLoad` 接收一个或多个*键路径*（从桌面根目录开始的文件系统键序列，用 `/` 连接）。桌面进入可交互状态后（`skipBoot`/`autoLogin` 之后）会自动打开对应窗口；无效路径会静默回退到普通桌面。把它接到你自己的 URL 参数即可，组件不依赖任何路由库：
 
 ```jsx
 import { WindowsXP } from '@caoergou/windows-xp';
@@ -280,8 +249,7 @@ const open = new URLSearchParams(location.search).getAll('open');
 export default () => <WindowsXP openOnLoad={open} />;
 ```
 
-For prettier URLs, pass a host-router-agnostic `routes` map plus the current
-`location` (any framework — you supply the string):
+如需更美观的 URL，可传入与宿主路由无关的 `routes` 映射以及当前 `location`（任意框架——只需传入字符串）：
 
 ```jsx
 <WindowsXP
@@ -290,28 +258,19 @@ For prettier URLs, pass a host-router-agnostic `routes` map plus the current
 />
 ```
 
-**Share links.** `getShareUrl(windowId)` returns a `?open=…` permalink that
-reproduces a path-opened window on a fresh profile (component-only windows
-return `null`). A share button captures "this window, open, focused"; encode the
-same URL into a QR code for print/campaign use:
+**分享链接。**`getShareUrl(windowId)` 返回一个 `?open=…` 永久链接，能在全新配置下复现一个通过路径打开的窗口（纯组件窗口返回 `null`）。分享按钮可以捕获“当前窗口、已打开、已聚焦”的状态；也可以把同一 URL 编码成二维码用于印刷或活动物料：
 
 ```jsx
 const url = xp.current?.getShareUrl(windowId); // …/?open=D%3A/posts/hello.md&lang=en
 ```
 
-**Browser Back.** Set `historyIntegration` so opening/closing top-level windows
-push/pop `history` and Back closes the last-opened window — expected on content
-sites, off by default (games and embeds don't want it):
+**浏览器返回。**设置 `historyIntegration`，打开或关闭顶层窗口会 push/pop `history`，因此 Back 键会关闭最后打开的窗口——内容站点需要此行为，默认关闭（游戏和嵌入场景不需要）：
 
 ```jsx
 <WindowsXP openOnLoad={open} historyIntegration />
 ```
 
-**Outbound — links that leave the fiction.** An `external_link` filesystem node
-is a desktop shortcut that opens a real URL instead of a window; or call
-`openExternal(url, { newTab })` from the handle. Either way a `link:external`
-event fires — the conversion signal every campaign funnel measures. Feed it to
-your analytics:
+**出站——跳出虚构世界的链接。**`external_link` 文件系统节点是一种桌面快捷方式，打开真实 URL 而非窗口；也可以直接调用 handle 上的 `openExternal(url, { newTab })`。无论哪种方式都会触发 `link:external` 事件——这是每个活动漏斗都会衡量的转化信号。把它喂给分析工具：
 
 ```jsx
 <WindowsXP
@@ -324,6 +283,4 @@ your analytics:
 />
 ```
 
-New tabs open with `noopener,noreferrer`, so an embedded desktop never hijacks
-its host page.
-
+新标签页以 `noopener,noreferrer` 打开，因此嵌入式桌面不会劫持宿主页面。

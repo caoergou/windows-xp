@@ -30,16 +30,26 @@ import { APP_REGISTRY, resolveFileOpen, getAppDisplayName } from '@caoergou/wind
 > desktop's contexts and must render inside the providers exported from the
 > root entry (or `AppProviders`). The primitives below need nothing.
 
-### Standalone UI primitives (no providers)
+## Standalone UI primitives (no providers)
 
 `@caoergou/windows-xp/components` ships **zero-dependency primitives** you can
 drop anywhere — no `<WindowsXP>`, no providers — to build XP-styled UI (like
 [xp.css](https://botoxparty.github.io/XP.css/), but as controlled React
 components, matching the xp.css spec value-for-value):
 
-`XPButton`, `XPTextInput`, `XPCheckbox`, `XPRadio`, `XPSelect`,
-`XPProgressBar`, `XPTooltip`, `XPGroupBox`, `XPStatusBar` (+
-`XPStatusBarField`), `XPTabs`, `XPMenuBar` (family), `XPIcon`, `XPDialog`.
+- `XPButton`
+- `XPTextInput`
+- `XPCheckbox`
+- `XPRadio`
+- `XPSelect`
+- `XPProgressBar`
+- `XPTooltip`
+- `XPGroupBox`
+- `XPStatusBar` (+ `XPStatusBarField`)
+- `XPTabs`
+- `XPMenuBar` (family)
+- `XPIcon`
+- `XPDialog`
 
 ```jsx
 import { XPDialog, XPButton } from '@caoergou/windows-xp/components';
@@ -78,6 +88,6 @@ import {
 } from '@caoergou/windows-xp/components';
 ```
 
-See every primitive rendered in isolation at the component gallery route:
-append `?gallery` to the demo URL.
+See every primitive rendered in isolation at the
+[component gallery](/windows-xp/gallery/).
 

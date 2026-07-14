@@ -2,7 +2,7 @@
 
 <div align="center">
 
-**可嵌入、可编排的 React 版 Windows XP 桌面——一个可以装进你自己内容、通过事件观察、用代码驱动的怀旧世界。**
+**可嵌入、可脚本化（可编排）的 React 版 Windows XP 桌面——一个可以装进你自己内容、通过事件观察、用代码驱动的怀旧世界。**
 
 [![npm version](https://img.shields.io/npm/v/@caoergou/windows-xp.svg)](https://www.npmjs.com/package/@caoergou/windows-xp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -56,9 +56,9 @@ function App() {
 | 场景 | 用到的能力 |
 |---|---|
 | **个人主页 / 作品集** —— 项目变成桌面文件夹，About.txt 用记事本打开 | `fileSystemMode="replace"`、自定义应用、IE 内嵌你部署的项目 |
-| **解谜游戏 / ARG** —— 加密文件夹、聊天记录线索、会回应玩家的桌面 | 文件的 `locked`/`password`/`broken` 属性、`onEvent`、[剧情系统](https://github.com/caoergou/windows-xp/issues/84)（开发中） |
+| **解谜游戏 / ARG** —— 加密文件夹、聊天记录线索、会回应玩家的桌面 | 文件的 `locked`/`password`/`broken` 属性、`onEvent`、[剧情系统](docs/SCENARIOS.md)（开发中） |
 | **品牌营销 / 创意页** —— 一个品牌化的千禧年世界（同类标杆：A24 电影《Y2K》官方桌面站） | 嵌入模式、内容替换、壁纸/头像注入 |
-| **怀旧内容站** —— 2005–2007 的中文互联网，或西方 Y2K，全部数据化 | 文化包（`cultures` prop） |
+| **怀旧内容站** —— 2000 年代中文互联网，或英文语境 Y2K，全部数据化 | 文化包（`cultures` prop） |
 | **教学沙盒** —— 一台可以随便折腾、随时重置的演示机器 | `skipBoot`/`autoLogin`、命令式句柄、隔离存储 |
 
 逐场景的完整设计推导见 [`docs/USE-CASES.md`](docs/USE-CASES.md)、[`docs/PUZZLE-DESIGN.md`](docs/PUZZLE-DESIGN.md) 与 [`docs/OS-PLATFORM-VISION.md`](docs/OS-PLATFORM-VISION.md)。

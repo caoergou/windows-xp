@@ -84,7 +84,7 @@ export type XPEvent =
   /** A command was executed in the Command Prompt. */
   | { type: 'cmd:exec'; command: string }
   // ── ie: Internet Explorer ───────────────────────────────────────────────────
-  /** Internet Explorer navigated to a URL; `generated` is true when the page came from a host content provider rather than a bundled/authored page (#149). */
+  /** Internet Explorer navigated to a URL; `generated` is true when the page came from a host content provider rather than a bundled/authored page. */
   | { type: 'ie:navigate'; url: string; generated?: boolean }
   // ── wallpaper / screensaver: appearance ─────────────────────────────────────
   /** The desktop wallpaper was changed (`wallpaper` is the id or URL). */

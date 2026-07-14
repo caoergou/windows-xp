@@ -79,9 +79,11 @@ export default defineConfig({
       themeConfig: {
         nav: [
           { text: '快速开始', link: '/zh/guide/getting-started' },
+          { text: '事件', link: '/guide/events' },
           { text: '组件', link: '/zh/components' },
           { text: 'API', link: '/api/' },
           { text: '在线演示', link: '/windows-xp/demo/zh/' },
+          { text: 'npm', link: 'https://www.npmjs.com/package/@caoergou/windows-xp' },
         ],
         // Chinese pages are being migrated page-by-page (like README.zh-CN);
         // topics without a zh page yet link to the English guide.
@@ -95,11 +97,25 @@ export default defineConfig({
               ],
             },
             {
-              text: '英文文档（待翻译）',
+              text: '核心概念',
+              items: [
+                { text: '定制桌面内容', link: '/zh/guide/content' },
+                { text: '事件与命令式控制', link: '/zh/guide/events' },
+                { text: '嵌入宿主应用', link: '/zh/guide/embedding' },
+              ],
+            },
+            {
+              text: '更多参考',
               items: [
                 { text: 'Props 参考', link: '/guide/props' },
-                { text: '事件与命令式控制', link: '/guide/events' },
-                { text: '嵌入宿主应用', link: '/guide/embedding' },
+                { text: '键盘快捷键', link: '/guide/keyboard' },
+                { text: '场景系统', link: '/guide/scenarios' },
+                { text: '引导式教程', link: '/guide/lessons' },
+                { text: 'SSR / Next.js', link: '/guide/ssr' },
+                { text: '子路径导入与基础组件', link: '/guide/subpaths' },
+                { text: '样式定制', link: '/guide/styling' },
+                { text: '性能', link: '/guide/performance' },
+                { text: '故障排查', link: '/guide/troubleshooting' },
                 { text: 'API 参考', link: '/api/' },
               ],
             },
@@ -108,6 +124,10 @@ export default defineConfig({
         docFooter: { prev: '上一页', next: '下一页' },
         outline: { label: '本页目录' },
         lastUpdatedText: '最后更新',
+        editLink: {
+          pattern: 'https://github.com/caoergou/windows-xp/edit/main/docs-site/:path',
+          text: '在 GitHub 上编辑此页',
+        },
       },
     },
   },

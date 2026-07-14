@@ -56,9 +56,9 @@ Plenty of projects *look* like Windows XP. This one is built to be **used inside
 | Scenario | The relevant pieces |
 |---|---|
 | **Portfolio / personal site** — your projects as desktop folders, About.txt in Notepad | `fileSystemMode="replace"`, custom apps, IE renders your deployed projects |
-| **Puzzle game / ARG** — locked folders, chat-log clues, a desktop that reacts to the player | `locked`/`password`/`broken` file attributes, `onEvent`, the [scenario system](https://github.com/caoergou/windows-xp/issues/84) (in progress) |
+| **Puzzle game / ARG** — locked folders, chat-log clues, a desktop that reacts to the player | `locked`/`password`/`broken` file attributes, `onEvent`, the [scenario system](docs/SCENARIOS.md) (in progress) |
 | **Marketing / creative campaign** — a branded Y2K world (see A24's *Y2K* promo site for the genre) | embedded mode, content replacement, wallpaper/avatar injection |
-| **Nostalgia content site** — 2000s Chinese internet or Western Y2K, as data | culture packages (`cultures` prop) |
+| **Nostalgia content site** — 2000s Chinese internet or English-language Y2K, as data | culture packages (`cultures` prop) |
 | **Teaching sandbox** — a risk-free machine to demonstrate on | `skipBoot`/`autoLogin`, imperative handle, isolated storage |
 
 The full scenario-by-scenario design work lives in [`docs/USE-CASES.md`](docs/USE-CASES.md), [`docs/PUZZLE-DESIGN.md`](docs/PUZZLE-DESIGN.md) and [`docs/OS-PLATFORM-VISION.md`](docs/OS-PLATFORM-VISION.md).

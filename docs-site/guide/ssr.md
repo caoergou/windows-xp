@@ -20,7 +20,7 @@ const WindowsXP = dynamic(
 Import `@caoergou/windows-xp/style.css` globally as usual. For Astro/Vite
 SSR setups, the equivalent client-only island wrapper applies.
 
-### Verified consumption (#206)
+## Verified consumption
 
 Every push to `main` (and every release-labelled PR) runs a **consumer-smoke**
 CI job — `npm pack` → a clean Vite + React app installs the tarball → builds →
