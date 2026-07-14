@@ -19,18 +19,19 @@ the scoped classes from your embedding context:
 Always namespace overrides to the embedding context; do not rely on global
 selectors.
 
-## Stable surfaces
+## Supported customization points
 
 Prefer these supported extension points before reaching for CSS classes:
 
 - **Wallpapers** — pass a custom wallpaper component or image URL.
 - **Culture packages** — ship locale-specific icons, sounds, and copy without
-  touching CSS. See [docs/SCENARIOS.md](https://github.com/caoergou/windows-xp/blob/main/docs/SCENARIOS.md)
-  and [docs/LESSONS.md](https://github.com/caoergou/windows-xp/blob/main/docs/LESSONS.md).
+  touching CSS. See [Content](./content).
 - **Theme tokens** — import `COLORS`, `xpButtonStyles`, `xpScrollbarStyles`,
-  etc. from `@caoergou/windows-xp/theme`.
+  `xpTitleBarStyles`, `WINDOW_DEFAULTS`, `DESKTOP_DEFAULTS`, etc. from
+  `@caoergou/windows-xp/theme`.
 
-These surfaces are versioned and safe to rely on.
+These points are safe to rely on within a major version; check the migration
+notes when upgrading across major versions.
 
 ## Class-name warning
 
@@ -42,8 +43,14 @@ layer is planned.
 ## Portals and pop-outs
 
 Some UI (menus, tooltips, dialogs, drag previews) may render through a portal
-outside `.windows-xp-root`. If you need to style these, target the portal
-container that the engine creates rather than global selectors. Portal markup
-shares the same prefixed class namespace and is scoped to the embedding
-instance.
+into `.windows-xp-portal` outside `.windows-xp-root`. If you need to style
+these, target that portal container rather than global selectors:
 
+```css
+.my-page-wrapper .windows-xp-portal .xp-menu {
+  /* only affects pop-up menus for this instance */
+}
+```
+
+Portal markup shares the same prefixed class namespace and is scoped to the
+embedding instance.

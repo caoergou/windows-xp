@@ -24,18 +24,22 @@ See [Subpath imports & primitives](./subpaths) for the full list.
 
 ## Fastest embed startup
 
-For the shortest time-to-desktop, disable the boot sequence and auto-login:
+To make the desktop appear as fast as possible, skip the boot sequence and auto-login:
 
 ```jsx
 <WindowsXP skipBoot autoLogin username="Guest" />
 ```
 
-If you also don't need persistence, omit `storagePrefix` to skip restoring the
-previous session.
+If you also don't need persistence, set `persistence="none"` so every mount
+starts from a clean state:
+
+```jsx
+<WindowsXP skipBoot autoLogin persistence="none" />
+```
 
 ## Bundle shape
 
-Applications lazy-load by default; the published package is ~3 MB with the
-largest chunk ~0.4 MB. Keep heavy apps code-split by importing them through the
-subpath entries above instead of re-bundling their source.
-
+Applications lazy-load by default; the full-desktop entry point of the
+published package is ~3 MB before gzip, with the largest chunk ~0.4 MB. Keep
+heavy apps code-split by importing them through the subpath entries above
+instead of re-bundling their source.

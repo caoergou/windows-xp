@@ -13,11 +13,19 @@ import { WindowsXP } from '@caoergou/windows-xp';
 // Individual applications
 import { Minesweeper } from '@caoergou/windows-xp/apps';
 
-// UI building blocks
-import { Window, Desktop, Taskbar, XPIcon } from '@caoergou/windows-xp/components';
+// System components — must render inside the desktop's providers
+import { Window, Desktop, Taskbar } from '@caoergou/windows-xp/components';
+
+// Standalone UI primitives — no providers needed
+import { XPButton, XPDialog, XPIcon } from '@caoergou/windows-xp/components';
 
 // Hooks and providers
-import { useWindowManager, useFileSystem, useAppRegistry, useCulture } from '@caoergou/windows-xp/hooks';
+import {
+  useWindowManager,
+  useFileSystem,
+  useAppRegistry,
+  useCulture,
+} from '@caoergou/windows-xp/hooks';
 
 // Theme tokens
 import { COLORS, xpButtonStyles, xpScrollbarStyles } from '@caoergou/windows-xp/theme';
@@ -26,9 +34,31 @@ import { COLORS, xpButtonStyles, xpScrollbarStyles } from '@caoergou/windows-xp/
 import { APP_REGISTRY, resolveFileOpen, getAppDisplayName } from '@caoergou/windows-xp/registry';
 ```
 
-> System components (`Window`, `Taskbar`, `Desktop`, …) are wired to the
+> `Window`, `Taskbar`, `Desktop`, and the hooks above are wired to the
 > desktop's contexts and must render inside the providers exported from the
-> root entry (or `AppProviders`). The primitives below need nothing.
+> root entry (or `AppProviders`). The `XP*` primitives below need nothing.
+
+## System components inside providers
+
+Most users render `<WindowsXP>` and get the full provider tree automatically.
+If you are building a custom shell, import `AppProviders` and render the system
+components inside it:
+
+```jsx
+import { AppProviders } from '@caoergou/windows-xp';
+import { Desktop, Taskbar, Window } from '@caoergou/windows-xp/components';
+import '@caoergou/windows-xp/style.css';
+
+function CustomShell() {
+  return (
+    <AppProviders>
+      <Desktop />
+      <Window id="my-window" appId="Notepad" title="Notepad" />
+      <Taskbar />
+    </AppProviders>
+  );
+}
+```
 
 ## Standalone UI primitives (no providers)
 
@@ -47,7 +77,7 @@ components, matching the xp.css spec value-for-value):
 - `XPGroupBox`
 - `XPStatusBar` (+ `XPStatusBarField`)
 - `XPTabs`
-- `XPMenuBar` (family)
+- `XPMenuBar` (+ `XPMenuBarItem`, `XPMenuDropdown`, `XPMenuDropdownItem`, `XPMenuMark`, `XPMenuSeparator`, `XPMenuSlot`)
 - `XPIcon`
 - `XPDialog`
 
@@ -88,6 +118,5 @@ import {
 } from '@caoergou/windows-xp/components';
 ```
 
-See every primitive rendered in isolation at the
+See every primitive rendered in isolation at the standalone
 [component gallery](/windows-xp/gallery/).
-

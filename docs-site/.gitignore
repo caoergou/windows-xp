@@ -2,4 +2,4 @@ node_modules/
 .vitepress/dist/
 .vitepress/cache/
 # TypeDoc output is generated from ../src/lib at build time (npm run docs:api).
-api/
+/api/

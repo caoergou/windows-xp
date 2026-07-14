@@ -4,9 +4,9 @@ title: Events & imperative control
 
 # Events and imperative control
 
-Subscribe to everything happening inside the desktop with `onEvent`, and
-drive it programmatically with a `ref` — the foundation for analytics,
-guided demos, and the scenario system.
+The desktop emits a typed event for every user action — opening a file,
+launching an app, logging in, and so on. Listen with `onEvent`, and control
+the desktop from your own UI with a React `ref`.
 
 ```jsx
 import { useRef } from 'react';
@@ -75,7 +75,7 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `screensaver:stop` | — | The screensaver was dismissed. |
 | `notification:show` | `id`, `title`, `body?` | A tray notification balloon was shown. |
 | `notification:click` | `id` | A tray notification balloon was clicked. |
-| `time:hour` | `hour` | Fired on the top of each hour; `hour` is 0–23 (drives the 整点报时 chime). |
+| `time:hour` | `hour` | Fired on the top of each hour; hour is 0-23 (drives the hourly chime). |
 | `time:fire` | `id` | A persisted schedule fired (delay elapsed or its `at` deadline passed, incl. while the page was closed). |
 | `user:idle` | `idleMs` | The user has been inactive for the idle threshold; `idleMs` is that threshold. |
 | `user:active` | — | The user resumed activity after being idle. |
@@ -94,7 +94,7 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `media:pause` | `path?` | Media playback was paused. |
 | `media:ended` | `path?` | Media playback reached the end of the track. |
 | `media:seek` | `path?`, `position` | The playhead was moved; `position` is the new time in seconds. |
-| `search:query` | `query`, `hit`, `resultIds?` | A query was run against an in-world search engine (a fake 百度/AltaVista); `hit` is whether authored results matched. Emitted by the scenario runtime/app, not the core engine. |
+| `search:query` | `query`, `hit`, `resultIds?` | A query was run against an in-world search engine (a fake Baidu/AltaVista); hit is whether authored results matched. Emitted by the scenario runtime/app, not the core engine. |
 | `evidence:collect` | `termId`, `source?` | A term/clue entered the player's word bank (clicked a highlighted term, or granted by the scenario). |
 | `evidence:pin` | `itemId` | An item was pinned to the evidence board. |
 | `evidence:link` | `sourceId`, `targetId` | Two pinned items were linked on the evidence board. |
@@ -117,17 +117,65 @@ _Generated from `src/events.ts` by `npm run docs:events` — do not edit by hand
 
 <!-- EVENTS:END -->
 
+## Common event recipes
+
+### Log every file the user opens
+
+```jsx
+<WindowsXP
+  onEvent={e => {
+    if (e.type === 'file:open') {
+      console.log('opened', e.path.join('/'));
+    }
+  }}
+/>
+```
+
+### React to a wrong password
+
+```jsx
+<WindowsXP
+  onEvent={e => {
+    if (e.type === 'password:fail' && e.name === 'vault') {
+      console.log(`Wrong attempt #${e.attempt}`);
+    }
+  }}
+/>
+```
+
+### Run code once the desktop is ready
+
+```jsx
+<WindowsXP
+  autoLogin
+  onEvent={e => {
+    if (e.type === 'session:boot-complete') {
+      console.log('Desktop is interactive');
+    }
+  }}
+/>
+```
+
 ## The XPHandle
 
-The `XPHandle` (via `ref`) exposes the top-level `openApp(appId, props?)`,
-`openFile(path)`, `closeWindow(id)`, `showAlert(title, message)` and
-`reset()`, plus grouped actuation APIs:
+The `XPHandle` (via `ref`) exposes methods to open apps and files, control
+windows and sessions, read and write the filesystem, and save or restore the
+whole desktop. Common methods:
+
+- `openApp(appId, props?)`, `openFile(path)`, `closeWindow(id)`
+- `showAlert(title, message)`, `notify(options)`
+- `openExternal(url, { newTab })`, `getShareUrl(windowId)`
+- `startLesson(lessonId)`, `stopLesson()`
+- `getSnapshot()`, `loadSnapshot(snapshot)`, `reset()`
+- `emit(event)` — inject an event onto the same bus `onEvent` reads
+
+Grouped APIs:
 
 - `fs`: `readFile(path)`, `writeFile(path, content)`, `createFile(path, node?)`, `deleteFile(path)`, `getNode(path)`, `exists(path)`, `unlockNode(path)`
 - `session`: `login(password?)`, `logout()`, `shutdown()`, `restart()`
 - `appearance`: `setWallpaper(idOrUrl)`, `setLanguage(lang)`
-- `windows`: `list()`, `focus(id)`, `minimize(id)`, `maximize(id)`, `restore(id)`
-- `sound.play(name)` and `emit(event)` (inject onto the same bus `onEvent` and scenario triggers read)
+- `windows`: `list()`, `focus(id)`, `minimize(id)`, `maximize(id)`, `restore(id)` (un-minimizes and focuses a minimized window)
+- `sound.play(name)`
 - `schedule({ id?, delayMs?, at?, event? })` / `cancelSchedule(id)` — time-based
   triggers. A schedule fires a `time:fire` event (or a caller-supplied
   `event`) after `delayMs` or at the `at` epoch-ms deadline. **Pending schedules
@@ -138,8 +186,11 @@ The `XPHandle` (via `ref`) exposes the top-level `openApp(appId, props?)`,
 
 ```jsx
 // Remind the player 90s after they lock a folder — survives a reload.
-ref.current.schedule({ id: 'hint', delayMs: 90_000,
-  event: { type: 'notification:show', id: 'hint', title: 'Psst… try 2003' } });
+xp.current.schedule({
+  id: 'hint',
+  delayMs: 90_000,
+  event: { type: 'notification:show', id: 'hint', title: 'Psst… try 2003' },
+});
 ```
 
 The classic hourly chime (整点报时) is an opt-in consumer of `time:hour`:
@@ -158,7 +209,7 @@ Inside the tree (custom apps), subscribe without prop-drilling:
 import { useXPEvents } from '@caoergou/windows-xp';
 
 function EventLogger() {
-  useXPEvents((e) => {
+  useXPEvents(e => {
     if (e.type === 'file:open') {
       /* react to the world */
     }
@@ -177,7 +228,7 @@ observe the exact instance the desktop emits on:
 import { createXPEventBus, EventBusProvider } from '@caoergou/windows-xp';
 
 const bus = createXPEventBus();
-bus.subscribe((e) => console.log(e.type));
+bus.subscribe(e => console.log(e.type));
 // <EventBusProvider bus={bus}> … your providers … </EventBusProvider>
 ```
 
@@ -266,8 +317,8 @@ import with a `try/catch` and surface a "please update" message.
 Map URLs to desktop state so a blog post, a search result, or a campaign QR
 code can land the visitor on a specific open window.
 
-**Inbound — open a window from a URL.** `openOnLoad` takes one or more *key
-paths* (the sequence of filesystem keys from the desktop root, joined with `/`).
+**Inbound — open a window from a URL.** `openOnLoad` takes one or more _key
+paths_ (the sequence of filesystem keys from the desktop root, joined with `/`).
 Windows open once the desktop is interactive (after `skipBoot`/`autoLogin`);
 invalid paths fail silently to the plain desktop. Wire it to your own URL — the
 component takes no router dependency:
@@ -316,7 +367,12 @@ your analytics:
 ```jsx
 <WindowsXP
   customFileSystem={{
-    'Buy tickets': { type: 'external_link', name: 'Buy tickets', href: 'https://example.com/tickets', icon: 'ie' },
+    'Buy tickets': {
+      type: 'external_link',
+      name: 'Buy tickets',
+      href: 'https://example.com/tickets',
+      icon: 'ie',
+    },
   }}
   onEvent={e => {
     if (e.type === 'link:external') gtag('event', 'outbound_click', { url: e.url });
@@ -326,4 +382,3 @@ your analytics:
 
 New tabs open with `noopener,noreferrer`, so an embedded desktop never hijacks
 its host page.
-
