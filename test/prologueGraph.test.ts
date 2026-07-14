@@ -8,6 +8,7 @@ import { describe, it, expect } from 'vitest';
 import { prologueGraph, prologueGraphScenario } from '../src/data/scenarios/prologueGraph';
 import { lintPuzzleGraph, solvedFlag } from '../src/scenario/puzzleGraph';
 import { solveScenario, ranAction } from '../src/scenario/solver';
+import { validateScenario } from '../src/scenario/validate';
 import type { XPEvent } from '../src/events';
 
 const boot: XPEvent = { type: 'session:boot-complete' };
@@ -61,5 +62,22 @@ describe('prologue PDG demo', () => {
     const r = solveScenario(prologueGraphScenario, [boot, open('聊天记录.txt')]);
     expect(r.flags[solvedFlag('intro')]).toBe(true);
     expect(r.flags[solvedFlag('read-chat')]).toBeUndefined();
+  });
+
+  // "One graph, two skins" (#207): every player-visible string — beat dialogue,
+  // hint ladders, and the in-world documents dropped by grants — is extracted to
+  // the locale tables, and the zh/en tables are at parity, so adding the en table
+  // is all it takes to play the prologue in English.
+  it('has all beat text extracted and zh/en tables at parity', () => {
+    const { errors, warnings } = validateScenario(prologueGraphScenario);
+    expect(errors).toEqual([]);
+    // No "still inline" nudge and no dangling string-key references.
+    expect(warnings.filter(w => /still inline|not found in any locale table/.test(w))).toEqual([]);
+
+    const strings = prologueGraphScenario.strings ?? {};
+    const zh = Object.keys(strings.zh ?? {}).sort();
+    const en = Object.keys(strings.en ?? {}).sort();
+    expect(zh.length).toBeGreaterThan(0);
+    expect(en).toEqual(zh); // adding the en table is all it takes to play in English
   });
 });

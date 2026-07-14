@@ -8,13 +8,14 @@
  * Layer-1 scenario the runtime executes; the headless solver proves the
  * walkthrough completes (see `test/prologueGraph.test.ts` — "CI for stories").
  *
- * It also demonstrates #207 "one graph, two skins": the beat **dialogue** lives
- * in per-locale `strings` tables and the grants reference it by key (`titleKey`
- * /`bodyKey`/`textKey`), so the same graph plays in Chinese or English by
- * swapping the active locale. (Hint text and embedded file contents are still
- * inline Chinese — a follow-up.)
+ * It also demonstrates #207 "one graph, two skins": every player-visible string
+ * — beat dialogue, hint ladders, and the in-world documents the grants drop on
+ * the desktop — lives in per-locale `strings` tables, referenced by key
+ * (`titleKey`/`bodyKey`/`textKey`/`contentKey`). Nothing player-facing is inline,
+ * so the same graph plays end-to-end in Chinese or English purely by swapping the
+ * active locale. (File *names* are still structural graph identifiers.)
  */
-import { compilePuzzleGraph, ladder, type PuzzleGraph } from '../../scenario/puzzleGraph';
+import { compilePuzzleGraph, ladderKeys, type PuzzleGraph } from '../../scenario/puzzleGraph';
 import { addFile, eventMatch, happened, notify } from '../../scenario/builder';
 
 export const prologueGraph: PuzzleGraph = {
@@ -31,6 +32,16 @@ export const prologueGraph: PuzzleGraph = {
       'chat.body': '桌面上多了一张便签——像是当年的密码提示。',
       'finale.title': '序章完成',
       'finale.body': '文件夹打开了。当年的自己，终于把东西交到了未来的手上。',
+      // Hint ladders (M12) — one shared title, one rung per puzzle.
+      'hint.title': '提示',
+      'hint.intro': '先看看桌面上的便签，或翻翻回收站。',
+      'hint.letter': '回收站里的《写给未来的信》。',
+      'hint.chat': 'D 盘 → 游戏 → 聊天记录.txt。',
+      'hint.unlock': '桌面上的「密码便签」写着答案——老密码，小写。',
+      // In-world documents dropped on the desktop by the grants.
+      'file.passwordNote':
+        '给未来的我：\r\n\r\nC 盘那个藏起来的文件夹，密码就是我给所有东西设的老密码——admin（小写）。',
+      'file.epilogue': '2005 年的那台电脑，你已经全部看过了。\r\n\r\n（序章 · 完）',
     },
     en: {
       'intro.title': 'Remember?',
@@ -44,6 +55,15 @@ export const prologueGraph: PuzzleGraph = {
       'chat.body': 'A new note appeared on the desktop — looks like the old password hint.',
       'finale.title': 'Prologue complete',
       'finale.body': 'The folder opened. Your younger self finally handed it all to the future.',
+      'hint.title': 'Hint',
+      'hint.intro': 'Check the note on the desktop, or dig through the Recycle Bin.',
+      'hint.letter': '"A Letter to the Future" is in the Recycle Bin.',
+      'hint.chat': 'D: drive → Games → the chat log.',
+      'hint.unlock':
+        'The "password note" on the desktop has the answer — the old password, lowercase.',
+      'file.passwordNote':
+        'To future me:\r\n\r\nThat hidden folder on the C: drive — the password is the same old one I set on everything: admin (lowercase).',
+      'file.epilogue': "You've now seen everything on that 2005 machine.\r\n\r\n(Prologue · End)",
     },
   },
   puzzles: [
@@ -51,7 +71,7 @@ export const prologueGraph: PuzzleGraph = {
       id: 'intro',
       solvedWhen: happened('session:boot-complete'),
       grants: [notify({ titleKey: 'intro.title', bodyKey: 'intro.body', timeout: 12000 })],
-      hints: ladder({ idles: 1, title: '提示' }, '先看看桌面上的便签，或翻翻回收站。'),
+      hints: ladderKeys({ idles: 1, titleKey: 'hint.title' }, 'hint.intro'),
     },
     {
       id: 'read-letter',
@@ -59,7 +79,7 @@ export const prologueGraph: PuzzleGraph = {
       on: 'file:open',
       solvedWhen: eventMatch({ name: '写给未来的信.txt' }),
       grants: [notify({ titleKey: 'letter.title', bodyKey: 'letter.body', timeout: 12000 })],
-      hints: ladder({ idles: 1, title: '提示' }, '回收站里的《写给未来的信》。'),
+      hints: ladderKeys({ idles: 1, titleKey: 'hint.title' }, 'hint.letter'),
     },
     {
       id: 'read-chat',
@@ -70,14 +90,9 @@ export const prologueGraph: PuzzleGraph = {
       grants: [
         { qqMessage: { buddyId: 'crystal', textKey: 'chat.qq' } },
         notify({ titleKey: 'chat.title', bodyKey: 'chat.body', timeout: 12000 }),
-        addFile(['密码便签.txt'], {
-          type: 'file',
-          app: 'Notepad',
-          content:
-            '给未来的我：\r\n\r\nC 盘那个藏起来的文件夹，密码就是我给所有东西设的老密码——admin（小写）。',
-        }),
+        addFile(['密码便签.txt'], { type: 'file', app: 'Notepad' }, 'file.passwordNote'),
       ],
-      hints: ladder({ idles: 1, title: '提示' }, 'D 盘 → 游戏 → 聊天记录.txt。'),
+      hints: ladderKeys({ idles: 1, titleKey: 'hint.title' }, 'hint.chat'),
     },
     {
       id: 'unlock-windows',
@@ -85,13 +100,9 @@ export const prologueGraph: PuzzleGraph = {
       solvedWhen: happened('file:unlock', { name: 'WINDOWS' }),
       grants: [
         notify({ titleKey: 'finale.title', bodyKey: 'finale.body', timeout: 0 }),
-        addFile(['尾声.txt'], {
-          type: 'file',
-          app: 'Notepad',
-          content: '2005 年的那台电脑，你已经全部看过了。\r\n\r\n（序章 · 完）',
-        }),
+        addFile(['尾声.txt'], { type: 'file', app: 'Notepad' }, 'file.epilogue'),
       ],
-      hints: ladder({ fails: 2, title: '提示' }, '桌面上的「密码便签」写着答案——老密码，小写。'),
+      hints: ladderKeys({ fails: 2, titleKey: 'hint.title' }, 'hint.unlock'),
     },
   ],
 };

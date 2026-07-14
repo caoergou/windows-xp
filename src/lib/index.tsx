@@ -377,7 +377,13 @@ export {
 } from '../scenario/validate';
 export type { ScenarioValidation } from '../scenario/validate';
 // Layer 3: the Puzzle Dependency Graph — compiler + graph linter.
-export { compilePuzzleGraph, lintPuzzleGraph, solvedFlag, ladder } from '../scenario/puzzleGraph';
+export {
+  compilePuzzleGraph,
+  lintPuzzleGraph,
+  solvedFlag,
+  ladder,
+  ladderKeys,
+} from '../scenario/puzzleGraph';
 export type {
   PuzzleGraph,
   PuzzleNode,
