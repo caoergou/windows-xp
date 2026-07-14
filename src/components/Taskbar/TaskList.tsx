@@ -99,7 +99,7 @@ const TaskList: React.FC<TaskListProps> = ({
   return (
     <>
       <TaskItems>
-        {windows.map(win => (
+        {windows.filter(w => !w.isHidden).map(win => (
           <TaskItem
             key={win.id}
             $active={activeWindowId === win.id && !win.isMinimized}

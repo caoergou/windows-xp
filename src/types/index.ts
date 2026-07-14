@@ -185,6 +185,7 @@ export interface WindowState {
   props: WindowProps;
   isMinimized: boolean;
   isMaximized: boolean;
+  isHidden?: boolean;
   zIndex: number;
   width?: number;
   height?: number;
@@ -196,6 +197,8 @@ export interface WindowState {
   onOpen?: (id: string) => void;
   onClose?: ((id: string) => void) | null;
   onFocus?: ((id: string) => void) | null;
+  closeGuard?: ((forceClose: () => void) => void) | null;
+  minimizeGuard?: ((defaultMinimize: () => void) => void) | null;
 }
 
 /** 窗口配置属性 */
@@ -212,6 +215,8 @@ export interface WindowProps {
   onOpen?: ((id: string) => void) | null;
   onClose?: ((id: string) => void) | null;
   onFocus?: ((id: string) => void) | null;
+  closeGuard?: ((forceClose: () => void) => void) | null;
+  minimizeGuard?: ((defaultMinimize: () => void) => void) | null;
   /**
    * Absolute filesystem path this window was opened from (#136). Set when a
    * window is opened by path (deep link / openFile / a file double-click) so

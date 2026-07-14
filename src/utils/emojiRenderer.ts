@@ -111,6 +111,15 @@ const EMOJI_MAP: Record<string, string> = {
 };
 
 /**
+ * 表情选择面板用的有序列表：`code` 为 `[微笑]` 方括号码（插入输入框的文本），
+ * `emoji` 为对应的 Unicode 黄脸（网格里显示）。派生自 {@link EMOJI_MAP}，
+ * 让表情选择器与消息渲染共用同一份映射（#refine-qq 表情面板）。
+ */
+export const QQ_EMOJI_LIST: ReadonlyArray<{ code: string; emoji: string }> = Object.entries(
+  EMOJI_MAP
+).map(([code, emoji]) => ({ code, emoji }));
+
+/**
  * 将消息文本中的表情符号转换为 emoji
  * @param {string} text - 原始消息文本
  * @returns {string} 转换后的文本

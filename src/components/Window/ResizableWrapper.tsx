@@ -14,6 +14,8 @@ interface ResizableWrapperProps {
   minHeight: number;
   zIndex: number;
   isResizable: boolean;
+  /** Minimize-to-tray: keep the window mounted (state/tray survive) but not shown. */
+  hidden?: boolean;
   onFocus: () => void;
   onMove: (id: string, left: number, top: number) => void;
   onResize: (id: string, width: number, height: number) => void;
@@ -30,6 +32,7 @@ const ResizableWrapper: React.FC<ResizableWrapperProps> = ({
   minHeight,
   zIndex,
   isResizable,
+  hidden,
   onFocus,
   onMove,
   onResize,
@@ -66,6 +69,7 @@ const ResizableWrapper: React.FC<ResizableWrapperProps> = ({
           zIndex,
           width,
           height,
+          display: hidden ? 'none' : undefined,
         }}
         onMouseDown={e => e.stopPropagation()}
       >

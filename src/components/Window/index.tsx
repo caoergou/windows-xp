@@ -28,6 +28,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
     zIndex,
     isMinimized,
     isMaximized,
+    isHidden,
     width,
     height,
     left,
@@ -62,7 +63,11 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
     [closeWindow, id]
   );
 
-  if (isMinimized) return null;
+  // A minimize-to-tray hide (isHidden) keeps the window MOUNTED but invisible so
+  // the app's tray registration and state survive — unmounting it (as a plain
+  // taskbar-minimize does) would tear down the very tray icon needed to restore
+  // it (#refine-qq). A normal minimize still unmounts (restored via the taskbar).
+  if (isMinimized && !isHidden) return null;
 
   const isResizable = windowProps?.resizable !== false;
   const currentWidth = width || 600;
@@ -98,7 +103,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
     </WindowChrome>
   );
 
-  if (isMaximized) {
+  if (isMaximized && !isHidden) {
     return (
       <div
         className="xp-window"
@@ -128,6 +133,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
       minHeight={minHeight}
       zIndex={zIndex}
       isResizable={isResizable}
+      hidden={isHidden}
       onFocus={handleFocus}
       onMove={moveWindow}
       onResize={resizeWindow}

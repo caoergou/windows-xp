@@ -67,3 +67,92 @@ test.describe('QQ Messenger (#119)', () => {
     await expect(page.locator('[data-testid="qq-chat-typing"]')).toBeVisible({ timeout: 4000 });
   });
 });
+
+/**
+ * QQ refinements (#refine-qq): buddy tooltip, find dialog, main menu, tray
+ * right-click menu, minimize-to-tray + close dialog, chat emoji picker + history.
+ */
+test.describe('QQ refinements (#refine-qq)', () => {
+  test.beforeEach(async ({ page }) => {
+    test.setTimeout(45000);
+    await login(page, { lang: 'zh' });
+  });
+
+  test('hovering a buddy shows a profile tooltip (nick, number, status)', async ({ page }) => {
+    await openQQPanel(page);
+    await page.locator('[data-testid="qq-buddy-ahui"]').hover();
+    const tip = page.locator('[data-testid="qq-buddy-tooltip"]');
+    await expect(tip).toBeVisible();
+    await expect(tip).toContainText('阿辉');
+    await expect(tip).toContainText('286512');
+  });
+
+  test('find dialog filters buddies and opens a chat', async ({ page }) => {
+    await openQQPanel(page);
+    await page.locator('[data-testid="qq-find-button"]').click();
+    await expect(page.locator('[data-testid="qq-find-dialog"]')).toBeVisible();
+    await page.locator('[data-testid="qq-find-input"]').fill('阿辉');
+    await expect(page.locator('[data-testid="qq-find-results"] li')).toHaveCount(1);
+    await page.locator('[data-testid="qq-find-item-ahui"]').dblclick();
+    await expect(page.locator('[data-testid="qq-chat"]')).toBeVisible();
+  });
+
+  test('main menu opens and can launch the find dialog', async ({ page }) => {
+    await openQQPanel(page);
+    await page.locator('[data-testid="qq-menu-button"]').click();
+    const menu = page.locator('[data-testid="context-menu"]');
+    await expect(menu).toBeVisible();
+    await menu.getByText('查找联系人…').click();
+    await expect(page.locator('[data-testid="qq-find-dialog"]')).toBeVisible();
+  });
+
+  test('tray icon has a right-click status menu', async ({ page }) => {
+    await openQQPanel(page);
+    await page.locator('[data-tray-id="qq"]').click({ button: 'right' });
+    const menu = page.locator('[data-testid="context-menu"]');
+    await expect(menu).toBeVisible();
+    await expect(menu).toContainText('隐身');
+    await expect(menu).toContainText('退出');
+  });
+
+  test('minimize hides the panel to the tray (off the taskbar) and the tray icon restores it', async ({
+    page,
+  }) => {
+    await openQQPanel(page);
+    const panelWin = page.locator('.xp-window', { has: page.locator('[data-testid="qq-panel"]') });
+    await panelWin.getByRole('button', { name: '最小化' }).click();
+    await expect(page.locator('[data-testid="qq-panel"]')).toBeHidden();
+    // The tray icon survives (the window stays mounted) so it can restore the panel.
+    await expect(page.locator('[data-tray-id="qq"]')).toHaveCount(1);
+    await page.locator('[data-tray-id="qq"]').click();
+    await expect(page.locator('[data-testid="qq-panel"]')).toBeVisible();
+  });
+
+  test('closing the panel asks before quitting; cancel keeps it open', async ({ page }) => {
+    await openQQPanel(page);
+    const panelWin = page.locator('.xp-window', { has: page.locator('[data-testid="qq-panel"]') });
+    await panelWin.getByRole('button', { name: '关闭' }).click();
+    await expect(page.locator('[data-testid="qq-close-dialog"]')).toBeVisible();
+    await page.locator('[data-testid="qq-close-dialog"]').getByText('取消').click();
+    await expect(page.locator('[data-testid="qq-panel"]')).toBeVisible();
+  });
+
+  test('chat emoji picker inserts a code and the history viewer lists messages', async ({ page }) => {
+    await openQQPanel(page);
+    await page.locator('[data-testid="qq-buddy-ahui"]').dblclick();
+    await expect(page.locator('[data-testid="qq-chat"]')).toBeVisible();
+
+    // Emoji picker → insert a bracket code into the input.
+    await page.locator('[data-testid="qq-chat-face"]').click();
+    await expect(page.locator('[data-testid="qq-emoji-picker"]')).toBeVisible();
+    await page.locator('[data-testid="qq-emoji-picker"] button').first().click();
+    await expect(page.locator('[data-testid="qq-chat-input"]')).toHaveValue(/\[.+\]/);
+
+    // Send it, then open the history viewer and see the logged message.
+    await page.locator('[data-testid="qq-chat-send"]').click();
+    await page.locator('[data-testid="qq-chat-history-btn"]').click();
+    const history = page.locator('[data-testid="qq-chat-history"]');
+    await expect(history).toBeVisible();
+    await expect(history.locator('.row')).not.toHaveCount(0);
+  });
+});

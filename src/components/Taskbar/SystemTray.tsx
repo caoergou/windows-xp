@@ -6,8 +6,10 @@ import { useWindowManagerActions } from '../../context/WindowManagerContext';
 import SystemClock from '../SystemClock';
 import VolumePopup from '../VolumePopup';
 import XPIcon from '../XPIcon';
+import ContextMenu from '../ContextMenu';
 import NetworkConnections from '../../apps/NetworkConnections';
 import VolumeControl from '../../apps/VolumeControl';
+import type { MenuItem } from '../../types';
 
 const SystemTrayContainer = styled.div`
   height: 30px;
@@ -65,6 +67,7 @@ interface TrayItem {
   icon: string;
   tooltip?: string;
   onClick?: () => void;
+  contextMenuItems?: MenuItem[];
 }
 
 interface SystemTrayProps {
@@ -76,7 +79,15 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
   const { items: trayItems } = useTray();
   const { openWindow } = useWindowManagerActions();
   const [volumeOpen, setVolumeOpen] = useState(false);
+  const [trayMenu, setTrayMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null);
   const trayRef = useRef<HTMLDivElement>(null);
+
+  const handleTrayContextMenu = useCallback((e: React.MouseEvent, items?: MenuItem[]) => {
+    if (!items || items.length === 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setTrayMenu({ x: e.clientX, y: e.clientY, items });
+  }, []);
 
   const openNetworkConnections = useCallback(() => {
     openWindow(
@@ -128,7 +139,7 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
         <TrayIconWrapper
           key={item.id}
           data-tray-id={item.id}
-          $clickable={!!item.onClick}
+          $clickable={!!item.onClick || !!item.contextMenuItems?.length}
           title={item.tooltip || ''}
           onClick={
             item.onClick
@@ -138,10 +149,20 @@ const SystemTray: React.FC<SystemTrayProps> = () => {
                 }
               : undefined
           }
+          onContextMenu={e => handleTrayContextMenu(e, item.contextMenuItems)}
         >
           <XPIcon name={item.icon} size={16} color="white" />
         </TrayIconWrapper>
       ))}
+      {trayMenu && (
+        <ContextMenu
+          visible
+          x={trayMenu.x}
+          y={trayMenu.y}
+          menuItems={trayMenu.items}
+          onClose={() => setTrayMenu(null)}
+        />
+      )}
       <TrayIconWrapper
         data-tray-id="volume"
         $clickable
