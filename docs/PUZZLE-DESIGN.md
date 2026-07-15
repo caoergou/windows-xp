@@ -329,7 +329,7 @@ declarative layers can't say.
 lingua franca; what saves/loads, what the linter checks, what Layers 2–3 compile
 into. Non-programmers can hand-write it.
 
-**Layer 2 — typed fluent builder** (🆕, for developers): a TypeScript API that
+**Layer 2 — typed fluent builder** (✅ #207): a TypeScript API that
 compiles to Layer-1 JSON, giving autocomplete over the event table (§3) and
 compile-time payload checking:
 
@@ -351,7 +351,7 @@ s.puzzle('unlock-private-folder', {
 Because Layer 2 emits Layer-1 JSON, both audiences share one runtime, one save
 format, one linter — no dual implementations.
 
-**Layer 3 — the puzzle dependency graph** (🆕, the design-level win): Ron
+**Layer 3 — the puzzle dependency graph** (✅ #207): Ron
 Gilbert's Puzzle Dependency Charts — the tool adventure games have used since
 Monkey Island — become the _authoring model_, not just a diagram. Authors declare
 puzzle nodes with `requires`/`solvedWhen`/`grants`; the compiler derives the
@@ -364,14 +364,14 @@ PDCs were invented to catch, mechanically:
 - "bushiness" report: how many puzzles are open in parallel at each point
   (pacing visualization for free).
 
-**Headless solver (CI for stories)** (🆕): because triggers are data and events
+**Headless solver (CI for stories)** (✅ #207): because triggers are data and events
 are data, a scenario pack is testable without a browser: feed the intended
 event sequence (the walkthrough, itself derivable from the PDG), assert the
 ending is reached; fuzz alternate orderings to catch sequence-breaks. A story
 whose walkthrough breaks fails CI like any other regression. This — more than
 any single mechanic — is what "programmable game component" should mean.
 
-**Rehearsal / deterministic seek** (🆕, the iteration-loop win): the same
+**Rehearsal / deterministic seek** (✅ #207): the same
 insight, turned toward the author's edit-test loop. Replaying the walkthrough
 prefix up to a named beat through the solver reconstructs the exact state of
 having played there, so `seekTo('finale')` jumps to the ending in a second
@@ -424,4 +424,4 @@ skill gates need mercy bypasses.
 | `search:query` + query table; injectable IE pages                                                                                                                      | #84 content model (builds on round-1 C3/C4)                                         |
 | `msg:*`/`buddy:*` event names                                                                                                                                          | #119                                                                                |
 | Deduction Sheet, Evidence Board apps                                                                                                                                   | v2 candidates after #84 MVP (Notepad + `contentContains` is the day-one substitute) |
-| Fluent builder (Layer 2), PDG compiler + linter (Layer 3), headless solver                                                                                             | #84 follow-up: "scenario authoring toolkit" — file when MVP schema stabilizes       |
+| Fluent builder (Layer 2), PDG compiler + linter (Layer 3), headless solver, rehearsal/seek                                                                            | #207 (shipped in `src/scenario/`)                                                   |
