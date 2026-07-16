@@ -21,10 +21,17 @@ import i18n from '../i18n';
 import type { XPEvent, XPEventListener } from '../events';
 import { qqStore } from '../apps/QQ/qqStore';
 import type { QQProfile } from '../data/qq/types';
+import { defaultQQProfile } from '../data/qq/defaultProfile';
 import { SCENARIO_FLAGS_KEY } from './ScenarioRunner';
 import { useLesson } from '../context/LessonContext';
 import type { LessonMode } from '../lesson/types';
-import { getRehearsalController, type RehearsalState } from '../devtools/rehearsalChannel';
+import {
+  getRehearsalController,
+  type RehearsalState,
+  type ScenarioDebugState,
+} from '../devtools/rehearsalChannel';
+import type { FlagValue } from '../scenario/types';
+import { useCulture } from '../context/CultureContext';
 
 /** Filesystem actuation from outside the desktop (#115). Paths are absolute. */
 export interface XPFsApi {
@@ -85,8 +92,12 @@ export interface XPWindowsApi {
 export interface XPQQApi {
   /** Open the QQ client; with `buddyId`, also open (or focus) that chat window. */
   open: (buddyId?: string) => string | null;
-  /** Deliver an incoming message from a buddy (typing/queueing handled by QQ). */
-  sendMessage: (buddyId: string, text: string) => void;
+  /** Deliver a message with QQ typing/queueing; false until the buddy profile is loaded. */
+  sendMessage: (buddyId: string, text: string) => boolean;
+  /** Whether the live QQ profile currently contains this buddy. */
+  hasBuddy: (buddyId: string) => boolean;
+  /** Idempotently load the active culture's profile for host-driven rehearsal. */
+  ensureProfile: () => void;
   /** Bring a buddy online now (knock sound + tray blink + "上线了" balloon). */
   bringOnline: (buddyId: string) => void;
   /** Replace the live QQ profile (buddies/groups/scripts) and restart the session. */
@@ -113,6 +124,10 @@ export interface XPScenarioApi {
   exitRehearsal: () => void;
   /** The current rehearsal cursor (active flag, index, tape length, named beats). */
   getState: () => RehearsalState;
+  /** Set one flag through the live scenario runtime. Returns false without a scenario. */
+  setFlag: (flag: string, value: FlagValue) => boolean;
+  /** Inspect live flags, trigger fire budgets, and condition traces. */
+  getDebugState: () => ScenarioDebugState;
 }
 
 /**
@@ -229,6 +244,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
     const storage = useStorage();
     const { schedule, cancelSchedule } = useScheduler();
     const { start: startLesson, stop: stopLesson } = useLesson();
+    const { culture } = useCulture();
 
     useImperativeHandle(ref, (): XPHandle => {
       const powerOff = (state: 'shutdown' | 'restart') => {
@@ -394,12 +410,16 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             return clientId;
           },
           sendMessage: (buddyId, text) => {
-            if (!qqStore.receiveMessage(buddyId, text)) {
+            const delivered = qqStore.receiveMessage(buddyId, text) !== null;
+            if (!delivered) {
               console.warn(
                 `[windows-xp] qq.sendMessage: no buddy "${buddyId}" (open QQ / loadProfile first)`
               );
             }
+            return delivered;
           },
+          hasBuddy: buddyId => qqStore.buddy(buddyId) !== undefined,
+          ensureProfile: () => qqStore.start(culture.qq ?? defaultQQProfile),
           bringOnline: buddyId => qqStore.bringOnline(buddyId, { announce: true, runScript: true }),
           loadProfile: profile => {
             qqStore.reset();
@@ -431,6 +451,18 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
               index: -1,
               length: 0,
               beats: [],
+            },
+          setFlag: (flag, value) =>
+            getRehearsalController(storage.prefix)?.setFlag(flag, value) ?? false,
+          getDebugState: () =>
+            getRehearsalController(storage.prefix)?.getDebugState() ?? {
+              scenarioId: null,
+              flags: {},
+              fires: {},
+              journalLength: 0,
+              pending: [],
+              rehearsal: { active: false, index: -1, length: 0, beats: [] },
+              triggers: [],
             },
         },
 
@@ -501,6 +533,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
       cancelSchedule,
       startLesson,
       stopLesson,
+      culture,
     ]);
 
     void fs;

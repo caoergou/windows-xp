@@ -18,7 +18,7 @@
     "scripts/**/*.mjs"
   ],
   "project": ["src/**/*.{ts,tsx}"],
-  "ignoreDependencies": ["playwright"],
+  "ignoreDependencies": ["playwright", "@caoergou/windows-xp"],
   "ignoreExportsUsedInFile": true,
   "rules": {
     "files": "error",

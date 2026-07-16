@@ -16,6 +16,41 @@ JSON, never in the core.
   [`src/events.ts`](../src/events.ts) — the same names the reference table in
   [`USAGE.md`](../USAGE.md) documents.
 
+## Authoring CLI
+
+Install `@caoergou/xp-scenario-tools` only in the authoring project. It is a
+Node-only package and does not enter the embedded desktop bundle.
+
+```bash
+npx xp-scenario lint ./scenario.ts
+npx xp-scenario solve ./scenario.ts
+npx xp-scenario graph ./scenario.ts --format mermaid
+npx xp-scenario pack ./content-pack --check
+npx xp-scenario migrate ./scenario.ts ./save.json
+npx xp-scenario serve ./scenario.ts
+```
+
+`lint` combines the published JSON Schema with semantic checks for puzzle graph
+reachability, event/flag references, authorized URLs, content references and
+provider fallbacks. `solve` replays `rehearsal.walkthrough` without browser or
+provider access. `migrate` is diagnostic unless `--write` is explicit; intentional
+renames use `--map-flag old=new` and `--map-trigger old=new`.
+
+`serve` mounts the authored scenario in a live Windows XP desktop and opens an
+interactive control prompt. The prompt can `seek <beat>`, `step back|forward`,
+inspect `flags`/`status`, `flag set`, inject typed events with `emit`, re-run
+`lint`/`graph`, and `reset` the isolated authoring instance. The scenario file is
+watched by Vite; edits are revalidated before the browser reloads. Provider
+personas can be rehearsed with `chat <buddy> <message>` (built-in mock or
+`--provider-url`) and `chat --offline <buddy>` for the declared fallback path.
+The control socket binds to localhost by default and requires a random token.
+The authoring desktop defaults to `zh` for QQ persona rehearsal; override it with
+`--language en` or another registered culture id.
+
+Editors and other authoring tools can consume the same schemas through
+`@caoergou/windows-xp/schema/scenario.json` and
+`@caoergou/windows-xp/schema/content-pack.json`.
+
 ## Authoring & wiring
 
 A scenario is passed as the `scenario` prop:

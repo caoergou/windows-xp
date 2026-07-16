@@ -14,6 +14,7 @@ export default tseslint.config(
   {
     ignores: [
       'dist/',
+      '**/dist/',
       'node_modules/',
       'xp-research/',
       'cn-net-research/',

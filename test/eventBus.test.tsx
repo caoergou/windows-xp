@@ -267,6 +267,33 @@ describe('imperative XPHandle v2 (#115)', () => {
       ref.current!.appearance.setWallpaper('bliss');
     });
   });
+
+  it('reports QQ buddy availability and message delivery accurately', async () => {
+    const ref = await mountHandle([]);
+    const handle = ref.current;
+    if (!handle) throw new Error('XP handle did not mount');
+    act(() => {
+      handle.qq.loadProfile({
+        me: { number: '1', nickname: 'me', avatar: 1, status: 'online' },
+        groups: [{ id: 'friends', name: 'Friends' }],
+        buddies: [
+          {
+            id: 'author-buddy',
+            number: '2',
+            nickname: 'Author Buddy',
+            avatar: 2,
+            group: 'friends',
+            status: 'online',
+          },
+        ],
+      });
+    });
+
+    expect(handle.qq.hasBuddy('author-buddy')).toBe(true);
+    expect(handle.qq.hasBuddy('missing')).toBe(false);
+    expect(handle.qq.sendMessage('author-buddy', 'rehearsal reply')).toBe(true);
+    expect(handle.qq.sendMessage('missing', 'not delivered')).toBe(false);
+  });
 });
 
 describe('FileSystem emits mutation events (#76)', () => {

@@ -433,6 +433,7 @@ export { buildTape, beatIndex, seekResult, fsTreeToSolveNodes } from '../scenari
 export type { RehearsalTape, SeekResult } from '../scenario/rehearsal';
 export type { RehearsalPlan, RehearsalStep } from '../scenario/types';
 export type { XPScenarioApi } from '../components/XPBridge';
+export type { ScenarioDebugState, ScenarioTriggerState } from '../devtools/rehearsalChannel';
 export { subscribeRehearsalState, getRehearsalController } from '../devtools/rehearsalChannel';
 export type {
   RehearsalState,

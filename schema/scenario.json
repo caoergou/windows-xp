@@ -1,0 +1,906 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://caoergou.github.io/windows-xp/schemas/scenario.schema.json",
+  "title": "Windows XP Scenario",
+  "description": "Declarative scenario rulebook consumed by @caoergou/windows-xp.",
+  "type": "object",
+  "required": ["id", "triggers"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "minLength": 1 },
+    "initialFlags": {
+      "type": "object",
+      "additionalProperties": { "type": ["string", "number", "boolean"] }
+    },
+    "triggers": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/trigger" }
+    },
+    "strings": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": { "type": "string" }
+      }
+    },
+    "rehearsal": {
+      "type": "object",
+      "required": ["walkthrough"],
+      "additionalProperties": false,
+      "properties": {
+        "walkthrough": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["event"],
+            "properties": {
+              "event": {
+                "type": "object",
+                "required": ["type"],
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "app:launch",
+                      "app:close",
+                      "window:focus",
+                      "window:minimize",
+                      "window:maximize",
+                      "window:restore",
+                      "startmenu:open",
+                      "startmenu:close",
+                      "contextmenu:open",
+                      "file:open",
+                      "file:create",
+                      "file:update",
+                      "file:delete",
+                      "file:rename",
+                      "file:move",
+                      "file:copy",
+                      "file:restore",
+                      "file:unlock",
+                      "file:properties",
+                      "folder:delete",
+                      "recyclebin:empty",
+                      "password:fail",
+                      "session:login",
+                      "session:login-fail",
+                      "session:logout",
+                      "session:boot-complete",
+                      "session:shutdown",
+                      "flag:change",
+                      "cmd:exec",
+                      "ie:navigate",
+                      "wallpaper:change",
+                      "screensaver:start",
+                      "screensaver:stop",
+                      "notification:show",
+                      "notification:click",
+                      "time:hour",
+                      "time:fire",
+                      "user:idle",
+                      "user:active",
+                      "qq:login",
+                      "qq:open",
+                      "qq:online",
+                      "qq:message",
+                      "qq:reply",
+                      "qq:offline",
+                      "qq:status",
+                      "qq:choice",
+                      "game:start",
+                      "game:win",
+                      "game:lose",
+                      "media:play",
+                      "media:pause",
+                      "media:ended",
+                      "media:seek",
+                      "search:query",
+                      "evidence:collect",
+                      "evidence:pin",
+                      "evidence:link",
+                      "evidence:unpin",
+                      "deduction:submit",
+                      "deduction:verified",
+                      "deduction:failed",
+                      "lesson:start",
+                      "lesson:step-complete",
+                      "lesson:hint-shown",
+                      "lesson:step-failed",
+                      "lesson:complete",
+                      "install:start",
+                      "install:complete",
+                      "install:cancelled",
+                      "ui:action",
+                      "link:external"
+                    ]
+                  }
+                },
+                "additionalProperties": true
+              },
+              "beat": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "condition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["all"],
+          "properties": {
+            "all": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/condition" }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["any"],
+          "properties": {
+            "any": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/condition" }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["not"],
+          "properties": { "not": { "$ref": "#/definitions/condition" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["flag"],
+          "properties": {
+            "flag": { "type": "string" },
+            "eq": { "type": ["string", "number", "boolean"] },
+            "gte": { "type": "number" },
+            "lte": { "type": "number" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["event"],
+          "properties": {
+            "event": { "type": "object", "additionalProperties": true }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["happened"],
+          "properties": {
+            "happened": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "app:launch",
+                    "app:close",
+                    "window:focus",
+                    "window:minimize",
+                    "window:maximize",
+                    "window:restore",
+                    "startmenu:open",
+                    "startmenu:close",
+                    "contextmenu:open",
+                    "file:open",
+                    "file:create",
+                    "file:update",
+                    "file:delete",
+                    "file:rename",
+                    "file:move",
+                    "file:copy",
+                    "file:restore",
+                    "file:unlock",
+                    "file:properties",
+                    "folder:delete",
+                    "recyclebin:empty",
+                    "password:fail",
+                    "session:login",
+                    "session:login-fail",
+                    "session:logout",
+                    "session:boot-complete",
+                    "session:shutdown",
+                    "flag:change",
+                    "cmd:exec",
+                    "ie:navigate",
+                    "wallpaper:change",
+                    "screensaver:start",
+                    "screensaver:stop",
+                    "notification:show",
+                    "notification:click",
+                    "time:hour",
+                    "time:fire",
+                    "user:idle",
+                    "user:active",
+                    "qq:login",
+                    "qq:open",
+                    "qq:online",
+                    "qq:message",
+                    "qq:reply",
+                    "qq:offline",
+                    "qq:status",
+                    "qq:choice",
+                    "game:start",
+                    "game:win",
+                    "game:lose",
+                    "media:play",
+                    "media:pause",
+                    "media:ended",
+                    "media:seek",
+                    "search:query",
+                    "evidence:collect",
+                    "evidence:pin",
+                    "evidence:link",
+                    "evidence:unpin",
+                    "deduction:submit",
+                    "deduction:verified",
+                    "deduction:failed",
+                    "lesson:start",
+                    "lesson:step-complete",
+                    "lesson:hint-shown",
+                    "lesson:step-failed",
+                    "lesson:complete",
+                    "install:start",
+                    "install:complete",
+                    "install:cancelled",
+                    "ui:action",
+                    "link:external"
+                  ]
+                },
+                "match": { "type": "object", "additionalProperties": true }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["count"],
+          "properties": {
+            "count": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "app:launch",
+                    "app:close",
+                    "window:focus",
+                    "window:minimize",
+                    "window:maximize",
+                    "window:restore",
+                    "startmenu:open",
+                    "startmenu:close",
+                    "contextmenu:open",
+                    "file:open",
+                    "file:create",
+                    "file:update",
+                    "file:delete",
+                    "file:rename",
+                    "file:move",
+                    "file:copy",
+                    "file:restore",
+                    "file:unlock",
+                    "file:properties",
+                    "folder:delete",
+                    "recyclebin:empty",
+                    "password:fail",
+                    "session:login",
+                    "session:login-fail",
+                    "session:logout",
+                    "session:boot-complete",
+                    "session:shutdown",
+                    "flag:change",
+                    "cmd:exec",
+                    "ie:navigate",
+                    "wallpaper:change",
+                    "screensaver:start",
+                    "screensaver:stop",
+                    "notification:show",
+                    "notification:click",
+                    "time:hour",
+                    "time:fire",
+                    "user:idle",
+                    "user:active",
+                    "qq:login",
+                    "qq:open",
+                    "qq:online",
+                    "qq:message",
+                    "qq:reply",
+                    "qq:offline",
+                    "qq:status",
+                    "qq:choice",
+                    "game:start",
+                    "game:win",
+                    "game:lose",
+                    "media:play",
+                    "media:pause",
+                    "media:ended",
+                    "media:seek",
+                    "search:query",
+                    "evidence:collect",
+                    "evidence:pin",
+                    "evidence:link",
+                    "evidence:unpin",
+                    "deduction:submit",
+                    "deduction:verified",
+                    "deduction:failed",
+                    "lesson:start",
+                    "lesson:step-complete",
+                    "lesson:hint-shown",
+                    "lesson:step-failed",
+                    "lesson:complete",
+                    "install:start",
+                    "install:complete",
+                    "install:cancelled",
+                    "ui:action",
+                    "link:external"
+                  ]
+                },
+                "match": { "type": "object", "additionalProperties": true }
+              },
+              "additionalProperties": false
+            },
+            "gte": { "type": "number" },
+            "lte": { "type": "number" },
+            "eq": { "type": "number" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["exists"],
+          "properties": {
+            "exists": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["unlocked"],
+          "properties": {
+            "unlocked": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["contentContains"],
+          "properties": {
+            "contentContains": {
+              "type": "object",
+              "required": ["path", "contains"],
+              "properties": {
+                "path": { "type": "array", "items": { "type": "string" } },
+                "contains": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["pinned"],
+          "properties": { "pinned": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["linked"],
+          "properties": {
+            "linked": {
+              "type": "object",
+              "required": ["a", "b"],
+              "properties": {
+                "a": { "type": "string" },
+                "b": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["searched"],
+          "properties": { "searched": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["found"],
+          "properties": { "found": { "type": "string" } },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "action": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["setFlag"],
+          "properties": {
+            "setFlag": { "type": "string" },
+            "value": { "type": ["string", "number", "boolean"] }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["incFlag"],
+          "properties": {
+            "incFlag": { "type": "string" },
+            "by": { "type": "number" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["unlock"],
+          "properties": {
+            "unlock": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["addFile"],
+          "properties": {
+            "addFile": {
+              "type": "object",
+              "required": ["path"],
+              "properties": {
+                "path": { "type": "array", "items": { "type": "string" } },
+                "node": { "type": "object" },
+                "contentKey": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["removeFile"],
+          "properties": {
+            "removeFile": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["writeFile"],
+          "properties": {
+            "writeFile": {
+              "type": "object",
+              "required": ["path", "content"],
+              "properties": {
+                "path": { "type": "array", "items": { "type": "string" } },
+                "content": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["notify"],
+          "properties": {
+            "notify": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "titleKey": { "type": "string" },
+                "body": { "type": "string" },
+                "bodyKey": { "type": "string" },
+                "icon": { "type": "string" },
+                "anchorId": { "type": "string" }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["qqMessage"],
+          "properties": {
+            "qqMessage": {
+              "type": "object",
+              "required": ["buddyId"],
+              "properties": {
+                "buddyId": { "type": "string" },
+                "text": { "type": "string" },
+                "textKey": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["qqOnline"],
+          "properties": { "qqOnline": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["openApp"],
+          "properties": {
+            "openApp": {
+              "type": "object",
+              "required": ["appId"],
+              "properties": {
+                "appId": { "type": "string" },
+                "props": { "type": "object", "additionalProperties": true }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["openFile"],
+          "properties": {
+            "openFile": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["playSound"],
+          "properties": { "playSound": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["emit"],
+          "properties": {
+            "emit": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "app:launch",
+                    "app:close",
+                    "window:focus",
+                    "window:minimize",
+                    "window:maximize",
+                    "window:restore",
+                    "startmenu:open",
+                    "startmenu:close",
+                    "contextmenu:open",
+                    "file:open",
+                    "file:create",
+                    "file:update",
+                    "file:delete",
+                    "file:rename",
+                    "file:move",
+                    "file:copy",
+                    "file:restore",
+                    "file:unlock",
+                    "file:properties",
+                    "folder:delete",
+                    "recyclebin:empty",
+                    "password:fail",
+                    "session:login",
+                    "session:login-fail",
+                    "session:logout",
+                    "session:boot-complete",
+                    "session:shutdown",
+                    "flag:change",
+                    "cmd:exec",
+                    "ie:navigate",
+                    "wallpaper:change",
+                    "screensaver:start",
+                    "screensaver:stop",
+                    "notification:show",
+                    "notification:click",
+                    "time:hour",
+                    "time:fire",
+                    "user:idle",
+                    "user:active",
+                    "qq:login",
+                    "qq:open",
+                    "qq:online",
+                    "qq:message",
+                    "qq:reply",
+                    "qq:offline",
+                    "qq:status",
+                    "qq:choice",
+                    "game:start",
+                    "game:win",
+                    "game:lose",
+                    "media:play",
+                    "media:pause",
+                    "media:ended",
+                    "media:seek",
+                    "search:query",
+                    "evidence:collect",
+                    "evidence:pin",
+                    "evidence:link",
+                    "evidence:unpin",
+                    "deduction:submit",
+                    "deduction:verified",
+                    "deduction:failed",
+                    "lesson:start",
+                    "lesson:step-complete",
+                    "lesson:hint-shown",
+                    "lesson:step-failed",
+                    "lesson:complete",
+                    "install:start",
+                    "install:complete",
+                    "install:cancelled",
+                    "ui:action",
+                    "link:external"
+                  ]
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["alert"],
+          "properties": {
+            "alert": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "titleKey": { "type": "string" },
+                "message": { "type": "string" },
+                "messageKey": { "type": "string" }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["note"],
+          "properties": {
+            "note": {
+              "type": "object",
+              "required": ["id"],
+              "properties": {
+                "id": { "type": "string" },
+                "title": { "type": "string" },
+                "titleKey": { "type": "string" },
+                "content": { "type": "string" },
+                "contentKey": { "type": "string" },
+                "x": { "type": "number" },
+                "y": { "type": "number" },
+                "color": { "enum": ["yellow", "blue", "pink", "green"] }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["removeNote"],
+          "properties": { "removeNote": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["after"],
+          "properties": {
+            "after": {
+              "type": "object",
+              "required": ["ms", "do"],
+              "properties": {
+                "ms": { "type": "number", "minimum": 0 },
+                "do": {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/action" }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "trigger": {
+      "type": "object",
+      "required": ["on", "do"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "on": {
+          "oneOf": [
+            {
+              "enum": [
+                "app:launch",
+                "app:close",
+                "window:focus",
+                "window:minimize",
+                "window:maximize",
+                "window:restore",
+                "startmenu:open",
+                "startmenu:close",
+                "contextmenu:open",
+                "file:open",
+                "file:create",
+                "file:update",
+                "file:delete",
+                "file:rename",
+                "file:move",
+                "file:copy",
+                "file:restore",
+                "file:unlock",
+                "file:properties",
+                "folder:delete",
+                "recyclebin:empty",
+                "password:fail",
+                "session:login",
+                "session:login-fail",
+                "session:logout",
+                "session:boot-complete",
+                "session:shutdown",
+                "flag:change",
+                "cmd:exec",
+                "ie:navigate",
+                "wallpaper:change",
+                "screensaver:start",
+                "screensaver:stop",
+                "notification:show",
+                "notification:click",
+                "time:hour",
+                "time:fire",
+                "user:idle",
+                "user:active",
+                "qq:login",
+                "qq:open",
+                "qq:online",
+                "qq:message",
+                "qq:reply",
+                "qq:offline",
+                "qq:status",
+                "qq:choice",
+                "game:start",
+                "game:win",
+                "game:lose",
+                "media:play",
+                "media:pause",
+                "media:ended",
+                "media:seek",
+                "search:query",
+                "evidence:collect",
+                "evidence:pin",
+                "evidence:link",
+                "evidence:unpin",
+                "deduction:submit",
+                "deduction:verified",
+                "deduction:failed",
+                "lesson:start",
+                "lesson:step-complete",
+                "lesson:hint-shown",
+                "lesson:step-failed",
+                "lesson:complete",
+                "install:start",
+                "install:complete",
+                "install:cancelled",
+                "ui:action",
+                "link:external"
+              ]
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "enum": [
+                  "app:launch",
+                  "app:close",
+                  "window:focus",
+                  "window:minimize",
+                  "window:maximize",
+                  "window:restore",
+                  "startmenu:open",
+                  "startmenu:close",
+                  "contextmenu:open",
+                  "file:open",
+                  "file:create",
+                  "file:update",
+                  "file:delete",
+                  "file:rename",
+                  "file:move",
+                  "file:copy",
+                  "file:restore",
+                  "file:unlock",
+                  "file:properties",
+                  "folder:delete",
+                  "recyclebin:empty",
+                  "password:fail",
+                  "session:login",
+                  "session:login-fail",
+                  "session:logout",
+                  "session:boot-complete",
+                  "session:shutdown",
+                  "flag:change",
+                  "cmd:exec",
+                  "ie:navigate",
+                  "wallpaper:change",
+                  "screensaver:start",
+                  "screensaver:stop",
+                  "notification:show",
+                  "notification:click",
+                  "time:hour",
+                  "time:fire",
+                  "user:idle",
+                  "user:active",
+                  "qq:login",
+                  "qq:open",
+                  "qq:online",
+                  "qq:message",
+                  "qq:reply",
+                  "qq:offline",
+                  "qq:status",
+                  "qq:choice",
+                  "game:start",
+                  "game:win",
+                  "game:lose",
+                  "media:play",
+                  "media:pause",
+                  "media:ended",
+                  "media:seek",
+                  "search:query",
+                  "evidence:collect",
+                  "evidence:pin",
+                  "evidence:link",
+                  "evidence:unpin",
+                  "deduction:submit",
+                  "deduction:verified",
+                  "deduction:failed",
+                  "lesson:start",
+                  "lesson:step-complete",
+                  "lesson:hint-shown",
+                  "lesson:step-failed",
+                  "lesson:complete",
+                  "install:start",
+                  "install:complete",
+                  "install:cancelled",
+                  "ui:action",
+                  "link:external"
+                ]
+              }
+            }
+          ]
+        },
+        "when": { "$ref": "#/definitions/condition" },
+        "do": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/action" }
+        },
+        "once": { "type": "boolean" },
+        "max": { "type": "number", "minimum": 1 }
+      }
+    }
+  }
+}

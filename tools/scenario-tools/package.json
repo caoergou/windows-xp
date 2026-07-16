@@ -1,0 +1,60 @@
+{
+  "name": "@caoergou/xp-scenario-tools",
+  "version": "0.1.0",
+  "description": "Authoring CLI and programmable checks for @caoergou/windows-xp scenarios",
+  "type": "module",
+  "bin": {
+    "xp-scenario": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./serve": {
+      "types": "./dist/serve.d.ts",
+      "import": "./dist/serve.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build --config vite.config.ts",
+    "dev": "jiti src/cli.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0",
+    "esbuild": "^0.28.1",
+    "jiti": "^2.6.1",
+    "vite": "^8.1.5",
+    "ws": "^8.21.1"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.1",
+    "typescript": "^5.9.3",
+    "vite-plugin-dts": "^4.5.3"
+  },
+  "peerDependencies": {
+    "@caoergou/windows-xp": "^0.3.0"
+  },
+  "peerDependenciesMeta": {
+    "@caoergou/windows-xp": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caoergou/windows-xp.git",
+    "directory": "tools/scenario-tools"
+  }
+}
