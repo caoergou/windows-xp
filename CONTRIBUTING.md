@@ -40,6 +40,11 @@ In addition, `visual.yml` runs the micro-component screenshot diff on every PR,
 and `deploy.yml` builds and publishes to GitHub Pages on pushes to `main`. A PR
 that breaks any of these goes red before it can merge.
 
+Scenario and content changes also run `npm run scenario:ci`: the reference
+prologue must pass `lint` and headless `solve`, and the directory-form reference
+content pack must pass `pack --check`. This is the deterministic story/content
+gate provided by `@caoergou/xp-scenario-tools`.
+
 ### First-paint budget (#210)
 
 For the marketing / 404-egg scenarios (`docs/USE-CASES.md` S3) the first paint

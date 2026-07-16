@@ -15,6 +15,10 @@
  * colors) and tree-shakes away when nothing mounts it.
  */
 
+import type { XPEvent } from '../events';
+import type { FlagValue } from '../scenario/types';
+import type { ConditionTrace } from '../scenario/trace';
+
 /** A named beat and the tape index that reaches it. */
 export interface RehearsalBeat {
   beat: string;
@@ -33,6 +37,28 @@ export interface RehearsalState {
   beats: RehearsalBeat[];
 }
 
+/** One trigger's current authoring/debug state, independent of a matching event. */
+export interface ScenarioTriggerState {
+  id: string;
+  index: number;
+  on: string | string[];
+  fireCount: number;
+  budgetAvailable: boolean;
+  when: ConditionTrace;
+}
+
+/** Serializable runtime state exposed to authoring tools through XPHandle. */
+export interface ScenarioDebugState {
+  scenarioId: string | null;
+  flags: Record<string, FlagValue>;
+  fires: Record<string, number>;
+  journalLength: number;
+  lastEvent?: XPEvent;
+  pending: string[];
+  rehearsal: RehearsalState;
+  triggers: ScenarioTriggerState[];
+}
+
 /** The imperative surface the ScenarioRunner exposes to seek-bar consumers. */
 export interface RehearsalController {
   /** Jump to a named beat's state; returns false if the beat is unknown. */
@@ -47,6 +73,10 @@ export interface RehearsalController {
   exitRehearsal: () => void;
   /** The current cursor (for a consumer that mounts mid-session). */
   getState: () => RehearsalState;
+  /** Set one authoring flag and emit the same flag:change event as scenario actions. */
+  setFlag: (flag: string, value: FlagValue) => boolean;
+  /** Inspect flags, fire budgets, and condition traces without touching runtime state. */
+  getDebugState: () => ScenarioDebugState;
 }
 
 const controllers = new Map<string, RehearsalController>();

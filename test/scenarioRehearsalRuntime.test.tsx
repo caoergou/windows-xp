@@ -107,4 +107,24 @@ describe('rehearsal seek — runtime (#207)', () => {
     act(() => ref.current!.emit({ type: 'cmd:exec', command: 'silent', rehearsal: true }));
     expect(onEvent).not.toHaveBeenCalled();
   });
+
+  it('exposes flag control and structured trigger status for authoring bridges', async () => {
+    const ref = await mount();
+    await act(async () => {
+      expect(ref.current!.scenario.setFlag('authoring_ready', true)).toBe(true);
+    });
+
+    const debug = ref.current!.scenario.getDebugState();
+    expect(debug.scenarioId).toBe(prologueGraphScenario.id);
+    expect(debug.flags.authoring_ready).toBe(true);
+    expect(debug.triggers).toHaveLength(prologueGraphScenario.triggers.length);
+    expect(debug.triggers[0]).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        fireCount: expect.any(Number),
+        budgetAvailable: expect.any(Boolean),
+        when: expect.objectContaining({ held: expect.any(Boolean) }),
+      })
+    );
+  });
 });

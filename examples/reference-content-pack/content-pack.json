@@ -1,0 +1,100 @@
+{
+  "id": "reference-prologue-pack",
+  "assets": {
+    "bbs-home": { "url": "./assets/bbs-home.html" },
+    "old-letter": { "url": "./assets/old-letter.md" }
+  },
+  "sites": {
+    "http://qingchun-bbs.com": {
+      "title": "Qingchun BBS",
+      "html": { "asset": "bbs-home" }
+    }
+  },
+  "files": {
+    "old-letter.md": {
+      "type": "file",
+      "name": "old-letter.md",
+      "app": "MarkdownViewer",
+      "contentRef": { "asset": "old-letter" }
+    }
+  },
+  "scenario": {
+    "id": "reference-prologue-pack",
+    "triggers": [
+      {
+        "id": "visit-bbs",
+        "on": "ie:navigate",
+        "when": { "event": { "url": "http://qingchun-bbs.com" } },
+        "once": true,
+        "do": [
+          { "setFlag": "visited_bbs" },
+          { "notify": { "titleKey": "bbs.title", "bodyKey": "bbs.body" } }
+        ]
+      },
+      {
+        "id": "read-letter",
+        "on": "file:open",
+        "when": {
+          "all": [{ "flag": "visited_bbs" }, { "event": { "name": "old-letter.md" } }]
+        },
+        "once": true,
+        "do": [
+          { "setFlag": "prologue_complete" },
+          { "notify": { "titleKey": "finale.title", "bodyKey": "finale.body" } }
+        ]
+      },
+      {
+        "id": "provider-rehearsal",
+        "on": "qq:reply",
+        "when": { "event": { "buddyId": "crystal" } },
+        "do": [
+          {
+            "openApp": {
+              "appId": "QQ",
+              "props": {
+                "id": "crystal",
+                "persona": "An old online friend who remembers the summer of 2005.",
+                "reply": {
+                  "provider": "chat",
+                  "fallback": ["The old letter is still on the desktop. Start there."]
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "strings": {
+      "en": {
+        "bbs.title": "A familiar username",
+        "bbs.body": "The old forum points to a letter left on the desktop.",
+        "finale.title": "Prologue complete",
+        "finale.body": "The letter confirms what happened that summer."
+      },
+      "zh": {
+        "bbs.title": "熟悉的用户名",
+        "bbs.body": "旧论坛指向了桌面上留下的一封信。",
+        "finale.title": "序章完成",
+        "finale.body": "这封信证实了那个夏天发生的事情。"
+      }
+    },
+    "rehearsal": {
+      "walkthrough": [
+        {
+          "event": { "type": "ie:navigate", "url": "http://qingchun-bbs.com" },
+          "beat": "bbs"
+        },
+        {
+          "event": {
+            "type": "file:open",
+            "path": ["old-letter.md"],
+            "name": "old-letter.md",
+            "nodeType": "file",
+            "app": "MarkdownViewer"
+          },
+          "beat": "finale"
+        }
+      ]
+    }
+  }
+}

@@ -7,6 +7,7 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist",
+    "schema",
     "README.md",
     "README.zh-CN.md",
     "USAGE.md",
@@ -14,6 +15,9 @@
   ],
   "sideEffects": [
     "**/*.css"
+  ],
+  "workspaces": [
+    "tools/scenario-tools"
   ],
   "exports": {
     ".": {
@@ -48,6 +52,8 @@
       "import": "./dist/registry.es.js",
       "require": "./dist/registry.cjs.js"
     },
+    "./schema/scenario.json": "./schema/scenario.json",
+    "./schema/content-pack.json": "./schema/content-pack.json",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -71,14 +77,21 @@
     "test:visual:update": "playwright test --config playwright.visual.config.ts --update-snapshots",
     "lint": "eslint . --report-unused-disable-directives",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\" \"tools/**/*.{ts,tsx,css,json}\" \"examples/**/*.{ts,tsx,css,json,html,md}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"tools/**/*.{ts,tsx,css,json}\" \"examples/**/*.{ts,tsx,css,json,html,md}\" \"e2e/**/*.{ts,tsx,css,json}\" \"test/**/*.{ts,tsx,css,json}\" \"*.{ts,tsx,cjs,mjs,js,json}\"",
     "size:check": "node scripts/check-size.mjs",
     "size:check:app": "node scripts/check-app-bundle.mjs",
     "consumer:smoke": "node scripts/consumer-smoke.mjs",
     "docs:events": "node scripts/gen-events-doc.mjs",
     "docs:events:check": "node scripts/gen-events-doc.mjs --check",
-    "prepublishOnly": "npm run lint && npm run typecheck && npm run guard:nocheck && npm run guard:purity && npm run test -- --run && npm run build:lib && npm run size:check"
+    "schema:generate": "node scripts/gen-scenario-schema.mjs",
+    "schema:check": "node scripts/gen-scenario-schema.mjs --check",
+    "scenario:build": "npm run build --workspace @caoergou/xp-scenario-tools",
+    "scenario:lint": "npm run dev --workspace @caoergou/xp-scenario-tools -- lint ../../src/data/scenarios/prologueGraph.ts",
+    "scenario:solve": "npm run dev --workspace @caoergou/xp-scenario-tools -- solve ../../src/data/scenarios/prologueGraph.ts",
+    "scenario:pack": "npm run dev --workspace @caoergou/xp-scenario-tools -- pack ../../examples/reference-content-pack --check",
+    "scenario:ci": "npm run scenario:lint && npm run scenario:solve && npm run scenario:pack",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run guard:nocheck && npm run guard:purity && npm run test -- --run && npm run build:lib && npm run scenario:build && npm run size:check"
   },
   "lint-staged": {
     "*.{ts,tsx,css,json,cjs,mjs,js}": "prettier --write"

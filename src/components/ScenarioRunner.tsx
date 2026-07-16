@@ -170,6 +170,20 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
     }
   }
 
+  const getEvalFs = (): EvalContext['fs'] => ({
+    exists: path => getFile(path) !== null,
+    unlocked: path => {
+      const node = getFile(path);
+      return node !== null && !node.locked;
+    },
+    content: path => {
+      const node = getFile(path);
+      if (!node || !isFileContentNode(node)) return null;
+      if (node.content !== undefined) return node.content;
+      return resolvedRefContent.current.get(path.join('/')) ?? null;
+    },
+  });
+
   // A ref-backed handler so we subscribe once but always see the latest context
   // functions (mirrors XPEventBridge). Rebuilt every render.
   const handlerRef = useRef<(event: XPEvent) => void>(() => {});
@@ -218,21 +232,7 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
     state.journal = appendJournal(state.journal, event, JOURNAL_CAP);
     persist('journal');
 
-    const fsPredicates: EvalContext['fs'] = {
-      exists: path => getFile(path) !== null,
-      unlocked: path => {
-        const node = getFile(path);
-        return node !== null && !node.locked;
-      },
-      content: path => {
-        const node = getFile(path);
-        if (!node || !isFileContentNode(node)) return null;
-        // Inline content wins; otherwise fall back to a resolved contentRef body
-        // (#241) that the eager-resolution effect loaded for this path.
-        if (node.content !== undefined) return node.content;
-        return resolvedRefContent.current.get(path.join('/')) ?? null;
-      },
-    };
+    const fsPredicates = getEvalFs();
 
     const runActions = (actions: Action[]) => {
       for (const action of actions) runAction(action);
@@ -459,6 +459,16 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
     stepForward: () => {},
     exitRehearsal: () => {},
     getState: () => ({ active: false, index: -1, length: 0, beats: [] }),
+    setFlag: () => false,
+    getDebugState: () => ({
+      scenarioId: null,
+      flags: {},
+      fires: {},
+      journalLength: 0,
+      pending: [],
+      rehearsal: { active: false, index: -1, length: 0, beats: [] },
+      triggers: [],
+    }),
   });
   seekRef.current = (() => {
     const persistAll = () => {
@@ -526,6 +536,51 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
       };
     };
 
+    const getDebugState = (): ReturnType<RehearsalController['getDebugState']> => {
+      const st = stateRef.current;
+      if (!scenario || !st) {
+        return {
+          scenarioId: null,
+          flags: {},
+          fires: {},
+          journalLength: 0,
+          pending: [],
+          rehearsal: getState(),
+          triggers: [],
+        };
+      }
+      const lastEvent = st.journal[st.journal.length - 1];
+      const ctx: EvalContext = {
+        flags: st.flags,
+        event: lastEvent,
+        journal: st.journal,
+        fs: getEvalFs(),
+      };
+      return {
+        scenarioId: scenario.id,
+        flags: { ...st.flags },
+        fires: { ...st.fires },
+        journalLength: st.journal.length,
+        ...(lastEvent ? { lastEvent } : {}),
+        pending: Object.keys(st.pending),
+        rehearsal: getState(),
+        triggers: scenario.triggers.map((trigger, index) => {
+          const id = trigger.id ?? String(index);
+          const fireCount = st.fires[id] ?? 0;
+          return {
+            id,
+            index,
+            on: trigger.on,
+            fireCount,
+            budgetAvailable:
+              (!trigger.once || fireCount < 1) &&
+              (trigger.max === undefined || fireCount < trigger.max),
+            when: traceCondition(trigger.when, ctx),
+          };
+        }),
+      };
+    };
+
     const publishState = () => publishRehearsalState(storage.prefix, getState());
 
     const enterRehearsal = () => {
@@ -588,6 +643,20 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
         publishState();
       },
       getState,
+      setFlag: (flag, value) => {
+        const st = stateRef.current;
+        if (!scenario || !st || validRef.current?.ok === false) return false;
+        const previous = st.flags[flag];
+        st.flags[flag] = value;
+        try {
+          storage.local.setItem(stateKeys(storage.key).flags, JSON.stringify(st.flags));
+        } catch (e) {
+          console.warn('[windows-xp] scenario: failed to persist flags', e);
+        }
+        if (previous !== value) bus.emit({ type: 'flag:change', flag, value });
+        return true;
+      },
+      getDebugState,
     };
   })();
 
@@ -602,6 +671,8 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
       stepForward: () => seekRef.current.stepForward(),
       exitRehearsal: () => seekRef.current.exitRehearsal(),
       getState: () => seekRef.current.getState(),
+      setFlag: (flag, value) => seekRef.current.setFlag(flag, value),
+      getDebugState: () => seekRef.current.getDebugState(),
     };
     return registerRehearsalController(storage.prefix, stable);
   }, [scenario, storage.prefix]);

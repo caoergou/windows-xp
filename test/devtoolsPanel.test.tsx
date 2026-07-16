@@ -103,6 +103,16 @@ describe('DevToolsPanel', () => {
       stepForward: vi.fn(),
       exitRehearsal: vi.fn(),
       getState: () => state,
+      setFlag: vi.fn(() => true),
+      getDebugState: () => ({
+        scenarioId: 'test',
+        flags: {},
+        fires: {},
+        journalLength: 0,
+        pending: [],
+        rehearsal: state,
+        triggers: [],
+      }),
     };
     const unregister = registerRehearsalController(PREFIX, controller);
     try {
