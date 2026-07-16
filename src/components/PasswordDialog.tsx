@@ -2,26 +2,19 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { XPButton } from './XPButton';
 import { CloseBtn } from './Window/WindowControls';
-import { XPDialogWindow, XPDialogTitleText } from './XPDialogChrome';
-import { TitleBar as LunaTitleBar } from './Window/WindowChrome';
+import {
+  XPDialogOverlay,
+  XPDialogPlacement,
+  XPDialogTitleBar,
+  XPDialogWindow,
+  XPDialogTitleText,
+} from './XPDialogChrome';
 import { XPTextInput } from './XPTextInput';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
 import { useModalA11y } from '../hooks/useModalA11y';
-
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0);
-  z-index: 99999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
+import Draggable from 'react-draggable';
 
 const ContentArea = styled.div`
   padding: 18px 20px 12px;
@@ -71,6 +64,9 @@ interface PasswordDialogProps {
   onCancel: () => void;
   /** Fires on each incorrect entry; the dialog stays open for another try (#116). */
   onFail?: () => void;
+  attentionSequence?: number;
+  placement?: XPDialogPlacement;
+  isActive?: boolean;
 }
 
 const PasswordDialog = ({
@@ -81,6 +77,9 @@ const PasswordDialog = ({
   onSuccess,
   onCancel,
   onFail,
+  attentionSequence = 0,
+  placement,
+  isActive = true,
 }: PasswordDialogProps) => {
   const { t } = useTranslation();
   const dialogTitle = title || t('passwordDialog.defaultTitle');
@@ -88,6 +87,7 @@ const PasswordDialog = ({
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const nodeRef = useRef<HTMLDivElement>(null);
   const { containerRef, onKeyDown } = useModalA11y(onCancel);
 
   useEffect(() => {
@@ -118,47 +118,66 @@ const PasswordDialog = ({
   };
 
   return (
-    <Overlay ref={containerRef} onKeyDown={onKeyDown} data-xp-context-boundary>
-      <XPDialogWindow role="dialog" aria-modal="true" aria-label={dialogTitle}>
-        <LunaTitleBar $isFocus className="title-bar">
-          <XPDialogTitleText>{dialogTitle}</XPDialogTitleText>
-          <CloseBtn onClick={onCancel} aria-label="Close" />
-        </LunaTitleBar>
-        <ContentArea>
-          <MessageRow>
-            <XPIcon name="lock" size={32} />
-            <div style={{ flex: 1 }}>
-              <Message>{dialogMessage}</Message>
-              {hint && (
-                <HintText>
-                  {t('passwordDialog.hintPrefix')} {hint}
-                </HintText>
-              )}
+    <XPDialogOverlay
+      ref={containerRef}
+      style={placement}
+      onKeyDown={onKeyDown}
+      data-xp-context-boundary
+    >
+      <Draggable nodeRef={nodeRef} handle=".title-bar">
+        <XPDialogWindow
+          ref={nodeRef}
+          $isFocus={isActive}
+          role="dialog"
+          aria-modal="true"
+          aria-label={dialogTitle}
+          style={{ pointerEvents: 'auto' }}
+        >
+          <XPDialogTitleBar
+            key={attentionSequence}
+            $isFocus={isActive}
+            $attention={attentionSequence > 0}
+            className="title-bar"
+          >
+            <XPDialogTitleText>{dialogTitle}</XPDialogTitleText>
+            <CloseBtn onClick={onCancel} aria-label="Close" />
+          </XPDialogTitleBar>
+          <ContentArea>
+            <MessageRow>
+              <XPIcon name="lock" size={32} />
+              <div style={{ flex: 1 }}>
+                <Message>{dialogMessage}</Message>
+                {hint && (
+                  <HintText>
+                    {t('passwordDialog.hintPrefix')} {hint}
+                  </HintText>
+                )}
+              </div>
+            </MessageRow>
+            <div>
+              <XPTextInput
+                ref={inputRef}
+                type="password"
+                value={password}
+                onChange={e => {
+                  setPassword(e.target.value);
+                  setError('');
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder={t('passwordDialog.placeholder')}
+              />
+              <ErrorText>{error}</ErrorText>
             </div>
-          </MessageRow>
-          <div>
-            <XPTextInput
-              ref={inputRef}
-              type="password"
-              value={password}
-              onChange={e => {
-                setPassword(e.target.value);
-                setError('');
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder={t('passwordDialog.placeholder')}
-            />
-            <ErrorText>{error}</ErrorText>
-          </div>
-        </ContentArea>
-        <ButtonArea>
-          <XPButton onClick={onCancel}>{t('common.cancel')}</XPButton>
-          <XPButton $default onClick={handleSubmit}>
-            {t('common.ok')}
-          </XPButton>
-        </ButtonArea>
-      </XPDialogWindow>
-    </Overlay>
+          </ContentArea>
+          <ButtonArea>
+            <XPButton onClick={onCancel}>{t('common.cancel')}</XPButton>
+            <XPButton $default onClick={handleSubmit}>
+              {t('common.ok')}
+            </XPButton>
+          </ButtonArea>
+        </XPDialogWindow>
+      </Draggable>
+    </XPDialogOverlay>
   );
 };
 

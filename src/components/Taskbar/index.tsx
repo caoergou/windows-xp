@@ -5,6 +5,7 @@ import { useWindowManager } from '../../context/WindowManagerContext';
 import { useShortcut } from '../../context/KeymapContext';
 import { useUserSession } from '../../context/UserSessionContext';
 import { useModal } from '../../context/ModalContext';
+import { useModalInteraction } from '../../context/ModalContext';
 import { useCulture } from '../../context/CultureContext';
 import { APP_REGISTRY, getAppDisplayName } from '../../registry/apps';
 import { sounds } from '../../utils/soundManager';
@@ -60,7 +61,7 @@ const Divider = styled.div`
 `;
 
 const Taskbar = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const bus = useXPEventBus();
   const storage = useStorage();
   const {
@@ -72,21 +73,67 @@ const Taskbar = () => {
     openWindow,
     closeWindow,
     setWindowTitle,
+    arrangeWindows,
+    registerTaskTarget,
   } = useWindowManager();
   const { culture, cultureKey } = useCulture();
   const startMenuProfile = culture.startMenu ?? { pinned: [], recent: [] };
   const { logout, user } = useUserSession();
   const { showModal } = useModal();
+  const { blockedWindowId, signalBlockedInteraction } = useModalInteraction();
   const [startOpen, setStartOpen] = useState<boolean>(false);
   const [showTurnOff, setShowTurnOff] = useState<boolean>(false);
   const [taskContextMenu, setTaskContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [taskbarContextMenu, setTaskbarContextMenu] = useState<{ x: number; y: number } | null>(
     null
   );
-  const [selectedWindow, setSelectedWindow] = useState<WindowState | null>(null);
+  const [selectedWindows, setSelectedWindows] = useState<WindowState[]>([]);
   const startMenuRef = useRef<HTMLDivElement>(null);
   const startButtonRef = useRef<HTMLButtonElement>(null);
   const taskContextMenuRef = useRef<HTMLDivElement>(null);
+  const taskbarRef = useRef<HTMLDivElement>(null);
+  const showDesktopWindowsRef = useRef<string[] | null>(null);
+
+  const arrangeVisibleWindows = useCallback(
+    (arrangement: 'cascade' | 'tile-horizontal' | 'tile-vertical') => {
+      const desktop = taskbarRef.current?.parentElement;
+      if (!desktop) return;
+      arrangeWindows(arrangement, {
+        width: desktop.clientWidth,
+        height: desktop.clientHeight - (taskbarRef.current?.offsetHeight ?? 30),
+      });
+      setTaskbarContextMenu(null);
+    },
+    [arrangeWindows]
+  );
+
+  const handleShowDesktop = useCallback(() => {
+    const visibleWindows = windows
+      .filter(window => !window.isMinimized && !window.isHidden && window.transition !== 'minimize')
+      .sort((a, b) => a.zIndex - b.zIndex);
+    const previousIds = showDesktopWindowsRef.current;
+
+    if (previousIds && visibleWindows.length === 0) {
+      const previousIdSet = new Set(previousIds);
+      const restorable = windows
+        .filter(
+          window =>
+            previousIdSet.has(window.id) &&
+            (window.isMinimized || window.transition === 'minimize') &&
+            !window.isHidden
+        )
+        .sort((a, b) => previousIds.indexOf(a.id) - previousIds.indexOf(b.id));
+      showDesktopWindowsRef.current = null;
+      if (restorable.length > 0) sounds.restore();
+      restorable.forEach(window => focusWindow(window.id));
+      setTaskbarContextMenu(null);
+      return;
+    }
+
+    showDesktopWindowsRef.current = visibleWindows.map(window => window.id);
+    visibleWindows.forEach(window => minimizeWindow(window.id));
+    setTaskbarContextMenu(null);
+  }, [focusWindow, minimizeWindow, windows]);
 
   // Ctrl+Esc opens the Start menu — the XP-native equivalent of the Win key,
   // which the browser doesn't intercept (#87 KBD-03; keymap #132).
@@ -151,7 +198,7 @@ const Taskbar = () => {
         !taskContextMenuRef.current.contains(event.target as Node)
       ) {
         setTaskContextMenu(null);
-        setSelectedWindow(null);
+        setSelectedWindows([]);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -159,29 +206,46 @@ const Taskbar = () => {
   }, [taskContextMenu]);
 
   const handleTaskContextMenu = useCallback(
-    (e: React.MouseEvent, win: WindowState) => {
+    (e: React.MouseEvent, contextWindows: WindowState[]) => {
       e.preventDefault();
       e.stopPropagation();
-      setSelectedWindow(win);
+      if (contextWindows.some(window => window.id === blockedWindowId)) {
+        signalBlockedInteraction();
+        return;
+      }
+      setSelectedWindows(contextWindows);
       setTaskContextMenu({ x: e.clientX, y: e.clientY });
-      focusWindow(win.id);
+      if (contextWindows.length === 1) focusWindow(contextWindows[0].id);
     },
-    [focusWindow]
+    [blockedWindowId, focusWindow, signalBlockedInteraction]
   );
 
   const handleTaskbarContextMenu = useCallback((event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
     setTaskContextMenu(null);
-    setSelectedWindow(null);
+    setSelectedWindows([]);
     setTaskbarContextMenu({ x: event.clientX, y: event.clientY });
   }, []);
 
   const handleTaskMenuAction = useCallback(
     (action: string) => {
-      if (!selectedWindow) return;
+      if (selectedWindows.length === 0) return;
       setTaskContextMenu(null);
-      setSelectedWindow(null);
+      setSelectedWindows([]);
+
+      if (action === 'close-group') {
+        selectedWindows.forEach(window => closeWindow(window.id));
+        return;
+      }
+      if (action === 'minimize-group') {
+        selectedWindows
+          .filter(window => !window.isMinimized)
+          .forEach(window => minimizeWindow(window.id));
+        return;
+      }
+
+      const selectedWindow = selectedWindows[0];
 
       switch (action) {
         case 'close':
@@ -196,7 +260,7 @@ const Taskbar = () => {
           break;
       }
     },
-    [selectedWindow, closeWindow, minimizeWindow, maximizeWindow]
+    [selectedWindows, closeWindow, minimizeWindow, maximizeWindow]
   );
 
   const toggleStart = useCallback(() => setStartOpen(prev => !prev), []);
@@ -214,6 +278,10 @@ const Taskbar = () => {
 
   const handleTaskClick = useCallback(
     (win: WindowState) => {
+      if (blockedWindowId === win.id) {
+        signalBlockedInteraction();
+        return;
+      }
       if (activeWindowId === win.id && !win.isMinimized) {
         sounds.minimize();
         minimizeWindow(win.id);
@@ -224,7 +292,19 @@ const Taskbar = () => {
         focusWindow(win.id);
       }
     },
-    [activeWindowId, focusWindow, minimizeWindow]
+    [activeWindowId, blockedWindowId, focusWindow, minimizeWindow, signalBlockedInteraction]
+  );
+
+  const handleGroupWindowClick = useCallback(
+    (win: WindowState) => {
+      if (blockedWindowId === win.id) {
+        signalBlockedInteraction();
+        return;
+      }
+      if (win.isMinimized) sounds.restore();
+      focusWindow(win.id);
+    },
+    [blockedWindowId, focusWindow, signalBlockedInteraction]
   );
 
   const handleLaunch = useCallback(
@@ -294,7 +374,7 @@ const Taskbar = () => {
         }
       }
     },
-    [openWindow, windows, focusWindow, t, showModal, i18n.language]
+    [openWindow, windows, focusWindow, t, showModal, culture.browser?.homepage]
   );
 
   const performPowerAction = useCallback(
@@ -321,7 +401,6 @@ const Taskbar = () => {
       <TurnOffDialog
         visible={showTurnOff}
         title={t('shutdown.title')}
-        message={t('shutdown.message')}
         standbyLabel={t('shutdown.standBy')}
         turnOffLabel={t('shutdown.turnOff')}
         restartLabel={t('shutdown.restart')}
@@ -347,6 +426,7 @@ const Taskbar = () => {
       />
 
       <TaskbarContainer
+        ref={taskbarRef}
         data-testid="taskbar"
         data-xp-context-boundary="true"
         onClick={() => setStartOpen(false)}
@@ -365,13 +445,15 @@ const Taskbar = () => {
           onTaskClick={handleTaskClick}
           onTaskContextMenu={handleTaskContextMenu}
           contextMenu={taskContextMenu}
-          selectedWindow={selectedWindow}
+          selectedWindows={selectedWindows}
           contextMenuRef={taskContextMenuRef}
           onCloseContextMenu={() => {
             setTaskContextMenu(null);
-            setSelectedWindow(null);
+            setSelectedWindows([]);
           }}
           onTaskMenuAction={handleTaskMenuAction}
+          registerTaskTarget={registerTaskTarget}
+          onGroupWindowClick={handleGroupWindowClick}
           t={t}
         />
         <SystemTray />
@@ -387,18 +469,24 @@ const Taskbar = () => {
             submenu: [{ label: t('taskbar.context.quickLaunch'), disabled: true }],
           },
           { type: 'separator' },
-          // Cascade / tile need controlled window positioning (windows use
-          // uncontrolled react-draggable today); kept disabled until WIN-12
-          // lands so no enabled menu item is a dead click (#121).
-          { label: t('taskbar.context.cascade'), disabled: true },
-          { label: t('taskbar.context.tileHorizontally'), disabled: true },
-          { label: t('taskbar.context.tileVertically'), disabled: true },
+          {
+            label: t('taskbar.context.cascade'),
+            action: () => arrangeVisibleWindows('cascade'),
+            disabled: windows.filter(window => !window.isMinimized && !window.isHidden).length < 2,
+          },
+          {
+            label: t('taskbar.context.tileHorizontally'),
+            action: () => arrangeVisibleWindows('tile-horizontal'),
+            disabled: windows.filter(window => !window.isMinimized && !window.isHidden).length < 2,
+          },
+          {
+            label: t('taskbar.context.tileVertically'),
+            action: () => arrangeVisibleWindows('tile-vertical'),
+            disabled: windows.filter(window => !window.isMinimized && !window.isHidden).length < 2,
+          },
           {
             label: t('taskbar.context.showDesktop'),
-            action: () =>
-              windows
-                .filter(window => !window.isMinimized)
-                .forEach(window => minimizeWindow(window.id)),
+            action: handleShowDesktop,
           },
           { type: 'separator' },
           { label: t('taskbar.context.taskManager'), action: () => handleLaunch('TaskManager') },

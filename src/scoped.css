@@ -82,54 +82,149 @@
   outline-offset: -2px;
 }
 
-.windows-xp-root a,
+.windows-xp-root,
+.windows-xp-portal {
+  cursor: url('./assets/cursors/xp/arrow_r.cur'), default;
+}
+
+/* Keep host-page and component-library cursor declarations from leaking into
+   the emulated OS. XP controls use the system arrow unless a state below opts
+   into a different system pointer. */
+.windows-xp-root *,
+.windows-xp-portal * {
+  cursor: inherit !important;
+}
+
+/* Native XP controls keep the normal arrow. Only actual hyperlinks use the
+   link-select hand; applying it to every button is a modern web convention. */
 .windows-xp-root button,
 .windows-xp-root [role='button'],
-.windows-xp-root .xp-clickable {
+.windows-xp-root .xp-clickable,
+.windows-xp-portal button,
+.windows-xp-portal [role='button'],
+.windows-xp-portal .xp-clickable {
+  cursor: url('./assets/cursors/xp/arrow_r.cur'), default;
+}
+
+.windows-xp-root a[href],
+.windows-xp-root .xp-link,
+.windows-xp-portal a[href],
+.windows-xp-portal .xp-link {
   cursor:
     url('./assets/cursors/xp/harrow.cur') 12 1,
-    pointer;
+    pointer !important;
 }
 
-.windows-xp-root input,
+.windows-xp-root input:not([type]),
+.windows-xp-root input[type='text'],
+.windows-xp-root input[type='password'],
+.windows-xp-root input[type='search'],
+.windows-xp-root input[type='email'],
+.windows-xp-root input[type='url'],
+.windows-xp-root input[type='tel'],
+.windows-xp-root input[type='number'],
 .windows-xp-root textarea,
-.windows-xp-root [contenteditable] {
-  cursor: url('./assets/cursors/xp/beam_r.cur'), text;
+.windows-xp-root [contenteditable]:not([contenteditable='false']),
+.windows-xp-portal input:not([type]),
+.windows-xp-portal input[type='text'],
+.windows-xp-portal input[type='password'],
+.windows-xp-portal input[type='search'],
+.windows-xp-portal input[type='email'],
+.windows-xp-portal input[type='url'],
+.windows-xp-portal input[type='tel'],
+.windows-xp-portal input[type='number'],
+.windows-xp-portal textarea,
+.windows-xp-portal [contenteditable]:not([contenteditable='false']) {
+  cursor: url('./assets/cursors/xp/beam_r.cur'), text !important;
 }
 
-.windows-xp-root .xp-help {
-  cursor: url('./assets/cursors/xp/help_r.cur'), help;
+.windows-xp-root .xp-help,
+.windows-xp-portal .xp-help {
+  cursor: url('./assets/cursors/xp/help_r.cur'), help !important;
 }
-.windows-xp-root .xp-busy {
-  cursor: url('./assets/cursors/xp/busy_r.cur'), wait;
+.windows-xp-root .xp-busy,
+.windows-xp-root .xp-busy *,
+.windows-xp-portal .xp-busy,
+.windows-xp-portal .xp-busy * {
+  cursor: url('./assets/cursors/xp/busy_r.cur'), wait !important;
 }
-.windows-xp-root .xp-progress {
-  cursor: url('./assets/cursors/xp/wait_r.cur'), progress;
+.windows-xp-root .xp-progress,
+.windows-xp-root .xp-progress *,
+.windows-xp-portal .xp-progress,
+.windows-xp-portal .xp-progress * {
+  cursor: url('./assets/cursors/xp/wait_r.cur'), progress !important;
 }
-.windows-xp-root .xp-move {
-  cursor: url('./assets/cursors/xp/move_r.cur'), move;
+.windows-xp-root .xp-move,
+.windows-xp-root .xp-move *,
+.windows-xp-portal .xp-move,
+.windows-xp-portal .xp-move * {
+  cursor: url('./assets/cursors/xp/move_r.cur'), move !important;
 }
-.windows-xp-root .xp-not-allowed {
-  cursor: url('./assets/cursors/xp/no_r.cur'), not-allowed;
+.windows-xp-root .xp-not-allowed,
+.windows-xp-portal .xp-not-allowed {
+  cursor: url('./assets/cursors/xp/no_r.cur'), not-allowed !important;
 }
-.windows-xp-root .xp-crosshair {
-  cursor: url('./assets/cursors/xp/cross_r.cur'), crosshair;
+.windows-xp-root .xp-crosshair,
+.windows-xp-portal .xp-crosshair {
+  cursor: url('./assets/cursors/xp/cross_r.cur'), crosshair !important;
+}
+
+.windows-xp-root .xp-hide-cursor,
+.windows-xp-root .xp-hide-cursor * {
+  cursor: none !important;
 }
 
 .windows-xp-root .resize-nesw {
-  cursor: url('./assets/cursors/xp/size1_r.cur'), nesw-resize;
+  cursor: url('./assets/cursors/xp/size1_r.cur'), nesw-resize !important;
 }
 .windows-xp-root .resize-nwse {
-  cursor: url('./assets/cursors/xp/size2_r.cur'), nwse-resize;
+  cursor: url('./assets/cursors/xp/size2_r.cur'), nwse-resize !important;
 }
 .windows-xp-root .resize-ew {
-  cursor: url('./assets/cursors/xp/size3_r.cur'), ew-resize;
+  cursor: url('./assets/cursors/xp/size3_r.cur'), ew-resize !important;
 }
 .windows-xp-root .resize-ns {
-  cursor: url('./assets/cursors/xp/size4_r.cur'), ns-resize;
+  cursor: url('./assets/cursors/xp/size4_r.cur'), ns-resize !important;
 }
 
 /* react-resizable handles */
+.windows-xp-root .react-resizable-handle {
+  z-index: 2;
+  padding: 0;
+  background-image: none;
+  transform: none;
+}
+
+.windows-xp-root .react-resizable-handle-n,
+.windows-xp-root .react-resizable-handle-s {
+  left: 8px;
+  right: 8px;
+  width: auto;
+  height: 5px;
+  margin: 0;
+  cursor: url('./assets/cursors/xp/size4_r.cur'), ns-resize !important;
+}
+
+.windows-xp-root .react-resizable-handle-e,
+.windows-xp-root .react-resizable-handle-w {
+  top: 8px;
+  bottom: 8px;
+  width: 5px;
+  height: auto;
+  margin: 0;
+  cursor: url('./assets/cursors/xp/size3_r.cur'), ew-resize !important;
+}
+
+.windows-xp-root .react-resizable-handle-ne,
+.windows-xp-root .react-resizable-handle-sw {
+  width: 9px;
+  height: 9px;
+  cursor: url('./assets/cursors/xp/size1_r.cur'), nesw-resize !important;
+}
+
+.windows-xp-root .react-resizable-handle-nw,
 .windows-xp-root .react-resizable-handle-se {
-  cursor: url('./assets/cursors/xp/size2_r.cur'), se-resize;
+  width: 9px;
+  height: 9px;
+  cursor: url('./assets/cursors/xp/size2_r.cur'), nwse-resize !important;
 }

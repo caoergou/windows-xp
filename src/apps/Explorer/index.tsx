@@ -49,7 +49,6 @@ const Explorer: React.FC<ExplorerProps> = props => {
     toggleSort,
     showFolders,
     toggleFolders,
-    showHidden,
     visibleEntries,
     addrHistory,
     history,
@@ -66,7 +65,6 @@ const Explorer: React.FC<ExplorerProps> = props => {
     dragOver,
     setDragOver,
     contextMenu,
-    setContextMenu,
     currentPath,
     currentFolder,
     handleAddressGo,
@@ -83,6 +81,7 @@ const Explorer: React.FC<ExplorerProps> = props => {
     formatBytes,
     detailsDate,
     handleContextMenu,
+    handleBackgroundContextMenu,
     closeContextMenu,
     menuItems,
     handleDragStart,
@@ -262,7 +261,11 @@ const Explorer: React.FC<ExplorerProps> = props => {
     onDragOver: (e: React.DragEvent) => {
       if (item.type === 'folder') {
         e.preventDefault();
+        e.dataTransfer.dropEffect = e.ctrlKey ? 'copy' : 'move';
         setDragOver(key);
+      } else {
+        e.dataTransfer.dropEffect = 'none';
+        setDragOver(null);
       }
     },
     onDragLeave: () => setDragOver(null),
@@ -417,6 +420,7 @@ const Explorer: React.FC<ExplorerProps> = props => {
       onKeyDown={handleKeyDown}
       onMouseDown={e => {
         const t = e.target as HTMLElement;
+        if (t.closest('[data-xp-context-boundary="true"]')) return;
         if (!t.closest('input,textarea,button,[contenteditable]')) {
           containerRef.current?.focus();
         }
@@ -431,12 +435,6 @@ const Explorer: React.FC<ExplorerProps> = props => {
         ) {
           selection.clear();
         }
-      }}
-      onContextMenu={e => {
-        e.preventDefault();
-        e.stopPropagation();
-        selection.clear();
-        setContextMenu({ visible: true, x: e.clientX, y: e.clientY, targetItem: null });
       }}
     >
       <ExplorerToolbar
@@ -476,10 +474,12 @@ const Explorer: React.FC<ExplorerProps> = props => {
         )}
         <FileArea
           key={refreshKey}
+          data-testid="explorer-file-area"
           $flush={viewMode === 'details'}
           onTouchStart={handleFileAreaTouchStart}
           onTouchMove={fileTouchGestures.onTouchMove}
           onTouchEnd={fileTouchGestures.onTouchEnd}
+          onContextMenu={handleBackgroundContextMenu}
         >
           {isInRecycleBin && childCount === 0 ? (
             <EmptyRecycleBinMessage>

@@ -72,7 +72,7 @@ export const useKeymapRegistry = (): Keymap | null => useContext(KeymapContext);
  * re-registering. Pass `spec = null` to register nothing (e.g. a binding gated
  * on a condition). A no-op when used outside a {@link KeymapProvider}.
  */
-export function useShortcut(spec: ShortcutSpec | null, handler: () => void): void {
+export function useShortcut(spec: ShortcutSpec | null, handler: () => unknown): void {
   const km = useContext(KeymapContext);
   const handlerRef = useRef(handler);
   handlerRef.current = handler;
@@ -90,12 +90,13 @@ export function useShortcut(spec: ShortcutSpec | null, handler: () => void): voi
     spec?.appId,
     spec?.allowInInput,
     spec?.preventDefault,
+    spec?.priority,
   ]);
 }
 
 export interface ShortcutBinding {
   spec: ShortcutSpec;
-  handler: () => void;
+  handler: () => unknown;
 }
 
 /**

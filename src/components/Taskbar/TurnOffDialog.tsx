@@ -2,161 +2,195 @@ import React from 'react';
 import styled from 'styled-components';
 import shutdownIcon from '../../assets/icons/xp/shutdown_action.png';
 import restartIcon from '../../assets/icons/xp/restart.png';
+import windowsFlag from '../../assets/windowsIcons/windows-off.png';
+import { COLORS } from '../../themes/xp/tokens';
+import { XPButton } from '../XPButton';
 
 const TurnOffOverlay = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(45, 45, 45, 0.58);
-  backdrop-filter: grayscale(45%) brightness(72%);
+  inset: 0;
+  background: ${COLORS.SHUTDOWN_OVERLAY};
+  backdrop-filter: grayscale(100%) brightness(68%);
   z-index: 20000;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   user-select: none;
 `;
 
-const TurnOffContent = styled.div`
+const TurnOffPanel = styled.div`
+  box-sizing: border-box;
+  width: min(314px, calc(100% - 24px));
+  height: 200px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 48px;
-  max-width: 640px;
-  width: 90%;
+  border: 1px solid black;
+  background: ${COLORS.SHUTDOWN_PANEL_DARK};
+  transform: translateY(-66px);
 `;
 
 const Header = styled.div`
+  box-sizing: border-box;
+  height: 45px;
+  flex: 0 0 45px;
+  padding: 0 9px 0 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: ${COLORS.SHUTDOWN_PANEL_DARK};
+  box-shadow: inset 0 -2px ${COLORS.SHUTDOWN_PANEL_EDGE};
   color: white;
   font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
 
   h2 {
-    margin: 0 0 8px 0;
-    font-size: 24px;
-    font-weight: normal;
-  }
-
-  p {
     margin: 0;
-    font-size: 14px;
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0;
   }
+`;
+
+const WindowsFlag = styled.img`
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  image-rendering: auto;
 `;
 
 const Actions = styled.div`
+  box-sizing: border-box;
+  height: 110px;
+  flex: 0 0 110px;
   display: flex;
-  gap: 72px;
+  gap: 28px;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
+  padding-top: 3px;
+  background: ${COLORS.SHUTDOWN_PANEL_BODY};
 `;
 
-const StandbyIcon = styled.div`
-  position: relative;
-  width: 48px;
-  height: 48px;
-  border: 1px solid #b57000;
-  border-radius: 5px;
-  background: linear-gradient(135deg, #ffd94a 0%, #e9a500 100%);
-  box-shadow: inset 1px 1px 1px rgba(255, 255, 255, 0.8);
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-  }
-
-  &::before {
-    width: 25px;
-    height: 25px;
-    left: 11px;
-    top: 10px;
-    background: #fff;
-  }
-
-  &::after {
-    width: 22px;
-    height: 22px;
-    left: 18px;
-    top: 6px;
-    background: #f4bb17;
-  }
-`;
-
-const ActionButton = styled.div<{ $disabled?: boolean }>`
+const ActionButton = styled.button`
+  box-sizing: border-box;
+  width: 58px;
+  min-width: 58px;
+  height: 66px;
+  padding: 0;
+  border: 0 !important;
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  appearance: none;
   display: flex;
   flex-direction: column;
   align-items: center;
-  cursor: ${props => (props.$disabled ? 'not-allowed' : 'pointer')};
-  opacity: ${props => (props.$disabled ? 0.5 : 1)};
-  gap: 12px;
+  justify-content: flex-start;
+  gap: 5px;
+  color: white;
+  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-shadow: 1px 1px ${COLORS.SHUTDOWN_PANEL_DARK};
+  cursor: pointer;
 
-  &:hover .action-icon {
-    filter: ${props => (props.$disabled ? 'none' : 'brightness(1.1)')};
+  &:hover:not(:disabled) [data-testid='turn-off-action-icon'] {
+    filter: brightness(1.08);
   }
 
-  &:active .action-icon {
-    filter: ${props => (props.$disabled ? 'none' : 'brightness(0.95)')};
+  &:active:not(:disabled) [data-testid='turn-off-action-icon'] {
+    filter: brightness(0.92);
   }
 
-  .action-icon {
-    width: 64px;
-    height: 64px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* Authentic XP shutdown-dialog button look: subtle raised border */
-    border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.15) 0%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.25),
-      0 4px 12px rgba(0, 0, 0, 0.35);
+  &:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  &:focus-visible span {
+    outline: 1px dotted white;
+    outline-offset: 1px;
   }
 
   img {
-    width: 48px;
-    height: 48px;
+    width: 32px;
+    height: 32px;
     image-rendering: auto;
   }
 
-  span {
-    font-size: 14px;
-    color: white;
-    font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  &:disabled {
+    cursor: default;
   }
 `;
 
-const CancelButton = styled.button`
-  position: absolute;
-  bottom: 40px;
-  right: 40px;
-  padding: 4px 24px;
-  font-size: 12px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
-  background: #f0f0f0;
-  border: 1px solid #999;
-  cursor: pointer;
+const ActionIcon = styled.img`
+  display: block;
+`;
 
-  &:hover {
-    background: #e0e0e0;
+const StandbyIcon = styled.span`
+  position: relative;
+  box-sizing: border-box;
+  display: block;
+  width: 32px;
+  height: 32px;
+  border: 1px solid ${COLORS.SHUTDOWN_STANDBY_BORDER};
+  border-radius: 4px;
+  background: linear-gradient(
+    180deg,
+    ${COLORS.SHUTDOWN_STANDBY_TOP} 0%,
+    ${COLORS.SHUTDOWN_STANDBY_BOTTOM} 100%
+  );
+  box-shadow:
+    inset 1px 1px white,
+    inset -1px -1px ${COLORS.SHUTDOWN_STANDBY_BORDER};
+
+  &::before {
+    content: '';
+    position: absolute;
+    box-sizing: border-box;
+    left: 8px;
+    top: 8px;
+    width: 14px;
+    height: 14px;
+    border: 2px solid white;
+    border-radius: 50%;
   }
 
-  &:active {
-    background: #d0d0d0;
+  &::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 5px;
+    width: 3px;
+    height: 11px;
+    border: 2px solid ${COLORS.SHUTDOWN_STANDBY_TOP};
+    border-width: 0 2px;
+    background: white;
   }
+`;
+
+const Footer = styled.div`
+  box-sizing: border-box;
+  height: 43px;
+  flex: 0 0 43px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background: ${COLORS.SHUTDOWN_PANEL_DARK};
+`;
+
+const CancelButton = styled(XPButton)`
+  min-width: 58px;
+  width: 58px;
+  min-height: 21px;
+  height: 21px;
+  padding: 0 6px;
 `;
 
 interface TurnOffDialogProps {
   visible: boolean;
   title: string;
-  message: string;
   standbyLabel: string;
   turnOffLabel: string;
   restartLabel: string;
@@ -169,7 +203,6 @@ interface TurnOffDialogProps {
 const TurnOffDialog: React.FC<TurnOffDialogProps> = ({
   visible,
   title,
-  message,
   standbyLabel,
   turnOffLabel,
   restartLabel,
@@ -182,33 +215,34 @@ const TurnOffDialog: React.FC<TurnOffDialogProps> = ({
 
   return (
     <TurnOffOverlay data-testid="turn-off-dialog">
-      <TurnOffContent>
-        <Header>
-          <h2>{title}</h2>
-          <p>{message}</p>
+      <TurnOffPanel
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="turn-off-title"
+        data-testid="turn-off-panel"
+      >
+        <Header data-testid="turn-off-header">
+          <h2 id="turn-off-title">{title}</h2>
+          <WindowsFlag src={windowsFlag} alt="" aria-hidden="true" />
         </Header>
-        <Actions>
-          <ActionButton $disabled>
-            <div className="action-icon">
-              <StandbyIcon role="img" aria-label={standbyLabel} />
-            </div>
+        <Actions data-testid="turn-off-actions">
+          <ActionButton type="button" disabled aria-label={standbyLabel}>
+            <StandbyIcon data-testid="turn-off-action-icon" aria-hidden="true" />
             <span>{standbyLabel}</span>
           </ActionButton>
-          <ActionButton onClick={onShutdown}>
-            <div className="action-icon">
-              <img src={shutdownIcon} alt={turnOffLabel} />
-            </div>
+          <ActionButton type="button" onClick={onShutdown} aria-label={turnOffLabel}>
+            <ActionIcon data-testid="turn-off-action-icon" src={shutdownIcon} alt="" />
             <span>{turnOffLabel}</span>
           </ActionButton>
-          <ActionButton onClick={onRestart}>
-            <div className="action-icon">
-              <img src={restartIcon} alt={restartLabel} />
-            </div>
+          <ActionButton type="button" onClick={onRestart} aria-label={restartLabel}>
+            <ActionIcon data-testid="turn-off-action-icon" src={restartIcon} alt="" />
             <span>{restartLabel}</span>
           </ActionButton>
         </Actions>
-      </TurnOffContent>
-      <CancelButton onClick={onCancel}>{cancelLabel}</CancelButton>
+        <Footer data-testid="turn-off-footer">
+          <CancelButton onClick={onCancel}>{cancelLabel}</CancelButton>
+        </Footer>
+      </TurnOffPanel>
     </TurnOffOverlay>
   );
 };

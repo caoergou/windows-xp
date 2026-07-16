@@ -254,8 +254,6 @@ interface StartMenuProps {
   t: TFunction;
 }
 
-const INTERNAL_APPS = new Set(['FileProperties', 'DummyApp']);
-
 const StartMenu: React.FC<StartMenuProps> = ({
   isOpen,
   menuRef,
@@ -280,7 +278,7 @@ const StartMenu: React.FC<StartMenuProps> = ({
   const allProgramsApps = useMemo(
     () =>
       Object.values(APP_REGISTRY).filter(
-        app => !INTERNAL_APPS.has(app.id) && (!app.locales || app.locales.includes(cultureKey))
+        app => app.showInStartMenu !== false && (!app.locales || app.locales.includes(cultureKey))
       ),
     [cultureKey]
   );

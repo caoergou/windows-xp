@@ -36,6 +36,8 @@ export interface ShortcutSpec {
   allowInInput?: boolean;
   /** Call `preventDefault()` when matched. Default true. */
   preventDefault?: boolean;
+  /** Higher values dispatch first. Use for temporary modal interaction modes. */
+  priority?: number;
   /** Human label for docs/UI (optional). */
   label?: string;
 }
@@ -186,7 +188,7 @@ export interface KeymapOptions {
 
 interface Entry {
   spec: ShortcutSpec;
-  handler: () => void;
+  handler: () => unknown;
 }
 
 /**
@@ -225,7 +227,7 @@ export class Keymap {
   }
 
   /** Register a binding; returns an unregister function. Re-registering the same id replaces it. */
-  register(spec: ShortcutSpec, handler: () => void): () => void {
+  register(spec: ShortcutSpec, handler: () => unknown): () => void {
     if (this.warn) {
       const combo = this.effectiveCombo(spec);
       if (combo) {
@@ -250,7 +252,10 @@ export class Keymap {
 
   /** Feed a keyboard event. Returns true if a binding handled it. */
   dispatch(e: KeyboardEvent, ctx: DispatchContext): boolean {
-    for (const { spec, handler } of this.entries.values()) {
+    const entries = [...this.entries.values()].sort(
+      (a, b) => (b.spec.priority ?? 0) - (a.spec.priority ?? 0)
+    );
+    for (const { spec, handler } of entries) {
       const combo = this.effectiveCombo(spec);
       if (!combo) continue; // disabled via override
       if (spec.scope === 'global' && this.disableGlobal) continue;
@@ -258,8 +263,10 @@ export class Keymap {
       if (spec.scope === 'desktop' && ctx.inWindow) continue;
       if (ctx.inInput && !spec.allowInInput) continue;
       if (comboMatchesEvent(parseCombo(combo), e, this.isMac)) {
+        // A high-priority temporary binding may decline when its mode is
+        // inactive, allowing dispatch to fall through to the regular binding.
+        if (handler() === false) continue;
         if (spec.preventDefault !== false) e.preventDefault();
-        handler();
         return true;
       }
     }

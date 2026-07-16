@@ -251,7 +251,11 @@
     "minimize": "最小化",
     "maximize": "最大化",
     "restore": "还原",
-    "close": "关闭"
+    "move": "移动",
+    "size": "大小",
+    "close": "关闭",
+    "minimizeGroup": "最小化组",
+    "closeGroup": "关闭组"
   },
   "explorer": {
     "details": {
@@ -399,6 +403,7 @@
     "cancel": "取消"
   },
   "apps": {
+    "explorer": "Windows 资源管理器",
     "notepad": "记事本",
     "markdownViewer": "Markdown 查看器",
     "paint": "画图",

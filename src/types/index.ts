@@ -205,6 +205,14 @@ export interface WindowState {
   badge?: string | number | null;
   progress?: number | null;
   isFlashing?: boolean;
+  /** Ephemeral shell transition; omitted from persisted window snapshots. */
+  transition?: 'minimize' | 'restore' | 'maximize' | 'unmaximize';
+  /** Task-button geometry captured when a minimize/restore transition starts. */
+  transitionTarget?: { left: number; top: number; width: number; height: number };
+  /** Ephemeral application-start marker used by the shell busy pointer. */
+  isOpening?: boolean;
+  /** Ephemeral keyboard operation entered from the Alt+Space system menu. */
+  interactionMode?: 'move' | 'size' | 'size-ns' | 'size-ew';
   onOpen?: (id: string) => void;
   onClose?: ((id: string) => void) | null;
   onFocus?: ((id: string) => void) | null;
@@ -277,6 +285,8 @@ export interface AppRegistryEntry<TProps = unknown> {
   icon: string;
   /** Restrict to culture ids (e.g. `['zh']`); omit for apps shared by every culture. */
   locales?: string[];
+  /** Whether the app is listed under Start > All Programs. Defaults to true. */
+  showInStartMenu?: boolean;
   /** Window size, position and behavior. */
   window?: {
     width?: number;

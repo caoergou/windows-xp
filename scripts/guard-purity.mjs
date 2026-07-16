@@ -15,7 +15,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 /** src/ inline hex color value stock baseline: only decrease. Update this value after lowering. */
-const HEX_BASELINE = 1485; // 2026-07-13: lowered after refine-qq normalized the QQ skin palette (inline hex in styles.ts converged to C.* palette references); tokenization debt see #135
+const HEX_BASELINE = 1482; // 2026-07-15: net -3 after tokenizing the XP shutdown panel, including its sampled standby palette; debt see #135
 
 /** Mechanism layer: directories/files that must keep zero color values and zero xp.css dependencies. */
 const ENGINE_PURE = ['src/context', 'src/hooks', 'src/utils', 'src/events.ts', 'src/snapshot.ts'];

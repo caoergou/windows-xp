@@ -4,10 +4,11 @@
  */
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '../src/i18n';
 import { ModalProvider, useModal } from '../src/context/ModalContext';
+import { sounds } from '../src/utils/soundManager';
 
 function Harness({ onResult }: { onResult?: (v: boolean) => void }) {
   const { dialog } = useModal();
@@ -22,6 +23,23 @@ function Harness({ onResult }: { onResult?: (v: boolean) => void }) {
   );
 }
 
+function SoundHarness() {
+  const { dialog } = useModal();
+  return (
+    <>
+      <button onClick={() => dialog.alert({ title: 'Error', message: 'x', type: 'error' })}>
+        error
+      </button>
+      <button onClick={() => dialog.alert({ title: 'Warning', message: 'x', type: 'warning' })}>
+        warning
+      </button>
+      <button onClick={() => dialog.alert({ title: 'Info', message: 'x', type: 'info' })}>
+        info
+      </button>
+    </>
+  );
+}
+
 const renderHarness = (onResult?: (v: boolean) => void) =>
   render(
     <I18nextProvider i18n={i18n}>
@@ -32,6 +50,8 @@ const renderHarness = (onResult?: (v: boolean) => void) =>
   );
 
 describe('modal a11y (#124)', () => {
+  afterEach(() => vi.restoreAllMocks());
+
   it('exposes role=dialog, aria-modal and an accessible name', async () => {
     renderHarness();
     fireEvent.click(screen.getByText('trigger'));
@@ -81,5 +101,27 @@ describe('modal a11y (#124)', () => {
     fireEvent.keyDown(dialog, { key: 'Escape' });
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(document.activeElement).toBe(trigger);
+  });
+
+  it('maps error, warning and information dialogs to XP system sounds', async () => {
+    const criticalStop = vi.spyOn(sounds, 'criticalStop').mockImplementation(() => {});
+    const exclamation = vi.spyOn(sounds, 'exclamation').mockImplementation(() => {});
+    const notify = vi.spyOn(sounds, 'notify').mockImplementation(() => {});
+    render(
+      <I18nextProvider i18n={i18n}>
+        <ModalProvider>
+          <SoundHarness />
+        </ModalProvider>
+      </I18nextProvider>
+    );
+
+    fireEvent.click(screen.getByText('error'));
+    expect(criticalStop).toHaveBeenCalledOnce();
+    fireEvent.click(await screen.findByText('OK'));
+    fireEvent.click(screen.getByText('warning'));
+    expect(exclamation).toHaveBeenCalledOnce();
+    fireEvent.click(await screen.findByText('OK'));
+    fireEvent.click(screen.getByText('info'));
+    expect(notify).toHaveBeenCalledOnce();
   });
 });

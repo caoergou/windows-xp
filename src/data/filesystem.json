@@ -7,11 +7,13 @@
         "type": "folder",
         "name": "我的电脑",
         "icon": "computer",
+        "protected": true,
         "children": {
           "本地磁盘 (C:)": {
             "type": "folder",
             "name": "本地磁盘 (C:)",
             "icon": "drive",
+            "protected": true,
             "children": {
               "Windows": {
                 "type": "folder",
@@ -76,6 +78,7 @@
             "type": "folder",
             "name": "本地磁盘 (D:)",
             "icon": "drive",
+            "protected": true,
             "children": {
               "备份": {
                 "type": "folder",
@@ -127,6 +130,7 @@
             "type": "folder",
             "name": "DVD/CD-RW 驱动器 (E:)",
             "icon": "drive",
+            "protected": true,
             "broken": true,
             "children": {}
           }
@@ -136,6 +140,7 @@
         "type": "folder",
         "name": "我的文档",
         "icon": "documents",
+        "protected": true,
         "children": {
           "我的音乐": {
             "type": "folder",
@@ -222,12 +227,14 @@
         "type": "folder",
         "name": "回收站",
         "icon": "recycle_bin",
+        "protected": true,
         "children": {}
       },
       "网上邻居": {
         "type": "folder",
         "name": "网上邻居",
         "icon": "network",
+        "protected": true,
         "children": {
           "整个网络": {
             "type": "folder",

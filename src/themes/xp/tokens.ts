@@ -20,6 +20,15 @@ export const COLORS = {
   TITLE_BAR_HEIGHT: 25,
   MENU_ITEM_HEIGHT: 22,
 
+  // XP Turn Off Computer panel, sampled from an 800x600 XP reference capture.
+  SHUTDOWN_PANEL_DARK: '#003399',
+  SHUTDOWN_PANEL_BODY: '#5A7DDE',
+  SHUTDOWN_PANEL_EDGE: '#3C64B6',
+  SHUTDOWN_STANDBY_TOP: '#FEC363',
+  SHUTDOWN_STANDBY_BOTTOM: '#FDCA30',
+  SHUTDOWN_STANDBY_BORDER: '#C07F03',
+  SHUTDOWN_OVERLAY: 'rgba(0, 0, 0, 0.28)',
+
   // XP.css surface / chrome
   SURFACE: '#ECE9D8',
   BUTTON_HIGHLIGHT: '#FFFFFF',

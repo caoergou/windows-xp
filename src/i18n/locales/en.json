@@ -257,7 +257,11 @@
     "minimize": "Minimize",
     "maximize": "Maximize",
     "restore": "Restore",
-    "close": "Close"
+    "move": "Move",
+    "size": "Size",
+    "close": "Close",
+    "minimizeGroup": "Minimize Group",
+    "closeGroup": "Close Group"
   },
   "explorer": {
     "details": {
@@ -405,6 +409,7 @@
     "cancel": "Cancel"
   },
   "apps": {
+    "explorer": "Windows Explorer",
     "notepad": "Notepad",
     "markdownViewer": "Markdown Viewer",
     "paint": "Paint",

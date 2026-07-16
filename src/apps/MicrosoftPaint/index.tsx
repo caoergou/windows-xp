@@ -658,6 +658,7 @@ const MicrosoftPaint = ({
       </Toolbar>
       <CanvasWrapper>
         <Canvas
+          className="xp-crosshair"
           ref={canvasRef}
           width={600}
           height={400}

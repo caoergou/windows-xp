@@ -44,6 +44,13 @@ vi.mock('../src/data/filesystem.json', () => ({
           app: 'Notepad',
           content: '[boot]',
         },
+        'System Drive': {
+          type: 'folder',
+          name: 'System Drive',
+          protected: true,
+          icon: 'drive',
+          children: {},
+        },
       },
     },
   },
@@ -89,8 +96,25 @@ test('deleting a protected file is refused with an error', async () => {
   const protectedItem = screen.getByText('boot.ini').closest('[data-item-key]') as HTMLElement;
   fireEvent.contextMenu(protectedItem);
   const del = await screen.findByText(/^Delete$/i);
+  expect(del).not.toHaveAttribute('aria-disabled', 'true');
   fireEvent.click(del);
   await waitFor(() => expect(screen.getByText(/protected system file/i)).toBeInTheDocument());
   // The file is still there — deletion did not proceed.
   expect(screen.getByText('boot.ini')).toBeInTheDocument();
+});
+
+test('destructive commands remain disabled for protected system containers', async () => {
+  mount();
+  const protectedDrive = screen.getByText('System Drive').closest('[data-item-key]') as HTMLElement;
+  fireEvent.contextMenu(protectedDrive);
+
+  const menu = await screen.findByTestId('context-menu');
+  expect(within(menu).getByRole('menuitem', { name: /^Rename$/i })).toHaveAttribute(
+    'aria-disabled',
+    'true'
+  );
+  expect(within(menu).getByRole('menuitem', { name: /^Delete$/i })).toHaveAttribute(
+    'aria-disabled',
+    'true'
+  );
 });

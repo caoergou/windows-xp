@@ -129,7 +129,7 @@ const BootScreen: React.FC<BootScreenProps> = ({ onComplete, branding }) => {
   }, [onComplete, branding]);
 
   return (
-    <Container data-testid="boot-screen">
+    <Container className="xp-hide-cursor" data-testid="boot-screen">
       <LogoArea>
         {branding?.logo ? (
           <PrimaryLogo src={branding.logo} alt={branding.text || 'Logo'} />

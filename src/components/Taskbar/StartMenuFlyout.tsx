@@ -3,15 +3,16 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../XPIcon';
 import { xpScrollbarStyles } from '../../theme';
+import { COLORS } from '../../themes/xp/tokens';
 import { AppRegistryEntry } from '../../types';
 
 const FlyoutContainer = styled.div`
   position: absolute;
   left: calc(100% - 2px);
-  top: 54px;
+  bottom: 1px;
   min-width: 180px;
   max-width: 260px;
-  max-height: calc(100vh - 120px);
+  max-height: calc(100vh - ${COLORS.TASKBAR_HEIGHT + 2}px);
   background: #fff;
   border: 1px solid #003c74;
   box-shadow: 2px 2px 0 #808080;

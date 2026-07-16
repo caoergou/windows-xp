@@ -26,7 +26,7 @@ const BsodHeader = styled.div`
 
 const BsodScreen: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   return (
-    <BsodContainer onClick={onClick} data-testid="bsod-screen">
+    <BsodContainer className="xp-hide-cursor" onClick={onClick} data-testid="bsod-screen">
       <BsodHeader>
         {'*** STOP: 0x0000007B (0xF78D2524, 0xC0000034, 0x00000000, 0x00000000)'}
       </BsodHeader>

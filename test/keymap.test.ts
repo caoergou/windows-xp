@@ -172,6 +172,46 @@ describe('Keymap.dispatch', () => {
     off();
     expect(km.dispatch(ev({ key: 'F5' }), { inInput: false })).toBe(false);
   });
+
+  it('dispatches a higher-priority temporary mode before an earlier binding', () => {
+    const km = new Keymap({ isMac: false });
+    const desktop = vi.fn();
+    const windowOperation = vi.fn();
+    km.register(spec({ id: 'desktop.right', combo: 'ArrowRight', scope: 'desktop' }), desktop);
+    km.register(
+      spec({
+        id: 'window.operation.right',
+        combo: 'ArrowRight',
+        scope: 'global',
+        priority: 100,
+      }),
+      windowOperation
+    );
+
+    expect(km.dispatch(ev({ key: 'ArrowRight' }), { inInput: false, inWindow: false })).toBe(true);
+    expect(windowOperation).toHaveBeenCalledOnce();
+    expect(desktop).not.toHaveBeenCalled();
+  });
+
+  it('falls through when a higher-priority temporary binding is inactive', () => {
+    const km = new Keymap({ isMac: false });
+    const desktop = vi.fn();
+    const inactiveOperation = vi.fn(() => false);
+    km.register(spec({ id: 'desktop.right', combo: 'ArrowRight', scope: 'desktop' }), desktop);
+    km.register(
+      spec({
+        id: 'window.operation.right',
+        combo: 'ArrowRight',
+        scope: 'global',
+        priority: 100,
+      }),
+      inactiveOperation
+    );
+
+    expect(km.dispatch(ev({ key: 'ArrowRight' }), { inInput: false, inWindow: false })).toBe(true);
+    expect(inactiveOperation).toHaveBeenCalledOnce();
+    expect(desktop).toHaveBeenCalledOnce();
+  });
 });
 
 describe('conflict detection', () => {

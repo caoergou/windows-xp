@@ -5,8 +5,15 @@ import { getSystemPathDisplay } from '../data/systemPaths';
 import { useWindowManagerActions } from '../context/WindowManagerContext';
 import { useFileSystem } from '../context/FileSystemContext';
 import { useXPEventBus } from '../context/EventBusContext';
+import { useWindowId } from '../context/WindowIdContext';
 import XPIcon from './XPIcon';
 import { FileNode, ExifData } from '../types';
+
+export const FILE_PROPERTIES_WINDOW_PROPS = {
+  width: 380,
+  height: 420,
+  resizable: false,
+};
 
 // Load all EXIF data files eagerly
 const exifFiles = import.meta.glob<ExifData & { default?: ExifData }>('../data/photos/**/*.json', {
@@ -114,6 +121,7 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
   const { closeWindow } = useWindowManagerActions();
   const { getFileProperties } = useFileSystem();
   const bus = useXPEventBus();
+  const contextWindowId = useWindowId();
 
   const properties = fileItem ? getFileProperties(parentPath || [], fileItem.name) : null;
 
@@ -168,8 +176,19 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
 
   const handleClose = () => {
     if (onClose) onClose();
-    if (windowId) closeWindow(windowId);
+    const id = windowId ?? contextWindowId;
+    if (id) closeWindow(id);
   };
+
+  const typeLabel = properties
+    ? properties.icon === 'drive'
+      ? t(
+          /dvd|cd/i.test(properties.name)
+            ? 'explorer.types.opticalDrive'
+            : 'explorer.types.localDisk'
+        )
+      : t(properties.type === 'folder' ? 'explorer.types.folder' : 'explorer.types.file')
+    : '';
 
   return (
     <WindowContainer>
@@ -198,9 +217,7 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
             <div style={{ borderTop: '1px solid #ccc', margin: '5px 0' }}></div>
             <PropertyRow>
               <Label>{t('fileProperties.fileType')}:</Label>
-              <Value>
-                {t(properties.type === 'folder' ? 'explorer.types.folder' : 'explorer.types.file')}
-              </Value>
+              <Value>{typeLabel}</Value>
             </PropertyRow>
             <div style={{ borderTop: '1px solid #ccc', margin: '5px 0' }}></div>
             <PropertyRow>

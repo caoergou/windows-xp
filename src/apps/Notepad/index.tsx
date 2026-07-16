@@ -110,7 +110,7 @@ const NotepadEditor = (props: NotepadProps) => {
           onClick={np.updateCursorPosition}
           onContextMenu={np.handleContextMenu}
           readOnly={np.isReadOnly || np.isAutoTyping}
-          style={np.isAutoTyping ? { cursor: 'wait' } : undefined}
+          className={np.isAutoTyping ? 'xp-busy' : undefined}
           $wordWrap={np.wordWrap}
           wrap={np.wordWrap ? 'soft' : 'off'}
         />

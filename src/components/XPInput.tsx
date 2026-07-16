@@ -2,24 +2,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { XPButton } from './XPButton';
 import { CloseBtn } from './Window/WindowControls';
-import { XPDialogWindow, XPDialogTitleText } from './XPDialogChrome';
-import { TitleBar as LunaTitleBar } from './Window/WindowChrome';
+import {
+  XPDialogOverlay,
+  XPDialogPlacement,
+  XPDialogTitleBar,
+  XPDialogWindow,
+  XPDialogTitleText,
+} from './XPDialogChrome';
 import { XPTextInput } from './XPTextInput';
 import { useTranslation } from 'react-i18next';
 import { useModalA11y } from '../hooks/useModalA11y';
-
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0);
-  z-index: 99999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
+import Draggable from 'react-draggable';
 
 const ContentArea = styled.div`
   padding: 18px 14px 7px 14px;
@@ -55,12 +48,25 @@ interface XPInputProps {
   defaultValue?: string;
   onOk: (value: string) => void;
   onCancel: () => void;
+  attentionSequence?: number;
+  placement?: XPDialogPlacement;
+  isActive?: boolean;
 }
 
-const XPInput: React.FC<XPInputProps> = ({ title, message, defaultValue = '', onOk, onCancel }) => {
+const XPInput: React.FC<XPInputProps> = ({
+  title,
+  message,
+  defaultValue = '',
+  onOk,
+  onCancel,
+  attentionSequence = 0,
+  placement,
+  isActive = true,
+}) => {
   const { t } = useTranslation();
   const [value, setValue] = useState(defaultValue);
   const inputRef = useRef<HTMLInputElement>(null);
+  const nodeRef = useRef<HTMLDivElement>(null);
   const { containerRef, onKeyDown } = useModalA11y(onCancel);
 
   useEffect(() => {
@@ -79,31 +85,50 @@ const XPInput: React.FC<XPInputProps> = ({ title, message, defaultValue = '', on
   };
 
   return (
-    <Overlay ref={containerRef} onKeyDown={onKeyDown} data-xp-context-boundary>
-      <XPDialogWindow role="dialog" aria-modal="true" aria-label={title}>
-        <LunaTitleBar $isFocus className="title-bar">
-          <XPDialogTitleText>{title}</XPDialogTitleText>
-          <CloseBtn onClick={onCancel} aria-label="Close" />
-        </LunaTitleBar>
-        <ContentArea>
-          <MessageRow>
-            <Message>{message}</Message>
-          </MessageRow>
-          <XPTextInput
-            ref={inputRef}
-            value={value}
-            onChange={e => setValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-        </ContentArea>
-        <ButtonArea>
-          <XPButton $default onClick={() => onOk(value)}>
-            {t('common.ok')}
-          </XPButton>
-          <XPButton onClick={onCancel}>{t('common.cancel')}</XPButton>
-        </ButtonArea>
-      </XPDialogWindow>
-    </Overlay>
+    <XPDialogOverlay
+      ref={containerRef}
+      style={placement}
+      onKeyDown={onKeyDown}
+      data-xp-context-boundary
+    >
+      <Draggable nodeRef={nodeRef} handle=".title-bar">
+        <XPDialogWindow
+          ref={nodeRef}
+          $isFocus={isActive}
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
+          style={{ pointerEvents: 'auto' }}
+        >
+          <XPDialogTitleBar
+            key={attentionSequence}
+            $isFocus={isActive}
+            $attention={attentionSequence > 0}
+            className="title-bar"
+          >
+            <XPDialogTitleText>{title}</XPDialogTitleText>
+            <CloseBtn onClick={onCancel} aria-label="Close" />
+          </XPDialogTitleBar>
+          <ContentArea>
+            <MessageRow>
+              <Message>{message}</Message>
+            </MessageRow>
+            <XPTextInput
+              ref={inputRef}
+              value={value}
+              onChange={e => setValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </ContentArea>
+          <ButtonArea>
+            <XPButton $default onClick={() => onOk(value)}>
+              {t('common.ok')}
+            </XPButton>
+            <XPButton onClick={onCancel}>{t('common.cancel')}</XPButton>
+          </ButtonArea>
+        </XPDialogWindow>
+      </Draggable>
+    </XPDialogOverlay>
   );
 };
 
