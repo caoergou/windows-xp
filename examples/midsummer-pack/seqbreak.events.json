@@ -1,0 +1,11 @@
+[
+  { "type": "session:boot-complete" },
+  { "type": "file:unlock", "name": "毕业照" },
+  { "type": "ie:navigate", "url": "http://tongxuelu.com/class2" },
+  {
+    "type": "file:open",
+    "path": ["未寄出的信.md"],
+    "name": "未寄出的信.md",
+    "nodeType": "file"
+  }
+]

@@ -51,6 +51,15 @@ Editors and other authoring tools can consume the same schemas through
 `@caoergou/windows-xp/schema/scenario.json` and
 `@caoergou/windows-xp/schema/content-pack.json`.
 
+Before designing a puzzle structure from scratch, check the **pattern library**
+([`SCENARIO-PATTERNS.md`](./SCENARIO-PATTERNS.md)) — named, lint-adjudicated
+recipes (hint ladder, act gate, double-key door, AI-buddy trio, …) that CI
+keeps from rotting. A complete recorded drafting session (synopsis → lint
+findings → fixes → solve → pack) lives in
+[`SCENARIO-AUTHORING-WALKTHROUGH.md`](./SCENARIO-AUTHORING-WALKTHROUGH.md);
+the guided workflow for AI assistants is the repo skill
+`.claude/skills/scenario/SKILL.md` (#239).
+
 ## Authoring & wiring
 
 A scenario is passed as the `scenario` prop:

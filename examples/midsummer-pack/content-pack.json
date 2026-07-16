@@ -1,0 +1,187 @@
+{
+  "id": "midsummer-2006",
+  "assets": {
+    "txl-home": { "url": "./assets/tongxuelu.html" },
+    "unsent-letter": { "url": "./assets/unsent-letter.md" }
+  },
+  "sites": {
+    "http://tongxuelu.com/class2": {
+      "title": "初三(2)班同学录",
+      "html": { "asset": "txl-home" }
+    }
+  },
+  "files": {
+    "网吧小票.txt": {
+      "type": "file",
+      "name": "网吧小票.txt",
+      "app": "Notepad",
+      "content": "蓝月亮网吧 上机小票\r\n机号：机房 07\r\n2006-08-12 19:42\r\n\r\n（背面手写）同学录搬到网上了：tongxuelu.com/class2"
+    },
+    "未寄出的信.md": {
+      "type": "file",
+      "name": "未寄出的信.md",
+      "app": "MarkdownViewer",
+      "contentRef": { "asset": "unsent-letter" }
+    },
+    "毕业照": {
+      "type": "folder",
+      "name": "毕业照",
+      "locked": true,
+      "password": "0630",
+      "children": {}
+    }
+  },
+  "scenario": {
+    "id": "midsummer-2006",
+    "strings": {
+      "zh": {
+        "intro.title": "回到 2006",
+        "intro.body": "桌面上有一张网吧小票，背面写着点什么。",
+        "txl.title": "同学录",
+        "txl.body": "班长的置顶留言提到了这台机器——还提到『照片旁边留了点别的东西』。",
+        "letter.title": "没有寄出去的信",
+        "letter.body": "信里写着照片是哪天拍的。那个日期……",
+        "hint.title": "提示",
+        "hint.body": "毕业典礼那天——信里写了，四位数字。",
+        "finale.title": "毕业合照",
+        "finale.body": "文件夹开了。十年后再看，那个夏天原来一直都在。",
+        "early.title": "你还记得",
+        "early.body": "没看信就想起了密码——毕业那天，你根本没忘过。",
+        "file.epilogue": "毕业照旁边，还有一个没发送的 QQ 传输请求。\r\n收件人：小雨\r\n\r\n（仲夏 2006 · 完）"
+      },
+      "en": {
+        "intro.title": "Back to 2006",
+        "intro.body": "There's a cyber-cafe receipt on the desktop, with something written on the back.",
+        "txl.title": "The class directory",
+        "txl.body": "The monitor's pinned post mentions this very machine — and 'something else left beside the photo'.",
+        "letter.title": "The unsent letter",
+        "letter.body": "The letter says which day the photo was taken. That date…",
+        "hint.title": "Hint",
+        "hint.body": "Graduation day — the letter spells it out. Four digits.",
+        "finale.title": "The class photo",
+        "finale.body": "The folder opens. Ten years on, that summer was here all along.",
+        "early.title": "You still remember",
+        "early.body": "The password came back before you even read the letter — you never forgot that day.",
+        "file.epilogue": "Next to the photos sits an unsent QQ file-transfer request.\r\nTo: Xiaoyu\r\n\r\n(Midsummer 2006 · End)"
+      }
+    },
+    "triggers": [
+      {
+        "id": "intro",
+        "on": "session:boot-complete",
+        "once": true,
+        "do": [
+          { "notify": { "titleKey": "intro.title", "bodyKey": "intro.body", "timeout": 12000 } }
+        ]
+      },
+      {
+        "id": "visit-txl",
+        "on": "ie:navigate",
+        "when": { "event": { "url": "http://tongxuelu.com/class2" } },
+        "once": true,
+        "do": [
+          { "setFlag": "seen_txl" },
+          { "notify": { "titleKey": "txl.title", "bodyKey": "txl.body" } }
+        ]
+      },
+      {
+        "id": "read-letter",
+        "on": "file:open",
+        "when": { "all": [{ "flag": "seen_txl" }, { "event": { "name": "未寄出的信.md" } }] },
+        "once": true,
+        "do": [
+          { "setFlag": "read_letter" },
+          { "notify": { "titleKey": "letter.title", "bodyKey": "letter.body" } }
+        ]
+      },
+      {
+        "id": "album-hint",
+        "on": "password:fail",
+        "when": {
+          "all": [
+            { "not": { "flag": "album_open" } },
+            { "count": { "type": "password:fail", "match": { "name": "毕业照" } }, "gte": 2 }
+          ]
+        },
+        "once": true,
+        "do": [{ "notify": { "titleKey": "hint.title", "bodyKey": "hint.body" } }]
+      },
+      {
+        "id": "early-bird",
+        "on": "file:unlock",
+        "when": {
+          "all": [{ "not": { "flag": "read_letter" } }, { "event": { "name": "毕业照" } }]
+        },
+        "once": true,
+        "do": [{ "notify": { "titleKey": "early.title", "bodyKey": "early.body" } }]
+      },
+      {
+        "id": "finale",
+        "on": ["file:unlock", "flag:change"],
+        "when": {
+          "all": [
+            { "flag": "read_letter" },
+            { "happened": { "type": "file:unlock", "match": { "name": "毕业照" } } }
+          ]
+        },
+        "once": true,
+        "do": [
+          { "setFlag": "album_open" },
+          { "notify": { "titleKey": "finale.title", "bodyKey": "finale.body", "timeout": 0 } },
+          {
+            "addFile": {
+              "path": ["尾声.txt"],
+              "node": { "type": "file", "app": "Notepad" },
+              "contentKey": "file.epilogue"
+            }
+          }
+        ]
+      },
+      {
+        "id": "arm-xiaoyu",
+        "on": "qq:open",
+        "when": { "all": [{ "flag": "read_letter" }, { "event": { "buddyId": "xiaoyu" } }] },
+        "once": true,
+        "do": [
+          {
+            "openApp": {
+              "appId": "QQ",
+              "props": {
+                "id": "xiaoyu",
+                "persona": "小雨，2006 年刚去省城读高中的女生，念旧，说话轻，偶尔用省略号。",
+                "reply": {
+                  "provider": "chat",
+                  "context": [{ "flags": ["read_letter"] }],
+                  "fallback": [
+                    "这边宿舍十点就断网了……你那边呢？",
+                    "照片找到了吗？班长说就在那台机器上。",
+                    "等你拷出来，第一个传给我好不好。"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "rehearsal": {
+      "walkthrough": [
+        { "event": { "type": "session:boot-complete" }, "beat": "intro" },
+        {
+          "event": { "type": "ie:navigate", "url": "http://tongxuelu.com/class2" },
+          "beat": "txl"
+        },
+        {
+          "event": {
+            "type": "file:open",
+            "path": ["未寄出的信.md"],
+            "name": "未寄出的信.md",
+            "nodeType": "file"
+          },
+          "beat": "letter"
+        },
+        { "event": { "type": "file:unlock", "name": "毕业照" }, "beat": "finale" }
+      ]
+    }
+  }
+}

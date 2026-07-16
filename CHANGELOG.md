@@ -4,6 +4,67 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (AI scenario co-authoring: pattern library + repo skill, #239)
+
+- **Scenario pattern library** — `docs/SCENARIO-PATTERNS.md` grew from the two
+  #241 content recipes into eleven named patterns (hint ladder, act gate,
+  double-key door, idle nudge, looping buddy chatter, password-puzzle trio,
+  timed beat, fictional website, long-document clue, mixed web, AI-buddy trio),
+  each with intent, structure, a copyable recipe, and an anti-pattern.
+- **The library adjudicates itself**: every ```` ```json ```` recipe in the
+  pattern doc is a complete scenario/content pack extracted and run through the
+  real `xp-scenario lint` by `npm run patterns:check` (zero errors *and* zero
+  warnings), wired into `npm run scenario:ci` so documented recipes cannot rot.
+- **Repo skill `.claude/skills/scenario/`** — the guided workflow for AI
+  assistants: the "AI drafts, deterministic tools adjudicate" covenant with a
+  mandatory lint → solve → pack verification loop, the five-outlet content
+  routing house rule (logic / ContentRef assets / string tables / AI-buddy
+  provider branches / era prompt corpora), and procedures for five task shapes
+  (draft a pack from a synopsis, add an act, add a fictional website,
+  review/audit, give a buddy an AI brain).
+- **Recorded drafting session** — `docs/SCENARIO-AUTHORING-WALKTHROUGH.md`
+  walks a three-line synopsis through draft → four real lint findings → fixes →
+  a solve-caught sequencing bug → green `pack`, with the finished
+  `examples/midsummer-pack/` kept adjudicated in CI
+  (`scenario:solve:example` / `scenario:pack:example`).
+- **Non-linear structure patterns (follow-up)** — Pattern 12 (the
+  order-independent gate: durable `happened`/flag predicates, multi-channel
+  `on`, and an "early-bird" beat that celebrates sequence breakers per M2) and
+  Pattern 13 (the bushy act: a `PuzzleGraph`-kind fixture — the first Layer-3
+  graph adjudicated in CI — three parallel leads funnelling into a linted
+  `gate`). The walkthrough example's own finale turned out to soft-lock under
+  unlock-before-clue ordering; the scrambled-tape replay that caught it is
+  recorded in the walkthrough doc and committed as
+  `examples/midsummer-pack/seqbreak.events.json`, replayed by CI
+  (`scenario:solve:example:fuzz`). The scenario skill gained matching house
+  rules (order-independent convergence, graph-first authoring) and an
+  order-fuzz item in its definition of done.
+- **Detective suite & entry patterns (follow-up)** — Patterns 14–18: the
+  search oracle (`searched`/`found`, miss-as-content, the miss log as the
+  difficulty-tuning tool), the evidence chain (`pinned`/`linked` journal
+  gating with a board-verb hint), the graded verdict (deduction finale that
+  accepts any submission and grades the epilogue by `count` of collected
+  evidence, M6), the typed passphrase (`file:update` + `contentContains` as
+  the day-one verifier, with its solver-fidelity caveat documented), and the
+  rabbit hole (M11/TINAG entry framing — the pattern PUZZLE-DESIGN asked the
+  authoring guide to document). The scenario skill gained a **narrative craft
+  rules** section (fair play, correlation over exposition, ≤2-hop
+  breadcrumbs, the intrusiveness ladder, no silent critical-path flags,
+  self-consistent red herrings, suspense/surprise layering, noise-not-canon,
+  endings grade the case) distilled from PUZZLE-DESIGN, the detective-fiction
+  fair-play canon, and jubensha DM practice.
+- **Narrative-craft research corpus** — `docs/MYSTERY-DESIGN-RESEARCH.md`: a
+  sourced, confidence-graded survey of jubensha clue-distribution and DM
+  practice (clue tiers, three-level in-fiction hint ladders, debrief rules,
+  failure modes) and detective-fiction craft (Knox/Van Dine with per-rule
+  modern verdicts, Christie's misdirection techniques, narrative-trick
+  typology, multiple-solution topologies, the Hitchcock/Bordwell
+  suspense-vs-surprise split), ending in an experience→engine mapping that
+  marks each finding as a content pattern, a house rule, or a candidate
+  toolchain check. Three findings landed as skill narrative rules 10–12
+  (coincidence only creates trouble, mechanism meaning stays constant, a
+  twist pays back three misread clues).
+
 ### Added (Explorer depth follow-up, #120)
 
 - **Folders tree pane** behind the toolbar Folders toggle — the signature XP
