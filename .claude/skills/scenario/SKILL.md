@@ -118,7 +118,9 @@ Drafting is a routing problem. Never inline everything into scenario JSON:
 The tools adjudicate integrity; these rules guard what no linter can see.
 They distill PUZZLE-DESIGN (M1/M6/M11/M12), the fair-play canon of detective
 fiction (Knox / Van Dine — the surviving core, not the period trivia), and
-jubensha (剧本杀) DM practice:
+jubensha (剧本杀) DM practice. The sourced research corpus behind them —
+including the full "experience → engine pattern" mapping — is
+`docs/MYSTERY-DESIGN-RESEARCH.md`:
 
 1. **Fair play.** Every fact a gate needs must be discoverable in-world
    *before* that gate — reachable, readable, and still collectable. The
@@ -153,6 +155,18 @@ jubensha (剧本杀) DM practice:
    any answer; the epilogue's quality reflects the evidence actually held
    (`count` over the journal). Never lock the best ending behind evidence
    that can expire before the finale.
+10. **Coincidence only creates trouble, never solves it.** Timed and ambient
+    events may introduce complications; anything that *answers* a puzzle must
+    arrive through a trigger the player's own action fired. A required clue
+    delivered by a bare timer is deus ex machina in engine form.
+11. **Mechanism meaning stays constant.** Once an interaction metaphor is
+    established (what hidden files mean, how passwords are shaped, what an
+    icon signifies), it never silently changes. If the story must break it —
+    a narrative trick — the break itself is a planted, recoverable clue.
+12. **A twist must pay back three misread clues.** At the reveal, the player
+    should be able to recall at least three things they saw earlier and read
+    wrong. Fewer than three means the setup is thin — plant more before
+    shipping the twist, and account for them in the post-ending recap.
 
 ## Task shapes
 

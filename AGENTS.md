@@ -27,6 +27,7 @@ Platform-level vision (#143 RFC, `docs/OS-PLATFORM-VISION.md`): the engine gradu
 | What each of the five usage scenarios needs (blog/marketing/game/nostalgia/teaching) | `docs/USE-CASES.md` |
 | Mechanism → event → orchestration derivation for the puzzle game | `docs/PUZZLE-DESIGN.md` |
 | Scenario/content-pack pattern library (lint-adjudicated recipes) + recorded drafting session | `docs/SCENARIO-PATTERNS.md`, `docs/SCENARIO-AUTHORING-WALKTHROUGH.md`, skill: `.claude/skills/scenario/` |
+| Narrative-craft research corpus (jubensha × detective fiction, experience→pattern mapping) | `docs/MYSTERY-DESIGN-RESEARCH.md` |
 | Multi-OS / custom OS platform architecture | `docs/OS-PLATFORM-VISION.md` |
 | July 2026 full audit (current state, gaps, issue index) | `docs/PROJECT-ANALYSIS-2026-07.md` |
 

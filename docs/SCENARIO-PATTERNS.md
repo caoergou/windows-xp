@@ -1516,5 +1516,8 @@ hole.
   solve → pack: [`SCENARIO-AUTHORING-WALKTHROUGH.md`](./SCENARIO-AUTHORING-WALKTHROUGH.md).
 - **The guided workflow for AI assistants:** the repo skill
   [`.claude/skills/scenario/SKILL.md`](../.claude/skills/scenario/SKILL.md).
+- **The narrative-craft research corpus** (jubensha practice × detective-fiction
+  canon, with an experience→pattern mapping):
+  [`MYSTERY-DESIGN-RESEARCH.md`](./MYSTERY-DESIGN-RESEARCH.md).
 - **Schemas for editors:** `@caoergou/windows-xp/schema/scenario.json` and
   `…/schema/content-pack.json`.

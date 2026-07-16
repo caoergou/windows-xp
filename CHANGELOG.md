@@ -53,6 +53,17 @@ All notable changes to this project will be documented in this file.
   self-consistent red herrings, suspense/surprise layering, noise-not-canon,
   endings grade the case) distilled from PUZZLE-DESIGN, the detective-fiction
   fair-play canon, and jubensha DM practice.
+- **Narrative-craft research corpus** — `docs/MYSTERY-DESIGN-RESEARCH.md`: a
+  sourced, confidence-graded survey of jubensha clue-distribution and DM
+  practice (clue tiers, three-level in-fiction hint ladders, debrief rules,
+  failure modes) and detective-fiction craft (Knox/Van Dine with per-rule
+  modern verdicts, Christie's misdirection techniques, narrative-trick
+  typology, multiple-solution topologies, the Hitchcock/Bordwell
+  suspense-vs-surprise split), ending in an experience→engine mapping that
+  marks each finding as a content pattern, a house rule, or a candidate
+  toolchain check. Three findings landed as skill narrative rules 10–12
+  (coincidence only creates trouble, mechanism meaning stays constant, a
+  twist pays back three misread clues).
 
 ### Added (Explorer depth follow-up, #120)
 
