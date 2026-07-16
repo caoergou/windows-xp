@@ -22,7 +22,10 @@ describe('Windows XP cursor assets', () => {
   it.each(Object.entries(cursors))(
     '%s is a 32px CUR with the expected hotspot',
     (file, hotspot) => {
-      const bytes = readFileSync(join(__dirname, '..', 'src', 'assets', 'cursors', 'xp', file));
+      // #213: the cursor set lives inside the XP theme package (theme owns its assets).
+      const bytes = readFileSync(
+        join(__dirname, '..', 'src', 'themes', 'xp', 'assets', 'cursors', file)
+      );
 
       expect(bytes.readUInt16LE(2)).toBe(2);
       expect(bytes.readUInt16LE(4)).toBe(1);

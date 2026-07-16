@@ -22,21 +22,7 @@ const SystemTrayContainer = styled.div`
   color: white;
   font-size: 11px;
   white-space: nowrap;
-  background: linear-gradient(
-    to bottom,
-    #0c59b9 1%,
-    #139ee9 6%,
-    #18b5f2 10%,
-    #139beb 14%,
-    #1290e8 19%,
-    #0d8dea 63%,
-    #0d9ff1 81%,
-    #0f9eed 88%,
-    #119be9 91%,
-    #1392e2 94%,
-    #137ed7 97%,
-    #095bc9 100%
-  );
+  background: ${COLORS.TRAY_GRADIENT};
   border-left: 1px solid ${COLORS.TRAY_BORDER};
   box-shadow: inset 1px 0 1px ${COLORS.TRAY_HILIGHT};
 `;

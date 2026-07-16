@@ -93,7 +93,7 @@ export const FavoritesItem = styled.div`
   }
 
   .delete {
-    color: #ff0000;
+    color: ${COLORS.ERROR_RED};
     font-size: 10px;
     opacity: 0;
     cursor: pointer;

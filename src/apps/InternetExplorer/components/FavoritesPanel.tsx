@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../../../components/XPIcon';
+import { COLORS } from '../../../constants';
 import { FavoriteItem } from '../types';
 import {
   Sidebar,
@@ -64,7 +65,7 @@ const FavoritesPanel: React.FC<FavoritesPanelProps> = ({
           </FavoritesItem>
         ))}
         {favorites.length === 0 && (
-          <div style={{ padding: 10, color: '#888', fontSize: 12 }}>
+          <div style={{ padding: 10, color: COLORS.GREY_88, fontSize: 12 }}>
             {t('internetExplorer.noHistory')}
           </div>
         )}

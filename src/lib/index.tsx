@@ -15,6 +15,7 @@ import type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 import '../i18n';
 import 'xp.css/dist/XP.css';
 import '../scoped.css';
+import '../themes/xp/xp-chrome.css';
 
 export interface WindowsXPProps {
   /** Default username for the login screen. */

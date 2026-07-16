@@ -2,6 +2,49 @@ import styled, { keyframes } from 'styled-components';
 import { qqUrl } from './assets';
 import { COLORS } from '../../constants';
 
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  black: '#000000',
+  green900: '#000400',
+  blue600: '#0033CC',
+  blue700: '#00558E',
+  blue7002: '#071E81',
+  blue800: '#0F0657',
+  blue8002: '#101C4A',
+  blue7003: '#183C94',
+  blue7004: '#210F95',
+  blue500: '#2367C3',
+  green700: '#2D794B',
+  blue5002: '#2F74C5',
+  highlight: '#316AC5',
+  blue300: '#5DB7FF',
+  fieldBorder: '#7F9DB9',
+  grey500: '#808080',
+  blue400: '#84A6C6',
+  grey5002: '#888888',
+  blue200: '#97C5EC',
+  blue2002: '#9FD4FF',
+  grey300: '#A8A8A8',
+  blue2003: '#B6D5F5',
+  blue100: '#B9E1FF',
+  cyan100: '#D2F8FD',
+  blue1002: '#DFE8FF',
+  blue1003: '#E4F3FF',
+  red500: '#E8110E',
+  blue1004: '#EAF2FF',
+  blue1005: '#ECF6FF',
+  blue1006: '#F0F8FF',
+  white: '#F6F6F6',
+  orange400: '#FCB833',
+  red5002: '#FF0000',
+  red300: '#FF7D7B',
+  yellow300: '#FFE762',
+  white2: '#FFFFFF',
+};
+/* brand-palette:end */
+
 // Buddy avatar shakes on unread messages (classic QQ: avatar shakes left and right quickly).
 const avatarShake = keyframes`
   0%, 100% { transform: translateX(0); }
@@ -35,30 +78,30 @@ const BTN_RESET = `
  * previously scattered #fff / #888 / blue-green nickname colors are normalized here.
  */
 const C = {
-  white: '#fff',
-  grey: '#888',
-  peerNick: '#210f95', // Partner nickname blue
-  myNick: '#2d794b', // Self nickname green
-  peerNum: '#071E81', // Banner number / info bar blue
-  infoBlue: '#b6d5f5', // Info bar gradient bottom
-  infoBorder: '#84a6c6', // Info bar bottom border
-  hover: '#eaf2ff', // Buddy / result hover light blue
-  closeRed: '#e8110e', // Close button hover red
-  selSub: '#dfe8ff', // Selected item secondary text
-  zoneBg: '#f6f6f6', // Personal space background color
+  white: PALETTE.white2,
+  grey: PALETTE.grey5002,
+  peerNick: PALETTE.blue7004, // Partner nickname blue
+  myNick: PALETTE.green700, // Self nickname green
+  peerNum: PALETTE.blue7002, // Banner number / info bar blue
+  infoBlue: PALETTE.blue2003, // Info bar gradient bottom
+  infoBorder: PALETTE.blue400, // Info bar bottom border
+  hover: PALETTE.blue1004, // Buddy / result hover light blue
+  closeRed: PALETTE.red500, // Close button hover red
+  selSub: PALETTE.blue1002, // Selected item secondary text
+  zoneBg: PALETTE.white, // Personal space background color
 };
 
 // Common buttons (shared by login box / chat window / main panel) - QQ-CLASSIC-UI §2 common button style
 const QQ_BTN = `
   font-size: 12px;
-  background: linear-gradient(to bottom, ${C.white}, #9FD4FF);
-  border: 1px solid #00558E;
+  background: linear-gradient(to bottom, ${C.white}, ${PALETTE.blue2002});
+  border: 1px solid ${PALETTE.blue700};
   border-radius: 3px;
   cursor: pointer;
-  color: #000;
-  &:focus { box-shadow: inset 0 0 0 1px #ffe762, inset 0 0 0 2px #fcb833; }
-  &:hover { background: linear-gradient(to bottom, ${C.white}, #B9E1FF); }
-  &:active { background: linear-gradient(to bottom, #97C5EC, #D2F8FD); }
+  color: ${PALETTE.black};
+  &:focus { box-shadow: inset 0 0 0 1px ${PALETTE.yellow300}, inset 0 0 0 2px ${PALETTE.orange400}; }
+  &:hover { background: linear-gradient(to bottom, ${C.white}, ${PALETTE.blue100}); }
+  &:active { background: linear-gradient(to bottom, ${PALETTE.blue200}, ${PALETTE.cyan100}); }
 `;
 
 // --- Main panel (buddy list) ------------------------------------------------
@@ -224,7 +267,7 @@ export const PanelRoot = styled.div`
     top: 0;
     height: 100%;
     background: ${C.white};
-    border: 1px solid #2367c3;
+    border: 1px solid ${PALETTE.blue500};
     border-radius: 2px;
     overflow: hidden;
     padding: 1px;
@@ -236,7 +279,7 @@ export const PanelRoot = styled.div`
     text-align: center;
     font-size: 12px;
     width: 100%;
-    color: #183c94;
+    color: ${PALETTE.blue7003};
     padding: 1px 0;
     ${QQ_BTN}
   }
@@ -251,7 +294,7 @@ export const PanelRoot = styled.div`
     background-repeat: no-repeat;
     background-position: 2px 4px;
     padding: 5px 0 5px 20px;
-    color: #101c4a;
+    color: ${PALETTE.blue8002};
     cursor: pointer;
     overflow: hidden;
     white-space: nowrap;
@@ -273,7 +316,7 @@ export const PanelRoot = styled.div`
     background: ${C.hover};
   }
   .qq-friend-item.selected {
-    background: #316ac5;
+    background: ${PALETTE.highlight};
   }
   .qq-friend-item.selected .qq-friend-name,
   .qq-friend-item.selected .qq-friend-motto {
@@ -300,23 +343,23 @@ export const PanelRoot = styled.div`
     text-overflow: ellipsis;
   }
   .qq-friend-name {
-    color: #000400;
+    color: ${PALETTE.green900};
   }
   .qq-friend-motto {
-    color: #808080;
+    color: ${PALETTE.grey500};
   }
   .qq-friend-item.qq-vip .qq-friend-name {
-    color: #f00;
+    color: ${PALETTE.red5002};
   }
   .qq-friend-item.qq-vip .qq-friend-motto {
-    color: #ff7d7b;
+    color: ${PALETTE.red300};
   }
   .qq-friend-item.qq-offline {
     filter: grayscale(100%);
   }
   .qq-friend-item.qq-offline .qq-friend-name,
   .qq-friend-item.qq-offline .qq-friend-motto {
-    color: #a8a8a8;
+    color: ${PALETTE.grey300};
   }
 
   .qq-friend-icons {
@@ -411,7 +454,7 @@ export const PanelRoot = styled.div`
     border: 0;
     cursor: pointer;
     &:hover {
-      color: #000;
+      color: ${PALETTE.black};
     }
   }
   .qq-msgmgr-button {
@@ -428,7 +471,7 @@ export const PanelRoot = styled.div`
 export const LoginRoot = styled.div`
   width: 100%;
   height: 100%;
-  background-color: #ecf6ff;
+  background-color: ${PALETTE.blue1005};
   font-family: SimSun, serif;
   font-size: 12px;
   user-select: none;
@@ -449,8 +492,15 @@ export const LoginRoot = styled.div`
     background-repeat: no-repeat;
   }
   .qq-login-form {
-    background: linear-gradient(to bottom, #e4f3ff, #f0f8ff, #f0f8ff, #f0f8ff, #e4f3ff);
-    border: 1px solid #2f74c5;
+    background: linear-gradient(
+      to bottom,
+      ${PALETTE.blue1003},
+      ${PALETTE.blue1006},
+      ${PALETTE.blue1006},
+      ${PALETTE.blue1006},
+      ${PALETTE.blue1003}
+    );
+    border: 1px solid ${PALETTE.blue5002};
     padding: 18px;
     margin: 6px;
   }
@@ -470,7 +520,7 @@ export const LoginRoot = styled.div`
   .qq-login-form-row input[type='password'] {
     width: 150px;
     height: 18px;
-    border: 1px solid #7f9db9;
+    border: 1px solid ${PALETTE.fieldBorder};
     padding: 0 2px;
     font-size: 12px;
     font-family: SimSun, serif;
@@ -495,7 +545,7 @@ export const LoginRoot = styled.div`
   .qq-login-num-wrap input {
     width: 100%;
     height: 20px;
-    border: 1px solid #7f9db9;
+    border: 1px solid ${PALETTE.fieldBorder};
     padding: 0 20px 0 2px;
     font-size: 12px;
     font-family: SimSun, serif;
@@ -523,7 +573,7 @@ export const LoginRoot = styled.div`
   }
   .qq-login-forget {
     margin: 0 0 0 10px;
-    color: #0033cc;
+    color: ${PALETTE.blue600};
     text-decoration: none;
     white-space: nowrap;
     cursor: pointer;
@@ -625,7 +675,7 @@ export const LoadingRoot = styled.div`
 export const ChatRoot = styled.div`
   width: 100%;
   height: 100%;
-  background: #5db7ff;
+  background: ${PALETTE.blue300};
   font-family: SimSun, serif;
   font-size: 12px;
   user-select: none;
@@ -761,7 +811,7 @@ export const ChatRoot = styled.div`
     margin-bottom: 2px;
   }
   .qq-im-chat-msg-list li p {
-    color: #000;
+    color: ${PALETTE.black};
     padding-left: 15px;
     line-height: 1.4;
     margin: 0;
@@ -886,7 +936,7 @@ export const ChatRoot = styled.div`
     padding-left: 20px;
     border: 0;
     cursor: pointer;
-    color: #0f0657;
+    color: ${PALETTE.blue800};
     font-weight: bold;
     background-image: ${qqUrl('im/IMSidebarButtonExpand_Normal.png')};
     background-size: 1000px 100%;
@@ -907,7 +957,7 @@ export const ChatRoot = styled.div`
   }
   .qq-im-zone {
     background: ${C.zoneBg};
-    color: #0f0657;
+    color: ${PALETTE.blue800};
   }
   .qq-im-zone div {
     line-height: 1.4;

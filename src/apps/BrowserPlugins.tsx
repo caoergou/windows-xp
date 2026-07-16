@@ -3,6 +3,68 @@ import styled from 'styled-components';
 import XPIcon from '../components/XPIcon';
 import { FONTS } from '../constants';
 
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  blue600: '#0000CC',
+  blue700: '#003399',
+  blue7002: '#004B99',
+  cyan800: '#005555',
+  green800: '#006600',
+  cyan8002: '#006666',
+  blue6002: '#0066CC',
+  blue7003: '#174A86',
+  blue6003: '#1843C5',
+  blue6004: '#1F5AA6',
+  grey800: '#333333',
+  green8002: '#336600',
+  blue500: '#3366CC',
+  yellow800: '#555500',
+  grey700: '#555555',
+  grey600: '#666666',
+  green600: '#66CC00',
+  purple600: '#7700CC',
+  purple700: '#8800AA',
+  red700: '#8B0000',
+  blue300: '#8BA8C8',
+  grey400: '#999999',
+  grey300: '#AAAAAA',
+  blue200: '#AAD4FF',
+  red600: '#CC0000',
+  pink600: '#CC0066',
+  orange600: '#CC6600',
+  blue100: '#DCE8F5',
+  grey100: '#DDDDDD',
+  orange6002: '#E05500',
+  orange500: '#E65C00',
+  blue1002: '#E8F0FB',
+  blue1003: '#EEF3FC',
+  orange5002: '#EF8B1E',
+  green100: '#F0FFF0',
+  cyan100: '#F0FFFE',
+  cyan1002: '#F0FFFF',
+  white: '#F5F5F5',
+  purple100: '#F8F0FF',
+  pink100: '#FDF0FF',
+  red400: '#FF4444',
+  orange5003: '#FF6600',
+  orange5004: '#FF7B00',
+  orange400: '#FF9D2E',
+  yellow500: '#FFAA00',
+  yellow300: '#FFCC66',
+  orange200: '#FFCC80',
+  red100: '#FFF0F0',
+  red1002: '#FFF0F6',
+  yellow100: '#FFF3CC',
+  red1003: '#FFF5F5',
+  yellow1002: '#FFF7E6',
+  orange100: '#FFF8F0',
+  yellow1003: '#FFFEF0',
+  white2: '#FFFFFF',
+};
+/* brand-palette:end */
+
 // ─── Shared link helpers ─────────────────────────────────────────────────────
 
 interface LinkItemProps {
@@ -14,7 +76,7 @@ interface LinkItemProps {
 const LinkItem = ({ href, children, onNav }: LinkItemProps) => (
   <a
     href={href}
-    style={{ color: '#1843C5', textDecoration: 'none', fontSize: 12 }}
+    style={{ color: PALETTE.blue6003, textDecoration: 'none', fontSize: 12 }}
     onClick={e => {
       e.preventDefault();
       onNav?.(href);
@@ -30,14 +92,14 @@ const PageWrap = styled.div`
   width: 100%;
   height: 100%;
   overflow-y: auto;
-  background: #f5f5f5;
+  background: ${PALETTE.white};
   font-family: ${FONTS.UI};
   font-size: 12px;
-  color: #333;
+  color: ${PALETTE.grey800};
 `;
 
 const TopBar = styled.div`
-  background: linear-gradient(to bottom, #0066cc 0%, #004b99 100%);
+  background: linear-gradient(to bottom, ${PALETTE.blue6002} 0%, ${PALETTE.blue7002} 100%);
   padding: 6px 10px;
   display: flex;
   align-items: center;
@@ -52,22 +114,22 @@ const Logo = styled.div`
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
 
   .h {
-    color: #ff4444;
+    color: ${PALETTE.red400};
   }
   .a {
-    color: #ffaa00;
+    color: ${PALETTE.yellow500};
   }
   .o {
-    color: #66cc00;
+    color: ${PALETTE.green600};
   }
   .one {
     color: white;
   }
   .two {
-    color: #ff4444;
+    color: ${PALETTE.red400};
   }
   .three {
-    color: #ffaa00;
+    color: ${PALETTE.yellow500};
   }
 `;
 
@@ -76,7 +138,7 @@ const SearchBox = styled.div`
   display: flex;
   align-items: center;
   background: white;
-  border: 2px solid #ff6600;
+  border: 2px solid ${PALETTE.orange5003};
   border-radius: 3px;
   overflow: hidden;
   max-width: 420px;
@@ -91,7 +153,7 @@ const SearchBox = styled.div`
   }
 
   button {
-    background: #ff6600;
+    background: ${PALETTE.orange5003};
     color: white;
     border: none;
     padding: 5px 14px;
@@ -100,7 +162,7 @@ const SearchBox = styled.div`
     font-weight: bold;
 
     &:hover {
-      background: #e05500;
+      background: ${PALETTE.orange6002};
     }
   }
 `;
@@ -113,8 +175,8 @@ const TopRight = styled.div`
 `;
 
 const NavTabs = styled.div`
-  background: #e8f0fb;
-  border-bottom: 2px solid #3366cc;
+  background: ${PALETTE.blue1002};
+  border-bottom: 2px solid ${PALETTE.blue500};
   display: flex;
   padding: 0 8px;
 `;
@@ -123,13 +185,13 @@ const NavTab = styled.div<{ $active: boolean }>`
   padding: 5px 12px;
   font-size: 12px;
   cursor: pointer;
-  border-bottom: 2px solid ${p => (p.$active ? '#003399' : 'transparent')};
-  color: ${p => (p.$active ? '#003399' : '#555')};
+  border-bottom: 2px solid ${p => (p.$active ? PALETTE.blue700 : 'transparent')};
+  color: ${p => (p.$active ? PALETTE.blue700 : PALETTE.grey700)};
   font-weight: ${p => (p.$active ? 'bold' : 'normal')};
   margin-bottom: -2px;
 
   &:hover {
-    color: #003399;
+    color: ${PALETTE.blue700};
   }
 `;
 
@@ -142,19 +204,19 @@ const ContentArea = styled.div`
 
 const Category = styled.div<{ $color?: string }>`
   background: white;
-  border: 1px solid #ddd;
-  border-top: 2px solid ${p => p.$color || '#3366cc'};
+  border: 1px solid ${PALETTE.grey100};
+  border-top: 2px solid ${p => p.$color || PALETTE.blue500};
   padding: 0;
   border-radius: 2px;
 `;
 
 const CatHeader = styled.div<{ $bg?: string; $color?: string }>`
-  background: ${p => p.$bg || '#eef3fc'};
-  color: ${p => p.$color || '#003399'};
+  background: ${p => p.$bg || PALETTE.blue1003};
+  color: ${p => p.$color || PALETTE.blue700};
   font-weight: bold;
   font-size: 12px;
   padding: 3px 8px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid ${PALETTE.grey100};
 `;
 
 const CatLinks = styled.div`
@@ -166,17 +228,17 @@ const CatLinks = styled.div`
 `;
 
 const Dot = styled.span`
-  color: #aaa;
+  color: ${PALETTE.grey300};
   margin: 0 2px;
 `;
 
 const BottomBanner = styled.div`
   margin: 4px 8px;
-  background: #fff3cc;
-  border: 1px solid #ffcc66;
+  background: ${PALETTE.yellow100};
+  border: 1px solid ${PALETTE.yellow300};
   padding: 5px 10px;
   font-size: 11px;
-  color: #666;
+  color: ${PALETTE.grey600};
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -187,9 +249,9 @@ const MsnHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 8px 14px;
-  color: #fff;
-  background: #1f5aa6;
-  border-bottom: 4px solid #ef8b1e;
+  color: ${PALETTE.white2};
+  background: ${PALETTE.blue6004};
+  border-bottom: 4px solid ${PALETTE.orange5002};
 `;
 
 const MsnLogo = styled.div`
@@ -206,14 +268,14 @@ const MsnColumns = styled.div`
 `;
 
 const MsnPanel = styled.div`
-  border: 1px solid #8ba8c8;
-  background: #fff;
+  border: 1px solid ${PALETTE.blue300};
+  background: ${PALETTE.white2};
 
   h2 {
     margin: 0;
     padding: 5px 8px;
-    color: #174a86;
-    background: #dce8f5;
+    color: ${PALETTE.blue7003};
+    background: ${PALETTE.blue100};
     font-size: 13px;
   }
 
@@ -240,9 +302,9 @@ interface CategoryData {
 const CATEGORIES: CategoryData[] = [
   {
     title: '搜索引擎',
-    color: '#c00',
-    bg: '#fff0f0',
-    tcol: '#c00',
+    color: PALETTE.red600,
+    bg: PALETTE.red100,
+    tcol: PALETTE.red600,
     links: [
       ['百度', 'http://www.baidu.com'],
       ['谷歌', 'http://www.google.com'],
@@ -253,9 +315,9 @@ const CATEGORIES: CategoryData[] = [
   },
   {
     title: '常用邮箱',
-    color: '#006600',
-    bg: '#f0fff0',
-    tcol: '#006600',
+    color: PALETTE.green800,
+    bg: PALETTE.green100,
+    tcol: PALETTE.green800,
     links: [
       ['QQ邮箱', 'http://mail.qq.com'],
       ['163邮箱', 'http://mail.163.com'],
@@ -266,9 +328,9 @@ const CATEGORIES: CategoryData[] = [
   },
   {
     title: '购物网站',
-    color: '#cc6600',
-    bg: '#fff8f0',
-    tcol: '#cc6600',
+    color: PALETTE.orange600,
+    bg: PALETTE.orange100,
+    tcol: PALETTE.orange600,
     links: [
       ['淘宝网', 'http://www.taobao.com'],
       ['天猫', 'http://www.tmall.com'],
@@ -280,9 +342,9 @@ const CATEGORIES: CategoryData[] = [
   },
   {
     title: '视频影音',
-    color: '#7700cc',
-    bg: '#f8f0ff',
-    tcol: '#7700cc',
+    color: PALETTE.purple600,
+    bg: PALETTE.purple100,
+    tcol: PALETTE.purple600,
     links: [
       ['优酷', 'http://www.youku.com'],
       ['土豆网', 'http://www.tudou.com'],
@@ -294,9 +356,9 @@ const CATEGORIES: CategoryData[] = [
   },
   {
     title: '休闲游戏',
-    color: '#e65c00',
-    bg: '#fff7e6',
-    tcol: '#e65c00',
+    color: PALETTE.orange500,
+    bg: PALETTE.yellow1002,
+    tcol: PALETTE.orange500,
     links: [
       ['4399小游戏', 'http://www.4399.com'],
       ['7k7k', 'http://www.7k7k.com'],
@@ -306,9 +368,9 @@ const CATEGORIES: CategoryData[] = [
   },
   {
     title: '新闻门户',
-    color: '#003399',
-    bg: '#eef3fc',
-    tcol: '#003399',
+    color: PALETTE.blue700,
+    bg: PALETTE.blue1003,
+    tcol: PALETTE.blue700,
     links: [
       ['新浪', 'http://www.sina.com.cn'],
       ['网易', 'http://www.163.com'],
@@ -320,9 +382,9 @@ const CATEGORIES: CategoryData[] = [
   },
   {
     title: '社交网络',
-    color: '#cc0066',
-    bg: '#fff0f6',
-    tcol: '#cc0066',
+    color: PALETTE.pink600,
+    bg: PALETTE.red1002,
+    tcol: PALETTE.pink600,
     links: [
       ['QQ空间', 'http://qzone.qq.com'],
       ['人人网', 'http://www.renren.com'],
@@ -333,9 +395,9 @@ const CATEGORIES: CategoryData[] = [
   },
   {
     title: '音乐欣赏',
-    color: '#006666',
-    bg: '#f0ffff',
-    tcol: '#006666',
+    color: PALETTE.cyan8002,
+    bg: PALETTE.cyan1002,
+    tcol: PALETTE.cyan8002,
     links: [
       ['酷狗音乐', 'http://www.kugou.com'],
       ['QQ音乐', 'http://y.qq.com'],
@@ -346,9 +408,9 @@ const CATEGORIES: CategoryData[] = [
   },
   {
     title: '游戏娱乐',
-    color: '#336600',
-    bg: '#f0fff0',
-    tcol: '#336600',
+    color: PALETTE.green8002,
+    bg: PALETTE.green100,
+    tcol: PALETTE.green8002,
     links: [
       ['腾讯游戏', 'http://games.qq.com'],
       ['4399小游戏', 'http://www.4399.com'],
@@ -359,9 +421,9 @@ const CATEGORIES: CategoryData[] = [
   },
   {
     title: '旅游出行',
-    color: '#8800aa',
-    bg: '#fdf0ff',
-    tcol: '#8800aa',
+    color: PALETTE.purple700,
+    bg: PALETTE.pink100,
+    tcol: PALETTE.purple700,
     links: [
       ['12306铁路', 'http://www.12306.cn'],
       ['携程旅行', 'http://www.ctrip.com'],
@@ -372,9 +434,9 @@ const CATEGORIES: CategoryData[] = [
   },
   {
     title: '网上银行',
-    color: '#8B0000',
-    bg: '#fff5f5',
-    tcol: '#8B0000',
+    color: PALETTE.red700,
+    bg: PALETTE.red1003,
+    tcol: PALETTE.red700,
     links: [
       ['支付宝', 'http://www.alipay.com'],
       ['工商银行', 'http://www.icbc.com.cn'],
@@ -385,9 +447,9 @@ const CATEGORIES: CategoryData[] = [
   },
   {
     title: '论坛社区',
-    color: '#555500',
-    bg: '#fffef0',
-    tcol: '#555500',
+    color: PALETTE.yellow800,
+    bg: PALETTE.yellow1003,
+    tcol: PALETTE.yellow800,
     links: [
       ['百度贴吧', 'http://tieba.baidu.com'],
       ['天涯社区', 'http://www.tianya.cn'],
@@ -398,9 +460,9 @@ const CATEGORIES: CategoryData[] = [
   },
   {
     title: '实用工具',
-    color: '#005555',
-    bg: '#f0fffe',
-    tcol: '#005555',
+    color: PALETTE.cyan800,
+    bg: PALETTE.cyan100,
+    tcol: PALETTE.cyan800,
     links: [
       ['天气预报', 'http://weather.com.cn'],
       ['百度地图', 'http://map.baidu.com'],
@@ -449,8 +511,8 @@ function Hao123Page({ onNavigate, onOpenNew }: Hao123PageProps) {
         </SearchBox>
         <TopRight>
           <div>{dateStr}</div>
-          <div style={{ color: '#aad4ff' }}>北京 晴 12°C ~ 24°C</div>
-          <div style={{ color: '#aad4ff' }}>{timeStr}</div>
+          <div style={{ color: PALETTE.blue200 }}>北京 晴 12°C ~ 24°C</div>
+          <div style={{ color: PALETTE.blue200 }}>{timeStr}</div>
         </TopRight>
       </TopBar>
 
@@ -467,7 +529,7 @@ function Hao123Page({ onNavigate, onOpenNew }: Hao123PageProps) {
           <XPIcon name="alert_warning" size={14} />
           hao123 网址之家 — 中国最大的上网导航，为您精选最常用的网址
         </span>
-        <span style={{ color: '#999' }}>设为主页</span>
+        <span style={{ color: PALETTE.grey400 }}>设为主页</span>
       </BottomBanner>
 
       <ContentArea>
@@ -490,7 +552,9 @@ function Hao123Page({ onNavigate, onOpenNew }: Hao123PageProps) {
         ))}
       </ContentArea>
 
-      <div style={{ textAlign: 'center', color: '#aaa', fontSize: 11, padding: '12px 0 6px' }}>
+      <div
+        style={{ textAlign: 'center', color: PALETTE.grey300, fontSize: 11, padding: '12px 0 6px' }}
+      >
         Copyright © 2010 hao123.com All Rights Reserved &nbsp;|&nbsp; 百度旗下网站
       </div>
     </PageWrap>
@@ -549,11 +613,11 @@ function Game4399Page() {
     '植物大战僵尸',
   ];
   return (
-    <PageWrap style={{ background: '#fff7e6' }}>
+    <PageWrap style={{ background: PALETTE.yellow1002 }}>
       <div
         style={{
-          background: 'linear-gradient(to bottom, #ff9d2e, #ff7b00)',
-          color: '#fff',
+          background: `linear-gradient(to bottom, ${PALETTE.orange400}, ${PALETTE.orange5004})`,
+          color: PALETTE.white2,
           padding: '10px 14px',
           fontSize: 22,
           fontWeight: 'bold',
@@ -563,15 +627,17 @@ function Game4399Page() {
         4399<span style={{ fontSize: 13, fontWeight: 'normal' }}> 小游戏 · 在线玩</span>
       </div>
       <div style={{ padding: 14 }}>
-        <h2 style={{ fontSize: 15, color: '#e65c00', margin: '0 0 10px' }}>热门小游戏排行榜</h2>
+        <h2 style={{ fontSize: 15, color: PALETTE.orange500, margin: '0 0 10px' }}>
+          热门小游戏排行榜
+        </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
           {games.map((g, i) => (
             <div
               key={g}
               style={{
-                border: '1px solid #ffcc80',
+                border: `1px solid ${PALETTE.orange200}`,
                 borderRadius: 4,
-                background: '#fff',
+                background: PALETTE.white2,
                 padding: '10px 6px',
                 textAlign: 'center',
                 cursor: 'pointer',
@@ -592,11 +658,11 @@ function Game4399Page() {
               >
                 🎮
               </div>
-              <div style={{ color: '#0000cc', textDecoration: 'underline' }}>{g}</div>
+              <div style={{ color: PALETTE.blue600, textDecoration: 'underline' }}>{g}</div>
             </div>
           ))}
         </div>
-        <div style={{ marginTop: 14, fontSize: 11, color: '#999' }}>
+        <div style={{ marginTop: 14, fontSize: 11, color: PALETTE.grey400 }}>
           Copyright © 2009 4399.com 版权所有
         </div>
       </div>

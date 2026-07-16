@@ -183,6 +183,8 @@ export const COLORS = {
     'linear-gradient(180deg, #ACEDAD 0, #7BE47D 14%, #4CDA50 28%, #2ED330 42%, #42D845 57%, #76E275 71%, #8FE791 85%, #FFFFFF)',
   PROGRESS_BORDER: '#686868',
   BSOD_BLUE: '#0033A0',
+  /** Dark canvas-workspace blue behind Paint's paper (classic mspaint look). */
+  WORKSPACE_BLUE: '#0A2463',
   DROP_HIGHLIGHT: '#C1D2EE',
   STATUS_GROOVE_HILIGHT: '#F5F2E4',
 
@@ -190,6 +192,8 @@ export const COLORS = {
   // from the pre-#213 inline stock so the ratchet drops with zero pixel drift;
   // verifying/remapping each against a real XP reference is follow-up work.
   // Do NOT reach for these in new code without checking §K.1 first.
+  /** Error text red used by the shared password dialog (待核查 vs real XP). */
+  ALERT_RED: '#D32F2F',
   GREY_2D: '#2D2D2D',
   GREY_33: '#333333',
   GREY_40: '#404040',

@@ -1,25 +1,21 @@
-// Windows XP sound effects: authentic WAV samples with Web Audio API fallback
-import startupUrl from '../assets/audio/xp/startup.wav';
-import shutdownUrl from '../assets/audio/xp/shutdown.wav';
-import logonUrl from '../assets/audio/xp/logon.wav';
-import logoffUrl from '../assets/audio/xp/logoff.wav';
-import criticalStopUrl from '../assets/audio/xp/critical_stop.wav';
-import errorUrl from '../assets/audio/xp/error.wav';
-import dingUrl from '../assets/audio/xp/ding.wav';
-import exclamationUrl from '../assets/audio/xp/exclamation.wav';
-import notifyUrl from '../assets/audio/xp/notify.wav';
-import menuCommandUrl from '../assets/audio/xp/menu_command.wav';
-import minimizeUrl from '../assets/audio/xp/minimize.wav';
-import restoreUrl from '../assets/audio/xp/restore.wav';
-import recycleUrl from '../assets/audio/xp/recycle.wav';
-// Authentic QQ2006 sound effects (extracted from the original installer via
-// mengkunsoft/QQ2006 — see src/apps/QQ/assets/NOTICE.md). Wired into the QQ
-// Messenger (#119).
-import qqMessageUrl from '../assets/audio/qq/message.mp3';
-import qqOnlineUrl from '../assets/audio/qq/online.mp3';
-import qqSystemUrl from '../assets/audio/qq/system.mp3';
+// Sound facade (mechanism layer). The engine binds NO audio assets (#213 /
+// #143): sample URLs arrive at runtime via registerSounds — the XP theme's
+// scheme is registered by AppProviders (src/themes/xp/sounds.ts), app sounds
+// (QQ) self-register from their own package. Names stay stable; a future theme
+// swaps the scheme without touching this file.
 
 let audioCtx: AudioContext | null = null;
+
+/** Runtime name → sample-URL registry (theme scheme + app sounds). */
+const sampleRegistry: Record<string, string> = {};
+
+/**
+ * Register (or override) named sound samples. Later registrations win, so a
+ * host can replace individual sounds; unknown names simply no-op on play.
+ */
+export const registerSounds = (map: Record<string, string>) => {
+  Object.assign(sampleRegistry, map);
+};
 
 let globalVolume = 75;
 let isMuted = false;
@@ -62,8 +58,12 @@ const tone = (freq: number, dur: number, type: OscillatorType = 'sine', vol = 0.
   }
 };
 
-// Authentic Windows XP WAV samples (imported so Vite handles base URL/hashing)
 const audioCache: Record<string, HTMLAudioElement> = {};
+
+const playNamed = (name: string) => {
+  const url = sampleRegistry[name];
+  if (url) playSample(url);
+};
 
 const playSample = (url: string) => {
   if (isMuted) return;
@@ -83,43 +83,43 @@ const playSample = (url: string) => {
 
 export const sounds = {
   startup() {
-    playSample(startupUrl);
+    playNamed('startup');
   },
   shutdown() {
-    playSample(shutdownUrl);
+    playNamed('shutdown');
   },
   logon() {
-    playSample(logonUrl);
+    playNamed('logon');
   },
   logoff() {
-    playSample(logoffUrl);
+    playNamed('logoff');
   },
   criticalStop() {
-    playSample(criticalStopUrl);
+    playNamed('criticalStop');
   },
   error() {
-    playSample(errorUrl);
+    playNamed('error');
   },
   ding() {
-    playSample(dingUrl);
+    playNamed('ding');
   },
   exclamation() {
-    playSample(exclamationUrl);
+    playNamed('exclamation');
   },
   notify() {
-    playSample(notifyUrl);
+    playNamed('notify');
   },
   menuCommand() {
-    playSample(menuCommandUrl);
+    playNamed('menuCommand');
   },
   minimize() {
-    playSample(minimizeUrl);
+    playNamed('minimize');
   },
   restore() {
-    playSample(restoreUrl);
+    playNamed('restore');
   },
   recycle() {
-    playSample(recycleUrl);
+    playNamed('recycle');
   },
 
   // Window-open sweep (no authentic XP sample; keep synthesized)
@@ -135,19 +135,15 @@ export const sounds = {
     tone(600, 0.06, 'sine', 0.14, 0.12);
   },
 
-  // QQ message notification sound (original msg.wav: pager "beep beep")
+  // QQ notification sounds — registered by src/apps/QQ/sounds.ts (app package).
   qqMessage() {
-    playSample(qqMessageUrl);
+    playNamed('qqMessage');
   },
-
-  // QQ online notification sound (original Global.wav: knock "dong dong")
   qqOnline() {
-    playSample(qqOnlineUrl);
+    playNamed('qqOnline');
   },
-
-  // QQ system message / add-friend notification sound (original system.wav: "ahem, ahem")
   qqSystem() {
-    playSample(qqSystemUrl);
+    playNamed('qqSystem');
   },
 };
 

@@ -38,6 +38,13 @@ import { MarkdownProvider } from './MarkdownProvider';
 import type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 import type { DeepLinkRoutes } from '../utils/deepLink';
 import { XPEventBus } from '../events';
+import { registerSounds } from '../utils/soundManager';
+import { XP_SOUNDS } from '../themes/xp/sounds';
+
+// The composition root selects the theme; registering its sound scheme here
+// keeps the engine's soundManager free of any bundled-audio binding (#213).
+// A future `theme` prop swaps this map the same way it swaps tokens/assets.
+registerSounds(XP_SOUNDS);
 import type { XPEventListener } from '../events';
 import { setStoragePrefix, type PersistenceMode } from '../utils/storage';
 import { getSavedLanguage } from '../utils/language';

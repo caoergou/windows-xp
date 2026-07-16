@@ -3,6 +3,36 @@ import styled from 'styled-components';
 import XPIcon from '../components/XPIcon';
 import { FONTS } from '../constants';
 
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  grey800: '#2A2A2A',
+  green800: '#2F6A10',
+  green700: '#3F8018',
+  grey700: '#444455',
+  grey600: '#555566',
+  green600: '#5AA32A',
+  green400: '#8BD44A',
+  green4002: '#9BB27F',
+  green4003: '#9FD66A',
+  green300: '#B6C3A6',
+  green200: '#CDD6C4',
+  green100: '#DFE6D7',
+  green1002: '#E2E8DA',
+  green1003: '#E4ECDA',
+  green1004: '#E6FFD6',
+  green1005: '#E9EFE4',
+  green1006: '#EEF1EA',
+  green1007: '#EEF1EC',
+  green1008: '#EEF4E6',
+  orange500: '#F2A11B',
+  green1009: '#F5F7F2',
+  yellow400: '#FFD24A',
+  white: '#FFFFFF',
+};
+/* brand-palette:end */
+
 /**
  * uTorrent — a 2000s-style download manager shell for the `en` culture package
  * (#123). Original parody artwork/green theme; no ripped brand assets. Fake
@@ -13,16 +43,21 @@ const Wrap = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #eef1ec;
+  background: ${PALETTE.green1007};
   font-family: ${FONTS.CLASSIC};
   font-size: 12px;
-  color: #2a2a2a;
+  color: ${PALETTE.grey800};
   user-select: none;
   overflow: hidden;
 `;
 const Header = styled.div`
-  background: linear-gradient(to bottom, #8bd44a 0%, #5aa32a 55%, #3f8018 100%);
-  border-bottom: 1px solid #2f6a10;
+  background: linear-gradient(
+    to bottom,
+    ${PALETTE.green400} 0%,
+    ${PALETTE.green600} 55%,
+    ${PALETTE.green700} 100%
+  );
+  border-bottom: 1px solid ${PALETTE.green800};
   padding: 8px 12px;
   display: flex;
   align-items: center;
@@ -31,52 +66,52 @@ const Header = styled.div`
   .t {
     font-size: 15px;
     font-weight: bold;
-    color: #fff;
+    color: ${PALETTE.white};
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
   }
   .v {
     font-size: 11px;
-    color: #e6ffd6;
+    color: ${PALETTE.green1004};
   }
 `;
 const Toolbar = styled.div`
   display: flex;
   gap: 6px;
   padding: 5px 10px;
-  background: linear-gradient(to bottom, #fff, #e9efe4);
-  border-bottom: 1px solid #cdd6c4;
+  background: linear-gradient(to bottom, ${PALETTE.white}, ${PALETTE.green1005});
+  border-bottom: 1px solid ${PALETTE.green200};
   flex-shrink: 0;
 `;
 const TBtn = styled.button`
   height: 24px;
   padding: 0 10px;
-  border: 1px solid #9bb27f;
+  border: 1px solid ${PALETTE.green4002};
   border-radius: 2px;
   cursor: pointer;
-  background: linear-gradient(to bottom, #ffffff, #e4ecda);
+  background: linear-gradient(to bottom, ${PALETTE.white}, ${PALETTE.green1003});
   &:hover {
-    background: linear-gradient(to bottom, #ffffff, #eef4e6);
+    background: linear-gradient(to bottom, ${PALETTE.white}, ${PALETTE.green1008});
   }
 `;
 const HeadRow = styled.div`
   display: flex;
   padding: 4px 10px;
-  background: linear-gradient(to bottom, #f5f7f2, #e2e8da);
-  border-bottom: 1px solid #cdd6c4;
+  background: linear-gradient(to bottom, ${PALETTE.green1009}, ${PALETTE.green1002});
+  border-bottom: 1px solid ${PALETTE.green200};
   font-weight: bold;
-  color: #445;
+  color: ${PALETTE.grey700};
   flex-shrink: 0;
 `;
 const List = styled.div`
   flex: 1;
   overflow-y: auto;
-  background: #fff;
+  background: ${PALETTE.white};
 `;
 const Row = styled.div`
   display: flex;
   align-items: center;
   padding: 6px 10px;
-  border-bottom: 1px solid #eef1ea;
+  border-bottom: 1px solid ${PALETTE.green1006};
 `;
 const Cell = styled.div<{ $flex?: number; $w?: number; $align?: string }>`
   flex: ${p => p.$flex ?? 1};
@@ -89,8 +124,8 @@ const Cell = styled.div<{ $flex?: number; $w?: number; $align?: string }>`
 `;
 const Prog = styled.div`
   height: 12px;
-  background: #dfe6d7;
-  border: 1px solid #b6c3a6;
+  background: ${PALETTE.green100};
+  border: 1px solid ${PALETTE.green300};
   border-radius: 2px;
   overflow: hidden;
 `;
@@ -99,16 +134,16 @@ const Fill = styled.div<{ $v: number; $done?: boolean }>`
   width: ${p => p.$v}%;
   background: ${p =>
     p.$done
-      ? 'linear-gradient(to bottom, #9fd66a, #5aa32a)'
-      : 'linear-gradient(to bottom, #ffd24a, #f2a11b)'};
+      ? `linear-gradient(to bottom, ${PALETTE.green4003}, ${PALETTE.green600})`
+      : `linear-gradient(to bottom, ${PALETTE.yellow400}, ${PALETTE.orange500})`};
   transition: width 0.3s linear;
 `;
 const Status = styled.div`
-  border-top: 1px solid #cdd6c4;
-  background: #e9efe4;
+  border-top: 1px solid ${PALETTE.green200};
+  background: ${PALETTE.green1005};
   padding: 4px 10px;
   font-size: 11px;
-  color: #556;
+  color: ${PALETTE.grey600};
   display: flex;
   justify-content: space-between;
   flex-shrink: 0;

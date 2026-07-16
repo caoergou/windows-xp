@@ -3,6 +3,13 @@ import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
 import { COLORS, FONTS } from '../constants';
 
+/* brand-palette:start — centrally declared app-content colours (#213 batch 4).
+   calc.exe's red operator keys and navy function keys are the app's own key
+   colouring (same on every Windows theme), not OS chrome — ratchet-exempt. */
+const KEY_RED = '#cc0000';
+const KEY_NAVY = '#000080';
+/* brand-palette:end */
+
 // Windows XP calc.exe standard view — 6-column layout (see calc.exe / Wikipedia reference)
 
 const BTN_H = 23;
@@ -93,8 +100,8 @@ const Key = styled.button<{
 
   color: ${p => {
     if (p.$disabled) return COLORS.DIVIDER_GREY;
-    if (p.$variant === 'clear' || p.$variant === 'mem' || p.$variant === 'op') return '#cc0000';
-    if (p.$variant === 'fn') return '#000080';
+    if (p.$variant === 'clear' || p.$variant === 'mem' || p.$variant === 'op') return KEY_RED;
+    if (p.$variant === 'fn') return KEY_NAVY;
     return COLORS.BLACK;
   }};
 

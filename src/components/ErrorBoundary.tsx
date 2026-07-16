@@ -4,6 +4,16 @@ import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { COLORS, FONTS } from '../constants';
 
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  blue500: '#0000FF',
+  blue600: '#0066CC',
+  red600: '#CC0000',
+};
+/* brand-palette:end */
+
 const ErrorContainer = styled.div`
   width: 100%;
   height: 100%;
@@ -22,7 +32,7 @@ const ErrorIcon = styled.div`
 `;
 
 const ErrorTitle = styled.h2`
-  color: #c00;
+  color: ${PALETTE.red600};
   margin: 0 0 8px 0;
   font-size: 14px;
 `;
@@ -41,7 +51,7 @@ const ErrorDetails = styled.details`
 
   summary {
     cursor: pointer;
-    color: #00f;
+    color: ${PALETTE.blue500};
     text-decoration: underline;
   }
 
@@ -97,21 +107,21 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       console.group(
         '%c🚨 ErrorBoundary: Application crashed',
-        'color: #c00; font-size: 14px; font-weight: bold;'
+        `color: ${PALETTE.red600}; font-size: 14px; font-weight: bold;`
       );
 
       if (windowId) {
         console.log(`%cWindow ID:`, `color: ${COLORS.GREY_66}; font-weight: bold;`, windowId);
       }
 
-      console.log('%cError object:', 'color: #0066cc; font-weight: bold;');
+      console.log('%cError object:', `color: ${PALETTE.blue600}; font-weight: bold;`);
       console.dir(error);
 
-      console.log('%cError stack:', 'color: #0066cc; font-weight: bold;');
+      console.log('%cError stack:', `color: ${PALETTE.blue600}; font-weight: bold;`);
       console.error(error);
 
       if (errorInfo?.componentStack) {
-        console.log('%cComponent stack:', 'color: #0066cc; font-weight: bold;');
+        console.log('%cComponent stack:', `color: ${PALETTE.blue600}; font-weight: bold;`);
         console.log(errorInfo.componentStack);
       }
 

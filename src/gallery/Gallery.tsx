@@ -179,7 +179,7 @@ const Gallery: React.FC = () => {
         </Section>
 
         <Section data-testid="gallery-tooltip">
-          <Title>Tooltip — XPTooltip (#FFFFE1)</Title>
+          <Title>Tooltip — XPTooltip ({COLORS.TOOLTIP_BG})</Title>
           <Row>
             <TooltipSwatch>This is a Windows XP tooltip</TooltipSwatch>
             <XPTooltip text="Hover tooltip works too">

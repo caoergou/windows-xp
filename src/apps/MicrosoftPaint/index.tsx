@@ -19,7 +19,13 @@ import {
   CanvasWrapper,
   Canvas,
 } from './styled';
-import { DEFAULT_SAVE_DIR, PALETTE_COLORS, TOOLS } from './constants';
+import {
+  CANVAS_WHITE,
+  DEFAULT_DRAW_COLOR,
+  DEFAULT_SAVE_DIR,
+  PALETTE_COLORS,
+  TOOLS,
+} from './constants';
 import type { MenuKey, PaintMenuItem, MicrosoftPaintProps } from './types';
 
 const MicrosoftPaint = ({
@@ -37,7 +43,7 @@ const MicrosoftPaint = ({
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentTool, setCurrentTool] = useState('brush');
-  const [currentColor, setCurrentColor] = useState('#000000');
+  const [currentColor, setCurrentColor] = useState(DEFAULT_DRAW_COLOR);
   const [lineWidth] = useState(2);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [isModified, setIsModified] = useState(false);
@@ -81,7 +87,7 @@ const MicrosoftPaint = ({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = CANVAS_WHITE;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }, []);
 
@@ -197,7 +203,7 @@ const MicrosoftPaint = ({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = CANVAS_WHITE;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     setIsModified(true);
   };
@@ -207,7 +213,7 @@ const MicrosoftPaint = ({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = CANVAS_WHITE;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     setCurrentFilePath(undefined);
     setCurrentFileName(undefined);

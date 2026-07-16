@@ -1,13 +1,16 @@
 /**
  * guard:purity - engine purity guard (#143 platformization prep; rules in AGENTS.md red lines 11/12,
- * details in docs/DEVELOPMENT.md §8). Four checks:
+ * details in docs/DEVELOPMENT.md §7/§8). Six checks:
  *
  *  1. Engine directories must contain zero color values: the mechanism layer (context/hooks/utils/events/snapshot)
  *     must not contain color literals - "mechanism" and "what XP looks like" are layered, so in Phase B the mechanism layer becomes the engine as-is.
  *  2. xp.css is only allowed to be imported by entry files: engine/components must not directly depend on the XP skin table.
- *  3. Inline hex ratchet: total inline color values in src/ only decrease (current stock ~ FIDELITY §K STY-03 /
- *     #135 tokenization debt). When it drops below the baseline, lower HEX_BASELINE accordingly.
+ *  3. Inline hex ratchet (#213: baseline 0): outside the theme token layer and the declared
+ *     brand-palette blocks there are NO inline color literals in src/ — and it stays that way.
  *  4. Engine directories must not import the theme layer (src/themes): themes are selected above the engine (#135 theme contract).
+ *  5. Engine directories must not import asset files (images/cursors/audio): look and sound reach
+ *     the mechanism layer via theme registries / runtime injection only (#213).
+ *  6. brand-palette markers only appear in allow-listed files, balanced (#213 batch 4).
  *
  * Counting is performed after stripping comments (issue references like #116 often appear in comments and are the main noise source).
  */
@@ -15,17 +18,57 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 /** src/ inline hex color value stock baseline: only decrease. Update this value after lowering. */
-const HEX_BASELINE = 986; // 2026-07-16: #213 batch 3 — Luna blues (window frame, taskbar/tray/start, start menu, login, Explorer/IE panes) tokenized (1022 → 986; the token store itself still counts here — re-scoped in batch 4)
+// #213 end-state: ZERO inline hexes outside the two sanctioned stores — the theme token
+// layer (src/themes, ratchet-exempt) and the allow-listed brand-palette marker blocks.
+// New chrome colours go into src/themes/xp/tokens.ts; new app-identity colours go into a
+// declared brand-palette block. There is no third place.
+const HEX_BASELINE = 0; // 2026-07-16: #213 batch 4 — 1482 → 0 (theme layer + declared brand palettes are the only colour sources)
 
 /** Mechanism layer: directories/files that must keep zero color values and zero xp.css dependencies. */
 const ENGINE_PURE = ['src/context', 'src/hooks', 'src/utils', 'src/events.ts', 'src/snapshot.ts'];
 
 /**
- * Hex ratchet exemption: the marketing landing page (#160) is a **consumer layer** built on top of the engine,
- * with its own deliberately non-XP Luna dark/cyan design system (COLORS token does not apply), so it is not counted
- * toward the engine's tokenization debt. The ratchet still governs engine and component library code.
+ * Hex ratchet exemptions (#213 accounting):
+ *  - src/site: the marketing landing page (#160) is a **consumer layer** with its own
+ *    deliberately non-XP design system (COLORS does not apply).
+ *  - src/themes: the sanctioned token layer — colour literals are the POINT of this layer
+ *    (THEMING.md); tokens.ts is the single source the rest of src/ references, so its
+ *    contents are the ledger, not debt. Everything outside it stays ratcheted.
  */
-const RATCHET_EXCLUDE = ['src/site'];
+const RATCHET_EXCLUDE = ['src/site', 'src/themes'];
+
+/**
+ * Brand-palette marker exemption (#213 batch 4): culture/era apps and app-content palettes
+ * keep their period identity as **centrally declared local constants** — they must NOT
+ * follow the OS theme (QQ 2006 stays QQ 2006 when the theme is swapped, #143). Hexes are
+ * exempt from the ratchet ONLY inside a `brand-palette:start`…`brand-palette:end` block,
+ * and only in the files allow-listed here; inline hexes outside the block still count,
+ * and markers anywhere else fail the guard.
+ */
+const BRAND_PALETTE_FILES = new Set([
+  'src/apps/QQ/styles.ts',
+  'src/apps/SafeGuard360.tsx',
+  'src/apps/Thunder.tsx',
+  'src/apps/KugouMusic.tsx',
+  'src/apps/BaofengPlayer.tsx',
+  'src/apps/WPSOffice.tsx',
+  'src/apps/Winamp.tsx',
+  'src/apps/ITunes.tsx',
+  'src/apps/UTorrent.tsx',
+  'src/apps/MicrosoftOffice.tsx',
+  'src/apps/NortonAntiVirus.tsx',
+  'src/apps/BrowserPlugins.tsx',
+  'src/apps/InternetExplorer/components/SearchEnginePage.tsx',
+  'src/apps/MicrosoftPaint/constants.ts',
+  'src/apps/CommandPrompt/constants.ts',
+  'src/apps/Solitaire.tsx',
+  'src/apps/WindowsMediaPlayer.tsx',
+  'src/apps/Calculator.tsx',
+  'src/components/StickyNote.tsx',
+  'src/components/ErrorBoundary.tsx',
+]);
+const BRAND_START = 'brand-palette:start';
+const BRAND_END = 'brand-palette:end';
 
 /** Entry files allowed to import xp.css (skin is mounted at the entry, not leaked inside modules). */
 const XPCSS_ENTRIES = new Set([
@@ -39,6 +82,9 @@ const XPCSS_ENTRIES = new Set([
 
 const HEX_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/g;
 const XPCSS_IMPORT_RE = /(?:import\s+['"]|from\s+['"])xp\.css/;
+// #213: the mechanism layer must not bind look/sound assets either — images, cursors and
+// audio reach the engine through runtime registries (theme assets / soundManager.register).
+const ASSET_IMPORT_RE = /from\s+['"][^'"]+\.(?:png|jpe?g|gif|webp|svg|cur|ico|wav|mp3|ogg)['"]/;
 // #135: the engine (mechanism) must never import the theme layer (src/themes).
 // A theme is picked above the engine; the engine stays look-agnostic.
 const THEMES_IMPORT_RE = /(?:from|import)\s+['"](?:\.\.?\/)+themes\//;
@@ -62,16 +108,33 @@ let totalHex = 0;
 
 for (const file of walk('src')) {
   const posix = file.split('\\').join('/');
-  const stripped = stripComments(readFileSync(file, 'utf8'));
-  const lines = stripped.split('\n');
+  const raw = readFileSync(file, 'utf8');
+  const rawLines = raw.split('\n');
+  const lines = stripComments(raw).split('\n');
 
   const isEnginePure = ENGINE_PURE.some(p => posix === p || posix.startsWith(p + '/'));
   const isRatchetExcluded = RATCHET_EXCLUDE.some(p => posix === p || posix.startsWith(p + '/'));
+  const brandAllowed = BRAND_PALETTE_FILES.has(posix);
 
+  // Brand-palette markers live in comments — track them on the RAW lines.
+  let inBrand = false;
   lines.forEach((line, i) => {
+    const rawLine = rawLines[i] ?? '';
+    if (rawLine.includes(BRAND_START)) {
+      if (!brandAllowed) {
+        failures.push(
+          `brand-palette 标记出现在未登记文件 ${posix}:${i + 1}（豁免仅限 scripts/guard-purity.mjs 的 BRAND_PALETTE_FILES 白名单）`
+        );
+      } else if (inBrand) {
+        failures.push(`brand-palette 标记嵌套/未闭合 ${posix}:${i + 1}`);
+      } else {
+        inBrand = true;
+      }
+    }
+
     const hexes = line.match(HEX_RE);
     if (hexes) {
-      if (!isRatchetExcluded) totalHex += hexes.length;
+      if (!isRatchetExcluded && !(inBrand && brandAllowed)) totalHex += hexes.length;
       if (isEnginePure) {
         failures.push(
           `引擎目录出现色值 ${posix}:${i + 1} → ${hexes.join(' ')}（红线 11：机制层禁止 XP 皮肤细节）`
@@ -88,7 +151,18 @@ for (const file of walk('src')) {
         `引擎目录引入主题层 ${posix}:${i + 1}（红线 11：机制层禁止依赖 src/themes——主题在引擎之上选定）`
       );
     }
+    if (isEnginePure && ASSET_IMPORT_RE.test(line)) {
+      failures.push(
+        `引擎目录直接引入资产文件 ${posix}:${i + 1}（#213：图像/光标/音频经主题资产注册表或运行时注入到达引擎）`
+      );
+    }
+
+    if (rawLine.includes(BRAND_END)) {
+      if (inBrand) inBrand = false;
+      else if (brandAllowed) failures.push(`brand-palette 结束标记缺少起始 ${posix}:${i + 1}`);
+    }
   });
+  if (inBrand) failures.push(`brand-palette 标记未闭合（文件末尾仍在豁免块内）: ${posix}`);
 }
 
 if (process.argv.includes('--print-count')) {

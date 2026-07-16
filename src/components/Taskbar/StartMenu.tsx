@@ -39,22 +39,7 @@ const StartHeader = styled.div`
   width: 100%;
   border-top-left-radius: 5px;
   border-top-right-radius: 8px;
-  background: linear-gradient(
-    to bottom,
-    #1868ce 0%,
-    ${COLORS.STARTMENU_HEADER_SHADOW} 12%,
-    ${COLORS.STARTMENU_HEADER_SHADOW} 20%,
-    #1164cf 32%,
-    #1667cf 33%,
-    #1b6cd3 47%,
-    #1e70d9 54%,
-    #2476dc 60%,
-    #297ae0 65%,
-    #3482e3 77%,
-    #3786e5 79%,
-    #428ee9 90%,
-    #4791eb 100%
-  );
+  background: ${COLORS.STARTMENU_HEADER_GRADIENT};
   overflow: hidden;
 
   &:before {
@@ -209,24 +194,7 @@ const StartFooter = styled.div`
   width: 100%;
   padding: 0 10px;
   gap: 10px;
-  background: linear-gradient(
-    to bottom,
-    ${COLORS.STARTMENU_BLUE} 0%,
-    #3b85e0 3%,
-    #418ae3 5%,
-    #418ae3 17%,
-    #3c87e2 21%,
-    #3786e4 26%,
-    #3482e3 29%,
-    #2e7ee1 39%,
-    #2374df 49%,
-    #2072db 57%,
-    #196edb 62%,
-    #176bd8 72%,
-    #1468d5 75%,
-    #1165d2 83%,
-    #0f61cb 88%
-  );
+  background: ${COLORS.STARTMENU_FOOTER_GRADIENT};
 
   button {
     background: none;

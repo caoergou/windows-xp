@@ -11,6 +11,9 @@
  * through XPHandle.qq and script timers share the same side-effect channel.
  */
 import { QQProfile, QQBuddy, QQGroup, QQMe, QQStatus, QQScriptStep } from '../../data/qq/types';
+// Side-effect import: registers the QQ2006 notification sounds into the
+// soundManager as soon as the QQ module graph loads (#213).
+import './sounds';
 
 export interface QQMessage {
   id: string;

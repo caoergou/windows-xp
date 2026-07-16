@@ -24,6 +24,13 @@ export type {
 /** A styled-components style fragment (what `css\`\`` returns). */
 export type StyleFragment = ReturnType<typeof css>;
 
+/**
+ * Sound scheme: soundManager facade name → audio URL (#213). Registered into
+ * the engine's soundManager at the composition root; the engine itself binds
+ * no audio assets.
+ */
+export type SoundScheme = Record<string, string>;
+
 /** Reusable styled-components fragments a theme exposes. */
 export interface ThemeStyles {
   button: StyleFragment;
@@ -51,6 +58,8 @@ export interface OSTheme {
   fonts: ThemeFonts;
   assets: ThemeAssets;
   styles: ThemeStyles;
+  /** Named audio samples for the soundManager facade (#213 seam). */
+  sounds: SoundScheme;
   /** Optional chrome slot map — the deferred seam (see above). */
   chrome?: Partial<ChromeSlots>;
 }

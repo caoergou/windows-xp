@@ -45,7 +45,7 @@ const HintText = styled.div`
 
 const ErrorText = styled.div`
   font-size: 11px;
-  color: #d32f2f;
+  color: ${COLORS.ALERT_RED};
   min-height: 16px;
 `;
 

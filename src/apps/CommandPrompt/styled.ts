@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { FONTS } from '../../constants';
+import { CMD_BACKGROUND, CMD_DEFAULT_TEXT } from './constants';
 
 // CommandPrompt styled-components (#163/A — split out of the single-file app).
 
@@ -11,8 +12,8 @@ export const Container = styled.div<{ $color?: string }>`
   font-family: ${FONTS.CONSOLE};
   font-size: 12px;
   line-height: 1.2;
-  background: #000000;
-  color: ${p => p.$color || '#c0c0c0'};
+  background: ${CMD_BACKGROUND};
+  color: ${p => p.$color || CMD_DEFAULT_TEXT};
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;

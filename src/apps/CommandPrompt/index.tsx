@@ -4,7 +4,7 @@ import { useFileSystem } from '../../context/FileSystemContext';
 import { useXPEventBus } from '../../context/EventBusContext';
 import { useApp } from '../../hooks/useApp';
 import { Container, CurrentLine, Prompt, Input } from './styled';
-import { DRIVE_ROOT, buildBanner } from './constants';
+import { CMD_DEFAULT_TEXT, DRIVE_ROOT, buildBanner } from './constants';
 import { executeCommand, CMD_CLEAR, CMD_EXIT } from './commands';
 import type { CommandHistory, CommandPromptProps } from './types';
 
@@ -20,7 +20,7 @@ const CommandPrompt = ({ windowId = '' }: CommandPromptProps) => {
   const [currentPath, setCurrentPath] = useState<string[]>([...DRIVE_ROOT]);
   const [history, setHistory] = useState<CommandHistory[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
-  const [textColor, setTextColor] = useState<string>('#c0c0c0');
+  const [textColor, setTextColor] = useState<string>(CMD_DEFAULT_TEXT);
   const outputRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 

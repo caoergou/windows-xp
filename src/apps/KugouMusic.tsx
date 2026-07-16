@@ -4,6 +4,41 @@ import { CultureAppShell } from './culture/shell';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
 
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  grey900: '#1A1A1A',
+  green800: '#1B5E20',
+  grey800: '#2D2D2D',
+  green700: '#2E7D32',
+  grey8002: '#333333',
+  green600: '#388E3C',
+  green6002: '#43A047',
+  grey700: '#444444',
+  green500: '#4CAF50',
+  grey7002: '#555555',
+  grey600: '#666666',
+  green400: '#66BB6A',
+  green4002: '#81C784',
+  grey400: '#999999',
+  green300: '#A5D6A7',
+  grey300: '#BBBBBB',
+  green200: '#C8E6C9',
+  grey200: '#D0D0D0',
+  green100: '#DCEDC8',
+  grey100: '#E0E0E0',
+  grey1002: '#E3E3E3',
+  green1002: '#E8F5E9',
+  grey1003: '#EBEBEB',
+  white: '#F0F0F0',
+  white2: '#F5F5F5',
+  white3: '#F7F7F7',
+  white4: '#F9F9F9',
+  white5: '#FFFFFF',
+};
+/* brand-palette:end */
+
 interface Song {
   id: string;
   title: string;
@@ -24,24 +59,29 @@ const pulse = keyframes`
 `;
 
 const Wrap = styled(CultureAppShell)`
-  background: #f5f5f5;
-  color: #333;
+  background: ${PALETTE.white2};
+  color: ${PALETTE.grey8002};
 `;
 
 const Header = styled.div`
-  background: linear-gradient(to bottom, #66bb6a 0%, #43a047 50%, #2e7d32 100%);
+  background: linear-gradient(
+    to bottom,
+    ${PALETTE.green400} 0%,
+    ${PALETTE.green6002} 50%,
+    ${PALETTE.green700} 100%
+  );
   padding: 10px 12px;
   display: flex;
   align-items: center;
   gap: 10px;
-  border-bottom: 1px solid #1b5e20;
+  border-bottom: 1px solid ${PALETTE.green800};
   flex-shrink: 0;
 `;
 
 const LogoBox = styled.div`
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #81c784 0%, #4caf50 100%);
+  background: linear-gradient(135deg, ${PALETTE.green4002} 0%, ${PALETTE.green500} 100%);
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -56,12 +96,17 @@ const LogoIcon = () => (
   <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
     <path
       d="M14 2C8.48 2 4 6.48 4 12s4.48 10 10 10 10-4.48 10-10S19.52 2 14 2z"
-      fill="#fff"
+      fill={PALETTE.white5}
       fillOpacity="0.9"
     />
-    <path d="M10 19c0-3 1.5-5.5 4-7 2.5 1.5 4 4 4 7H10z" fill="#2e7d32" />
-    <circle cx="14" cy="10" r="2.5" fill="#2e7d32" />
-    <path d="M8 9l3 3M20 9l-3 3" stroke="#2e7d32" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M10 19c0-3 1.5-5.5 4-7 2.5 1.5 4 4 4 7H10z" fill={PALETTE.green700} />
+    <circle cx="14" cy="10" r="2.5" fill={PALETTE.green700} />
+    <path
+      d="M8 9l3 3M20 9l-3 3"
+      stroke={PALETTE.green700}
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
   </svg>
 );
 
@@ -77,7 +122,7 @@ const HeaderText = styled.div`
 
   .version {
     font-size: 11px;
-    color: #dcedc8;
+    color: ${PALETTE.green100};
   }
 `;
 
@@ -86,8 +131,8 @@ const Toolbar = styled.div`
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  background: linear-gradient(to bottom, #ffffff 0%, #f0f0f0 100%);
-  border-bottom: 1px solid #d0d0d0;
+  background: linear-gradient(to bottom, ${PALETTE.white5} 0%, ${PALETTE.white} 100%);
+  border-bottom: 1px solid ${PALETTE.grey200};
   flex-shrink: 0;
 `;
 
@@ -97,23 +142,23 @@ const ToolbarBtn = styled.button<{ $active?: boolean }>`
   font-size: 12px;
   font-family: inherit;
   cursor: pointer;
-  border: 1px solid #999;
+  border: 1px solid ${PALETTE.grey400};
   border-radius: 2px;
   display: flex;
   align-items: center;
   gap: 4px;
   background: ${p =>
     p.$active
-      ? 'linear-gradient(to bottom, #a5d6a7 0%, #66bb6a 50%, #43a047 100%)'
-      : 'linear-gradient(to bottom, #ffffff 0%, #f0f0f0 50%, #e0e0e0 100%)'};
-  color: ${p => (p.$active ? '#fff' : '#333')};
+      ? `linear-gradient(to bottom, ${PALETTE.green300} 0%, ${PALETTE.green400} 50%, ${PALETTE.green6002} 100%)`
+      : `linear-gradient(to bottom, ${PALETTE.white5} 0%, ${PALETTE.white} 50%, ${PALETTE.grey100} 100%)`};
+  color: ${p => (p.$active ? PALETTE.white5 : PALETTE.grey8002)};
   text-shadow: ${p => (p.$active ? '1px 1px 1px rgba(0,0,0,0.3)' : 'none')};
 
   &:hover {
     background: ${p =>
       p.$active
-        ? 'linear-gradient(to bottom, #81c784 0%, #4caf50 50%, #388e3c 100%)'
-        : 'linear-gradient(to bottom, #ffffff 0%, #f7f7f7 50%, #ebebeb 100%)'};
+        ? `linear-gradient(to bottom, ${PALETTE.green4002} 0%, ${PALETTE.green500} 50%, ${PALETTE.green600} 100%)`
+        : `linear-gradient(to bottom, ${PALETTE.white5} 0%, ${PALETTE.white3} 50%, ${PALETTE.grey1003} 100%)`};
   }
 
   &:active {
@@ -130,24 +175,24 @@ const Main = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: ${PALETTE.white5};
   overflow: hidden;
 `;
 
 const VisualizerPanel = styled.div`
   height: 90px;
-  background: linear-gradient(to bottom, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(to bottom, ${PALETTE.grey900} 0%, ${PALETTE.grey800} 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
   flex-shrink: 0;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid ${PALETTE.grey700};
 `;
 
 const CurrentSong = styled.div`
-  color: #a5d6a7;
+  color: ${PALETTE.green300};
   font-size: 13px;
   font-weight: bold;
   text-shadow: 0 0 4px rgba(76, 175, 80, 0.6);
@@ -167,7 +212,7 @@ const Bars = styled.div`
 const Bar = styled.div<{ $active?: boolean; $delay: number }>`
   width: 6px;
   height: 100%;
-  background: ${p => (p.$active ? '#66bb6a' : '#555')};
+  background: ${p => (p.$active ? PALETTE.green400 : PALETTE.grey7002)};
   border-radius: 1px;
   transform-origin: bottom;
   animation: ${p =>
@@ -183,9 +228,9 @@ const ListHeader = styled.div`
   display: flex;
   align-items: center;
   padding: 5px 10px;
-  background: linear-gradient(to bottom, #f7f7f7 0%, #e3e3e3 100%);
-  border-bottom: 1px solid #d0d0d0;
-  color: #444;
+  background: linear-gradient(to bottom, ${PALETTE.white3} 0%, ${PALETTE.grey1002} 100%);
+  border-bottom: 1px solid ${PALETTE.grey200};
+  color: ${PALETTE.grey700};
   font-weight: bold;
   flex-shrink: 0;
 `;
@@ -193,21 +238,21 @@ const ListHeader = styled.div`
 const ListBody = styled.div`
   flex: 1;
   overflow-y: auto;
-  background: #fff;
+  background: ${PALETTE.white5};
 `;
 
 const ListRow = styled.div<{ $selected?: boolean; $playing?: boolean }>`
   display: flex;
   align-items: center;
   padding: 7px 10px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid ${PALETTE.white};
   cursor: pointer;
-  background: ${p => (p.$selected ? '#e8f5e9' : 'transparent')};
-  color: ${p => (p.$playing ? '#2e7d32' : 'inherit')};
+  background: ${p => (p.$selected ? PALETTE.green1002 : 'transparent')};
+  color: ${p => (p.$playing ? PALETTE.green700 : 'inherit')};
   font-weight: ${p => (p.$playing ? 'bold' : 'normal')};
 
   &:hover {
-    background: ${p => (p.$selected ? '#c8e6c9' : '#f9f9f9')};
+    background: ${p => (p.$selected ? PALETTE.green200 : PALETTE.white4)};
   }
 `;
 
@@ -227,8 +272,8 @@ const Controls = styled.div`
   justify-content: space-between;
   gap: 10px;
   padding: 8px 12px;
-  background: linear-gradient(to bottom, #f0f0f0 0%, #e0e0e0 100%);
-  border-top: 1px solid #d0d0d0;
+  background: linear-gradient(to bottom, ${PALETTE.white} 0%, ${PALETTE.grey100} 100%);
+  border-top: 1px solid ${PALETTE.grey200};
   flex-shrink: 0;
 `;
 
@@ -246,12 +291,22 @@ const ControlBtn = styled.button`
   justify-content: center;
   font-size: 12px;
   cursor: pointer;
-  border: 1px solid #999;
+  border: 1px solid ${PALETTE.grey400};
   border-radius: 2px;
-  background: linear-gradient(to bottom, #ffffff 0%, #f0f0f0 50%, #e0e0e0 100%);
+  background: linear-gradient(
+    to bottom,
+    ${PALETTE.white5} 0%,
+    ${PALETTE.white} 50%,
+    ${PALETTE.grey100} 100%
+  );
 
   &:hover {
-    background: linear-gradient(to bottom, #ffffff 0%, #f7f7f7 50%, #ebebeb 100%);
+    background: linear-gradient(
+      to bottom,
+      ${PALETTE.white5} 0%,
+      ${PALETTE.white3} 50%,
+      ${PALETTE.grey1003} 100%
+    );
   }
 
   &:active {
@@ -261,12 +316,22 @@ const ControlBtn = styled.button`
 
 const PlayBtn = styled(ControlBtn)`
   width: 36px;
-  background: linear-gradient(to bottom, #a5d6a7 0%, #66bb6a 50%, #43a047 100%);
+  background: linear-gradient(
+    to bottom,
+    ${PALETTE.green300} 0%,
+    ${PALETTE.green400} 50%,
+    ${PALETTE.green6002} 100%
+  );
   color: white;
-  border-color: #2e7d32;
+  border-color: ${PALETTE.green700};
 
   &:hover {
-    background: linear-gradient(to bottom, #81c784 0%, #4caf50 50%, #388e3c 100%);
+    background: linear-gradient(
+      to bottom,
+      ${PALETTE.green4002} 0%,
+      ${PALETTE.green500} 50%,
+      ${PALETTE.green600} 100%
+    );
   }
 `;
 
@@ -282,14 +347,14 @@ const ProgressTime = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 10px;
-  color: #666;
+  color: ${PALETTE.grey600};
 `;
 
 const ProgressWrap = styled.div`
   width: 100%;
   height: 10px;
-  background: #d0d0d0;
-  border: 1px solid #bbb;
+  background: ${PALETTE.grey200};
+  border: 1px solid ${PALETTE.grey300};
   border-radius: 2px;
   overflow: hidden;
   cursor: pointer;
@@ -298,7 +363,7 @@ const ProgressWrap = styled.div`
 const ProgressFill = styled.div<{ $value: number }>`
   width: ${p => p.$value}%;
   height: 100%;
-  background: linear-gradient(to bottom, #81c784 0%, #4caf50 100%);
+  background: linear-gradient(to bottom, ${PALETTE.green4002} 0%, ${PALETTE.green500} 100%);
   transition: width 0.1s linear;
 `;
 
@@ -320,10 +385,10 @@ const StatusBar = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 4px 10px;
-  background: linear-gradient(to bottom, #f7f7f7 0%, #e3e3e3 100%);
-  border-top: 1px solid #d0d0d0;
+  background: linear-gradient(to bottom, ${PALETTE.white3} 0%, ${PALETTE.grey1002} 100%);
+  border-top: 1px solid ${PALETTE.grey200};
   font-size: 11px;
-  color: #666;
+  color: ${PALETTE.grey600};
   flex-shrink: 0;
 `;
 

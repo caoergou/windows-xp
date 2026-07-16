@@ -328,10 +328,14 @@ yet — but every PR must avoid growing the surgery cost. Non-negotiables
 
 - **Mechanism vs. XP-skin layering**: engine dirs (`src/context`, `src/hooks`,
   `src/utils`, `src/events.ts`, `src/snapshot.ts`) must contain zero color
-  literals, zero xp.css imports, zero XP-specific chrome assumptions. CI-enforced.
-- **Inline hex ratchet**: the count of inline hex colors in `src/` may only go
-  down (baseline lives in `scripts/guard-purity.mjs`). New code uses `COLORS`
-  (`src/constants.ts`) / FIDELITY §K.1 tokens — never literals.
+  literals, zero xp.css imports, zero asset-file imports, zero XP-specific
+  chrome assumptions. CI-enforced.
+- **Inline hex is ZERO outside the sanctioned stores** (#213): OS-chrome colors
+  live in `src/themes/xp/tokens.ts` (`COLORS`/`FONTS`, re-exported via
+  `src/constants.ts`); app-identity colors live in declared
+  `brand-palette:start/end` blocks in allow-listed files (see
+  `docs/THEMING.md`). `HEX_BASELINE = 0` in `scripts/guard-purity.mjs` — new
+  code never writes a color literal anywhere else.
 - **Menus are data**: new apps pass structured items to `XPMenuBar`, never
   hand-rolled menu DOM (migrates to `defineApp`'s `menus:` field, #128).
 - **No behavior-semantics leakage**: don't hard-code XP behaviors (e.g.

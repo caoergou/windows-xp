@@ -5,30 +5,76 @@ import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
 import { FONTS } from '../constants';
 
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  black: '#000000',
+  blue900: '#0A0F18',
+  blue9002: '#101520',
+  black2: '#111111',
+  grey900: '#1A1A1A',
+  blue9003: '#1A1D22',
+  blue800: '#1A2338',
+  blue9004: '#1E2127',
+  blue8002: '#252A33',
+  grey800: '#2A2E35',
+  blue700: '#2A3A5A',
+  blue8003: '#333842',
+  blue8004: '#363B45',
+  blue7002: '#3A3F4A',
+  grey700: '#3A4048',
+  grey7002: '#4A5058',
+  grey7003: '#4A505C',
+  grey600: '#555B66',
+  grey6002: '#5A606C',
+  grey6003: '#636B78',
+  blue500: '#667799',
+  grey6004: '#6A707A',
+  blue400: '#8899AA',
+  blue4002: '#8899BB',
+  orange700: '#AA5500',
+  blue300: '#AABBCC',
+  blue200: '#AABBDD',
+  blue100: '#CCDDEE',
+  white: '#EEEEEE',
+  orange500: '#FF8800',
+  orange400: '#FFAA33',
+  yellow300: '#FFCC66',
+  yellow3002: '#FFDD55',
+  white2: '#FFFFFF',
+};
+/* brand-palette:end */
+
 const pulse = keyframes`
   0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
 `;
 
 const Wrap = styled(CultureAppShell)`
-  background: #1a1a1a;
-  color: #eeeeee;
+  background: ${PALETTE.grey900};
+  color: ${PALETTE.white};
 `;
 
 const Header = styled.div`
-  background: linear-gradient(to bottom, #2a3a5a 0%, #1a2338 50%, #101520 100%);
+  background: linear-gradient(
+    to bottom,
+    ${PALETTE.blue700} 0%,
+    ${PALETTE.blue800} 50%,
+    ${PALETTE.blue9002} 100%
+  );
   padding: 8px 12px;
   display: flex;
   align-items: center;
   gap: 10px;
-  border-bottom: 1px solid #0a0f18;
+  border-bottom: 1px solid ${PALETTE.blue900};
   flex-shrink: 0;
 `;
 
 const LogoBox = styled.div`
   width: 34px;
   height: 34px;
-  background: linear-gradient(135deg, #ffdd55 0%, #ff8800 100%);
+  background: linear-gradient(135deg, ${PALETTE.yellow3002} 0%, ${PALETTE.orange500} 100%);
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -43,9 +89,9 @@ const LogoIcon = () => (
   <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
     <path
       d="M11 2C6 2 4 7 4 10c0 4 3 8 7 8s7-4 7-8c0-3-2-8-7-8zm0 3c2.5 0 4 2.5 4 5s-1.5 5-4 5-4-2.5-4-5 1.5-5 4-5z"
-      fill="#fff"
+      fill={PALETTE.white2}
     />
-    <path d="M9 8l5 2.5-5 2.5V8z" fill="#fff" />
+    <path d="M9 8l5 2.5-5 2.5V8z" fill={PALETTE.white2} />
   </svg>
 );
 
@@ -61,7 +107,7 @@ const HeaderText = styled.div`
 
   .version {
     font-size: 10px;
-    color: #aabbdd;
+    color: ${PALETTE.blue200};
   }
 `;
 
@@ -69,7 +115,7 @@ const Main = styled.div`
   flex: 1;
   display: flex;
   min-height: 0;
-  background: #000000;
+  background: ${PALETTE.black};
 `;
 
 const VideoArea = styled.div`
@@ -77,7 +123,7 @@ const VideoArea = styled.div`
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background: #000000;
+  background: ${PALETTE.black};
   position: relative;
 `;
 
@@ -87,8 +133,8 @@ const Screen = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at center, #1a2338 0%, #000000 70%);
-  color: #8899bb;
+  background: radial-gradient(circle at center, ${PALETTE.blue800} 0%, ${PALETTE.black} 70%);
+  color: ${PALETTE.blue4002};
   gap: 16px;
   position: relative;
 `;
@@ -96,7 +142,7 @@ const Screen = styled.div`
 const SplashLogo = styled.div`
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #ffdd55 0%, #ff8800 100%);
+  background: linear-gradient(135deg, ${PALETTE.yellow3002} 0%, ${PALETTE.orange500} 100%);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -109,14 +155,14 @@ const SplashLogo = styled.div`
 const SplashText = styled.div`
   font-size: 20px;
   font-weight: bold;
-  color: #ffffff;
+  color: ${PALETTE.white2};
   text-shadow: 0 0 8px rgba(255, 136, 0, 0.6);
   animation: ${pulse} 2s ease-in-out infinite;
 `;
 
 const OpenFileHint = styled.div`
   font-size: 12px;
-  color: #667799;
+  color: ${PALETTE.blue500};
 `;
 
 const VideoOverlay = styled.div`
@@ -128,13 +174,13 @@ const VideoOverlay = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 2px;
   font-size: 11px;
-  color: #ffaa33;
+  color: ${PALETTE.orange400};
 `;
 
 const ControlsBar = styled.div`
   height: 46px;
-  background: linear-gradient(to bottom, #3a3f4a 0%, #252a33 100%);
-  border-top: 1px solid #4a505c;
+  background: linear-gradient(to bottom, ${PALETTE.blue7002} 0%, ${PALETTE.blue8002} 100%);
+  border-top: 1px solid ${PALETTE.grey7003};
   display: flex;
   align-items: center;
   gap: 8px;
@@ -148,21 +194,21 @@ const ControlBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(to bottom, #555b66 0%, #3a4048 100%);
+  background: linear-gradient(to bottom, ${PALETTE.grey600} 0%, ${PALETTE.grey700} 100%);
   border: 1px solid;
-  border-color: #6a707a #2a2e35 #2a2e35 #6a707a;
+  border-color: ${PALETTE.grey6004} ${PALETTE.grey800} ${PALETTE.grey800} ${PALETTE.grey6004};
   border-radius: 2px;
-  color: #eeeeee;
+  color: ${PALETTE.white};
   font-size: 12px;
   cursor: pointer;
 
   &:hover {
-    background: linear-gradient(to bottom, #636b78 0%, #4a5058 100%);
+    background: linear-gradient(to bottom, ${PALETTE.grey6003} 0%, ${PALETTE.grey7002} 100%);
   }
 
   &:active {
-    background: linear-gradient(to bottom, #2a2e35 0%, #3a4048 100%);
-    border-color: #2a2e35 #6a707a #6a707a #2a2e35;
+    background: linear-gradient(to bottom, ${PALETTE.grey800} 0%, ${PALETTE.grey700} 100%);
+    border-color: ${PALETTE.grey800} ${PALETTE.grey6004} ${PALETTE.grey6004} ${PALETTE.grey800};
     padding-top: 1px;
     padding-left: 1px;
   }
@@ -186,8 +232,8 @@ const ProgressArea = styled.div`
 const ProgressTrack = styled.div`
   width: 100%;
   height: 8px;
-  background: #111111;
-  border: 1px solid #000000;
+  background: ${PALETTE.black2};
+  border: 1px solid ${PALETTE.black};
   border-radius: 4px;
   overflow: hidden;
   cursor: pointer;
@@ -197,7 +243,7 @@ const ProgressTrack = styled.div`
 const ProgressFill = styled.div<{ $value: number }>`
   width: ${p => p.$value}%;
   height: 100%;
-  background: linear-gradient(to bottom, #ffcc66 0%, #ff8800 100%);
+  background: linear-gradient(to bottom, ${PALETTE.yellow300} 0%, ${PALETTE.orange500} 100%);
   border-radius: 4px 0 0 4px;
   transition: width 0.1s linear;
 `;
@@ -206,7 +252,7 @@ const ProgressTime = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 10px;
-  color: #aabbcc;
+  color: ${PALETTE.blue300};
   font-family: ${FONTS.MONO};
 `;
 
@@ -221,8 +267,8 @@ const VolumeSlider = styled.input`
   flex: 1;
   height: 6px;
   -webkit-appearance: none;
-  background: #111111;
-  border: 1px solid #000000;
+  background: ${PALETTE.black2};
+  border: 1px solid ${PALETTE.black};
   border-radius: 3px;
   outline: none;
 
@@ -231,27 +277,27 @@ const VolumeSlider = styled.input`
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: linear-gradient(to bottom, #ffcc66 0%, #ff8800 100%);
+    background: linear-gradient(to bottom, ${PALETTE.yellow300} 0%, ${PALETTE.orange500} 100%);
     cursor: pointer;
-    border: 1px solid #aa5500;
+    border: 1px solid ${PALETTE.orange700};
   }
 `;
 
 const Playlist = styled.div`
   width: 170px;
   flex-shrink: 0;
-  background: linear-gradient(to bottom, #2a2e35 0%, #1e2127 100%);
-  border-left: 1px solid #3a3f4a;
+  background: linear-gradient(to bottom, ${PALETTE.grey800} 0%, ${PALETTE.blue9004} 100%);
+  border-left: 1px solid ${PALETTE.blue7002};
   display: flex;
   flex-direction: column;
 `;
 
 const PlaylistTitle = styled.div`
   padding: 6px 10px;
-  background: linear-gradient(to bottom, #363b45 0%, #2a2e35 100%);
-  border-bottom: 1px solid #1a1d22;
+  background: linear-gradient(to bottom, ${PALETTE.blue8004} 0%, ${PALETTE.grey800} 100%);
+  border-bottom: 1px solid ${PALETTE.blue9003};
   font-weight: bold;
-  color: #ccddee;
+  color: ${PALETTE.blue100};
   font-size: 12px;
 `;
 
@@ -267,30 +313,34 @@ const PlaylistItem = styled.div<{ $active?: boolean }>`
   border-radius: 2px;
   cursor: pointer;
   font-size: 11px;
-  color: ${p => (p.$active ? '#ffffff' : '#aabbcc')};
+  color: ${p => (p.$active ? PALETTE.white2 : PALETTE.blue300)};
   background: ${p =>
-    p.$active ? 'linear-gradient(to bottom, #4a505c 0%, #363b45 100%)' : 'transparent'};
-  border: 1px solid ${p => (p.$active ? '#5a606c' : 'transparent')};
+    p.$active
+      ? `linear-gradient(to bottom, ${PALETTE.grey7003} 0%, ${PALETTE.blue8004} 100%)`
+      : 'transparent'};
+  border: 1px solid ${p => (p.$active ? PALETTE.grey6002 : 'transparent')};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 
   &:hover {
     background: ${p =>
-      p.$active ? 'linear-gradient(to bottom, #4a505c 0%, #363b45 100%)' : '#333842'};
+      p.$active
+        ? `linear-gradient(to bottom, ${PALETTE.grey7003} 0%, ${PALETTE.blue8004} 100%)`
+        : PALETTE.blue8003};
   }
 `;
 
 const StatusBar = styled.div`
   height: 22px;
-  background: linear-gradient(to bottom, #2a2e35 0%, #1a1d22 100%);
-  border-top: 1px solid #3a3f4a;
+  background: linear-gradient(to bottom, ${PALETTE.grey800} 0%, ${PALETTE.blue9003} 100%);
+  border-top: 1px solid ${PALETTE.blue7002};
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 10px;
   font-size: 11px;
-  color: #8899aa;
+  color: ${PALETTE.blue400};
   flex-shrink: 0;
 `;
 
@@ -468,7 +518,7 @@ const BaofengPlayer: React.FC<BaofengPlayerProps> = () => {
                 height="14"
                 viewBox="0 0 14 14"
                 fill="none"
-                style={{ color: '#aabbcc' }}
+                style={{ color: PALETTE.blue300 }}
               >
                 <path
                   d="M2 6V2h4M8 2h4v4M12 8v4H8M6 12H2V8"

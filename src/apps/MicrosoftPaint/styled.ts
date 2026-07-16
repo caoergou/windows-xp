@@ -128,7 +128,7 @@ export const ToolBtn = styled.button`
   }
 
   &.active {
-    background: #0a2463;
+    background: ${COLORS.WORKSPACE_BLUE};
     color: ${COLORS.WHITE};
   }
 `;

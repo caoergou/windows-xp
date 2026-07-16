@@ -8,9 +8,9 @@
  * `assets/` folder of the same shape; the chrome components read whichever
  * registry the active theme provides.
  *
- * (Sound-file bindings stay in the engine's `soundManager` for now: it lives in
- * `src/utils` and must not import the theme layer under the #135 engine-purity
- * invariant. Moving them behind the theme needs runtime injection — a follow-up.)
+ * Sound bindings moved behind the theme too (#213): `src/themes/xp/sounds.ts`
+ * is registered into the engine's soundManager at the composition root, so the
+ * engine no longer imports any audio. Icons resolve through `icons` below.
  */
 
 // Luna window-control button states.
@@ -33,6 +33,7 @@ import closeButtonActive from './window-controls/close-active.png';
 // gradient. Not the flat modern Windows logo or a hand-drawn approximation.
 import startButtonSprite from './start-button-sprite.png';
 import windowsLogo from './start-flag.png';
+import { XP_ICONS } from '../icons';
 
 /** The three background images a window-control button swaps between. */
 export interface ButtonStateImages {
@@ -61,6 +62,8 @@ export interface StartButtonAssets {
 export interface ThemeAssets {
   windowControls: WindowControlAssets;
   startButton: StartButtonAssets;
+  /** Icon name → URL map consumed by XPIcon and the app registry (#213). */
+  icons: Record<string, string>;
 }
 
 export const XP_ASSETS: ThemeAssets = {
@@ -74,4 +77,5 @@ export const XP_ASSETS: ThemeAssets = {
     sprite: startButtonSprite,
     logo: windowsLogo,
   },
+  icons: XP_ICONS,
 };

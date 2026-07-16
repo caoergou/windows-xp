@@ -7,6 +7,45 @@ import { useFileSystem } from '../context/FileSystemContext';
 import { isContainerNode, type FileNode } from '../types';
 import { sounds } from '../utils/soundManager';
 
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  green700: '#2F6F16',
+  green800: '#335522',
+  green7002: '#3E8A1C',
+  green600: '#4D9A28',
+  green6002: '#557744',
+  green6003: '#5AA02F',
+  green500: '#6BB33F',
+  grey500: '#777777',
+  green400: '#8FD65E',
+  grey400: '#999999',
+  green300: '#B0C8A5',
+  orange600: '#B34700',
+  green3002: '#B8D4AA',
+  green200: '#B8D6AA',
+  green2002: '#C8D8BF',
+  orange6002: '#CC5200',
+  green2003: '#D0E4C5',
+  green100: '#D5E8CC',
+  green1002: '#D6F0C8',
+  green1003: '#DFEBD8',
+  green1004: '#E2EEDB',
+  orange500: '#E65C00',
+  green1005: '#E8F0E3',
+  green1006: '#EEF5EA',
+  orange5002: '#F06A11',
+  green1007: '#F3FAF0',
+  green1008: '#F7FBF5',
+  orange5003: '#FF6600',
+  orange400: '#FF7722',
+  orange4002: '#FF8833',
+  orange300: '#FF9A55',
+  white: '#FFFFFF',
+};
+/* brand-palette:end */
+
 /** Collect up to `limit` real file/app names from the tree — used as fake
  * "trojans" so the 360 scan feels like it found something real (#85). */
 const collectFileNames = (node: FileNode, limit: number, acc: string[] = []): string[] => {
@@ -41,12 +80,17 @@ const progressStripes = keyframes`
 `;
 
 const Wrap = styled(CultureAppShell)`
-  background: #f7fbf5;
+  background: ${PALETTE.green1008};
   position: relative;
 `;
 
 const Header = styled.div`
-  background: linear-gradient(to bottom, #6bb33f 0%, #4d9a28 50%, #3e8a1c 100%);
+  background: linear-gradient(
+    to bottom,
+    ${PALETTE.green500} 0%,
+    ${PALETTE.green600} 50%,
+    ${PALETTE.green7002} 100%
+  );
   padding: 14px 16px;
   display: flex;
   align-items: center;
@@ -65,8 +109,8 @@ const Logo = styled.div`
   justify-content: center;
   font-size: 28px;
   font-weight: bold;
-  color: #4d9a28;
-  border: 3px solid #ff6600;
+  color: ${PALETTE.green600};
+  border: 3px solid ${PALETTE.orange5003};
   box-shadow:
     inset 0 0 8px rgba(0, 0, 0, 0.1),
     0 2px 4px rgba(0, 0, 0, 0.2);
@@ -85,7 +129,7 @@ const HeaderText = styled.div`
 
   .version {
     font-size: 11px;
-    color: #d6f0c8;
+    color: ${PALETTE.green1002};
   }
 `;
 
@@ -93,26 +137,26 @@ const Toolbar = styled.div`
   display: flex;
   gap: 4px;
   padding: 6px 10px;
-  background: linear-gradient(to bottom, #ffffff 0%, #eef5ea 100%);
-  border-bottom: 1px solid #c8d8bf;
+  background: linear-gradient(to bottom, ${PALETTE.white} 0%, ${PALETTE.green1006} 100%);
+  border-bottom: 1px solid ${PALETTE.green2002};
 `;
 
 const ToolbarBtn = styled.button`
   padding: 3px 10px;
-  border: 1px solid #b0c8a5;
-  background: linear-gradient(to bottom, #ffffff 0%, #e2eedb 100%);
+  border: 1px solid ${PALETTE.green300};
+  background: linear-gradient(to bottom, ${PALETTE.white} 0%, ${PALETTE.green1004} 100%);
   border-radius: 3px;
   font-size: 12px;
   font-family: inherit;
-  color: #335522;
+  color: ${PALETTE.green800};
   cursor: pointer;
 
   &:hover {
-    background: linear-gradient(to bottom, #f3faf0 0%, #d5e8cc 100%);
+    background: linear-gradient(to bottom, ${PALETTE.green1007} 0%, ${PALETTE.green100} 100%);
   }
 
   &:active {
-    background: linear-gradient(to bottom, #d0e4c5 0%, #b8d6aa 100%);
+    background: linear-gradient(to bottom, ${PALETTE.green2003} 0%, ${PALETTE.green200} 100%);
   }
 `;
 
@@ -122,7 +166,7 @@ const Body = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: #f7fbf5;
+  background: ${PALETTE.green1008};
   overflow-y: auto;
   min-height: 0;
 `;
@@ -138,7 +182,12 @@ const ShieldBox = styled.div<{ $scanning: boolean }>`
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #8fd65e 0%, #4d9a28 60%, #2f6f16 100%);
+  background: radial-gradient(
+    circle at 35% 35%,
+    ${PALETTE.green400} 0%,
+    ${PALETTE.green600} 60%,
+    ${PALETTE.green700} 100%
+  );
   border: 4px solid white;
   box-shadow:
     0 4px 10px rgba(0, 0, 0, 0.2),
@@ -182,7 +231,7 @@ const StatusRow = styled.div`
   gap: 8px;
   padding: 8px 10px;
   background: white;
-  border: 1px solid #d0e4c5;
+  border: 1px solid ${PALETTE.green2003};
   border-radius: 4px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
@@ -190,24 +239,24 @@ const StatusRow = styled.div`
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #4d9a28;
-    box-shadow: 0 0 4px #4d9a28;
+    background: ${PALETTE.green600};
+    box-shadow: 0 0 4px ${PALETTE.green600};
   }
 
   .text {
     flex: 1;
-    color: #335522;
+    color: ${PALETTE.green800};
   }
 
   .value {
-    color: #4d9a28;
+    color: ${PALETTE.green600};
     font-weight: bold;
   }
 `;
 
 const ProgressWrap = styled.div`
   background: white;
-  border: 1px solid #d0e4c5;
+  border: 1px solid ${PALETTE.green2003};
   border-radius: 4px;
   padding: 10px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -217,13 +266,13 @@ const ProgressLabel = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: 6px;
-  color: #335522;
+  color: ${PALETTE.green800};
 `;
 
 const ProgressTrack = styled.div`
   height: 16px;
-  background: #e8f0e3;
-  border: 1px solid #b8d4aa;
+  background: ${PALETTE.green1005};
+  border: 1px solid ${PALETTE.green3002};
   border-radius: 8px;
   overflow: hidden;
 `;
@@ -231,7 +280,13 @@ const ProgressTrack = styled.div`
 const ProgressFill = styled.div<{ $value: number; $animated?: boolean }>`
   width: ${p => p.$value}%;
   height: 100%;
-  background: repeating-linear-gradient(45deg, #6bb33f, #6bb33f 10px, #5aa02f 10px, #5aa02f 20px);
+  background: repeating-linear-gradient(
+    45deg,
+    ${PALETTE.green500},
+    ${PALETTE.green500} 10px,
+    ${PALETTE.green6003} 10px,
+    ${PALETTE.green6003} 20px
+  );
   border-radius: 8px 0 0 8px;
   transition: width 0.2s linear;
 
@@ -251,7 +306,7 @@ const ActionArea = styled.div`
 const ScanButton = styled.button<{ $scanning: boolean }>`
   width: 180px;
   height: 40px;
-  border: 1px solid #cc5200;
+  border: 1px solid ${PALETTE.orange6002};
   border-radius: 4px;
   font-size: 15px;
   font-weight: bold;
@@ -260,17 +315,27 @@ const ScanButton = styled.button<{ $scanning: boolean }>`
   cursor: pointer;
   background: ${p =>
     p.$scanning
-      ? 'linear-gradient(to bottom, #999 0%, #777 100%)'
-      : 'linear-gradient(to bottom, #ff8833 0%, #ff6600 50%, #e65c00 100%)'};
+      ? `linear-gradient(to bottom, ${PALETTE.grey400} 0%, ${PALETTE.grey500} 100%)`
+      : `linear-gradient(to bottom, ${PALETTE.orange4002} 0%, ${PALETTE.orange5003} 50%, ${PALETTE.orange500} 100%)`};
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 
   &:hover:not(:disabled) {
-    background: linear-gradient(to bottom, #ff9a55 0%, #ff7722 50%, #f06a11 100%);
+    background: linear-gradient(
+      to bottom,
+      ${PALETTE.orange300} 0%,
+      ${PALETTE.orange400} 50%,
+      ${PALETTE.orange5002} 100%
+    );
   }
 
   &:active:not(:disabled) {
-    background: linear-gradient(to bottom, #e65c00 0%, #cc5200 50%, #b34700 100%);
+    background: linear-gradient(
+      to bottom,
+      ${PALETTE.orange500} 0%,
+      ${PALETTE.orange6002} 50%,
+      ${PALETTE.orange600} 100%
+    );
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
   }
 
@@ -281,14 +346,14 @@ const ScanButton = styled.button<{ $scanning: boolean }>`
 `;
 
 const Footer = styled.div`
-  background: linear-gradient(to bottom, #eef5ea 0%, #dfebd8 100%);
-  border-top: 1px solid #c8d8bf;
+  background: linear-gradient(to bottom, ${PALETTE.green1006} 0%, ${PALETTE.green1003} 100%);
+  border-top: 1px solid ${PALETTE.green2002};
   padding: 6px 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 11px;
-  color: #557744;
+  color: ${PALETTE.green6002};
 `;
 
 const ScanOverlay = styled.div`
@@ -304,14 +369,14 @@ const ScanOverlay = styled.div`
   justify-content: center;
   gap: 14px;
   z-index: 10;
-  color: #335522;
+  color: ${PALETTE.green800};
 
   .spinner {
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    border: 4px solid #d0e4c5;
-    border-top-color: #ff6600;
+    border: 4px solid ${PALETTE.green2003};
+    border-top-color: ${PALETTE.orange5003};
     animation: ${rotate} 0.8s linear infinite;
   }
 
@@ -323,14 +388,14 @@ const ScanOverlay = styled.div`
 
 const ResultPanel = styled.div`
   background: white;
-  border: 1px solid #d0e4c5;
+  border: 1px solid ${PALETTE.green2003};
   border-radius: 4px;
   padding: 10px 14px;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  color: #335522;
+  color: ${PALETTE.green800};
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
   .icon {
@@ -340,7 +405,7 @@ const ResultPanel = styled.div`
   .text {
     font-size: 13px;
     font-weight: bold;
-    color: #4d9a28;
+    color: ${PALETTE.green600};
   }
 `;
 
@@ -358,7 +423,7 @@ const ThreatList = styled.ul`
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    color: #b34700;
+    color: ${PALETTE.orange600};
   }
 `;
 
@@ -367,14 +432,24 @@ const CleanButton = styled.button`
   padding: 5px 16px;
   font-size: 12px;
   font-weight: bold;
-  color: #fff;
-  border: 1px solid #b34700;
+  color: ${PALETTE.white};
+  border: 1px solid ${PALETTE.orange600};
   border-radius: 3px;
   cursor: pointer;
-  background: linear-gradient(to bottom, #ff8833 0%, #ff6600 50%, #e65c00 100%);
+  background: linear-gradient(
+    to bottom,
+    ${PALETTE.orange4002} 0%,
+    ${PALETTE.orange5003} 50%,
+    ${PALETTE.orange500} 100%
+  );
 
   &:hover {
-    background: linear-gradient(to bottom, #ff9a55 0%, #ff7722 50%, #f06a11 100%);
+    background: linear-gradient(
+      to bottom,
+      ${PALETTE.orange300} 0%,
+      ${PALETTE.orange400} 50%,
+      ${PALETTE.orange5002} 100%
+    );
   }
 `;
 
@@ -506,7 +581,7 @@ const SafeGuard360: React.FC<SafeGuard360Props> = () => {
             <div className="icon">
               <XPIcon name="alert_warning" size={48} />
             </div>
-            <div style={{ fontSize: 13, fontWeight: 'bold', color: '#b34700' }}>
+            <div style={{ fontSize: 13, fontWeight: 'bold', color: PALETTE.orange600 }}>
               {t('safeGuard360.scan.threatsFound', { count: threats.length })}
             </div>
             <ThreatList>
