@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (AI scenario co-authoring: pattern library + repo skill, #239)
+
+- **Scenario pattern library** — `docs/SCENARIO-PATTERNS.md` grew from the two
+  #241 content recipes into eleven named patterns (hint ladder, act gate,
+  double-key door, idle nudge, looping buddy chatter, password-puzzle trio,
+  timed beat, fictional website, long-document clue, mixed web, AI-buddy trio),
+  each with intent, structure, a copyable recipe, and an anti-pattern.
+- **The library adjudicates itself**: every ```` ```json ```` recipe in the
+  pattern doc is a complete scenario/content pack extracted and run through the
+  real `xp-scenario lint` by `npm run patterns:check` (zero errors *and* zero
+  warnings), wired into `npm run scenario:ci` so documented recipes cannot rot.
+- **Repo skill `.claude/skills/scenario/`** — the guided workflow for AI
+  assistants: the "AI drafts, deterministic tools adjudicate" covenant with a
+  mandatory lint → solve → pack verification loop, the five-outlet content
+  routing house rule (logic / ContentRef assets / string tables / AI-buddy
+  provider branches / era prompt corpora), and procedures for five task shapes
+  (draft a pack from a synopsis, add an act, add a fictional website,
+  review/audit, give a buddy an AI brain).
+- **Recorded drafting session** — `docs/SCENARIO-AUTHORING-WALKTHROUGH.md`
+  walks a three-line synopsis through draft → four real lint findings → fixes →
+  a solve-caught sequencing bug → green `pack`, with the finished
+  `examples/midsummer-pack/` kept adjudicated in CI
+  (`scenario:solve:example` / `scenario:pack:example`).
+
 ### Added (Explorer depth follow-up, #120)
 
 - **Folders tree pane** behind the toolbar Folders toggle — the signature XP
