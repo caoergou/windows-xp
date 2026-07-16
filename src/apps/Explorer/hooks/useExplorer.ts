@@ -518,6 +518,13 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   const selectionContainsProtected = Boolean(
     selectedFolder && selectionKeys().some(key => selectedFolder.children[key]?.protected)
   );
+  const selectionContainsProtectedContainer = Boolean(
+    selectedFolder &&
+    selectionKeys().some(key => {
+      const item = selectedFolder.children[key];
+      return item?.protected && isContainerNode(item);
+    })
+  );
 
   const menuItems: MenuItem[] = isInRecycleBin
     ? recycleBinMenuItems
@@ -553,12 +560,12 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
         {
           label: t('contextMenu.rename'),
           action: handleRename,
-          disabled: selection.size !== 1 || selectionContainsProtected,
+          disabled: selection.size !== 1 || selectionContainsProtectedContainer,
         },
         {
           label: t('contextMenu.delete'),
           action: handleDeleteSelection,
-          disabled: selection.size === 0 || selectionContainsProtected,
+          disabled: selection.size === 0 || selectionContainsProtectedContainer,
         },
         { type: 'separator' },
         {
