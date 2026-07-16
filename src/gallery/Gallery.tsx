@@ -13,6 +13,7 @@ import { XPStatusBar, XPStatusBarField } from '../components/XPStatusBar';
 import { XPTabs } from '../components/XPTabs';
 import { XPDialog } from '../components/XPDialog';
 import { xpTrackbarStyles } from '../theme';
+import { FONTS } from '../constants';
 
 /**
  * Micro-component gallery (#99 / #78). Renders every shared XP primitive on one
@@ -25,7 +26,7 @@ const Page = styled.div`
   min-height: 100vh;
   background: #ece9d8;
   padding: 24px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   color: #000;
 `;

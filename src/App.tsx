@@ -12,7 +12,7 @@ import BsodScreen from './components/BsodScreen';
 import XPIcon from './components/XPIcon';
 import ContextMenu from './components/ContextMenu';
 import windowsIcon from './assets/icons/windows.svg';
-import { TIME, WINDOW_DEFAULTS } from './constants';
+import { TIME, WINDOW_DEFAULTS, FONTS } from './constants';
 import { canUseDOM, STORAGE_ERROR_EVENT, type Storage } from './utils/storage';
 import { useStorage } from './context/StorageContext';
 import { BSOD_EVENT } from './utils/easterEggs';
@@ -66,7 +66,7 @@ const ScreenSaverHint = styled.div`
   bottom: 40px;
   color: #555;
   font-size: 13px;
-  font-family: 'Courier New', monospace;
+  font-family: ${FONTS.MONO};
 `;
 
 const AltTabOverlay = styled.div`
@@ -90,7 +90,7 @@ const AltTabOverlay = styled.div`
 const AltTabTitle = styled.div`
   color: #000;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 const AltTabItems = styled.div`
@@ -114,7 +114,7 @@ const AltTabItem = styled.div<{ $active: boolean }>`
   span {
     color: #000;
     font-size: 11px;
-    font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+    font-family: ${FONTS.UI};
     text-align: center;
     max-width: 90px;
     overflow: hidden;

@@ -1,13 +1,13 @@
 import styled, { keyframes } from 'styled-components';
 import { xpScrollbarStyles, xpButtonStyles, xpTitleBarStyles } from '../../theme';
-import { COLORS } from '../../constants';
+import { COLORS, FONTS } from '../../constants';
 
 export const Container = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 export const MainArea = styled.div`
@@ -174,7 +174,7 @@ export const FooterStatus = styled.div`
   align-items: center;
   padding: 0 4px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   gap: 4px;
   overflow: hidden;
   border-right: 1px solid rgba(0, 0, 0, 0.12);
@@ -222,7 +222,7 @@ export const FooterRight = styled.div`
   padding-left: 5px;
   position: relative;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   gap: 4px;
   flex-shrink: 0;
 
@@ -274,7 +274,7 @@ export const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 export const ModalTitle = styled.span`
@@ -290,7 +290,7 @@ export const ModalInput = styled.input`
   padding: 3px 4px;
   border: 1px solid #7f9db9;
   font-size: 12px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   box-sizing: border-box;
 `;
 

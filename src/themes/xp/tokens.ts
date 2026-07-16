@@ -76,3 +76,31 @@ export const COLORS = {
 
 /** The shape of the XP token set — the contract a theme's `tokens` must satisfy. */
 export type ThemeTokens = typeof COLORS;
+
+/**
+ * Windows XP font stacks (STY-02/STY-03) — the single outlet for every
+ * font-family the XP chrome uses. Values are the exact stacks the components
+ * already rendered with (zero visual diff); FIDELITY §K.1 `font.ui` /
+ * `font.titlebar` are the authority. Culture-app content fonts (QQ's SimSun
+ * classic UI, era-web Georgia, StickyNote's Comic Sans …) are app identity,
+ * not OS chrome, and deliberately stay local to those apps.
+ */
+export const FONTS = {
+  /** Standard UI stack: Tahoma for Latin, 宋体 first for CJK (YaHei is Vista+). */
+  UI: "'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif",
+  /** Title-bar stack: Trebuchet MS bold (xp.css / #35), same CJK fallbacks. */
+  TITLEBAR: "'Trebuchet MS', 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif",
+  /** Pre-Luna dialog stack kept by era apps rendered "as installed software". */
+  CLASSIC: "'Tahoma', 'MS Sans Serif', sans-serif",
+  /** Generic monospace surfaces (about screens, media timers, code). */
+  MONO: "'Courier New', monospace",
+  /** Notepad's classic editor font. */
+  EDITOR: "'Lucida Console', monospace",
+  /** Command Prompt / BSOD raster-console stack. */
+  CONSOLE: "'Perfect DOS VGA 437 Win', 'Lucida Console', 'Courier New', monospace",
+  /** XP boot screen ("Franklin Gothic Medium" progress text). */
+  BOOT: "'Franklin Gothic Medium', 'Trebuchet MS', 'Tahoma', sans-serif",
+};
+
+/** The shape of the XP font set — the contract a theme's `fonts` must satisfy. */
+export type ThemeFonts = typeof FONTS;

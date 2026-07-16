@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import XPIcon from '../XPIcon';
 import { useTranslation } from 'react-i18next';
+import { FONTS } from '../../constants';
 
 const Container = styled.div`
   display: flex;
@@ -47,7 +48,7 @@ const DropdownMenu = styled.div`
   padding: 2px 0;
   z-index: 9999;
   font-size: 12px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 const DropdownItem = styled.div<{ $disabled?: boolean }>`
@@ -126,7 +127,7 @@ const ToolbarButton = styled.button`
   height: 100%;
   padding: 0 6px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   background: transparent;
   border: 1px solid rgba(0, 0, 0, 0);
   border-radius: 3px;

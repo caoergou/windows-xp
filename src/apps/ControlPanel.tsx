@@ -22,10 +22,11 @@ import { canUseDOM } from '../utils/storage';
 import { useStorage } from '../context/StorageContext';
 import { getSavedLanguage, saveLanguage, SupportedLanguage } from '../utils/language';
 import { sounds } from '../utils/soundManager';
+import { FONTS } from '../constants';
 
 const Container = styled.div`
   padding: 16px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 12px;
   height: 100%;
   background: #ece9d8;
@@ -96,7 +97,7 @@ const BackButton = styled.button`
   border: 1px solid #003c74;
   background: linear-gradient(180deg, #ffffff 0%, #ecebe5 86%, #d8d0c4 100%);
   cursor: pointer;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 
   &:hover {
     box-shadow:

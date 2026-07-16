@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { FONTS } from '../../constants';
 
 // Desktop styled-components (#163/A — split out of Desktop.tsx).
 
@@ -86,7 +87,7 @@ export const DesktopIcon = styled.div<{ $selected?: boolean }>`
 
   .icon-label {
     font-size: 11px;
-    font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+    font-family: ${FONTS.UI};
     text-align: center;
     max-width: 100%;
     display: block;

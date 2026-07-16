@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import XPIcon from '../components/XPIcon';
 import { useTranslation } from 'react-i18next';
 import { useLesson } from '../context/LessonContext';
-import { COLORS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 const Container = styled.div`
   width: 100%;
@@ -11,7 +11,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   background: #f0f0f0;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 const Header = styled.div`

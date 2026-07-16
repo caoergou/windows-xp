@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { XPSelect } from './XPSelect';
 import { useUserSession } from '../context/UserSessionContext';
+import { FONTS } from '../constants';
 
 const Container = styled.div`
   width: 360px;
   background: #ece9d8;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   color: #000;
   display: flex;

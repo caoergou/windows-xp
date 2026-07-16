@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import XPIcon from '../XPIcon';
 import type { ExplorerViewMode } from '../../apps/Explorer/types';
 import { EXPLORER_VIEW_MODES } from '../../apps/Explorer/types';
+import { FONTS } from '../../constants';
 
 /* --- Menu bar --- */
 const MenuBar = styled.div`
@@ -22,7 +23,7 @@ const MenuBarItemWrapper = styled.div`
 const MenuBarItem = styled.button<{ $active?: boolean }>`
   padding: 1px 6px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   cursor: default;
   border: 1px solid transparent;
   background: ${p => (p.$active ? '#316AC5' : 'transparent')};
@@ -56,7 +57,7 @@ const DropdownItem = styled.button<{ $disabled?: boolean }>`
   border: 1px solid transparent;
   background: transparent;
   color: ${p => (p.$disabled ? '#808080' : '#000')};
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   text-align: left;
   white-space: nowrap;
@@ -94,7 +95,7 @@ const NavBtn = styled.button<{ $disabled?: boolean }>`
   height: 100%;
   padding: 0 4px 0 2px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   background: transparent;
   border: 1px solid rgba(0, 0, 0, 0);
   border-radius: 3px;
@@ -119,7 +120,7 @@ const NavBtn = styled.button<{ $disabled?: boolean }>`
 
 const NavLabel = styled.span`
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   white-space: nowrap;
 `;
 
@@ -141,7 +142,7 @@ const ToolBtn = styled.button<{ $disabled?: boolean; $active?: boolean }>`
   height: 100%;
   padding: 0 6px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   /* Pressed/toggled look (e.g. Folders pane active) — sunken XP toolbar button. */
   background: ${p => (p.$active ? '#dedede' : 'transparent')};
   border: 1px solid ${p => (p.$active ? 'rgb(185, 185, 185)' : 'rgba(0, 0, 0, 0)')};

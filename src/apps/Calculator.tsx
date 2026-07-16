@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
+import { FONTS } from '../constants';
 
 // Windows XP calc.exe standard view — 6-column layout (see calc.exe / Wikipedia reference)
 
@@ -18,7 +19,7 @@ const Wrap = styled.div`
   flex-direction: column;
   padding: 4px;
   box-sizing: border-box;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   user-select: none;
   overflow: hidden;
@@ -75,7 +76,7 @@ const Key = styled.button<{
   margin: 0;
   cursor: ${p => (p.$disabled ? 'default' : 'pointer')};
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   line-height: 1;
   outline: none;
   grid-column: ${p => (p.$span ? `span ${p.$span}` : 'auto')};

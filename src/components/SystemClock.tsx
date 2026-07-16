@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import { FONTS } from '../constants';
 
 const ClockContainer = styled.div`
   position: relative;
@@ -26,7 +27,7 @@ const CalendarPopup = styled.div`
   border: 1px solid #003c74;
   box-shadow: 2px 2px 0 #808080;
   padding: 6px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   color: #000;
   z-index: 30000;

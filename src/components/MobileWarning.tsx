@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { XPButton } from './XPButton';
 import { useStorage } from '../context/StorageContext';
-import { COLORS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 /**
  * Touch onboarding hint (#125).
@@ -34,7 +34,7 @@ const HintBar = styled.div`
   border: 1px solid ${COLORS.BUTTON_SHADOW};
   border-radius: 6px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   animation: touchHintIn 0.28s ease-out;
 
   @keyframes touchHintIn {

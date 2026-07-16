@@ -6,6 +6,7 @@ import { useXPEventBus } from '../context/EventBusContext';
 // Bundled no-copyright chime (synthesized tone) so the player works out of the
 // box — the old '/audio/sample.mp3' path never existed and ignored the base URL (#85).
 import sampleAudio from '../assets/audio/sample.wav';
+import { FONTS } from '../constants';
 
 const Wrap = styled.div`
   width: 100%;
@@ -15,7 +16,7 @@ const Wrap = styled.div`
   flex-direction: column;
   padding: 6px;
   box-sizing: border-box;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 12px;
   user-select: none;
   color: #ffffff;
@@ -71,7 +72,7 @@ const PlaybackBar = styled.div`
 `;
 
 const TimeDisplay = styled.div`
-  font-family: 'Courier New', monospace;
+  font-family: ${FONTS.MONO};
   font-size: 11px;
 `;
 

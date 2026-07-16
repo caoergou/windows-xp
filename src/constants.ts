@@ -47,5 +47,5 @@ export const TIME = {
 // Color constants (Windows XP theme). The values now live in the theme layer
 // (`src/themes/xp/tokens.ts`, #135) so the engine never owns XP colours; this
 // re-export keeps every `import { COLORS } from '.../constants'` call site working.
-export { COLORS } from './themes/xp/tokens';
-export type { ThemeTokens } from './themes/xp/tokens';
+export { COLORS, FONTS } from './themes/xp/tokens';
+export type { ThemeTokens, ThemeFonts } from './themes/xp/tokens';

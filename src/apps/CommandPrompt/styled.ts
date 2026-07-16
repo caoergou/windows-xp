@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { FONTS } from '../../constants';
 
 // CommandPrompt styled-components (#163/A — split out of the single-file app).
 
@@ -7,7 +8,7 @@ import styled from 'styled-components';
 // (near the top when little has printed) exactly like real cmd.exe — not pinned
 // to the window's bottom edge.
 export const Container = styled.div<{ $color?: string }>`
-  font-family: 'Perfect DOS VGA 437 Win', 'Lucida Console', 'Courier New', monospace;
+  font-family: ${FONTS.CONSOLE};
   font-size: 12px;
   line-height: 1.2;
   background: #000000;

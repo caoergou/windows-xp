@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import XPIcon from '../components/XPIcon';
+import { FONTS } from '../constants';
 
 /**
  * uTorrent — a 2000s-style download manager shell for the `en` culture package
@@ -13,7 +14,7 @@ const Wrap = styled.div`
   display: flex;
   flex-direction: column;
   background: #eef1ec;
-  font-family: 'Tahoma', 'MS Sans Serif', sans-serif;
+  font-family: ${FONTS.CLASSIC};
   font-size: 12px;
   color: #2a2a2a;
   user-select: none;

@@ -3,12 +3,10 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
 import { XPButton } from '../components/XPButton';
-import { COLORS } from '../constants';
-
-const UI_FONT = "'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif";
+import { COLORS, FONTS } from '../constants';
 
 const Container = styled.div`
-  font-family: ${UI_FONT};
+  font-family: ${FONTS.UI};
   font-size: 11px;
   height: 100%;
   display: flex;

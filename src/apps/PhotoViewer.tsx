@@ -4,6 +4,7 @@ import { useApp } from '../hooks/useApp';
 import { APP_REGISTRY } from '../registry/apps';
 import { useTranslation } from 'react-i18next';
 import { FileNode } from '../types';
+import { FONTS } from '../constants';
 
 const Container = styled.div`
   display: flex;
@@ -58,7 +59,7 @@ const ToolbarButton = styled.button`
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 
   &:hover {
     border: 1px solid #a0b2c8;

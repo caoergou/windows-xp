@@ -28,6 +28,7 @@ import {
   RANK_LABELS,
   SUIT_SYMBOLS,
 } from './solitaireLogic';
+import { FONTS } from '../constants';
 
 const CARD_WIDTH = 71;
 const CARD_HEIGHT = 96;
@@ -41,7 +42,7 @@ const Wrap = styled.div`
   flex-direction: column;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 12px;
   user-select: none;
   color: #ffffff;
@@ -109,7 +110,7 @@ const cardBase = css`
   position: absolute;
   top: 0;
   left: 0;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 const FaceUpCard = styled.div<{ $suit?: string }>`

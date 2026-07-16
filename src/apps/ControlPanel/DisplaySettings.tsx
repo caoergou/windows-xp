@@ -3,12 +3,13 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useUserSession } from '../../context/UserSessionContext';
 import { XPSelect } from '../../components/XPSelect';
+import { FONTS } from '../../constants';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   color: #000;
 `;
@@ -70,7 +71,7 @@ const Button = styled.button`
   border: 1px solid #003c74;
   background: linear-gradient(180deg, #ffffff 0%, #ecebe5 86%, #d8d0c4 100%);
   cursor: pointer;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 
   &:hover {
     box-shadow:

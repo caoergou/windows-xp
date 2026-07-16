@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import XPIcon from '../components/XPIcon';
+import { FONTS } from '../constants';
 
 /**
  * Norton AntiVirus — a 2000s-style security shell for the `en` culture package
@@ -14,7 +15,7 @@ const Wrap = styled.div`
   display: flex;
   flex-direction: column;
   background: #f6f3e8;
-  font-family: 'Tahoma', 'MS Sans Serif', sans-serif;
+  font-family: ${FONTS.CLASSIC};
   font-size: 12px;
   color: #333;
   user-select: none;

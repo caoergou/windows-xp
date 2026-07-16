@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { FONTS } from '../constants';
 
 /**
  * Canonical Luna text input (#99 / #78), matching xp.css's
@@ -22,7 +23,7 @@ export const XPTextInput = styled.input`
   border: 1px solid #7f9db9;
   border-radius: 0;
   background: #fff;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 12px;
   color: #000;
 

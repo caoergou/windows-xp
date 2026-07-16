@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { COLORS } from '../../constants';
+import { COLORS, FONTS } from '../../constants';
 import { parseFrontmatter } from '../../content/blog';
 import type { ContentRef } from '../../content/types';
 import { useResolvedContent } from '../../hooks/useResolvedContent';
@@ -26,7 +26,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   background: ${COLORS.SURFACE};
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 // A thin "reading" info strip, à la the Word/HTML viewers of the era.
@@ -92,7 +92,7 @@ const Page = styled.div`
     margin: 0.15em 0;
   }
   code {
-    font-family: 'Courier New', monospace;
+    font-family: ${FONTS.MONO};
     font-size: 0.95em;
     background: ${COLORS.BUTTON_FACE};
     padding: 0 3px;

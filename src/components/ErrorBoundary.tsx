@@ -2,6 +2,7 @@ import React, { Component, ReactNode } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
+import { FONTS } from '../constants';
 
 const ErrorContainer = styled.div`
   width: 100%;
@@ -12,7 +13,7 @@ const ErrorContainer = styled.div`
   justify-content: center;
   background: #f0f0f0;
   padding: 20px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 const ErrorIcon = styled.div`

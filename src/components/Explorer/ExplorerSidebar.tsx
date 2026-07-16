@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../XPIcon';
 import { SYSTEM_PATHS, getSystemPathTitle } from '../../data/systemPaths';
+import { FONTS } from '../../constants';
 
 const SidebarContainer = styled.div`
   width: 180px;
@@ -47,7 +48,7 @@ const PanelTitle = styled.div`
   color: #0c327d;
   flex: 1;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 const CollapseBtn = styled.img`
@@ -76,7 +77,7 @@ const LinkItem = styled.div<{ $active?: boolean }>`
   font-size: 10px;
   line-height: 14px;
   color: #0c327d;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 
   &:hover {
     cursor: pointer;
@@ -96,7 +97,7 @@ const LinkItem = styled.div<{ $active?: boolean }>`
 const DetailText = styled.div`
   padding: 3px 10px 2px 12px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   color: #333;
   line-height: 1.5;
 `;

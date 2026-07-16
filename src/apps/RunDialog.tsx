@@ -9,13 +9,14 @@ import { triggerBsod } from '../utils/easterEggs';
 import { XPTextInput } from '../components/XPTextInput';
 import { XPButton } from '../components/XPButton';
 import XPIcon from '../components/XPIcon';
+import { FONTS } from '../constants';
 
 const Container = styled.div`
   padding: 11px 9px 9px;
   display: flex;
   flex-direction: column;
   gap: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
 `;
 

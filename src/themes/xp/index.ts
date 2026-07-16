@@ -1,5 +1,5 @@
 import type { OSTheme } from '../contract';
-import { COLORS } from './tokens';
+import { COLORS, FONTS } from './tokens';
 import { XP_ASSETS } from './assets';
 import { xpButtonStyles, xpScrollbarStyles, xpTitleBarStyles, xpTrackbarStyles } from './styles';
 
@@ -13,6 +13,7 @@ export const xpTheme: OSTheme = {
   id: 'xp',
   name: 'Windows XP (Luna)',
   tokens: COLORS,
+  fonts: FONTS,
   assets: XP_ASSETS,
   styles: {
     button: xpButtonStyles,
@@ -22,6 +23,6 @@ export const xpTheme: OSTheme = {
   },
 };
 
-export { COLORS } from './tokens';
+export { COLORS, FONTS } from './tokens';
 export { XP_ASSETS } from './assets';
 export { xpButtonStyles, xpScrollbarStyles, xpTitleBarStyles, xpTrackbarStyles } from './styles';

@@ -5,6 +5,7 @@ import XPIcon from '../XPIcon';
 import { FileNode, isContainerNode } from '../../types';
 import { getFileDisplayName } from '../../utils/fileDisplayName';
 import { getFileIconName } from '../../utils/fileIcon';
+import { FONTS } from '../../constants';
 
 /**
  * Explorer "Folders" tree pane (#120, EXP) — the signature XP left-hand tree.
@@ -23,7 +24,7 @@ const TreeContainer = styled.div`
   flex-direction: column;
   overflow: hidden;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   user-select: none;
 `;
 

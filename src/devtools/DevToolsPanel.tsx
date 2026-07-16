@@ -17,7 +17,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { COLORS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 import { useStorage } from '../context/StorageContext';
 import type { Scenario } from '../scenario/types';
 import type { ConditionTrace } from '../scenario/trace';
@@ -163,7 +163,7 @@ const skipLabel: Record<SkipReason, string> = {
 };
 
 const TraceLine = styled.div<{ $held: boolean }>`
-  font-family: 'Courier New', monospace;
+  font-family: ${FONTS.MONO};
   color: ${p => (p.$held ? 'green' : 'crimson')};
   white-space: pre;
 `;

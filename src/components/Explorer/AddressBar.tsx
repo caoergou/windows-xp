@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import XPIcon from '../XPIcon';
 import { useTranslation } from 'react-i18next';
+import { FONTS } from '../../constants';
 
 const Bar = styled.div`
   flex-shrink: 0;
@@ -20,7 +21,7 @@ const Label = styled.span`
   color: rgba(0, 0, 0, 0.5);
   padding: 5px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   white-space: nowrap;
   flex-shrink: 0;
 `;
@@ -44,7 +45,7 @@ const Input = styled.input`
   height: 100%;
   padding: 0 2px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   background: white;
   border: none;
   outline: none;
@@ -110,7 +111,7 @@ const HistoryItem = styled.li`
   height: 18px;
   padding: 0 6px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   white-space: nowrap;
   cursor: pointer;
   color: #000;
@@ -126,7 +127,7 @@ const HistoryEmpty = styled.li`
   padding: 3px 8px;
   font-size: 11px;
   color: #888;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 const GoButton = styled.button`
@@ -142,7 +143,7 @@ const GoButton = styled.button`
   box-shadow: none !important;
   cursor: pointer;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   gap: 2px;
   line-height: 1;
 

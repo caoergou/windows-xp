@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { FONTS } from '../constants';
 
 /**
  * Canonical XP combobox (#99 micro-component consistency).
@@ -16,7 +17,7 @@ const ARROW =
 export const XPSelect = styled.select`
   box-sizing: border-box;
   height: 21px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   color: #000;
   border: 1px solid #7f9db9;
@@ -42,7 +43,7 @@ export const XPSelect = styled.select`
   }
 
   option {
-    font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+    font-family: ${FONTS.UI};
     font-size: 11px;
     color: #000;
     background-color: #fff;

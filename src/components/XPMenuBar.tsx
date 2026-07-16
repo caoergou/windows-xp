@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { FONTS } from '../constants';
 
 /**
  * Shared Windows XP menu-bar primitives (#99 / #78).
@@ -20,7 +21,7 @@ export const XPMenuBar = styled.div`
   height: 20px;
   padding: 0 2px;
   background: #ece9d8;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   color: #000;
   flex-shrink: 0;
@@ -59,7 +60,7 @@ export const XPMenuDropdown = styled.div`
   background: #fff;
   border: 1px solid #808080;
   box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.35);
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
 `;
 

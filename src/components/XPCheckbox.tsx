@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { FONTS } from '../constants';
 
 /**
  * Canonical XP checkbox / radio (#99 micro-component consistency).
@@ -34,7 +35,7 @@ const Root = styled.label<{ $disabled?: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   line-height: 13px;
   color: ${({ $disabled }) => ($disabled ? '#808080' : 'inherit')};

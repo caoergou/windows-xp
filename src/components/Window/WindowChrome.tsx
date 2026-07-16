@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { WindowState } from '../../types';
-import { WINDOW_DEFAULTS } from '../../constants';
+import { WINDOW_DEFAULTS, FONTS } from '../../constants';
 import XPIcon from '../XPIcon';
 
 export const WindowContainer = styled.div<{
@@ -55,7 +55,7 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
   position: relative;
   font-weight: 700;
   font-size: 13px;
-  font-family: 'Trebuchet MS', 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.TITLEBAR};
   text-shadow: 1px 1px #000;
   color: white;
   flex-shrink: 0;
@@ -93,7 +93,7 @@ const TitleText = styled.div`
   color: white;
   font-weight: bold;
   font-size: 13px;
-  font-family: 'Trebuchet MS', 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.TITLEBAR};
   text-shadow: 1px 1px 1px black;
   display: flex;
   align-items: center;

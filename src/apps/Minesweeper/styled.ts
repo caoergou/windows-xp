@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { CELL_SIZE } from './constants';
+import { FONTS } from '../../constants';
 
 // Minesweeper styled-components (#163/A).
 
@@ -9,7 +10,7 @@ export const Wrap = styled.div`
   align-self: flex-start;
   background: #ece9d8;
   color: #000;
-  font-family: Tahoma, 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   line-height: 1;
   user-select: none;

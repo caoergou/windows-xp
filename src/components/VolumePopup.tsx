@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getVolume, setVolume, getMuted, setMuted } from '../utils/soundManager';
 import { XPCheckbox } from './XPCheckbox';
 import { xpTrackbarStyles } from '../theme';
-import { COLORS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 // Real XP's single-click tray popup: a narrow panel with a vertical volume
 // slider and a Mute checkbox at the bottom.
@@ -22,7 +22,7 @@ const Popup = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   color: ${COLORS.BLACK};
 `;

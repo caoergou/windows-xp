@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { FONTS } from '../constants';
 
 /**
  * Microsoft Office — a 2000s-style suite launcher for the `en` culture package
@@ -12,7 +13,7 @@ const Wrap = styled.div`
   display: flex;
   flex-direction: column;
   background: #eef2f8;
-  font-family: 'Tahoma', 'MS Sans Serif', sans-serif;
+  font-family: ${FONTS.CLASSIC};
   font-size: 12px;
   color: #24324a;
   user-select: none;

@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import XPIcon from '../XPIcon';
 import { useTranslation } from 'react-i18next';
+import { FONTS } from '../../constants';
 
 const Bar = styled.div`
   border-top: 1px solid rgba(255, 255, 255, 0.7);
@@ -19,7 +20,7 @@ const Label = styled.span`
   color: rgba(0, 0, 0, 0.5);
   padding: 5px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   white-space: nowrap;
 `;
 
@@ -42,7 +43,7 @@ const Input = styled.input`
   height: 100%;
   padding: 0 2px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   background: white;
   border: none;
   outline: none;
@@ -97,7 +98,7 @@ const GoButton = styled.button`
   box-shadow: none !important;
   cursor: pointer;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   gap: 2px;
   line-height: 1;
 

@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { FONTS } from '../../constants';
 
 // MicrosoftPaint styled-components (#163/A).
 
@@ -10,7 +11,7 @@ export const Wrap = styled.div`
   flex-direction: column;
   padding: 6px;
   box-sizing: border-box;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 12px;
   user-select: none;
 
@@ -29,7 +30,7 @@ export const MenuBar = styled.div`
   align-items: center;
   padding: 0 2px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   flex-shrink: 0;
   margin: -6px -6px 6px -6px;
 `;
@@ -61,7 +62,7 @@ export const DropdownMenu = styled.div`
   padding: 2px 0;
   z-index: 9999;
   font-size: 12px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 export const DropdownItem = styled.div<{ $disabled?: boolean }>`

@@ -7,6 +7,7 @@ import { sounds } from '../utils/soundManager';
 import { canUseDOM } from '../utils/storage';
 import { useStorage } from '../context/StorageContext';
 import type { LoginBranding } from '../branding';
+import { FONTS } from '../constants';
 
 interface LoginScreenProps {
   branding?: LoginBranding;
@@ -177,7 +178,7 @@ const ShutdownButton = styled.button`
   border-radius: 0;
   color: white;
   font-size: 12px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   padding: 4px 10px;
   cursor: pointer;
 

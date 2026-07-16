@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { FONTS } from '../../constants';
 
 // Notepad styled-components (#163/A).
 
@@ -17,7 +18,7 @@ export const MenuBar = styled.div`
   align-items: center;
   padding: 0 2px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   flex-shrink: 0;
 `;
 
@@ -48,7 +49,7 @@ export const DropdownMenu = styled.div`
   padding: 2px 0;
   z-index: 9999;
   font-size: 12px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 export const DropdownItem = styled.div<{ $disabled?: boolean; $checked?: boolean }>`
@@ -102,7 +103,7 @@ export const TextArea = styled.textarea<{ $wordWrap: boolean }>`
   height: 100%;
   border: none;
   resize: none;
-  font-family: 'Lucida Console', monospace;
+  font-family: ${FONTS.EDITOR};
   font-size: 14px;
   padding: 5px;
   outline: none;
@@ -122,7 +123,7 @@ export const StatusBar = styled.div`
   justify-content: flex-end;
   padding: 0 8px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   flex-shrink: 0;
 `;
 
@@ -167,7 +168,7 @@ export const DialogInput = styled.input`
   flex: 1;
   border: 1px solid #7f9db9;
   padding: 3px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 12px;
 `;
 
@@ -184,7 +185,7 @@ export const DialogButton = styled.button`
   background: #ece9d8;
   border: 1px solid #003c74;
   border-radius: 2px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 12px;
   cursor: pointer;
   box-shadow:

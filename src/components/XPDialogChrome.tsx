@@ -2,6 +2,7 @@ import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { TitleBar, WindowContainer } from './Window/WindowChrome';
 import { CloseBtn } from './Window/WindowControls';
+import { FONTS } from '../constants';
 
 /**
  * Shared dialog chrome (#99): XPAlert, XPConfirm, PasswordDialog and XPInput
@@ -56,7 +57,7 @@ export const XPDialogTitleText = styled.div`
   color: white;
   font-weight: bold;
   font-size: 13px;
-  font-family: 'Trebuchet MS', 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.TITLEBAR};
   text-shadow: 1px 1px 1px black;
   overflow: hidden;
   white-space: nowrap;

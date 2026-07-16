@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { xpScrollbarStyles } from '../../theme';
-import { COLORS } from '../../constants';
+import { COLORS, FONTS } from '../../constants';
 
 // Explorer styled-components (#163/A).
 
@@ -9,7 +9,7 @@ export const Container = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 /* ── Details view (#120, EXP-02) ── */
@@ -17,7 +17,7 @@ export const DetailsTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   table-layout: fixed;
 `;
 
@@ -261,7 +261,7 @@ export const EmptyRecycleBinMessage = styled.div`
   justify-content: center;
   color: #808080;
   font-size: 12px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   gap: 10px;
   user-select: none;
 `;

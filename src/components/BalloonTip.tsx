@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import XPIcon from './XPIcon';
+import { FONTS } from '../constants';
 
 /**
  * BalloonTip — the classic Windows XP tray notification bubble (#118).
@@ -46,7 +47,7 @@ const Bubble = styled.div<{ $tailOffset: number; $showTail: boolean; $clickable:
   border-radius: 2px;
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
   padding: 7px 24px 7px 8px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   display: flex;
   align-items: center;

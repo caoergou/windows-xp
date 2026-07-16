@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import XPIcon from '../components/XPIcon';
+import { FONTS } from '../constants';
 
 // ─── Shared link helpers ─────────────────────────────────────────────────────
 
@@ -30,7 +31,7 @@ const PageWrap = styled.div`
   height: 100%;
   overflow-y: auto;
   background: #f5f5f5;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 12px;
   color: #333;
 `;

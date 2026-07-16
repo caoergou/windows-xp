@@ -5,7 +5,7 @@ import App from '../App';
 import MobileWarning from './MobileWarning';
 import { useViewportScale } from '../hooks/useViewportScale';
 import { ViewportScaleProvider } from '../context/ViewportScaleContext';
-import { COLORS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 import xpI18n, { NAMESPACE } from '../i18n';
 import { FileSystemProvider, type FileSystemMode } from '../context/FileSystemContext';
 import type { WallpaperItem } from '../data/wallpapers';
@@ -338,7 +338,7 @@ const RotateHint = styled.div`
   border: 1px solid ${COLORS.BUTTON_SHADOW};
   border-radius: 6px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   line-height: 1.4;
   text-align: center;

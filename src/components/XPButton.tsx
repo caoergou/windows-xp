@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { FONTS } from '../constants';
 
 /**
  * Canonical Luna push button (#99 / #78), value-for-value identical to the
@@ -24,7 +25,7 @@ export const XPButton = styled.button<{ $default?: boolean }>`
   border-radius: 3px;
   background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
   box-shadow: none;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   color: #000;
   cursor: pointer;

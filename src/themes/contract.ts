@@ -1,6 +1,6 @@
 import type React from 'react';
 import { css } from 'styled-components';
-import type { ThemeTokens } from './xp/tokens';
+import type { ThemeTokens, ThemeFonts } from './xp/tokens';
 import type { ThemeAssets } from './xp/assets';
 
 /**
@@ -13,7 +13,7 @@ import type { ThemeAssets } from './xp/assets';
  * engine (`src/context`, guarded by `guard:purity`) never has to change.
  */
 
-export type { ThemeTokens } from './xp/tokens';
+export type { ThemeTokens, ThemeFonts } from './xp/tokens';
 export type {
   ThemeAssets,
   WindowControlAssets,
@@ -47,6 +47,8 @@ export interface OSTheme {
   /** Human-facing name, e.g. `'Windows XP (Luna)'`. */
   name: string;
   tokens: ThemeTokens;
+  /** Font stacks (UI / titlebar / console …) — STY-03's single outlet. */
+  fonts: ThemeFonts;
   assets: ThemeAssets;
   styles: ThemeStyles;
   /** Optional chrome slot map — the deferred seam (see above). */

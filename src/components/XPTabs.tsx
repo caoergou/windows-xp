@@ -1,5 +1,6 @@
 import React, { useId, useState } from 'react';
 import styled from 'styled-components';
+import { FONTS } from '../constants';
 
 /**
  * XP tab control (#78): the classic raised tab strip with a bordered panel.
@@ -15,7 +16,7 @@ const Strip = styled.div`
 `;
 
 const Tab = styled.button<{ $active?: boolean }>`
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   color: #000;
   padding: 3px 9px ${p => (p.$active ? '4px' : '3px')};
@@ -33,7 +34,7 @@ const Panel = styled.div`
   border: 1px solid #aca899;
   background: #ece9d8;
   padding: 12px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   color: #000;
 `;

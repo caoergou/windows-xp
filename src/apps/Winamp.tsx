@@ -3,6 +3,7 @@ import styled, { css, keyframes } from 'styled-components';
 // Reuse the engine's bundled sample clip (an existing, licence-clear asset) —
 // the classic "reuse the WMP audio plumbing" from #123.
 import sampleAudio from '../assets/audio/sample.wav';
+import { FONTS } from '../constants';
 
 /**
  * Winamp — a 2000s-style MP3 player for the `en` culture package (#123).
@@ -35,7 +36,7 @@ const Wrap = styled.div`
   display: flex;
   flex-direction: column;
   background: #232323;
-  font-family: 'Tahoma', 'MS Sans Serif', sans-serif;
+  font-family: ${FONTS.CLASSIC};
   font-size: 11px;
   color: #d6d6d6;
   user-select: none;
@@ -73,7 +74,7 @@ const Lcd = styled.div`
   align-items: center;
   gap: 10px;
   color: #35ff6a;
-  font-family: 'Courier New', monospace;
+  font-family: ${FONTS.MONO};
 `;
 
 const Time = styled.div`
@@ -218,7 +219,7 @@ const Row = styled.div<{ $current?: boolean }>`
   cursor: pointer;
   color: ${p => (p.$current ? '#35ff6a' : '#c7c7c7')};
   background: ${p => (p.$current ? '#16240f' : 'transparent')};
-  font-family: 'Courier New', monospace;
+  font-family: ${FONTS.MONO};
   font-size: 11px;
   &:hover {
     background: ${p => (p.$current ? '#1c2e13' : '#161616')};

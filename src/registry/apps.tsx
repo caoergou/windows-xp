@@ -46,6 +46,7 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import XPIcon from '../components/XPIcon';
 import { restoreApp } from './defineApp';
+import { FONTS } from '../constants';
 
 // Placeholder app - used for apps not yet implemented
 const DummyAppContainer = styled.div`
@@ -56,7 +57,7 @@ const DummyAppContainer = styled.div`
   align-items: center;
   justify-content: center;
   background: white;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   text-align: center;
   padding: 20px;
 `;

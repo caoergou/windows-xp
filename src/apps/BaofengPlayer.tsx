@@ -3,6 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import { CultureAppShell } from './culture/shell';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
+import { FONTS } from '../constants';
 
 const pulse = keyframes`
   0%, 100% { opacity: 0.5; }
@@ -206,7 +207,7 @@ const ProgressTime = styled.div`
   justify-content: space-between;
   font-size: 10px;
   color: #aabbcc;
-  font-family: 'Courier New', monospace;
+  font-family: ${FONTS.MONO};
 `;
 
 const VolumeArea = styled.div`
