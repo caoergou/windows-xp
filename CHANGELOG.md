@@ -39,6 +39,20 @@ All notable changes to this project will be documented in this file.
   (`scenario:solve:example:fuzz`). The scenario skill gained matching house
   rules (order-independent convergence, graph-first authoring) and an
   order-fuzz item in its definition of done.
+- **Detective suite & entry patterns (follow-up)** — Patterns 14–18: the
+  search oracle (`searched`/`found`, miss-as-content, the miss log as the
+  difficulty-tuning tool), the evidence chain (`pinned`/`linked` journal
+  gating with a board-verb hint), the graded verdict (deduction finale that
+  accepts any submission and grades the epilogue by `count` of collected
+  evidence, M6), the typed passphrase (`file:update` + `contentContains` as
+  the day-one verifier, with its solver-fidelity caveat documented), and the
+  rabbit hole (M11/TINAG entry framing — the pattern PUZZLE-DESIGN asked the
+  authoring guide to document). The scenario skill gained a **narrative craft
+  rules** section (fair play, correlation over exposition, ≤2-hop
+  breadcrumbs, the intrusiveness ladder, no silent critical-path flags,
+  self-consistent red herrings, suspense/surprise layering, noise-not-canon,
+  endings grade the case) distilled from PUZZLE-DESIGN, the detective-fiction
+  fair-play canon, and jubensha DM practice.
 
 ### Added (Explorer depth follow-up, #120)
 

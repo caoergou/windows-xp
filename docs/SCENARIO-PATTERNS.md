@@ -1112,6 +1112,400 @@ a shortcut node that doesn't `require` it — the linter reports exactly this
 
 ---
 
+# Part V — The detective suite（侦探套件）
+
+The engine ships three scenario-layer investigation surfaces — the in-world
+search engine (M5, inside IE), the evidence board (M4), and the deduction
+sheet (M3) — plus the `contentContains` FS predicate as the day-one
+"prove it" verb. They carry no game semantics themselves (axiom 2: apps emit
+events, scenarios gate on journal predicates), which is exactly why they need
+patterns: the *shape of the gating* is where the genre craft lives.
+
+## Pattern 14 — the search oracle（搜索神谕, M5）
+
+**Intent.** Her Story's engine: **queries are the puzzle**. Searching a term
+the player could only have learned late *is* the knowledge gate in search-box
+form. Three authoring rules from the genre: reward the **idea** of a search,
+not an exact string (`searched` matches case-insensitive substrings of past
+queries); treat **misses as content** (an authored no-results nudge, not a
+dead page); and let a **found result read straight into a clue**.
+
+**Recipe.** The corpus itself ships as the IE `searchCorpus` prop; the
+scenario only gates on what the player asked and what surfaced:
+
+```json
+{
+  "id": "pattern-search-oracle",
+  "strings": {
+    "zh": {
+      "nick.title": "搜到了",
+      "nick.body": "这个网名——2004 年那个帖子里说的就是她。",
+      "miss.title": "没有结果",
+      "miss.body": "换个搜法试试：人名、地名、日期……或者帖子里出现过的网名。"
+    },
+    "en": {
+      "nick.title": "A hit",
+      "nick.body": "That screen name — the 2004 thread was about her.",
+      "miss.title": "No results",
+      "miss.body": "Try another angle: a name, a place, a date… or that screen name from the thread."
+    }
+  },
+  "triggers": [
+    {
+      "id": "searched-nickname",
+      "on": "search:query",
+      "when": { "searched": "水晶女孩" },
+      "once": true,
+      "do": [
+        { "setFlag": "knows_nickname" },
+        { "notify": { "titleKey": "nick.title", "bodyKey": "nick.body" } }
+      ]
+    },
+    {
+      "id": "found-thread",
+      "on": "search:query",
+      "when": { "all": [{ "flag": "knows_nickname" }, { "found": "bbs-2004-thread" }] },
+      "once": true,
+      "do": [{ "unlock": ["我的电脑", "本地磁盘 (D:)", "她的文件夹"] }]
+    },
+    {
+      "id": "miss-nudge",
+      "on": "search:query",
+      "when": {
+        "all": [
+          { "not": { "flag": "knows_nickname" } },
+          { "event": { "hit": false } },
+          { "count": { "type": "search:query", "match": { "hit": false } }, "gte": 3 }
+        ]
+      },
+      "max": 2,
+      "do": [{ "notify": { "titleKey": "miss.title", "bodyKey": "miss.body" } }]
+    }
+  ]
+}
+```
+
+The `miss-nudge` trigger is the Roottrees lesson operationalized: **the miss
+log is the difficulty-tuning tool**. During playtests, watch which queries
+miss (`search:query` with `hit: false` in the journal / `onEvent`); every
+recurring miss is either a missing `match` synonym in the corpus or a hint
+that arrived too late.
+
+**Anti-pattern.** Gating on an exact query string (`event: { query: "…" }`)
+instead of `searched` — players who type a variant ("水晶女孩是谁") get
+nothing, and the oracle feels like a password field. Equally bad: a corpus
+where only story-critical queries return results — a search engine that
+answers *nothing else* telegraphs exactly what to search (noise results are
+part of the fiction; see the mixed-web pattern).
+
+## Pattern 15 — the evidence chain（证据链, M4）
+
+**Intent.** The Roottrees/Shadows-of-Doubt corkboard verb: the player proves a
+*connection*, not a fact — pin two items, string them together. Because
+`pinned`/`linked` are **journal-derived** (net pins; a link needs both ends
+still pinned), the board carries no runtime state and survives save/load by
+replay.
+
+**Recipe.**
+
+```json
+{
+  "id": "pattern-evidence-chain",
+  "strings": {
+    "zh": {
+      "nudge.title": "差一步",
+      "nudge.body": "两条证据都钉上了——试着把它们连起来。",
+      "link.title": "连上了",
+      "link.body": "日记和聊天记录指向同一个晚上。",
+      "payoff.text": "你把日记和聊天记录放在一起看过了吧？那晚的事，我现在可以说了。"
+    },
+    "en": {
+      "nudge.title": "One step left",
+      "nudge.body": "Both pieces are pinned — try stringing them together.",
+      "link.title": "Connected",
+      "link.body": "The diary and the chat log point at the same night.",
+      "payoff.text": "You've seen the diary and the chat log side by side, haven't you? I can talk about that night now."
+    }
+  },
+  "triggers": [
+    {
+      "id": "both-pinned-nudge",
+      "on": "evidence:pin",
+      "when": {
+        "all": [
+          { "pinned": "diary" },
+          { "pinned": "chatlog" },
+          { "not": { "linked": { "a": "diary", "b": "chatlog" } } }
+        ]
+      },
+      "once": true,
+      "do": [{ "notify": { "titleKey": "nudge.title", "bodyKey": "nudge.body" } }]
+    },
+    {
+      "id": "connected",
+      "on": "evidence:link",
+      "when": { "linked": { "a": "diary", "b": "chatlog" } },
+      "once": true,
+      "do": [
+        { "setFlag": "case_connected" },
+        { "notify": { "titleKey": "link.title", "bodyKey": "link.body" } }
+      ]
+    },
+    {
+      "id": "board-payoff",
+      "on": "flag:change",
+      "when": { "all": [{ "flag": "case_connected" }] },
+      "once": true,
+      "do": [{ "qqMessage": { "buddyId": "zhe", "textKey": "payoff.text" } }]
+    }
+  ]
+}
+```
+
+The nudge fires on the *pin* channel (the player has assembled the parts but
+not the connection) — a micro hint ladder for the board verb. `linked` is
+order-insensitive and silently invalidated by unpinning either end, so gate
+follow-ups on the flag (durable), not on re-checking `linked` later.
+
+**Anti-pattern.** Treating a pin as an endorsement: `pinned` counts *net*
+pins, not conviction — a player pins everything that looks interesting.
+Gate story progress on **links** (a deliberate claim of connection), never on
+mere pin counts, or the board degrades into "pin everything, win".
+
+## Pattern 16 — the graded verdict（推理表结局与证据定级, M3 + M6）
+
+**Intent.** The finale as *proof of comprehension*, with Paradise Killer's
+mercy: the deduction sheet **accepts any submission** — the quality of the
+epilogue depends on the evidence actually gathered. Obra Dinn's
+anti-brute-force lives in the app (verify-in-groups via the `groups`
+payload); the scenario only grades the case. `count` over the journal is the
+"weighted evidence" expression — no bookkeeping flags needed.
+
+**Recipe.**
+
+```json
+{
+  "id": "pattern-graded-verdict",
+  "strings": {
+    "zh": {
+      "good.title": "全部对上了",
+      "good.body": "每一条指认都有证据压着。没有人能再翻案。",
+      "plain.title": "报告提交了",
+      "plain.body": "结论是对的，可有几处只是猜测。真相成立，但不是铁案。",
+      "file.epilogueGood": "结案卷宗（完整）：四条证据环环相扣，签名归档。",
+      "file.epiloguePlain": "结案卷宗（存疑）：结论成立，但证据链有缺口。也许有一天你会回来补上。"
+    },
+    "en": {
+      "good.title": "Airtight",
+      "good.body": "Every accusation is pinned down by evidence. Nobody can reopen this.",
+      "plain.title": "Report filed",
+      "plain.body": "The conclusion is right — but parts of it are guesswork. True, yet not ironclad.",
+      "file.epilogueGood": "Case file (complete): four pieces of evidence, interlocking. Signed and archived.",
+      "file.epiloguePlain": "Case file (open questions): the conclusion stands, but the chain has gaps. Maybe one day you'll come back to close them."
+    }
+  },
+  "triggers": [
+    {
+      "id": "ending-good",
+      "on": "deduction:verified",
+      "when": {
+        "all": [
+          { "event": { "formId": "final-report" } },
+          { "count": { "type": "evidence:collect" }, "gte": 4 }
+        ]
+      },
+      "once": true,
+      "do": [
+        { "notify": { "titleKey": "good.title", "bodyKey": "good.body", "timeout": 0 } },
+        {
+          "addFile": {
+            "path": ["结案卷宗.txt"],
+            "node": { "type": "file", "app": "Notepad" },
+            "contentKey": "file.epilogueGood"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ending-plain",
+      "on": "deduction:verified",
+      "when": {
+        "all": [
+          { "event": { "formId": "final-report" } },
+          { "count": { "type": "evidence:collect" }, "lte": 3 }
+        ]
+      },
+      "once": true,
+      "do": [
+        { "notify": { "titleKey": "plain.title", "bodyKey": "plain.body", "timeout": 0 } },
+        {
+          "addFile": {
+            "path": ["结案卷宗.txt"],
+            "node": { "type": "file", "app": "Notepad" },
+            "contentKey": "file.epiloguePlain"
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+The two `when`s partition on the same counter (`gte: 4` / `lte: 3`), so
+exactly one ending fires per verdict. The verification itself (which slots
+are right) belongs to the DeductionSheet's props — the scenario never
+duplicates the answer key.
+
+**Anti-pattern.** Two, both genre classics: duplicating the answer key in the
+scenario (`event: { slots: {…} }` matching exact answers — now the truth
+lives in two places and they *will* drift), and a best ending requiring
+evidence that can expire — if a clue becomes uncollectable (deleted file,
+passed beat) after a point of no return, the player is graded on a test they
+can no longer study for. Evidence for the finale must stay collectable until
+the finale.
+
+## Pattern 17 — the typed passphrase（把答案打进记事本, M3 day-one）
+
+**Intent.** The poor man's deduction sheet, available with zero custom UI:
+the player *types the answer into a file*. Notepad's save emits
+`file:update`; `contentContains` reads the saved body. It converts
+comprehension into an in-world act — writing the name down.
+
+**Recipe.**
+
+```json
+{
+  "id": "pattern-typed-answer",
+  "strings": {
+    "zh": {
+      "verdict.title": "写下来了",
+      "verdict.body": "你把名字写进了『答案.txt』。手有点抖，但没写错。",
+      "aftermath.text": "你真的写下来了……那我也不瞒你了，那晚我也在场。"
+    },
+    "en": {
+      "verdict.title": "In writing",
+      "verdict.body": "You typed the name into 答案.txt. Your hand shook, but it's the right one.",
+      "aftermath.text": "You actually wrote it down… then I'll stop pretending. I was there that night too."
+    }
+  },
+  "triggers": [
+    {
+      "id": "typed-name",
+      "on": "file:update",
+      "when": {
+        "all": [
+          { "event": { "name": "答案.txt" } },
+          { "contentContains": { "path": ["答案.txt"], "contains": "王小明" } }
+        ]
+      },
+      "once": true,
+      "do": [
+        { "setFlag": "named_culprit" },
+        { "notify": { "titleKey": "verdict.title", "bodyKey": "verdict.body" } }
+      ]
+    },
+    {
+      "id": "aftermath",
+      "on": "flag:change",
+      "when": { "all": [{ "flag": "named_culprit" }] },
+      "once": true,
+      "do": [{ "qqMessage": { "buddyId": "zhe", "textKey": "aftermath.text" } }]
+    }
+  ]
+}
+```
+
+Match generously: `contains` is a substring check, so accept the shortest
+unambiguous token (the bare name, no honorifics); for spelling variants, use
+`any` over several `contentContains`. Adventure-game parser rules apply —
+punish nobody for phrasing.
+
+**Solver fidelity caveat.** The headless solver's virtual FS is mutated by
+scenario *actions* (`writeFile`/`addFile`), not by player-driven
+`file:update` events — so a rehearsal walkthrough can't currently satisfy
+this gate headlessly (the live runtime is fine: Notepad really saves before
+the event fires). Until the toolchain grows an event→FS bridge or a
+`--fs`-seed option, keep `contentContains` gates *off* the walkthrough's
+critical path, or precede the gate in the tape with an equivalent authored
+`writeFile` beat. This is a known gap worth an issue if you hit it.
+
+---
+
+# Part VI — Entry & framing（入口与框架, M11）
+
+## Pattern 18 — the rabbit hole（兔子洞入口 / TINAG）
+
+**Intent.** ARG practice: players should *fall in*, not click "Start". The
+first artifact is discoverable in-fiction — a desktop embedded in a real blog
+post, one odd sticky note, nothing announced ("This Is Not A Game"). The
+engine side is just `mode="embedded"` + `fileSystemMode="replace"` doing what
+they were built for; the scenario side is a quiet first beat that reacts to
+the visitor's first touch instead of greeting them.
+
+**Recipe.** The in-fiction half (lintable):
+
+```json
+{
+  "id": "pattern-rabbit-hole",
+  "strings": {
+    "zh": {
+      "note.body": "别动我的东西。",
+      "react.title": "……",
+      "react.body": "你还是动了。既然开始了，就看到最后吧。"
+    },
+    "en": {
+      "note.body": "Don't touch my stuff.",
+      "react.title": "…",
+      "react.body": "You touched it anyway. Now that you've started — see it through."
+    }
+  },
+  "triggers": [
+    {
+      "id": "plant-warning",
+      "on": "session:boot-complete",
+      "once": true,
+      "do": [{ "note": { "id": "warning", "contentKey": "note.body", "color": "yellow" } }]
+    },
+    {
+      "id": "first-touch",
+      "on": "file:open",
+      "once": true,
+      "do": [
+        { "removeNote": "warning" },
+        { "notify": { "titleKey": "react.title", "bodyKey": "react.body" } }
+      ]
+    }
+  ]
+}
+```
+
+And the host half — the trailhead is an ordinary blog post that happens to
+contain a desktop:
+
+```jsonc
+// Host page (illustrative JSX — not a lintable fixture):
+// <WindowsXP mode="embedded" fileSystemMode="replace"
+//   customFileSystem={oneOddDesktop} scenario={rabbitHole} autoLogin />
+// The post never says "game". The note is the only invitation.
+```
+
+TINAG rules of thumb: the desktop looks *abandoned*, not staged (a few
+mundane files around the odd one — noise is camouflage); the first reaction
+beat (`first-touch`) confirms "this is alive" only after the player commits;
+and **multiple trailheads multiply the catch rate** — several entry artifacts
+(a second odd file, an IE favorite, a recycle-bin remnant) may each start the
+same thread, which is Pattern 12's order-independence applied to entrances:
+converge them on durable predicates, don't assume which one is found first.
+
+**Anti-pattern.** The tutorial balloon on boot ("Welcome! Click the diary to
+begin!") — it breaks TINAG, spends the most intrusive channel on the least
+earned moment, and flattens the discovery the whole entry design exists to
+create. Equally bad: a single mandatory trailhead (one specific file must be
+opened first or nothing works) — that's a corridor door disguised as a rabbit
+hole.
+
+---
+
 ## Where to go next
 
 - **Runnable end-to-end example:** `referenceContentPack` (exported from

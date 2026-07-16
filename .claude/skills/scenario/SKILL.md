@@ -68,7 +68,8 @@ Drafting is a routing problem. Never inline everything into scenario JSON:
   `docs/SCENARIO-PATTERNS.md` — hint ladder, act gate, double-key door, idle
   nudge, looping buddy chatter, password-puzzle trio, timed beat, fictional
   website, long-document clue, mixed web, AI-buddy trio, order-independent
-  gate, bushy act (PuzzleGraph).
+  gate, bushy act (PuzzleGraph), search oracle, evidence chain, graded
+  verdict, typed passphrase, rabbit hole (TINAG entry).
 - **Design rationale** (mechanics M1–M12, the two axioms): `docs/PUZZLE-DESIGN.md`.
 - **Working examples**: `examples/reference-content-pack/`,
   `examples/midsummer-pack/`, `src/data/scenarios/prologueGraph.ts`.
@@ -111,6 +112,47 @@ Drafting is a routing problem. Never inline everything into scenario JSON:
     cycles / gate bypasses / missing hint ladders, and `bushiness` quantifies
     pacing. A graph whose bushiness never exceeds 1 is a corridor, not an
     investigation — widen it deliberately or accept the linearity. Pattern 13.
+
+## Narrative craft rules
+
+The tools adjudicate integrity; these rules guard what no linter can see.
+They distill PUZZLE-DESIGN (M1/M6/M11/M12), the fair-play canon of detective
+fiction (Knox / Van Dine — the surviving core, not the period trivia), and
+jubensha (剧本杀) DM practice:
+
+1. **Fair play.** Every fact a gate needs must be discoverable in-world
+   *before* that gate — reachable, readable, and still collectable. The
+   finale test: the player should be able to say "the clues were all there".
+   Lint covers the mechanical half (URLs, assets, flags); you own the
+   epistemic half.
+2. **Correlation over exposition (M1).** Split every answer across at least
+   two documents; a clue *implies*, it never states. One file that names the
+   password is a note, not a puzzle. The correlation is the game.
+3. **Breadcrumbs ≤ 2 hops (M12).** From any live clue, the next actionable
+   discovery is at most two interactions away. A three-hop inference needs an
+   intermediate artifact planted in-world.
+4. **Attention has an intrusiveness ladder (M12).** Sticky `note` < tray
+   `notify` < `qqMessage` < modal `alert`. Escalate one rung at a time;
+   `alert` is for act cuts, never for hints.
+5. **No silent `setFlag` on the critical path (M12).** Every progress step
+   pairs with player-visible feedback in the same trigger. A silently flipped
+   flag is how "I did the thing and nothing happened" playtests are born.
+6. **Red herrings must be self-consistent.** A misleading lead needs its own
+   innocent explanation discoverable in-world (the suspicious buddy is hiding
+   a debt, not the murder). Mislead by arrangement, never by information the
+   player cannot reach — and let the herring's resolution be findable too.
+7. **Suspense on the sides, surprise on the spine.** Keep the central
+   revelation a surprise; spend suspense (the player knowing something a
+   character hasn't acknowledged) on side channels — buddy signatures, status
+   lines, ambient chatter.
+8. **Noise is content — but never canon.** Authored filler (junk files, spam
+   pages, off-topic search results) is what makes real clues feel *found*
+   rather than served; keep it cheap to dismiss and never gate on it (the
+   mixed-web rule generalized).
+9. **Endings grade the case, not the guess (M6).** Terminal choices accept
+   any answer; the epilogue's quality reflects the evidence actually held
+   (`count` over the journal). Never lock the best ending behind evidence
+   that can expire before the finale.
 
 ## Task shapes
 
@@ -162,9 +204,11 @@ authored islands carry canon, generated periphery is atmosphere only.
    ("`unknown-event` on the letter trigger = the letter beat silently never
    fires; the story softlocks at act 1"). The walkthrough doc shows the
    expected review voice.
-3. Check what tools can't: pacing (bushiness), hint coverage on the critical
-   path, i18n parity of both string tables, whether the correlation steps are
-   fair (clue actually implies the answer).
+3. Check what tools can't: the narrative craft rules above, one by one —
+   fair-play reachability, correlation quality, breadcrumb distance,
+   intrusiveness of each beat, silent flags, herring self-consistency,
+   expiring evidence — plus pacing (bushiness) and i18n parity of both
+   string tables.
 4. Report findings; fix only when asked (a review is an assessment, not a PR).
 
 ### 5. Give an existing buddy an AI brain
