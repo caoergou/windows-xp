@@ -15,7 +15,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 /** src/ inline hex color value stock baseline: only decrease. Update this value after lowering. */
-const HEX_BASELINE = 1022; // 2026-07-16: #213 batch 2 — high-frequency chrome greys/whites + button-chrome gradients tokenized into COLORS (1482 → 1022)
+const HEX_BASELINE = 986; // 2026-07-16: #213 batch 3 — Luna blues (window frame, taskbar/tray/start, start menu, login, Explorer/IE panes) tokenized (1022 → 986; the token store itself still counts here — re-scoped in batch 4)
 
 /** Mechanism layer: directories/files that must keep zero color values and zero xp.css dependencies. */
 const ENGINE_PURE = ['src/context', 'src/hooks', 'src/utils', 'src/events.ts', 'src/snapshot.ts'];

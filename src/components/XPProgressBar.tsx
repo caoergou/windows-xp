@@ -14,17 +14,17 @@ import { COLORS } from '../constants';
 
 const LUNA_FILL =
   `repeating-linear-gradient(90deg, ${COLORS.WHITE} 0, ${COLORS.WHITE} 2px, transparent 0, transparent 10px), ` +
-  `linear-gradient(180deg, #acedad 0, #7be47d 14%, #4cda50 28%, #2ed330 42%, #42d845 57%, #76e275 71%, #8fe791 85%, ${COLORS.WHITE})`;
+  `${COLORS.PROGRESS_FILL_GRADIENT}`;
 
 const Track = styled.div`
   box-sizing: border-box;
   height: 14px;
-  border: 1px solid #686868;
+  border: 1px solid ${COLORS.PROGRESS_BORDER};
   border-radius: 4px;
   padding: 1px 2px 1px 0;
   overflow: hidden;
   background-color: ${COLORS.WHITE};
-  box-shadow: inset 0 0 1px 0 #686868;
+  box-shadow: inset 0 0 1px 0 ${COLORS.PROGRESS_BORDER};
 `;
 
 const Fill = styled.div<{ $ratio: number }>`

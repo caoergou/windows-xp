@@ -24,8 +24,8 @@ export const DetailsTable = styled.table`
 export const DetailsHeadCell = styled.th`
   text-align: left;
   font-weight: normal;
-  background: linear-gradient(to bottom, ${COLORS.WHITE} 0%, #f2f1ea 45%, #e7e5d8 100%);
-  border-right: 1px solid #d5d2c6;
+  background: ${COLORS.TASKPANE_GRADIENT};
+  border-right: 1px solid ${COLORS.TASKPANE_BORDER};
   border-bottom: 1px solid ${COLORS.DIVIDER_GREY};
   padding: 2px 6px;
   height: 18px;
@@ -40,17 +40,17 @@ export const DetailsHeadCell = styled.th`
   z-index: 1;
 
   &:hover {
-    background: linear-gradient(to bottom, ${COLORS.WHITE} 0%, #eef4fb 45%, #dce9f8 100%);
+    background: ${COLORS.TASKPANE_GRADIENT_BLUE};
   }
 `;
 
 export const DetailsRow = styled.tr<{ $selected?: boolean }>`
-  background: ${p => (p.$selected ? '#316AC5' : 'transparent')};
+  background: ${p => (p.$selected ? COLORS.MENU_HIGHLIGHT : 'transparent')};
   color: ${p => (p.$selected ? COLORS.WHITE : COLORS.BLACK)};
   cursor: default;
 
   &:hover {
-    background: ${p => (p.$selected ? '#316AC5' : '#e6effc')};
+    background: ${p => (p.$selected ? COLORS.MENU_HIGHLIGHT : COLORS.EXPLORER_ROW_TINT)};
   }
 `;
 
@@ -93,8 +93,8 @@ export const FileArea = styled.div<{ $flush?: boolean }>`
 export const GroupHeader = styled.div`
   font-weight: bold;
   font-size: 11px;
-  color: #15428b;
-  border-bottom: 1px solid #c6d3f7;
+  color: ${COLORS.SIDEBAR_TITLE_BLUE};
+  border-bottom: 1px solid ${COLORS.EXPLORER_HEADER_DIVIDER};
   padding-bottom: 2px;
   margin-bottom: 5px;
   margin-top: 10px;

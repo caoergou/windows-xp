@@ -70,7 +70,7 @@ const CheckBox = styled.span<{ $checked?: boolean; $disabled?: boolean }>`
     inset -1px -1px ${COLORS.WHITE},
     inset 1px 1px ${COLORS.BUTTON_SHADOW},
     inset -2px -2px ${COLORS.BUTTON_FACE},
-    inset 2px 2px #0a0a0a;
+    inset 2px 2px ${COLORS.WINDOW_FRAME};
 
   &::after {
     content: '';

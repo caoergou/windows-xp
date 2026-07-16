@@ -25,7 +25,7 @@ const InfoIcon = styled.div`
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #316ac5;
+  background: ${COLORS.MENU_HIGHLIGHT};
   color: white;
   font-weight: bold;
   font-size: 16px;
@@ -77,7 +77,7 @@ const ActionButton = styled.button`
   font-family: ${FONTS.UI};
 
   &:hover {
-    background: linear-gradient(to bottom, ${COLORS.GREY_F0}, #dcd9c9);
+    background: ${COLORS.IE_BUTTON_GRADIENT};
   }
 
   &:active {

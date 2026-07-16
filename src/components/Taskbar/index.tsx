@@ -21,6 +21,7 @@ import TaskList from './TaskList';
 import SystemTray from './SystemTray';
 import TurnOffDialog from './TurnOffDialog';
 import ContextMenu from '../ContextMenu';
+import { COLORS } from '../../constants';
 
 const TaskbarContainer = styled.div`
   position: absolute;
@@ -44,13 +45,13 @@ const TaskbarContainer = styled.div`
     #2562df 86%,
     #245fdc 89%,
     #2158d4 92%,
-    #1d4ec0 95%,
+    ${COLORS.TASKBAR_BORDER} 95%,
     #1941a5 98%
   );
   display: flex;
   align-items: center;
   z-index: 2147483647;
-  border-top: 1px solid #1d4ec0;
+  border-top: 1px solid ${COLORS.TASKBAR_BORDER};
 `;
 
 const Divider = styled.div`

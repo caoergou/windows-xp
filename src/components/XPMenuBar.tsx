@@ -37,11 +37,11 @@ export const XPMenuBarItem = styled.button<{ $active?: boolean }>`
   line-height: 18px;
   cursor: default;
   color: ${p => (p.$active ? COLORS.WHITE : COLORS.BLACK)};
-  background: ${p => (p.$active ? '#316AC5' : 'transparent')};
+  background: ${p => (p.$active ? COLORS.MENU_HIGHLIGHT : 'transparent')};
 
   &:hover {
     color: ${COLORS.WHITE};
-    background: #316ac5;
+    background: ${COLORS.MENU_HIGHLIGHT};
   }
 `;
 
@@ -80,7 +80,7 @@ export const XPMenuDropdownItem = styled.button<{ $disabled?: boolean }>`
 
   &:hover {
     color: ${p => (p.$disabled ? COLORS.DIVIDER_GREY : COLORS.WHITE)};
-    background: ${p => (p.$disabled ? 'transparent' : '#316ac5')};
+    background: ${p => (p.$disabled ? 'transparent' : COLORS.MENU_HIGHLIGHT)};
   }
 `;
 

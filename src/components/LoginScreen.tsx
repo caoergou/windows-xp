@@ -23,7 +23,7 @@ const Container = styled.div<{ $background?: string }>`
       ? isImageBackground(props.$background)
         ? `background: url("${props.$background}") center / cover no-repeat;`
         : `background: ${props.$background};`
-      : 'background-color: #003399;'}
+      : `background-color: ${COLORS.XP_DEEP_BLUE};`}
   width: 100%;
   height: 100%;
   display: flex;
@@ -38,9 +38,15 @@ const Content = styled.div`
   justify-content: center;
   position: relative;
   width: 60%;
-  background: linear-gradient(to right, #5a7edc 0%, #5a7edc 50%, #003399 50%, #003399 100%);
-  border-top: 2px solid #f5c684;
-  border-bottom: 2px solid #f5c684;
+  background: linear-gradient(
+    to right,
+    ${COLORS.LOGIN_PANEL_BLUE} 0%,
+    ${COLORS.LOGIN_PANEL_BLUE} 50%,
+    ${COLORS.XP_DEEP_BLUE} 50%,
+    ${COLORS.XP_DEEP_BLUE} 100%
+  );
+  border-top: 2px solid ${COLORS.LOGIN_DIVIDER_GOLD};
+  border-bottom: 2px solid ${COLORS.LOGIN_DIVIDER_GOLD};
   padding: 40px;
   border-radius: 0;
 `;
@@ -53,7 +59,7 @@ const Logo = styled.div`
 
   span {
     font-style: italic;
-    color: #ff6600;
+    color: ${COLORS.LOGIN_ORANGE};
     margin-left: 5px;
     font-size: 50px;
   }
@@ -117,8 +123,8 @@ const Input = styled.input`
 const GoButton = styled.button`
   width: 32px;
   height: 28px;
-  background: linear-gradient(180deg, #37a856 0%, #2e9a4c 50%, #268f42 100%);
-  border: 1px solid #1f7a38;
+  background: ${COLORS.LOGIN_GO_GRADIENT};
+  border: 1px solid ${COLORS.LOGIN_GO_BORDER};
   border-radius: 0;
   color: ${COLORS.WHITE};
   font-size: 16px;
@@ -134,7 +140,7 @@ const GoButton = styled.button`
     1px 1px 2px rgba(0, 0, 0, 0.5);
 
   &:active {
-    background: linear-gradient(180deg, #268f42 0%, #2e9a4c 50%, #37a856 100%);
+    background: ${COLORS.LOGIN_GO_GRADIENT_HOVER};
     box-shadow:
       inset 1px 1px 0 rgba(0, 0, 0, 0.25),
       inset -1px -1px 0 rgba(255, 255, 255, 0.3);
@@ -149,7 +155,7 @@ const ErrorMsg = styled.div`
 `;
 
 const HelpLink = styled.a`
-  color: #ffd700;
+  color: ${COLORS.LOGIN_GOLD};
   font-size: 11px;
   text-decoration: none;
   margin-top: 3px;

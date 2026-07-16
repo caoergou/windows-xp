@@ -58,19 +58,19 @@ const CategoryItem = styled.div<{ $selected?: boolean }>`
   cursor: pointer;
 
   &:hover {
-    background-color: #e8f4ff;
-    border: 1px solid #c0deff;
+    background-color: ${COLORS.PANEL_TINT_BLUE};
+    border: 1px solid ${COLORS.PANEL_TINT_BORDER};
   }
 
   ${props =>
     props.$selected &&
     `
-    background-color: #316ac5;
+    background-color: ${COLORS.MENU_HIGHLIGHT};
     color: white;
     border: 1px dotted ${COLORS.WHITE};
 
     &:hover {
-      background-color: #316ac5;
+      background-color: ${COLORS.MENU_HIGHLIGHT};
       color: white;
     }
   `}
@@ -95,7 +95,7 @@ const BackButton = styled.button`
   padding: 3px 14px;
   font-size: 11px;
   border: 1px solid ${COLORS.BUTTON_BORDER};
-  background: linear-gradient(180deg, ${COLORS.WHITE} 0%, #ecebe5 86%, #d8d0c4 100%);
+  background: ${COLORS.BUTTON_GRADIENT};
   cursor: pointer;
   font-family: ${FONTS.UI};
 
@@ -113,7 +113,7 @@ const SystemSettings = styled.div`
 
   h4 {
     margin: 0 0 12px;
-    color: #003399;
+    color: ${COLORS.XP_DEEP_BLUE};
     font-size: 13px;
   }
 

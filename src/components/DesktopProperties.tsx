@@ -26,7 +26,7 @@ const Tab = styled.button<{ $active?: boolean }>`
   padding: 4px 12px;
   border: 1px solid ${COLORS.SURFACE};
   border-bottom: none;
-  background: ${props => (props.$active ? COLORS.SURFACE : '#f8f8f8')};
+  background: ${props => (props.$active ? COLORS.SURFACE : COLORS.GREY_F8)};
   cursor: pointer;
   font-size: 11px;
   margin-right: 2px;
@@ -80,7 +80,7 @@ const Button = styled.button`
   padding: 3px 14px;
   font-size: 11px;
   border: 1px solid ${COLORS.BUTTON_BORDER};
-  background: linear-gradient(180deg, ${COLORS.WHITE} 0%, #ecebe5 86%, #d8d0c4 100%);
+  background: ${COLORS.BUTTON_GRADIENT};
   cursor: pointer;
 
   &:hover {

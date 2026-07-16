@@ -62,7 +62,7 @@ const DayCell = styled.div<{ $today?: boolean }>`
   ${props =>
     props.$today &&
     `
-    background: #316ac5;
+    background: ${COLORS.MENU_HIGHLIGHT};
     color: white;
     border: 1px solid ${COLORS.BUTTON_BORDER};
   `}

@@ -10,6 +10,7 @@ import ContextMenu from '../ContextMenu';
 import NetworkConnections from '../../apps/NetworkConnections';
 import VolumeControl from '../../apps/VolumeControl';
 import type { MenuItem } from '../../types';
+import { COLORS } from '../../constants';
 
 const SystemTrayContainer = styled.div`
   height: 30px;
@@ -36,8 +37,8 @@ const SystemTrayContainer = styled.div`
     #137ed7 97%,
     #095bc9 100%
   );
-  border-left: 1px solid #1042af;
-  box-shadow: inset 1px 0 1px #18bbff;
+  border-left: 1px solid ${COLORS.TRAY_BORDER};
+  box-shadow: inset 1px 0 1px ${COLORS.TRAY_HILIGHT};
 `;
 
 const TrayIconWrapper = styled.div<{ $clickable?: boolean }>`

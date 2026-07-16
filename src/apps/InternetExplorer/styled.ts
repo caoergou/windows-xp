@@ -27,7 +27,7 @@ export const Sidebar = styled.div`
 `;
 
 export const SidebarHeader = styled.div`
-  background: linear-gradient(to right, #6ba3e5, #3f78bd);
+  background: ${COLORS.HEADER_GRADIENT_BLUE};
   color: white;
   padding: 5px;
   font-weight: bold;
@@ -61,7 +61,7 @@ export const HistoryItem = styled.div`
   }
 
   .url {
-    color: #0066cc;
+    color: ${COLORS.LINK_BLUE};
   }
 
   .time {
@@ -88,7 +88,7 @@ export const FavoritesItem = styled.div`
   }
 
   .name {
-    color: #0066cc;
+    color: ${COLORS.LINK_BLUE};
     flex: 1;
   }
 
@@ -102,7 +102,7 @@ export const FavoritesItem = styled.div`
 
     &:hover {
       opacity: 1;
-      background: #ffdddd;
+      background: ${COLORS.ERROR_TINT};
     }
   }
 
@@ -114,7 +114,7 @@ export const FavoritesItem = styled.div`
 export const FavoritesToolbar = styled.div`
   padding: 5px;
   background: ${COLORS.GREY_F0};
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid ${COLORS.GREY_DD};
   display: flex;
   gap: 3px;
 `;
@@ -162,7 +162,7 @@ export const LoadingBar = styled.div<{ $visible: boolean }>`
   bottom: 0;
   left: 0;
   height: 2px;
-  background: #316ac5;
+  background: ${COLORS.MENU_HIGHLIGHT};
   display: ${p => (p.$visible ? 'block' : 'none')};
   animation: ${ieLoadingBar} 1.5s ease-in-out infinite;
 `;
@@ -258,7 +258,7 @@ export const AddFavoriteModal = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   background: ${COLORS.SURFACE};
-  border: 2px solid #316ac5;
+  border: 2px solid ${COLORS.MENU_HIGHLIGHT};
   border-radius: 0;
   box-shadow: 2px 2px 0 ${COLORS.BUTTON_SHADOW};
   z-index: 1000;

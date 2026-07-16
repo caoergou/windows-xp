@@ -15,7 +15,7 @@ const Container = styled.div`
 `;
 
 const Header = styled.div`
-  background: linear-gradient(to right, #6ba3e5, #3f78bd);
+  background: ${COLORS.HEADER_GRADIENT_BLUE};
   color: white;
   padding: 8px 12px;
   font-weight: bold;
@@ -54,7 +54,7 @@ const SidebarItem = styled.div`
   }
 
   &.active {
-    background: #316ac5;
+    background: ${COLORS.MENU_HIGHLIGHT};
     color: white;
   }
 `;

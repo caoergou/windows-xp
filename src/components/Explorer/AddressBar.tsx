@@ -12,7 +12,7 @@ const Bar = styled.div`
   display: flex;
   align-items: center;
   padding: 0 2px 1px;
-  box-shadow: inset 0 -2px 3px -1px #b0b0b0;
+  box-shadow: inset 0 -2px 3px -1px ${COLORS.GREY_B0};
   background: ${COLORS.TOOLBAR_GRADIENT};
 `;
 
@@ -118,7 +118,7 @@ const HistoryItem = styled.li`
 
   &:hover,
   &[data-active='true'] {
-    background: #316ac5;
+    background: ${COLORS.MENU_HIGHLIGHT};
     color: ${COLORS.WHITE};
   }
 `;

@@ -184,13 +184,13 @@ export const AboutDialog = styled.div`
   border: 2px solid;
   border-color: ${COLORS.WHITE} ${COLORS.GREY_40} ${COLORS.GREY_40} ${COLORS.WHITE};
   background: ${COLORS.BORDER_GREY_HILIGHT};
-  box-shadow: 2px 2px 1px #646464;
+  box-shadow: 2px 2px 1px ${COLORS.GREY_64};
 `;
 
 export const AboutTitle = styled.div`
   padding: 4px 6px;
   color: ${COLORS.WHITE};
-  background: linear-gradient(to right, #0997ff, #0053ee);
+  background: ${COLORS.TITLE_BAR_GRADIENT_COMPACT};
   font-weight: bold;
 `;
 

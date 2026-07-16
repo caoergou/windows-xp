@@ -27,6 +27,7 @@ import { useBoxSelection } from './hooks/useBoxSelection';
 import { useTapGestures } from '../../hooks/useTapGestures';
 import { useMultiSelect } from '../../hooks/useMultiSelect';
 import { useShortcut } from '../../context/KeymapContext';
+import { COLORS } from '../../constants';
 
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
@@ -642,7 +643,7 @@ const Desktop: React.FC = () => {
                 dragOver === key && item.type === 'folder'
                   ? {
                       background: 'rgba(193, 210, 238, 0.5)',
-                      border: '1px dashed #316AC5',
+                      border: `1px dashed ${COLORS.MENU_HIGHLIGHT}`,
                     }
                   : undefined
               }

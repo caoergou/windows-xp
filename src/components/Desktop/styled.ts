@@ -6,7 +6,7 @@ import { COLORS, FONTS } from '../../constants';
 export const DesktopContainer = styled.div<{ $bgUrl: string }>`
   width: 100%;
   height: 100%;
-  background-color: #004e98;
+  background-color: ${COLORS.DESKTOP_BACKGROUND};
   background-image: url(${props => props.$bgUrl});
   background-size: cover;
   background-position: center;

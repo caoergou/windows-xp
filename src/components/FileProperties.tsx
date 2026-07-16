@@ -86,7 +86,7 @@ const SectionHeader = styled.div`
   margin-top: 10px;
   padding-bottom: 2px;
   border-bottom: 1px solid ${COLORS.GREY_EE};
-  color: #15428b;
+  color: ${COLORS.SIDEBAR_TITLE_BLUE};
 `;
 
 const ButtonRow = styled.div`

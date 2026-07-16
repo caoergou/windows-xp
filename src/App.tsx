@@ -107,8 +107,8 @@ const AltTabItem = styled.div<{ $active: boolean }>`
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  border: 2px solid ${props => (props.$active ? '#316AC5' : 'transparent')};
-  background: ${props => (props.$active ? '#e5e5e5' : 'transparent')};
+  border: 2px solid ${props => (props.$active ? COLORS.MENU_HIGHLIGHT : 'transparent')};
+  background: ${props => (props.$active ? COLORS.GREY_E5 : 'transparent')};
   cursor: pointer;
   min-width: 70px;
 

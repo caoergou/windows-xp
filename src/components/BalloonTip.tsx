@@ -90,7 +90,7 @@ const Message = styled.div`
 const TitleLine = styled.div`
   font-weight: bold;
   margin-bottom: 2px;
-  color: #003399;
+  color: ${COLORS.XP_DEEP_BLUE};
 `;
 
 const BodyLine = styled.div`
@@ -124,7 +124,7 @@ const CloseBox = styled.button`
   color: ${COLORS.GREY_40};
 
   &:hover {
-    background: #e5e5c5;
+    background: ${COLORS.HOVER_BEIGE};
     border-color: ${COLORS.DIVIDER_GREY};
   }
 

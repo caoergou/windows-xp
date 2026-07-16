@@ -31,9 +31,9 @@ const MenuItemComponent = styled.div<{ $disabled?: boolean }>`
   background-color: ${COLORS.GREY_F0};
 
   &:hover {
-    background-color: ${props => (props.$disabled ? COLORS.GREY_F0 : '#316AC5')};
+    background-color: ${props => (props.$disabled ? COLORS.GREY_F0 : COLORS.MENU_HIGHLIGHT)};
     color: ${props => (props.$disabled ? COLORS.GREY_77 : 'white')};
-    border: 1px solid #103a7a;
+    border: 1px solid ${COLORS.MENU_HIGHLIGHT_BORDER};
   }
 
   .icon-wrapper {

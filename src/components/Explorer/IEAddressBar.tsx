@@ -11,7 +11,7 @@ const Bar = styled.div`
   display: flex;
   align-items: center;
   padding: 0 2px 2px;
-  box-shadow: inset 0 -2px 3px -1px #2d2d2d;
+  box-shadow: inset 0 -2px 3px -1px ${COLORS.GREY_2D};
   background: ${COLORS.TOOLBAR_GRADIENT};
 `;
 

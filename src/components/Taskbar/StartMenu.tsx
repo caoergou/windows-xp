@@ -16,7 +16,7 @@ const StartMenuContainer = styled.div`
   bottom: 30px;
   left: 0;
   width: 380px;
-  background-color: #4282d6;
+  background-color: ${COLORS.STARTMENU_BLUE};
   border-top-left-radius: 5px;
   border-top-right-radius: 8px;
   z-index: 20000;
@@ -42,8 +42,8 @@ const StartHeader = styled.div`
   background: linear-gradient(
     to bottom,
     #1868ce 0%,
-    #0e60cb 12%,
-    #0e60cb 20%,
+    ${COLORS.STARTMENU_HEADER_SHADOW} 12%,
+    ${COLORS.STARTMENU_HEADER_SHADOW} 20%,
     #1164cf 32%,
     #1667cf 33%,
     #1b6cd3 47%,
@@ -75,7 +75,7 @@ const StartHeader = styled.div`
       rgba(255, 255, 255, 0.2) 99%,
       transparent 100%
     );
-    box-shadow: inset 0 -1px 1px #0e60cb;
+    box-shadow: inset 0 -1px 1px ${COLORS.STARTMENU_HEADER_SHADOW};
   }
 
   .user-avatar {
@@ -84,7 +84,7 @@ const StartHeader = styled.div`
     margin-right: 5px;
     border-radius: 3px;
     border: 2px solid rgba(222, 222, 222, 0.8);
-    background: #99ccff;
+    background: ${COLORS.STARTMENU_TINT};
     display: flex;
     justify-content: center;
     align-items: center;
@@ -105,8 +105,8 @@ const StartBody = styled.div`
   max-height: calc(100vh - 84px);
   width: calc(100% - 4px);
   position: relative;
-  border-top: 1px solid #385de7;
-  box-shadow: 0 1px #385de7;
+  border-top: 1px solid ${COLORS.STARTMENU_RIGHT_BORDER};
+  box-shadow: 0 1px ${COLORS.STARTMENU_RIGHT_BORDER};
 `;
 
 const OrangeLine = styled.div`
@@ -115,7 +115,12 @@ const OrangeLine = styled.div`
   right: 0;
   top: 0;
   height: 2px;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #da884a 50%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0) 0%,
+    ${COLORS.STARTMENU_DIVIDER_ORANGE} 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
   z-index: 1;
 `;
 
@@ -131,7 +136,7 @@ const StartLeft = styled.div`
 const StartRight = styled.div`
   box-sizing: border-box;
   width: 50%;
-  background: #cbe3ff;
+  background: ${COLORS.STARTMENU_RIGHT_BG};
   border-left: solid rgba(58, 58, 255, 0.37) 1px;
   padding: 6px 5px 5px;
   overflow-y: auto;
@@ -147,7 +152,7 @@ const MenuItem = styled.div`
   color: ${COLORS.GREY_33};
 
   &:hover {
-    background: #2f71cd;
+    background: ${COLORS.STARTMENU_FOOTER_HOVER};
     color: white;
   }
 
@@ -157,10 +162,10 @@ const MenuItem = styled.div`
 `;
 
 const RightMenuItem = styled(MenuItem)`
-  color: #00136b;
+  color: ${COLORS.STARTMENU_RIGHT_TEXT};
 
   &:hover {
-    background: #2f71cd;
+    background: ${COLORS.STARTMENU_FOOTER_HOVER};
     color: ${COLORS.WHITE};
   }
 `;
@@ -206,7 +211,7 @@ const StartFooter = styled.div`
   gap: 10px;
   background: linear-gradient(
     to bottom,
-    #4282d6 0%,
+    ${COLORS.STARTMENU_BLUE} 0%,
     #3b85e0 3%,
     #418ae3 5%,
     #418ae3 17%,

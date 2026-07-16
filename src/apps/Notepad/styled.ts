@@ -29,11 +29,11 @@ export const MenuItemWrapper = styled.div`
 export const MenuItem = styled.div<{ $active?: boolean }>`
   padding: 2px 8px;
   cursor: pointer;
-  background: ${p => (p.$active ? '#316AC5' : 'transparent')};
+  background: ${p => (p.$active ? COLORS.MENU_HIGHLIGHT : 'transparent')};
   color: ${p => (p.$active ? 'white' : 'inherit')};
 
   &:hover {
-    background: #316ac5;
+    background: ${COLORS.MENU_HIGHLIGHT};
     color: white;
   }
 `;
@@ -63,7 +63,7 @@ export const DropdownItem = styled.div<{ $disabled?: boolean; $checked?: boolean
   white-space: nowrap;
 
   &:hover {
-    background: ${p => (p.$disabled ? 'transparent' : '#316AC5')};
+    background: ${p => (p.$disabled ? 'transparent' : COLORS.MENU_HIGHLIGHT)};
     color: ${p => (p.$disabled ? COLORS.GREY_A0 : 'white')};
   }
 
@@ -194,7 +194,7 @@ export const DialogButton = styled.button`
 
   &:hover {
     box-shadow:
-      inset 1px 1px 0px #f5f2e4,
+      inset 1px 1px 0px ${COLORS.STATUS_GROOVE_HILIGHT},
       1px 1px 2px rgba(0, 0, 0, 0.3);
   }
 

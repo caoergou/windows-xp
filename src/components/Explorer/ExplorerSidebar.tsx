@@ -8,7 +8,7 @@ import { COLORS, FONTS } from '../../constants';
 const SidebarContainer = styled.div`
   width: 180px;
   min-width: 180px;
-  background: linear-gradient(to bottom, #748aff 0%, #4057d3 100%);
+  background: ${COLORS.SIDEBAR_GRADIENT};
   overflow: auto;
   padding: 10px;
 `;
@@ -39,13 +39,13 @@ const PanelHeader = styled.div`
   );
 
   &:hover .panel-title {
-    color: #1c68ff;
+    color: ${COLORS.SIDEBAR_LINK};
   }
 `;
 
 const PanelTitle = styled.div`
   font-weight: 700;
-  color: #0c327d;
+  color: ${COLORS.SIDEBAR_HEADER_TEXT};
   flex: 1;
   font-size: 11px;
   font-family: ${FONTS.UI};
@@ -76,12 +76,12 @@ const LinkItem = styled.div<{ $active?: boolean }>`
   cursor: pointer;
   font-size: 10px;
   line-height: 14px;
-  color: #0c327d;
+  color: ${COLORS.SIDEBAR_HEADER_TEXT};
   font-family: ${FONTS.UI};
 
   &:hover {
     cursor: pointer;
-    color: #2b72ff;
+    color: ${COLORS.SIDEBAR_LINK_HOVER};
     text-decoration: underline;
   }
 

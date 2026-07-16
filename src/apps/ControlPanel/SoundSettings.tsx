@@ -83,7 +83,7 @@ const EventItem = styled.div`
   }
 
   &:hover {
-    background: #e8f4ff;
+    background: ${COLORS.PANEL_TINT_BLUE};
   }
 `;
 
@@ -95,7 +95,7 @@ const PlayButton = styled.button`
   padding: 2px 8px;
   font-size: 11px;
   border: 1px solid ${COLORS.BUTTON_BORDER};
-  background: linear-gradient(180deg, ${COLORS.WHITE} 0%, #ecebe5 86%, #d8d0c4 100%);
+  background: ${COLORS.BUTTON_GRADIENT};
   cursor: pointer;
   font-family: ${FONTS.UI};
 
@@ -116,7 +116,7 @@ const Button = styled.button`
   padding: 3px 14px;
   font-size: 11px;
   border: 1px solid ${COLORS.BUTTON_BORDER};
-  background: linear-gradient(180deg, ${COLORS.WHITE} 0%, #ecebe5 86%, #d8d0c4 100%);
+  background: ${COLORS.BUTTON_GRADIENT};
   cursor: pointer;
   font-family: ${FONTS.UI};
 

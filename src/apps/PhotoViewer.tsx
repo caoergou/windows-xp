@@ -10,13 +10,13 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #eef3fa;
+  background-color: ${COLORS.PHOTO_BG};
 `;
 
 const Toolbar = styled.div`
   height: 36px;
-  background: linear-gradient(to bottom, #f9fcfd 0%, #ddecfd 100%);
-  border-bottom: 1px solid #a0b2c8;
+  background: ${COLORS.PHOTO_TOOLBAR_GRADIENT};
+  border-bottom: 1px solid ${COLORS.PHOTO_BORDER};
   display: flex;
   align-items: center;
   padding: 0 10px;
@@ -41,8 +41,8 @@ const StyledImage = styled.img`
 
 const InfoBar = styled.div`
   height: 24px;
-  background-color: #eef3fa;
-  border-top: 1px solid #a0b2c8;
+  background-color: ${COLORS.PHOTO_BG};
+  border-top: 1px solid ${COLORS.PHOTO_BORDER};
   display: flex;
   align-items: center;
   padding: 0 10px;
@@ -62,7 +62,7 @@ const ToolbarButton = styled.button`
   font-family: ${FONTS.UI};
 
   &:hover {
-    border: 1px solid #a0b2c8;
+    border: 1px solid ${COLORS.PHOTO_BORDER};
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 2px;
   }

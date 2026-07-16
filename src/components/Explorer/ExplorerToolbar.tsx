@@ -26,14 +26,14 @@ const MenuBarItem = styled.button<{ $active?: boolean }>`
   font-family: ${FONTS.UI};
   cursor: default;
   border: 1px solid transparent;
-  background: ${p => (p.$active ? '#316AC5' : 'transparent')};
+  background: ${p => (p.$active ? COLORS.MENU_HIGHLIGHT : 'transparent')};
   color: ${p => (p.$active ? COLORS.WHITE : COLORS.BLACK)};
   height: 18px;
 
   &:hover {
-    background: #316ac5;
+    background: ${COLORS.MENU_HIGHLIGHT};
     color: white;
-    border-color: #316ac5;
+    border-color: ${COLORS.MENU_HIGHLIGHT};
   }
 `;
 
@@ -64,7 +64,7 @@ const DropdownItem = styled.button<{ $disabled?: boolean }>`
   cursor: ${p => (p.$disabled ? 'default' : 'default')};
 
   &:hover {
-    background: ${p => (p.$disabled ? 'transparent' : '#316AC5')};
+    background: ${p => (p.$disabled ? 'transparent' : COLORS.MENU_HIGHLIGHT)};
     color: ${p => (p.$disabled ? COLORS.BUTTON_SHADOW : COLORS.WHITE)};
   }
 `;

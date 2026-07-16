@@ -27,11 +27,11 @@ const MenuItemWrapper = styled.div`
 const MenuItem = styled.div<{ $active?: boolean }>`
   padding: 2px 8px;
   cursor: pointer;
-  background: ${p => (p.$active ? '#316AC5' : 'transparent')};
+  background: ${p => (p.$active ? COLORS.MENU_HIGHLIGHT : 'transparent')};
   color: ${p => (p.$active ? 'white' : 'inherit')};
 
   &:hover {
-    background: #316ac5;
+    background: ${COLORS.MENU_HIGHLIGHT};
     color: white;
   }
 `;
@@ -62,7 +62,7 @@ const DropdownItem = styled.div<{ $disabled?: boolean }>`
   white-space: nowrap;
 
   &:hover {
-    background: ${p => (p.$disabled ? 'transparent' : '#316AC5')};
+    background: ${p => (p.$disabled ? 'transparent' : COLORS.MENU_HIGHLIGHT)};
     color: ${p => (p.$disabled ? COLORS.GREY_A0 : 'white')};
   }
 

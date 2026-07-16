@@ -32,7 +32,7 @@ const FlyoutItem = styled.div`
   color: ${COLORS.BLACK};
 
   &:hover {
-    background: #316ac5;
+    background: ${COLORS.MENU_HIGHLIGHT};
     color: ${COLORS.WHITE};
   }
 

@@ -67,7 +67,7 @@ const CloseX = styled.button`
   cursor: pointer;
 
   &:hover {
-    background: #e5e5c5;
+    background: ${COLORS.HOVER_BEIGE};
     border-color: ${COLORS.DIVIDER_GREY};
   }
 `;
@@ -80,10 +80,10 @@ const Row = styled.div<{ $active?: boolean; $depth: number }>`
   cursor: pointer;
   white-space: nowrap;
   color: ${p => (p.$active ? COLORS.WHITE : COLORS.BLACK)};
-  background: ${p => (p.$active ? '#316AC5' : 'transparent')};
+  background: ${p => (p.$active ? COLORS.MENU_HIGHLIGHT : 'transparent')};
 
   &:hover {
-    background: ${p => (p.$active ? '#316AC5' : '#e8f0fb')};
+    background: ${p => (p.$active ? COLORS.MENU_HIGHLIGHT : COLORS.TREE_ROW_TINT)};
   }
 `;
 

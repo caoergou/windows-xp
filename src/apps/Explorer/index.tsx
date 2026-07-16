@@ -288,7 +288,9 @@ const Explorer: React.FC<ExplorerProps> = props => {
     const dropping = dragOver === key && item.type === 'folder';
     if (!dropping && !item.hidden) return undefined;
     return {
-      ...(dropping ? { background: '#C1D2EE', border: '1px dashed #316AC5' } : {}),
+      ...(dropping
+        ? { background: COLORS.DROP_HIGHLIGHT, border: `1px dashed ${COLORS.MENU_HIGHLIGHT}` }
+        : {}),
       ...(item.hidden ? { opacity: 0.55 } : {}),
     };
   };
