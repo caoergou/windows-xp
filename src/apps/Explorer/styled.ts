@@ -24,9 +24,9 @@ export const DetailsTable = styled.table`
 export const DetailsHeadCell = styled.th`
   text-align: left;
   font-weight: normal;
-  background: linear-gradient(to bottom, #ffffff 0%, #f2f1ea 45%, #e7e5d8 100%);
+  background: linear-gradient(to bottom, ${COLORS.WHITE} 0%, #f2f1ea 45%, #e7e5d8 100%);
   border-right: 1px solid #d5d2c6;
-  border-bottom: 1px solid #aca899;
+  border-bottom: 1px solid ${COLORS.DIVIDER_GREY};
   padding: 2px 6px;
   height: 18px;
   cursor: pointer;
@@ -40,13 +40,13 @@ export const DetailsHeadCell = styled.th`
   z-index: 1;
 
   &:hover {
-    background: linear-gradient(to bottom, #ffffff 0%, #eef4fb 45%, #dce9f8 100%);
+    background: linear-gradient(to bottom, ${COLORS.WHITE} 0%, #eef4fb 45%, #dce9f8 100%);
   }
 `;
 
 export const DetailsRow = styled.tr<{ $selected?: boolean }>`
   background: ${p => (p.$selected ? '#316AC5' : 'transparent')};
-  color: ${p => (p.$selected ? '#fff' : '#000')};
+  color: ${p => (p.$selected ? COLORS.WHITE : COLORS.BLACK)};
   cursor: default;
 
   &:hover {
@@ -244,13 +244,13 @@ export const TileMeta = styled.span<{ $selected?: boolean }>`
 
 export const StatusBar = styled.div`
   height: 20px;
-  background: #ece9d8;
-  border-top: 1px solid #d0d0d0;
+  background: ${COLORS.SURFACE};
+  border-top: 1px solid ${COLORS.GREY_D0};
   display: flex;
   align-items: center;
   padding: 0 5px;
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
 `;
 
 export const EmptyRecycleBinMessage = styled.div`
@@ -259,7 +259,7 @@ export const EmptyRecycleBinMessage = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #808080;
+  color: ${COLORS.BUTTON_SHADOW};
   font-size: 12px;
   font-family: ${FONTS.UI};
   gap: 10px;

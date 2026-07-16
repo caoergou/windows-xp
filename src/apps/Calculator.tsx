@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 // Windows XP calc.exe standard view — 6-column layout (see calc.exe / Wikipedia reference)
 
@@ -14,7 +14,7 @@ const Wrap = styled.div`
   min-width: 0;
   height: auto;
   align-self: flex-start;
-  background: #ece9d8;
+  background: ${COLORS.SURFACE};
   display: flex;
   flex-direction: column;
   padding: 4px;
@@ -26,10 +26,11 @@ const Wrap = styled.div`
 `;
 
 const Display = styled.div`
-  background: #ffffff;
+  background: ${COLORS.WHITE};
   border: 1px solid;
-  border-color: #808080 #dfdfdf #dfdfdf #808080;
-  box-shadow: inset 1px 1px 0 #404040;
+  border-color: ${COLORS.BUTTON_SHADOW} ${COLORS.BUTTON_FACE} ${COLORS.BUTTON_FACE}
+    ${COLORS.BUTTON_SHADOW};
+  box-shadow: inset 1px 1px 0 ${COLORS.GREY_40};
   height: 24px;
   margin-bottom: ${GAP}px;
   display: flex;
@@ -38,7 +39,7 @@ const Display = styled.div`
   padding: 1px 4px 0;
   font-size: 14px;
   overflow: hidden;
-  color: #000;
+  color: ${COLORS.BLACK};
   letter-spacing: 0.5px;
   line-height: 1;
   flex-shrink: 0;
@@ -59,9 +60,10 @@ const Row = styled.div<{ $cols?: number }>`
 const MemIndicator = styled.div`
   height: ${BTN_H}px;
   border: 1px solid;
-  border-color: #808080 #dfdfdf #dfdfdf #808080;
-  box-shadow: inset 1px 1px 0 #404040;
-  background: #ece9d8;
+  border-color: ${COLORS.BUTTON_SHADOW} ${COLORS.BUTTON_FACE} ${COLORS.BUTTON_FACE}
+    ${COLORS.BUTTON_SHADOW};
+  box-shadow: inset 1px 1px 0 ${COLORS.GREY_40};
+  background: ${COLORS.SURFACE};
 `;
 
 const Key = styled.button<{
@@ -84,34 +86,30 @@ const Key = styled.button<{
   /* Luna themed button, matching xp.css exactly (#99): the previous
      #d4d0c8 + two-tone 1px border was the Windows 2000 look. */
   box-sizing: border-box;
-  border: 1px solid #003c74;
+  border: 1px solid ${COLORS.BUTTON_BORDER};
   border-radius: 3px;
-  background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
+  background: ${COLORS.BUTTON_GRADIENT};
   box-shadow: none;
 
   color: ${p => {
-    if (p.$disabled) return '#aca899';
+    if (p.$disabled) return COLORS.DIVIDER_GREY;
     if (p.$variant === 'clear' || p.$variant === 'mem' || p.$variant === 'op') return '#cc0000';
     if (p.$variant === 'fn') return '#000080';
-    return '#000000';
+    return COLORS.BLACK;
   }};
 
   &:hover:not(:disabled) {
-    box-shadow:
-      inset -1px 1px #fff0cf,
-      inset 1px 2px #fdd889,
-      inset -2px 2px #fbc761,
-      inset 2px -2px #e5a01a;
+    box-shadow: ${COLORS.BUTTON_HOVER_SHADOW};
   }
 
   &:active:not(:disabled) {
     box-shadow: none;
-    background: linear-gradient(180deg, #cdcac3, #e3e3db 8%, #e5e5de 94%, #f2f2f1);
+    background: ${COLORS.BUTTON_ACTIVE_GRADIENT};
   }
 
   &:disabled {
-    background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
-    border-color: #c9c2b8;
+    background: ${COLORS.BUTTON_GRADIENT};
+    border-color: ${COLORS.BUTTON_BORDER_DISABLED};
     text-shadow: none;
   }
 `;

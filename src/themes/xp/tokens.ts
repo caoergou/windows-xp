@@ -72,6 +72,39 @@ export const COLORS = {
   // XP dialog / group-box greys (status dialogs, group boxes, tabs, list separators).
   // BORDER_GREY / DIVIDER_GREY already exist above; only the hilight is new.
   BORDER_GREY_HILIGHT: '#D4D0C8',
+
+  // ── #213 batch 2: high-frequency chrome values ────────────────────────────
+  /** System colour Window / white chrome foregrounds (K.1 `window.bg`). */
+  WHITE: '#FFFFFF',
+  /** Text-field border, xp.css `--border-field` (STY-16). */
+  FIELD_BORDER: '#7F9DB9',
+  /** System colour InfoWindow — tooltip/balloon background (K.1 `tooltip.bg`). */
+  TOOLTIP_BG: '#FFFFE1',
+  /** Disabled button border, xp.css `button:disabled`. */
+  BUTTON_BORDER_DISABLED: '#C9C2B8',
+  /** Explorer / IE6 toolbar strip gradient (AGENTS.md §2 chrome). */
+  TOOLBAR_GRADIENT: 'linear-gradient(to right, #EDEDE5 0%, #EDE8CD 100%)',
+
+  // Unverified neutral greys (FIDELITY §K.1 待核查). Tokenized value-for-value
+  // from the pre-#213 inline stock so the ratchet drops with zero pixel drift;
+  // verifying/remapping each against a real XP reference is follow-up work.
+  // Do NOT reach for these in new code without checking §K.1 first.
+  GREY_33: '#333333',
+  GREY_40: '#404040',
+  GREY_55: '#555555',
+  GREY_66: '#666666',
+  GREY_77: '#777777',
+  GREY_88: '#888888',
+  GREY_99: '#999999',
+  GREY_A0: '#A0A0A0',
+  GREY_C0: '#C0C0C0',
+  GREY_CC: '#CCCCCC',
+  GREY_D0: '#D0D0D0',
+  GREY_DE: '#DEDEDE',
+  GREY_E0: '#E0E0E0',
+  GREY_EE: '#EEEEEE',
+  GREY_F0: '#F0F0F0',
+  GREY_F5: '#F5F5F5',
 };
 
 /** The shape of the XP token set — the contract a theme's `tokens` must satisfy. */

@@ -2,7 +2,7 @@ import React, { Component, ReactNode } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 const ErrorContainer = styled.div`
   width: 100%;
@@ -11,7 +11,7 @@ const ErrorContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f0f0f0;
+  background: ${COLORS.GREY_F0};
   padding: 20px;
   font-family: ${FONTS.UI};
 `;
@@ -28,7 +28,7 @@ const ErrorTitle = styled.h2`
 `;
 
 const ErrorMessage = styled.p`
-  color: #333;
+  color: ${COLORS.GREY_33};
   margin: 4px 0;
   font-size: 11px;
   text-align: center;
@@ -46,8 +46,8 @@ const ErrorDetails = styled.details`
   }
 
   pre {
-    background: #fff;
-    border: 1px solid #ccc;
+    background: ${COLORS.WHITE};
+    border: 1px solid ${COLORS.GREY_CC};
     padding: 8px;
     margin-top: 8px;
     overflow: auto;
@@ -101,7 +101,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       );
 
       if (windowId) {
-        console.log(`%cWindow ID:`, 'color: #666; font-weight: bold;', windowId);
+        console.log(`%cWindow ID:`, `color: ${COLORS.GREY_66}; font-weight: bold;`, windowId);
       }
 
       console.log('%cError object:', 'color: #0066cc; font-weight: bold;');

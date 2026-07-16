@@ -10,7 +10,7 @@ const Container = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #f0f0f0;
+  background: ${COLORS.GREY_F0};
   font-family: ${FONTS.UI};
 `;
 
@@ -33,8 +33,8 @@ const Content = styled.div`
 
 const Sidebar = styled.div`
   width: 200px;
-  background: #fff;
-  border-right: 1px solid #999;
+  background: ${COLORS.WHITE};
+  border-right: 1px solid ${COLORS.GREY_99};
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -44,13 +44,13 @@ const SidebarItem = styled.div`
   padding: 10px 15px;
   cursor: pointer;
   font-size: 12px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid ${COLORS.GREY_EE};
   display: flex;
   align-items: center;
   gap: 8px;
 
   &:hover {
-    background: #f0f0f0;
+    background: ${COLORS.GREY_F0};
   }
 
   &.active {
@@ -71,11 +71,11 @@ const MainContent = styled.div`
 const TopicTitle = styled.h2`
   margin: 0 0 15px 0;
   font-size: 16px;
-  color: #333;
+  color: ${COLORS.GREY_33};
 `;
 
 const TopicContent = styled.div`
-  color: #666;
+  color: ${COLORS.GREY_66};
 `;
 
 const LessonRow = styled.button`

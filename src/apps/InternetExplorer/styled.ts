@@ -19,8 +19,8 @@ export const MainArea = styled.div`
 
 export const Sidebar = styled.div`
   width: 250px;
-  background: #fff;
-  border-right: 1px solid #999;
+  background: ${COLORS.WHITE};
+  border-right: 1px solid ${COLORS.GREY_99};
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -51,13 +51,13 @@ export const HistoryItem = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid ${COLORS.GREY_EE};
   font-size: 12px;
   display: flex;
   flex-direction: column;
 
   &:hover {
-    background: #f0f0f0;
+    background: ${COLORS.GREY_F0};
   }
 
   .url {
@@ -65,7 +65,7 @@ export const HistoryItem = styled.div`
   }
 
   .time {
-    color: #888;
+    color: ${COLORS.GREY_88};
     font-size: 10px;
     margin-top: 2px;
   }
@@ -77,14 +77,14 @@ export const FavoritesItem = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid ${COLORS.GREY_EE};
   font-size: 12px;
   display: flex;
   align-items: center;
   gap: 5px;
 
   &:hover {
-    background: #f0f0f0;
+    background: ${COLORS.GREY_F0};
   }
 
   .name {
@@ -113,7 +113,7 @@ export const FavoritesItem = styled.div`
 
 export const FavoritesToolbar = styled.div`
   padding: 5px;
-  background: #f0f0f0;
+  background: ${COLORS.GREY_F0};
   border-bottom: 1px solid #ddd;
   display: flex;
   gap: 3px;
@@ -201,7 +201,7 @@ export const StatusText = styled.span`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: #333;
+  color: ${COLORS.GREY_33};
 `;
 
 export const FooterBlock = styled.div`
@@ -260,7 +260,7 @@ export const AddFavoriteModal = styled.div`
   background: ${COLORS.SURFACE};
   border: 2px solid #316ac5;
   border-radius: 0;
-  box-shadow: 2px 2px 0 #808080;
+  box-shadow: 2px 2px 0 ${COLORS.BUTTON_SHADOW};
   z-index: 1000;
   min-width: 300px;
   overflow: hidden;
@@ -278,7 +278,7 @@ export const ModalHeader = styled.div`
 `;
 
 export const ModalTitle = styled.span`
-  color: #fff;
+  color: ${COLORS.WHITE};
 `;
 
 export const ModalBody = styled.div`
@@ -288,7 +288,7 @@ export const ModalBody = styled.div`
 export const ModalInput = styled.input`
   width: 100%;
   padding: 3px 4px;
-  border: 1px solid #7f9db9;
+  border: 1px solid ${COLORS.FIELD_BORDER};
   font-size: 12px;
   font-family: ${FONTS.UI};
   box-sizing: border-box;

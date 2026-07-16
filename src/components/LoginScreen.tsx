@@ -7,7 +7,7 @@ import { sounds } from '../utils/soundManager';
 import { canUseDOM } from '../utils/storage';
 import { useStorage } from '../context/StorageContext';
 import type { LoginBranding } from '../branding';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 interface LoginScreenProps {
   branding?: LoginBranding;
@@ -108,7 +108,7 @@ const PasswordBox = styled.div`
 `;
 
 const Input = styled.input`
-  border: 1px solid #666;
+  border: 1px solid ${COLORS.GREY_66};
   padding: 3px;
   width: 150px;
   outline: none;
@@ -120,7 +120,7 @@ const GoButton = styled.button`
   background: linear-gradient(180deg, #37a856 0%, #2e9a4c 50%, #268f42 100%);
   border: 1px solid #1f7a38;
   border-radius: 0;
-  color: #ffffff;
+  color: ${COLORS.WHITE};
   font-size: 16px;
   font-weight: bold;
   line-height: 1;

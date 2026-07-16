@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import XPIcon from './XPIcon';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 /**
  * BalloonTip — the classic Windows XP tray notification bubble (#118).
@@ -42,8 +42,8 @@ const Bubble = styled.div<{ $tailOffset: number; $showTail: boolean; $clickable:
   width: 242px;
   min-height: 50px;
   box-sizing: border-box;
-  background: #ffffe1;
-  border: 1px solid #7f9db9;
+  background: ${COLORS.TOOLTIP_BG};
+  border: 1px solid ${COLORS.FIELD_BORDER};
   border-radius: 2px;
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
   padding: 7px 24px 7px 8px;
@@ -64,9 +64,9 @@ const Bubble = styled.div<{ $tailOffset: number; $showTail: boolean; $clickable:
     bottom: -8px;
     width: 12px;
     height: 12px;
-    background: #ffffe1;
-    border-right: 1px solid #7f9db9;
-    border-bottom: 1px solid #7f9db9;
+    background: ${COLORS.TOOLTIP_BG};
+    border-right: 1px solid ${COLORS.FIELD_BORDER};
+    border-bottom: 1px solid ${COLORS.FIELD_BORDER};
     transform: rotate(45deg);
   }
   `}
@@ -95,7 +95,7 @@ const TitleLine = styled.div`
 
 const BodyLine = styled.div`
   font-size: 11px;
-  color: #333;
+  color: ${COLORS.GREY_33};
 `;
 
 const CloseBox = styled.button`
@@ -121,11 +121,11 @@ const CloseBox = styled.button`
   line-height: 12px;
   text-align: center;
   cursor: pointer;
-  color: #404040;
+  color: ${COLORS.GREY_40};
 
   &:hover {
     background: #e5e5c5;
-    border-color: #aca899;
+    border-color: ${COLORS.DIVIDER_GREY};
   }
 
   &:active {

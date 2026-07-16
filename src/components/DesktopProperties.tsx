@@ -4,35 +4,35 @@ import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { XPSelect } from './XPSelect';
 import { useUserSession } from '../context/UserSessionContext';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 const Container = styled.div`
   width: 360px;
-  background: #ece9d8;
+  background: ${COLORS.SURFACE};
   font-family: ${FONTS.UI};
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
   display: flex;
   flex-direction: column;
 `;
 
 const Tabs = styled.div`
   display: flex;
-  border-bottom: 1px solid #ece9d8;
-  background: #f0f0f0;
+  border-bottom: 1px solid ${COLORS.SURFACE};
+  background: ${COLORS.GREY_F0};
 `;
 
 const Tab = styled.button<{ $active?: boolean }>`
   padding: 4px 12px;
-  border: 1px solid #ece9d8;
+  border: 1px solid ${COLORS.SURFACE};
   border-bottom: none;
-  background: ${props => (props.$active ? '#ece9d8' : '#f8f8f8')};
+  background: ${props => (props.$active ? COLORS.SURFACE : '#f8f8f8')};
   cursor: pointer;
   font-size: 11px;
   margin-right: 2px;
 
   &:hover {
-    background: #ece9d8;
+    background: ${COLORS.SURFACE};
   }
 `;
 
@@ -47,7 +47,7 @@ const Preview = styled.div<{ $bgUrl: string }>`
   background-image: url(${props => props.$bgUrl});
   background-size: cover;
   background-position: center;
-  border: 1px solid #7f9db9;
+  border: 1px solid ${COLORS.FIELD_BORDER};
   margin-bottom: 12px;
 `;
 
@@ -60,7 +60,7 @@ const Row = styled.div`
 
 const Label = styled.div`
   width: 70px;
-  color: #333;
+  color: ${COLORS.GREY_33};
 `;
 
 const Select = styled(XPSelect)`
@@ -72,23 +72,19 @@ const ButtonRow = styled.div`
   justify-content: flex-end;
   gap: 8px;
   padding: 10px 12px;
-  border-top: 1px solid #ece9d8;
-  background: #f0f0f0;
+  border-top: 1px solid ${COLORS.SURFACE};
+  background: ${COLORS.GREY_F0};
 `;
 
 const Button = styled.button`
   padding: 3px 14px;
   font-size: 11px;
-  border: 1px solid #003c74;
-  background: linear-gradient(180deg, #ffffff 0%, #ecebe5 86%, #d8d0c4 100%);
+  border: 1px solid ${COLORS.BUTTON_BORDER};
+  background: linear-gradient(180deg, ${COLORS.WHITE} 0%, #ecebe5 86%, #d8d0c4 100%);
   cursor: pointer;
 
   &:hover {
-    box-shadow:
-      inset -1px 1px #fff0cf,
-      inset 1px 2px #fdd889,
-      inset -2px 2px #fbc761,
-      inset 2px -2px #e5a01a;
+    box-shadow: ${COLORS.BUTTON_HOVER_SHADOW};
   }
 `;
 

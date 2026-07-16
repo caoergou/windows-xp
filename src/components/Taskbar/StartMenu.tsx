@@ -8,6 +8,7 @@ import { sounds } from '../../utils/soundManager';
 import StartMenuFlyout from './StartMenuFlyout';
 import { StartMenuProfile } from '../../data/culture';
 import { SYSTEM_PATHS } from '../../data/systemPaths';
+import { COLORS } from '../../constants';
 
 const StartMenuContainer = styled.div`
   box-sizing: border-box;
@@ -32,7 +33,7 @@ const StartHeader = styled.div`
   align-self: flex-start;
   display: flex;
   align-items: center;
-  color: #fff;
+  color: ${COLORS.WHITE};
   height: 54px;
   padding: 6px 5px 5px;
   width: 100%;
@@ -90,7 +91,7 @@ const StartHeader = styled.div`
   }
 
   span {
-    color: #fff;
+    color: ${COLORS.WHITE};
     font-size: 14px;
     font-weight: 700;
     text-shadow: 1px 1px rgba(0, 0, 0, 0.7);
@@ -121,7 +122,7 @@ const OrangeLine = styled.div`
 const StartLeft = styled.div`
   box-sizing: border-box;
   width: 50%;
-  background: #fff;
+  background: ${COLORS.WHITE};
   padding: 6px 5px 0;
   overflow-y: auto;
   ${xpScrollbarStyles}
@@ -143,7 +144,7 @@ const MenuItem = styled.div`
   padding: 5px;
   cursor: pointer;
   font-size: 11px;
-  color: #333;
+  color: ${COLORS.GREY_33};
 
   &:hover {
     background: #2f71cd;
@@ -160,7 +161,7 @@ const RightMenuItem = styled(MenuItem)`
 
   &:hover {
     background: #2f71cd;
-    color: #fff;
+    color: ${COLORS.WHITE};
   }
 `;
 
@@ -180,7 +181,7 @@ const MenuSeparator = styled.div`
 const MenuArrow = styled.span`
   margin-left: auto;
   font-size: 10px;
-  color: #666;
+  color: ${COLORS.GREY_66};
 `;
 
 const RightMenuSeparator = styled(MenuSeparator)`
@@ -198,7 +199,7 @@ const StartFooter = styled.div`
   align-self: flex-end;
   align-items: center;
   justify-content: flex-end;
-  color: #fff;
+  color: ${COLORS.WHITE};
   height: 36px;
   width: 100%;
   padding: 0 10px;

@@ -4,7 +4,7 @@ import { useApp } from '../hooks/useApp';
 import { APP_REGISTRY } from '../registry/apps';
 import { useTranslation } from 'react-i18next';
 import { FileNode } from '../types';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 const Container = styled.div`
   display: flex;
@@ -47,7 +47,7 @@ const InfoBar = styled.div`
   align-items: center;
   padding: 0 10px;
   font-size: 11px;
-  color: #333;
+  color: ${COLORS.GREY_33};
 `;
 
 const ToolbarButton = styled.button`
@@ -111,7 +111,14 @@ const PhotoViewer = ({ src, fileItem, windowId }: PhotoViewerProps) => {
   return (
     <Container>
       <Toolbar>
-        <span style={{ fontSize: '11px', marginRight: 'auto', fontWeight: 'bold', color: '#333' }}>
+        <span
+          style={{
+            fontSize: '11px',
+            marginRight: 'auto',
+            fontWeight: 'bold',
+            color: COLORS.GREY_33,
+          }}
+        >
           {t('photoViewer.title')}
         </span>
         {fileItem && (

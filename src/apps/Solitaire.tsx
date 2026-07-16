@@ -28,7 +28,7 @@ import {
   RANK_LABELS,
   SUIT_SYMBOLS,
 } from './solitaireLogic';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 const CARD_WIDTH = 71;
 const CARD_HEIGHT = 96;
@@ -45,7 +45,7 @@ const Wrap = styled.div`
   font-family: ${FONTS.UI};
   font-size: 12px;
   user-select: none;
-  color: #ffffff;
+  color: ${COLORS.WHITE};
   overflow: auto;
   position: relative;
 `;
@@ -100,7 +100,7 @@ const TableauPile = styled.div`
 const cardBase = css`
   width: ${CARD_WIDTH}px;
   height: ${CARD_HEIGHT}px;
-  border: 1px solid #808080;
+  border: 1px solid ${COLORS.BUTTON_SHADOW};
   border-radius: 3px;
   display: flex;
   flex-direction: column;
@@ -115,8 +115,8 @@ const cardBase = css`
 
 const FaceUpCard = styled.div<{ $suit?: string }>`
   ${cardBase}
-  background: #ffffff;
-  color: ${p => (p.$suit === 'hearts' || p.$suit === 'diamonds' ? '#ff0000' : '#000000')};
+  background: ${COLORS.WHITE};
+  color: ${p => (p.$suit === 'hearts' || p.$suit === 'diamonds' ? '#ff0000' : COLORS.BLACK)};
 
   &:hover {
     filter: brightness(0.97);
@@ -169,11 +169,11 @@ const DragOverlay = styled.div<{ $x: number; $y: number; $bouncing: boolean }>`
 
 const DragStackCard = styled.div<{ $offset: number; $suit?: string }>`
   ${cardBase}
-  background: #ffffff;
+  background: ${COLORS.WHITE};
   position: absolute;
   top: ${p => p.$offset}px;
   left: 0;
-  color: ${p => (p.$suit === 'hearts' || p.$suit === 'diamonds' ? '#ff0000' : '#000000')};
+  color: ${p => (p.$suit === 'hearts' || p.$suit === 'diamonds' ? '#ff0000' : COLORS.BLACK)};
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.35);
 `;
 
@@ -182,10 +182,10 @@ const WinMessage = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #d4d0c8;
-  color: #000000;
+  background: ${COLORS.BORDER_GREY_HILIGHT};
+  color: ${COLORS.BLACK};
   border: 2px solid;
-  border-color: #ffffff #808080 #808080 #ffffff;
+  border-color: ${COLORS.WHITE} ${COLORS.BUTTON_SHADOW} ${COLORS.BUTTON_SHADOW} ${COLORS.WHITE};
   padding: 16px 24px;
   font-size: 16px;
   font-weight: bold;

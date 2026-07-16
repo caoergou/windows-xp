@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import XPIcon from '../XPIcon';
 import { useTranslation } from 'react-i18next';
-import { FONTS } from '../../constants';
+import { COLORS, FONTS } from '../../constants';
 
 const Bar = styled.div`
   flex-shrink: 0;
@@ -13,7 +13,7 @@ const Bar = styled.div`
   align-items: center;
   padding: 0 2px 1px;
   box-shadow: inset 0 -2px 3px -1px #b0b0b0;
-  background: linear-gradient(to right, #edede5 0%, #ede8cd 100%);
+  background: ${COLORS.TOOLBAR_GRADIENT};
 `;
 
 const Label = styled.span`
@@ -96,8 +96,8 @@ const HistoryMenu = styled.ul`
   margin: 0;
   padding: 1px;
   list-style: none;
-  background: #fff;
-  border: 1px solid #7f9db9;
+  background: ${COLORS.WHITE};
+  border: 1px solid ${COLORS.FIELD_BORDER};
   box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
   max-height: 200px;
   overflow-y: auto;
@@ -114,19 +114,19 @@ const HistoryItem = styled.li`
   font-family: ${FONTS.UI};
   white-space: nowrap;
   cursor: pointer;
-  color: #000;
+  color: ${COLORS.BLACK};
 
   &:hover,
   &[data-active='true'] {
     background: #316ac5;
-    color: #fff;
+    color: ${COLORS.WHITE};
   }
 `;
 
 const HistoryEmpty = styled.li`
   padding: 3px 8px;
   font-size: 11px;
-  color: #888;
+  color: ${COLORS.GREY_88};
   font-family: ${FONTS.UI};
 `;
 

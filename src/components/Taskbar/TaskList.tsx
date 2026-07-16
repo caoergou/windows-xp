@@ -6,6 +6,7 @@ import XPIcon from '../XPIcon';
 import ContextMenu from '../ContextMenu';
 import { APP_REGISTRY, getAppDisplayName } from '../../registry/apps';
 import { buildTaskbarEntries } from '../../utils/taskbarGrouping';
+import { COLORS } from '../../constants';
 
 const TaskItems = styled.div`
   flex: 1;
@@ -49,7 +50,7 @@ const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
   min-width: 40px;
   max-width: 150px;
   height: 22px;
-  color: #fff;
+  color: ${COLORS.WHITE};
   border-radius: 2px;
   margin-top: 2px;
   padding: 0 8px;

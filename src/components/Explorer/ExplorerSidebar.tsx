@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../XPIcon';
 import { SYSTEM_PATHS, getSystemPathTitle } from '../../data/systemPaths';
-import { FONTS } from '../../constants';
+import { COLORS, FONTS } from '../../constants';
 
 const SidebarContainer = styled.div`
   width: 180px;
@@ -98,20 +98,20 @@ const DetailText = styled.div`
   padding: 3px 10px 2px 12px;
   font-size: 11px;
   font-family: ${FONTS.UI};
-  color: #333;
+  color: ${COLORS.GREY_33};
   line-height: 1.5;
 `;
 
 const DetailName = styled.div`
   font-weight: bold;
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
   margin-bottom: 1px;
 `;
 
 const DetailType = styled.div`
   font-size: 10px;
-  color: #666;
+  color: ${COLORS.GREY_66};
 `;
 
 interface ExplorerSidebarProps {

@@ -5,7 +5,7 @@ import XPIcon from '../XPIcon';
 import { FileNode, isContainerNode } from '../../types';
 import { getFileDisplayName } from '../../utils/fileDisplayName';
 import { getFileIconName } from '../../utils/fileIcon';
-import { FONTS } from '../../constants';
+import { COLORS, FONTS } from '../../constants';
 
 /**
  * Explorer "Folders" tree pane (#120, EXP) — the signature XP left-hand tree.
@@ -18,8 +18,8 @@ import { FONTS } from '../../constants';
 const TreeContainer = styled.div`
   width: 200px;
   min-width: 200px;
-  background: #fff;
-  border-right: 1px solid #aca899;
+  background: ${COLORS.WHITE};
+  border-right: 1px solid ${COLORS.DIVIDER_GREY};
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -38,8 +38,8 @@ const TreeHeader = styled.div`
   height: 20px;
   padding: 0 3px 0 6px;
   font-weight: bold;
-  color: #333;
-  border-bottom: 1px solid #d4d0c8;
+  color: ${COLORS.GREY_33};
+  border-bottom: 1px solid ${COLORS.BORDER_GREY_HILIGHT};
 `;
 
 const TreeBody = styled.div`
@@ -63,12 +63,12 @@ const CloseX = styled.button`
   background: transparent;
   font-size: 12px;
   line-height: 1;
-  color: #555;
+  color: ${COLORS.GREY_55};
   cursor: pointer;
 
   &:hover {
     background: #e5e5c5;
-    border-color: #aca899;
+    border-color: ${COLORS.DIVIDER_GREY};
   }
 `;
 
@@ -79,7 +79,7 @@ const Row = styled.div<{ $active?: boolean; $depth: number }>`
   padding-left: ${p => 2 + p.$depth * 16}px;
   cursor: pointer;
   white-space: nowrap;
-  color: ${p => (p.$active ? '#fff' : '#000')};
+  color: ${p => (p.$active ? COLORS.WHITE : COLORS.BLACK)};
   background: ${p => (p.$active ? '#316AC5' : 'transparent')};
 
   &:hover {
@@ -98,8 +98,8 @@ const Toggle = styled.span<{ $expanded: boolean }>`
   width: 9px;
   height: 9px;
   flex: 0 0 9px;
-  border: 1px solid #808080;
-  background: #fff;
+  border: 1px solid ${COLORS.BUTTON_SHADOW};
+  background: ${COLORS.WHITE};
   margin-right: 4px;
   cursor: pointer;
 
@@ -110,7 +110,7 @@ const Toggle = styled.span<{ $expanded: boolean }>`
     right: 1px;
     top: 3px;
     height: 1px;
-    background: #000;
+    background: ${COLORS.BLACK};
   }
 
   &::after {
@@ -120,7 +120,7 @@ const Toggle = styled.span<{ $expanded: boolean }>`
     bottom: 1px;
     left: 3px;
     width: 1px;
-    background: ${p => (p.$expanded ? 'transparent' : '#000')};
+    background: ${p => (p.$expanded ? 'transparent' : COLORS.BLACK)};
   }
 `;
 

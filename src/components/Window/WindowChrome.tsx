@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { WindowState } from '../../types';
-import { WINDOW_DEFAULTS, FONTS } from '../../constants';
+import { COLORS, WINDOW_DEFAULTS, FONTS } from '../../constants';
 import XPIcon from '../XPIcon';
 
 export const WindowContainer = styled.div<{
@@ -15,7 +15,7 @@ export const WindowContainer = styled.div<{
   flex-direction: column;
   min-height: ${({ $minHeight }) => $minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT}px;
   min-width: ${({ $minWidth }) => $minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH}px;
-  background-color: #ece9d8;
+  background-color: ${COLORS.SURFACE};
   box-shadow: ${({ $isFocus }) =>
     $isFocus
       ? 'inset -1px -1px #00138c, inset 1px 1px #0831d9, inset -2px -2px #001ea0, inset 2px 2px #166aee, inset -3px -3px #003bda, inset 3px 3px #0855dd'
@@ -56,7 +56,7 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
   font-weight: 700;
   font-size: 13px;
   font-family: ${FONTS.TITLEBAR};
-  text-shadow: 1px 1px #000;
+  text-shadow: 1px 1px ${COLORS.BLACK};
   color: white;
   flex-shrink: 0;
 
@@ -116,7 +116,7 @@ const TitleText = styled.div`
 
 export const WindowBody = styled.div`
   flex: 1;
-  background: #ece9d8;
+  background: ${COLORS.SURFACE};
   overflow: hidden;
   position: relative;
   display: flex;

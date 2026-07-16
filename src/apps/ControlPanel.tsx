@@ -22,14 +22,14 @@ import { canUseDOM } from '../utils/storage';
 import { useStorage } from '../context/StorageContext';
 import { getSavedLanguage, saveLanguage, SupportedLanguage } from '../utils/language';
 import { sounds } from '../utils/soundManager';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 const Container = styled.div`
   padding: 16px;
   font-family: ${FONTS.UI};
   font-size: 12px;
   height: 100%;
-  background: #ece9d8;
+  background: ${COLORS.SURFACE};
   display: flex;
   flex-direction: column;
 `;
@@ -38,7 +38,7 @@ const Title = styled.h3`
   margin: 0 0 16px 0;
   font-size: 14px;
   font-weight: bold;
-  color: #000000;
+  color: ${COLORS.BLACK};
 `;
 
 const CategoryGrid = styled.div`
@@ -53,7 +53,7 @@ const CategoryItem = styled.div<{ $selected?: boolean }>`
   gap: 8px;
   width: 220px;
   padding: 4px;
-  background: #ece9d8;
+  background: ${COLORS.SURFACE};
   border: 1px solid transparent;
   cursor: pointer;
 
@@ -67,7 +67,7 @@ const CategoryItem = styled.div<{ $selected?: boolean }>`
     `
     background-color: #316ac5;
     color: white;
-    border: 1px dotted #fff;
+    border: 1px dotted ${COLORS.WHITE};
 
     &:hover {
       background-color: #316ac5;
@@ -86,7 +86,7 @@ const CategoryIcon = styled.img`
 
 const CategoryName = styled.div<{ $selected?: boolean }>`
   font-size: 11px;
-  color: ${props => (props.$selected ? '#ffffff' : '#000000')};
+  color: ${props => (props.$selected ? COLORS.WHITE : COLORS.BLACK)};
 `;
 
 const BackButton = styled.button`
@@ -94,25 +94,21 @@ const BackButton = styled.button`
   margin-bottom: 12px;
   padding: 3px 14px;
   font-size: 11px;
-  border: 1px solid #003c74;
-  background: linear-gradient(180deg, #ffffff 0%, #ecebe5 86%, #d8d0c4 100%);
+  border: 1px solid ${COLORS.BUTTON_BORDER};
+  background: linear-gradient(180deg, ${COLORS.WHITE} 0%, #ecebe5 86%, #d8d0c4 100%);
   cursor: pointer;
   font-family: ${FONTS.UI};
 
   &:hover {
-    box-shadow:
-      inset -1px 1px #fff0cf,
-      inset 1px 2px #fdd889,
-      inset -2px 2px #fbc761,
-      inset 2px -2px #e5a01a;
+    box-shadow: ${COLORS.BUTTON_HOVER_SHADOW};
   }
 `;
 
 const SystemSettings = styled.div`
   width: 100%;
   max-width: 460px;
-  border: 1px solid #919b9c;
-  background: #fff;
+  border: 1px solid ${COLORS.BORDER_GREY};
+  background: ${COLORS.WHITE};
   padding: 14px;
 
   h4 {

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { XP_ASSETS } from '../../themes/xp/assets';
-import { FONTS } from '../../constants';
+import { COLORS, FONTS } from '../../constants';
 
 const startButtonSprite = XP_ASSETS.startButton.sprite;
 const windowsLogo = XP_ASSETS.startButton.logo;
@@ -30,7 +30,7 @@ const StartButtonContainer = styled.button<{ $isActive?: boolean; $localized?: b
   align-items: center;
   justify-content: center;
   gap: 4px;
-  color: #fff;
+  color: ${COLORS.WHITE};
   font-family: ${FONTS.UI};
   font-size: 13px;
   font-weight: bold;

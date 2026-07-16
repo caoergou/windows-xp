@@ -187,7 +187,7 @@ const UTorrent: React.FC<{ windowId?: string }> = () => {
                 {t.size}
               </Cell>
               <Cell $flex={2}>
-                <Prog>
+                <Prog data-testid="utorrent-progress">
                   <Fill $v={t.progress} $done={done} />
                 </Prog>
               </Cell>

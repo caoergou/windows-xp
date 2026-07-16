@@ -1,6 +1,6 @@
 import React, { useId, useState } from 'react';
 import styled from 'styled-components';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 /**
  * XP tab control (#78): the classic raised tab strip with a bordered panel.
@@ -18,12 +18,13 @@ const Strip = styled.div`
 const Tab = styled.button<{ $active?: boolean }>`
   font-family: ${FONTS.UI};
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
   padding: 3px 9px ${p => (p.$active ? '4px' : '3px')};
   margin-bottom: ${p => (p.$active ? '-1px' : '0')};
-  background: #ece9d8;
-  border: 1px solid #aca899;
-  border-bottom: ${p => (p.$active ? '1px solid #ece9d8' : '1px solid #aca899')};
+  background: ${COLORS.SURFACE};
+  border: 1px solid ${COLORS.DIVIDER_GREY};
+  border-bottom: ${p =>
+    p.$active ? `1px solid ${COLORS.SURFACE}` : `1px solid ${COLORS.DIVIDER_GREY}`};
   border-radius: 3px 3px 0 0;
   cursor: pointer;
   position: relative;
@@ -31,12 +32,12 @@ const Tab = styled.button<{ $active?: boolean }>`
 `;
 
 const Panel = styled.div`
-  border: 1px solid #aca899;
-  background: #ece9d8;
+  border: 1px solid ${COLORS.DIVIDER_GREY};
+  background: ${COLORS.SURFACE};
   padding: 12px;
   font-family: ${FONTS.UI};
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
 `;
 
 export interface XPTab {

@@ -9,7 +9,7 @@ import { triggerBsod } from '../utils/easterEggs';
 import { XPTextInput } from '../components/XPTextInput';
 import { XPButton } from '../components/XPButton';
 import XPIcon from '../components/XPIcon';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 const Container = styled.div`
   padding: 11px 9px 9px;
@@ -30,7 +30,7 @@ const Prompt = styled.div`
 const PromptText = styled.div`
   font-size: 11px;
   line-height: 1.35;
-  color: #000;
+  color: ${COLORS.BLACK};
   padding-top: 2px;
 `;
 

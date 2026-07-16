@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { FONTS } from '../../constants';
+import { COLORS, FONTS } from '../../constants';
 
 // Desktop styled-components (#163/A — split out of Desktop.tsx).
 
@@ -28,7 +28,7 @@ export const SelectionBox = styled.div<{
   top: ${props => props.$top}px;
   width: ${props => props.$width}px;
   height: ${props => props.$height}px;
-  border: 1px dotted #fff;
+  border: 1px dotted ${COLORS.WHITE};
   background-color: rgba(49, 106, 197, 0.3);
   pointer-events: none;
   z-index: 1000;
@@ -110,7 +110,7 @@ export const DesktopIcon = styled.div<{ $selected?: boolean }>`
     ${props =>
       props.$selected &&
       `
-      color: #ffffff;
+      color: ${COLORS.WHITE};
       text-shadow: none;
     `}
   }

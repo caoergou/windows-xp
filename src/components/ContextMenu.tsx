@@ -5,12 +5,13 @@ import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
 import { useXPEventBus } from '../context/EventBusContext';
 import { MenuItem } from '../types';
+import { COLORS } from '../constants';
 
 const ContextMenuContainer = styled.div<{ $x: number; $y: number }>`
   position: fixed;
-  background: #f0f0f0;
-  border: 1px solid #000000;
-  box-shadow: 2px 2px 0px #808080;
+  background: ${COLORS.GREY_F0};
+  border: 1px solid ${COLORS.BLACK};
+  box-shadow: 2px 2px 0px ${COLORS.BUTTON_SHADOW};
   padding: 1px;
   z-index: 2147483647;
   min-width: 150px;
@@ -24,14 +25,14 @@ const MenuItemComponent = styled.div<{ $disabled?: boolean }>`
   cursor: default;
   display: flex;
   align-items: center;
-  color: ${props => (props.$disabled ? '#777' : '#000')};
+  color: ${props => (props.$disabled ? COLORS.GREY_77 : COLORS.BLACK)};
   position: relative;
   border: 1px solid transparent;
-  background-color: #f0f0f0;
+  background-color: ${COLORS.GREY_F0};
 
   &:hover {
-    background-color: ${props => (props.$disabled ? '#F0F0F0' : '#316AC5')};
-    color: ${props => (props.$disabled ? '#777' : 'white')};
+    background-color: ${props => (props.$disabled ? COLORS.GREY_F0 : '#316AC5')};
+    color: ${props => (props.$disabled ? COLORS.GREY_77 : 'white')};
     border: 1px solid #103a7a;
   }
 
@@ -61,7 +62,7 @@ const MenuItemComponent = styled.div<{ $disabled?: boolean }>`
 
 const MenuSeparator = styled.div`
   height: 1px;
-  background: #808080;
+  background: ${COLORS.BUTTON_SHADOW};
   margin: 4px 2px;
 `;
 
@@ -69,7 +70,7 @@ const SubMenuIndicator = styled.span`
   position: absolute;
   right: 8px;
   font-size: 10px;
-  color: #666;
+  color: ${COLORS.GREY_66};
 `;
 
 const SubMenuContainer = styled.div`
@@ -77,9 +78,9 @@ const SubMenuContainer = styled.div`
   position: absolute;
   left: calc(100% - 1px);
   top: -2px;
-  background: #f0f0f0;
-  border: 1px solid #000000;
-  box-shadow: 2px 2px 0px #808080;
+  background: ${COLORS.GREY_F0};
+  border: 1px solid ${COLORS.BLACK};
+  box-shadow: 2px 2px 0px ${COLORS.BUTTON_SHADOW};
   padding: 1px;
   min-width: 140px;
   z-index: 2147483648;

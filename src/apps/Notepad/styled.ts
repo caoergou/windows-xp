@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { FONTS } from '../../constants';
+import { COLORS, FONTS } from '../../constants';
 
 // Notepad styled-components (#163/A).
 
@@ -13,7 +13,7 @@ export const Container = styled.div`
 
 export const MenuBar = styled.div`
   height: 20px;
-  background: #ece9d8;
+  background: ${COLORS.SURFACE};
   display: flex;
   align-items: center;
   padding: 0 2px;
@@ -43,9 +43,9 @@ export const DropdownMenu = styled.div`
   top: 100%;
   left: 0;
   min-width: 160px;
-  background: #f0f0f0;
-  border: 1px solid #000;
-  box-shadow: 2px 2px 0px #808080;
+  background: ${COLORS.GREY_F0};
+  border: 1px solid ${COLORS.BLACK};
+  box-shadow: 2px 2px 0px ${COLORS.BUTTON_SHADOW};
   padding: 2px 0;
   z-index: 9999;
   font-size: 12px;
@@ -58,13 +58,13 @@ export const DropdownItem = styled.div<{ $disabled?: boolean; $checked?: boolean
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: ${p => (p.$disabled ? '#A0A0A0' : '#000')};
+  color: ${p => (p.$disabled ? COLORS.GREY_A0 : COLORS.BLACK)};
   position: relative;
   white-space: nowrap;
 
   &:hover {
     background: ${p => (p.$disabled ? 'transparent' : '#316AC5')};
-    color: ${p => (p.$disabled ? '#A0A0A0' : 'white')};
+    color: ${p => (p.$disabled ? COLORS.GREY_A0 : 'white')};
   }
 
   .shortcut {
@@ -86,7 +86,7 @@ export const DropdownItem = styled.div<{ $disabled?: boolean; $checked?: boolean
 
 export const DropdownSeparator = styled.div`
   height: 1px;
-  background: #808080;
+  background: ${COLORS.BUTTON_SHADOW};
   margin: 3px 2px;
 `;
 
@@ -116,8 +116,8 @@ export const TextArea = styled.textarea<{ $wordWrap: boolean }>`
 
 export const StatusBar = styled.div`
   height: 20px;
-  background: #ece9d8;
-  border-top: 1px solid #808080;
+  background: ${COLORS.SURFACE};
+  border-top: 1px solid ${COLORS.BUTTON_SHADOW};
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -128,7 +128,7 @@ export const StatusBar = styled.div`
 `;
 
 export const StatusBarSection = styled.div`
-  border-left: 1px solid #808080;
+  border-left: 1px solid ${COLORS.BUTTON_SHADOW};
   padding: 0 8px;
 `;
 
@@ -166,7 +166,7 @@ export const DialogLabel = styled.label`
 
 export const DialogInput = styled.input`
   flex: 1;
-  border: 1px solid #7f9db9;
+  border: 1px solid ${COLORS.FIELD_BORDER};
   padding: 3px;
   font-family: ${FONTS.UI};
   font-size: 12px;
@@ -182,8 +182,8 @@ export const DialogButtonArea = styled.div`
 export const DialogButton = styled.button`
   min-width: 75px;
   height: 23px;
-  background: #ece9d8;
-  border: 1px solid #003c74;
+  background: ${COLORS.SURFACE};
+  border: 1px solid ${COLORS.BUTTON_BORDER};
   border-radius: 2px;
   font-family: ${FONTS.UI};
   font-size: 12px;
@@ -210,7 +210,7 @@ export const DialogButton = styled.button`
   }
 
   &:disabled {
-    color: #808080;
+    color: ${COLORS.BUTTON_SHADOW};
     cursor: default;
   }
 `;

@@ -15,7 +15,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 /** src/ inline hex color value stock baseline: only decrease. Update this value after lowering. */
-const HEX_BASELINE = 1482; // 2026-07-15: net -3 after tokenizing the XP shutdown panel, including its sampled standby palette; debt see #135
+const HEX_BASELINE = 1022; // 2026-07-16: #213 batch 2 — high-frequency chrome greys/whites + button-chrome gradients tokenized into COLORS (1482 → 1022)
 
 /** Mechanism layer: directories/files that must keep zero color values and zero xp.css dependencies. */
 const ENGINE_PURE = ['src/context', 'src/hooks', 'src/utils', 'src/events.ts', 'src/snapshot.ts'];

@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import XPIcon from '../XPIcon';
 import { useTranslation } from 'react-i18next';
-import { FONTS } from '../../constants';
+import { COLORS, FONTS } from '../../constants';
 
 const Bar = styled.div`
   border-top: 1px solid rgba(255, 255, 255, 0.7);
@@ -12,7 +12,7 @@ const Bar = styled.div`
   align-items: center;
   padding: 0 2px 2px;
   box-shadow: inset 0 -2px 3px -1px #2d2d2d;
-  background: linear-gradient(to right, #edede5 0%, #ede8cd 100%);
+  background: ${COLORS.TOOLBAR_GRADIENT};
 `;
 
 const Label = styled.span`

@@ -6,12 +6,12 @@ import { useXPEventBus } from '../context/EventBusContext';
 // Bundled no-copyright chime (synthesized tone) so the player works out of the
 // box — the old '/audio/sample.mp3' path never existed and ignored the base URL (#85).
 import sampleAudio from '../assets/audio/sample.wav';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 const Wrap = styled.div`
   width: 100%;
   height: 100%;
-  background: #000000;
+  background: ${COLORS.BLACK};
   display: flex;
   flex-direction: column;
   padding: 6px;
@@ -19,7 +19,7 @@ const Wrap = styled.div`
   font-family: ${FONTS.UI};
   font-size: 12px;
   user-select: none;
-  color: #ffffff;
+  color: ${COLORS.WHITE};
 `;
 
 const TitleBar = styled.div`
@@ -48,15 +48,15 @@ const ControlBtn = styled.button`
   font-size: 12px;
   font-family: inherit;
   border: 1px solid;
-  border-color: #ffffff #808080 #808080 #ffffff;
+  border-color: ${COLORS.WHITE} ${COLORS.BUTTON_SHADOW} ${COLORS.BUTTON_SHADOW} ${COLORS.WHITE};
   outline: none;
-  background: #ece9d8;
+  background: ${COLORS.SURFACE};
   display: flex;
   align-items: center;
   justify-content: center;
 
   &:active {
-    border-color: #808080 #ffffff #ffffff #808080;
+    border-color: ${COLORS.BUTTON_SHADOW} ${COLORS.WHITE} ${COLORS.WHITE} ${COLORS.BUTTON_SHADOW};
     padding-top: 1px;
     padding-left: 1px;
   }
@@ -80,7 +80,7 @@ const ProgressBar = styled.input`
   flex: 1;
   height: 6px;
   -webkit-appearance: none;
-  background: #333;
+  background: ${COLORS.GREY_33};
   outline: none;
   border-radius: 3px;
 
@@ -96,7 +96,7 @@ const ProgressBar = styled.input`
 
 const Visualization = styled.div`
   flex: 1;
-  background: #000000;
+  background: ${COLORS.BLACK};
   margin-bottom: 6px;
   display: flex;
   align-items: center;
@@ -143,7 +143,7 @@ const TrackInfo = styled.div`
 const AlbumArt = styled.div`
   width: 64px;
   height: 64px;
-  background: #333;
+  background: ${COLORS.GREY_33};
   border: 1px solid #444;
   display: flex;
   align-items: center;
@@ -162,7 +162,7 @@ const TrackTitle = styled.div`
 
 const TrackArtist = styled.div`
   font-size: 11px;
-  color: #cccccc;
+  color: ${COLORS.GREY_CC};
 `;
 
 const DEFAULT_SRC = sampleAudio;

@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled, { keyframes } from 'styled-components';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 /**
  * Canonical XP tooltip (#99, FIDELITY CUR-03 / STY-14): pale-yellow InfoWindow
@@ -24,9 +24,9 @@ const Bubble = styled.div`
   z-index: 2147483000;
   max-width: 240px;
   padding: 1px 4px 2px;
-  background: #ffffe1;
-  border: 1px solid #000;
-  color: #000;
+  background: ${COLORS.TOOLTIP_BG};
+  border: 1px solid ${COLORS.BLACK};
+  color: ${COLORS.BLACK};
   font-family: ${FONTS.UI};
   font-size: 11px;
   line-height: 1.35;

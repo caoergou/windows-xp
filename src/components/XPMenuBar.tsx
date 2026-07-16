@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 /**
  * Shared Windows XP menu-bar primitives (#99 / #78).
@@ -20,10 +20,10 @@ export const XPMenuBar = styled.div`
   align-items: center;
   height: 20px;
   padding: 0 2px;
-  background: #ece9d8;
+  background: ${COLORS.SURFACE};
   font-family: ${FONTS.UI};
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
   flex-shrink: 0;
   user-select: none;
 `;
@@ -36,11 +36,11 @@ export const XPMenuBarItem = styled.button<{ $active?: boolean }>`
   font: inherit;
   line-height: 18px;
   cursor: default;
-  color: ${p => (p.$active ? '#fff' : '#000')};
+  color: ${p => (p.$active ? COLORS.WHITE : COLORS.BLACK)};
   background: ${p => (p.$active ? '#316AC5' : 'transparent')};
 
   &:hover {
-    color: #fff;
+    color: ${COLORS.WHITE};
     background: #316ac5;
   }
 `;
@@ -57,8 +57,8 @@ export const XPMenuDropdown = styled.div`
   z-index: 9999;
   min-width: 154px;
   padding: 2px;
-  background: #fff;
-  border: 1px solid #808080;
+  background: ${COLORS.WHITE};
+  border: 1px solid ${COLORS.BUTTON_SHADOW};
   box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.35);
   font-family: ${FONTS.UI};
   font-size: 11px;
@@ -75,11 +75,11 @@ export const XPMenuDropdownItem = styled.button<{ $disabled?: boolean }>`
   font: inherit;
   text-align: left;
   cursor: default;
-  color: ${p => (p.$disabled ? '#aca899' : '#000')};
+  color: ${p => (p.$disabled ? COLORS.DIVIDER_GREY : COLORS.BLACK)};
   background: transparent;
 
   &:hover {
-    color: ${p => (p.$disabled ? '#aca899' : '#fff')};
+    color: ${p => (p.$disabled ? COLORS.DIVIDER_GREY : COLORS.WHITE)};
     background: ${p => (p.$disabled ? 'transparent' : '#316ac5')};
   }
 `;
@@ -87,8 +87,8 @@ export const XPMenuDropdownItem = styled.button<{ $disabled?: boolean }>`
 export const XPMenuSeparator = styled.div`
   height: 1px;
   margin: 2px 1px;
-  background: #aca899;
-  border-bottom: 1px solid #fff;
+  background: ${COLORS.DIVIDER_GREY};
+  border-bottom: 1px solid ${COLORS.WHITE};
 `;
 
 /** Left-column marker cell (holds a checkmark or stays empty for alignment). */

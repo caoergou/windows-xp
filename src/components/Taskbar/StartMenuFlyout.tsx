@@ -13,9 +13,9 @@ const FlyoutContainer = styled.div`
   min-width: 180px;
   max-width: 260px;
   max-height: calc(100vh - ${COLORS.TASKBAR_HEIGHT + 2}px);
-  background: #fff;
-  border: 1px solid #003c74;
-  box-shadow: 2px 2px 0 #808080;
+  background: ${COLORS.WHITE};
+  border: 1px solid ${COLORS.BUTTON_BORDER};
+  box-shadow: 2px 2px 0 ${COLORS.BUTTON_SHADOW};
   z-index: 20001;
   display: flex;
   flex-direction: column;
@@ -29,11 +29,11 @@ const FlyoutItem = styled.div`
   padding: 4px 8px;
   cursor: pointer;
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
 
   &:hover {
     background: #316ac5;
-    color: #fff;
+    color: ${COLORS.WHITE};
   }
 
   .flyout-icon {

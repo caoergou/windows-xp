@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { FONTS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 
 /**
  * Canonical XP combobox (#99 micro-component consistency).
@@ -19,9 +19,9 @@ export const XPSelect = styled.select`
   height: 21px;
   font-family: ${FONTS.UI};
   font-size: 11px;
-  color: #000;
-  border: 1px solid #7f9db9;
-  background-color: #fff;
+  color: ${COLORS.BLACK};
+  border: 1px solid ${COLORS.FIELD_BORDER};
+  background-color: ${COLORS.WHITE};
   background-image: ${ARROW};
   background-position: top 1px right 1px;
   background-repeat: no-repeat;
@@ -37,15 +37,15 @@ export const XPSelect = styled.select`
   }
 
   &:disabled {
-    color: #aca899;
-    background-color: #ece9d8;
+    color: ${COLORS.DIVIDER_GREY};
+    background-color: ${COLORS.SURFACE};
     cursor: default;
   }
 
   option {
     font-family: ${FONTS.UI};
     font-size: 11px;
-    color: #000;
-    background-color: #fff;
+    color: ${COLORS.BLACK};
+    background-color: ${COLORS.WHITE};
   }
 `;
