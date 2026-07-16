@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { TitleBar, WindowContainer } from './Window/WindowChrome';
 import { CloseBtn } from './Window/WindowControls';
 
@@ -14,10 +14,42 @@ import { CloseBtn } from './Window/WindowControls';
  * dialog's chrome can never drift from a window's chrome again.
  */
 
-export const XPDialogWindow = styled(WindowContainer).attrs({ $isFocus: true })`
+export const XPDialogWindow = styled(WindowContainer)`
   position: relative;
   min-width: 0;
   min-height: 0;
+`;
+
+export interface XPDialogPlacement {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+  zIndex: number;
+}
+
+export const XPDialogOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+`;
+
+const dialogAttention = keyframes`
+  0%, 100% { filter: none; }
+  25%, 75% { filter: brightness(1.55); }
+  50% { filter: brightness(0.78); }
+`;
+
+export const XPDialogTitleBar = styled(TitleBar)<{ $attention?: boolean }>`
+  ${({ $attention }) =>
+    $attention &&
+    css`
+      animation: ${dialogAttention} 400ms linear 2;
+    `}
 `;
 
 export const XPDialogTitleText = styled.div`
@@ -61,7 +93,7 @@ export const XPDialogFrame: React.FC<XPDialogFrameProps> = ({
   children,
   'data-testid': testId,
 }) => (
-  <XPDialogWindow style={{ width }} data-testid={testId ?? 'xp-dialog'}>
+  <XPDialogWindow $isFocus style={{ width }} data-testid={testId ?? 'xp-dialog'}>
     <TitleBar $isFocus>
       <XPDialogTitleText>{title}</XPDialogTitleText>
       {onClose && <CloseBtn onClick={onClose} aria-label="Close" />}

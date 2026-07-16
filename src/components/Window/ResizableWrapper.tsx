@@ -1,6 +1,6 @@
 import React from 'react';
 import Draggable from 'react-draggable';
-import { ResizableBox } from 'react-resizable';
+import { ResizableBox, ResizeCallbackData } from 'react-resizable';
 import 'react-resizable/css/styles.css';
 import { useViewportScaleValue } from '../../context/ViewportScaleContext';
 
@@ -39,10 +39,26 @@ const ResizableWrapper: React.FC<ResizableWrapperProps> = ({
   children,
 }) => {
   const nodeRef = React.useRef<HTMLDivElement>(null);
+  const [position, setPosition] = React.useState({ x: left, y: top });
+  const resizeOriginRef = React.useRef({ x: left, y: top, width, height });
   // Under a scaled stage (#215) pointer deltas are in screen px but positions
   // are in stage px — react-draggable's `scale` reconciles the two so a window
   // tracks the finger 1:1. It's 1 (a no-op) when the shell renders natively.
   const scale = useViewportScaleValue();
+
+  React.useEffect(() => {
+    setPosition({ x: left, y: top });
+  }, [left, top]);
+
+  const updateResizePosition = React.useCallback((data: ResizeCallbackData) => {
+    const origin = resizeOriginRef.current;
+    const next = {
+      x: data.handle.includes('w') ? origin.x + origin.width - data.size.width : origin.x,
+      y: data.handle.includes('n') ? origin.y + origin.height - data.size.height : origin.y,
+    };
+    setPosition(next);
+    return next;
+  }, []);
 
   return (
     <Draggable
@@ -50,18 +66,21 @@ const ResizableWrapper: React.FC<ResizableWrapperProps> = ({
       nodeRef={nodeRef}
       disabled={false}
       scale={scale}
-      defaultPosition={{ x: left, y: top }}
+      position={position}
+      onDrag={(_e, data) => setPosition({ x: data.x, y: data.y })}
       onMouseDown={e => {
         e.stopPropagation();
         onFocus();
       }}
       onStop={(_e, data) => {
+        setPosition({ x: data.x, y: data.y });
         onMove(id, data.x, data.y);
       }}
     >
       <div
         ref={nodeRef}
         className="xp-window"
+        data-window-id={id}
         style={{
           position: 'absolute',
           top: 0,
@@ -78,12 +97,19 @@ const ResizableWrapper: React.FC<ResizableWrapperProps> = ({
           height={height}
           minConstraints={[minWidth, minHeight]}
           maxConstraints={[2000, 2000]}
-          onResizeStart={e => e.stopPropagation()}
-          onResizeStop={(_e, { size }) => {
+          onResizeStart={e => {
+            e.stopPropagation();
+            resizeOriginRef.current = { x: position.x, y: position.y, width, height };
+          }}
+          onResize={(_e, data) => updateResizePosition(data)}
+          onResizeStop={(_e, data) => {
+            const nextPosition = updateResizePosition(data);
+            onMove(id, nextPosition.x, nextPosition.y);
+            const { size } = data;
             onResize(id, size.width, size.height);
           }}
           axis={isResizable ? 'both' : 'none'}
-          resizeHandles={isResizable ? ['se'] : []}
+          resizeHandles={isResizable ? ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'] : []}
         >
           {children}
         </ResizableBox>

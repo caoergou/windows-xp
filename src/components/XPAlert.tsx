@@ -2,31 +2,17 @@ import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { XPButton } from './XPButton';
 import { CloseBtn } from './Window/WindowControls';
-import { XPDialogWindow, XPDialogTitleText } from './XPDialogChrome';
-import { TitleBar as LunaTitleBar } from './Window/WindowChrome';
+import {
+  XPDialogOverlay,
+  XPDialogPlacement,
+  XPDialogTitleBar,
+  XPDialogWindow,
+  XPDialogTitleText,
+} from './XPDialogChrome';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import Draggable from 'react-draggable';
 import { useModalA11y } from '../hooks/useModalA11y';
-
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(
-    0,
-    0,
-    0,
-    0
-  ); /* Transparent overlay usually for XP, but maybe slight dim? XP didn't dim. */
-  /* However, to block interaction with background, we need this overlay. */
-  z-index: 99999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
 
 const ContentArea = styled.div`
   padding: 20px;
@@ -53,9 +39,20 @@ interface XPAlertProps {
   message: string;
   type?: 'info' | 'warning' | 'error';
   onClose: () => void;
+  attentionSequence?: number;
+  placement?: XPDialogPlacement;
+  isActive?: boolean;
 }
 
-const XPAlert = ({ title, message, type = 'info', onClose }: XPAlertProps) => {
+const XPAlert = ({
+  title,
+  message,
+  type = 'info',
+  onClose,
+  attentionSequence = 0,
+  placement,
+  isActive = true,
+}: XPAlertProps) => {
   const { t } = useTranslation();
   const okButtonRef = useRef<HTMLButtonElement>(null);
   const { containerRef, onKeyDown } = useModalA11y(onClose);
@@ -72,8 +69,9 @@ const XPAlert = ({ title, message, type = 'info', onClose }: XPAlertProps) => {
   const nodeRef = useRef<HTMLDivElement>(null);
 
   return (
-    <Overlay
+    <XPDialogOverlay
       ref={containerRef}
+      style={placement}
       onKeyDown={onKeyDown}
       data-xp-context-boundary
       className="xp-alert"
@@ -82,15 +80,22 @@ const XPAlert = ({ title, message, type = 'info', onClose }: XPAlertProps) => {
       <Draggable nodeRef={nodeRef} handle=".title-bar">
         <XPDialogWindow
           ref={nodeRef}
+          $isFocus={isActive}
           role="dialog"
           aria-modal="true"
           aria-label={title}
+          style={{ pointerEvents: 'auto' }}
           onMouseDown={e => e.stopPropagation()}
         >
-          <LunaTitleBar $isFocus className="title-bar">
+          <XPDialogTitleBar
+            key={attentionSequence}
+            $isFocus={isActive}
+            $attention={attentionSequence > 0}
+            className="title-bar"
+          >
             <XPDialogTitleText>{title}</XPDialogTitleText>
             <CloseBtn onClick={onClose} aria-label="Close" />
-          </LunaTitleBar>
+          </XPDialogTitleBar>
           <ContentArea>
             <XPIcon name={iconName} size={32} />
             <Message>{message}</Message>
@@ -102,7 +107,7 @@ const XPAlert = ({ title, message, type = 'info', onClose }: XPAlertProps) => {
           </ButtonArea>
         </XPDialogWindow>
       </Draggable>
-    </Overlay>
+    </XPDialogOverlay>
   );
 };
 

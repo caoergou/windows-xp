@@ -4,7 +4,7 @@ const InternetExplorer = React.lazy(() => import('../apps/InternetExplorer'));
 const Notepad = React.lazy(() => import('../apps/Notepad'));
 const MarkdownViewer = React.lazy(() => import('../apps/MarkdownViewer'));
 import PhotoViewer from '../apps/PhotoViewer';
-import FileProperties from '../components/FileProperties';
+import FileProperties, { FILE_PROPERTIES_WINDOW_PROPS } from '../components/FileProperties';
 import QQ from '../apps/QQ';
 import SafeGuard360 from '../apps/SafeGuard360';
 import Calculator from '../apps/Calculator';
@@ -126,7 +126,8 @@ export const getAppDisplayName = (def: AppRegistryEntry, t: TFunction): string =
 export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   Explorer: {
     id: 'Explorer',
-    name: '文件资源管理器',
+    name: 'Windows Explorer',
+    nameKey: 'apps.explorer',
     icon: 'folder',
     window: { width: 720, height: 500 },
     lifecycle: {},
@@ -219,7 +220,8 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     id: 'FileProperties',
     name: '属性',
     icon: 'properties',
-    window: { width: 380, height: 420, resizable: false },
+    showInStartMenu: false,
+    window: FILE_PROPERTIES_WINDOW_PROPS,
     lifecycle: {},
     restore: restoreApp(FileProperties),
   },
@@ -365,6 +367,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     name: 'Deduction Sheet',
     nameKey: 'apps.deductionSheet',
     icon: 'notepad',
+    showInStartMenu: false,
     // Scenario-layer app (#219): opened by a scenario/host with a puzzle via
     // `openApp('DeductionSheet', { formId, wordBank, slots, groups, solution })`.
     window: { width: 460, height: 420 },
@@ -375,6 +378,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     name: 'Evidence Board',
     nameKey: 'apps.evidenceBoard',
     icon: 'notepad',
+    showInStartMenu: false,
     // Scenario-layer app (#219): opened with an evidence pool via
     // `openApp('EvidenceBoard', { boardId, items })`.
     window: { width: 560, height: 400 },
@@ -548,6 +552,7 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     id: 'DummyApp',
     name: '应用',
     icon: 'app_window',
+    showInStartMenu: false,
     window: { width: 350, height: 250, resizable: false, singleton: false },
     lifecycle: {},
     associations: [

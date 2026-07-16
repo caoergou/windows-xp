@@ -7,7 +7,7 @@ import { useApp } from '../../../hooks/useApp';
 import { useMultiSelect } from '../../../hooks/useMultiSelect';
 import { useExplorerPreferences } from './useExplorerPreferences';
 import { useExplorerTouch } from './useExplorerTouch';
-import FileProperties from '../../../components/FileProperties';
+import FileProperties, { FILE_PROPERTIES_WINDOW_PROPS } from '../../../components/FileProperties';
 import { FileNode, MenuItem, isContainerNode } from '../../../types';
 import { getFileDisplayName } from '../../../utils/fileDisplayName';
 import { openExternalUrl } from '../../../utils/externalLink';
@@ -33,6 +33,7 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     emptyRecycleBin,
     restoreFromRecycleBin,
     moveFile,
+    copyFile,
     copyToClipboard,
     uploadTextFile,
   } = useFileSystem();
@@ -317,6 +318,14 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     openItemMenuAt(e.clientX, e.clientY, key, item);
   };
 
+  const handleBackgroundContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isSyntheticAfterTouch()) return;
+    selection.clear();
+    setContextMenu({ visible: true, x: e.clientX, y: e.clientY, targetItem: null });
+  };
+
   const closeContextMenu = () => {
     setContextMenu({ visible: false, x: 0, y: 0, targetItem: null });
   };
@@ -427,6 +436,8 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   const handleCut = () => {
     const keys = selectionKeys();
     if (keys.length === 0) return;
+    const folder = currentFolder && isContainerNode(currentFolder) ? currentFolder : null;
+    if (folder && keys.some(key => folder.children[key]?.protected)) return;
     cutFile(currentPath, keys.length === 1 ? keys[0] : keys);
     closeContextMenu();
   };
@@ -454,7 +465,10 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
         t('common.propertiesTitle', { name: displayName }),
         React.createElement(FileProperties, componentProps),
         'properties',
-        { componentProps } // Pass componentProps explicitly for persistence
+        {
+          ...FILE_PROPERTIES_WINDOW_PROPS,
+          componentProps,
+        }
       );
       closeContextMenu();
     }
@@ -500,25 +514,51 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     },
   ];
 
+  const selectedFolder = currentFolder && isContainerNode(currentFolder) ? currentFolder : null;
+  const selectionContainsProtected = Boolean(
+    selectedFolder && selectionKeys().some(key => selectedFolder.children[key]?.protected)
+  );
+
   const menuItems: MenuItem[] = isInRecycleBin
     ? recycleBinMenuItems
     : [
-        { label: t('contextMenu.newFolder'), action: () => handleCreateFile('folder') },
-        { label: t('contextMenu.newTextDocument'), action: () => handleCreateFile('file') },
+        {
+          label: t('contextMenu.new'),
+          submenu: [
+            {
+              label: t('contextMenu.newFolder'),
+              action: () => handleCreateFile('folder'),
+              icon: 'folder',
+            },
+            {
+              label: t('contextMenu.newTextDocument'),
+              action: () => handleCreateFile('file'),
+              icon: 'txt',
+            },
+          ],
+        },
         { type: 'separator' },
         { label: t('explorer.upload'), action: handleUpload },
         { type: 'separator' },
         // Copy/Cut/Delete act on the whole selection; Rename/Properties are
         // single-item ops, disabled while several are selected (#211).
         { label: t('contextMenu.copy'), action: handleCopy, disabled: selection.size === 0 },
-        { label: t('contextMenu.cut'), action: handleCut, disabled: selection.size === 0 },
+        {
+          label: t('contextMenu.cut'),
+          action: handleCut,
+          disabled: selection.size === 0 || selectionContainsProtected,
+        },
         { label: t('contextMenu.paste'), action: handlePaste, disabled: !clipboard },
         { type: 'separator' },
-        { label: t('contextMenu.rename'), action: handleRename, disabled: selection.size !== 1 },
+        {
+          label: t('contextMenu.rename'),
+          action: handleRename,
+          disabled: selection.size !== 1 || selectionContainsProtected,
+        },
         {
           label: t('contextMenu.delete'),
           action: handleDeleteSelection,
-          disabled: selection.size === 0,
+          disabled: selection.size === 0 || selectionContainsProtected,
         },
         { type: 'separator' },
         {
@@ -541,7 +581,7 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     const keys = selection.isSelected(key) ? selectionKeys() : [key];
     if (!selection.isSelected(key)) selection.selectOnly(key);
     e.dataTransfer.setData('text/plain', JSON.stringify(keys));
-    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.effectAllowed = 'copyMove';
   };
 
   const handleDropOnFolder = (e: React.DragEvent, targetKey: string, targetItem: FileNode) => {
@@ -557,7 +597,10 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     }
     srcKeys
       .filter(k => k && k !== targetKey)
-      .forEach(k => moveFile(currentPath, k, [...currentPath, targetKey]));
+      .forEach(k => {
+        const transfer = e.ctrlKey || e.dataTransfer.dropEffect === 'copy' ? copyFile : moveFile;
+        transfer(currentPath, k, [...currentPath, targetKey]);
+      });
   };
 
   const childCount =
@@ -641,6 +684,7 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     formatBytes,
     detailsDate,
     handleContextMenu,
+    handleBackgroundContextMenu,
     closeContextMenu,
     menuItems,
     handleDragStart,

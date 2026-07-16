@@ -163,6 +163,5 @@ export const CanvasWrapper = styled.div`
 `;
 
 export const Canvas = styled.canvas`
-  cursor: crosshair;
   background: #ffffff;
 `;

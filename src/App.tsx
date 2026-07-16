@@ -4,20 +4,21 @@ import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
 import { useUserSession } from './context/UserSessionContext';
 import { useWindowManager } from './context/WindowManagerContext';
-import { useShortcut } from './context/KeymapContext';
+import { useShortcut, useShortcuts } from './context/KeymapContext';
 import LoginScreen from './components/LoginScreen';
 import Desktop from './components/Desktop';
 import BootScreen from './components/BootScreen';
 import BsodScreen from './components/BsodScreen';
 import XPIcon from './components/XPIcon';
+import ContextMenu from './components/ContextMenu';
 import windowsIcon from './assets/icons/windows.svg';
-import { TIME } from './constants';
+import { TIME, WINDOW_DEFAULTS } from './constants';
 import { canUseDOM, STORAGE_ERROR_EVENT, type Storage } from './utils/storage';
 import { useStorage } from './context/StorageContext';
 import { BSOD_EVENT } from './utils/easterEggs';
 import { FS_NOTICE_EVENT } from './context/FileSystemContext/hooks/useFileOperations';
 import type { FsNoticeDetail } from './context/FileSystemContext/hooks/useFileOperations';
-import { useModal } from './context/ModalContext';
+import { useModal, useModalInteraction } from './context/ModalContext';
 import { useXPEventBus } from './context/EventBusContext';
 import { getSavedLanguage } from './utils/language';
 import type { BootBranding, LoginBranding } from './branding';
@@ -158,6 +159,14 @@ export interface AppProps {
   login?: LoginBranding;
 }
 
+interface KeyboardWindowOperation {
+  id: string;
+  mode: 'move' | 'size';
+  edge?: 'n' | 's' | 'e' | 'w';
+  origin: { left: number; top: number; width: number; height: number };
+  current: { left: number; top: number; width: number; height: number };
+}
+
 function App({
   initialLanguage,
   skipBoot,
@@ -169,6 +178,7 @@ function App({
 }: AppProps = {}) {
   const { t } = useTranslation();
   const { dialog } = useModal();
+  const { blockedWindowId, signalBlockedInteraction } = useModalInteraction();
   const bus = useXPEventBus();
   const storage = useStorage();
 
@@ -216,7 +226,18 @@ function App({
   }, [initialLanguage]);
 
   const { isLoggedIn, screensaverEnabled } = useUserSession();
-  const { windows, activeWindowId, closeWindow, focusWindow } = useWindowManager();
+  const {
+    windows,
+    activeWindowId,
+    closeWindow,
+    focusWindow,
+    minimizeWindow,
+    maximizeWindow,
+    moveWindow,
+    resizeWindow,
+    restoreWindowGeometry,
+    setWindowInteractionMode,
+  } = useWindowManager();
   const [bootPhase, setBootPhase] = useState<BootPhase>(() =>
     getInitialBootPhase(storage, skipBoot)
   );
@@ -224,6 +245,157 @@ function App({
   const [altTabVisible, setAltTabVisible] = useState(false);
   const [altTabIndex, setAltTabIndex] = useState(0);
   const [bsodVisible, setBsodVisible] = useState(false);
+  const [systemMenu, setSystemMenu] = useState<{ x: number; y: number } | null>(null);
+  const [keyboardWindowOperation, setKeyboardWindowOperation] =
+    useState<KeyboardWindowOperation | null>(null);
+  const keyboardWindowOperationRef = React.useRef<KeyboardWindowOperation | null>(null);
+
+  const activeWindow = windows.find(window => window.id === activeWindowId);
+
+  const openSystemMenu = useCallback(() => {
+    if (!activeWindowId || !activeWindow) return;
+    if (blockedWindowId === activeWindowId) {
+      signalBlockedInteraction();
+      return;
+    }
+    const owner = Array.from(document.querySelectorAll<HTMLElement>('[data-window-id]')).find(
+      element => element.dataset.windowId === activeWindowId
+    );
+    if (!owner) return;
+    const rect = owner.getBoundingClientRect();
+    setSystemMenu({ x: rect.left + 3, y: rect.top + 25 });
+  }, [activeWindow, activeWindowId, blockedWindowId, signalBlockedInteraction]);
+
+  const beginKeyboardWindowOperation = useCallback(
+    (mode: 'move' | 'size') => {
+      if (!activeWindow) return;
+      setSystemMenu(null);
+      const origin = {
+        left: activeWindow.left ?? 100,
+        top: activeWindow.top ?? 100,
+        width: activeWindow.width ?? 600,
+        height: activeWindow.height ?? 400,
+      };
+      const operation: KeyboardWindowOperation = {
+        id: activeWindow.id,
+        mode,
+        origin,
+        current: { ...origin },
+      };
+      keyboardWindowOperationRef.current = operation;
+      setKeyboardWindowOperation(operation);
+      setWindowInteractionMode(activeWindow.id, mode);
+    },
+    [activeWindow, setWindowInteractionMode]
+  );
+
+  const nudgeKeyboardWindow = useCallback(
+    (horizontal: number, vertical: number) => {
+      const operation = keyboardWindowOperationRef.current;
+      if (!operation) return;
+      const target = windows.find(window => window.id === operation.id);
+      if (!target) return;
+      if (operation.mode === 'move') {
+        const nextOperation = {
+          ...operation,
+          current: {
+            ...operation.current,
+            left: operation.current.left + horizontal,
+            top: operation.current.top + vertical,
+          },
+        };
+        keyboardWindowOperationRef.current = nextOperation;
+        setKeyboardWindowOperation(nextOperation);
+        moveWindow(target.id, nextOperation.current.left, nextOperation.current.top);
+        return;
+      }
+      const edge =
+        operation.edge ?? (horizontal < 0 ? 'w' : horizontal > 0 ? 'e' : vertical < 0 ? 'n' : 's');
+      if (!operation.edge) {
+        setWindowInteractionMode(target.id, edge === 'n' || edge === 's' ? 'size-ns' : 'size-ew');
+      }
+
+      const { left, top, width, height } = operation.current;
+      const minWidth = target.props.minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH;
+      const minHeight = target.props.minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT;
+      let current = operation.current;
+
+      if (edge === 'e' && horizontal !== 0) {
+        current = { ...current, width: Math.max(minWidth, width + horizontal) };
+        resizeWindow(target.id, current.width, height);
+      } else if (edge === 'w' && horizontal !== 0 && width - horizontal >= minWidth) {
+        current = { ...current, left: left + horizontal, width: width - horizontal };
+        moveWindow(target.id, current.left, top);
+        resizeWindow(target.id, current.width, height);
+      } else if (edge === 's' && vertical !== 0) {
+        current = { ...current, height: Math.max(minHeight, height + vertical) };
+        resizeWindow(target.id, width, current.height);
+      } else if (edge === 'n' && vertical !== 0 && height - vertical >= minHeight) {
+        current = { ...current, top: top + vertical, height: height - vertical };
+        moveWindow(target.id, left, current.top);
+        resizeWindow(target.id, width, current.height);
+      }
+      const nextOperation = { ...operation, edge, current };
+      keyboardWindowOperationRef.current = nextOperation;
+      setKeyboardWindowOperation(nextOperation);
+    },
+    [moveWindow, resizeWindow, setWindowInteractionMode, windows]
+  );
+
+  const finishKeyboardWindowOperation = useCallback(
+    (cancel: boolean) => {
+      const operation = keyboardWindowOperationRef.current;
+      if (!operation) return;
+      if (cancel) {
+        restoreWindowGeometry(operation.id, operation.origin);
+      } else {
+        setWindowInteractionMode(operation.id, undefined);
+      }
+      keyboardWindowOperationRef.current = null;
+      setKeyboardWindowOperation(null);
+    },
+    [restoreWindowGeometry, setWindowInteractionMode]
+  );
+
+  const handleSystemMenuAction = useCallback(
+    (action: 'restore' | 'move' | 'size' | 'minimize' | 'maximize' | 'close') => {
+      if (!activeWindow) return;
+      setSystemMenu(null);
+      switch (action) {
+        case 'restore':
+          if (activeWindow.isMaximized) maximizeWindow(activeWindow.id);
+          break;
+        case 'move':
+        case 'size':
+          beginKeyboardWindowOperation(action);
+          break;
+        case 'minimize':
+          minimizeWindow(activeWindow.id);
+          break;
+        case 'maximize':
+          if (!activeWindow.isMaximized) maximizeWindow(activeWindow.id);
+          break;
+        case 'close':
+          closeWindow(activeWindow.id);
+          break;
+      }
+    },
+    [activeWindow, beginKeyboardWindowOperation, closeWindow, maximizeWindow, minimizeWindow]
+  );
+
+  useEffect(() => {
+    if (
+      keyboardWindowOperation &&
+      !windows.some(window => window.id === keyboardWindowOperation.id)
+    ) {
+      keyboardWindowOperationRef.current = null;
+      setKeyboardWindowOperation(null);
+    }
+  }, [keyboardWindowOperation, windows]);
+
+  useEffect(() => {
+    setSystemMenu(null);
+  }, [activeWindowId]);
 
   // Context menu block (can be disabled for embedded usage)
   useEffect(() => {
@@ -292,8 +464,112 @@ function App({
   useShortcut(
     { id: 'window.close', combo: 'Alt+F4', scope: 'global', label: 'Close focused window' },
     () => {
-      if (activeWindowId) closeWindow(activeWindowId);
+      if (!activeWindowId) return;
+      if (blockedWindowId === activeWindowId) {
+        signalBlockedInteraction();
+        return;
+      }
+      closeWindow(activeWindowId);
     }
+  );
+  useShortcut(
+    {
+      id: 'window.systemMenu',
+      combo: 'Alt+Space',
+      scope: 'global',
+      allowInInput: true,
+      label: 'Open the focused window system menu',
+    },
+    openSystemMenu
+  );
+  useShortcuts(
+    [
+      {
+        spec: {
+          id: 'window.operation.up',
+          combo: 'ArrowUp',
+          scope: 'global' as const,
+          allowInInput: true,
+          priority: 100,
+        },
+        handler: () => {
+          if (!keyboardWindowOperationRef.current) return false;
+          nudgeKeyboardWindow(0, -1);
+          return true;
+        },
+      },
+      {
+        spec: {
+          id: 'window.operation.down',
+          combo: 'ArrowDown',
+          scope: 'global' as const,
+          allowInInput: true,
+          priority: 100,
+        },
+        handler: () => {
+          if (!keyboardWindowOperationRef.current) return false;
+          nudgeKeyboardWindow(0, 1);
+          return true;
+        },
+      },
+      {
+        spec: {
+          id: 'window.operation.left',
+          combo: 'ArrowLeft',
+          scope: 'global' as const,
+          allowInInput: true,
+          priority: 100,
+        },
+        handler: () => {
+          if (!keyboardWindowOperationRef.current) return false;
+          nudgeKeyboardWindow(-1, 0);
+          return true;
+        },
+      },
+      {
+        spec: {
+          id: 'window.operation.right',
+          combo: 'ArrowRight',
+          scope: 'global' as const,
+          allowInInput: true,
+          priority: 100,
+        },
+        handler: () => {
+          if (!keyboardWindowOperationRef.current) return false;
+          nudgeKeyboardWindow(1, 0);
+          return true;
+        },
+      },
+      {
+        spec: {
+          id: 'window.operation.commit',
+          combo: 'Enter',
+          scope: 'global' as const,
+          allowInInput: true,
+          priority: 100,
+        },
+        handler: () => {
+          if (!keyboardWindowOperationRef.current) return false;
+          finishKeyboardWindowOperation(false);
+          return true;
+        },
+      },
+      {
+        spec: {
+          id: 'window.operation.cancel',
+          combo: 'Escape',
+          scope: 'global' as const,
+          allowInInput: true,
+          priority: 100,
+        },
+        handler: () => {
+          if (!keyboardWindowOperationRef.current) return false;
+          finishKeyboardWindowOperation(true);
+          return true;
+        },
+      },
+    ],
+    'window-operation'
   );
   useShortcut(
     { id: 'switcher.next', combo: 'Alt+Tab', scope: 'global', label: 'App switcher' },
@@ -431,6 +707,48 @@ function App({
           {windows[altTabIndex] && <AltTabTitle>{windows[altTabIndex].title}</AltTabTitle>}
         </AltTabOverlay>
       )}
+      <ContextMenu
+        visible={!!systemMenu && !!activeWindow}
+        x={systemMenu?.x ?? 0}
+        y={systemMenu?.y ?? 0}
+        onClose={() => setSystemMenu(null)}
+        menuItems={
+          activeWindow
+            ? [
+                {
+                  label: t('window.restore'),
+                  disabled: !activeWindow.isMaximized,
+                  action: () => handleSystemMenuAction('restore'),
+                },
+                {
+                  label: t('window.move'),
+                  disabled: activeWindow.isMaximized,
+                  action: () => handleSystemMenuAction('move'),
+                },
+                {
+                  label: t('window.size'),
+                  disabled: activeWindow.isMaximized || activeWindow.props.resizable === false,
+                  action: () => handleSystemMenuAction('size'),
+                },
+                {
+                  label: t('window.minimize'),
+                  action: () => handleSystemMenuAction('minimize'),
+                },
+                {
+                  label: t('window.maximize'),
+                  disabled: activeWindow.isMaximized || activeWindow.props.resizable === false,
+                  action: () => handleSystemMenuAction('maximize'),
+                },
+                { type: 'separator' },
+                {
+                  label: t('window.close'),
+                  shortcut: 'Alt+F4',
+                  action: () => handleSystemMenuAction('close'),
+                },
+              ]
+            : []
+        }
+      />
     </Container>
   );
 }

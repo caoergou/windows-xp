@@ -76,7 +76,12 @@ export const XPDialog: React.FC<XPDialogProps> = ({
   'data-testid': testId,
 }) => {
   const dialog = (
-    <XPDialogWindow style={{ width }} className={className} data-testid={testId ?? 'xp-dialog'}>
+    <XPDialogWindow
+      $isFocus
+      style={{ width }}
+      className={className}
+      data-testid={testId ?? 'xp-dialog'}
+    >
       <TitleBar $isFocus>
         <TitleInner>
           {icon && <XPIcon name={icon} size={16} />}

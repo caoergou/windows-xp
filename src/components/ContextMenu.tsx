@@ -95,13 +95,15 @@ interface ContextMenuProps {
 
 const MenuRow = ({ item, onClose }: { item: MenuItem; onClose: () => void }) => {
   if (item.type === 'separator') {
-    return <MenuSeparator />;
+    return <MenuSeparator role="separator" />;
   }
 
   const hasSubmenu = !!item.submenu && item.submenu.length > 0;
 
   return (
     <MenuItemComponent
+      role="menuitem"
+      aria-disabled={item.disabled || undefined}
       onClick={() => {
         if (!item.disabled && item.action && !hasSubmenu) {
           sounds.menuCommand();
@@ -126,7 +128,7 @@ const MenuRow = ({ item, onClose }: { item: MenuItem; onClose: () => void }) => 
         </SubMenuIndicator>
       )}
       {hasSubmenu && (
-        <SubMenuContainer className="submenu">
+        <SubMenuContainer className="submenu" role="menu">
           {item.submenu?.map((subItem, subIndex) => (
             <MenuRow key={subIndex} item={subItem} onClose={onClose} />
           ))}
@@ -207,11 +209,11 @@ const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(
           onClose();
         };
 
-        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('mousedown', handleClickOutside, true);
         document.addEventListener('contextmenu', handleContextMenu);
 
         return () => {
-          document.removeEventListener('mousedown', handleClickOutside);
+          document.removeEventListener('mousedown', handleClickOutside, true);
           document.removeEventListener('contextmenu', handleContextMenu);
         };
       }
@@ -222,10 +224,15 @@ const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(
     return createPortal(
       <ContextMenuContainer
         ref={setRef}
+        role="menu"
         $x={x}
         $y={y}
         className="windows-xp-portal"
         data-testid="context-menu"
+        data-xp-context-boundary="true"
+        onMouseDown={event => event.stopPropagation()}
+        onClick={event => event.stopPropagation()}
+        onContextMenu={event => event.stopPropagation()}
       >
         {menuItems.map((item, index) => (
           <MenuRow key={index} item={item} onClose={onClose} />

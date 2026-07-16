@@ -2,22 +2,19 @@ import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { XPButton } from './XPButton';
 import { CloseBtn } from './Window/WindowControls';
-import { XPDialogWindow, XPDialogTitleText } from './XPDialogChrome';
-import { TitleBar as LunaTitleBar } from './Window/WindowChrome';
+import {
+  XPDialogOverlay,
+  XPDialogPlacement,
+  XPDialogTitleBar,
+  XPDialogWindow,
+  XPDialogTitleText,
+} from './XPDialogChrome';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { useModalA11y } from '../hooks/useModalA11y';
+import Draggable from 'react-draggable';
 
 // --- Styled components (kept visually consistent with XPAlert) ---------------------------
-
-const Overlay = styled.div`
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
 
 const ContentArea = styled.div`
   padding: 20px;
@@ -51,6 +48,9 @@ interface XPConfirmProps {
   cancelLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
+  attentionSequence?: number;
+  placement?: XPDialogPlacement;
+  isActive?: boolean;
 }
 
 const XPConfirm = ({
@@ -61,9 +61,13 @@ const XPConfirm = ({
   cancelLabel,
   onConfirm,
   onCancel,
+  attentionSequence = 0,
+  placement,
+  isActive = true,
 }: XPConfirmProps) => {
   const { t } = useTranslation();
   const confirmRef = useRef<HTMLButtonElement>(null);
+  const nodeRef = useRef<HTMLDivElement>(null);
   const { containerRef, onKeyDown } = useModalA11y(onCancel);
   const finalConfirmLabel = confirmLabel || t('common.ok');
   const finalCancelLabel = cancelLabel || t('common.cancel');
@@ -80,24 +84,43 @@ const XPConfirm = ({
         : /* question / info */ 'alert_info';
 
   return (
-    <Overlay ref={containerRef} onKeyDown={onKeyDown} data-xp-context-boundary>
-      <XPDialogWindow role="dialog" aria-modal="true" aria-label={title}>
-        <LunaTitleBar $isFocus className="title-bar">
-          <XPDialogTitleText>{title}</XPDialogTitleText>
-          <CloseBtn onClick={onCancel} aria-label="Close" />
-        </LunaTitleBar>
-        <ContentArea>
-          <XPIcon name={iconName} size={32} />
-          <Message>{message}</Message>
-        </ContentArea>
-        <ButtonArea>
-          <XPButton ref={confirmRef} $default onClick={onConfirm}>
-            {finalConfirmLabel}
-          </XPButton>
-          <XPButton onClick={onCancel}>{finalCancelLabel}</XPButton>
-        </ButtonArea>
-      </XPDialogWindow>
-    </Overlay>
+    <XPDialogOverlay
+      ref={containerRef}
+      style={placement}
+      onKeyDown={onKeyDown}
+      data-xp-context-boundary
+    >
+      <Draggable nodeRef={nodeRef} handle=".title-bar">
+        <XPDialogWindow
+          ref={nodeRef}
+          $isFocus={isActive}
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
+          style={{ pointerEvents: 'auto' }}
+        >
+          <XPDialogTitleBar
+            key={attentionSequence}
+            $isFocus={isActive}
+            $attention={attentionSequence > 0}
+            className="title-bar"
+          >
+            <XPDialogTitleText>{title}</XPDialogTitleText>
+            <CloseBtn onClick={onCancel} aria-label="Close" />
+          </XPDialogTitleBar>
+          <ContentArea>
+            <XPIcon name={iconName} size={32} />
+            <Message>{message}</Message>
+          </ContentArea>
+          <ButtonArea>
+            <XPButton ref={confirmRef} $default onClick={onConfirm}>
+              {finalConfirmLabel}
+            </XPButton>
+            <XPButton onClick={onCancel}>{finalCancelLabel}</XPButton>
+          </ButtonArea>
+        </XPDialogWindow>
+      </Draggable>
+    </XPDialogOverlay>
   );
 };
 

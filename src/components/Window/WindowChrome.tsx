@@ -26,7 +26,6 @@ export const WindowContainer = styled.div<{
 
   .react-resizable-handle {
     z-index: 1000;
-    cursor: se-resize;
   }
 `;
 

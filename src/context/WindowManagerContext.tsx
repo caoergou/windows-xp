@@ -11,10 +11,16 @@ import { restoreComponent } from '../utils/WindowFactory';
 import { decodeOpenWindows, encodeOpenWindows } from '../utils/windowPersistence';
 import { APP_REGISTRY } from '../registry/apps';
 import { WindowState, WindowProps, AppRegistryEntry } from '../types';
-import { WINDOW_DEFAULTS } from '../constants';
+import { TIME, WINDOW_DEFAULTS } from '../constants';
 import { canUseDOM } from '../utils/storage';
 import { useStorage } from './StorageContext';
 import { useXPEventBus } from './EventBusContext';
+import {
+  calculateWindowLayout,
+  WindowArrangement,
+  WindowLayoutRect,
+  WindowWorkArea,
+} from '../utils/windowLayout';
 
 interface WindowManagerActions {
   openWindow: (
@@ -29,6 +35,10 @@ interface WindowManagerActions {
   maximizeWindow: (id: string) => void;
   resizeWindow: (id: string, width: number, height: number) => void;
   moveWindow: (id: string, left: number, top: number) => void;
+  restoreWindowGeometry: (
+    id: string,
+    geometry: { left: number; top: number; width: number; height: number }
+  ) => void;
   focusWindow: (id: string) => void;
   hideWindow: (id: string) => void;
   setWindowTitle: (id: string, title: string) => void;
@@ -37,6 +47,9 @@ interface WindowManagerActions {
   flashWindow: (id: string) => void;
   setCloseGuard: (id: string, guard: ((forceClose: () => void) => void) | null) => void;
   setMinimizeGuard: (id: string, guard: ((defaultMinimize: () => void) => void) | null) => void;
+  arrangeWindows: (arrangement: WindowArrangement, workArea: WindowWorkArea) => void;
+  registerTaskTarget: (id: string, element: HTMLElement | null) => void;
+  setWindowInteractionMode: (id: string, mode?: 'move' | 'size' | 'size-ns' | 'size-ew') => void;
 }
 
 interface WindowManagerContextType extends WindowManagerActions {
@@ -76,6 +89,18 @@ export const useActiveWindowId = (): string | null => {
     throw new Error('useActiveWindowId must be used within a WindowManagerProvider');
   }
   return activeWindowId;
+};
+
+/** Returns null outside a provider, for optional shell integrations such as dialogs. */
+export const useOptionalActiveWindowId = (): string | null => {
+  const activeWindowId = useContext(ActiveWindowIdContext);
+  return activeWindowId ?? null;
+};
+
+/** Returns null outside a provider, for optional owner-window integrations. */
+export const useOptionalWindows = (): WindowState[] | null => {
+  const windows = useContext(WindowsContext);
+  return windows ?? null;
 };
 
 /** Merged, backward-compatible API. Subscribes to ALL window state. */
@@ -128,6 +153,9 @@ export const WindowManagerProvider: React.FC<{
     windows.reduce((top, w) => Math.max(top, w.zIndex), WINDOW_DEFAULTS.INITIAL_Z_INDEX)
   );
   const flashTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const transitionTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const openingTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const taskTargetsRef = useRef(new Map<string, HTMLElement>());
 
   const commitWindows = useCallback((updater: (prev: WindowState[]) => WindowState[]) => {
     setWindows(prev => {
@@ -147,7 +175,7 @@ export const WindowManagerProvider: React.FC<{
   // re-activated a window the user had just minimized (#80).
   useEffect(() => {
     if (activeWindowId) return;
-    const visible = windows.filter(w => !w.isMinimized);
+    const visible = windows.filter(w => !w.isMinimized && w.transition !== 'minimize');
     if (visible.length === 0) return;
     const topWindow = visible.reduce((top, current) =>
       current.zIndex > top.zIndex ? current : top
@@ -174,6 +202,10 @@ export const WindowManagerProvider: React.FC<{
         badge: _badge,
         progress: _progress,
         isFlashing: _isFlashing,
+        transition: _transition,
+        transitionTarget: _transitionTarget,
+        isOpening: _isOpening,
+        interactionMode: _interactionMode,
         isHidden: _isHidden,
         ...rest
       }) => rest
@@ -191,13 +223,50 @@ export const WindowManagerProvider: React.FC<{
     if (!canUseDOM) return;
     window.addEventListener('beforeunload', flushPersist);
     const timers = flashTimersRef.current;
+    const transitionTimers = transitionTimersRef.current;
+    const openingTimers = openingTimersRef.current;
+    const taskTargets = taskTargetsRef.current;
     return () => {
       window.removeEventListener('beforeunload', flushPersist);
       flushPersist();
       timers.forEach(timer => clearTimeout(timer));
       timers.clear();
+      transitionTimers.forEach(timer => clearTimeout(timer));
+      transitionTimers.clear();
+      openingTimers.forEach(timer => clearTimeout(timer));
+      openingTimers.clear();
+      taskTargets.clear();
     };
   }, [flushPersist]);
+
+  const scheduleTransitionEnd = useCallback(
+    (id: string, finish: (window: WindowState) => WindowState) => {
+      const existing = transitionTimersRef.current.get(id);
+      if (existing) clearTimeout(existing);
+      const timer = setTimeout(() => {
+        transitionTimersRef.current.delete(id);
+        commitWindows(prev => prev.map(window => (window.id === id ? finish(window) : window)));
+      }, TIME.ANIMATION_DURATION);
+      transitionTimersRef.current.set(id, timer);
+    },
+    [commitWindows]
+  );
+
+  const getTaskTargetRect = useCallback((id: string): WindowLayoutRect | null => {
+    const target = taskTargetsRef.current.get(id);
+    const desktop = target?.closest<HTMLElement>('[data-testid="desktop"]');
+    if (!target || !desktop) return null;
+    const targetRect = target.getBoundingClientRect();
+    const desktopRect = desktop.getBoundingClientRect();
+    const scaleX = desktop.clientWidth > 0 ? desktopRect.width / desktop.clientWidth : 1;
+    const scaleY = desktop.clientHeight > 0 ? desktopRect.height / desktop.clientHeight : 1;
+    return {
+      left: (targetRect.left - desktopRect.left) / scaleX,
+      top: (targetRect.top - desktopRect.top) / scaleY,
+      width: targetRect.width / scaleX,
+      height: targetRect.height / scaleY,
+    };
+  }, []);
 
   const focusWindow = useCallback(
     (id: string) => {
@@ -214,25 +283,60 @@ export const WindowManagerProvider: React.FC<{
           Math.max(...current.map(w => w.zIndex), WINDOW_DEFAULTS.INITIAL_Z_INDEX) + 1;
         zIndexRef.current = newZIndex;
         setActiveWindowId(id);
+        const transition = win.isMinimized || win.transition === 'minimize' ? 'restore' : undefined;
+        const transitionTarget = transition ? (getTaskTargetRect(id) ?? undefined) : undefined;
         commitWindows(prev =>
           prev.map(w =>
             w.id === id
-              ? { ...w, zIndex: newZIndex, isMinimized: false, isHidden: false, isFlashing: false }
+              ? {
+                  ...w,
+                  zIndex: newZIndex,
+                  isMinimized: false,
+                  isHidden: false,
+                  isFlashing: false,
+                  transition,
+                  transitionTarget,
+                }
               : w
           )
         );
+        if (transition) {
+          scheduleTransitionEnd(id, window => ({
+            ...window,
+            transition: undefined,
+            transitionTarget: undefined,
+          }));
+        }
         return;
       }
 
-      if (win.isMinimized || win.isHidden) {
+      if (win.isMinimized || win.isHidden || win.transition === 'minimize') {
+        const transition = win.isMinimized || win.transition === 'minimize' ? 'restore' : undefined;
+        const transitionTarget = transition ? (getTaskTargetRect(id) ?? undefined) : undefined;
         commitWindows(prev =>
           prev.map(w =>
-            w.id === id ? { ...w, isMinimized: false, isHidden: false, isFlashing: false } : w
+            w.id === id
+              ? {
+                  ...w,
+                  isMinimized: false,
+                  isHidden: false,
+                  isFlashing: false,
+                  transition,
+                  transitionTarget,
+                }
+              : w
           )
         );
+        if (transition) {
+          scheduleTransitionEnd(id, window => ({
+            ...window,
+            transition: undefined,
+            transitionTarget: undefined,
+          }));
+        }
       }
     },
-    [commitWindows, setActiveWindowId, bus]
+    [commitWindows, getTaskTargetRect, scheduleTransitionEnd, setActiveWindowId, bus]
   );
 
   const openWindow = useCallback(
@@ -307,10 +411,19 @@ export const WindowManagerProvider: React.FC<{
         badge: null,
         progress: null,
         isFlashing: false,
+        isOpening: true,
       };
 
       commitWindows(prev => [...prev, newWindow]);
       setActiveWindowId(id);
+
+      const openingTimer = setTimeout(() => {
+        openingTimersRef.current.delete(id);
+        commitWindows(prev =>
+          prev.map(window => (window.id === id ? { ...window, isOpening: false } : window))
+        );
+      }, TIME.ANIMATION_DURATION);
+      openingTimersRef.current.set(id, openingTimer);
 
       props.onOpen?.(id);
       bus.emit({ type: 'app:launch', appId, windowId: id, title });
@@ -332,6 +445,17 @@ export const WindowManagerProvider: React.FC<{
         clearTimeout(timer);
         flashTimersRef.current.delete(id);
       }
+      const transitionTimer = transitionTimersRef.current.get(id);
+      if (transitionTimer) {
+        clearTimeout(transitionTimer);
+        transitionTimersRef.current.delete(id);
+      }
+      const openingTimer = openingTimersRef.current.get(id);
+      if (openingTimer) {
+        clearTimeout(openingTimer);
+        openingTimersRef.current.delete(id);
+      }
+      taskTargetsRef.current.delete(id);
 
       const newWindows = current.filter(w => w.id !== id);
       commitWindows(() => newWindows);
@@ -364,13 +488,23 @@ export const WindowManagerProvider: React.FC<{
   const doMinimize = useCallback(
     (id: string) => {
       const win = windowsRef.current.find(w => w.id === id);
-      commitWindows(prev => prev.map(w => (w.id === id ? { ...w, isMinimized: true } : w)));
+      if (!win || win.isMinimized || win.transition === 'minimize') return;
+      const transitionTarget = getTaskTargetRect(id) ?? undefined;
+      commitWindows(prev =>
+        prev.map(w => (w.id === id ? { ...w, transition: 'minimize', transitionTarget } : w))
+      );
       if (activeWindowIdRef.current === id) {
         setActiveWindowId(null);
       }
-      if (win) bus.emit({ type: 'window:minimize', windowId: id, appId: win.appId });
+      scheduleTransitionEnd(id, window => ({
+        ...window,
+        isMinimized: true,
+        transition: undefined,
+        transitionTarget: undefined,
+      }));
+      bus.emit({ type: 'window:minimize', windowId: id, appId: win.appId });
     },
-    [commitWindows, setActiveWindowId, bus]
+    [commitWindows, getTaskTargetRect, scheduleTransitionEnd, setActiveWindowId, bus]
   );
 
   const minimizeWindow = useCallback(
@@ -401,18 +535,19 @@ export const WindowManagerProvider: React.FC<{
   const maximizeWindow = useCallback(
     (id: string) => {
       const win = windowsRef.current.find(w => w.id === id);
+      if (!win) return;
+      const transition = win.isMaximized ? 'unmaximize' : 'maximize';
       commitWindows(prev =>
-        prev.map(w => (w.id === id ? { ...w, isMaximized: !w.isMaximized } : w))
+        prev.map(w => (w.id === id ? { ...w, isMaximized: !w.isMaximized, transition } : w))
       );
-      if (win) {
-        bus.emit({
-          type: win.isMaximized ? 'window:restore' : 'window:maximize',
-          windowId: id,
-          appId: win.appId,
-        });
-      }
+      scheduleTransitionEnd(id, window => ({ ...window, transition: undefined }));
+      bus.emit({
+        type: win.isMaximized ? 'window:restore' : 'window:maximize',
+        windowId: id,
+        appId: win.appId,
+      });
     },
-    [commitWindows, bus]
+    [commitWindows, scheduleTransitionEnd, bus]
   );
 
   const resizeWindow = useCallback(
@@ -425,6 +560,59 @@ export const WindowManagerProvider: React.FC<{
   const moveWindow = useCallback(
     (id: string, left: number, top: number) => {
       commitWindows(prev => prev.map(w => (w.id === id ? { ...w, left, top } : w)));
+    },
+    [commitWindows]
+  );
+
+  const restoreWindowGeometry = useCallback(
+    (id: string, geometry: { left: number; top: number; width: number; height: number }) => {
+      commitWindows(prev =>
+        prev.map(window =>
+          window.id === id ? { ...window, ...geometry, interactionMode: undefined } : window
+        )
+      );
+    },
+    [commitWindows]
+  );
+
+  const arrangeWindows = useCallback(
+    (arrangement: WindowArrangement, workArea: WindowWorkArea) => {
+      const arranged = windowsRef.current
+        .filter(window => !window.isMinimized && !window.isHidden)
+        .sort((a, b) => a.zIndex - b.zIndex);
+      const layout = calculateWindowLayout(arranged.length, arrangement, workArea);
+      if (layout.length === 0) return;
+
+      const rectById = new Map(arranged.map((window, index) => [window.id, layout[index]]));
+      commitWindows(prev =>
+        prev.map(window => {
+          const rect = rectById.get(window.id);
+          return rect
+            ? {
+                ...window,
+                isMaximized: false,
+                left: rect.left,
+                top: rect.top,
+                width: rect.width,
+                height: rect.height,
+              }
+            : window;
+        })
+      );
+    },
+    [commitWindows]
+  );
+
+  const registerTaskTarget = useCallback((id: string, element: HTMLElement | null) => {
+    if (element) taskTargetsRef.current.set(id, element);
+    else taskTargetsRef.current.delete(id);
+  }, []);
+
+  const setWindowInteractionMode = useCallback(
+    (id: string, mode?: 'move' | 'size' | 'size-ns' | 'size-ew') => {
+      commitWindows(prev =>
+        prev.map(window => (window.id === id ? { ...window, interactionMode: mode } : window))
+      );
     },
     [commitWindows]
   );
@@ -489,6 +677,7 @@ export const WindowManagerProvider: React.FC<{
       maximizeWindow,
       resizeWindow,
       moveWindow,
+      restoreWindowGeometry,
       focusWindow,
       hideWindow,
       setWindowTitle,
@@ -497,6 +686,9 @@ export const WindowManagerProvider: React.FC<{
       flashWindow,
       setCloseGuard,
       setMinimizeGuard,
+      arrangeWindows,
+      registerTaskTarget,
+      setWindowInteractionMode,
     };
     if (!value) return base;
     // Test/advanced override hook: only function overrides belong here.
@@ -511,6 +703,7 @@ export const WindowManagerProvider: React.FC<{
     maximizeWindow,
     resizeWindow,
     moveWindow,
+    restoreWindowGeometry,
     focusWindow,
     hideWindow,
     setWindowTitle,
@@ -519,6 +712,9 @@ export const WindowManagerProvider: React.FC<{
     flashWindow,
     setCloseGuard,
     setMinimizeGuard,
+    arrangeWindows,
+    registerTaskTarget,
+    setWindowInteractionMode,
     value,
   ]);
 

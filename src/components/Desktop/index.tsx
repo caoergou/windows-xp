@@ -35,6 +35,7 @@ const Desktop: React.FC = () => {
   const {
     fs,
     moveFile,
+    copyFile,
     deleteFile,
     renameFile,
     createFile,
@@ -120,8 +121,10 @@ const Desktop: React.FC = () => {
   };
 
   const handleDragStart = (e: React.DragEvent, key: string) => {
-    e.dataTransfer.setData('text/plain', key);
-    e.dataTransfer.effectAllowed = 'move';
+    const keys = selectedIcons.has(key) ? Array.from(selectedIcons) : [key];
+    if (!selectedIcons.has(key)) iconSelection.selectOnly(key);
+    e.dataTransfer.setData('text/plain', JSON.stringify(keys));
+    e.dataTransfer.effectAllowed = 'copyMove';
   };
 
   const handleDropOnFolder = (e: React.DragEvent, targetKey: string) => {
@@ -132,10 +135,17 @@ const Desktop: React.FC = () => {
     const targetItem = rootChildren[targetKey];
     if (!targetItem || targetItem.type !== 'folder') return;
 
-    const srcKey = e.dataTransfer.getData('text/plain');
-    if (!srcKey || srcKey === targetKey) return;
-
-    moveFile([], srcKey, [targetKey]);
+    let srcKeys: string[];
+    try {
+      const payload = JSON.parse(e.dataTransfer.getData('text/plain'));
+      srcKeys = Array.isArray(payload) ? payload : [];
+    } catch {
+      srcKeys = [];
+    }
+    const transfer = e.ctrlKey || e.dataTransfer.dropEffect === 'copy' ? copyFile : moveFile;
+    srcKeys
+      .filter(srcKey => srcKey && srcKey !== targetKey && !SYSTEM_ICON_KEYS.has(srcKey))
+      .forEach(srcKey => transfer([], srcKey, [targetKey]));
   };
 
   const getOperableKeys = (keys: string[]) => keys.filter(k => !SYSTEM_ICON_KEYS.has(k));
@@ -549,6 +559,7 @@ const Desktop: React.FC = () => {
       tabIndex={-1}
       style={{ outline: 'none' }}
       $bgUrl={desktopBg}
+      className={windows.some(window => window.isOpening) ? 'xp-progress' : undefined}
       onContextMenu={handleContextMenu}
       onClick={e => {
         if (isSyntheticAfterTouch()) return; // a touch tap already handled this
@@ -618,7 +629,11 @@ const Desktop: React.FC = () => {
               onDragOver={e => {
                 if (item.type === 'folder') {
                   e.preventDefault();
+                  e.dataTransfer.dropEffect = e.ctrlKey ? 'copy' : 'move';
                   setDragOver(key);
+                } else {
+                  e.dataTransfer.dropEffect = 'none';
+                  setDragOver(null);
                 }
               }}
               onDragLeave={() => setDragOver(null)}
