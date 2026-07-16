@@ -67,7 +67,8 @@ Drafting is a routing problem. Never inline everything into scenario JSON:
 - **Pattern library** (copy these before designing from scratch):
   `docs/SCENARIO-PATTERNS.md` — hint ladder, act gate, double-key door, idle
   nudge, looping buddy chatter, password-puzzle trio, timed beat, fictional
-  website, long-document clue, mixed web, AI-buddy trio.
+  website, long-document clue, mixed web, AI-buddy trio, order-independent
+  gate, bushy act (PuzzleGraph).
 - **Design rationale** (mechanics M1–M12, the two axioms): `docs/PUZZLE-DESIGN.md`.
 - **Working examples**: `examples/reference-content-pack/`,
   `examples/midsummer-pack/`, `src/data/scenarios/prologueGraph.ts`.
@@ -96,18 +97,42 @@ Drafting is a routing problem. Never inline everything into scenario JSON:
    seek tape. Keep it in sync when adding beats (solve will catch drift).
 9. **Changing `scenario.id` wipes player progress.** Keep it stable across
    edits; bump it only to force a reset.
+10. **Convergence gates must be order-independent** (M2: sequence-breaking is
+    a feature, not a bug). Gate on durable predicates — flags, `happened`,
+    `unlocked` — never on the transient `event` payload alone, and listen on
+    every channel that can complete the condition (e.g.
+    `on: ["file:unlock", "flag:change"]`). Prefer `happened('file:unlock')`
+    over the `unlocked` FS predicate for player-driven unlocks (it's what the
+    solver and the save journal see). Where it fits, *celebrate* the sequence
+    breaker with an acknowledgment beat instead of ignoring them. Pattern 12.
+11. **Graph-first for anything with more than one live lead.** Author multi-
+    lead stories as a `PuzzleGraph` (Layer 3): `requires` edges compile to
+    order-safe gates automatically, the linter catches unreachable nodes /
+    cycles / gate bypasses / missing hint ladders, and `bushiness` quantifies
+    pacing. A graph whose bushiness never exceeds 1 is a corridor, not an
+    investigation — widen it deliberately or accept the linearity. Pattern 13.
 
 ## Task shapes
 
 ### 1. Draft a whole content pack from a synopsis
 
-1. Restate the synopsis as a beat list; map each beat to a pattern.
+1. **Sketch the dependency graph first, not a beat list.** Identify the
+   puzzles, their `requires` edges, and the act gates; aim for width
+   (parallel leads) rather than a chain. Check the shape with
+   `graph --format mermaid` and the lint report's `bushiness`. Only then
+   write beats onto the nodes. For multi-lead stories keep the `PuzzleGraph`
+   as the authored source (Pattern 13); flatten to hand-written triggers only
+   for small linear connective tissue.
 2. Scaffold the directory: `content-pack.json` + `assets/` (HTML/MD as real
    files, `{ "url": "./assets/…" }` in the manifest).
 3. Route content per the five outlets; write the walkthrough with named beats.
 4. Adjudicate (`lint` → `solve --expect <finale-flag>` → `pack --check`); loop
    until green.
-5. Offer a human playtest path: `npx jiti tools/scenario-tools/src/cli.ts serve <pack>`
+5. **Fuzz the order**: write at least one scrambled event tape that completes
+   the puzzles in a different legal order (e.g. unlock-before-clue) and run
+   `solve --events <tape> --expect <finale-flag>`. Commit the tape next to
+   the pack so CI replays it (see `examples/midsummer-pack/seqbreak.events.json`).
+6. Offer a human playtest path: `npx jiti tools/scenario-tools/src/cli.ts serve <pack>`
    (deterministic `seek <beat>`, `chat --offline <buddy>`).
 
 ### 2. Add an act to an existing scenario
@@ -159,6 +184,9 @@ Follow the AI-buddy trio (Pattern 11):
 
 - [ ] `lint` exits 0 on every touched scenario/graph/pack
 - [ ] `solve` exits 0 with the finale flag(s) explicitly expected
+- [ ] **Order fuzz**: for every convergence gate touched, at least one
+      scrambled event tape (`solve --events`) still reaches the finale —
+      committed next to the pack so CI replays it
 - [ ] `pack --check` exits 0 for every touched pack directory
 - [ ] `npm run patterns:check` exits 0 if the pattern library changed
 - [ ] Content routed per the five outlets (no large bodies inline, no inline

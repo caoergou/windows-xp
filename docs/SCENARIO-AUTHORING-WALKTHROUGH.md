@@ -118,7 +118,46 @@ vice versa), and reports sizes against the scenario budget. Without `--check`
 it also emits the normalized single-file pack (`dist/content-pack.json`) with
 assets inlined — the mountable artifact.
 
-## Step 5 — human playtest
+## Step 5 — fourth adjudication: fuzz the order (what the canonical tape can't see)
+
+The canonical walkthrough proves *one* path works. A post-ship review asked
+the question the tools hadn't been asked: **what if the player unlocks the
+folder before reading the letter?** The password is a guessable four-digit
+date, and M2 says a player who already knows is supposed to win. Replaying a
+scrambled tape through the solver:
+
+```
+$ npx xp-scenario solve ./examples/midsummer-pack --events seqbreak.json --expect album_open
+  1  session:boot-complete [intro]  -> intro
+  2  file:unlock [txl]  -> -
+  3  ie:navigate [letter]  -> visit-txl
+  4  file:open [finale]  -> read-letter
+Final flags: {"seen_txl":true,"read_letter":true}
+ERROR: expected album_open=true (got undefined)
+```
+
+A genuine soft-lock, invisible to both `lint` (static) and the canonical
+`solve` (one ordering): the finale was gated on the **transient**
+`file:unlock` event *plus* the `read_letter` flag — unlock first, and the
+event never comes again. The fix is Pattern 12 (the order-independent gate):
+gate on the durable `happened` journal predicate, listen on both completing
+channels, and spend one extra trigger acknowledging the sequence breaker:
+
+```
+$ npx xp-scenario solve ./examples/midsummer-pack --events seqbreak.events.json --expect album_open
+  1  session:boot-complete [intro]  -> intro
+  2  file:unlock [txl]  -> early-bird
+  3  ie:navigate [letter]  -> visit-txl
+  4  file:open [finale]  -> read-letter, finale
+Final flags: {"seen_txl":true,"read_letter":true,"album_open":true}
+```
+
+Both orders now finish, and the early unlocker gets an "early-bird" beat
+instead of silence. The scrambled tape is committed next to the pack
+(`seqbreak.events.json`) and replayed by CI (`scenario:solve:example:fuzz`),
+so order-independence is now a regression gate like everything else.
+
+## Step 6 — human playtest
 
 The tools prove the story is *completable*; only a human can judge whether it's
 *good* — pacing, tone, whether the correlation step (letter date → password)

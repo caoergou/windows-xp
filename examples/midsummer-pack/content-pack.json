@@ -45,6 +45,8 @@
         "hint.body": "毕业典礼那天——信里写了，四位数字。",
         "finale.title": "毕业合照",
         "finale.body": "文件夹开了。十年后再看，那个夏天原来一直都在。",
+        "early.title": "你还记得",
+        "early.body": "没看信就想起了密码——毕业那天，你根本没忘过。",
         "file.epilogue": "毕业照旁边，还有一个没发送的 QQ 传输请求。\r\n收件人：小雨\r\n\r\n（仲夏 2006 · 完）"
       },
       "en": {
@@ -58,6 +60,8 @@
         "hint.body": "Graduation day — the letter spells it out. Four digits.",
         "finale.title": "The class photo",
         "finale.body": "The folder opens. Ten years on, that summer was here all along.",
+        "early.title": "You still remember",
+        "early.body": "The password came back before you even read the letter — you never forgot that day.",
         "file.epilogue": "Next to the photos sits an unsent QQ file-transfer request.\r\nTo: Xiaoyu\r\n\r\n(Midsummer 2006 · End)"
       }
     },
@@ -103,9 +107,23 @@
         "do": [{ "notify": { "titleKey": "hint.title", "bodyKey": "hint.body" } }]
       },
       {
-        "id": "finale",
+        "id": "early-bird",
         "on": "file:unlock",
-        "when": { "all": [{ "flag": "read_letter" }, { "event": { "name": "毕业照" } }] },
+        "when": {
+          "all": [{ "not": { "flag": "read_letter" } }, { "event": { "name": "毕业照" } }]
+        },
+        "once": true,
+        "do": [{ "notify": { "titleKey": "early.title", "bodyKey": "early.body" } }]
+      },
+      {
+        "id": "finale",
+        "on": ["file:unlock", "flag:change"],
+        "when": {
+          "all": [
+            { "flag": "read_letter" },
+            { "happened": { "type": "file:unlock", "match": { "name": "毕业照" } } }
+          ]
+        },
         "once": true,
         "do": [
           { "setFlag": "album_open" },

@@ -27,6 +27,18 @@ All notable changes to this project will be documented in this file.
   a solve-caught sequencing bug → green `pack`, with the finished
   `examples/midsummer-pack/` kept adjudicated in CI
   (`scenario:solve:example` / `scenario:pack:example`).
+- **Non-linear structure patterns (follow-up)** — Pattern 12 (the
+  order-independent gate: durable `happened`/flag predicates, multi-channel
+  `on`, and an "early-bird" beat that celebrates sequence breakers per M2) and
+  Pattern 13 (the bushy act: a `PuzzleGraph`-kind fixture — the first Layer-3
+  graph adjudicated in CI — three parallel leads funnelling into a linted
+  `gate`). The walkthrough example's own finale turned out to soft-lock under
+  unlock-before-clue ordering; the scrambled-tape replay that caught it is
+  recorded in the walkthrough doc and committed as
+  `examples/midsummer-pack/seqbreak.events.json`, replayed by CI
+  (`scenario:solve:example:fuzz`). The scenario skill gained matching house
+  rules (order-independent convergence, graph-first authoring) and an
+  order-fuzz item in its definition of done.
 
 ### Added (Explorer depth follow-up, #120)
 

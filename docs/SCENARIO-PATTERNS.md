@@ -253,7 +253,10 @@ flowchart LR
 
 Listening on `flag:change` (not on the key events) is what makes the door
 order-independent: whichever key lands second raises the door, and adding a
-third key later means touching only the `when`.
+third key later means touching only the `when`. This works because both keys
+are *flags* — durable state. When one "key" is a raw event (an unlock, a
+navigation) rather than a flag you set, the same idea needs the `happened`
+journal predicate — see Pattern 12 (the order-independent gate).
 
 **Anti-pattern.** Putting the unlock inside *both* key triggers, each checking
 the other's flag — two copies of the payoff to keep in sync, and a third key
@@ -868,6 +871,244 @@ Rehearse the persona live with `xp-scenario serve` (`chat zhe <message>`, and
 A subtler failure: a context selector that names a flag or file the pack never
 defines — the provider would silently get an empty context. Lint catches both
 (`provider-flag` / `provider-file`).
+
+---
+
+# Part IV — Non-linear structure patterns（非线性结构）
+
+The engine's deepest design commitments are non-linear: knowledge is the only
+lock (M2), sequence-breaking is a feature, and the puzzle dependency graph
+(Layer 3) exists precisely so an act can be *wide* — several live leads at
+once — without the author hand-managing the combinatorics. These patterns are
+about the **shape of the story graph**, not any single beat.
+
+## Pattern 12 — the order-independent gate（顺序无关的门, M2）
+
+**Intent.** A convergence the player may complete **in any order** — including
+orders you didn't script. The archetype is the knowledge gate: a locked folder
+whose password is answerable from minute one, so a player who already knows
+(or guesses) opens it *before* finding the clue that explains it. Outer Wilds'
+rule: the only lock is knowledge; a sequence break is a win, not a bug.
+
+Two mechanical rules make a gate order-proof:
+
+1. **Gate on durable predicates** — flags, `happened` (the persisted event
+   journal), FS state — never on the transient `event` payload alone. An
+   `event` match is true only at the instant of that one event; if the other
+   half of the condition isn't true *yet*, the moment is gone forever.
+2. **Listen on every channel that can complete the condition.** If the gate
+   needs an unlock *and* a flag, it must wake on both `file:unlock` *and*
+   `flag:change` — whichever lands last raises it.
+
+**Structure.**
+
+```mermaid
+flowchart LR
+  A[file:unlock<br/>whenever it happens] --> J[(event journal:<br/>happened once, forever)]
+  B[clue read → flag set] --> D{durable gate<br/>on: unlock + flag:change}
+  J --> D
+  D --> F[finale fires in either order]
+  A -. before the clue .-> E[early-bird beat:<br/>acknowledge the breaker]
+```
+
+**Recipe.**
+
+```json
+{
+  "id": "pattern-order-independent-gate",
+  "strings": {
+    "zh": {
+      "early.title": "咦？",
+      "early.body": "还没找到线索就打开了——看来你本来就记得。",
+      "finale.title": "对上了",
+      "finale.body": "现在你知道那串数字意味着什么了。"
+    },
+    "en": {
+      "early.title": "Wait—",
+      "early.body": "Open before you even found the clue — you must have remembered all along.",
+      "finale.title": "It clicks",
+      "finale.body": "Now you know what those digits meant."
+    }
+  },
+  "triggers": [
+    {
+      "id": "learn-meaning",
+      "on": "file:open",
+      "when": { "event": { "name": "日记.txt" } },
+      "once": true,
+      "do": [{ "setFlag": "knows_meaning" }]
+    },
+    {
+      "id": "early-bird",
+      "on": "file:unlock",
+      "when": { "all": [{ "not": { "flag": "knows_meaning" } }, { "event": { "name": "私人" } }] },
+      "once": true,
+      "do": [{ "notify": { "titleKey": "early.title", "bodyKey": "early.body" } }]
+    },
+    {
+      "id": "finale",
+      "on": ["file:unlock", "flag:change"],
+      "when": {
+        "all": [
+          { "flag": "knows_meaning" },
+          { "happened": { "type": "file:unlock", "match": { "name": "私人" } } }
+        ]
+      },
+      "once": true,
+      "do": [{ "notify": { "titleKey": "finale.title", "bodyKey": "finale.body" } }]
+    }
+  ]
+}
+```
+
+Three things to copy exactly:
+
+- `happened` (not `event`) carries the unlock across time — the journal
+  remembers it whether it came first or last. For **player-driven** unlocks
+  prefer `happened('file:unlock')` over the `unlocked` FS predicate: the
+  headless solver models player unlocks as journal events (an `unlock` *action*
+  mutates its virtual FS; a password entry does not), so `happened` is what
+  both the solver and the live save see.
+- The double `on` makes the gate wake on whichever half completes last.
+- The **early-bird beat** turns the sequence break into content: the story
+  *notices* the player who already knew, instead of ignoring them. One `not`
+  guard is all it costs.
+
+**Anti-pattern.** Gating the convergence on the transient event:
+
+```jsonc
+{
+  "on": "file:unlock",
+  // ✗ if the player unlocks BEFORE the clue, this evaluates false once and the
+  //   unlock event never comes again (the folder is already open) — the finale
+  //   is permanently soft-locked. Found in this repo's own walkthrough example
+  //   by a scrambled-order solve replay; see SCENARIO-AUTHORING-WALKTHROUGH.md.
+  "when": { "all": [{ "flag": "knows_meaning" }, { "event": { "name": "私人" } }] },
+  "do": [{ "notify": { "bodyKey": "finale.body" } }]
+}
+```
+
+Adjudicate order-independence the same way everything else is adjudicated:
+keep a scrambled event tape next to the canonical one and `solve --events`
+both in CI (`examples/midsummer-pack/seqbreak.events.json` is the reference).
+
+## Pattern 13 — the bushy act（并行调查网, PuzzleGraph）
+
+**Intent.** An investigation act should be **wide**: several independent leads
+open at once, explorable in any order, funnelling into one act gate. Width is
+what makes being stuck survivable — a player blocked on one lead advances
+another (the Roottrees/Obra Dinn loop). The puzzle dependency graph (Layer 3)
+is the engine's native way to author this: declare nodes and `requires` edges;
+the compiler derives all gating triggers, and the graph linter mechanically
+checks what PDCs were invented to catch (unreachable nodes, cycles, gate
+bypasses, critical steps without hint ladders) and reports **bushiness** — how
+many puzzles are open at each depth — as a pacing dial.
+
+**Structure.** One intro fans out to three leads (bushiness `[1, 3, 1]`,
+`maxParallel: 3`), converging on a `gate: true` bottleneck:
+
+```mermaid
+flowchart LR
+  I[intro] --> A[lead: the letter]
+  I --> B[lead: the BBS]
+  I --> C[lead: the chat log]
+  A --> G{{confront — gate}}
+  B --> G
+  C --> G
+```
+
+**Recipe.** This is the `graph` input kind — the same CLI commands accept it
+(`lint` compiles and checks it; `solve` expects every `solved:*` flag). In
+TypeScript, `ladder()`/`ladderKeys()` are sugar for the raw `hints` arrays
+shown here.
+
+```json
+{
+  "id": "pattern-bushy-act",
+  "strings": {
+    "zh": {
+      "hint.title": "提示",
+      "hint.intro": "先随便看看——桌面、收藏夹、D 盘，都行。",
+      "hint.letter": "回收站里有一封没删干净的信。",
+      "hint.bbs": "收藏夹里那个论坛，很久没上了。",
+      "hint.chat": "D 盘的聊天记录还在。",
+      "hint.confront": "三条线索都指向同一个日期——就是那个密码。",
+      "confront.title": "对质",
+      "confront.body": "信、帖子、聊天记录——三样东西拼出了同一个晚上。"
+    },
+    "en": {
+      "hint.title": "Hint",
+      "hint.intro": "Just poke around — desktop, favorites, the D: drive.",
+      "hint.letter": "A half-deleted letter is still in the Recycle Bin.",
+      "hint.bbs": "That forum in the favorites — nobody's visited in years.",
+      "hint.chat": "The chat log on the D: drive is still there.",
+      "hint.confront": "All three leads point at one date — that's the password.",
+      "confront.title": "The confrontation",
+      "confront.body": "The letter, the thread, the chat log — three pieces of the same night."
+    }
+  },
+  "puzzles": [
+    {
+      "id": "intro",
+      "solvedWhen": { "happened": { "type": "session:boot-complete" } },
+      "hints": [{ "titleKey": "hint.title", "textKey": "hint.intro", "afterIdles": 1 }]
+    },
+    {
+      "id": "lead-letter",
+      "requires": ["intro"],
+      "solvedWhen": { "happened": { "type": "file:open", "match": { "name": "旧信.txt" } } },
+      "hints": [{ "titleKey": "hint.title", "textKey": "hint.letter", "afterIdles": 2 }]
+    },
+    {
+      "id": "lead-bbs",
+      "requires": ["intro"],
+      "solvedWhen": { "happened": { "type": "ie:navigate", "match": { "url": "http://qingchun-bbs.com" } } },
+      "hints": [{ "titleKey": "hint.title", "textKey": "hint.bbs", "afterIdles": 2 }]
+    },
+    {
+      "id": "lead-chat",
+      "requires": ["intro"],
+      "solvedWhen": { "happened": { "type": "file:open", "match": { "name": "聊天记录.txt" } } },
+      "hints": [{ "titleKey": "hint.title", "textKey": "hint.chat", "afterIdles": 2 }]
+    },
+    {
+      "id": "confront",
+      "requires": ["lead-letter", "lead-bbs", "lead-chat"],
+      "gate": true,
+      "solvedWhen": { "happened": { "type": "file:unlock", "match": { "name": "真相" } } },
+      "grants": [{ "notify": { "titleKey": "confront.title", "bodyKey": "confront.body" } }],
+      "hints": [{ "titleKey": "hint.title", "textKey": "hint.confront", "afterFails": 2 }]
+    }
+  ]
+}
+```
+
+Craft notes:
+
+- **The three leads are order-free by construction** — `requires` gating works
+  on solved-flags, so the compiler builds Pattern-12-style durable gates for
+  you. This is why graph authoring should be the default for anything with
+  more than one live lead.
+- **Every node carries a hint ladder.** The linter *errors* on a critical-path
+  node without one and *warns* on any other — under this library's
+  zero-warning CI bar, that means hints are simply mandatory. Note the pacing:
+  parallel leads hint lazily (`afterIdles: 2`) because the player has other
+  things to do; the gate hints on failures (`afterFails: 2`) because by then
+  it's the only door left.
+- **Ask the linter for the shape**: `graph --format mermaid` renders the
+  chart; the lint report's `bushiness`/`maxParallel` quantify pacing. An
+  investigation act that reports `[1, 1, 1, 1]` is a corridor pretending to be
+  a mystery.
+
+**Anti-pattern.** The corridor of doors: each clue's only purpose is to point
+at the next clue (letter → forum → chat log → password, strictly in order).
+Every soft-lock risk in this library's other anti-patterns compounds in a
+corridor, because there is never a second live lead to fall back on — one
+missed beat stalls the whole story. If your graph has no depth with more than
+one open puzzle, widen it or accept that it's a short story, not an
+investigation. The other classic failure is declaring a `gate` and then adding
+a shortcut node that doesn't `require` it — the linter reports exactly this
+(`bypasses gate "confront"`).
 
 ---
 

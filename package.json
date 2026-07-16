@@ -91,9 +91,10 @@
     "scenario:solve": "npm run dev --workspace @caoergou/xp-scenario-tools -- solve ../../src/data/scenarios/prologueGraph.ts",
     "scenario:pack": "npm run dev --workspace @caoergou/xp-scenario-tools -- pack ../../examples/reference-content-pack --check",
     "scenario:solve:example": "npm run dev --workspace @caoergou/xp-scenario-tools -- solve ../../examples/midsummer-pack --expect album_open",
+    "scenario:solve:example:fuzz": "npm run dev --workspace @caoergou/xp-scenario-tools -- solve ../../examples/midsummer-pack --events ../../examples/midsummer-pack/seqbreak.events.json --expect album_open",
     "scenario:pack:example": "npm run dev --workspace @caoergou/xp-scenario-tools -- pack ../../examples/midsummer-pack --check",
     "patterns:check": "node scripts/check-patterns.mjs",
-    "scenario:ci": "npm run scenario:lint && npm run scenario:solve && npm run scenario:pack && npm run scenario:solve:example && npm run scenario:pack:example && npm run patterns:check",
+    "scenario:ci": "npm run scenario:lint && npm run scenario:solve && npm run scenario:pack && npm run scenario:solve:example && npm run scenario:solve:example:fuzz && npm run scenario:pack:example && npm run patterns:check",
     "prepublishOnly": "npm run lint && npm run typecheck && npm run guard:nocheck && npm run guard:purity && npm run test -- --run && npm run build:lib && npm run scenario:build && npm run size:check"
   },
   "lint-staged": {
