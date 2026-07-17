@@ -37,3 +37,16 @@ declare module '*.cur' {
   const value: string;
   export default value;
 }
+
+declare module '*.woff' {
+  const value: string;
+  export default value;
+}
+
+// `?inline` CSS imports yield the processed sheet as a string (postcss plugins
+// still run — that is how the xp.css scope prefix is applied) without mounting
+// it into the DOM; the theme layer carries it as `OSTheme.css` (#213 B1).
+declare module '*.css?inline' {
+  const value: string;
+  export default value;
+}

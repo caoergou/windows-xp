@@ -1,10 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { XP_ASSETS } from '../../themes/xp/assets';
-import { resolveOSTheme } from '../../themes/useOSTheme';
-
-const startButtonSprite = XP_ASSETS.startButton.sprite;
-const windowsLogo = XP_ASSETS.startButton.logo;
+import { resolveOSTheme, useOSTheme } from '../../themes/useOSTheme';
 
 const StartButtonContainer = styled.button<{ $isActive?: boolean; $localized?: boolean }>`
   height: 30px;
@@ -18,7 +14,7 @@ const StartButtonContainer = styled.button<{ $isActive?: boolean; $localized?: b
   background-image: ${props =>
     props.$localized
       ? resolveOSTheme(props.theme).tokens.START_GRADIENT
-      : `url(${startButtonSprite})`};
+      : `url(${resolveOSTheme(props.theme).assets.startButton.sprite})`};
   background-repeat: no-repeat;
   background-size: 99px 90px;
   background-position: 0 0;
@@ -43,7 +39,7 @@ const StartButtonContainer = styled.button<{ $isActive?: boolean; $localized?: b
     background-image: ${props =>
       props.$localized
         ? resolveOSTheme(props.theme).tokens.START_GRADIENT_HOVER
-        : `url(${startButtonSprite})`};
+        : `url(${resolveOSTheme(props.theme).assets.startButton.sprite})`};
   }
 
   &&:active,
@@ -52,7 +48,7 @@ const StartButtonContainer = styled.button<{ $isActive?: boolean; $localized?: b
     background-image: ${props =>
       props.$localized
         ? resolveOSTheme(props.theme).tokens.START_GRADIENT_ACTIVE
-        : `url(${startButtonSprite})`};
+        : `url(${resolveOSTheme(props.theme).assets.startButton.sprite})`};
   }
 
   &:focus {
@@ -80,6 +76,7 @@ interface StartButtonProps {
 
 const StartButton: React.FC<StartButtonProps> = ({ label, isActive, buttonRef, onClick }) => {
   const localized = label !== 'Start';
+  const windowsLogo = useOSTheme().assets.startButton.logo;
 
   return (
     <StartButtonContainer

@@ -7,8 +7,9 @@
  * can supply its own values without the engine ever importing colours. Sourced
  * from `xp.css/themes/XP/_variables.scss` and component styles.
  *
- * Re-exported from `src/constants.ts` as `COLORS` for backward compatibility —
- * existing `import { COLORS } from '.../constants'` call sites are unchanged.
+ * The public outlet is the `./theme` subpath (`src/lib/theme.tsx`); the old
+ * back-compat re-export through `src/constants.ts` was removed when the #213
+ * B1 codemod moved every consumer onto the runtime theme context.
  */
 export const COLORS = {
   WINDOW_TITLE_ACTIVE:

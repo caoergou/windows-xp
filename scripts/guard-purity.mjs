@@ -1,16 +1,20 @@
 /**
  * guard:purity - engine purity guard (#143 platformization prep; rules in AGENTS.md red lines 11/12,
- * details in docs/DEVELOPMENT.md §7/§8). Six checks:
+ * details in docs/DEVELOPMENT.md §7/§8). Seven checks:
  *
  *  1. Engine directories must contain zero color values: the mechanism layer (context/hooks/utils/events/snapshot)
  *     must not contain color literals - "mechanism" and "what XP looks like" are layered, so in Phase B the mechanism layer becomes the engine as-is.
- *  2. xp.css is only allowed to be imported by entry files: engine/components must not directly depend on the XP skin table.
+ *  2. xp.css is only allowed to be imported by the theme layer (src/themes/): it feeds `OSTheme.css`
+ *     as an `?inline` string and entries mount it at runtime via `mountThemeCss` (#213 B1) —
+ *     no entry hardcodes the skin anymore.
  *  3. Inline hex ratchet (#213: baseline 0): outside the theme token layer and the declared
  *     brand-palette blocks there are NO inline color literals in src/ — and it stays that way.
  *  4. Engine directories must not import the theme layer (src/themes): themes are selected above the engine (#135 theme contract).
  *  5. Engine directories must not import asset files (images/cursors/audio): look and sound reach
  *     the mechanism layer via theme registries / runtime injection only (#213).
  *  6. brand-palette markers only appear in allow-listed files, balanced (#213 batch 4).
+ *  7. Apps/components/devtools must not import `themes/xp` directly (#213 B1 end-state): XP
+ *     tokens/fonts/assets/skin reach them only through the theme context / contract.
  *
  * Counting is performed after stripping comments (issue references like #116 often appear in comments and are the main noise source).
  */
@@ -70,15 +74,22 @@ const BRAND_PALETTE_FILES = new Set([
 const BRAND_START = 'brand-palette:start';
 const BRAND_END = 'brand-palette:end';
 
-/** Entry files allowed to import xp.css (skin is mounted at the entry, not leaked inside modules). */
-const XPCSS_ENTRIES = new Set([
-  'src/lib/index.tsx',
-  // Multi-page site entries (#160) — the old src/main.tsx router was split into these.
-  'src/demo/mountDemo.tsx',
-  'src/gallery/gallery-main.tsx',
-  'src/site/landing-main.tsx',
-  'src/site/lab-main.tsx',
-]);
+/**
+ * xp.css (the npm skin table) may only be imported by the theme layer
+ * (src/themes/) — as an `?inline` string feeding `OSTheme.css`; entries mount
+ * it at runtime via `mountThemeCss` (#213 B1). Nothing else imports it.
+ */
+const XPCSS_THEME_LAYER = 'src/themes/';
+
+/**
+ * #213 B1 end-state (check 7): app/component/devtool code reaches XP tokens,
+ * fonts, assets and the skin ONLY through the theme context / contract — a
+ * direct `themes/xp` import re-couples the consumer to one OS package.
+ * Allow-list: the composition root, which binds the default OS package
+ * (lifts out when the package splits into engine + os-xp, #143/B5).
+ */
+const XP_IMPORT_BAN_DIRS = ['src/apps', 'src/components', 'src/devtools'];
+const XP_IMPORT_ALLOW = new Set(['src/components/AppProviders.tsx']);
 
 const HEX_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/g;
 const XPCSS_IMPORT_RE = /(?:import\s+['"]|from\s+['"])xp\.css/;
@@ -88,6 +99,9 @@ const ASSET_IMPORT_RE = /from\s+['"][^'"]+\.(?:png|jpe?g|gif|webp|svg|cur|ico|wa
 // #135: the engine (mechanism) must never import the theme layer (src/themes).
 // A theme is picked above the engine; the engine stays look-agnostic.
 const THEMES_IMPORT_RE = /(?:from|import)\s+['"](?:\.\.?\/)+themes\//;
+// #213 B1 end-state: app/component code must not import the XP package directly
+// (themes/xp) — only the contract/accessors (themes/contract, themes/useOSTheme).
+const XP_PACKAGE_IMPORT_RE = /(?:from|import)\s+['"](?:\.\.?\/)+themes\/xp(?:[/'"])/;
 
 function stripComments(source) {
   return source
@@ -115,6 +129,8 @@ for (const file of walk('src')) {
   const isEnginePure = ENGINE_PURE.some(p => posix === p || posix.startsWith(p + '/'));
   const isRatchetExcluded = RATCHET_EXCLUDE.some(p => posix === p || posix.startsWith(p + '/'));
   const brandAllowed = BRAND_PALETTE_FILES.has(posix);
+  const isXpImportBanned =
+    XP_IMPORT_BAN_DIRS.some(p => posix.startsWith(p + '/')) && !XP_IMPORT_ALLOW.has(posix);
 
   // Brand-palette markers live in comments — track them on the RAW lines.
   let inBrand = false;
@@ -141,9 +157,14 @@ for (const file of walk('src')) {
         );
       }
     }
-    if (XPCSS_IMPORT_RE.test(line) && !XPCSS_ENTRIES.has(posix)) {
+    if (XPCSS_IMPORT_RE.test(line) && !posix.startsWith(XPCSS_THEME_LAYER)) {
       failures.push(
-        `非入口文件引入 xp.css ${posix}:${i + 1}（仅允许：${[...XPCSS_ENTRIES].join(', ')}）`
+        `主题层之外引入 xp.css ${posix}:${i + 1}（xp.css 仅允许 src/themes/ 以 ?inline 引入，经 OSTheme.css + mountThemeCss 运行期挂载）`
+      );
+    }
+    if (isXpImportBanned && XP_PACKAGE_IMPORT_RE.test(line)) {
+      failures.push(
+        `直接引入 themes/xp ${posix}:${i + 1}（#213 终态：仅经 theme 上下文/契约到达 XP；组合根例外见 guard 文件 XP_IMPORT_ALLOW）`
       );
     }
     if (isEnginePure && THEMES_IMPORT_RE.test(line)) {
@@ -189,6 +210,6 @@ if (totalHex < HEX_BASELINE) {
   );
 } else {
   console.log(
-    `guard OK: 引擎目录零色值；xp.css 仅入口引入；内联 hex ${totalHex}/${HEX_BASELINE}。`
+    `guard OK: 引擎目录零色值；xp.css 仅主题层引入；内联 hex ${totalHex}/${HEX_BASELINE}；apps/components/devtools 对 themes/xp 零直引。`
   );
 }

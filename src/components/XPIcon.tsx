@@ -1,5 +1,5 @@
 import React from 'react';
-import { XP_ICONS } from '../themes/xp/icons';
+import { useOSTheme } from '../themes/useOSTheme';
 
 // Icon lookup is a pure name → URL resolution against the active theme's icon
 // registry (#213): the binding table (and every asset import) lives in the
@@ -19,7 +19,8 @@ const isUrl = (s: string) =>
   s.startsWith('/') || s.startsWith('http') || s.startsWith('data:') || s.startsWith('blob:');
 
 const XPIcon = ({ name, size = 32, className, _color, style, ...rest }: XPIconProps) => {
-  const iconSrc = isUrl(name) ? name : XP_ICONS[name] || XP_ICONS.file;
+  const { icons } = useOSTheme().assets;
+  const iconSrc = isUrl(name) ? name : icons[name] || icons.file;
 
   return (
     <img

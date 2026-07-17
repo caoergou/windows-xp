@@ -60,6 +60,15 @@ export interface OSTheme {
   styles: ThemeStyles;
   /** Named audio samples for the soundManager facade (#213 seam). */
   sounds: SoundScheme;
+  /**
+   * The theme's skin sheet(s) as one CSS string (#213 B1): mounted into
+   * `document.head` at runtime by the composition root (see `mountThemeCss`)
+   * instead of being statically imported by entries. XP packs the scoped
+   * xp.css skin table plus its chrome sheet (Tahoma webfont, cursor set,
+   * focus affordances). Optional — a theme that ships no sheet (or mounts its
+   * own) simply omits it.
+   */
+  css?: string;
   /** Optional chrome slot map — the deferred seam (see above). */
   chrome?: Partial<ChromeSlots>;
 }
