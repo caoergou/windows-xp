@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import XPIcon from '../components/XPIcon';
-import { FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
    Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
@@ -44,7 +44,7 @@ const Wrap = styled.div`
   display: flex;
   flex-direction: column;
   background: ${PALETTE.green1007};
-  font-family: ${FONTS.CLASSIC};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.CLASSIC};
   font-size: 12px;
   color: ${PALETTE.grey800};
   user-select: none;

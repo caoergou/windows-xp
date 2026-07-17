@@ -1,13 +1,13 @@
 import styled, { keyframes } from 'styled-components';
 import { xpScrollbarStyles, xpButtonStyles, xpTitleBarStyles } from '../../theme';
-import { COLORS, FONTS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 
 export const Container = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 `;
 
 export const MainArea = styled.div`
@@ -19,15 +19,15 @@ export const MainArea = styled.div`
 
 export const Sidebar = styled.div`
   width: 250px;
-  background: ${COLORS.WHITE};
-  border-right: 1px solid ${COLORS.GREY_99};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  border-right: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.GREY_99};
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
 `;
 
 export const SidebarHeader = styled.div`
-  background: ${COLORS.HEADER_GRADIENT_BLUE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.HEADER_GRADIENT_BLUE};
   color: white;
   padding: 5px;
   font-weight: bold;
@@ -51,21 +51,21 @@ export const HistoryItem = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-bottom: 1px solid ${COLORS.GREY_EE};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.GREY_EE};
   font-size: 12px;
   display: flex;
   flex-direction: column;
 
   &:hover {
-    background: ${COLORS.GREY_F0};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
   }
 
   .url {
-    color: ${COLORS.LINK_BLUE};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.LINK_BLUE};
   }
 
   .time {
-    color: ${COLORS.GREY_88};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_88};
     font-size: 10px;
     margin-top: 2px;
   }
@@ -77,23 +77,23 @@ export const FavoritesItem = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-bottom: 1px solid ${COLORS.GREY_EE};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.GREY_EE};
   font-size: 12px;
   display: flex;
   align-items: center;
   gap: 5px;
 
   &:hover {
-    background: ${COLORS.GREY_F0};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
   }
 
   .name {
-    color: ${COLORS.LINK_BLUE};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.LINK_BLUE};
     flex: 1;
   }
 
   .delete {
-    color: ${COLORS.ERROR_RED};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.ERROR_RED};
     font-size: 10px;
     opacity: 0;
     cursor: pointer;
@@ -102,7 +102,7 @@ export const FavoritesItem = styled.div`
 
     &:hover {
       opacity: 1;
-      background: ${COLORS.ERROR_TINT};
+      background: ${({ theme }) => resolveOSTheme(theme).tokens.ERROR_TINT};
     }
   }
 
@@ -113,8 +113,8 @@ export const FavoritesItem = styled.div`
 
 export const FavoritesToolbar = styled.div`
   padding: 5px;
-  background: ${COLORS.GREY_F0};
-  border-bottom: 1px solid ${COLORS.GREY_DD};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.GREY_DD};
   display: flex;
   gap: 3px;
 `;
@@ -162,7 +162,7 @@ export const LoadingBar = styled.div<{ $visible: boolean }>`
   bottom: 0;
   left: 0;
   height: 2px;
-  background: ${COLORS.MENU_HIGHLIGHT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
   display: ${p => (p.$visible ? 'block' : 'none')};
   animation: ${ieLoadingBar} 1.5s ease-in-out infinite;
 `;
@@ -174,7 +174,7 @@ export const FooterStatus = styled.div`
   align-items: center;
   padding: 0 4px;
   font-size: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   gap: 4px;
   overflow: hidden;
   border-right: 1px solid rgba(0, 0, 0, 0.12);
@@ -201,7 +201,7 @@ export const StatusText = styled.span`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: ${COLORS.GREY_33};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_33};
 `;
 
 export const FooterBlock = styled.div`
@@ -222,7 +222,7 @@ export const FooterRight = styled.div`
   padding-left: 5px;
   position: relative;
   font-size: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   gap: 4px;
   flex-shrink: 0;
 
@@ -257,10 +257,10 @@ export const AddFavoriteModal = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: ${COLORS.SURFACE};
-  border: 2px solid ${COLORS.MENU_HIGHLIGHT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border: 2px solid ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
   border-radius: 0;
-  box-shadow: 2px 2px 0 ${COLORS.BUTTON_SHADOW};
+  box-shadow: 2px 2px 0 ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   z-index: 1000;
   min-width: 300px;
   overflow: hidden;
@@ -274,11 +274,11 @@ export const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 `;
 
 export const ModalTitle = styled.span`
-  color: ${COLORS.WHITE};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
 `;
 
 export const ModalBody = styled.div`
@@ -288,9 +288,9 @@ export const ModalBody = styled.div`
 export const ModalInput = styled.input`
   width: 100%;
   padding: 3px 4px;
-  border: 1px solid ${COLORS.FIELD_BORDER};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.FIELD_BORDER};
   font-size: 12px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   box-sizing: border-box;
 `;
 

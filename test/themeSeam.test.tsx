@@ -108,6 +108,12 @@ describe('theme fallback without a provider (#213 B1)', () => {
     expect(resolveOSTheme(fakeTheme).id).toBe('fake-os');
   });
 
+  it('useOSTheme() falls back to xpTheme with no provider (styled useTheme throws)', () => {
+    const Probe: React.FC = () => <span data-testid="probe">{useOSTheme().id}</span>;
+    render(<Probe />);
+    expect(screen.getByTestId('probe')).toHaveTextContent('xp');
+  });
+
   it('a migrated styled component renders with xpTheme tokens and no provider', () => {
     render(<MinesweeperGrid data-testid="grid" />);
     expect(getComputedStyle(screen.getByTestId('grid')).backgroundColor).toBe(

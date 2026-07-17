@@ -3,27 +3,27 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useUserSession } from '../../context/UserSessionContext';
 import { XPSelect } from '../../components/XPSelect';
-import { COLORS, FONTS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
 `;
 
 const GroupBox = styled.div`
-  border: 1px solid ${COLORS.FIELD_BORDER};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.FIELD_BORDER};
   padding: 12px;
-  background: ${COLORS.WHITE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
 `;
 
 const GroupTitle = styled.div`
   font-weight: bold;
   margin-bottom: 8px;
-  color: ${COLORS.BUTTON_BORDER};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
 `;
 
 const Preview = styled.div<{ $bgUrl: string }>`
@@ -32,7 +32,7 @@ const Preview = styled.div<{ $bgUrl: string }>`
   background-image: url(${props => props.$bgUrl});
   background-size: cover;
   background-position: center;
-  border: 1px solid ${COLORS.FIELD_BORDER};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.FIELD_BORDER};
   margin-bottom: 12px;
 `;
 
@@ -50,7 +50,7 @@ const Row = styled.div`
 const Label = styled.div`
   width: 100px;
   flex-shrink: 0;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
 `;
 
 const Select = styled(XPSelect)`
@@ -62,19 +62,19 @@ const ButtonRow = styled.div`
   justify-content: flex-end;
   gap: 8px;
   padding-top: 8px;
-  border-top: 1px solid ${COLORS.SURFACE};
+  border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
 `;
 
 const Button = styled.button`
   padding: 3px 14px;
   font-size: 11px;
-  border: 1px solid ${COLORS.BUTTON_BORDER};
-  background: ${COLORS.BUTTON_GRADIENT};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_GRADIENT};
   cursor: pointer;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 
   &:hover {
-    box-shadow: ${COLORS.BUTTON_HOVER_SHADOW};
+    box-shadow: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HOVER_SHADOW};
   }
 `;
 

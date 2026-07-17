@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../../../components/XPIcon';
-import { COLORS } from '../../../constants';
+import { useOSTheme } from '../../../themes/useOSTheme';
 import { BrowsingHistoryItem } from '../types';
 import { Sidebar, SidebarHeader, HistoryList, HistoryItem } from '../styled';
 
@@ -13,6 +13,7 @@ interface HistoryPanelProps {
 
 const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onNavigate, onClose }) => {
   const { t } = useTranslation();
+  const osTheme = useOSTheme();
 
   return (
     <Sidebar>
@@ -34,7 +35,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onNavigate, onClos
           </HistoryItem>
         ))}
         {history.length === 0 && (
-          <div style={{ padding: 10, color: COLORS.GREY_88, fontSize: 12 }}>
+          <div style={{ padding: 10, color: osTheme.tokens.GREY_88, fontSize: 12 }}>
             {t('internetExplorer.noHistory')}
           </div>
         )}

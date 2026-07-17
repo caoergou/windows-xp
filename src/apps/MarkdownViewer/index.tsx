@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { COLORS, FONTS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 import { parseFrontmatter } from '../../content/blog';
 import type { ContentRef } from '../../content/types';
 import { useResolvedContent } from '../../hooks/useResolvedContent';
@@ -25,8 +25,8 @@ const Container = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: ${COLORS.SURFACE};
-  font-family: ${FONTS.UI};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 `;
 
 // A thin "reading" info strip, à la the Word/HTML viewers of the era.
@@ -35,8 +35,8 @@ const InfoBar = styled.div`
   padding: 2px 6px;
   font-size: 11px;
   color: black;
-  border-bottom: 1px solid ${COLORS.BUTTON_SHADOW};
-  background: ${COLORS.SURFACE};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
   display: flex;
   align-items: center;
   gap: 6px;
@@ -49,7 +49,7 @@ const Page = styled.div`
   margin: 6px;
   padding: 18px 22px;
   background: white;
-  border: 1px solid ${COLORS.BUTTON_SHADOW};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   color: black;
   font-size: 13px;
   line-height: 1.5;
@@ -61,13 +61,13 @@ const Page = styled.div`
   h5,
   h6 {
     font-family: 'Trebuchet MS', 'Tahoma', sans-serif;
-    color: ${COLORS.BUTTON_BORDER};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
     line-height: 1.25;
     margin: 0.8em 0 0.4em;
   }
   h1 {
     font-size: 1.7em;
-    border-bottom: 1px solid ${COLORS.INPUT_BORDER};
+    border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.INPUT_BORDER};
     padding-bottom: 0.15em;
   }
   h2 {
@@ -80,7 +80,7 @@ const Page = styled.div`
     margin: 0 0 0.75em;
   }
   a {
-    color: ${COLORS.MENU_HIGHLIGHT};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
     text-decoration: underline;
   }
   ul,
@@ -92,14 +92,14 @@ const Page = styled.div`
     margin: 0.15em 0;
   }
   code {
-    font-family: ${FONTS.MONO};
+    font-family: ${({ theme }) => resolveOSTheme(theme).fonts.MONO};
     font-size: 0.95em;
-    background: ${COLORS.BUTTON_FACE};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_FACE};
     padding: 0 3px;
   }
   pre {
-    background: ${COLORS.BUTTON_FACE};
-    border: 1px solid ${COLORS.BUTTON_SHADOW};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_FACE};
+    border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
     padding: 8px 10px;
     overflow-x: auto;
     margin: 0 0 0.75em;
@@ -111,12 +111,12 @@ const Page = styled.div`
   blockquote {
     margin: 0 0 0.75em;
     padding: 2px 12px;
-    border-left: 3px solid ${COLORS.INPUT_BORDER};
-    color: ${COLORS.BUTTON_SHADOW};
+    border-left: 3px solid ${({ theme }) => resolveOSTheme(theme).tokens.INPUT_BORDER};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   }
   hr {
     border: none;
-    border-top: 1px solid ${COLORS.BUTTON_SHADOW};
+    border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
     margin: 1em 0;
   }
   img {
@@ -129,12 +129,12 @@ const Page = styled.div`
   }
   th,
   td {
-    border: 1px solid ${COLORS.BUTTON_SHADOW};
+    border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
     padding: 3px 8px;
     text-align: left;
   }
   th {
-    background: ${COLORS.BUTTON_FACE};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_FACE};
   }
   /* GFM task lists: drop the bullet and restore a real checkbox glyph (xp.css
      resets checkbox appearance to a sprite that renders invisible here). */
@@ -160,14 +160,14 @@ const Page = styled.div`
 const PostHeader = styled.header`
   margin: 0 0 1em;
   padding-bottom: 0.4em;
-  border-bottom: 1px solid ${COLORS.INPUT_BORDER};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.INPUT_BORDER};
 
   h1 {
     margin: 0;
     border: none;
     padding: 0;
     font-family: 'Trebuchet MS', 'Tahoma', sans-serif;
-    color: ${COLORS.BUTTON_BORDER};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
     font-size: 1.8em;
     line-height: 1.2;
   }
@@ -175,7 +175,7 @@ const PostHeader = styled.header`
     display: block;
     margin-top: 0.25em;
     font-size: 11px;
-    color: ${COLORS.BUTTON_SHADOW};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   }
 `;
 

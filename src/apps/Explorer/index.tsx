@@ -37,10 +37,11 @@ import {
 import { isOpticalDrive } from './helpers';
 import type { ExplorerProps } from './types';
 import { useExplorer } from './hooks/useExplorer';
-import { COLORS } from '../../constants';
+import { useOSTheme } from '../../themes/useOSTheme';
 
 const Explorer: React.FC<ExplorerProps> = props => {
   const x = useExplorer(props);
+  const osTheme = useOSTheme();
   const {
     t,
     getFile,
@@ -289,7 +290,10 @@ const Explorer: React.FC<ExplorerProps> = props => {
     if (!dropping && !item.hidden) return undefined;
     return {
       ...(dropping
-        ? { background: COLORS.DROP_HIGHLIGHT, border: `1px dashed ${COLORS.MENU_HIGHLIGHT}` }
+        ? {
+            background: osTheme.tokens.DROP_HIGHLIGHT,
+            border: `1px dashed ${osTheme.tokens.MENU_HIGHLIGHT}`,
+          }
         : {}),
       ...(item.hidden ? { opacity: 0.55 } : {}),
     };
@@ -299,10 +303,10 @@ const Explorer: React.FC<ExplorerProps> = props => {
   const lockBadge = (item: FileNode) =>
     item.locked ? (
       <svg width="10" height="10" viewBox="0 0 10 10" style={{ marginLeft: 4, flexShrink: 0 }}>
-        <rect x="1" y="4" width="8" height="5" rx="1" fill={COLORS.GREY_66} />
+        <rect x="1" y="4" width="8" height="5" rx="1" fill={osTheme.tokens.GREY_66} />
         <path
           d="M2.5 4V2.5a2.5 2.5 0 0 1 5 0V4"
-          stroke={COLORS.GREY_66}
+          stroke={osTheme.tokens.GREY_66}
           strokeWidth="1.2"
           fill="none"
         />

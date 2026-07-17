@@ -3,7 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import { CultureAppShell } from './culture/shell';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
-import { FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
    Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
@@ -253,7 +253,7 @@ const ProgressTime = styled.div`
   justify-content: space-between;
   font-size: 10px;
   color: ${PALETTE.blue300};
-  font-family: ${FONTS.MONO};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.MONO};
 `;
 
 const VolumeArea = styled.div`

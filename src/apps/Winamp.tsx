@@ -3,7 +3,7 @@ import styled, { css, keyframes } from 'styled-components';
 // Reuse the engine's bundled sample clip (an existing, licence-clear asset) —
 // the classic "reuse the WMP audio plumbing" from #123.
 import sampleAudio from '../assets/audio/sample.wav';
-import { FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
    Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
@@ -72,7 +72,7 @@ const Wrap = styled.div`
   display: flex;
   flex-direction: column;
   background: ${PALETTE.grey9004};
-  font-family: ${FONTS.CLASSIC};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.CLASSIC};
   font-size: 11px;
   color: ${PALETTE.grey2002};
   user-select: none;
@@ -110,7 +110,7 @@ const Lcd = styled.div`
   align-items: center;
   gap: 10px;
   color: ${PALETTE.green400};
-  font-family: ${FONTS.MONO};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.MONO};
 `;
 
 const Time = styled.div`
@@ -255,7 +255,7 @@ const Row = styled.div<{ $current?: boolean }>`
   cursor: pointer;
   color: ${p => (p.$current ? PALETTE.green400 : PALETTE.grey200)};
   background: ${p => (p.$current ? PALETTE.green9002 : 'transparent')};
-  font-family: ${FONTS.MONO};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.MONO};
   font-size: 11px;
   &:hover {
     background: ${p => (p.$current ? PALETTE.green9003 : PALETTE.grey900)};

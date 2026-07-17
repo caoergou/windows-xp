@@ -3,19 +3,19 @@ import styled from 'styled-components';
 import XPIcon from '../components/XPIcon';
 import { useTranslation } from 'react-i18next';
 import { useLesson } from '../context/LessonContext';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 const Container = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: ${COLORS.GREY_F0};
-  font-family: ${FONTS.UI};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 `;
 
 const Header = styled.div`
-  background: ${COLORS.HEADER_GRADIENT_BLUE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.HEADER_GRADIENT_BLUE};
   color: white;
   padding: 8px 12px;
   font-weight: bold;
@@ -33,8 +33,8 @@ const Content = styled.div`
 
 const Sidebar = styled.div`
   width: 200px;
-  background: ${COLORS.WHITE};
-  border-right: 1px solid ${COLORS.GREY_99};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  border-right: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.GREY_99};
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -44,17 +44,17 @@ const SidebarItem = styled.div`
   padding: 10px 15px;
   cursor: pointer;
   font-size: 12px;
-  border-bottom: 1px solid ${COLORS.GREY_EE};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.GREY_EE};
   display: flex;
   align-items: center;
   gap: 8px;
 
   &:hover {
-    background: ${COLORS.GREY_F0};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
   }
 
   &.active {
-    background: ${COLORS.MENU_HIGHLIGHT};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
     color: white;
   }
 `;
@@ -71,11 +71,11 @@ const MainContent = styled.div`
 const TopicTitle = styled.h2`
   margin: 0 0 15px 0;
   font-size: 16px;
-  color: ${COLORS.GREY_33};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_33};
 `;
 
 const TopicContent = styled.div`
-  color: ${COLORS.GREY_66};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_66};
 `;
 
 const LessonRow = styled.button`
@@ -86,14 +86,14 @@ const LessonRow = styled.button`
   text-align: left;
   padding: 10px 12px;
   margin-bottom: 8px;
-  background: ${COLORS.SURFACE};
-  border: 1px solid ${COLORS.BUTTON_BORDER};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
   border-radius: 3px;
   font-family: inherit;
   font-size: 12px;
   cursor: pointer;
   &:hover {
-    background: ${COLORS.MENU_HIGHLIGHT};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
     color: white;
   }
 `;

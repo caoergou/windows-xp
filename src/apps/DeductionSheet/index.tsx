@@ -9,7 +9,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { COLORS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 import { useXPEventBus } from '../../context/EventBusContext';
 import {
   judgeGroups,
@@ -41,7 +41,7 @@ const Wrap = styled.div`
   width: 100%;
   height: 100%;
   overflow: auto;
-  background: ${COLORS.SURFACE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
   font-family: Tahoma, sans-serif;
   font-size: 12px;
   color: black;
@@ -64,7 +64,7 @@ const SlotSelect = styled.select<{ $verified?: boolean }>`
   font-size: 12px;
   margin: 0 2px;
   padding: 1px 2px;
-  border: 1px solid ${COLORS.INPUT_BORDER};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.INPUT_BORDER};
   background: ${p => (p.$verified ? 'honeydew' : 'white')};
   color: black;
 `;
@@ -78,7 +78,7 @@ const SlotRow = styled.div`
 
 const Label = styled.span`
   min-width: 88px;
-  color: ${COLORS.BUTTON_SHADOW};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
 `;
 
 const Bank = styled.div`
@@ -90,7 +90,7 @@ const Bank = styled.div`
 
 const Chip = styled.span`
   padding: 2px 8px;
-  border: 1px solid ${COLORS.BUTTON_BORDER};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
   border-radius: 10px;
   background: white;
 `;
@@ -99,25 +99,29 @@ const VerifyButton = styled.button`
   padding: 4px 16px;
   font-family: Tahoma, sans-serif;
   font-size: 12px;
-  background: ${COLORS.BUTTON_GRADIENT};
-  border: 1px solid ${COLORS.BUTTON_BORDER};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_GRADIENT};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
   border-radius: 3px;
   cursor: pointer;
   &:hover {
-    box-shadow: ${COLORS.BUTTON_HOVER_SHADOW};
+    box-shadow: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HOVER_SHADOW};
   }
 `;
 
 const Status = styled.div<{ $state: 'verified' | 'failed' | 'pending' }>`
   margin: 4px 0;
   color: ${p =>
-    p.$state === 'verified' ? 'green' : p.$state === 'failed' ? 'firebrick' : COLORS.BUTTON_SHADOW};
+    p.$state === 'verified'
+      ? 'green'
+      : p.$state === 'failed'
+        ? 'firebrick'
+        : resolveOSTheme(p.theme).tokens.BUTTON_SHADOW};
 `;
 
 const Solved = styled.div`
   margin-top: 12px;
   padding: 8px 10px;
-  background: ${COLORS.TITLE_BAR_GRADIENT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.TITLE_BAR_GRADIENT};
   color: white;
   font-weight: bold;
   border-radius: 3px;

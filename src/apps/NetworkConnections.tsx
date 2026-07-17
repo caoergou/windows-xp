@@ -3,22 +3,22 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
 import { XPButton } from '../components/XPButton';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 const Container = styled.div`
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: ${COLORS.SURFACE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
 `;
 
 /* ---------- List (Network Connections folder) view ---------- */
 
 const ListArea = styled.div`
   flex: 1;
-  background: ${COLORS.BUTTON_HIGHLIGHT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT};
   overflow-y: auto;
   padding: 4px 0 0;
 `;
@@ -26,7 +26,7 @@ const ListArea = styled.div`
 const GroupHeading = styled.div`
   font-weight: bold;
   padding: 3px 10px 4px;
-  border-bottom: 1px solid ${COLORS.DIVIDER_GREY};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
   margin: 0 8px 6px;
 `;
 
@@ -44,13 +44,17 @@ const ConnectionItem = styled.div<{ $selected: boolean }>`
   padding: 4px 6px;
   width: 100%;
   box-sizing: border-box;
-  background: ${({ $selected }) => ($selected ? COLORS.MENU_HIGHLIGHT : 'transparent')};
-  color: ${({ $selected }) => ($selected ? COLORS.BUTTON_HIGHLIGHT : 'inherit')};
+  background: ${({ $selected, theme }) =>
+    $selected ? resolveOSTheme(theme).tokens.MENU_HIGHLIGHT : 'transparent'};
+  color: ${({ $selected, theme }) =>
+    $selected ? resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT : 'inherit'};
   cursor: pointer;
 
   &:hover {
-    background: ${({ $selected }) =>
-      $selected ? COLORS.MENU_HIGHLIGHT : COLORS.BORDER_GREY_HILIGHT};
+    background: ${({ $selected, theme }) =>
+      $selected
+        ? resolveOSTheme(theme).tokens.MENU_HIGHLIGHT
+        : resolveOSTheme(theme).tokens.BORDER_GREY_HILIGHT};
   }
 `;
 
@@ -84,9 +88,13 @@ const Tabs = styled.div`
 
 const Tab = styled.div<{ $active?: boolean }>`
   padding: 3px 12px;
-  border: 1px solid ${COLORS.BORDER_GREY};
-  border-bottom-color: ${({ $active }) => ($active ? COLORS.SURFACE : COLORS.BORDER_GREY)};
-  background: ${({ $active }) => ($active ? COLORS.SURFACE : COLORS.BORDER_GREY_HILIGHT)};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
+  border-bottom-color: ${({ $active, theme }) =>
+    $active ? resolveOSTheme(theme).tokens.SURFACE : resolveOSTheme(theme).tokens.BORDER_GREY};
+  background: ${({ $active, theme }) =>
+    $active
+      ? resolveOSTheme(theme).tokens.SURFACE
+      : resolveOSTheme(theme).tokens.BORDER_GREY_HILIGHT};
   border-radius: 3px 3px 0 0;
   position: relative;
   z-index: ${({ $active }) => ($active ? 2 : 1)};
@@ -96,8 +104,8 @@ const Tab = styled.div<{ $active?: boolean }>`
 
 const TabPane = styled.div`
   margin-top: -1px;
-  border: 1px solid ${COLORS.BORDER_GREY};
-  background: ${COLORS.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
   flex: 1;
   min-height: 0;
   overflow: auto;
@@ -108,7 +116,7 @@ const TabPane = styled.div`
 `;
 
 const GroupBox = styled.fieldset`
-  border: 1px solid ${COLORS.DIVIDER_GREY};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
   border-radius: 0;
   margin: 0;
   padding: 10px 12px 12px;
@@ -117,7 +125,7 @@ const GroupBox = styled.fieldset`
   legend {
     padding: 0 4px;
     font-weight: normal;
-    color: ${COLORS.WINDOW_FRAME};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.WINDOW_FRAME};
   }
 `;
 
@@ -152,14 +160,14 @@ const ActivityIcons = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  color: ${COLORS.BORDER_GREY};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
   font-weight: bold;
 `;
 
 const Etched = styled.div`
   height: 0;
-  border-top: 1px solid ${COLORS.DIVIDER_GREY};
-  border-bottom: 1px solid ${COLORS.BUTTON_HIGHLIGHT};
+  border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT};
   margin: 2px 0 6px;
 `;
 

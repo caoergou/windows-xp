@@ -4,19 +4,19 @@ import { useApp } from '../hooks/useApp';
 import { APP_REGISTRY } from '../registry/apps';
 import { useTranslation } from 'react-i18next';
 import { FileNode } from '../types';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme, useOSTheme } from '../themes/useOSTheme';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: ${COLORS.PHOTO_BG};
+  background-color: ${({ theme }) => resolveOSTheme(theme).tokens.PHOTO_BG};
 `;
 
 const Toolbar = styled.div`
   height: 36px;
-  background: ${COLORS.PHOTO_TOOLBAR_GRADIENT};
-  border-bottom: 1px solid ${COLORS.PHOTO_BORDER};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.PHOTO_TOOLBAR_GRADIENT};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.PHOTO_BORDER};
   display: flex;
   align-items: center;
   padding: 0 10px;
@@ -41,13 +41,13 @@ const StyledImage = styled.img`
 
 const InfoBar = styled.div`
   height: 24px;
-  background-color: ${COLORS.PHOTO_BG};
-  border-top: 1px solid ${COLORS.PHOTO_BORDER};
+  background-color: ${({ theme }) => resolveOSTheme(theme).tokens.PHOTO_BG};
+  border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.PHOTO_BORDER};
   display: flex;
   align-items: center;
   padding: 0 10px;
   font-size: 11px;
-  color: ${COLORS.GREY_33};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_33};
 `;
 
 const ToolbarButton = styled.button`
@@ -59,10 +59,10 @@ const ToolbarButton = styled.button`
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 
   &:hover {
-    border: 1px solid ${COLORS.PHOTO_BORDER};
+    border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.PHOTO_BORDER};
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 2px;
   }
@@ -93,6 +93,7 @@ const normalizeImageSrc = (src?: string): string | undefined => {
 const PhotoViewer = ({ src, fileItem, windowId }: PhotoViewerProps) => {
   const api = useApp(windowId);
   const { t } = useTranslation();
+  const osTheme = useOSTheme();
   const imageSrc = normalizeImageSrc(src);
 
   const handleProperties = () => {
@@ -116,7 +117,7 @@ const PhotoViewer = ({ src, fileItem, windowId }: PhotoViewerProps) => {
             fontSize: '11px',
             marginRight: 'auto',
             fontWeight: 'bold',
-            color: COLORS.GREY_33,
+            color: osTheme.tokens.GREY_33,
           }}
         >
           {t('photoViewer.title')}
