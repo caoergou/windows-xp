@@ -569,6 +569,9 @@
     "folder": "Folder",
     "file": "File"
   },
+  "clock": {
+    "dateTime": "Date and time"
+  },
   "common": {
     "error": "Error",
     "ok": "OK",

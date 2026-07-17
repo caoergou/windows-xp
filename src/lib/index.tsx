@@ -13,6 +13,7 @@ import type { Scenario } from '../scenario/types';
 import type { ContentPack } from '../content/types';
 import type { Lesson } from '../lesson/types';
 import type { MarkdownOptions } from '../apps/MarkdownViewer/config';
+import type { ClockConfig } from '../context/ClockContext';
 import '../i18n';
 import 'xp.css/dist/XP.css';
 import '../scoped.css';
@@ -115,6 +116,8 @@ export interface WindowsXPProps {
   hourlyChime?: boolean;
   /** Inactivity threshold in ms before `user:idle` fires (default 60000, #130). */
   idleThresholdMs?: number;
+  /** Instance-local virtual system clock; omitted means the real host clock (#275). */
+  clock?: ClockConfig;
   /**
    * Deep link (#136): key path(s) - the '?open=' value(s), e.g.
    * '我的文档/readme.txt' - to open once the desktop is interactive (after
@@ -230,6 +233,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     disableScreenSaver,
     hourlyChime,
     idleThresholdMs,
+    clock,
     openOnLoad,
     routes,
     location,
@@ -265,6 +269,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       markdown={markdown}
       hourlyChime={hourlyChime}
       idleThresholdMs={idleThresholdMs}
+      clock={clock}
       openOnLoad={openOnLoad}
       routes={routes}
       location={location}
@@ -310,6 +315,7 @@ export { UserSessionProvider } from '../context/UserSessionContext';
 export { ModalProvider } from '../context/ModalContext';
 export { TrayProvider } from '../context/TrayContext';
 export { SchedulerProvider } from '../context/SchedulerContext';
+export { ClockProvider } from '../context/ClockContext';
 
 // Re-export hooks.
 export { useAppRegistry } from '../context/AppRegistryContext';
@@ -320,6 +326,7 @@ export { useUserSession } from '../context/UserSessionContext';
 export { useModal } from '../context/ModalContext';
 export { useTray } from '../context/TrayContext';
 export { useScheduler } from '../context/SchedulerContext';
+export { useClock } from '../context/ClockContext';
 export { useApp } from '../hooks/useApp';
 // #213 B1 — OS theme seam: the XP theme, its contract, and the runtime accessor.
 export { xpTheme } from '../themes/xp';
@@ -392,6 +399,13 @@ export type { BootBranding, LoginBranding } from '../branding';
 export type { ModalContextType } from '../context/ModalContext';
 export type { TrayItem, TrayContextType, NotifyOptions } from '../context/TrayContext';
 export type { ScheduleOptions, SchedulerApi } from '../context/SchedulerContext';
+export type {
+  ClockConfig,
+  ClockMode,
+  ClockCatchUp,
+  ClockSnapshot,
+  XPClockApi,
+} from '../context/ClockContext';
 export type { XPEvent, XPEventType, XPEventListener } from '../events';
 export type {
   XPHandle,

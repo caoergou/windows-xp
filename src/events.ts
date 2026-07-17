@@ -103,6 +103,8 @@ export type XPEventBody =
   | { type: 'time:hour'; hour: number }
   /** A persisted schedule fired (delay elapsed or its `at` deadline passed, incl. while the page was closed). */
   | { type: 'time:fire'; id: string }
+  /** The instance virtual wall-clock changed; `source` identifies a user edit or host API call. */
+  | { type: 'time:change'; from: string; to: string; source: 'user' | 'host' }
   // ── user: presence / idle detection (#130) ──────────────────────────────────
   /** The user has been inactive for the idle threshold; `idleMs` is that threshold. */
   | { type: 'user:idle'; idleMs: number }

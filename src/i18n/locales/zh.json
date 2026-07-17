@@ -563,6 +563,9 @@
     "folder": "文件夹",
     "file": "文件"
   },
+  "clock": {
+    "dateTime": "日期和时间"
+  },
   "common": {
     "error": "错误",
     "ok": "确定",

@@ -4,6 +4,7 @@ import { useStorage } from './StorageContext';
 import { canUseDOM } from '../utils/storage';
 import { sounds } from '../utils/soundManager';
 import type { XPEvent } from '../events';
+import { useClock } from './ClockContext';
 
 /**
  * Timer / scheduler subsystem (#130).
@@ -26,6 +27,8 @@ interface ScheduledTask {
   id: string;
   /** Epoch ms at which the task should fire. */
   fireAt: number;
+  /** Delays use real elapsed time; absolute deadlines use virtual wall-clock time. */
+  basis?: 'real' | 'virtual';
   /** Event to emit when it fires; defaults to `{ type: 'time:fire', id }`. */
   event?: XPEvent;
 }
@@ -83,6 +86,7 @@ export const SchedulerProvider: React.FC<SchedulerProviderProps> = ({
 }) => {
   const bus = useXPEventBus();
   const storage = useStorage();
+  const clock = useClock();
   const storeKey = storage.key('schedules');
 
   // Live timers keyed by schedule id; never persisted.
@@ -129,24 +133,27 @@ export const SchedulerProvider: React.FC<SchedulerProviderProps> = ({
     (task: ScheduledTask, now: number) => {
       const existing = timersRef.current.get(task.id);
       if (existing) clearTimeout(existing);
-      const delay = Math.max(0, task.fireAt - now);
+      const rate = task.basis === 'virtual' ? clock.rate : 1;
+      const delay = Math.max(0, (task.fireAt - now) / rate);
       // Guard against delays past setTimeout's 32-bit ceiling (~24.8 days):
       // clamp and let the reconcile-on-next-mount pick it up if still pending.
       const clamped = Math.min(delay, 2_147_483_647);
       const timer = setTimeout(() => fire(task), clamped);
       timersRef.current.set(task.id, timer);
     },
-    [fire]
+    [clock.rate, fire]
   );
 
   const schedule = useCallback(
     (options: ScheduleOptions): string => {
       const id = options.id ?? `sched-${Date.now()}-${autoScheduleSeq++}`;
-      const now = Date.now();
+      const basis: ScheduledTask['basis'] = options.at === undefined ? 'real' : 'virtual';
+      const now = basis === 'virtual' ? clock.nowMs() : Date.now();
       const fireAt = options.at ?? now + (options.delayMs ?? 0);
       const task: ScheduledTask = {
         id,
         fireAt,
+        basis,
         ...(options.event ? { event: options.event } : {}),
       };
 
@@ -160,7 +167,7 @@ export const SchedulerProvider: React.FC<SchedulerProviderProps> = ({
       }
       return id;
     },
-    [readTasks, writeTasks, fire, arm]
+    [readTasks, writeTasks, fire, arm, clock]
   );
 
   const cancelSchedule = useCallback(
@@ -181,9 +188,9 @@ export const SchedulerProvider: React.FC<SchedulerProviderProps> = ({
   // already passed (elapsed while closed), arm timers for the rest.
   useEffect(() => {
     const timers = timersRef.current;
-    const now = Date.now();
     const tasks = readTasks();
     tasks.forEach(task => {
+      const now = task.basis === 'virtual' ? clock.nowMs() : Date.now();
       if (task.fireAt <= now) fire(task);
       else arm(task, now);
     });
@@ -195,21 +202,40 @@ export const SchedulerProvider: React.FC<SchedulerProviderProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Reconcile absolute wall-clock tasks whenever the virtual clock is edited.
+  useEffect(
+    () =>
+      clock.subscribe(() => {
+        const now = clock.nowMs();
+        readTasks()
+          .filter(task => task.basis === 'virtual')
+          .forEach(task => {
+            if (task.fireAt <= now) {
+              if (clock.catchUp === 'fire-once') fire(task);
+              else cancelSchedule(task.id);
+            } else {
+              arm(task, now);
+            }
+          });
+      }),
+    [arm, cancelSchedule, clock, fire, readTasks]
+  );
+
   // time:hour — align to the next top of the hour, then re-arm each hour.
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
     const armNextHour = () => {
-      const now = new Date();
+      const now = new Date(clock.nowMs());
       const msToNextHour =
         (60 - now.getMinutes()) * 60_000 - now.getSeconds() * 1000 - now.getMilliseconds();
       timer = setTimeout(() => {
-        bus.emit({ type: 'time:hour', hour: new Date().getHours() });
+        bus.emit({ type: 'time:hour', hour: new Date(clock.nowMs()).getHours() });
         armNextHour();
       }, msToNextHour);
     };
     armNextHour();
     return () => clearTimeout(timer);
-  }, [bus]);
+  }, [bus, clock]);
 
   // Hourly chime consumer — opt-in (off by default, host/culture driven).
   useEffect(() => {

@@ -10,6 +10,7 @@
  */
 import type { FileNode } from './types';
 import type { RecycleBinItem } from './utils/storage';
+import type { ClockSnapshot } from './context/ClockContext';
 
 /** Current snapshot format version. Bump on breaking schema changes. */
 export const XP_SNAPSHOT_VERSION = 1;
@@ -29,6 +30,8 @@ export interface XPSnapshot {
   language: string | null;
   /** Reserved for the scenario system (#84): scenario flags. */
   flags: Record<string, unknown>;
+  /** Instance-local virtual wall-clock state (#275). */
+  clock?: ClockSnapshot;
 }
 
 /** Base class for any reason a snapshot cannot be loaded (#208). */
@@ -165,6 +168,18 @@ export function assertLoadableSnapshot(value: unknown): asserts value is XPSnaps
           `flags[${JSON.stringify(key)}]: expected a string/number/boolean/null, got ${describe(v)}.`
         );
       }
+    }
+  }
+  if (snap.clock !== undefined) {
+    if (!isPlainObject(snap.clock)) {
+      throw new XPSnapshotError(`clock: expected an object, got ${describe(snap.clock)}.`);
+    }
+    if (
+      !Number.isFinite(snap.clock.virtualEpoch) ||
+      !Number.isFinite(snap.clock.realEpoch) ||
+      !['realtime', 'offset', 'frozen'].includes(String(snap.clock.mode))
+    ) {
+      throw new XPSnapshotError('clock: invalid epoch or mode.');
     }
   }
 }

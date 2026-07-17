@@ -77,6 +77,7 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `notification:click` | `id` | A tray notification balloon was clicked. |
 | `time:hour` | `hour` | Fired on the top of each hour; hour is 0-23 (drives the hourly chime). |
 | `time:fire` | `id` | A persisted schedule fired (delay elapsed or its `at` deadline passed, incl. while the page was closed). |
+| `time:change` | `from`, `to`, `source` | The instance virtual wall-clock changed; `source` identifies a user edit or host API call. |
 | `user:idle` | `idleMs` | The user has been inactive for the idle threshold; `idleMs` is that threshold. |
 | `user:active` | — | The user resumed activity after being idle. |
 | `qq:login` | — | The player logged into QQ (the buddy-list panel opened). |

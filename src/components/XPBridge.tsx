@@ -7,6 +7,7 @@ import { useTray, type NotifyOptions } from '../context/TrayContext';
 import { useXPEventBus } from '../context/EventBusContext';
 import { useStorage } from '../context/StorageContext';
 import { useScheduler, type ScheduleOptions } from '../context/SchedulerContext';
+import { useClock, type XPClockApi } from '../context/ClockContext';
 import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
 import { useAppRegistry } from '../context/AppRegistryContext';
 import { isContainerNode, isFileContentNode, type FileNode } from '../types';
@@ -168,6 +169,8 @@ export interface XPHandle {
   windows: XPWindowsApi;
   /** QQ Messenger actuation (#119). */
   qq: XPQQApi;
+  /** Instance-local virtual system clock (#275). */
+  clock: Pick<XPClockApi, 'now' | 'set' | 'advance' | 'reset'>;
   /** Play a named XP system sound. */
   sound: { play: (name: string) => void };
   /** Pop an XP tray balloon notification (#118). Returns the notification id. */
@@ -243,6 +246,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
     const bus = useXPEventBus();
     const storage = useStorage();
     const { schedule, cancelSchedule } = useScheduler();
+    const clock = useClock();
     const { start: startLesson, stop: stopLesson } = useLesson();
     const { culture } = useCulture();
 
@@ -436,6 +440,13 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
         schedule: options => schedule(options),
         cancelSchedule: id => cancelSchedule(id),
 
+        clock: {
+          now: clock.now,
+          set: clock.set,
+          advance: clock.advance,
+          reset: clock.reset,
+        },
+
         startLesson: (lessonId, lessonMode) => startLesson(lessonId, lessonMode),
         stopLesson,
 
@@ -484,6 +495,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             wallpaper: wallpaper ?? null,
             language: getSavedLanguage(),
             flags,
+            clock: clock.getSnapshot(),
           };
         },
 
@@ -501,6 +513,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             storage.local.setItem(storage.key(SCENARIO_FLAGS_KEY), JSON.stringify(snapshot.flags));
           }
           if (snapshot.language) saveLanguage(snapshot.language);
+          if (snapshot.clock) clock.loadSnapshot(snapshot.clock);
           if (canUseDOM) window.location.reload();
         },
       };
@@ -534,6 +547,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
       startLesson,
       stopLesson,
       culture,
+      clock,
     ]);
 
     void fs;
