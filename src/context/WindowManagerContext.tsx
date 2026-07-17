@@ -117,6 +117,16 @@ export const useWindowManager = (): WindowManagerContextType => {
   );
 };
 
+/** Optional variant for scenario apps that are also rendered in isolation tests. */
+export const useOptionalWindowManager = (): WindowManagerContextType | undefined => {
+  const windows = useContext(WindowsContext);
+  const activeWindowId = useContext(ActiveWindowIdContext);
+  const actions = useContext(ActionsContext);
+  return windows === undefined || activeWindowId === undefined || actions === undefined
+    ? undefined
+    : { windows, activeWindowId, ...actions };
+};
+
 const PERSIST_DEBOUNCE_MS = 300;
 
 export const WindowManagerProvider: React.FC<{

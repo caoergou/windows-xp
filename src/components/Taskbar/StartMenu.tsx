@@ -312,6 +312,10 @@ const StartMenu: React.FC<StartMenuProps> = ({
             <XPIcon name="documents" size={24} className="menu-icon" />
             <span>{t('startMenu.myDocuments')}</span>
           </RightMenuItem>
+          <RightMenuItem onClick={() => launchWithSound('RecentDocuments')}>
+            <XPIcon name="documents" size={24} className="menu-icon" />
+            <span>{t('startMenu.recentDocuments')}</span>
+          </RightMenuItem>
           <RightMenuItem onClick={() => launchWithSound('Explorer', [...SYSTEM_PATHS.myPictures])}>
             <XPIcon name="image" size={24} className="menu-icon" />
             <span>{t('startMenu.myPictures')}</span>

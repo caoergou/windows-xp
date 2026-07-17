@@ -63,6 +63,15 @@ export type XPEventBody =
   | { type: 'folder:delete'; path: string[]; name: string }
   /** The Recycle Bin was emptied. */
   | { type: 'recyclebin:empty' }
+  // ── print: Printers and Faxes / spooler (#276) ─────────────────────────────
+  /** A printer queue was opened. */
+  | { type: 'print:queue-open'; printerId: string }
+  /** A print job or its retained source metadata was inspected. */
+  | { type: 'print:job-open'; jobId: string; printerId: string }
+  /** A print job was added or changed. */
+  | { type: 'print:job-update'; jobId: string; printerId: string; status: string }
+  /** A mutable print job was cancelled or removed. */
+  | { type: 'print:job-cancel'; jobId: string; printerId: string; status: string }
   // ── password: access control ────────────────────────────────────────────────
   /** A wrong password was entered for a locked node; `attempt` counts consecutive failures. */
   | { type: 'password:fail'; path: string[]; name: string; attempt: number }
@@ -77,6 +86,12 @@ export type XPEventBody =
   | { type: 'session:boot-complete' }
   /** The machine was shut down, restarted, or logged out via the Start menu. */
   | { type: 'session:shutdown'; mode: 'shutdown' | 'restart' | 'logout' }
+  /** A power transition was requested, before persistence and presentation begin. */
+  | { type: 'session:shutdown-request'; mode: 'shutdown' | 'restart' | 'logout' }
+  /** The configured power transition entered its blackout sequence. */
+  | { type: 'session:blackout'; mode: 'shutdown' | 'restart' | 'logout' }
+  /** The power transition completed and is ready for host navigation or reload. */
+  | { type: 'session:shutdown-complete'; mode: 'shutdown' | 'restart' | 'logout' }
   // ── flag: scenario flag lifecycle (#207) ────────────────────────────────────
   /** A scenario flag's value changed (set/inc). Lets a trigger fire on progress itself, not only on a UI event. Emitted by the scenario runtime, not the core engine. */
   | { type: 'flag:change'; flag: string; value: string | number | boolean | null }
@@ -103,6 +118,8 @@ export type XPEventBody =
   | { type: 'time:hour'; hour: number }
   /** A persisted schedule fired (delay elapsed or its `at` deadline passed, incl. while the page was closed). */
   | { type: 'time:fire'; id: string }
+  /** The instance virtual wall-clock changed; `source` identifies a user edit or host API call. */
+  | { type: 'time:change'; from: string; to: string; source: 'user' | 'host' }
   // ── user: presence / idle detection (#130) ──────────────────────────────────
   /** The user has been inactive for the idle threshold; `idleMs` is that threshold. */
   | { type: 'user:idle'; idleMs: number }
@@ -125,6 +142,25 @@ export type XPEventBody =
   | { type: 'qq:status'; buddyId: string; status?: string; signature?: string }
   /** The player picked a scripted reply option (a branching choice, distinct from the free-text `qq:reply`). */
   | { type: 'qq:choice'; buddyId: string; choiceId: string }
+  /** A read-only QQ archive or conversation was opened. */
+  | { type: 'qq:archive-open'; archiveId: string; conversationId?: string }
+  /** A QQ archive search was performed. */
+  | { type: 'qq:archive-search'; archiveId: string; query: string; resultCount: number }
+  /** An individual archived QQ message was inspected. */
+  | {
+      type: 'qq:archive-message-open';
+      archiveId: string;
+      conversationId: string;
+      messageId: string;
+    }
+  /** An attachment in an archived QQ message was selected. */
+  | {
+      type: 'qq:archive-attachment-open';
+      archiveId: string;
+      conversationId: string;
+      messageId: string;
+      attachmentId: string;
+    }
   // ── game: bundled games (#134) ──────────────────────────────────────────────
   /** A game started a new round; `appId` names the game and `difficulty` is present when it applies. */
   | { type: 'game:start'; appId: string; difficulty?: string }
@@ -134,13 +170,17 @@ export type XPEventBody =
   | { type: 'game:lose'; appId: string; difficulty?: string }
   // ── media: audio / video playback (#134) ────────────────────────────────────
   /** Media playback started or resumed; `path` is the source when known. */
-  | { type: 'media:play'; path?: string; title?: string }
+  | { type: 'media:play'; path?: string; title?: string; trackId?: string; playlistId?: string }
   /** Media playback was paused. */
-  | { type: 'media:pause'; path?: string }
+  | { type: 'media:pause'; path?: string; trackId?: string; playlistId?: string }
   /** Media playback reached the end of the track. */
-  | { type: 'media:ended'; path?: string }
+  | { type: 'media:ended'; path?: string; trackId?: string; playlistId?: string }
   /** The playhead was moved; `position` is the new time in seconds. */
-  | { type: 'media:seek'; path?: string; position: number }
+  | { type: 'media:seek'; path?: string; position: number; trackId?: string; playlistId?: string }
+  /** The active track in a data-driven playlist changed. */
+  | { type: 'media:track-change'; playlistId: string; trackId: string; index: number }
+  /** A playlist reached its deterministic end without repeating. */
+  | { type: 'media:playlist-ended'; playlistId: string }
   // ── search: in-world search oracle (#134, scenario-layer) ────────────────────
   /** A query was run against an in-world search engine (a fake Baidu/AltaVista); hit is whether authored results matched. Emitted by the scenario runtime/app, not the core engine. */
   | { type: 'search:query'; query: string; hit: boolean; resultIds?: string[] }
@@ -160,6 +200,19 @@ export type XPEventBody =
   | { type: 'deduction:verified'; formId: string; groups?: string[] }
   /** A submitted deduction was rejected; `groups` names the slot-groups that failed. */
   | { type: 'deduction:failed'; formId: string; groups?: string[] }
+  /** A structured evidence report was submitted with confidence and evidence citations. */
+  | {
+      type: 'deduction:report-submit';
+      reportId: string;
+      submission: import('./apps/EvidenceReport/logic').ReportSubmission;
+    }
+  /** One report claim was judged without exposing slot-by-slot solution details. */
+  | {
+      type: 'deduction:claim-result';
+      reportId: string;
+      claimId: string;
+      result: import('./apps/EvidenceReport/logic').ClaimResult;
+    }
   // ── lesson: guided-tutorial lifecycle (#141) ─────────────────────────────────
   /** A guided lesson started. */
   | { type: 'lesson:start'; lessonId: string }

@@ -12,9 +12,10 @@ import { sounds } from '../../utils/soundManager';
 import { defaultPlugin } from '../../apps/BrowserPlugins';
 import { getSystemPathTitle } from '../../data/systemPaths';
 import { WindowState } from '../../types';
-import { canUseDOM } from '../../utils/storage';
+import { useOptionalPowerTransition } from '../../context/PowerTransitionContext';
 import { useStorage } from '../../context/StorageContext';
 import { useXPEventBus } from '../../context/EventBusContext';
+import { canUseDOM } from '../../utils/storage';
 import StartButton from './StartButton';
 import StartMenu from './StartMenu';
 import TaskList from './TaskList';
@@ -341,8 +342,6 @@ const Taskbar = () => {
         );
       } else if (appName === 'Search') {
         showModal(t('startMenu.search'), t('apps.comingSoon'), 'info');
-      } else if (appName === 'PrintersAndFaxes') {
-        showModal(t('startMenu.printersAndFaxes'), t('apps.comingSoon'), 'info');
       } else if (appName === 'AllPrograms') {
         showModal(t('startMenu.allPrograms'), t('apps.comingSoon'), 'info');
       } else if (appName in APP_REGISTRY) {
@@ -360,18 +359,17 @@ const Taskbar = () => {
     [openWindow, windows, focusWindow, t, showModal, culture.browser?.homepage]
   );
 
+  const power = useOptionalPowerTransition();
   const performPowerAction = useCallback(
     (state: 'shutdown' | 'restart') => {
+      if (power) return power.request(state);
       storage.local.removeItem(storage.key('open_windows'));
       storage.local.setItem(storage.key('power_state'), state);
       bus.emit({ type: 'session:shutdown', mode: state });
       sounds.shutdown();
-      if (canUseDOM) {
-        // Give the shutdown sound a moment to start before the page reloads.
-        setTimeout(() => window.location.reload(), 600);
-      }
+      if (canUseDOM) setTimeout(() => window.location.reload(), 600);
     },
-    [bus, storage]
+    [bus, power, storage]
   );
 
   const handleLogoutWithSound = useCallback(() => {

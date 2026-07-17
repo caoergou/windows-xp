@@ -91,6 +91,14 @@ export interface MountedContent {
   sites: Record<string, SiteDef>;
   /** Merged `customFileSystem` fragment. */
   files: Record<string, FileNode>;
+  recycleBin: NonNullable<ContentPack['recycleBin']>;
+  recentDocuments: NonNullable<ContentPack['recentDocuments']>;
+  printers: NonNullable<ContentPack['printers']>;
+  printJobs: NonNullable<ContentPack['printJobs']>;
+  playlists: NonNullable<ContentPack['playlists']>;
+  reports: NonNullable<ContentPack['reports']>;
+  powerSequence?: ContentPack['powerSequence'];
+  qqArchives: NonNullable<ContentPack['qqArchives']>;
   /** Merged per-culture string tables. */
   strings: PackStrings;
 }
@@ -117,11 +125,32 @@ export function mergeContentPacks(
   packs: ContentPack[],
   onSiteConflict?: (normalized: string, a: string, b: string) => void
 ): MountedContent {
-  const result: MountedContent = { ids: [], assets: {}, sites: {}, files: {}, strings: {} };
+  const result: MountedContent = {
+    ids: [],
+    assets: {},
+    sites: {},
+    files: {},
+    recycleBin: {},
+    recentDocuments: [],
+    printers: [],
+    printJobs: [],
+    playlists: [],
+    reports: [],
+    strings: {},
+    qqArchives: [],
+  };
   for (const pack of packs) {
     result.ids.push(pack.id);
     Object.assign(result.assets, pack.assets ?? {});
     result.files = mergeFsFragments(result.files, pack.files ?? {});
+    Object.assign(result.recycleBin, pack.recycleBin ?? {});
+    result.recentDocuments.push(...(pack.recentDocuments ?? []));
+    result.printers.push(...(pack.printers ?? []));
+    result.printJobs.push(...(pack.printJobs ?? []));
+    result.playlists.push(...(pack.playlists ?? []));
+    result.reports.push(...(pack.reports ?? []));
+    if (pack.powerSequence) result.powerSequence = pack.powerSequence;
+    result.qqArchives.push(...(pack.qqArchives ?? []));
     result.strings = mergeStrings(result.strings, pack.strings ?? {});
     const registry = buildSiteRegistry(pack.sites, onSiteConflict);
     Object.assign(result.sites, registry);

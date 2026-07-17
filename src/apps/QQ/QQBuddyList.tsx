@@ -92,6 +92,8 @@ interface QQBuddyListProps {
   onOpenChat: (buddyId: string) => void;
   /** Quit QQ (close main panel + all chat windows + reset runtime). */
   onExit: () => void;
+  /** Open the read-only message-history manager (#280). */
+  onOpenArchive: () => void;
 }
 
 interface HoverInfo {
@@ -100,7 +102,7 @@ interface HoverInfo {
   y: number;
 }
 
-const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onExit }) => {
+const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onOpenArchive, onExit }) => {
   const state = useQQStore();
   const { me, groups, buddies, openGroups, unread } = state;
   const { openWindow } = useWindowManagerActions();
@@ -150,7 +152,7 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onExit }) => {
       { label: '查找联系人…', action: () => setFindOpen(true) },
       { label: '我的资料', disabled: true },
       { label: '系统设置', disabled: true },
-      { label: '消息记录管理器', disabled: true },
+      { label: '消息记录管理器', action: onOpenArchive },
       { label: '帮助', disabled: true },
       { type: 'separator' },
       { label: '退出', action: onExit },

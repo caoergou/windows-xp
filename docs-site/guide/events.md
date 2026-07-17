@@ -61,12 +61,19 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `file:properties` | `path`, `name` | A file's Properties dialog was opened — metadata (size, dates) inspected; a clue channel for scenarios (M1). |
 | `folder:delete` | `path`, `name` | A folder was deleted (files emit `file:delete`; folders emit this). |
 | `recyclebin:empty` | — | The Recycle Bin was emptied. |
+| `print:queue-open` | `printerId` | A printer queue was opened. |
+| `print:job-open` | `jobId`, `printerId` | A print job or its retained source metadata was inspected. |
+| `print:job-update` | `jobId`, `printerId`, `status` | A print job was added or changed. |
+| `print:job-cancel` | `jobId`, `printerId`, `status` | A mutable print job was cancelled or removed. |
 | `password:fail` | `path`, `name`, `attempt` | A wrong password was entered for a locked node; `attempt` counts consecutive failures. |
 | `session:login` | — | The user logged in successfully. |
 | `session:login-fail` | — | A login attempt failed (wrong password). |
 | `session:logout` | — | The user logged out. |
 | `session:boot-complete` | — | The desktop finished booting and is interactive. |
 | `session:shutdown` | `mode` | The machine was shut down, restarted, or logged out via the Start menu. |
+| `session:shutdown-request` | `mode` | A power transition was requested, before persistence and presentation begin. |
+| `session:blackout` | `mode` | The configured power transition entered its blackout sequence. |
+| `session:shutdown-complete` | `mode` | The power transition completed and is ready for host navigation or reload. |
 | `flag:change` | `flag`, `value` | A scenario flag's value changed (set/inc). Lets a trigger fire on progress itself, not only on a UI event. Emitted by the scenario runtime, not the core engine. |
 | `cmd:exec` | `command` | A command was executed in the Command Prompt. |
 | `ie:navigate` | `url`, `generated?` | Internet Explorer navigated to a URL; `generated` is true when the page came from a host content provider rather than a bundled/authored page. |
@@ -77,6 +84,7 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `notification:click` | `id` | A tray notification balloon was clicked. |
 | `time:hour` | `hour` | Fired on the top of each hour; hour is 0-23 (drives the hourly chime). |
 | `time:fire` | `id` | A persisted schedule fired (delay elapsed or its `at` deadline passed, incl. while the page was closed). |
+| `time:change` | `from`, `to`, `source` | The instance virtual wall-clock changed; `source` identifies a user edit or host API call. |
 | `user:idle` | `idleMs` | The user has been inactive for the idle threshold; `idleMs` is that threshold. |
 | `user:active` | — | The user resumed activity after being idle. |
 | `qq:login` | — | The player logged into QQ (the buddy-list panel opened). |
@@ -87,13 +95,19 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `qq:offline` | `buddyId` | A buddy went offline. |
 | `qq:status` | `buddyId`, `status?`, `signature?` | A buddy's status or signature changed — a world reaction (e.g. a mood line the player is meant to notice). |
 | `qq:choice` | `buddyId`, `choiceId` | The player picked a scripted reply option (a branching choice, distinct from the free-text `qq:reply`). |
+| `qq:archive-open` | `archiveId`, `conversationId?` | A read-only QQ archive or conversation was opened. |
+| `qq:archive-search` | `archiveId`, `query`, `resultCount` | A QQ archive search was performed. |
+| `qq:archive-message-open` | `archiveId`, `conversationId`, `messageId` | An individual archived QQ message was inspected. |
+| `qq:archive-attachment-open` | `archiveId`, `conversationId`, `messageId`, `attachmentId` | An attachment in an archived QQ message was selected. |
 | `game:start` | `appId`, `difficulty?` | A game started a new round; `appId` names the game and `difficulty` is present when it applies. |
 | `game:win` | `appId`, `difficulty?`, `timeMs?` | A game was won; `timeMs` is the completion time when the game tracks one. |
 | `game:lose` | `appId`, `difficulty?` | A game was lost. |
-| `media:play` | `path?`, `title?` | Media playback started or resumed; `path` is the source when known. |
-| `media:pause` | `path?` | Media playback was paused. |
-| `media:ended` | `path?` | Media playback reached the end of the track. |
-| `media:seek` | `path?`, `position` | The playhead was moved; `position` is the new time in seconds. |
+| `media:play` | `path?`, `title?`, `trackId?`, `playlistId?` | Media playback started or resumed; `path` is the source when known. |
+| `media:pause` | `path?`, `trackId?`, `playlistId?` | Media playback was paused. |
+| `media:ended` | `path?`, `trackId?`, `playlistId?` | Media playback reached the end of the track. |
+| `media:seek` | `path?`, `position`, `trackId?`, `playlistId?` | The playhead was moved; `position` is the new time in seconds. |
+| `media:track-change` | `playlistId`, `trackId`, `index` | The active track in a data-driven playlist changed. |
+| `media:playlist-ended` | `playlistId` | A playlist reached its deterministic end without repeating. |
 | `search:query` | `query`, `hit`, `resultIds?` | A query was run against an in-world search engine (a fake Baidu/AltaVista); hit is whether authored results matched. Emitted by the scenario runtime/app, not the core engine. |
 | `evidence:collect` | `termId`, `source?` | A term/clue entered the player's word bank (clicked a highlighted term, or granted by the scenario). |
 | `evidence:pin` | `itemId` | An item was pinned to the evidence board. |
@@ -102,6 +116,8 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `deduction:submit` | `formId`, `slots?` | The player submitted a deduction form (Mad-Libs slots / Obra-Dinn triples); `slots` maps slot id → chosen value. |
 | `deduction:verified` | `formId`, `groups?` | A submitted deduction verified as correct; `groups` names the slot-groups that matched (supports verify-in-batches). |
 | `deduction:failed` | `formId`, `groups?` | A submitted deduction was rejected; `groups` names the slot-groups that failed. |
+| `deduction:report-submit` | `reportId`, `submission` | A structured evidence report was submitted with confidence and evidence citations. |
+| `deduction:claim-result` | `reportId`, `claimId`, `result` | One report claim was judged without exposing slot-by-slot solution details. |
 | `lesson:start` | `lessonId` | A guided lesson started. |
 | `lesson:step-complete` | `lessonId`, `stepId` | A lesson step was completed (the learner performed the expected action). |
 | `lesson:hint-shown` | `lessonId`, `stepId`, `hintId?` | A hint was shown for the current step (hint-ladder escalation). |

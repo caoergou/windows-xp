@@ -4,6 +4,7 @@ import type { BootBranding, LoginBranding } from '../branding';
 import '../i18n';
 import 'xp.css/dist/XP.css';
 import '../index.css';
+import { referenceContentPack } from '../data/referencePack';
 
 /**
  * Shared bootstrap for the live-desktop demo pages (#160). Each locale shell
@@ -16,6 +17,7 @@ import '../index.css';
  *   ?history=1                 browser Back closes the last-opened window (#136)
  *   ?persistence=none|session|local   per-visit persistence mode (#138)
  *   ?brand=demo                inline branded boot + login demo (#139)
+ *   ?content=reference         mounts the reference content pack (#241)
  */
 export function mountDemo(defaultLang: 'en' | 'zh') {
   const params = new URLSearchParams(window.location.search);
@@ -23,6 +25,7 @@ export function mountDemo(defaultLang: 'en' | 'zh') {
   const language = urlLang === 'zh' || urlLang === 'en' ? urlLang : defaultLang;
   const openOnLoad = params.getAll('open');
   const historyIntegration = params.get('history') === '1';
+  const contentPacks = params.get('content') === 'reference' ? [referenceContentPack] : undefined;
 
   const pParam = params.get('persistence');
   const persistence =
@@ -59,6 +62,7 @@ export function mountDemo(defaultLang: 'en' | 'zh') {
       openOnLoad={openOnLoad}
       historyIntegration={historyIntegration}
       persistence={persistence}
+      contentPacks={contentPacks}
       boot={boot}
       login={login}
       skipBoot={!branded}

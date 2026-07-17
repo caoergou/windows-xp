@@ -21,6 +21,14 @@
  */
 import type { FileNode } from '../types';
 import type { Scenario } from '../scenario/types';
+import type { RecycleBinItem } from '../utils/storage';
+import type { RecentDocumentEntry } from '../context/RecentDocumentsContext';
+import type { PrinterDefinition, PrintJob } from '../context/PrintSpoolerContext';
+import type { MediaPlaylist } from '../apps/WindowsMediaPlayer';
+import type { EvidenceReportProps } from '../apps/EvidenceReport';
+import type { PowerSequence } from '../context/PowerTransitionContext';
+import type { QQArchive } from '../data/qq/types';
+import type { EraPage } from './eraPage';
 
 /**
  * A reference to a piece of content. Three sources, one shape — so a `content:`
@@ -69,7 +77,9 @@ export function isContentRef(value: unknown): value is ContentRef {
  */
 export interface SiteDef {
   /** The page body to render (inline HTML, a host URL, or an asset key). */
-  html: ContentRef;
+  html?: ContentRef;
+  /** Structured early-web page, rendered with the selected period template (#281). */
+  page?: EraPage;
   /** Browser/tab title; falls back to the site's URL key when omitted. */
   title?: string;
   /** Optional favicon (icon id, data URI, or a {@link ContentRef}). */
@@ -102,6 +112,21 @@ export interface ContentPack {
   sites?: Record<string, SiteDef>;
   /** `customFileSystem` fragment; file nodes may carry a `contentRef`. */
   files?: Record<string, FileNode>;
+  /** Authored Recycle Bin records with deterministic deletion metadata (#282). */
+  recycleBin?: Record<string, RecycleBinItem>;
+  /** Authored historical MRU entries merged with runtime opens (#282). */
+  recentDocuments?: RecentDocumentEntry[];
+  /** Data-driven printers and initial spool history (#276). */
+  printers?: PrinterDefinition[];
+  printJobs?: PrintJob[];
+  /** Reusable WMP playlists addressable by id (#277). */
+  playlists?: MediaPlaylist[];
+  /** Reusable structured evidence-report definitions (#278). */
+  reports?: EvidenceReportProps[];
+  /** Optional authored shutdown/restart presentation (#279). */
+  powerSequence?: PowerSequence;
+  /** Read-only QQ message-history archives (#280). */
+  qqArchives?: QQArchive[];
   /** The scenario rulebook (#84/#207). */
   scenario?: Scenario;
   /** Per-culture string tables (#207 copy extraction carrier). */

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { resolveOSTheme } from '../themes/useOSTheme';
+import { useClock } from '../context/ClockContext';
+import { XPButton } from './XPButton';
 
 const ClockContainer = styled.div`
   position: relative;
@@ -68,16 +70,56 @@ const DayCell = styled.div<{ $today?: boolean }>`
   `}
 `;
 
+const Editor = styled.div`
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+
+  input {
+    min-width: 0;
+    flex: 1;
+    font: inherit;
+  }
+`;
+
+const zonedDate = (epoch: number, timezone?: string): Date => {
+  if (!timezone) return new Date(epoch);
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(epoch);
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find(item => item.type === type)?.value ?? 0);
+  return new Date(
+    part('year'),
+    part('month') - 1,
+    part('day'),
+    part('hour'),
+    part('minute'),
+    part('second')
+  );
+};
+
 const SystemClock = () => {
   const { t, i18n } = useTranslation();
+  const clock = useClock();
   const [time, setTime] = useState<string>('');
   const [now, setNow] = useState<Date>(new Date());
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [draft, setDraft] = useState('');
 
   useEffect(() => {
     const update = () => {
-      const current = new Date();
+      const current = zonedDate(clock.nowMs(), clock.timezone);
       const h = String(current.getHours()).padStart(2, '0');
       const m = String(current.getMinutes()).padStart(2, '0');
       setTime(`${h}:${m}`);
@@ -86,9 +128,16 @@ const SystemClock = () => {
     update();
     const id = setInterval(update, 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [clock]);
 
-  const toggleOpen = useCallback(() => setOpen(prev => !prev), []);
+  const toggleOpen = useCallback(() => {
+    setDraft(() => {
+      const date = zonedDate(clock.nowMs(), clock.timezone);
+      const localEpoch = date.getTime() - date.getTimezoneOffset() * 60_000;
+      return new Date(localEpoch).toISOString().slice(0, 16);
+    });
+    setOpen(prev => !prev);
+  }, [clock]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -168,6 +217,25 @@ const SystemClock = () => {
               </DayCell>
             ))}
           </DayGrid>
+          <Editor>
+            <input
+              aria-label={t('clock.dateTime')}
+              type="datetime-local"
+              value={draft}
+              disabled={!clock.editable}
+              onChange={event => setDraft(event.target.value)}
+            />
+            <XPButton
+              disabled={!clock.editable || !draft}
+              onClick={event => {
+                event.stopPropagation();
+                clock.set(new Date(draft).toISOString(), 'user');
+                setOpen(false);
+              }}
+            >
+              {t('common.apply')}
+            </XPButton>
+          </Editor>
         </CalendarPopup>
       )}
     </ClockContainer>

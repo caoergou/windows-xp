@@ -36,7 +36,9 @@ export interface ExifData {
 }
 
 /** Base file node - common properties of all file types */
-interface BaseFileNode {
+export type FileProvenance = 'authored' | 'local' | 'imported' | 'cache';
+
+export interface BaseFileNode {
   name: string;
   icon?: string;
   /** Derived desktop entry owned by the active culture profile. */
@@ -64,6 +66,11 @@ interface BaseFileNode {
    * to the stable XP-era date.
    */
   mtime?: string;
+  /** Creation, last-access and import timestamps used by forensic content (#282). */
+  ctime?: string;
+  atime?: string;
+  importedAt?: string;
+  provenance?: FileProvenance;
   /** Path pointing to an EXIF JSON file (under src/data/photos) */
   exifPath?: string;
   /** Directly embedded EXIF data */
@@ -164,9 +171,9 @@ export interface FileProperties {
   type: string;
   size: string;
   icon?: string;
-  created: string;
-  modified: string;
-  accessed: string;
+  created: string | null;
+  modified: string | null;
+  accessed: string | null;
   locked: boolean;
   broken: boolean;
   hidden: boolean;

@@ -17,6 +17,7 @@ import QQChat from './QQChat';
 import QQCloseDialog, { QQCloseChoice } from './QQCloseDialog';
 import type { MenuItem } from '../../types';
 import type { QQStatus } from '../../data/qq/types';
+import QQArchive from './QQArchive';
 
 type Phase = 'login' | 'loading' | 'panel';
 
@@ -75,36 +76,53 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   const bypassCloseRef = useRef(false);
 
   // --- Open a chat window with a buddy (deduplicate: focus if already open) ---------------------------
-  const openChat = useCallback((buddyId: string) => {
-    const buddy = qqStore.buddy(buddyId);
-    if (!buddy) return;
-    const existing = wmRef.current.windows.find(
-      w => w.appId === 'QQ' && (w.componentProps as { buddyId?: string })?.buddyId === buddyId
-    );
-    if (existing) {
-      wmRef.current.focusWindow(existing.id);
-      return;
-    }
-    const screenW = window.innerWidth || 1280;
-    const chatLeft = Math.max(0, Math.round((screenW - SIZE.chat.w) / 2 - SIZE.panel.w));
-    wmRef.current.openWindow(
-      'QQ',
-      t('qq.chatTitle', { nickname: buddy.nickname }),
-      <QQChat buddyId={buddyId} />,
-      'qq',
-      {
-        width: SIZE.chat.w,
-        height: SIZE.chat.h,
-        minWidth: SIZE.chat.w,
-        minHeight: SIZE.chat.h,
-        left: chatLeft,
-        resizable: false,
-        componentProps: { view: 'chat', buddyId },
+  const openChat = useCallback(
+    (buddyId: string) => {
+      const buddy = qqStore.buddy(buddyId);
+      if (!buddy) return;
+      const existing = wmRef.current.windows.find(
+        w => w.appId === 'QQ' && (w.componentProps as { buddyId?: string })?.buddyId === buddyId
+      );
+      if (existing) {
+        wmRef.current.focusWindow(existing.id);
+        return;
       }
-    );
-  }, []);
+      const screenW = window.innerWidth || 1280;
+      const chatLeft = Math.max(0, Math.round((screenW - SIZE.chat.w) / 2 - SIZE.panel.w));
+      wmRef.current.openWindow(
+        'QQ',
+        t('qq.chatTitle', { nickname: buddy.nickname }),
+        <QQChat buddyId={buddyId} />,
+        'qq',
+        {
+          width: SIZE.chat.w,
+          height: SIZE.chat.h,
+          minWidth: SIZE.chat.w,
+          minHeight: SIZE.chat.h,
+          left: chatLeft,
+          resizable: false,
+          componentProps: { view: 'chat', buddyId },
+        }
+      );
+    },
+    [t]
+  );
   const openChatRef = useRef(openChat);
   openChatRef.current = openChat;
+
+  const openArchive = useCallback(() => {
+    const existing = wmRef.current.windows.find(
+      w => w.appId === 'QQ' && (w.componentProps as { view?: string })?.view === 'archive'
+    );
+    if (existing) return wmRef.current.focusWindow(existing.id);
+    wmRef.current.openWindow('QQ', t('qq.archive.title'), <QQArchive />, 'qq', {
+      width: 720,
+      height: 520,
+      minWidth: 620,
+      minHeight: 420,
+      componentProps: { view: 'archive' },
+    });
+  }, [t]);
 
   // --- Quit QQ: close all chat windows, reset runtime, and allow the main window to close (bypass close guard) ------
   const exitQQ = useCallback(() => {
@@ -284,7 +302,7 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   }
   return (
     <>
-      <QQBuddyList onOpenChat={openChat} onExit={exitQQ} />
+      <QQBuddyList onOpenChat={openChat} onOpenArchive={openArchive} onExit={exitQQ} />
       {closeAsk && <QQCloseDialog onConfirm={onCloseChoice} onCancel={() => setCloseAsk(false)} />}
     </>
   );

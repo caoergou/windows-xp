@@ -13,6 +13,8 @@ import type { Scenario } from '../scenario/types';
 import type { ContentPack } from '../content/types';
 import type { Lesson } from '../lesson/types';
 import type { MarkdownOptions } from '../apps/MarkdownViewer/config';
+import type { ClockConfig } from '../context/ClockContext';
+import type { PowerSequence } from '../context/PowerTransitionContext';
 import '../i18n';
 import 'xp.css/dist/XP.css';
 import '../scoped.css';
@@ -115,6 +117,10 @@ export interface WindowsXPProps {
   hourlyChime?: boolean;
   /** Inactivity threshold in ms before `user:idle` fires (default 60000, #130). */
   idleThresholdMs?: number;
+  /** Instance-local virtual system clock; omitted means the real host clock (#275). */
+  clock?: ClockConfig;
+  /** Optional authored power-off presentation (#279). */
+  powerSequence?: PowerSequence;
   /**
    * Deep link (#136): key path(s) - the '?open=' value(s), e.g.
    * '我的文档/readme.txt' - to open once the desktop is interactive (after
@@ -230,6 +236,8 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     disableScreenSaver,
     hourlyChime,
     idleThresholdMs,
+    clock,
+    powerSequence,
     openOnLoad,
     routes,
     location,
@@ -265,6 +273,8 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       markdown={markdown}
       hourlyChime={hourlyChime}
       idleThresholdMs={idleThresholdMs}
+      clock={clock}
+      powerSequence={powerSequence}
       openOnLoad={openOnLoad}
       routes={routes}
       location={location}
@@ -310,6 +320,7 @@ export { UserSessionProvider } from '../context/UserSessionContext';
 export { ModalProvider } from '../context/ModalContext';
 export { TrayProvider } from '../context/TrayContext';
 export { SchedulerProvider } from '../context/SchedulerContext';
+export { ClockProvider } from '../context/ClockContext';
 
 // Re-export hooks.
 export { useAppRegistry } from '../context/AppRegistryContext';
@@ -320,6 +331,9 @@ export { useUserSession } from '../context/UserSessionContext';
 export { useModal } from '../context/ModalContext';
 export { useTray } from '../context/TrayContext';
 export { useScheduler } from '../context/SchedulerContext';
+export { useClock } from '../context/ClockContext';
+export { useRecentDocuments } from '../context/RecentDocumentsContext';
+export { usePrintSpooler } from '../context/PrintSpoolerContext';
 export { useApp } from '../hooks/useApp';
 // #213 B1 — OS theme seam: the XP theme, its contract, and the runtime accessor.
 export { xpTheme } from '../themes/xp';
@@ -329,6 +343,8 @@ export type { OSTheme } from '../themes/contract';
 // Re-export commonly used types.
 export type {
   FileNode,
+  BaseFileNode,
+  FileProvenance,
   RootNode,
   FolderNode,
   DriveNode,
@@ -388,10 +404,32 @@ export { referenceContentPack } from '../data/referencePack';
 export type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 export type { FileSystemMode } from '../context/FileSystemContext';
 export type { PersistenceMode } from '../utils/storage';
+export type { RecycleBinItem } from '../utils/storage';
+export type { RecentDocumentEntry } from '../context/RecentDocumentsContext';
+export type {
+  PrintJob,
+  PrintJobStatus,
+  PrinterDefinition,
+  PrintSpoolerApi,
+} from '../context/PrintSpoolerContext';
 export type { BootBranding, LoginBranding } from '../branding';
 export type { ModalContextType } from '../context/ModalContext';
 export type { TrayItem, TrayContextType, NotifyOptions } from '../context/TrayContext';
 export type { ScheduleOptions, SchedulerApi } from '../context/SchedulerContext';
+export type {
+  ClockConfig,
+  ClockMode,
+  ClockCatchUp,
+  ClockSnapshot,
+  XPClockApi,
+} from '../context/ClockContext';
+export { usePowerTransition, useOptionalPowerTransition } from '../context/PowerTransitionContext';
+export type {
+  PowerMode,
+  PowerSequence,
+  PowerSequenceItem,
+  PowerTransitionApi,
+} from '../context/PowerTransitionContext';
 export type { XPEvent, XPEventType, XPEventListener } from '../events';
 export type {
   XPHandle,
@@ -468,7 +506,35 @@ export type { DeductionSheetProps } from '../apps/DeductionSheet';
 export { demoDeduction } from '../data/scenarios/deductionDemo';
 export type { EvidenceBoardProps, EvidenceItem } from '../apps/EvidenceBoard';
 export { demoEvidence } from '../data/scenarios/evidenceDemo';
+export type { EvidenceReportProps } from '../apps/EvidenceReport';
+export { searchQQArchive } from '../apps/QQ/QQArchive';
+export type {
+  QQArchive,
+  QQArchiveAttachment,
+  QQArchiveConversation,
+  QQArchiveMessage,
+} from '../data/qq/types';
+export type {
+  Confidence,
+  ClaimResult,
+  ReportClaim,
+  ClaimSubmission,
+  ReportSubmission,
+} from '../apps/EvidenceReport/logic';
+export { judgeClaim, judgeReport } from '../apps/EvidenceReport/logic';
+export type {
+  WindowsMediaPlayerProps,
+  MediaPlaylist,
+  MediaTrack,
+  MediaControlsPolicy,
+} from '../apps/WindowsMediaPlayer';
 export type { SearchResultPage } from '../apps/InternetExplorer/types';
+export {
+  normalizeSearchTerm,
+  searchCorpus,
+} from '../apps/InternetExplorer/components/SearchEnginePage';
+export { renderEraPage } from '../content/eraPage';
+export type { EraPage, EraPageLink, EraPageSection, EraPageTemplate } from '../content/eraPage';
 export { demoSearchCorpus } from '../data/scenarios/searchDemo';
 export type {
   Lesson,

@@ -10,6 +10,9 @@
  */
 import type { FileNode } from './types';
 import type { RecycleBinItem } from './utils/storage';
+import type { ClockSnapshot } from './context/ClockContext';
+import type { RecentDocumentEntry } from './context/RecentDocumentsContext';
+import type { PrintJob } from './context/PrintSpoolerContext';
 
 /** Current snapshot format version. Bump on breaking schema changes. */
 export const XP_SNAPSHOT_VERSION = 1;
@@ -29,6 +32,16 @@ export interface XPSnapshot {
   language: string | null;
   /** Reserved for the scenario system (#84): scenario flags. */
   flags: Record<string, unknown>;
+  /** Instance-local virtual wall-clock state (#275). */
+  clock?: ClockSnapshot;
+  /** Seeded and runtime recent-document history (#282). */
+  recentDocuments?: RecentDocumentEntry[];
+  /** Persisted virtual print queue (#276). */
+  printJobs?: PrintJob[];
+  /** Per-playlist track index and playhead; audio never auto-resumes (#277). */
+  mediaSessions?: Record<string, { index: number; position: number }>;
+  /** Evidence report drafts and review state (#278). */
+  evidenceReports?: Record<string, unknown>;
 }
 
 /** Base class for any reason a snapshot cannot be loaded (#208). */
@@ -166,5 +179,29 @@ export function assertLoadableSnapshot(value: unknown): asserts value is XPSnaps
         );
       }
     }
+  }
+  if (snap.clock !== undefined) {
+    if (!isPlainObject(snap.clock)) {
+      throw new XPSnapshotError(`clock: expected an object, got ${describe(snap.clock)}.`);
+    }
+    if (
+      !Number.isFinite(snap.clock.virtualEpoch) ||
+      !Number.isFinite(snap.clock.realEpoch) ||
+      !['realtime', 'offset', 'frozen'].includes(String(snap.clock.mode))
+    ) {
+      throw new XPSnapshotError('clock: invalid epoch or mode.');
+    }
+  }
+  if (snap.recentDocuments !== undefined && !Array.isArray(snap.recentDocuments)) {
+    throw new XPSnapshotError('recentDocuments: expected an array.');
+  }
+  if (snap.printJobs !== undefined && !Array.isArray(snap.printJobs)) {
+    throw new XPSnapshotError('printJobs: expected an array.');
+  }
+  if (snap.mediaSessions !== undefined && !isPlainObject(snap.mediaSessions)) {
+    throw new XPSnapshotError('mediaSessions: expected an object.');
+  }
+  if (snap.evidenceReports !== undefined && !isPlainObject(snap.evidenceReports)) {
+    throw new XPSnapshotError('evidenceReports: expected an object.');
   }
 }

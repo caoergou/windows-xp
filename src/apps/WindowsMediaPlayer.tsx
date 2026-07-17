@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
@@ -7,6 +7,12 @@ import { useXPEventBus } from '../context/EventBusContext';
 // box — the old '/audio/sample.mp3' path never existed and ignored the base URL (#85).
 import sampleAudio from '../assets/audio/sample.wav';
 import { resolveOSTheme } from '../themes/useOSTheme';
+import type { ContentRef } from '../content/types';
+import { isAssetRef, isUrlRef } from '../content/types';
+import { useContentPacks } from '../context/ContentPackContext';
+import { useOptionalFileSystem } from '../context/FileSystemContext';
+import { isFileContentNode } from '../types';
+import { useStorage } from '../context/StorageContext';
 
 /* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
    Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
@@ -77,6 +83,11 @@ const ControlBtn = styled.button`
       ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
     padding-top: 1px;
     padding-left: 1px;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.45;
   }
 `;
 
@@ -183,28 +194,142 @@ const TrackArtist = styled.div`
   color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_CC};
 `;
 
+const PlaylistPanel = styled.div`
+  max-height: 92px;
+  overflow: auto;
+  margin-top: 6px;
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.GREY_66};
+`;
+
+const TrackRow = styled.button<{ $active: boolean }>`
+  width: 100%;
+  display: grid;
+  grid-template-columns: 30px 1fr 120px;
+  border: 0;
+  padding: 3px 6px;
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  background: ${({ $active, theme }) =>
+    $active ? resolveOSTheme(theme).tokens.MENU_HIGHLIGHT : resolveOSTheme(theme).tokens.GREY_33};
+  font: inherit;
+  text-align: left;
+`;
+
 const DEFAULT_SRC = sampleAudio;
 
-interface WindowsMediaPlayerProps {
+export interface MediaControlsPolicy {
+  seek?: boolean;
+  skip?: boolean;
+}
+
+export interface MediaTrack {
+  id: string;
+  title: string;
+  artist?: string;
+  src: ContentRef | { path: string[] };
+  durationHint?: number;
+  provenance?: string;
+  controls?: MediaControlsPolicy;
+}
+
+export interface MediaPlaylist {
+  id: string;
+  title?: string;
+  tracks: MediaTrack[];
+  startIndex?: number;
+  autoAdvance?: boolean;
+  repeat?: 'none' | 'one' | 'all';
+  controls?: MediaControlsPolicy;
+}
+
+export interface WindowsMediaPlayerProps {
   windowId?: string;
   src?: string;
+  playlist?: MediaPlaylist;
+  playlistId?: string;
 }
 
 const WindowsMediaPlayer = ({
   windowId: _windowId,
   src = DEFAULT_SRC,
+  playlist: playlistProp,
+  playlistId,
 }: WindowsMediaPlayerProps) => {
   const { t } = useTranslation();
   const bus = useXPEventBus();
   const audioRef = useRef<HTMLAudioElement>(null);
+  const content = useContentPacks();
+  const playlist = playlistProp ?? content.playlists.find(item => item.id === playlistId);
+  const fs = useOptionalFileSystem();
+  const storage = useStorage();
+  const saved = useMemo(() => {
+    if (!playlist) return undefined;
+    try {
+      const value = storage.local.getItem(storage.key('wmp_sessions'));
+      const sessions = value
+        ? (JSON.parse(value) as Record<string, { index: number; position: number }>)
+        : {};
+      return sessions[playlist.id];
+    } catch {
+      return undefined;
+    }
+  }, [playlist, storage]);
+  const [trackIndex, setTrackIndex] = useState(saved?.index ?? playlist?.startIndex ?? 0);
+  const [resolvedSrc, setResolvedSrc] = useState(src || DEFAULT_SRC);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  const mediaSrc = src || DEFAULT_SRC;
+  const track = playlist?.tracks[trackIndex];
+  const mediaSrc = playlist ? resolvedSrc : src || DEFAULT_SRC;
   const fileName = mediaSrc.split('/').pop() || 'Sample Music';
-  const trackTitle = fileName.replace(/\.[^/.]+$/, '');
+  const trackTitle = track?.title ?? fileName.replace(/\.[^/.]+$/, '');
+  const controls = { ...playlist?.controls, ...track?.controls };
+  const canSeek = controls.seek !== false;
+  const canSkip = controls.skip !== false;
+
+  useEffect(() => {
+    let cancelled = false;
+    const resolveTrack = async () => {
+      if (!track) return;
+      const ref = track.src;
+      let next: string | undefined;
+      if (typeof ref === 'object' && 'path' in ref) {
+        const node = fs?.getFile(ref.path);
+        if (node && isFileContentNode(node)) {
+          if (node.contentRef && isUrlRef(node.contentRef)) next = node.contentRef.url;
+          else next = node.content;
+        }
+      } else if (typeof ref === 'string') next = ref;
+      else if (isUrlRef(ref)) next = ref.url;
+      else if (isAssetRef(ref)) {
+        const asset = content.assets[ref.asset];
+        if (typeof asset === 'string') next = asset;
+        else if (asset && isUrlRef(asset)) next = asset.url;
+      }
+      if (!cancelled) setResolvedSrc(next ?? '');
+    };
+    void resolveTrack();
+    return () => {
+      cancelled = true;
+    };
+  }, [content.assets, fs, track]);
+
+  const changeTrack = useCallback(
+    (nextIndex: number) => {
+      if (!playlist || playlist.tracks.length === 0) return;
+      let index = nextIndex;
+      if (index >= playlist.tracks.length)
+        index = playlist.repeat === 'all' ? 0 : playlist.tracks.length - 1;
+      if (index < 0) index = playlist.repeat === 'all' ? playlist.tracks.length - 1 : 0;
+      setTrackIndex(index);
+      setCurrentTime(0);
+      setIsPlaying(false);
+      const next = playlist.tracks[index];
+      bus.emit({ type: 'media:track-change', playlistId: playlist.id, trackId: next.id, index });
+    },
+    [bus, playlist]
+  );
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -221,15 +346,42 @@ const WindowsMediaPlayer = ({
     const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
-      bus.emit({ type: 'media:ended', path: mediaSrc });
+      bus.emit({
+        type: 'media:ended',
+        path: mediaSrc,
+        trackId: track?.id,
+        playlistId: playlist?.id,
+      });
+      if (!playlist) return;
+      if (playlist.repeat === 'one') {
+        audio.currentTime = 0;
+        void audio.play();
+      } else if ((playlist.autoAdvance ?? true) && trackIndex < playlist.tracks.length - 1) {
+        changeTrack(trackIndex + 1);
+      } else if (playlist.repeat === 'all') {
+        changeTrack(0);
+      } else {
+        bus.emit({ type: 'media:playlist-ended', playlistId: playlist.id });
+      }
     };
     const handlePlay = () => {
       setIsPlaying(true);
-      bus.emit({ type: 'media:play', path: mediaSrc, title: trackTitle });
+      bus.emit({
+        type: 'media:play',
+        path: mediaSrc,
+        title: trackTitle,
+        trackId: track?.id,
+        playlistId: playlist?.id,
+      });
     };
     const handlePause = () => {
       setIsPlaying(false);
-      bus.emit({ type: 'media:pause', path: mediaSrc });
+      bus.emit({
+        type: 'media:pause',
+        path: mediaSrc,
+        trackId: track?.id,
+        playlistId: playlist?.id,
+      });
     };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
@@ -247,7 +399,7 @@ const WindowsMediaPlayer = ({
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
     };
-  }, [isDragging, bus, mediaSrc, trackTitle]);
+  }, [isDragging, bus, changeTrack, mediaSrc, playlist, track, trackIndex, trackTitle]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -259,8 +411,24 @@ const WindowsMediaPlayer = ({
       setCurrentTime(0);
       setDuration(0);
       setIsPlaying(false);
+      if (saved?.position) audio.currentTime = saved.position;
     }
-  }, [mediaSrc]);
+  }, [mediaSrc, saved?.position]);
+
+  useEffect(() => {
+    if (!playlist) return;
+    try {
+      const key = storage.key('wmp_sessions');
+      const value = storage.local.getItem(key);
+      const sessions = value
+        ? (JSON.parse(value) as Record<string, { index: number; position: number }>)
+        : {};
+      sessions[playlist.id] = { index: trackIndex, position: currentTime };
+      storage.local.setItem(key, JSON.stringify(sessions));
+    } catch {
+      // Playback persistence is best-effort.
+    }
+  }, [currentTime, playlist, storage, trackIndex]);
 
   const togglePlay = () => {
     const audio = audioRef.current;
@@ -295,7 +463,13 @@ const WindowsMediaPlayer = ({
     const newTime = (value / 100) * duration;
     audio.currentTime = newTime;
     setCurrentTime(newTime);
-    bus.emit({ type: 'media:seek', path: mediaSrc, position: newTime });
+    bus.emit({
+      type: 'media:seek',
+      path: mediaSrc,
+      position: newTime,
+      trackId: track?.id,
+      playlistId: playlist?.id,
+    });
   };
 
   const handleSeekStart = () => {
@@ -323,6 +497,15 @@ const WindowsMediaPlayer = ({
       <TitleBar>
         <Title>Windows Media Player</Title>
         <PlayerControls>
+          {playlist && (
+            <ControlBtn
+              disabled={!canSkip || trackIndex === 0}
+              onClick={() => changeTrack(trackIndex - 1)}
+              title={t('mediaPlayer.previous')}
+            >
+              ◀
+            </ControlBtn>
+          )}
           <ControlBtn onClick={stopPlayback} title={t('mediaPlayer.stop')}>
             <XPIcon name="media_stop" size={16} />
           </ControlBtn>
@@ -332,6 +515,15 @@ const WindowsMediaPlayer = ({
           >
             <XPIcon name={isPlaying ? 'media_pause' : 'media_play'} size={16} />
           </ControlBtn>
+          {playlist && (
+            <ControlBtn
+              disabled={!canSkip || trackIndex === playlist.tracks.length - 1}
+              onClick={() => changeTrack(trackIndex + 1)}
+              title={t('mediaPlayer.next')}
+            >
+              ▶
+            </ControlBtn>
+          )}
         </PlayerControls>
       </TitleBar>
 
@@ -351,6 +543,7 @@ const WindowsMediaPlayer = ({
           max="100"
           step="0.1"
           value={progress}
+          disabled={!canSeek}
           onChange={handleSeek}
           onMouseDown={handleSeekStart}
           onMouseUp={handleSeekEnd}
@@ -365,12 +558,31 @@ const WindowsMediaPlayer = ({
           <XPIcon name="cd_rom" size={48} />
         </AlbumArt>
         <TrackDetails>
-          <TrackTitle>{trackTitle}</TrackTitle>
+          <TrackTitle>
+            {trackTitle}
+            {playlist ? ` (${trackIndex + 1}/${playlist.tracks.length})` : ''}
+          </TrackTitle>
           <TrackArtist>
-            {isPlaying ? t('mediaPlayer.playing') : t('mediaPlayer.stopped')}
+            {track?.artist ?? (isPlaying ? t('mediaPlayer.playing') : t('mediaPlayer.stopped'))}
           </TrackArtist>
         </TrackDetails>
       </TrackInfo>
+      {playlist && (
+        <PlaylistPanel>
+          {playlist.tracks.map((item, index) => (
+            <TrackRow
+              key={item.id}
+              $active={index === trackIndex}
+              disabled={!canSkip && index !== trackIndex}
+              onClick={() => changeTrack(index)}
+            >
+              <span>{index + 1}</span>
+              <span>{item.title}</span>
+              <span>{item.artist ?? ''}</span>
+            </TrackRow>
+          ))}
+        </PlaylistPanel>
+      )}
     </Wrap>
   );
 };

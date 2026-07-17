@@ -27,6 +27,11 @@ interface FileMetadata {
   app?: string;
   readOnly?: boolean;
   description?: string;
+  ctime?: string;
+  mtime?: string;
+  atime?: string;
+  importedAt?: string;
+  provenance?: FileNode['provenance'];
   modifiedAt: number;
 }
 
@@ -38,12 +43,12 @@ interface FileSystemMetadata {
   lastModified: number;
 }
 
-interface RecycleBinItem {
+export interface RecycleBinItem {
   item: FileNode;
   originalPath: string[];
   /** Display name at deletion time; the bin key may be suffixed for uniqueness (#81). */
   originalName?: string;
-  deletedAt: number;
+  deletedAt: string | number;
 }
 
 /**
@@ -431,4 +436,4 @@ export const getRecycleBin = (): Record<string, RecycleBinItem> | null =>
   defaultStorage.getRecycleBin();
 
 // Export types
-export type { FileMetadata, FileSystemMetadata, RecycleBinItem };
+export type { FileMetadata, FileSystemMetadata };

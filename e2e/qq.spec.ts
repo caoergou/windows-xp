@@ -106,6 +106,29 @@ test.describe('QQ refinements (#refine-qq)', () => {
     await expect(page.locator('[data-testid="qq-find-dialog"]')).toBeVisible();
   });
 
+  test('message manager opens the mounted archive surface (#280)', async ({ page }) => {
+    await login(page, { lang: 'zh', query: 'content=reference&persistence=none' });
+    await openQQPanel(page);
+    await page.locator('[data-testid="qq-menu-button"]').click();
+    const archiveItem = page
+      .locator('[data-testid="context-menu"]')
+      .getByRole('menuitem', { name: '消息记录管理器' });
+    await expect(archiveItem).not.toHaveAttribute('aria-disabled', 'true');
+    await archiveItem.click();
+    await expect(page.locator('[data-testid="context-menu"]')).toBeHidden();
+    await expect(page.locator('[data-testid="qq-archive"]')).toBeVisible();
+    await expect(page.locator('[data-testid="qq-archive-conversations"]')).toContainText(
+      '水晶女孩'
+    );
+    await expect(page.locator('[data-testid="qq-archive-history"]')).toContainText(
+      '城东那家蓝光网吧'
+    );
+    await page.locator('[data-testid="qq-archive-search"]').fill('充值单');
+    await expect(page.locator('[data-testid="qq-archive-history"]')).toContainText(
+      '蓝光网吧充值单.txt'
+    );
+  });
+
   test('tray icon has a right-click status menu', async ({ page }) => {
     await openQQPanel(page);
     await page.locator('[data-tray-id="qq"]').click({ button: 'right' });

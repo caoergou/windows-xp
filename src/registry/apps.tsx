@@ -24,6 +24,9 @@ const Solitaire = React.lazy(() => import('../apps/Solitaire'));
 const DeductionSheet = React.lazy(() => import('../apps/DeductionSheet'));
 const EvidenceBoard = React.lazy(() => import('../apps/EvidenceBoard'));
 const WindowsMediaPlayer = React.lazy(() => import('../apps/WindowsMediaPlayer'));
+const RecentDocuments = React.lazy(() => import('../apps/RecentDocuments'));
+const PrintersAndFaxes = React.lazy(() => import('../apps/PrintersAndFaxes'));
+const EvidenceReport = React.lazy(() => import('../apps/EvidenceReport'));
 const Thunder = React.lazy(() => import('../apps/Thunder'));
 const BaofengPlayer = React.lazy(() => import('../apps/BaofengPlayer'));
 const KugouMusic = React.lazy(() => import('../apps/KugouMusic'));
@@ -344,6 +347,26 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     restore: restoreApp(ControlPanel),
   },
 
+  RecentDocuments: {
+    id: 'RecentDocuments',
+    name: 'My Recent Documents',
+    nameKey: 'apps.recentDocuments',
+    icon: 'documents',
+    showInStartMenu: false,
+    window: { width: 560, height: 360 },
+    restore: restoreApp(RecentDocuments),
+  },
+
+  PrintersAndFaxes: {
+    id: 'PrintersAndFaxes',
+    name: 'Printers and Faxes',
+    nameKey: 'startMenu.printersAndFaxes',
+    icon: 'printer',
+    showInStartMenu: false,
+    window: { width: 720, height: 440 },
+    restore: restoreApp(PrintersAndFaxes),
+  },
+
   MicrosoftPaint: {
     id: 'MicrosoftPaint',
     name: '画图',
@@ -384,6 +407,15 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     // `openApp('EvidenceBoard', { boardId, items })`.
     window: { width: 560, height: 400 },
     restore: restoreApp(EvidenceBoard),
+  },
+  EvidenceReport: {
+    id: 'EvidenceReport',
+    name: 'Evidence Report',
+    nameKey: 'apps.evidenceReport',
+    icon: 'notepad',
+    showInStartMenu: false,
+    window: { width: 600, height: 520 },
+    restore: restoreApp(EvidenceReport),
   },
   Minesweeper: {
     id: 'Minesweeper',

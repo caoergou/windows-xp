@@ -27,6 +27,146 @@
       "description": "customFileSystem fragment. File nodes may carry `contentRef` in place of inline `content`.",
       "additionalProperties": true
     },
+    "recycleBin": {
+      "type": "object",
+      "description": "Authored Recycle Bin records with stable paths and deletion times.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["item", "originalPath", "deletedAt"],
+        "properties": {
+          "item": { "type": "object" },
+          "originalPath": { "type": "array", "items": { "type": "string" } },
+          "originalName": { "type": "string" },
+          "deletedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "recentDocuments": {
+      "type": "array",
+      "description": "Historical MRU entries merged with runtime file opens.",
+      "items": {
+        "type": "object",
+        "required": ["path", "openedAt"],
+        "properties": {
+          "path": { "type": "array", "items": { "type": "string" } },
+          "openedAt": { "type": "string", "format": "date-time" },
+          "source": { "enum": ["seeded", "runtime"] }
+        }
+      }
+    },
+    "printers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "location": { "type": "string" },
+          "isDefault": { "type": "boolean" }
+        }
+      }
+    },
+    "printJobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "documentName", "submittedAt", "printerId", "status"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "documentName": { "type": "string", "minLength": 1 },
+          "submittedAt": { "type": "string", "format": "date-time" },
+          "printerId": { "type": "string", "minLength": 1 },
+          "status": {
+            "enum": ["queued", "printing", "paused", "error", "completed", "deleted", "orphaned"]
+          }
+        }
+      }
+    },
+    "playlists": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "tracks"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "tracks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["id", "title", "src"],
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    },
+    "reports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["reportId"],
+        "additionalProperties": true,
+        "properties": {
+          "reportId": { "type": "string", "minLength": 1 },
+          "claims": { "type": "array" },
+          "evidence": { "type": "array" }
+        }
+      }
+    },
+    "powerSequence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "blackoutAfterMs": { "type": "number", "minimum": 0 },
+        "reload": { "enum": ["immediate", "after-sequence", "manual"] },
+        "maxDurationMs": { "type": "number", "minimum": 0 },
+        "blackout": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind"],
+            "properties": {
+              "kind": { "enum": ["audio", "text"] },
+              "src": { "$ref": "#/definitions/contentRef" },
+              "text": { "type": "string" },
+              "textKey": { "type": "string" },
+              "captions": { "type": "string" },
+              "delayMs": { "type": "number", "minimum": 0 },
+              "durationMs": { "type": "number", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "qqArchives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "conversations"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "title": { "type": "string" },
+          "conversations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "title", "kind", "memberIds", "messages"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "title": { "type": "string" },
+                "kind": { "enum": ["direct", "group"] },
+                "memberIds": { "type": "array", "items": { "type": "string" } },
+                "messages": { "type": "array" }
+              }
+            }
+          }
+        }
+      }
+    },
     "scenario": {
       "type": "object",
       "description": "The scenario rulebook (#84/#207). See docs/SCENARIOS.md for its schema."
@@ -69,8 +209,8 @@
       "title": "SiteDef",
       "description": "An authorized IE site (#149/#241).",
       "type": "object",
-      "required": ["html"],
       "additionalProperties": false,
+      "anyOf": [{ "required": ["html"] }, { "required": ["page"] }],
       "properties": {
         "html": {
           "description": "The page body to render (inline HTML, a host url, or an asset key).",
@@ -83,7 +223,25 @@
         "favicon": {
           "description": "Optional favicon (icon id, data URI, or a ContentRef).",
           "$ref": "#/definitions/contentRef"
+        },
+        "page": {
+          "$ref": "#/definitions/eraPage"
         }
+      }
+    },
+    "eraPage": {
+      "title": "EraPage",
+      "type": "object",
+      "required": ["template", "title", "sections"],
+      "additionalProperties": false,
+      "properties": {
+        "template": { "enum": ["portal", "news", "forum", "profile"] },
+        "title": { "type": "string" },
+        "masthead": { "type": "string" },
+        "nav": { "type": "array" },
+        "sections": { "type": "array", "minItems": 1 },
+        "sidebar": { "type": "array" },
+        "footer": { "type": "string" }
       }
     }
   }

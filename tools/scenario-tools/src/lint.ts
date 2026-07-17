@@ -318,6 +318,145 @@ export const lintContentPack = async (
         )
       );
     }
+    if (isRecord(value) && typeof value.type === 'string') {
+      const timestampFields = ['ctime', 'mtime', 'atime', 'importedAt'] as const;
+      for (const field of timestampFields) {
+        if (value[field] !== undefined && !Number.isFinite(Date.parse(String(value[field])))) {
+          diagnostics.push(
+            diagnostic(
+              'error',
+              'invalid-iso-time',
+              `${field} must be a valid ISO time`,
+              `${valuePath}.${field}`
+            )
+          );
+        }
+      }
+      if (
+        typeof value.ctime === 'string' &&
+        typeof value.mtime === 'string' &&
+        Date.parse(value.ctime) > Date.parse(value.mtime)
+      ) {
+        diagnostics.push(
+          diagnostic(
+            'warning',
+            'suspicious-file-time',
+            'ctime is later than mtime; preserved as authored forensic evidence',
+            valuePath
+          )
+        );
+      }
+    }
+  });
+
+  Object.entries(pack.recycleBin ?? {}).forEach(([key, record]) => {
+    if (!Number.isFinite(Date.parse(String(record.deletedAt)))) {
+      diagnostics.push(
+        diagnostic(
+          'error',
+          'invalid-iso-time',
+          'deletedAt must be a valid ISO time',
+          `$.recycleBin.${key}.deletedAt`
+        )
+      );
+    }
+  });
+  (pack.recentDocuments ?? []).forEach((entry, index) => {
+    if (!Number.isFinite(Date.parse(entry.openedAt))) {
+      diagnostics.push(
+        diagnostic(
+          'error',
+          'invalid-iso-time',
+          'openedAt must be a valid ISO time',
+          `$.recentDocuments[${index}].openedAt`
+        )
+      );
+    }
+  });
+  const printerIds = new Set<string>();
+  (pack.printers ?? []).forEach((printer, index) => {
+    if (printerIds.has(printer.id)) {
+      diagnostics.push(
+        diagnostic(
+          'error',
+          'duplicate-printer',
+          `duplicate printer id "${printer.id}"`,
+          `$.printers[${index}]`
+        )
+      );
+    }
+    printerIds.add(printer.id);
+  });
+  const printJobIds = new Set<string>();
+  (pack.printJobs ?? []).forEach((job, index) => {
+    const path = `$.printJobs[${index}]`;
+    if (printJobIds.has(job.id)) {
+      diagnostics.push(
+        diagnostic('error', 'duplicate-print-job', `duplicate print job id "${job.id}"`, path)
+      );
+    }
+    printJobIds.add(job.id);
+    if (!printerIds.has(job.printerId)) {
+      diagnostics.push(
+        diagnostic(
+          'error',
+          'unknown-printer',
+          `unknown printer "${job.printerId}"`,
+          `${path}.printerId`
+        )
+      );
+    }
+    if (!job.documentName.trim()) {
+      diagnostics.push(
+        diagnostic('error', 'print-job-name', 'documentName is required', `${path}.documentName`)
+      );
+    }
+    if (!Number.isFinite(Date.parse(job.submittedAt))) {
+      diagnostics.push(
+        diagnostic(
+          'error',
+          'invalid-iso-time',
+          'submittedAt must be a valid ISO time',
+          `${path}.submittedAt`
+        )
+      );
+    }
+  });
+  const playlistIds = new Set<string>();
+  (pack.playlists ?? []).forEach((playlist, playlistIndex) => {
+    if (playlistIds.has(playlist.id)) {
+      diagnostics.push(
+        diagnostic(
+          'error',
+          'duplicate-playlist',
+          `duplicate playlist id "${playlist.id}"`,
+          `$.playlists[${playlistIndex}]`
+        )
+      );
+    }
+    playlistIds.add(playlist.id);
+    const trackIds = new Set<string>();
+    playlist.tracks.forEach((track, trackIndex) => {
+      const path = `$.playlists[${playlistIndex}].tracks[${trackIndex}]`;
+      if (trackIds.has(track.id)) {
+        diagnostics.push(
+          diagnostic('error', 'duplicate-track', `duplicate track id "${track.id}"`, path)
+        );
+      }
+      trackIds.add(track.id);
+      const ref = track.src;
+      const candidate = typeof ref === 'string' ? ref : 'url' in ref ? ref.url : '';
+      if (candidate && !/\.(mp3|wav|wma|ogg|m4a)(?:[?#]|$)/i.test(candidate)) {
+        diagnostics.push(
+          diagnostic(
+            'warning',
+            'media-extension',
+            'track source has no recognized audio extension',
+            `${path}.src`
+          )
+        );
+      }
+    });
   });
 
   const usedAssets = new Set<string>();

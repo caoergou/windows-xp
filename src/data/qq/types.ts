@@ -88,3 +88,33 @@ export interface QQProfile {
   groups: QQGroup[];
   buddies: QQBuddy[];
 }
+
+export interface QQArchiveAttachment {
+  id: string;
+  name: string;
+  content: import('../../content/types').ContentRef;
+}
+
+export interface QQArchiveMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  sentAt: string;
+  text: string;
+  attachments?: QQArchiveAttachment[];
+}
+
+export interface QQArchiveConversation {
+  id: string;
+  title: string;
+  kind: 'direct' | 'group';
+  memberIds: string[];
+  messages: QQArchiveMessage[];
+}
+
+/** Authored, read-only QQ message history used by forensic scenarios (#280). */
+export interface QQArchive {
+  id: string;
+  title?: string;
+  conversations: QQArchiveConversation[];
+}

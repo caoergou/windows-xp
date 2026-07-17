@@ -81,6 +81,7 @@
     }
   },
   "startMenu": {
+    "recentDocuments": "我最近的文档",
     "allPrograms": "所有程序",
     "myDocuments": "我的文档",
     "myComputer": "我的电脑",
@@ -403,6 +404,8 @@
     "cancel": "取消"
   },
   "apps": {
+    "evidenceReport": "证据报告",
+    "recentDocuments": "我最近的文档",
     "explorer": "Windows 资源管理器",
     "notepad": "记事本",
     "markdownViewer": "Markdown 查看器",
@@ -562,6 +565,53 @@
     "dateModified": "修改日期",
     "folder": "文件夹",
     "file": "文件"
+  },
+  "evidenceReport": {
+    "title": "证据报告",
+    "confidence": "置信度",
+    "note": "备注",
+    "submit": "提交报告",
+    "confidences": {
+      "proven": "已证明",
+      "probable": "高度可能",
+      "unconfirmed": "无法确认",
+      "refuted": "被反证"
+    },
+    "results": {
+      "supported": "引用证据充分支持该结论",
+      "under-supported": "方向可能正确，但证据不足",
+      "conflicted": "引用证据之间存在冲突",
+      "unknown": "尚未成立"
+    }
+  },
+  "print": {
+    "document": "文档名",
+    "status": "状态",
+    "owner": "所有者",
+    "pages": "页数",
+    "size": "大小",
+    "submitted": "提交时间",
+    "pause": "暂停",
+    "resume": "继续",
+    "cancel": "取消",
+    "noSource": "原始来源不可用",
+    "noSpoolFile": "没有后台打印文件名",
+    "statuses": {
+      "queued": "排队中",
+      "printing": "正在打印",
+      "paused": "已暂停",
+      "error": "错误",
+      "completed": "已完成",
+      "deleted": "已删除",
+      "orphaned": "孤立记录"
+    }
+  },
+  "recentDocuments": {
+    "seeded": "历史记录",
+    "runtime": "本次会话"
+  },
+  "clock": {
+    "dateTime": "日期和时间"
   },
   "common": {
     "error": "错误",
@@ -758,6 +808,42 @@
     }
   },
   "qq": {
+    "archive": {
+      "title": "消息记录管理器",
+      "search": "搜索消息记录",
+      "searchLabel": "查找：",
+      "searchPlaceholder": "输入关键字",
+      "import": "导入",
+      "export": "导出",
+      "delete": "删除",
+      "importHint": "导入消息记录（只读演示中不可用）",
+      "exportHint": "导出消息记录（只读演示中不可用）",
+      "contacts": "好友",
+      "groups": "群",
+      "localRecords": "本地消息记录",
+      "groupChat": "群聊天",
+      "friend": "QQ 好友",
+      "noConversation": "未选择会话",
+      "recordCount": "共 {{count}} 条消息",
+      "selectConversation": "请从左侧选择联系人或群",
+      "view": "查看：",
+      "dateRange": "日期范围",
+      "allRecords": "全部消息记录",
+      "searchResults": "找到 {{count}} 条",
+      "localOnly": "本地消息记录",
+      "noMatches": "没有找到符合条件的消息",
+      "noMatchesHint": "请更换关键字或选择其他联系人。",
+      "empty": "未挂载消息记录档案。",
+      "emptyHint": "请通过内容包提供 qqArchives 数据。",
+      "firstPage": "首页",
+      "previousPage": "上一页",
+      "nextPage": "下一页",
+      "lastPage": "末页",
+      "status": "消息记录管理器",
+      "totalMessages": "共 {{count}} 条消息",
+      "groupPrefix": "群：",
+      "attachment": "附件：{{name}}"
+    },
     "title": "QQ",
     "login": {
       "accountLabel": "QQ号：",
@@ -831,6 +917,8 @@
     "play": "播放",
     "pause": "暂停",
     "stop": "停止",
+    "previous": "上一曲",
+    "next": "下一曲",
     "playing": "正在播放",
     "stopped": "已停止"
   },
@@ -882,6 +970,7 @@
     "ready": "就绪"
   },
   "fileProperties": {
+    "unknown": "未知",
     "general": "常规",
     "summary": "摘要",
     "fileType": "文件类型",

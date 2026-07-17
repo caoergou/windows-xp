@@ -29,7 +29,13 @@ export interface SearchResultPage {
   snippet?: string;
   /** The landing page rendered when the result is opened (IE's authored-html path). */
   html?: string;
+  page?: EraPage;
   match: string[];
+  aliases?: string[];
+  /** Lower values appear first; corpus order breaks ties. */
+  rank?: number;
+  /** Maximum edit distance for individual query terms. Defaults to zero. */
+  typoTolerance?: number;
 }
 
 export interface InternetExplorerProps {
@@ -48,3 +54,4 @@ export interface InternetExplorerProps {
    */
   searchCorpus?: SearchResultPage[];
 }
+import type { EraPage } from '../../content/eraPage';

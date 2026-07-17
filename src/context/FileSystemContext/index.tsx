@@ -8,12 +8,14 @@ import { useFileOperations } from './hooks/useFileOperations';
 import { getAllCultureShortcutNames } from '../../data/culture';
 import { useXPEventBus } from '../EventBusContext';
 import { useStorage } from '../StorageContext';
+import { useClock } from '../ClockContext';
 
 const CULTURE_SHORTCUT_NAMES = new Set(getAllCultureShortcutNames());
 
 interface RecycleBinManifestEntry {
   file: string;
   originalPath: string[];
+  deletedAt?: string;
 }
 
 // Load all JSON files from src/data/recycle_bin
@@ -37,7 +39,7 @@ for (const [fileName, entry] of Object.entries(manifest)) {
     presetRecycleBinRef[fileName] = {
       item,
       originalPath: entry.originalPath,
-      deletedAt: Date.now() - 1000000000,
+      deletedAt: entry.deletedAt ?? '2003-10-25T12:00:00.000Z',
     };
   }
 }
@@ -155,10 +157,10 @@ interface FileSystemContextType {
     /** Child object count for folders; null for files. */
     childCount: number | null;
     icon?: string;
-    /** Stable ISO date (YYYY-MM-DD); format per-locale in the UI layer. */
-    created: string;
-    modified: string;
-    accessed: string;
+    /** Authored ISO timestamp, or null when the metadata is unknown. */
+    created: string | null;
+    modified: string | null;
+    accessed: string | null;
     locked: boolean;
     broken: boolean;
   } | null;
@@ -196,6 +198,10 @@ export const useFileSystem = (): FileSystemContextType => {
   return context;
 };
 
+/** Optional variant for embeddable leaf apps that also render in isolation tests. */
+export const useOptionalFileSystem = (): FileSystemContextType | undefined =>
+  useContext(FileSystemContext);
+
 export const FileSystemProvider: React.FC<{
   children: React.ReactNode;
   customFileSystem?: Record<string, FileNode>;
@@ -204,14 +210,18 @@ export const FileSystemProvider: React.FC<{
   /** 'merge' (default) layers custom content over the built-ins; 'replace'
    * keeps only OS scaffolding so the consumer owns the whole tree (#77). */
   fileSystemMode?: FileSystemMode;
+  /** Authored recycle-bin records with stable original paths and timestamps (#282). */
+  seededRecycleBin?: Record<string, RecycleBinItem>;
 }> = ({
   children,
   customFileSystem,
   cultureFileSystem,
   cultureKey = 'en',
   fileSystemMode = 'merge',
+  seededRecycleBin,
 }) => {
   const storage = useStorage();
+  const clock = useClock();
   const customFsRef = useRef(customFileSystem);
   const cultureFsRef = useRef(cultureFileSystem);
   customFsRef.current = customFileSystem;
@@ -236,7 +246,9 @@ export const FileSystemProvider: React.FC<{
   const [isLoaded, setIsLoaded] = useState(false);
   // Preset recycle-bin metadata only applies to the full built-in tree.
   const recycleBinRef = useRef<Record<string, RecycleBinItem>>(
-    fileSystemMode === 'replace' ? {} : { ...presetRecycleBinRef }
+    fileSystemMode === 'replace'
+      ? { ...(seededRecycleBin ?? {}) }
+      : { ...presetRecycleBinRef, ...(seededRecycleBin ?? {}) }
   );
 
   useEffect(() => {
@@ -256,6 +268,10 @@ export const FileSystemProvider: React.FC<{
             if (currentRecycleBin.children?.[fileName] && !recycleBinRef.current[fileName]) {
               recycleBinRef.current[fileName] = presetRecycleBinRef[fileName];
             }
+          }
+          for (const [key, record] of Object.entries(seededRecycleBin ?? {})) {
+            if (!currentRecycleBin.children[key]) currentRecycleBin.children[key] = record.item;
+            if (!recycleBinRef.current[key]) recycleBinRef.current[key] = record;
           }
         }
 
@@ -352,6 +368,16 @@ export const FileSystemProvider: React.FC<{
 
   const bus = useXPEventBus();
   const fileOperations = useFileOperations(setFs, doPersistFs, recycleBinRef);
+
+  useEffect(
+    () =>
+      bus.subscribe(event => {
+        if (event.type === 'file:open') {
+          fileOperations.updateFile(event.path, { atime: clock.now() });
+        }
+      }),
+    [bus, clock, fileOperations]
+  );
 
   // Event-emitting wrappers (#76): mutations announce themselves on the bus.
   const createFile = useCallback(
@@ -605,18 +631,15 @@ export const FileSystemProvider: React.FC<{
         sizeBytes = node.content.length;
       }
 
-      // A stable, nostalgic XP-era date; formatted per-locale in the UI layer.
-      const XP_DATE = '2003-10-25';
-
       return {
         name: node.name,
         type: node.type,
         sizeBytes,
         childCount,
         icon: node.icon,
-        created: XP_DATE,
-        modified: node.mtime ?? XP_DATE,
-        accessed: node.mtime ?? XP_DATE,
+        created: node.ctime ?? null,
+        modified: node.mtime ?? null,
+        accessed: node.atime ?? null,
         locked: !!node.locked,
         broken: !!node.broken,
         hidden: !!node.hidden,

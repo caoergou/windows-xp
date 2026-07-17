@@ -7,6 +7,9 @@ import { useTray, type NotifyOptions } from '../context/TrayContext';
 import { useXPEventBus } from '../context/EventBusContext';
 import { useStorage } from '../context/StorageContext';
 import { useScheduler, type ScheduleOptions } from '../context/SchedulerContext';
+import { useClock, type XPClockApi } from '../context/ClockContext';
+import { useRecentDocuments } from '../context/RecentDocumentsContext';
+import { usePrintSpooler, type PrintJob } from '../context/PrintSpoolerContext';
 import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
 import { useAppRegistry } from '../context/AppRegistryContext';
 import { isContainerNode, isFileContentNode, type FileNode } from '../types';
@@ -14,7 +17,7 @@ import { canUseDOM } from '../utils/storage';
 import { decodeOpenWindows, encodeOpenWindows } from '../utils/windowPersistence';
 import { saveLanguage, getSavedLanguage } from '../utils/language';
 import { XP_SNAPSHOT_VERSION, assertLoadableSnapshot, type XPSnapshot } from '../snapshot';
-import { sounds, playSound } from '../utils/soundManager';
+import { playSound } from '../utils/soundManager';
 import { openExternalUrl } from '../utils/externalLink';
 import { serializeOpenPath } from '../utils/deepLink';
 import i18n from '../i18n';
@@ -32,6 +35,7 @@ import {
 } from '../devtools/rehearsalChannel';
 import type { FlagValue } from '../scenario/types';
 import { useCulture } from '../context/CultureContext';
+import { usePowerTransition } from '../context/PowerTransitionContext';
 
 /** Filesystem actuation from outside the desktop (#115). Paths are absolute. */
 export interface XPFsApi {
@@ -57,6 +61,8 @@ export interface XPSessionApi {
   logout: () => void;
   shutdown: () => void;
   restart: () => void;
+  /** Finish a `reload: 'manual'` power sequence. */
+  completePowerTransition: () => void;
 }
 
 /** Appearance control (#115). */
@@ -168,6 +174,14 @@ export interface XPHandle {
   windows: XPWindowsApi;
   /** QQ Messenger actuation (#119). */
   qq: XPQQApi;
+  /** Instance-local virtual system clock (#275). */
+  clock: Pick<XPClockApi, 'now' | 'set' | 'advance' | 'reset'>;
+  /** Data-driven virtual print spooler (#276). */
+  print: {
+    addJob: (job: Omit<PrintJob, 'submittedAt'> & { submittedAt?: string }) => void;
+    updateJob: (id: string, updates: Partial<PrintJob>) => void;
+    removeJob: (id: string) => void;
+  };
   /** Play a named XP system sound. */
   sound: { play: (name: string) => void };
   /** Pop an XP tray balloon notification (#118). Returns the notification id. */
@@ -243,18 +257,14 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
     const bus = useXPEventBus();
     const storage = useStorage();
     const { schedule, cancelSchedule } = useScheduler();
+    const clock = useClock();
+    const { entries: recentDocuments } = useRecentDocuments();
+    const print = usePrintSpooler();
     const { start: startLesson, stop: stopLesson } = useLesson();
     const { culture } = useCulture();
+    const power = usePowerTransition();
 
     useImperativeHandle(ref, (): XPHandle => {
-      const powerOff = (state: 'shutdown' | 'restart') => {
-        storage.local.removeItem(storage.key('open_windows'));
-        storage.local.setItem(storage.key('power_state'), state);
-        bus.emit({ type: 'session:shutdown', mode: state });
-        sounds.shutdown();
-        if (canUseDOM) setTimeout(() => window.location.reload(), 600);
-      };
-
       return {
         openApp: (appId, props = {}) => {
           const def = registry[appId] ?? APP_REGISTRY[appId];
@@ -344,8 +354,9 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
         session: {
           login: password => login(password ?? ''),
           logout,
-          shutdown: () => powerOff('shutdown'),
-          restart: () => powerOff('restart'),
+          shutdown: () => power.request('shutdown'),
+          restart: () => power.request('restart'),
+          completePowerTransition: power.complete,
         },
 
         appearance: {
@@ -436,6 +447,18 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
         schedule: options => schedule(options),
         cancelSchedule: id => cancelSchedule(id),
 
+        clock: {
+          now: clock.now,
+          set: clock.set,
+          advance: clock.advance,
+          reset: clock.reset,
+        },
+        print: {
+          addJob: print.addJob,
+          updateJob: print.updateJob,
+          removeJob: print.removeJob,
+        },
+
         startLesson: (lessonId, lessonMode) => startLesson(lessonId, lessonMode),
         stopLesson,
 
@@ -470,11 +493,25 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
           const openWindows = decodeOpenWindows(storage.local.getItem(storage.key('open_windows')));
           // Scenario progress (#84) lives under the canonical flags key.
           let flags: Record<string, unknown> = {};
+          let mediaSessions: Record<string, { index: number; position: number }> = {};
+          let evidenceReports: Record<string, unknown> = {};
           try {
             const raw = storage.local.getItem(storage.key(SCENARIO_FLAGS_KEY));
             if (raw) flags = JSON.parse(raw);
           } catch (e) {
             console.warn('[windows-xp] getSnapshot: scenario flags parse failed', e);
+          }
+          try {
+            const raw = storage.local.getItem(storage.key('wmp_sessions'));
+            if (raw) mediaSessions = JSON.parse(raw) as typeof mediaSessions;
+          } catch (e) {
+            console.warn('[windows-xp] getSnapshot: media sessions parse failed', e);
+          }
+          try {
+            const raw = storage.local.getItem(storage.key('evidence_reports'));
+            if (raw) evidenceReports = JSON.parse(raw) as typeof evidenceReports;
+          } catch (e) {
+            console.warn('[windows-xp] getSnapshot: evidence reports parse failed', e);
           }
           return {
             version: XP_SNAPSHOT_VERSION,
@@ -484,6 +521,11 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             wallpaper: wallpaper ?? null,
             language: getSavedLanguage(),
             flags,
+            clock: clock.getSnapshot(),
+            recentDocuments,
+            printJobs: print.jobs,
+            mediaSessions,
+            evidenceReports,
           };
         },
 
@@ -501,6 +543,28 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             storage.local.setItem(storage.key(SCENARIO_FLAGS_KEY), JSON.stringify(snapshot.flags));
           }
           if (snapshot.language) saveLanguage(snapshot.language);
+          if (snapshot.clock) clock.loadSnapshot(snapshot.clock);
+          if (snapshot.recentDocuments) {
+            storage.local.setItem(
+              storage.key('recent_documents'),
+              JSON.stringify(snapshot.recentDocuments)
+            );
+          }
+          if (snapshot.printJobs) {
+            storage.local.setItem(storage.key('print_jobs'), JSON.stringify(snapshot.printJobs));
+          }
+          if (snapshot.mediaSessions) {
+            storage.local.setItem(
+              storage.key('wmp_sessions'),
+              JSON.stringify(snapshot.mediaSessions)
+            );
+          }
+          if (snapshot.evidenceReports) {
+            storage.local.setItem(
+              storage.key('evidence_reports'),
+              JSON.stringify(snapshot.evidenceReports)
+            );
+          }
           if (canUseDOM) window.location.reload();
         },
       };
@@ -534,6 +598,10 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
       startLesson,
       stopLesson,
       culture,
+      clock,
+      recentDocuments,
+      print,
+      power,
     ]);
 
     void fs;

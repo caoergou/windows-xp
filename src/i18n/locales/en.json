@@ -81,6 +81,7 @@
     }
   },
   "startMenu": {
+    "recentDocuments": "My Recent Documents",
     "allPrograms": "All Programs",
     "myDocuments": "My Documents",
     "myComputer": "My Computer",
@@ -409,6 +410,8 @@
     "cancel": "Cancel"
   },
   "apps": {
+    "evidenceReport": "Evidence Report",
+    "recentDocuments": "My Recent Documents",
     "explorer": "Windows Explorer",
     "notepad": "Notepad",
     "markdownViewer": "Markdown Viewer",
@@ -568,6 +571,53 @@
     "dateModified": "Date Modified",
     "folder": "Folder",
     "file": "File"
+  },
+  "evidenceReport": {
+    "title": "Evidence Report",
+    "confidence": "Confidence",
+    "note": "Notes",
+    "submit": "Submit Report",
+    "confidences": {
+      "proven": "Proven",
+      "probable": "Highly probable",
+      "unconfirmed": "Unconfirmed",
+      "refuted": "Refuted"
+    },
+    "results": {
+      "supported": "Supported by the cited evidence",
+      "under-supported": "Direction plausible, evidence insufficient",
+      "conflicted": "The cited evidence conflicts",
+      "unknown": "Not established"
+    }
+  },
+  "print": {
+    "document": "Document Name",
+    "status": "Status",
+    "owner": "Owner",
+    "pages": "Pages",
+    "size": "Size",
+    "submitted": "Submitted",
+    "pause": "Pause",
+    "resume": "Resume",
+    "cancel": "Cancel",
+    "noSource": "Original source is unavailable",
+    "noSpoolFile": "No spool file name",
+    "statuses": {
+      "queued": "Queued",
+      "printing": "Printing",
+      "paused": "Paused",
+      "error": "Error",
+      "completed": "Completed",
+      "deleted": "Deleted",
+      "orphaned": "Orphaned"
+    }
+  },
+  "recentDocuments": {
+    "seeded": "History",
+    "runtime": "Current session"
+  },
+  "clock": {
+    "dateTime": "Date and time"
   },
   "common": {
     "error": "Error",
@@ -764,6 +814,42 @@
     }
   },
   "qq": {
+    "archive": {
+      "title": "Message History Manager",
+      "search": "Search message history",
+      "searchLabel": "Find:",
+      "searchPlaceholder": "Enter keyword",
+      "import": "Import",
+      "export": "Export",
+      "delete": "Delete",
+      "importHint": "Import message history (unavailable in this read-only demo)",
+      "exportHint": "Export message history (unavailable in this read-only demo)",
+      "contacts": "Contacts",
+      "groups": "Groups",
+      "localRecords": "Local Message History",
+      "groupChat": "Group chat",
+      "friend": "QQ contact",
+      "noConversation": "No conversation selected",
+      "recordCount": "{{count}} messages",
+      "selectConversation": "Select a contact or group on the left",
+      "view": "View:",
+      "dateRange": "Date range",
+      "allRecords": "All message history",
+      "searchResults": "{{count}} found",
+      "localOnly": "Local message history",
+      "noMatches": "No matching messages",
+      "noMatchesHint": "Try another keyword or conversation.",
+      "empty": "No message archive is mounted.",
+      "emptyHint": "Provide qqArchives through a content pack.",
+      "firstPage": "First",
+      "previousPage": "Previous",
+      "nextPage": "Next",
+      "lastPage": "Last",
+      "status": "Message History Manager",
+      "totalMessages": "{{count}} messages total",
+      "groupPrefix": "Group: ",
+      "attachment": "Attachment: {{name}}"
+    },
     "title": "QQ",
     "login": {
       "accountLabel": "QQ Number:",
@@ -837,6 +923,8 @@
     "play": "Play",
     "pause": "Pause",
     "stop": "Stop",
+    "previous": "Previous",
+    "next": "Next",
     "playing": "Now playing",
     "stopped": "Stopped"
   },
@@ -888,6 +976,7 @@
     "ready": "Ready"
   },
   "fileProperties": {
+    "unknown": "Unknown",
     "general": "General",
     "summary": "Summary",
     "fileType": "Type of file",
