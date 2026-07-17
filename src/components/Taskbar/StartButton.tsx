@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { XP_ASSETS } from '../../themes/xp/assets';
-import { COLORS, FONTS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 
 const startButtonSprite = XP_ASSETS.startButton.sprite;
 const windowsLogo = XP_ASSETS.startButton.logo;
@@ -13,9 +13,12 @@ const StartButtonContainer = styled.button<{ $isActive?: boolean; $localized?: b
   padding: 0;
   cursor: pointer;
   flex-shrink: 0;
-  background-color: ${props => (props.$localized ? COLORS.START_GREEN : 'transparent')};
+  background-color: ${props =>
+    props.$localized ? resolveOSTheme(props.theme).tokens.START_GREEN : 'transparent'};
   background-image: ${props =>
-    props.$localized ? COLORS.START_GRADIENT : `url(${startButtonSprite})`};
+    props.$localized
+      ? resolveOSTheme(props.theme).tokens.START_GRADIENT
+      : `url(${startButtonSprite})`};
   background-repeat: no-repeat;
   background-size: 99px 90px;
   background-position: 0 0;
@@ -28,8 +31,8 @@ const StartButtonContainer = styled.button<{ $isActive?: boolean; $localized?: b
   align-items: center;
   justify-content: center;
   gap: 4px;
-  color: ${COLORS.WHITE};
-  font-family: ${FONTS.UI};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 13px;
   font-weight: bold;
   font-style: italic;
@@ -38,14 +41,18 @@ const StartButtonContainer = styled.button<{ $isActive?: boolean; $localized?: b
   &:hover {
     background-position: ${props => (props.$localized ? '0 0' : '0 -30px')};
     background-image: ${props =>
-      props.$localized ? COLORS.START_GRADIENT_HOVER : `url(${startButtonSprite})`};
+      props.$localized
+        ? resolveOSTheme(props.theme).tokens.START_GRADIENT_HOVER
+        : `url(${startButtonSprite})`};
   }
 
   &&:active,
   &&.active {
     background-position: ${props => (props.$localized ? '0 0' : '0 -60px')};
     background-image: ${props =>
-      props.$localized ? COLORS.START_GRADIENT_ACTIVE : `url(${startButtonSprite})`};
+      props.$localized
+        ? resolveOSTheme(props.theme).tokens.START_GRADIENT_ACTIVE
+        : `url(${startButtonSprite})`};
   }
 
   &:focus {

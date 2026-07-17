@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /**
  * Canonical XP checkbox / radio (#99 micro-component consistency).
@@ -35,10 +35,11 @@ const Root = styled.label<{ $disabled?: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
   line-height: 13px;
-  color: ${({ $disabled }) => ($disabled ? COLORS.BUTTON_SHADOW : 'inherit')};
+  color: ${({ $disabled, theme }) =>
+    $disabled ? resolveOSTheme(theme).tokens.BUTTON_SHADOW : 'inherit'};
   cursor: ${({ $disabled }) => ($disabled ? 'default' : 'pointer')};
   user-select: none;
   white-space: nowrap;
@@ -53,7 +54,7 @@ const Root = styled.label<{ $disabled?: boolean }>`
   }
 
   input:focus-visible + span {
-    outline: 1px dotted ${COLORS.BLACK};
+    outline: 1px dotted ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
     outline-offset: 1px;
   }
 `;
@@ -64,13 +65,14 @@ const CheckBox = styled.span<{ $checked?: boolean; $disabled?: boolean }>`
   position: relative;
   width: 13px;
   height: 13px;
-  background: ${({ $disabled }) => ($disabled ? COLORS.SURFACE : COLORS.WHITE)};
+  background: ${({ $disabled, theme }) =>
+    $disabled ? resolveOSTheme(theme).tokens.SURFACE : resolveOSTheme(theme).tokens.WHITE};
   /* xp.css --border-field: sunken 2px double bevel. */
   box-shadow:
-    inset -1px -1px ${COLORS.WHITE},
-    inset 1px 1px ${COLORS.BUTTON_SHADOW},
-    inset -2px -2px ${COLORS.BUTTON_FACE},
-    inset 2px 2px ${COLORS.WINDOW_FRAME};
+    inset -1px -1px ${({ theme }) => resolveOSTheme(theme).tokens.WHITE},
+    inset 1px 1px ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW},
+    inset -2px -2px ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_FACE},
+    inset 2px 2px ${({ theme }) => resolveOSTheme(theme).tokens.WINDOW_FRAME};
 
   &::after {
     content: '';

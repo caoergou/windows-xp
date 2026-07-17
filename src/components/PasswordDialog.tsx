@@ -15,7 +15,7 @@ import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
 import { useModalA11y } from '../hooks/useModalA11y';
 import Draggable from 'react-draggable';
-import { COLORS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 const ContentArea = styled.div`
   padding: 18px 20px 12px;
@@ -38,14 +38,14 @@ const Message = styled.div`
 
 const HintText = styled.div`
   font-size: 11px;
-  color: ${COLORS.GREY_66};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_66};
   margin-top: 4px;
   font-style: italic;
 `;
 
 const ErrorText = styled.div`
   font-size: 11px;
-  color: ${COLORS.ALERT_RED};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.ALERT_RED};
   min-height: 16px;
 `;
 

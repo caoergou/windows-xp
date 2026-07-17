@@ -5,7 +5,7 @@ import XPIcon from '../XPIcon';
 import { FileNode, isContainerNode } from '../../types';
 import { getFileDisplayName } from '../../utils/fileDisplayName';
 import { getFileIconName } from '../../utils/fileIcon';
-import { COLORS, FONTS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 
 /**
  * Explorer "Folders" tree pane (#120, EXP) — the signature XP left-hand tree.
@@ -18,13 +18,13 @@ import { COLORS, FONTS } from '../../constants';
 const TreeContainer = styled.div`
   width: 200px;
   min-width: 200px;
-  background: ${COLORS.WHITE};
-  border-right: 1px solid ${COLORS.DIVIDER_GREY};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  border-right: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
   display: flex;
   flex-direction: column;
   overflow: hidden;
   font-size: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   user-select: none;
 `;
 
@@ -38,8 +38,8 @@ const TreeHeader = styled.div`
   height: 20px;
   padding: 0 3px 0 6px;
   font-weight: bold;
-  color: ${COLORS.GREY_33};
-  border-bottom: 1px solid ${COLORS.BORDER_GREY_HILIGHT};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_33};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY_HILIGHT};
 `;
 
 const TreeBody = styled.div`
@@ -63,12 +63,12 @@ const CloseX = styled.button`
   background: transparent;
   font-size: 12px;
   line-height: 1;
-  color: ${COLORS.GREY_55};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_55};
   cursor: pointer;
 
   &:hover {
-    background: ${COLORS.HOVER_BEIGE};
-    border-color: ${COLORS.DIVIDER_GREY};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.HOVER_BEIGE};
+    border-color: ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
   }
 `;
 
@@ -79,11 +79,15 @@ const Row = styled.div<{ $active?: boolean; $depth: number }>`
   padding-left: ${p => 2 + p.$depth * 16}px;
   cursor: pointer;
   white-space: nowrap;
-  color: ${p => (p.$active ? COLORS.WHITE : COLORS.BLACK)};
-  background: ${p => (p.$active ? COLORS.MENU_HIGHLIGHT : 'transparent')};
+  color: ${p =>
+    p.$active ? resolveOSTheme(p.theme).tokens.WHITE : resolveOSTheme(p.theme).tokens.BLACK};
+  background: ${p => (p.$active ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT : 'transparent')};
 
   &:hover {
-    background: ${p => (p.$active ? COLORS.MENU_HIGHLIGHT : COLORS.TREE_ROW_TINT)};
+    background: ${p =>
+      p.$active
+        ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT
+        : resolveOSTheme(p.theme).tokens.TREE_ROW_TINT};
   }
 `;
 
@@ -98,8 +102,8 @@ const Toggle = styled.span<{ $expanded: boolean }>`
   width: 9px;
   height: 9px;
   flex: 0 0 9px;
-  border: 1px solid ${COLORS.BUTTON_SHADOW};
-  background: ${COLORS.WHITE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   margin-right: 4px;
   cursor: pointer;
 
@@ -110,7 +114,7 @@ const Toggle = styled.span<{ $expanded: boolean }>`
     right: 1px;
     top: 3px;
     height: 1px;
-    background: ${COLORS.BLACK};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
   }
 
   &::after {
@@ -120,7 +124,7 @@ const Toggle = styled.span<{ $expanded: boolean }>`
     bottom: 1px;
     left: 3px;
     width: 1px;
-    background: ${p => (p.$expanded ? 'transparent' : COLORS.BLACK)};
+    background: ${p => (p.$expanded ? 'transparent' : resolveOSTheme(p.theme).tokens.BLACK)};
   }
 `;
 

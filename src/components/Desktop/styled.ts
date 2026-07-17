@@ -1,12 +1,12 @@
 import styled from 'styled-components';
-import { COLORS, FONTS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 
 // Desktop styled-components (#163/A — split out of Desktop.tsx).
 
 export const DesktopContainer = styled.div<{ $bgUrl: string }>`
   width: 100%;
   height: 100%;
-  background-color: ${COLORS.DESKTOP_BACKGROUND};
+  background-color: ${({ theme }) => resolveOSTheme(theme).tokens.DESKTOP_BACKGROUND};
   background-image: url(${props => props.$bgUrl});
   background-size: cover;
   background-position: center;
@@ -28,7 +28,7 @@ export const SelectionBox = styled.div<{
   top: ${props => props.$top}px;
   width: ${props => props.$width}px;
   height: ${props => props.$height}px;
-  border: 1px dotted ${COLORS.WHITE};
+  border: 1px dotted ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   background-color: rgba(49, 106, 197, 0.3);
   pointer-events: none;
   z-index: 1000;
@@ -87,7 +87,7 @@ export const DesktopIcon = styled.div<{ $selected?: boolean }>`
 
   .icon-label {
     font-size: 11px;
-    font-family: ${FONTS.UI};
+    font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
     text-align: center;
     max-width: 100%;
     display: block;
@@ -110,7 +110,7 @@ export const DesktopIcon = styled.div<{ $selected?: boolean }>`
     ${props =>
       props.$selected &&
       `
-      color: ${COLORS.WHITE};
+      color: ${resolveOSTheme(props.theme).tokens.WHITE};
       text-shadow: none;
     `}
   }

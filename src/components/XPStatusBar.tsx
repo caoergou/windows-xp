@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /**
  * XP status bar (#78): a row of sunken fields, value-for-value from xp.css's
@@ -16,14 +16,14 @@ export const XPStatusBar = styled.div`
   margin: 0 1px;
   display: flex;
   gap: 1px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
 `;
 
 export const XPStatusBarField = styled.div`
   box-shadow:
-    inset -1px -1px ${COLORS.BUTTON_FACE},
+    inset -1px -1px ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_FACE},
     inset 1px 1px grey;
   flex-grow: 1;
   padding: 2px 3px;

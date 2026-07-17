@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 const BsodContainer = styled.div`
   position: fixed;
@@ -8,9 +8,9 @@ const BsodContainer = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: ${COLORS.BSOD_BLUE};
+  background-color: ${({ theme }) => resolveOSTheme(theme).tokens.BSOD_BLUE};
   color: white;
-  font-family: ${FONTS.CONSOLE};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.CONSOLE};
   font-size: 14px;
   padding: 40px 60px;
   z-index: 2147483647;

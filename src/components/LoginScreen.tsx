@@ -7,7 +7,7 @@ import { sounds } from '../utils/soundManager';
 import { canUseDOM } from '../utils/storage';
 import { useStorage } from '../context/StorageContext';
 import type { LoginBranding } from '../branding';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 interface LoginScreenProps {
   branding?: LoginBranding;
@@ -23,7 +23,7 @@ const Container = styled.div<{ $background?: string }>`
       ? isImageBackground(props.$background)
         ? `background: url("${props.$background}") center / cover no-repeat;`
         : `background: ${props.$background};`
-      : `background-color: ${COLORS.XP_DEEP_BLUE};`}
+      : `background-color: ${resolveOSTheme(props.theme).tokens.XP_DEEP_BLUE};`}
   width: 100%;
   height: 100%;
   display: flex;
@@ -40,13 +40,13 @@ const Content = styled.div`
   width: 60%;
   background: linear-gradient(
     to right,
-    ${COLORS.LOGIN_PANEL_BLUE} 0%,
-    ${COLORS.LOGIN_PANEL_BLUE} 50%,
-    ${COLORS.XP_DEEP_BLUE} 50%,
-    ${COLORS.XP_DEEP_BLUE} 100%
+    ${({ theme }) => resolveOSTheme(theme).tokens.LOGIN_PANEL_BLUE} 0%,
+    ${({ theme }) => resolveOSTheme(theme).tokens.LOGIN_PANEL_BLUE} 50%,
+    ${({ theme }) => resolveOSTheme(theme).tokens.XP_DEEP_BLUE} 50%,
+    ${({ theme }) => resolveOSTheme(theme).tokens.XP_DEEP_BLUE} 100%
   );
-  border-top: 2px solid ${COLORS.LOGIN_DIVIDER_GOLD};
-  border-bottom: 2px solid ${COLORS.LOGIN_DIVIDER_GOLD};
+  border-top: 2px solid ${({ theme }) => resolveOSTheme(theme).tokens.LOGIN_DIVIDER_GOLD};
+  border-bottom: 2px solid ${({ theme }) => resolveOSTheme(theme).tokens.LOGIN_DIVIDER_GOLD};
   padding: 40px;
   border-radius: 0;
 `;
@@ -59,7 +59,7 @@ const Logo = styled.div`
 
   span {
     font-style: italic;
-    color: ${COLORS.LOGIN_ORANGE};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.LOGIN_ORANGE};
     margin-left: 5px;
     font-size: 50px;
   }
@@ -114,7 +114,7 @@ const PasswordBox = styled.div`
 `;
 
 const Input = styled.input`
-  border: 1px solid ${COLORS.GREY_66};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.GREY_66};
   padding: 3px;
   width: 150px;
   outline: none;
@@ -123,10 +123,10 @@ const Input = styled.input`
 const GoButton = styled.button`
   width: 32px;
   height: 28px;
-  background: ${COLORS.LOGIN_GO_GRADIENT};
-  border: 1px solid ${COLORS.LOGIN_GO_BORDER};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.LOGIN_GO_GRADIENT};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.LOGIN_GO_BORDER};
   border-radius: 0;
-  color: ${COLORS.WHITE};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   font-size: 16px;
   font-weight: bold;
   line-height: 1;
@@ -140,7 +140,7 @@ const GoButton = styled.button`
     1px 1px 2px rgba(0, 0, 0, 0.5);
 
   &:active {
-    background: ${COLORS.LOGIN_GO_GRADIENT_HOVER};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.LOGIN_GO_GRADIENT_HOVER};
     box-shadow:
       inset 1px 1px 0 rgba(0, 0, 0, 0.25),
       inset -1px -1px 0 rgba(255, 255, 255, 0.3);
@@ -155,7 +155,7 @@ const ErrorMsg = styled.div`
 `;
 
 const HelpLink = styled.a`
-  color: ${COLORS.LOGIN_GOLD};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.LOGIN_GOLD};
   font-size: 11px;
   text-decoration: none;
   margin-top: 3px;
@@ -184,7 +184,7 @@ const ShutdownButton = styled.button`
   border-radius: 0;
   color: white;
   font-size: 12px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   padding: 4px 10px;
   cursor: pointer;
 

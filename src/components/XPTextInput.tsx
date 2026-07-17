@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /**
  * Canonical Luna text input (#99 / #78), matching xp.css's
@@ -20,12 +20,12 @@ export const XPTextInput = styled.input`
   width: 100%;
   height: 23px;
   padding: 3px 4px;
-  border: 1px solid ${COLORS.FIELD_BORDER};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.FIELD_BORDER};
   border-radius: 0;
-  background: ${COLORS.WHITE};
-  font-family: ${FONTS.UI};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 12px;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
 
   &:focus {
     outline: none;

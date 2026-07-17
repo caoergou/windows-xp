@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getVolume, setVolume, getMuted, setMuted } from '../utils/soundManager';
 import { XPCheckbox } from './XPCheckbox';
 import { xpTrackbarStyles } from '../theme';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 // Real XP's single-click tray popup: a narrow panel with a vertical volume
 // slider and a Mute checkbox at the bottom.
@@ -13,18 +13,18 @@ const Popup = styled.div`
   bottom: calc(100% + 4px);
   right: 0;
   width: 72px;
-  background: ${COLORS.SURFACE};
-  border: 1px solid ${COLORS.BUTTON_BORDER};
-  box-shadow: 2px 2px 0 ${COLORS.BUTTON_SHADOW};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
+  box-shadow: 2px 2px 0 ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   padding: 8px 6px;
   z-index: 30000;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
 `;
 
 const Title = styled.div`

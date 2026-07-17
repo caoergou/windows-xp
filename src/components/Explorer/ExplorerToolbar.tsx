@@ -4,13 +4,13 @@ import styled from 'styled-components';
 import XPIcon from '../XPIcon';
 import type { ExplorerViewMode } from '../../apps/Explorer/types';
 import { EXPLORER_VIEW_MODES } from '../../apps/Explorer/types';
-import { COLORS, FONTS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 
 /* --- Menu bar --- */
 const MenuBar = styled.div`
   height: 20px;
-  background: ${COLORS.SURFACE};
-  border-bottom: 1px solid ${COLORS.DIVIDER_GREY};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
   display: flex;
   align-items: center;
   padding: 0 2px;
@@ -23,17 +23,18 @@ const MenuBarItemWrapper = styled.div`
 const MenuBarItem = styled.button<{ $active?: boolean }>`
   padding: 1px 6px;
   font-size: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   cursor: default;
   border: 1px solid transparent;
-  background: ${p => (p.$active ? COLORS.MENU_HIGHLIGHT : 'transparent')};
-  color: ${p => (p.$active ? COLORS.WHITE : COLORS.BLACK)};
+  background: ${p => (p.$active ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT : 'transparent')};
+  color: ${p =>
+    p.$active ? resolveOSTheme(p.theme).tokens.WHITE : resolveOSTheme(p.theme).tokens.BLACK};
   height: 18px;
 
   &:hover {
-    background: ${COLORS.MENU_HIGHLIGHT};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
     color: white;
-    border-color: ${COLORS.MENU_HIGHLIGHT};
+    border-color: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
   }
 `;
 
@@ -42,8 +43,8 @@ const DropdownMenu = styled.div`
   top: 18px;
   left: 0;
   min-width: 176px;
-  background: ${COLORS.SURFACE};
-  border: 1px solid ${COLORS.BUTTON_SHADOW};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.35);
   padding: 2px;
   z-index: 3000;
@@ -56,30 +57,37 @@ const DropdownItem = styled.button<{ $disabled?: boolean }>`
   padding: 0 22px 0 22px;
   border: 1px solid transparent;
   background: transparent;
-  color: ${p => (p.$disabled ? COLORS.BUTTON_SHADOW : COLORS.BLACK)};
-  font-family: ${FONTS.UI};
+  color: ${p =>
+    p.$disabled
+      ? resolveOSTheme(p.theme).tokens.BUTTON_SHADOW
+      : resolveOSTheme(p.theme).tokens.BLACK};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
   text-align: left;
   white-space: nowrap;
   cursor: ${p => (p.$disabled ? 'default' : 'default')};
 
   &:hover {
-    background: ${p => (p.$disabled ? 'transparent' : COLORS.MENU_HIGHLIGHT)};
-    color: ${p => (p.$disabled ? COLORS.BUTTON_SHADOW : COLORS.WHITE)};
+    background: ${p =>
+      p.$disabled ? 'transparent' : resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};
+    color: ${p =>
+      p.$disabled
+        ? resolveOSTheme(p.theme).tokens.BUTTON_SHADOW
+        : resolveOSTheme(p.theme).tokens.WHITE};
   }
 `;
 
 const DropdownSeparator = styled.div`
   height: 1px;
-  background: ${COLORS.DIVIDER_GREY};
-  border-bottom: 1px solid ${COLORS.WHITE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   margin: 3px 2px;
 `;
 
 /* --- Toolbar --- */
 const ToolbarContainer = styled.div`
   height: 36px;
-  background: ${COLORS.TOOLBAR_GRADIENT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.TOOLBAR_GRADIENT};
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
@@ -95,7 +103,7 @@ const NavBtn = styled.button<{ $disabled?: boolean }>`
   height: 100%;
   padding: 0 4px 0 2px;
   font-size: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   background: transparent;
   border: 1px solid rgba(0, 0, 0, 0);
   border-radius: 3px;
@@ -109,7 +117,8 @@ const NavBtn = styled.button<{ $disabled?: boolean }>`
   }
   &:active {
     border: ${p => (p.$disabled ? '1px solid rgba(0, 0, 0, 0)' : '1px solid rgb(185, 185, 185)')};
-    background-color: ${p => (p.$disabled ? 'transparent' : COLORS.GREY_DE)};
+    background-color: ${p =>
+      p.$disabled ? 'transparent' : resolveOSTheme(p.theme).tokens.GREY_DE};
     box-shadow: ${p => (p.$disabled ? 'none' : 'inset 0 -1px 1px rgba(255, 255, 255, 0.7)')};
 
     & > * {
@@ -120,7 +129,7 @@ const NavBtn = styled.button<{ $disabled?: boolean }>`
 
 const NavLabel = styled.span`
   font-size: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   white-space: nowrap;
 `;
 
@@ -129,7 +138,7 @@ const NavDropArrow = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 7px;
-  color: ${COLORS.GREY_33};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_33};
   padding-left: 2px;
 `;
 
@@ -142,16 +151,16 @@ const ToolBtn = styled.button<{ $disabled?: boolean; $active?: boolean }>`
   height: 100%;
   padding: 0 6px;
   font-size: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   /* Pressed/toggled look (e.g. Folders pane active) — sunken XP toolbar button. */
-  background: ${p => (p.$active ? COLORS.GREY_DE : 'transparent')};
+  background: ${p => (p.$active ? resolveOSTheme(p.theme).tokens.GREY_DE : 'transparent')};
   border: 1px solid ${p => (p.$active ? 'rgb(185, 185, 185)' : 'rgba(0, 0, 0, 0)')};
   box-shadow: ${p => (p.$active ? 'inset 0 -1px 1px rgba(255, 255, 255, 0.7)' : 'none')};
   border-radius: 3px;
   cursor: ${p => (p.$disabled ? 'default' : 'pointer')};
   opacity: ${p => (p.$disabled ? 0.7 : 1)};
   filter: ${p => (p.$disabled ? 'grayscale(1)' : 'none')};
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
   white-space: nowrap;
 
   &:hover {
@@ -160,7 +169,8 @@ const ToolBtn = styled.button<{ $disabled?: boolean; $active?: boolean }>`
   }
   &:active {
     border: ${p => (p.$disabled ? '1px solid rgba(0, 0, 0, 0)' : '1px solid rgb(185, 185, 185)')};
-    background-color: ${p => (p.$disabled ? 'transparent' : COLORS.GREY_DE)};
+    background-color: ${p =>
+      p.$disabled ? 'transparent' : resolveOSTheme(p.theme).tokens.GREY_DE};
     box-shadow: ${p => (p.$disabled ? 'none' : 'inset 0 -1px 1px rgba(255, 255, 255, 0.7)')};
 
     & > * {

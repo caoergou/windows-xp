@@ -5,7 +5,7 @@ import App from '../App';
 import MobileWarning from './MobileWarning';
 import { useViewportScale } from '../hooks/useViewportScale';
 import { ViewportScaleProvider } from '../context/ViewportScaleContext';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 import xpI18n, { NAMESPACE } from '../i18n';
 import { FileSystemProvider, type FileSystemMode } from '../context/FileSystemContext';
 import type { WallpaperItem } from '../data/wallpapers';
@@ -332,7 +332,7 @@ const Letterbox = styled.div<{ $active: boolean }>`
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: ${COLORS.DESKTOP_BACKGROUND};
+    background: ${resolveOSTheme(p.theme).tokens.DESKTOP_BACKGROUND};
   `}
 `;
 
@@ -345,11 +345,11 @@ const RotateHint = styled.div`
   max-width: min(92vw, 360px);
   padding: 7px 12px;
   box-sizing: border-box;
-  background: ${COLORS.SURFACE};
-  border: 1px solid ${COLORS.BUTTON_SHADOW};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   border-radius: 6px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
   line-height: 1.4;
   text-align: center;

@@ -3,12 +3,12 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../XPIcon';
 import { SYSTEM_PATHS, getSystemPathTitle } from '../../data/systemPaths';
-import { COLORS, FONTS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 
 const SidebarContainer = styled.div`
   width: 180px;
   min-width: 180px;
-  background: ${COLORS.SIDEBAR_GRADIENT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SIDEBAR_GRADIENT};
   overflow: auto;
   padding: 10px;
 `;
@@ -39,16 +39,16 @@ const PanelHeader = styled.div`
   );
 
   &:hover .panel-title {
-    color: ${COLORS.SIDEBAR_LINK};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.SIDEBAR_LINK};
   }
 `;
 
 const PanelTitle = styled.div`
   font-weight: 700;
-  color: ${COLORS.SIDEBAR_HEADER_TEXT};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.SIDEBAR_HEADER_TEXT};
   flex: 1;
   font-size: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 `;
 
 const CollapseBtn = styled.img`
@@ -76,12 +76,12 @@ const LinkItem = styled.div<{ $active?: boolean }>`
   cursor: pointer;
   font-size: 10px;
   line-height: 14px;
-  color: ${COLORS.SIDEBAR_HEADER_TEXT};
-  font-family: ${FONTS.UI};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.SIDEBAR_HEADER_TEXT};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 
   &:hover {
     cursor: pointer;
-    color: ${COLORS.SIDEBAR_LINK_HOVER};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.SIDEBAR_LINK_HOVER};
     text-decoration: underline;
   }
 
@@ -97,21 +97,21 @@ const LinkItem = styled.div<{ $active?: boolean }>`
 const DetailText = styled.div`
   padding: 3px 10px 2px 12px;
   font-size: 11px;
-  font-family: ${FONTS.UI};
-  color: ${COLORS.GREY_33};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_33};
   line-height: 1.5;
 `;
 
 const DetailName = styled.div`
   font-weight: bold;
   font-size: 11px;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
   margin-bottom: 1px;
 `;
 
 const DetailType = styled.div`
   font-size: 10px;
-  color: ${COLORS.GREY_66};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_66};
 `;
 
 interface ExplorerSidebarProps {

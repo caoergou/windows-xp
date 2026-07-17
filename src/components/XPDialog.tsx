@@ -4,7 +4,7 @@ import XPIcon from './XPIcon';
 import { XPDialogWindow, XPDialogContent, XPDialogButtonRow } from './XPDialogChrome';
 import { TitleBar } from './Window/WindowChrome';
 import { CloseBtn } from './Window/WindowControls';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /**
  * Standalone, provider-free XP dialog (#78). Unlike XPAlert/XPConfirm (driven by
@@ -36,11 +36,11 @@ const TitleInner = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  color: ${COLORS.WHITE};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   font-weight: bold;
   font-size: 13px;
-  font-family: ${FONTS.TITLEBAR};
-  text-shadow: 1px 1px 1px ${COLORS.BLACK};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.TITLEBAR};
+  text-shadow: 1px 1px 1px ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
