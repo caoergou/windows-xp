@@ -26,6 +26,7 @@ const EvidenceBoard = React.lazy(() => import('../apps/EvidenceBoard'));
 const WindowsMediaPlayer = React.lazy(() => import('../apps/WindowsMediaPlayer'));
 const RecentDocuments = React.lazy(() => import('../apps/RecentDocuments'));
 const PrintersAndFaxes = React.lazy(() => import('../apps/PrintersAndFaxes'));
+const EvidenceReport = React.lazy(() => import('../apps/EvidenceReport'));
 const Thunder = React.lazy(() => import('../apps/Thunder'));
 const BaofengPlayer = React.lazy(() => import('../apps/BaofengPlayer'));
 const KugouMusic = React.lazy(() => import('../apps/KugouMusic'));
@@ -406,6 +407,15 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     // `openApp('EvidenceBoard', { boardId, items })`.
     window: { width: 560, height: 400 },
     restore: restoreApp(EvidenceBoard),
+  },
+  EvidenceReport: {
+    id: 'EvidenceReport',
+    name: 'Evidence Report',
+    nameKey: 'apps.evidenceReport',
+    icon: 'notepad',
+    showInStartMenu: false,
+    window: { width: 600, height: 520 },
+    restore: restoreApp(EvidenceReport),
   },
   Minesweeper: {
     id: 'Minesweeper',

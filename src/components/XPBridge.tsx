@@ -497,6 +497,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
           // Scenario progress (#84) lives under the canonical flags key.
           let flags: Record<string, unknown> = {};
           let mediaSessions: Record<string, { index: number; position: number }> = {};
+          let evidenceReports: Record<string, unknown> = {};
           try {
             const raw = storage.local.getItem(storage.key(SCENARIO_FLAGS_KEY));
             if (raw) flags = JSON.parse(raw);
@@ -508,6 +509,12 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             if (raw) mediaSessions = JSON.parse(raw) as typeof mediaSessions;
           } catch (e) {
             console.warn('[windows-xp] getSnapshot: media sessions parse failed', e);
+          }
+          try {
+            const raw = storage.local.getItem(storage.key('evidence_reports'));
+            if (raw) evidenceReports = JSON.parse(raw) as typeof evidenceReports;
+          } catch (e) {
+            console.warn('[windows-xp] getSnapshot: evidence reports parse failed', e);
           }
           return {
             version: XP_SNAPSHOT_VERSION,
@@ -521,6 +528,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             recentDocuments,
             printJobs: print.jobs,
             mediaSessions,
+            evidenceReports,
           };
         },
 
@@ -552,6 +560,12 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             storage.local.setItem(
               storage.key('wmp_sessions'),
               JSON.stringify(snapshot.mediaSessions)
+            );
+          }
+          if (snapshot.evidenceReports) {
+            storage.local.setItem(
+              storage.key('evidence_reports'),
+              JSON.stringify(snapshot.evidenceReports)
             );
           }
           if (canUseDOM) window.location.reload();

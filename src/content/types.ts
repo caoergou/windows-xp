@@ -25,6 +25,7 @@ import type { RecycleBinItem } from '../utils/storage';
 import type { RecentDocumentEntry } from '../context/RecentDocumentsContext';
 import type { PrinterDefinition, PrintJob } from '../context/PrintSpoolerContext';
 import type { MediaPlaylist } from '../apps/WindowsMediaPlayer';
+import type { EvidenceReportProps } from '../apps/EvidenceReport';
 
 /**
  * A reference to a piece of content. Three sources, one shape — so a `content:`
@@ -115,6 +116,8 @@ export interface ContentPack {
   printJobs?: PrintJob[];
   /** Reusable WMP playlists addressable by id (#277). */
   playlists?: MediaPlaylist[];
+  /** Reusable structured evidence-report definitions (#278). */
+  reports?: EvidenceReportProps[];
   /** The scenario rulebook (#84/#207). */
   scenario?: Scenario;
   /** Per-culture string tables (#207 copy extraction carrier). */

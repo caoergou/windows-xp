@@ -410,6 +410,7 @@
     "cancel": "Cancel"
   },
   "apps": {
+    "evidenceReport": "Evidence Report",
     "recentDocuments": "My Recent Documents",
     "explorer": "Windows Explorer",
     "notepad": "Notepad",
@@ -570,6 +571,24 @@
     "dateModified": "Date Modified",
     "folder": "Folder",
     "file": "File"
+  },
+  "evidenceReport": {
+    "title": "Evidence Report",
+    "confidence": "Confidence",
+    "note": "Notes",
+    "submit": "Submit Report",
+    "confidences": {
+      "proven": "Proven",
+      "probable": "Highly probable",
+      "unconfirmed": "Unconfirmed",
+      "refuted": "Refuted"
+    },
+    "results": {
+      "supported": "Supported by the cited evidence",
+      "under-supported": "Direction plausible, evidence insufficient",
+      "conflicted": "The cited evidence conflicts",
+      "unknown": "Not established"
+    }
   },
   "print": {
     "document": "Document Name",

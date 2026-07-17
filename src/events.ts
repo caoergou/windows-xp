@@ -175,6 +175,19 @@ export type XPEventBody =
   | { type: 'deduction:verified'; formId: string; groups?: string[] }
   /** A submitted deduction was rejected; `groups` names the slot-groups that failed. */
   | { type: 'deduction:failed'; formId: string; groups?: string[] }
+  /** A structured evidence report was submitted with confidence and evidence citations. */
+  | {
+      type: 'deduction:report-submit';
+      reportId: string;
+      submission: import('./apps/EvidenceReport/logic').ReportSubmission;
+    }
+  /** One report claim was judged without exposing slot-by-slot solution details. */
+  | {
+      type: 'deduction:claim-result';
+      reportId: string;
+      claimId: string;
+      result: import('./apps/EvidenceReport/logic').ClaimResult;
+    }
   // ── lesson: guided-tutorial lifecycle (#141) ─────────────────────────────────
   /** A guided lesson started. */
   | { type: 'lesson:start'; lessonId: string }

@@ -494,6 +494,15 @@ export type { DeductionSheetProps } from '../apps/DeductionSheet';
 export { demoDeduction } from '../data/scenarios/deductionDemo';
 export type { EvidenceBoardProps, EvidenceItem } from '../apps/EvidenceBoard';
 export { demoEvidence } from '../data/scenarios/evidenceDemo';
+export type { EvidenceReportProps } from '../apps/EvidenceReport';
+export type {
+  Confidence,
+  ClaimResult,
+  ReportClaim,
+  ClaimSubmission,
+  ReportSubmission,
+} from '../apps/EvidenceReport/logic';
+export { judgeClaim, judgeReport } from '../apps/EvidenceReport/logic';
 export type {
   WindowsMediaPlayerProps,
   MediaPlaylist,

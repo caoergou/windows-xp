@@ -68,6 +68,17 @@ const condition = {
     }),
     objectCase(['searched'], { searched: { type: 'string' } }),
     objectCase(['found'], { found: { type: 'string' } }),
+    objectCase(['reportClaim'], {
+      reportClaim: objectCase(
+        ['reportId', 'claimId'],
+        {
+          reportId: { type: 'string' },
+          claimId: { type: 'string' },
+          result: { enum: ['supported', 'under-supported', 'conflicted', 'unknown'] },
+        },
+        false
+      ),
+    }),
   ],
 };
 

@@ -18,6 +18,9 @@ export interface EvidenceItem {
   id: string;
   label: string;
   icon?: string;
+  sourcePath?: string[];
+  sourceUrl?: string;
+  app?: { appId: string; props?: Record<string, unknown> };
 }
 
 export interface EvidenceBoardProps {

@@ -105,6 +105,18 @@ export const evaluateCondition = (condition: Condition | undefined, ctx: EvalCon
   }
   if ('searched' in condition) return wasSearched(ctx.journal, condition.searched);
   if ('found' in condition) return wasFound(ctx.journal, condition.found);
+  if ('reportClaim' in condition) {
+    const expected = condition.reportClaim;
+    return [...ctx.journal]
+      .reverse()
+      .some(
+        event =>
+          event.type === 'deduction:claim-result' &&
+          event.reportId === expected.reportId &&
+          event.claimId === expected.claimId &&
+          (expected.result === undefined || event.result === expected.result)
+      );
+  }
 
   return false;
 };

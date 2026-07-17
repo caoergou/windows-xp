@@ -67,7 +67,15 @@ export type Condition =
   /** Search-oracle predicate: a `search:query` was run whose query contains `searched` (case-insensitive substring). */
   | { searched: string }
   /** Search-oracle predicate: a `search:query` surfaced the result `found` (its id appeared in `resultIds`). */
-  | { found: string };
+  | { found: string }
+  /** Evidence-report predicate over the latest stable per-claim result event (#278). */
+  | {
+      reportClaim: {
+        reportId: string;
+        claimId: string;
+        result?: import('../apps/EvidenceReport/logic').ClaimResult;
+      };
+    };
 
 /**
  * An action executed when a trigger fires and its condition holds. Each maps to

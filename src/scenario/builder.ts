@@ -47,6 +47,11 @@ export const pinned = (itemId: string): Condition => ({ pinned: itemId });
 export const linked = (a: string, b: string): Condition => ({ linked: { a, b } });
 export const searched = (term: string): Condition => ({ searched: term });
 export const found = (resultId: string): Condition => ({ found: resultId });
+export const reportClaim = (
+  reportId: string,
+  claimId: string,
+  result?: import('../apps/EvidenceReport/logic').ClaimResult
+): Condition => ({ reportClaim: { reportId, claimId, ...(result ? { result } : {}) } });
 
 // ── action helpers ───────────────────────────────────────────────────────────
 export const setFlag = (name: string, value?: FlagValue): Action => ({

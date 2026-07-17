@@ -104,6 +104,19 @@
         }
       }
     },
+    "reports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["reportId"],
+        "additionalProperties": true,
+        "properties": {
+          "reportId": { "type": "string", "minLength": 1 },
+          "claims": { "type": "array" },
+          "evidence": { "type": "array" }
+        }
+      }
+    },
     "scenario": {
       "type": "object",
       "description": "The scenario rulebook (#84/#207). See docs/SCENARIOS.md for its schema."

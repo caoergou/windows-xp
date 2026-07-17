@@ -16,6 +16,7 @@ import React, { createContext, useContext, useMemo } from 'react';
 import type { ContentPack, ContentRef, PackStrings, SiteDef } from '../content/types';
 import type { FileNode } from '../types';
 import type { MediaPlaylist } from '../apps/WindowsMediaPlayer';
+import type { EvidenceReportProps } from '../apps/EvidenceReport';
 import { mergeContentPacks } from '../content/pack';
 import {
   createContentResolver,
@@ -37,6 +38,8 @@ export interface ContentPackContextValue {
   files: Record<string, FileNode>;
   /** Data-driven WMP playlists. */
   playlists: MediaPlaylist[];
+  /** Data-driven structured report definitions. */
+  reports: EvidenceReportProps[];
   /** Merged per-culture string tables. */
   strings: PackStrings;
   /** Resolver bound to the merged assets + this instance's storage cache. */
@@ -49,6 +52,7 @@ const EMPTY: ContentPackContextValue = {
   sites: {},
   files: {},
   playlists: [],
+  reports: [],
   strings: {},
   resolver: createContentResolver({ cache: memoryContentCache() }),
 };

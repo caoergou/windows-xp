@@ -447,6 +447,25 @@
           "required": ["found"],
           "properties": { "found": { "type": "string" } },
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["reportClaim"],
+          "properties": {
+            "reportClaim": {
+              "type": "object",
+              "required": ["reportId", "claimId"],
+              "properties": {
+                "reportId": { "type": "string" },
+                "claimId": { "type": "string" },
+                "result": {
+                  "enum": ["supported", "under-supported", "conflicted", "unknown"]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
         }
       ]
     },

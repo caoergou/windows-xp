@@ -40,6 +40,8 @@ export interface XPSnapshot {
   printJobs?: PrintJob[];
   /** Per-playlist track index and playhead; audio never auto-resumes (#277). */
   mediaSessions?: Record<string, { index: number; position: number }>;
+  /** Evidence report drafts and review state (#278). */
+  evidenceReports?: Record<string, unknown>;
 }
 
 /** Base class for any reason a snapshot cannot be loaded (#208). */
@@ -198,5 +200,8 @@ export function assertLoadableSnapshot(value: unknown): asserts value is XPSnaps
   }
   if (snap.mediaSessions !== undefined && !isPlainObject(snap.mediaSessions)) {
     throw new XPSnapshotError('mediaSessions: expected an object.');
+  }
+  if (snap.evidenceReports !== undefined && !isPlainObject(snap.evidenceReports)) {
+    throw new XPSnapshotError('evidenceReports: expected an object.');
   }
 }
