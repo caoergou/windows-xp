@@ -39,6 +39,9 @@ export default defineConfig({
     }),
   ],
   publicDir: false,
+  // `.cur` cursor files are JS-imported by the theme's chrome sheet
+  // (src/themes/xp/chromeCss.ts, #213 B1) — not a Vite built-in asset type.
+  assetsInclude: ['**/*.cur'],
   css: {
     postcss: {
       plugins: [xpCssScopePlugin()],

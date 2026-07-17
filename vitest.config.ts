@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  // `.cur` cursor files are JS-imported by the theme's chrome sheet
+  // (src/themes/xp/chromeCss.ts, #213 B1) — not a Vite built-in asset type.
+  assetsInclude: ['**/*.cur'],
   server: {
     watch: {
       ignored: ['**/xp-research/**'],

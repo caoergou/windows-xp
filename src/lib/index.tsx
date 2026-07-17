@@ -16,9 +16,7 @@ import type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 import type { ClockConfig } from '../context/ClockContext';
 import type { PowerSequence } from '../context/PowerTransitionContext';
 import '../i18n';
-import 'xp.css/dist/XP.css';
 import '../scoped.css';
-import '../themes/xp/xp-chrome.css';
 
 export interface WindowsXPProps {
   /** Default username for the login screen. */
@@ -338,6 +336,7 @@ export { useApp } from '../hooks/useApp';
 // #213 B1 — OS theme seam: the XP theme, its contract, and the runtime accessor.
 export { xpTheme } from '../themes/xp';
 export { useOSTheme } from '../themes/useOSTheme';
+export { mountThemeCss } from '../themes/mountThemeCss';
 export type { OSTheme } from '../themes/contract';
 
 // Re-export commonly used types.

@@ -1,27 +1,45 @@
-/*
- * XP-specific slice of the scoped stylesheet (#213, split out of src/scoped.css
- * per the THEMING.md follow-up): the Tahoma webfont, the authentic .cur cursor
- * set and XP's focus/click affordances. Imported by the same entries that mount
- * xp.css; a future theme ships a sibling sheet of the same shape while
- * src/scoped.css stays theme-agnostic scaffold.
+/**
+ * XP's chrome sheet as a theme-carried CSS string (#213 B1): the Tahoma
+ * webfont, the authentic .cur cursor set and XP's focus/click affordances.
+ * This is the former `xp-chrome.css`, converted to a module so every asset
+ * reference goes through the bundler's asset pipeline (hashed files in the
+ * site build, extracted files under `dist/assets/` in the lib build) instead
+ * of a stylesheet-relative `url()` that would break once the sheet is mounted
+ * as a runtime string via `OSTheme.css` + `mountThemeCss`.
  */
+import tahomaWoff from './assets/fonts/Tahoma.woff';
+import tahomaBoldWoff from './assets/fonts/Tahoma-Bold.woff';
+import cursorArrow from './assets/cursors/arrow_r.cur';
+import cursorHandArrow from './assets/cursors/harrow.cur';
+import cursorBeam from './assets/cursors/beam_r.cur';
+import cursorHelp from './assets/cursors/help_r.cur';
+import cursorBusy from './assets/cursors/busy_r.cur';
+import cursorWait from './assets/cursors/wait_r.cur';
+import cursorMove from './assets/cursors/move_r.cur';
+import cursorNo from './assets/cursors/no_r.cur';
+import cursorCross from './assets/cursors/cross_r.cur';
+import cursorSizeNesw from './assets/cursors/size1_r.cur';
+import cursorSizeNwse from './assets/cursors/size2_r.cur';
+import cursorSizeEw from './assets/cursors/size3_r.cur';
+import cursorSizeNs from './assets/cursors/size4_r.cur';
 
+export const XP_CHROME_CSS = `
 @font-face {
   font-family: 'Tahoma';
-  src: url('./assets/fonts/Tahoma.woff') format('woff');
+  src: url('${tahomaWoff}') format('woff');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Tahoma';
-  src: url('./assets/fonts/Tahoma-Bold.woff') format('woff');
+  src: url('${tahomaBoldWoff}') format('woff');
   font-weight: bold;
   font-style: normal;
 }
 
 /*
- * XP.css (already imported in the same entries) provides
+ * XP.css (mounted beside this sheet in the same theme css) provides
  * "Pixelated MS Sans Serif" and "Perfect DOS VGA 437 Win" webfonts.
  * We reference those families here and keep system fallbacks for CJK glyphs.
  * XP's default UI font was Tahoma (or MS Sans Serif in earlier builds).
@@ -36,7 +54,7 @@
 /* Windows XP authentic cursor set from src/themes/xp/assets/cursors/. */
 .windows-xp-root,
 .windows-xp-portal {
-  cursor: url('./assets/cursors/arrow_r.cur'), default;
+  cursor: url('${cursorArrow}'), default;
 }
 
 /*
@@ -85,7 +103,7 @@
 .windows-xp-portal button,
 .windows-xp-portal [role='button'],
 .windows-xp-portal .xp-clickable {
-  cursor: url('./assets/cursors/arrow_r.cur'), default;
+  cursor: url('${cursorArrow}'), default;
 }
 
 .windows-xp-root a[href],
@@ -93,7 +111,7 @@
 .windows-xp-portal a[href],
 .windows-xp-portal .xp-link {
   cursor:
-    url('./assets/cursors/harrow.cur') 12 1,
+    url('${cursorHandArrow}') 12 1,
     pointer !important;
 }
 
@@ -117,71 +135,72 @@
 .windows-xp-portal input[type='number'],
 .windows-xp-portal textarea,
 .windows-xp-portal [contenteditable]:not([contenteditable='false']) {
-  cursor: url('./assets/cursors/beam_r.cur'), text !important;
+  cursor: url('${cursorBeam}'), text !important;
 }
 
 .windows-xp-root .xp-help,
 .windows-xp-portal .xp-help {
-  cursor: url('./assets/cursors/help_r.cur'), help !important;
+  cursor: url('${cursorHelp}'), help !important;
 }
 .windows-xp-root .xp-busy,
 .windows-xp-root .xp-busy *,
 .windows-xp-portal .xp-busy,
 .windows-xp-portal .xp-busy * {
-  cursor: url('./assets/cursors/busy_r.cur'), wait !important;
+  cursor: url('${cursorBusy}'), wait !important;
 }
 .windows-xp-root .xp-progress,
 .windows-xp-root .xp-progress *,
 .windows-xp-portal .xp-progress,
 .windows-xp-portal .xp-progress * {
-  cursor: url('./assets/cursors/wait_r.cur'), progress !important;
+  cursor: url('${cursorWait}'), progress !important;
 }
 .windows-xp-root .xp-move,
 .windows-xp-root .xp-move *,
 .windows-xp-portal .xp-move,
 .windows-xp-portal .xp-move * {
-  cursor: url('./assets/cursors/move_r.cur'), move !important;
+  cursor: url('${cursorMove}'), move !important;
 }
 .windows-xp-root .xp-not-allowed,
 .windows-xp-portal .xp-not-allowed {
-  cursor: url('./assets/cursors/no_r.cur'), not-allowed !important;
+  cursor: url('${cursorNo}'), not-allowed !important;
 }
 .windows-xp-root .xp-crosshair,
 .windows-xp-portal .xp-crosshair {
-  cursor: url('./assets/cursors/cross_r.cur'), crosshair !important;
+  cursor: url('${cursorCross}'), crosshair !important;
 }
 
 .windows-xp-root .resize-nesw {
-  cursor: url('./assets/cursors/size1_r.cur'), nesw-resize !important;
+  cursor: url('${cursorSizeNesw}'), nesw-resize !important;
 }
 .windows-xp-root .resize-nwse {
-  cursor: url('./assets/cursors/size2_r.cur'), nwse-resize !important;
+  cursor: url('${cursorSizeNwse}'), nwse-resize !important;
 }
 .windows-xp-root .resize-ew {
-  cursor: url('./assets/cursors/size3_r.cur'), ew-resize !important;
+  cursor: url('${cursorSizeEw}'), ew-resize !important;
 }
 .windows-xp-root .resize-ns {
-  cursor: url('./assets/cursors/size4_r.cur'), ns-resize !important;
+  cursor: url('${cursorSizeNs}'), ns-resize !important;
 }
 
 /* react-resizable handles: geometry lives in the scaffold (src/scoped.css);
    only the XP resize pointers are assigned here. */
 .windows-xp-root .react-resizable-handle-n,
 .windows-xp-root .react-resizable-handle-s {
-  cursor: url('./assets/cursors/size4_r.cur'), ns-resize !important;
+  cursor: url('${cursorSizeNs}'), ns-resize !important;
 }
 
 .windows-xp-root .react-resizable-handle-e,
 .windows-xp-root .react-resizable-handle-w {
-  cursor: url('./assets/cursors/size3_r.cur'), ew-resize !important;
+  cursor: url('${cursorSizeEw}'), ew-resize !important;
 }
 
 .windows-xp-root .react-resizable-handle-ne,
 .windows-xp-root .react-resizable-handle-sw {
-  cursor: url('./assets/cursors/size1_r.cur'), nesw-resize !important;
+  cursor: url('${cursorSizeNesw}'), nesw-resize !important;
 }
 
 .windows-xp-root .react-resizable-handle-nw,
 .windows-xp-root .react-resizable-handle-se {
-  cursor: url('./assets/cursors/size2_r.cur'), nwse-resize !important;
+  cursor: url('${cursorSizeNwse}'), nwse-resize !important;
 }
+`;

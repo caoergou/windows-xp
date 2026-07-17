@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import App from '../App';
@@ -45,6 +45,7 @@ import type { DeepLinkRoutes } from '../utils/deepLink';
 import { XPEventBus } from '../events';
 import { registerSounds } from '../utils/soundManager';
 import { xpTheme } from '../themes/xp';
+import { mountThemeCss } from '../themes/mountThemeCss';
 import type { OSTheme } from '../themes/contract';
 import type { XPEventListener } from '../events';
 import { setStoragePrefix, type PersistenceMode } from '../utils/storage';
@@ -431,6 +432,12 @@ export const AppProviders: React.FC<AppProvidersProps> = ({
   // (boot chime included) can play. The engine's soundManager still binds no
   // audio itself; app sounds (QQ) self-register from their own package.
   useMemo(() => registerSounds(theme.sounds), [theme]);
+
+  // Mount the active theme's skin sheet (`OSTheme.css`, #213 B1) — the skin
+  // follows the selected theme instead of being statically imported by the
+  // entries. Layout effect so the sheet is in place before first paint;
+  // `mountThemeCss` refcounts shared tags and removes the last one on unmount.
+  useLayoutEffect(() => mountThemeCss(theme), [theme]);
 
   const rootStyle: React.CSSProperties = viewport.active
     ? {

@@ -2,7 +2,6 @@ import ReactDOM from 'react-dom/client';
 import { AppProviders } from '../components/AppProviders';
 import type { BootBranding, LoginBranding } from '../branding';
 import '../i18n';
-import 'xp.css/dist/XP.css';
 import '../index.css';
 import { referenceContentPack } from '../data/referencePack';
 

@@ -1,18 +1,20 @@
 # Theme layer (`src/themes/`)
 
-Status: **Phase ①+ / B1 seam — the asset/style level is fully consolidated
-behind the contract (#213), AND the theme is now selectable at runtime.** XP is
-the only theme, and shipping a second one (Win7 / macOS / custom) is still a
-non-goal; but every _asset-level_ XP-specific element — colours, fonts, icons,
-cursors, sounds, the XP slice of the scoped stylesheet — now lives inside
-`src/themes/xp/` and reaches the rest of the code only through this layer's
-exports or runtime registration. On top of that, **B1 (#213)** wires the
-runtime selection seam: a `theme?: OSTheme` prop (default `xpTheme`) is injected
-through a styled-components `ThemeProvider`, the active theme's sound scheme is
-registered from it, and `useOSTheme()` / `props.theme` expose it to consumers.
-The remaining XP coupling is _structural_ (chrome slots, behavior profile,
-menus-as-data — #143 Phase B proper) plus the per-directory `COLORS`/`FONTS`
-consumer codemod onto `props.theme` (below), not asset-level.
+Status: **Phase ①+ / B1 done — the asset/style level is fully consolidated
+behind the contract (#213), the theme is selectable at runtime, and the skin
+itself is theme-carried.** XP is the only theme, and shipping a second one
+(Win7 / macOS / custom) is still a non-goal; but every _asset-level_
+XP-specific element — colours, fonts, icons, cursors, sounds, and the whole
+skin sheet (xp.css + chrome sheet) — now lives inside `src/themes/xp/` and
+reaches the rest of the code only through this layer's exports or runtime
+registration. On top of that, **B1 (#213)** wires the runtime selection seam:
+a `theme?: OSTheme` prop (default `xpTheme`) is injected through a
+styled-components `ThemeProvider`, the active theme's sound scheme and skin
+sheet are mounted from it, and `useOSTheme()` / `props.theme` expose it to
+consumers — every former static `COLORS`/`FONTS` consumer now reads the theme
+this way (codemod finished; the `src/constants.ts` re-export is gone). The
+remaining XP coupling is _structural_ (chrome slots, behavior profile,
+menus-as-data — #143 Phase B proper), not asset-level.
 
 ## The runtime seam (B1, #213)
 
@@ -33,11 +35,14 @@ consumer codemod onto `props.theme` (below), not asset-level.
 - **Sounds follow the theme**: the old module-level `registerSounds(XP_SOUNDS)`
   is replaced by `registerSounds(theme.sounds)` at the composition root, so the
   scheme swaps with the theme. App-owned sounds (QQ) still self-register.
-- **Follow-up (incremental, zero-diff per step)**: components still read the
-  static `COLORS` / `FONTS` re-exports. Migrating each directory to theme
-  context is the remaining B1 codemod — done a directory at a time with a
-  pixel-identical screenshot gate, until only the theme layer imports the
-  static tokens. **Every theme read must go through `resolveOSTheme()`**
+- **The skin follows the theme**: `OSTheme.css` carries the theme's sheet as a
+  string (XP packs the postcss-scoped xp.css via `?inline` + its chrome sheet
+  from `chromeCss.ts`). `AppProviders` mounts it into `<head>` at runtime via
+  `mountThemeCss(theme)` (layout effect, refcounted per theme id, removed on
+  last unmount) — entries no longer `import 'xp.css/dist/XP.css'`. Entries that
+  render without providers (the gallery) and bare `/apps`/`/components`
+  consumers call `mountThemeCss(xpTheme)` from their own bootstrap instead.
+- **Every theme read goes through `resolveOSTheme()`**
   (`src/themes/useOSTheme.ts`): bare renders of the public `/apps` and
   `/components` subpaths have no `ThemeProvider` above them, and an
   unguarded `theme.tokens` read crashes there — a breaking change for
@@ -63,14 +68,16 @@ is **consolidation behind a contract**, not untangling.
 src/themes/
   contract.ts        # OSTheme — the abstraction a theme fills
   index.ts           # barrel: contract types + xpTheme
+  useOSTheme.ts      # useOSTheme() / resolveOSTheme() — the runtime accessor (+ bare-render fallback)
+  mountThemeCss.ts   # mounts OSTheme.css into <head> (refcounted per theme id)
   xp/
-    index.ts         # xpTheme: OSTheme
-    tokens.ts        # COLORS + FONTS (re-exported by src/constants.ts for back-compat)
+    index.ts         # xpTheme: OSTheme (css = scoped xp.css `?inline` + XP_CHROME_CSS)
+    tokens.ts        # COLORS + FONTS (public outlet: the `./theme` subpath)
     styles.ts        # xpButtonStyles/… (re-exported by src/theme/index.ts)
-    icons.ts         # XP_ICONS: icon name → URL (consumed by XPIcon; #213)
+    icons.ts         # XP_ICONS: icon name → URL (consumed via theme.assets.icons; #213)
     sounds.ts        # XP_SOUNDS: sound name → URL (registered at the composition root; #213)
-    xp-chrome.css    # XP slice of the scoped stylesheet: Tahoma @font-face,
-                     #   .cur cursor set, XP focus affordances (#213)
+    chromeCss.ts     # XP_CHROME_CSS: the XP chrome sheet as a string — Tahoma
+                     #   @font-face, .cur cursor set, XP focus affordances (#213 B1)
     assets/
       index.ts       # XP_ASSETS registry (windowControls / startButton / icons)
       window-controls/*.png   # Luna min/max/restore/close button states
@@ -86,7 +93,7 @@ live **beside** the registry under `src/themes/xp/assets/`, not in the shared
 `src/assets/` tree, so the theme is a self-contained package. A second theme
 ships its own `assets/` folder of the same shape.
 
-`OSTheme` = `{ id, name, tokens, fonts, assets, styles, sounds, chrome? }`:
+`OSTheme` = `{ id, name, tokens, fonts, assets, styles, sounds, css?, chrome? }`:
 
 - **`tokens`** — colours, gradients and chrome dimensions (the XP set is
   `COLORS`, ~130 entries). Groups: core chrome (surface/highlight/borders),
@@ -99,7 +106,7 @@ ships its own `assets/` folder of the same shape.
   `src/themes/xp/tokens.ts` is the canonical list — this doc names the groups
   so the list can't drift.
 - **`fonts`** — the font stacks (STY-03): `UI`, `TITLEBAR`, `CLASSIC`, `MONO`,
-  `EDITOR`, `CONSOLE`, `BOOT`. Exported via `src/theme` and `src/constants`.
+  `EDITOR`, `CONSOLE`, `BOOT`. Public outlet: the `./theme` subpath.
 - **`assets`** — the image registry: window controls, Start button, and the
   full icon name→URL map (`XP_ICONS`) that `XPIcon` resolves against — so
   `icon: 'folder'` never knows which OS look is installed.
@@ -110,6 +117,15 @@ ships its own `assets/` folder of the same shape.
   `registerSounds(theme.sounds)` for the active theme at startup (B1, #213);
   app-owned sounds (QQ) register themselves from their own package
   (`src/apps/QQ/sounds.ts`).
+- **`css?`** — the theme's skin sheet as one string, mounted into `<head>` by
+  the composition root via `mountThemeCss` (#213 B1). XP packs the postcss-scoped
+  xp.css table (imported `?inline` so `vite.xp-css-scope.ts` still applies)
+  plus `XP_CHROME_CSS` (Tahoma webfont, `.cur` cursors, focus affordances —
+  asset URLs are JS imports, so the lib build keeps extracting them to
+  `dist/assets/`). `dist/style.css` consequently shrinks to the neutral
+  scaffold (`scoped.css`); consumers importing it are unaffected, and bare
+  `/apps` renders that previously relied on `style.css` for the skin should
+  call `mountThemeCss(xpTheme)` from their entry.
 - **`chrome?`** — the _shape_ of the window/taskbar/menu component slots. Left
   unpopulated: XP wires its chrome directly, and authoring real alternate chrome
   (Aero glass, macOS traffic lights, a dock) is the large tail that only pays off
@@ -141,6 +157,13 @@ inline hexes outside a block still count against the zero baseline).
 - Inline hexes are **zero** outside the two sanctioned stores (`HEX_BASELINE = 0`):
   the theme token layer (`src/themes/`, ratchet-exempt — colour literals are
   the _point_ of this layer) and declared brand-palette blocks (above).
+- xp.css is imported only by the theme layer (`src/themes/`, as an `?inline`
+  string feeding `OSTheme.css`) — entries mount the skin at runtime, they never
+  hardcode it.
+- Apps / components / devtools never import `themes/xp` directly (#213 B1
+  end-state): XP reaches them only through the theme context / contract. The
+  single allow-listed exception is the composition root (`AppProviders`), which
+  binds the default OS package until the engine/os-xp package split (#143/B5).
 
 ## De-hardcoding: done (#213)
 
@@ -152,10 +175,6 @@ second theme still cannot change is layout/behavior (below).
 
 ## Known follow-ups
 
-- **Consumer codemod (B1 tail)**: migrate each `src/` directory's static
-  `COLORS` / `FONTS` reads to `props.theme.tokens` / `useOSTheme()`, one
-  directory at a time behind a zero-diff screenshot gate, until only the theme
-  layer imports the static tokens. The seam is in place; this pays it off.
 - **Chrome slots**: populate `OSTheme.chrome` and select chrome by theme — only
   meaningful with a real second theme (#143 Phase B).
 - **BehaviorProfile / menus-as-data / app roles**: the structural

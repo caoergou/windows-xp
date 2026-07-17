@@ -1,9 +1,10 @@
 @import './scoped.css';
-@import './themes/xp/xp-chrome.css';
 
 /* Demo-specific global rules: make the host page fill the viewport.
  * When embedding <WindowsXP /> into an existing app, import scoped.css
- * instead of index.css to avoid these global resets. */
+ * instead of index.css to avoid these global resets. The XP skin itself
+ * (xp.css + the theme's chrome sheet) is mounted at runtime from
+ * `OSTheme.css` by the composition root (#213 B1). */
 html,
 body,
 #root {

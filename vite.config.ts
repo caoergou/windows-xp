@@ -14,6 +14,9 @@ import pkg from './package.json';
 export default defineConfig({
   plugins: [react()],
   base: '/windows-xp/',
+  // `.cur` cursor files are JS-imported by the theme's chrome sheet
+  // (src/themes/xp/chromeCss.ts, #213 B1) — not a Vite built-in asset type.
+  assetsInclude: ['**/*.cur'],
   define: {
     // Real installable version for the landing page's install pill (#250) —
     // sourced from package.json at build time so it can't drift.

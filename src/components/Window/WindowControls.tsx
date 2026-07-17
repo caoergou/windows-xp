@@ -1,9 +1,17 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { type DefaultTheme } from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { XP_ASSETS } from '../../themes/xp/assets';
+import { resolveOSTheme } from '../../themes/useOSTheme';
+import type { ButtonStateImages } from '../../themes/contract';
 
-const { minimize, maximize, restore, close } = XP_ASSETS.windowControls;
+const controlImages = (theme: DefaultTheme, key: 'minimize' | 'maximize' | 'restore' | 'close') =>
+  resolveOSTheme(theme).assets.windowControls[key];
+
+const controlAttrs =
+  (key: 'minimize' | 'maximize' | 'restore' | 'close') => (props: { theme: DefaultTheme }) => {
+    const images: ButtonStateImages = controlImages(props.theme, key);
+    return { $normal: images.normal, $hover: images.hover, $active: images.active };
+  };
 
 export const TitleControls = styled.div<{ $isFocus?: boolean }>`
   opacity: ${({ $isFocus }) => ($isFocus ? 1 : 0.6)};
@@ -60,29 +68,13 @@ const ImageWindowControl = styled(BaseButton)<{
   }
 `;
 
-export const MinimizeBtn = styled(ImageWindowControl).attrs({
-  $normal: minimize.normal,
-  $hover: minimize.hover,
-  $active: minimize.active,
-})``;
+export const MinimizeBtn = styled(ImageWindowControl).attrs(controlAttrs('minimize'))``;
 
-export const MaximizeBtn = styled(ImageWindowControl).attrs({
-  $normal: maximize.normal,
-  $hover: maximize.hover,
-  $active: maximize.active,
-})``;
+export const MaximizeBtn = styled(ImageWindowControl).attrs(controlAttrs('maximize'))``;
 
-export const RestoreBtn = styled(ImageWindowControl).attrs({
-  $normal: restore.normal,
-  $hover: restore.hover,
-  $active: restore.active,
-})``;
+export const RestoreBtn = styled(ImageWindowControl).attrs(controlAttrs('restore'))``;
 
-export const CloseBtn = styled(ImageWindowControl).attrs({
-  $normal: close.normal,
-  $hover: close.hover,
-  $active: close.active,
-})`
+export const CloseBtn = styled(ImageWindowControl).attrs(controlAttrs('close'))`
   margin-right: 0;
 `;
 
