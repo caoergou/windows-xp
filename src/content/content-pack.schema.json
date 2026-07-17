@@ -27,6 +27,33 @@
       "description": "customFileSystem fragment. File nodes may carry `contentRef` in place of inline `content`.",
       "additionalProperties": true
     },
+    "recycleBin": {
+      "type": "object",
+      "description": "Authored Recycle Bin records with stable paths and deletion times.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["item", "originalPath", "deletedAt"],
+        "properties": {
+          "item": { "type": "object" },
+          "originalPath": { "type": "array", "items": { "type": "string" } },
+          "originalName": { "type": "string" },
+          "deletedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "recentDocuments": {
+      "type": "array",
+      "description": "Historical MRU entries merged with runtime file opens.",
+      "items": {
+        "type": "object",
+        "required": ["path", "openedAt"],
+        "properties": {
+          "path": { "type": "array", "items": { "type": "string" } },
+          "openedAt": { "type": "string", "format": "date-time" },
+          "source": { "enum": ["seeded", "runtime"] }
+        }
+      }
+    },
     "scenario": {
       "type": "object",
       "description": "The scenario rulebook (#84/#207). See docs/SCENARIOS.md for its schema."

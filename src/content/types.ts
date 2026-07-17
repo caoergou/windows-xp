@@ -21,6 +21,8 @@
  */
 import type { FileNode } from '../types';
 import type { Scenario } from '../scenario/types';
+import type { RecycleBinItem } from '../utils/storage';
+import type { RecentDocumentEntry } from '../context/RecentDocumentsContext';
 
 /**
  * A reference to a piece of content. Three sources, one shape — so a `content:`
@@ -102,6 +104,10 @@ export interface ContentPack {
   sites?: Record<string, SiteDef>;
   /** `customFileSystem` fragment; file nodes may carry a `contentRef`. */
   files?: Record<string, FileNode>;
+  /** Authored Recycle Bin records with deterministic deletion metadata (#282). */
+  recycleBin?: Record<string, RecycleBinItem>;
+  /** Authored historical MRU entries merged with runtime opens (#282). */
+  recentDocuments?: RecentDocumentEntry[];
   /** The scenario rulebook (#84/#207). */
   scenario?: Scenario;
   /** Per-culture string tables (#207 copy extraction carrier). */

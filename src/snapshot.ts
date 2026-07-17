@@ -11,6 +11,7 @@
 import type { FileNode } from './types';
 import type { RecycleBinItem } from './utils/storage';
 import type { ClockSnapshot } from './context/ClockContext';
+import type { RecentDocumentEntry } from './context/RecentDocumentsContext';
 
 /** Current snapshot format version. Bump on breaking schema changes. */
 export const XP_SNAPSHOT_VERSION = 1;
@@ -32,6 +33,8 @@ export interface XPSnapshot {
   flags: Record<string, unknown>;
   /** Instance-local virtual wall-clock state (#275). */
   clock?: ClockSnapshot;
+  /** Seeded and runtime recent-document history (#282). */
+  recentDocuments?: RecentDocumentEntry[];
 }
 
 /** Base class for any reason a snapshot cannot be loaded (#208). */
@@ -181,5 +184,8 @@ export function assertLoadableSnapshot(value: unknown): asserts value is XPSnaps
     ) {
       throw new XPSnapshotError('clock: invalid epoch or mode.');
     }
+  }
+  if (snap.recentDocuments !== undefined && !Array.isArray(snap.recentDocuments)) {
+    throw new XPSnapshotError('recentDocuments: expected an array.');
   }
 }

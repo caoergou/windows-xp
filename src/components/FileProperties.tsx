@@ -153,7 +153,8 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
       ? t('fileProperties.objectCount', { count: properties.childCount })
       : t('fileProperties.bytes', { count: properties.sizeBytes })
     : '';
-  const formatDate = (iso: string) => {
+  const formatDate = (iso: string | null) => {
+    if (!iso) return t('fileProperties.unknown');
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return iso;
     return new Intl.DateTimeFormat(i18n.language, {

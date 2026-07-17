@@ -42,6 +42,6 @@ test('FileProperties shows localized size/date and no hardcoded Chinese under en
   expect(text).not.toContain('字节');
   expect(text).not.toContain('个对象');
   expect(text).not.toContain('2003年10月25日');
-  // The XP-era date is still present, formatted for the active locale.
-  expect(text).toContain('2003');
+  // Missing authored forensic metadata is explicit instead of invented.
+  expect(text).toContain('Unknown');
 });

@@ -327,6 +327,7 @@ export { useModal } from '../context/ModalContext';
 export { useTray } from '../context/TrayContext';
 export { useScheduler } from '../context/SchedulerContext';
 export { useClock } from '../context/ClockContext';
+export { useRecentDocuments } from '../context/RecentDocumentsContext';
 export { useApp } from '../hooks/useApp';
 // #213 B1 — OS theme seam: the XP theme, its contract, and the runtime accessor.
 export { xpTheme } from '../themes/xp';
@@ -336,6 +337,8 @@ export type { OSTheme } from '../themes/contract';
 // Re-export commonly used types.
 export type {
   FileNode,
+  BaseFileNode,
+  FileProvenance,
   RootNode,
   FolderNode,
   DriveNode,
@@ -395,6 +398,8 @@ export { referenceContentPack } from '../data/referencePack';
 export type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 export type { FileSystemMode } from '../context/FileSystemContext';
 export type { PersistenceMode } from '../utils/storage';
+export type { RecycleBinItem } from '../utils/storage';
+export type { RecentDocumentEntry } from '../context/RecentDocumentsContext';
 export type { BootBranding, LoginBranding } from '../branding';
 export type { ModalContextType } from '../context/ModalContext';
 export type { TrayItem, TrayContextType, NotifyOptions } from '../context/TrayContext';

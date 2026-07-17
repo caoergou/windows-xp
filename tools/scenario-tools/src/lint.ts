@@ -318,6 +318,60 @@ export const lintContentPack = async (
         )
       );
     }
+    if (isRecord(value) && typeof value.type === 'string') {
+      const timestampFields = ['ctime', 'mtime', 'atime', 'importedAt'] as const;
+      for (const field of timestampFields) {
+        if (value[field] !== undefined && !Number.isFinite(Date.parse(String(value[field])))) {
+          diagnostics.push(
+            diagnostic(
+              'error',
+              'invalid-iso-time',
+              `${field} must be a valid ISO time`,
+              `${valuePath}.${field}`
+            )
+          );
+        }
+      }
+      if (
+        typeof value.ctime === 'string' &&
+        typeof value.mtime === 'string' &&
+        Date.parse(value.ctime) > Date.parse(value.mtime)
+      ) {
+        diagnostics.push(
+          diagnostic(
+            'warning',
+            'suspicious-file-time',
+            'ctime is later than mtime; preserved as authored forensic evidence',
+            valuePath
+          )
+        );
+      }
+    }
+  });
+
+  Object.entries(pack.recycleBin ?? {}).forEach(([key, record]) => {
+    if (!Number.isFinite(Date.parse(String(record.deletedAt)))) {
+      diagnostics.push(
+        diagnostic(
+          'error',
+          'invalid-iso-time',
+          'deletedAt must be a valid ISO time',
+          `$.recycleBin.${key}.deletedAt`
+        )
+      );
+    }
+  });
+  (pack.recentDocuments ?? []).forEach((entry, index) => {
+    if (!Number.isFinite(Date.parse(entry.openedAt))) {
+      diagnostics.push(
+        diagnostic(
+          'error',
+          'invalid-iso-time',
+          'openedAt must be a valid ISO time',
+          `$.recentDocuments[${index}].openedAt`
+        )
+      );
+    }
   });
 
   const usedAssets = new Set<string>();

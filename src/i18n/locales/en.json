@@ -81,6 +81,7 @@
     }
   },
   "startMenu": {
+    "recentDocuments": "My Recent Documents",
     "allPrograms": "All Programs",
     "myDocuments": "My Documents",
     "myComputer": "My Computer",
@@ -409,6 +410,7 @@
     "cancel": "Cancel"
   },
   "apps": {
+    "recentDocuments": "My Recent Documents",
     "explorer": "Windows Explorer",
     "notepad": "Notepad",
     "markdownViewer": "Markdown Viewer",
@@ -568,6 +570,10 @@
     "dateModified": "Date Modified",
     "folder": "Folder",
     "file": "File"
+  },
+  "recentDocuments": {
+    "seeded": "History",
+    "runtime": "Current session"
   },
   "clock": {
     "dateTime": "Date and time"
@@ -891,6 +897,7 @@
     "ready": "Ready"
   },
   "fileProperties": {
+    "unknown": "Unknown",
     "general": "General",
     "summary": "Summary",
     "fileType": "Type of file",

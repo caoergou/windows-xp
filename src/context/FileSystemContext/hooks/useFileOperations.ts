@@ -4,6 +4,7 @@ import { sounds } from '../../../utils/soundManager';
 import { FileNode, isContainerNode, ClipboardItem } from '../../../types';
 import { RecycleBinItem } from '../utils/persistence';
 import { useStorage } from '../../StorageContext';
+import { useClock } from '../../ClockContext';
 
 type ContainerNode = Extract<FileNode, { children: Record<string, FileNode> }>;
 
@@ -59,6 +60,7 @@ export const useFileOperations = (
   recycleBinRef: React.MutableRefObject<Record<string, RecycleBinItem>>
 ) => {
   const storage = useStorage();
+  const clock = useClock();
   const updateFile = useCallback(
     (path: string[], updates: Partial<FileNode>) => {
       setFs(prevFs => {
@@ -67,7 +69,9 @@ export const useFileOperations = (
           const name = path[path.length - 1];
           const node = path.length === 0 ? draft.root : parent?.children[name];
           if (!node) return;
-          Object.assign(node, updates);
+          const contentChanged =
+            (updates as Partial<FileNode> & { content?: string }).content !== undefined;
+          Object.assign(node, updates, contentChanged ? { mtime: clock.now() } : {});
         });
         const contentChanged =
           (updates as Partial<FileNode> & { content?: string }).content !== undefined;
@@ -75,7 +79,7 @@ export const useFileOperations = (
         return newFs;
       });
     },
-    [setFs, doPersistFs]
+    [setFs, doPersistFs, clock]
   );
 
   const createFile = useCallback(
@@ -92,6 +96,10 @@ export const useFileOperations = (
           parent.children[fileName] = {
             type,
             name: fileName,
+            ctime: clock.now(),
+            mtime: clock.now(),
+            atime: clock.now(),
+            provenance: 'local',
             ...(type === 'folder' ? { children: {} } : {}),
             ...properties,
           } as FileNode;
@@ -100,7 +108,7 @@ export const useFileOperations = (
         return newFs;
       });
     },
-    [setFs, doPersistFs]
+    [setFs, doPersistFs, clock]
   );
 
   const createFolder = useCallback(
@@ -180,7 +188,7 @@ export const useFileOperations = (
               item: movedFile,
               originalPath: parentPath,
               originalName: fileName,
-              deletedAt: Date.now(),
+              deletedAt: clock.now(),
             };
             storage.saveRecycleBin(recycleBinRef.current);
           }
@@ -189,7 +197,7 @@ export const useFileOperations = (
         return newFs;
       });
     },
-    [setFs, doPersistFs, recycleBinRef, storage]
+    [setFs, doPersistFs, recycleBinRef, storage, clock]
   );
 
   const moveFile = useCallback(
@@ -239,13 +247,16 @@ export const useFileOperations = (
           destinationParent.children[newName] = {
             ...current(node),
             name: newName,
+            ctime: clock.now(),
+            importedAt: clock.now(),
+            provenance: 'local',
           } as FileNode;
         });
         doPersistFs(newFs);
         return newFs;
       });
     },
-    [setFs, doPersistFs]
+    [setFs, doPersistFs, clock]
   );
 
   const getClipboardFileNames = (item: ClipboardItem): string[] =>

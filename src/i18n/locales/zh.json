@@ -81,6 +81,7 @@
     }
   },
   "startMenu": {
+    "recentDocuments": "我最近的文档",
     "allPrograms": "所有程序",
     "myDocuments": "我的文档",
     "myComputer": "我的电脑",
@@ -403,6 +404,7 @@
     "cancel": "取消"
   },
   "apps": {
+    "recentDocuments": "我最近的文档",
     "explorer": "Windows 资源管理器",
     "notepad": "记事本",
     "markdownViewer": "Markdown 查看器",
@@ -562,6 +564,10 @@
     "dateModified": "修改日期",
     "folder": "文件夹",
     "file": "文件"
+  },
+  "recentDocuments": {
+    "seeded": "历史记录",
+    "runtime": "本次会话"
   },
   "clock": {
     "dateTime": "日期和时间"
@@ -885,6 +891,7 @@
     "ready": "就绪"
   },
   "fileProperties": {
+    "unknown": "未知",
     "general": "常规",
     "summary": "摘要",
     "fileType": "文件类型",

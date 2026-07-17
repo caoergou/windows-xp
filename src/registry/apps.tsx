@@ -24,6 +24,7 @@ const Solitaire = React.lazy(() => import('../apps/Solitaire'));
 const DeductionSheet = React.lazy(() => import('../apps/DeductionSheet'));
 const EvidenceBoard = React.lazy(() => import('../apps/EvidenceBoard'));
 const WindowsMediaPlayer = React.lazy(() => import('../apps/WindowsMediaPlayer'));
+const RecentDocuments = React.lazy(() => import('../apps/RecentDocuments'));
 const Thunder = React.lazy(() => import('../apps/Thunder'));
 const BaofengPlayer = React.lazy(() => import('../apps/BaofengPlayer'));
 const KugouMusic = React.lazy(() => import('../apps/KugouMusic'));
@@ -342,6 +343,16 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     window: { width: 700, height: 520 },
     lifecycle: {},
     restore: restoreApp(ControlPanel),
+  },
+
+  RecentDocuments: {
+    id: 'RecentDocuments',
+    name: 'My Recent Documents',
+    nameKey: 'apps.recentDocuments',
+    icon: 'documents',
+    showInStartMenu: false,
+    window: { width: 560, height: 360 },
+    restore: restoreApp(RecentDocuments),
   },
 
   MicrosoftPaint: {

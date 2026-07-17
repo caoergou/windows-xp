@@ -29,6 +29,11 @@ const nodeMetadata = (node: FileNode, pathParts: string[]): FileMetadata => {
     app?: string;
     readOnly?: boolean;
     description?: string;
+    ctime?: string;
+    mtime?: string;
+    atime?: string;
+    importedAt?: string;
+    provenance?: FileNode['provenance'];
   };
   return {
     path: pathParts,
@@ -42,6 +47,11 @@ const nodeMetadata = (node: FileNode, pathParts: string[]): FileMetadata => {
     app: loose.app,
     readOnly: loose.readOnly,
     description: loose.description,
+    ctime: loose.ctime,
+    mtime: loose.mtime,
+    atime: loose.atime,
+    importedAt: loose.importedAt,
+    provenance: loose.provenance,
     modifiedAt: Date.now(),
   } as FileMetadata;
 };

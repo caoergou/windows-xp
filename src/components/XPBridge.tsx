@@ -8,6 +8,7 @@ import { useXPEventBus } from '../context/EventBusContext';
 import { useStorage } from '../context/StorageContext';
 import { useScheduler, type ScheduleOptions } from '../context/SchedulerContext';
 import { useClock, type XPClockApi } from '../context/ClockContext';
+import { useRecentDocuments } from '../context/RecentDocumentsContext';
 import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
 import { useAppRegistry } from '../context/AppRegistryContext';
 import { isContainerNode, isFileContentNode, type FileNode } from '../types';
@@ -247,6 +248,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
     const storage = useStorage();
     const { schedule, cancelSchedule } = useScheduler();
     const clock = useClock();
+    const { entries: recentDocuments } = useRecentDocuments();
     const { start: startLesson, stop: stopLesson } = useLesson();
     const { culture } = useCulture();
 
@@ -496,6 +498,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             language: getSavedLanguage(),
             flags,
             clock: clock.getSnapshot(),
+            recentDocuments,
           };
         },
 
@@ -514,6 +517,12 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
           }
           if (snapshot.language) saveLanguage(snapshot.language);
           if (snapshot.clock) clock.loadSnapshot(snapshot.clock);
+          if (snapshot.recentDocuments) {
+            storage.local.setItem(
+              storage.key('recent_documents'),
+              JSON.stringify(snapshot.recentDocuments)
+            );
+          }
           if (canUseDOM) window.location.reload();
         },
       };
@@ -548,6 +557,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
       stopLesson,
       culture,
       clock,
+      recentDocuments,
     ]);
 
     void fs;
