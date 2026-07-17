@@ -8,6 +8,7 @@ import type { BootBranding, LoginBranding } from '../branding';
 import type { WallpaperItem } from '../data/wallpapers';
 import type { XPEventListener } from '../events';
 import type { XPHandle } from '../components/XPBridge';
+import type { OSTheme } from '../themes/contract';
 import type { Scenario } from '../scenario/types';
 import type { ContentPack } from '../content/types';
 import type { Lesson } from '../lesson/types';
@@ -177,6 +178,15 @@ export interface WindowsXPProps {
   devtools?: boolean;
   /** Subscribe to desktop events (app launches, file opens, session, cmd...). */
   onEvent?: XPEventListener;
+  /**
+   * OS look-and-feel package (#213 B1). Defaults to the built-in Windows XP
+   * (Luna) theme (`xpTheme`, exported from `@caoergou/windows-xp/theme`). The
+   * theme is injected through a styled-components `ThemeProvider` — read it with
+   * `useOSTheme()` — and provides the sound scheme registered at startup. This
+   * is the runtime seam a future non-XP package plugs into; XP stays the default
+   * so existing usage is unchanged.
+   */
+  theme?: OSTheme;
 }
 
 /**
@@ -231,6 +241,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     lessons,
     devtools,
     onEvent,
+    theme,
   },
   ref
 ) {
@@ -265,6 +276,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       lessons={lessons}
       devtools={devtools}
       onEvent={onEvent}
+      theme={theme}
       handleRef={ref}
       disableContextMenuBlock={disableContextMenuBlock ?? embedded}
       disableDevToolsBlock={disableDevToolsBlock ?? embedded}
@@ -309,6 +321,10 @@ export { useModal } from '../context/ModalContext';
 export { useTray } from '../context/TrayContext';
 export { useScheduler } from '../context/SchedulerContext';
 export { useApp } from '../hooks/useApp';
+// #213 B1 — OS theme seam: the XP theme, its contract, and the runtime accessor.
+export { xpTheme } from '../themes/xp';
+export { useOSTheme } from '../themes/useOSTheme';
+export type { OSTheme } from '../themes/contract';
 
 // Re-export commonly used types.
 export type {

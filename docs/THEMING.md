@@ -1,21 +1,51 @@
 # Theme layer (`src/themes/`)
 
-Status: **Phase ①+ — the seam exists AND the asset/style level is fully
-consolidated behind it (#213).** XP is the only theme, and shipping a second
-one (Win7 / macOS / custom) is still a non-goal; but every *asset-level*
-XP-specific element — colours, fonts, icons, cursors, sounds, the XP slice of
-the scoped stylesheet — now lives inside `src/themes/xp/` and reaches the rest
-of the code only through this layer's exports or runtime registration. The
-remaining XP coupling is *structural* (chrome slots, behavior profile,
-menus-as-data — #143 Phase B proper), not asset-level.
+Status: **Phase ①+ / B1 seam — the asset/style level is fully consolidated
+behind the contract (#213), AND the theme is now selectable at runtime.** XP is
+the only theme, and shipping a second one (Win7 / macOS / custom) is still a
+non-goal; but every _asset-level_ XP-specific element — colours, fonts, icons,
+cursors, sounds, the XP slice of the scoped stylesheet — now lives inside
+`src/themes/xp/` and reaches the rest of the code only through this layer's
+exports or runtime registration. On top of that, **B1 (#213)** wires the
+runtime selection seam: a `theme?: OSTheme` prop (default `xpTheme`) is injected
+through a styled-components `ThemeProvider`, the active theme's sound scheme is
+registered from it, and `useOSTheme()` / `props.theme` expose it to consumers.
+The remaining XP coupling is _structural_ (chrome slots, behavior profile,
+menus-as-data — #143 Phase B proper) plus the per-directory `COLORS`/`FONTS`
+consumer codemod onto `props.theme` (below), not asset-level.
+
+## The runtime seam (B1, #213)
+
+```
+<WindowsXP theme={xpTheme}>  →  AppProviders  →  <ThemeProvider theme={theme}>
+                                                      │  props.theme  = OSTheme
+                                                      └  useOSTheme() = OSTheme
+```
+
+- **`theme?: OSTheme`** on `WindowsXP` / `AppProviders`, defaulting to `xpTheme`
+  — passing nothing is byte-identical to before, so existing usage is unchanged.
+- The composition root wraps the desktop in a styled-components `ThemeProvider`
+  carrying the selected theme; `DefaultTheme` is augmented to `OSTheme`
+  (`src/styled.d.ts`) so `props.theme` is fully typed inside styled components.
+- `useOSTheme()` (`src/themes/useOSTheme.ts`, re-exported from the public
+  `./theme` subpath and the package root) is the typed accessor for non-styled
+  TSX.
+- **Sounds follow the theme**: the old module-level `registerSounds(XP_SOUNDS)`
+  is replaced by `registerSounds(theme.sounds)` at the composition root, so the
+  scheme swaps with the theme. App-owned sounds (QQ) still self-register.
+- **Follow-up (incremental, zero-diff per step)**: components still read the
+  static `COLORS` / `FONTS` re-exports. Migrating each directory to
+  `props.theme.tokens` / `useOSTheme()` is the remaining B1 codemod — done a
+  directory at a time with a pixel-identical screenshot gate, until only the
+  theme layer imports the static tokens.
 
 ## Why
 
 The long-term direction (#143, `OS-PLATFORM-VISION.md`) decouples the engine
 from "XP": the look becomes a definable package. A coupling audit (#135) found
-the codebase was already *more* theme-ready than expected — the engine layer
+the codebase was already _more_ theme-ready than expected — the engine layer
 (`src/context`, `src/hooks`, `src/utils`, `events.ts`, `snapshot.ts`) carries no
-visual styling, window *mechanics* are already split from window *skin*, icons
+visual styling, window _mechanics_ are already split from window _skin_, icons
 sit behind a name→file registry, and sounds go through a named facade. The work
 is **consolidation behind a contract**, not untangling.
 
@@ -69,9 +99,10 @@ ships its own `assets/` folder of the same shape.
   `titleBar`, `trackbar`).
 - **`sounds`** — the sound scheme (`XP_SOUNDS`). The engine's `soundManager`
   binds **no** audio: the composition root (`AppProviders`) calls
-  `registerSounds(xpTheme.sounds)` at startup; app-owned sounds (QQ) register
-  themselves from their own package (`src/apps/QQ/sounds.ts`).
-- **`chrome?`** — the *shape* of the window/taskbar/menu component slots. Left
+  `registerSounds(theme.sounds)` for the active theme at startup (B1, #213);
+  app-owned sounds (QQ) register themselves from their own package
+  (`src/apps/QQ/sounds.ts`).
+- **`chrome?`** — the _shape_ of the window/taskbar/menu component slots. Left
   unpopulated: XP wires its chrome directly, and authoring real alternate chrome
   (Aero glass, macOS traffic lights, a dock) is the large tail that only pays off
   once a second theme exists.
@@ -92,7 +123,7 @@ inline hexes outside a block still count against the zero baseline).
 
 ## The invariants (CI-enforced)
 
-- The engine must never import the theme layer — a theme is selected *above*
+- The engine must never import the theme layer — a theme is selected _above_
   the engine, not reached into from inside it. `npm run guard:purity` fails if
   any file under `src/context`, `src/hooks`, `src/utils`, `events.ts` or
   `snapshot.ts` imports from `src/themes/`.
@@ -101,18 +132,22 @@ inline hexes outside a block still count against the zero baseline).
   registries and `registerSounds` runtime injection only.
 - Inline hexes are **zero** outside the two sanctioned stores (`HEX_BASELINE = 0`):
   the theme token layer (`src/themes/`, ratchet-exempt — colour literals are
-  the *point* of this layer) and declared brand-palette blocks (above).
+  the _point_ of this layer) and declared brand-palette blocks (above).
 
 ## De-hardcoding: done (#213)
 
 The ~1,480 inline hex literals that bypassed `COLORS` were migrated in #213
 (fonts → `FONTS`, chrome colours/gradients → `COLORS`, app identity →
 brand-palette blocks) with pixel-identical screenshots as the acceptance bar.
-The dominant cost of a future theme swap at the *skin* level is paid; what a
+The dominant cost of a future theme swap at the _skin_ level is paid; what a
 second theme still cannot change is layout/behavior (below).
 
 ## Known follow-ups
 
+- **Consumer codemod (B1 tail)**: migrate each `src/` directory's static
+  `COLORS` / `FONTS` reads to `props.theme.tokens` / `useOSTheme()`, one
+  directory at a time behind a zero-diff screenshot gate, until only the theme
+  layer imports the static tokens. The seam is in place; this pays it off.
 - **Chrome slots**: populate `OSTheme.chrome` and select chrome by theme — only
   meaningful with a real second theme (#143 Phase B).
 - **BehaviorProfile / menus-as-data / app roles**: the structural

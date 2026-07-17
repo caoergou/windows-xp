@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { ThemeProvider } from 'styled-components';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import App from '../App';
 import MobileWarning from './MobileWarning';
@@ -39,12 +39,8 @@ import type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 import type { DeepLinkRoutes } from '../utils/deepLink';
 import { XPEventBus } from '../events';
 import { registerSounds } from '../utils/soundManager';
-import { XP_SOUNDS } from '../themes/xp/sounds';
-
-// The composition root selects the theme; registering its sound scheme here
-// keeps the engine's soundManager free of any bundled-audio binding (#213).
-// A future `theme` prop swaps this map the same way it swaps tokens/assets.
-registerSounds(XP_SOUNDS);
+import { xpTheme } from '../themes/xp';
+import type { OSTheme } from '../themes/contract';
 import type { XPEventListener } from '../events';
 import { setStoragePrefix, type PersistenceMode } from '../utils/storage';
 import { getSavedLanguage } from '../utils/language';
@@ -117,6 +113,14 @@ export interface AppProvidersProps {
   devtools?: boolean;
   /** Small-screen / portrait strategy (#215). */
   viewportPolicy?: ViewportPolicy;
+  /**
+   * OS look-and-feel package (#213 B1). Defaults to the built-in Windows XP
+   * (Luna) theme. The selected theme is injected through a styled-components
+   * `ThemeProvider` (readable via `props.theme` / `useOSTheme()`) and supplies
+   * the sound scheme registered at startup. Swapping it is the runtime seam a
+   * future non-XP package plugs into.
+   */
+  theme?: OSTheme;
 }
 
 const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
@@ -375,11 +379,19 @@ export const AppProviders: React.FC<AppProvidersProps> = ({
   apps,
   language,
   viewportPolicy,
+  theme = xpTheme,
   ...rest
 }) => {
   const activeLang = getSavedLanguage(language || 'en');
   const letterboxRef = useRef<HTMLDivElement>(null);
   const viewport = useViewportScale(viewportPolicy ?? 'auto', letterboxRef);
+
+  // Register the active theme's sound scheme (#213 B1). This replaces the old
+  // module-level `registerSounds(XP_SOUNDS)` binding so the sounds follow the
+  // selected theme; `useMemo` runs synchronously during render, before any child
+  // (boot chime included) can play. The engine's soundManager still binds no
+  // audio itself; app sounds (QQ) self-register from their own package.
+  useMemo(() => registerSounds(theme.sounds), [theme]);
 
   const rootStyle: React.CSSProperties = viewport.active
     ? {
@@ -392,20 +404,22 @@ export const AppProviders: React.FC<AppProvidersProps> = ({
     : { width: '100%', height: '100%' };
 
   return (
-    <Letterbox ref={letterboxRef} $active={viewport.active}>
-      <I18nextProvider i18n={xpI18n}>
-        <ViewportScaleProvider scale={viewport.scale}>
-          <ViewportChrome showRotateHint={viewport.showRotateHint} />
-          <div className="windows-xp-root" style={rootStyle}>
-            <AppRegistryProvider apps={apps}>
-              <CultureProvider cultures={cultures} defaultLanguage={activeLang}>
-                <CultureAwareProviders language={language} {...rest} />
-              </CultureProvider>
-            </AppRegistryProvider>
-          </div>
-        </ViewportScaleProvider>
-      </I18nextProvider>
-    </Letterbox>
+    <ThemeProvider theme={theme}>
+      <Letterbox ref={letterboxRef} $active={viewport.active}>
+        <I18nextProvider i18n={xpI18n}>
+          <ViewportScaleProvider scale={viewport.scale}>
+            <ViewportChrome showRotateHint={viewport.showRotateHint} />
+            <div className="windows-xp-root" style={rootStyle}>
+              <AppRegistryProvider apps={apps}>
+                <CultureProvider cultures={cultures} defaultLanguage={activeLang}>
+                  <CultureAwareProviders language={language} {...rest} />
+                </CultureProvider>
+              </AppRegistryProvider>
+            </div>
+          </ViewportScaleProvider>
+        </I18nextProvider>
+      </Letterbox>
+    </ThemeProvider>
   );
 };
 
