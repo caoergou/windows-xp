@@ -38,6 +38,8 @@ export interface XPSnapshot {
   recentDocuments?: RecentDocumentEntry[];
   /** Persisted virtual print queue (#276). */
   printJobs?: PrintJob[];
+  /** Per-playlist track index and playhead; audio never auto-resumes (#277). */
+  mediaSessions?: Record<string, { index: number; position: number }>;
 }
 
 /** Base class for any reason a snapshot cannot be loaded (#208). */
@@ -193,5 +195,8 @@ export function assertLoadableSnapshot(value: unknown): asserts value is XPSnaps
   }
   if (snap.printJobs !== undefined && !Array.isArray(snap.printJobs)) {
     throw new XPSnapshotError('printJobs: expected an array.');
+  }
+  if (snap.mediaSessions !== undefined && !isPlainObject(snap.mediaSessions)) {
+    throw new XPSnapshotError('mediaSessions: expected an object.');
   }
 }

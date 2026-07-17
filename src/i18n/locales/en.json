@@ -868,6 +868,8 @@
     "play": "Play",
     "pause": "Pause",
     "stop": "Stop",
+    "previous": "Previous",
+    "next": "Next",
     "playing": "Now playing",
     "stopped": "Stopped"
   },

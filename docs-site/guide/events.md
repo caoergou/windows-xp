@@ -95,10 +95,12 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `game:start` | `appId`, `difficulty?` | A game started a new round; `appId` names the game and `difficulty` is present when it applies. |
 | `game:win` | `appId`, `difficulty?`, `timeMs?` | A game was won; `timeMs` is the completion time when the game tracks one. |
 | `game:lose` | `appId`, `difficulty?` | A game was lost. |
-| `media:play` | `path?`, `title?` | Media playback started or resumed; `path` is the source when known. |
-| `media:pause` | `path?` | Media playback was paused. |
-| `media:ended` | `path?` | Media playback reached the end of the track. |
-| `media:seek` | `path?`, `position` | The playhead was moved; `position` is the new time in seconds. |
+| `media:play` | `path?`, `title?`, `trackId?`, `playlistId?` | Media playback started or resumed; `path` is the source when known. |
+| `media:pause` | `path?`, `trackId?`, `playlistId?` | Media playback was paused. |
+| `media:ended` | `path?`, `trackId?`, `playlistId?` | Media playback reached the end of the track. |
+| `media:seek` | `path?`, `position`, `trackId?`, `playlistId?` | The playhead was moved; `position` is the new time in seconds. |
+| `media:track-change` | `playlistId`, `trackId`, `index` | The active track in a data-driven playlist changed. |
+| `media:playlist-ended` | `playlistId` | A playlist reached its deterministic end without repeating. |
 | `search:query` | `query`, `hit`, `resultIds?` | A query was run against an in-world search engine (a fake Baidu/AltaVista); hit is whether authored results matched. Emitted by the scenario runtime/app, not the core engine. |
 | `evidence:collect` | `termId`, `source?` | A term/clue entered the player's word bank (clicked a highlighted term, or granted by the scenario). |
 | `evidence:pin` | `itemId` | An item was pinned to the evidence board. |

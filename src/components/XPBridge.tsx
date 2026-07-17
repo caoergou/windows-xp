@@ -496,11 +496,18 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
           const openWindows = decodeOpenWindows(storage.local.getItem(storage.key('open_windows')));
           // Scenario progress (#84) lives under the canonical flags key.
           let flags: Record<string, unknown> = {};
+          let mediaSessions: Record<string, { index: number; position: number }> = {};
           try {
             const raw = storage.local.getItem(storage.key(SCENARIO_FLAGS_KEY));
             if (raw) flags = JSON.parse(raw);
           } catch (e) {
             console.warn('[windows-xp] getSnapshot: scenario flags parse failed', e);
+          }
+          try {
+            const raw = storage.local.getItem(storage.key('wmp_sessions'));
+            if (raw) mediaSessions = JSON.parse(raw) as typeof mediaSessions;
+          } catch (e) {
+            console.warn('[windows-xp] getSnapshot: media sessions parse failed', e);
           }
           return {
             version: XP_SNAPSHOT_VERSION,
@@ -513,6 +520,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             clock: clock.getSnapshot(),
             recentDocuments,
             printJobs: print.jobs,
+            mediaSessions,
           };
         },
 
@@ -539,6 +547,12 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
           }
           if (snapshot.printJobs) {
             storage.local.setItem(storage.key('print_jobs'), JSON.stringify(snapshot.printJobs));
+          }
+          if (snapshot.mediaSessions) {
+            storage.local.setItem(
+              storage.key('wmp_sessions'),
+              JSON.stringify(snapshot.mediaSessions)
+            );
           }
           if (canUseDOM) window.location.reload();
         },

@@ -145,13 +145,17 @@ export type XPEventBody =
   | { type: 'game:lose'; appId: string; difficulty?: string }
   // ── media: audio / video playback (#134) ────────────────────────────────────
   /** Media playback started or resumed; `path` is the source when known. */
-  | { type: 'media:play'; path?: string; title?: string }
+  | { type: 'media:play'; path?: string; title?: string; trackId?: string; playlistId?: string }
   /** Media playback was paused. */
-  | { type: 'media:pause'; path?: string }
+  | { type: 'media:pause'; path?: string; trackId?: string; playlistId?: string }
   /** Media playback reached the end of the track. */
-  | { type: 'media:ended'; path?: string }
+  | { type: 'media:ended'; path?: string; trackId?: string; playlistId?: string }
   /** The playhead was moved; `position` is the new time in seconds. */
-  | { type: 'media:seek'; path?: string; position: number }
+  | { type: 'media:seek'; path?: string; position: number; trackId?: string; playlistId?: string }
+  /** The active track in a data-driven playlist changed. */
+  | { type: 'media:track-change'; playlistId: string; trackId: string; index: number }
+  /** A playlist reached its deterministic end without repeating. */
+  | { type: 'media:playlist-ended'; playlistId: string }
   // ── search: in-world search oracle (#134, scenario-layer) ────────────────────
   /** A query was run against an in-world search engine (a fake Baidu/AltaVista); hit is whether authored results matched. Emitted by the scenario runtime/app, not the core engine. */
   | { type: 'search:query'; query: string; hit: boolean; resultIds?: string[] }

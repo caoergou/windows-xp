@@ -494,6 +494,12 @@ export type { DeductionSheetProps } from '../apps/DeductionSheet';
 export { demoDeduction } from '../data/scenarios/deductionDemo';
 export type { EvidenceBoardProps, EvidenceItem } from '../apps/EvidenceBoard';
 export { demoEvidence } from '../data/scenarios/evidenceDemo';
+export type {
+  WindowsMediaPlayerProps,
+  MediaPlaylist,
+  MediaTrack,
+  MediaControlsPolicy,
+} from '../apps/WindowsMediaPlayer';
 export type { SearchResultPage } from '../apps/InternetExplorer/types';
 export { demoSearchCorpus } from '../data/scenarios/searchDemo';
 export type {

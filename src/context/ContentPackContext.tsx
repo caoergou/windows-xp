@@ -15,6 +15,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import type { ContentPack, ContentRef, PackStrings, SiteDef } from '../content/types';
 import type { FileNode } from '../types';
+import type { MediaPlaylist } from '../apps/WindowsMediaPlayer';
 import { mergeContentPacks } from '../content/pack';
 import {
   createContentResolver,
@@ -34,6 +35,8 @@ export interface ContentPackContextValue {
   sites: Record<string, SiteDef>;
   /** Merged filesystem fragment (also merged into the FS by AppProviders). */
   files: Record<string, FileNode>;
+  /** Data-driven WMP playlists. */
+  playlists: MediaPlaylist[];
   /** Merged per-culture string tables. */
   strings: PackStrings;
   /** Resolver bound to the merged assets + this instance's storage cache. */
@@ -45,6 +48,7 @@ const EMPTY: ContentPackContextValue = {
   assets: {},
   sites: {},
   files: {},
+  playlists: [],
   strings: {},
   resolver: createContentResolver({ cache: memoryContentCache() }),
 };

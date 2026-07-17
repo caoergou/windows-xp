@@ -95,6 +95,7 @@ export interface MountedContent {
   recentDocuments: NonNullable<ContentPack['recentDocuments']>;
   printers: NonNullable<ContentPack['printers']>;
   printJobs: NonNullable<ContentPack['printJobs']>;
+  playlists: NonNullable<ContentPack['playlists']>;
   /** Merged per-culture string tables. */
   strings: PackStrings;
 }
@@ -130,6 +131,7 @@ export function mergeContentPacks(
     recentDocuments: [],
     printers: [],
     printJobs: [],
+    playlists: [],
     strings: {},
   };
   for (const pack of packs) {
@@ -140,6 +142,7 @@ export function mergeContentPacks(
     result.recentDocuments.push(...(pack.recentDocuments ?? []));
     result.printers.push(...(pack.printers ?? []));
     result.printJobs.push(...(pack.printJobs ?? []));
+    result.playlists.push(...(pack.playlists ?? []));
     result.strings = mergeStrings(result.strings, pack.strings ?? {});
     const registry = buildSiteRegistry(pack.sites, onSiteConflict);
     Object.assign(result.sites, registry);

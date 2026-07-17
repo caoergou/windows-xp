@@ -24,6 +24,7 @@ import type { Scenario } from '../scenario/types';
 import type { RecycleBinItem } from '../utils/storage';
 import type { RecentDocumentEntry } from '../context/RecentDocumentsContext';
 import type { PrinterDefinition, PrintJob } from '../context/PrintSpoolerContext';
+import type { MediaPlaylist } from '../apps/WindowsMediaPlayer';
 
 /**
  * A reference to a piece of content. Three sources, one shape — so a `content:`
@@ -112,6 +113,8 @@ export interface ContentPack {
   /** Data-driven printers and initial spool history (#276). */
   printers?: PrinterDefinition[];
   printJobs?: PrintJob[];
+  /** Reusable WMP playlists addressable by id (#277). */
+  playlists?: MediaPlaylist[];
   /** The scenario rulebook (#84/#207). */
   scenario?: Scenario;
   /** Per-culture string tables (#207 copy extraction carrier). */

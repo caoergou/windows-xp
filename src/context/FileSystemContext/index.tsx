@@ -198,6 +198,10 @@ export const useFileSystem = (): FileSystemContextType => {
   return context;
 };
 
+/** Optional variant for embeddable leaf apps that also render in isolation tests. */
+export const useOptionalFileSystem = (): FileSystemContextType | undefined =>
+  useContext(FileSystemContext);
+
 export const FileSystemProvider: React.FC<{
   children: React.ReactNode;
   customFileSystem?: Record<string, FileNode>;

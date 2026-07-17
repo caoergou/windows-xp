@@ -422,6 +422,42 @@ export const lintContentPack = async (
       );
     }
   });
+  const playlistIds = new Set<string>();
+  (pack.playlists ?? []).forEach((playlist, playlistIndex) => {
+    if (playlistIds.has(playlist.id)) {
+      diagnostics.push(
+        diagnostic(
+          'error',
+          'duplicate-playlist',
+          `duplicate playlist id "${playlist.id}"`,
+          `$.playlists[${playlistIndex}]`
+        )
+      );
+    }
+    playlistIds.add(playlist.id);
+    const trackIds = new Set<string>();
+    playlist.tracks.forEach((track, trackIndex) => {
+      const path = `$.playlists[${playlistIndex}].tracks[${trackIndex}]`;
+      if (trackIds.has(track.id)) {
+        diagnostics.push(
+          diagnostic('error', 'duplicate-track', `duplicate track id "${track.id}"`, path)
+        );
+      }
+      trackIds.add(track.id);
+      const ref = track.src;
+      const candidate = typeof ref === 'string' ? ref : 'url' in ref ? ref.url : '';
+      if (candidate && !/\.(mp3|wav|wma|ogg|m4a)(?:[?#]|$)/i.test(candidate)) {
+        diagnostics.push(
+          diagnostic(
+            'warning',
+            'media-extension',
+            'track source has no recognized audio extension',
+            `${path}.src`
+          )
+        );
+      }
+    });
+  });
 
   const usedAssets = new Set<string>();
   const pending: Promise<void>[] = [];
