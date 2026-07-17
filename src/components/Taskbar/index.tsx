@@ -12,7 +12,7 @@ import { sounds } from '../../utils/soundManager';
 import { defaultPlugin } from '../../apps/BrowserPlugins';
 import { getSystemPathTitle } from '../../data/systemPaths';
 import { WindowState } from '../../types';
-import { canUseDOM } from '../../utils/storage';
+import { usePowerTransition } from '../../context/PowerTransitionContext';
 import { useStorage } from '../../context/StorageContext';
 import { useXPEventBus } from '../../context/EventBusContext';
 import StartButton from './StartButton';
@@ -358,18 +358,10 @@ const Taskbar = () => {
     [openWindow, windows, focusWindow, t, showModal, culture.browser?.homepage]
   );
 
+  const power = usePowerTransition();
   const performPowerAction = useCallback(
-    (state: 'shutdown' | 'restart') => {
-      storage.local.removeItem(storage.key('open_windows'));
-      storage.local.setItem(storage.key('power_state'), state);
-      bus.emit({ type: 'session:shutdown', mode: state });
-      sounds.shutdown();
-      if (canUseDOM) {
-        // Give the shutdown sound a moment to start before the page reloads.
-        setTimeout(() => window.location.reload(), 600);
-      }
-    },
-    [bus, storage]
+    (state: 'shutdown' | 'restart') => power.request(state),
+    [power]
   );
 
   const handleLogoutWithSound = useCallback(() => {

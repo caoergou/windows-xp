@@ -14,6 +14,7 @@ import type { ContentPack } from '../content/types';
 import type { Lesson } from '../lesson/types';
 import type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 import type { ClockConfig } from '../context/ClockContext';
+import type { PowerSequence } from '../context/PowerTransitionContext';
 import '../i18n';
 import 'xp.css/dist/XP.css';
 import '../scoped.css';
@@ -118,6 +119,8 @@ export interface WindowsXPProps {
   idleThresholdMs?: number;
   /** Instance-local virtual system clock; omitted means the real host clock (#275). */
   clock?: ClockConfig;
+  /** Optional authored power-off presentation (#279). */
+  powerSequence?: PowerSequence;
   /**
    * Deep link (#136): key path(s) - the '?open=' value(s), e.g.
    * '我的文档/readme.txt' - to open once the desktop is interactive (after
@@ -234,6 +237,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     hourlyChime,
     idleThresholdMs,
     clock,
+    powerSequence,
     openOnLoad,
     routes,
     location,
@@ -270,6 +274,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       hourlyChime={hourlyChime}
       idleThresholdMs={idleThresholdMs}
       clock={clock}
+      powerSequence={powerSequence}
       openOnLoad={openOnLoad}
       routes={routes}
       location={location}
@@ -418,6 +423,13 @@ export type {
   ClockSnapshot,
   XPClockApi,
 } from '../context/ClockContext';
+export { usePowerTransition } from '../context/PowerTransitionContext';
+export type {
+  PowerMode,
+  PowerSequence,
+  PowerSequenceItem,
+  PowerTransitionApi,
+} from '../context/PowerTransitionContext';
 export type { XPEvent, XPEventType, XPEventListener } from '../events';
 export type {
   XPHandle,

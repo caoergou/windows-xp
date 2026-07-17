@@ -35,6 +35,7 @@ import {
 } from '../devtools/rehearsalChannel';
 import type { FlagValue } from '../scenario/types';
 import { useCulture } from '../context/CultureContext';
+import { usePowerTransition } from '../context/PowerTransitionContext';
 
 /** Filesystem actuation from outside the desktop (#115). Paths are absolute. */
 export interface XPFsApi {
@@ -60,6 +61,8 @@ export interface XPSessionApi {
   logout: () => void;
   shutdown: () => void;
   restart: () => void;
+  /** Finish a `reload: 'manual'` power sequence. */
+  completePowerTransition: () => void;
 }
 
 /** Appearance control (#115). */
@@ -259,16 +262,9 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
     const print = usePrintSpooler();
     const { start: startLesson, stop: stopLesson } = useLesson();
     const { culture } = useCulture();
+    const power = usePowerTransition();
 
     useImperativeHandle(ref, (): XPHandle => {
-      const powerOff = (state: 'shutdown' | 'restart') => {
-        storage.local.removeItem(storage.key('open_windows'));
-        storage.local.setItem(storage.key('power_state'), state);
-        bus.emit({ type: 'session:shutdown', mode: state });
-        sounds.shutdown();
-        if (canUseDOM) setTimeout(() => window.location.reload(), 600);
-      };
-
       return {
         openApp: (appId, props = {}) => {
           const def = registry[appId] ?? APP_REGISTRY[appId];
@@ -358,8 +354,9 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
         session: {
           login: password => login(password ?? ''),
           logout,
-          shutdown: () => powerOff('shutdown'),
-          restart: () => powerOff('restart'),
+          shutdown: () => power.request('shutdown'),
+          restart: () => power.request('restart'),
+          completePowerTransition: power.complete,
         },
 
         appearance: {

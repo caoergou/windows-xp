@@ -26,6 +26,7 @@ import type { RecentDocumentEntry } from '../context/RecentDocumentsContext';
 import type { PrinterDefinition, PrintJob } from '../context/PrintSpoolerContext';
 import type { MediaPlaylist } from '../apps/WindowsMediaPlayer';
 import type { EvidenceReportProps } from '../apps/EvidenceReport';
+import type { PowerSequence } from '../context/PowerTransitionContext';
 
 /**
  * A reference to a piece of content. Three sources, one shape — so a `content:`
@@ -118,6 +119,8 @@ export interface ContentPack {
   playlists?: MediaPlaylist[];
   /** Reusable structured evidence-report definitions (#278). */
   reports?: EvidenceReportProps[];
+  /** Optional authored shutdown/restart presentation (#279). */
+  powerSequence?: PowerSequence;
   /** The scenario rulebook (#84/#207). */
   scenario?: Scenario;
   /** Per-culture string tables (#207 copy extraction carrier). */

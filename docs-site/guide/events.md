@@ -71,6 +71,9 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `session:logout` | — | The user logged out. |
 | `session:boot-complete` | — | The desktop finished booting and is interactive. |
 | `session:shutdown` | `mode` | The machine was shut down, restarted, or logged out via the Start menu. |
+| `session:shutdown-request` | `mode` | A power transition was requested, before persistence and presentation begin. |
+| `session:blackout` | `mode` | The configured power transition entered its blackout sequence. |
+| `session:shutdown-complete` | `mode` | The power transition completed and is ready for host navigation or reload. |
 | `flag:change` | `flag`, `value` | A scenario flag's value changed (set/inc). Lets a trigger fire on progress itself, not only on a UI event. Emitted by the scenario runtime, not the core engine. |
 | `cmd:exec` | `command` | A command was executed in the Command Prompt. |
 | `ie:navigate` | `url`, `generated?` | Internet Explorer navigated to a URL; `generated` is true when the page came from a host content provider rather than a bundled/authored page. |

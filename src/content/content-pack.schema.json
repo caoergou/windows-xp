@@ -117,6 +117,31 @@
         }
       }
     },
+    "powerSequence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "blackoutAfterMs": { "type": "number", "minimum": 0 },
+        "reload": { "enum": ["immediate", "after-sequence", "manual"] },
+        "maxDurationMs": { "type": "number", "minimum": 0 },
+        "blackout": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind"],
+            "properties": {
+              "kind": { "enum": ["audio", "text"] },
+              "src": { "$ref": "#/definitions/contentRef" },
+              "text": { "type": "string" },
+              "textKey": { "type": "string" },
+              "captions": { "type": "string" },
+              "delayMs": { "type": "number", "minimum": 0 },
+              "durationMs": { "type": "number", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
     "scenario": {
       "type": "object",
       "description": "The scenario rulebook (#84/#207). See docs/SCENARIOS.md for its schema."

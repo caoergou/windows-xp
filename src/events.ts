@@ -86,6 +86,12 @@ export type XPEventBody =
   | { type: 'session:boot-complete' }
   /** The machine was shut down, restarted, or logged out via the Start menu. */
   | { type: 'session:shutdown'; mode: 'shutdown' | 'restart' | 'logout' }
+  /** A power transition was requested, before persistence and presentation begin. */
+  | { type: 'session:shutdown-request'; mode: 'shutdown' | 'restart' | 'logout' }
+  /** The configured power transition entered its blackout sequence. */
+  | { type: 'session:blackout'; mode: 'shutdown' | 'restart' | 'logout' }
+  /** The power transition completed and is ready for host navigation or reload. */
+  | { type: 'session:shutdown-complete'; mode: 'shutdown' | 'restart' | 'logout' }
   // ── flag: scenario flag lifecycle (#207) ────────────────────────────────────
   /** A scenario flag's value changed (set/inc). Lets a trigger fire on progress itself, not only on a UI event. Emitted by the scenario runtime, not the core engine. */
   | { type: 'flag:change'; flag: string; value: string | number | boolean | null }
