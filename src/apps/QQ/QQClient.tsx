@@ -116,10 +116,10 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
     );
     if (existing) return wmRef.current.focusWindow(existing.id);
     wmRef.current.openWindow('QQ', t('qq.archive.title'), <QQArchive />, 'qq', {
-      width: 650,
-      height: 480,
-      minWidth: 500,
-      minHeight: 360,
+      width: 720,
+      height: 520,
+      minWidth: 620,
+      minHeight: 420,
       componentProps: { view: 'archive' },
     });
   }, [t]);

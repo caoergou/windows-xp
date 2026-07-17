@@ -48,11 +48,14 @@ const LETTER_MD = `# 外婆的信
   —— 外婆
 `;
 
+const QQ_NOTE = `城东蓝光网吧\n充值时间：2006-08-11 20:03\n座位：17 号\n`;
+
 export const referenceContentPack: ContentPack = {
   id: 'reference-prologue',
   assets: {
     'bbs-home': BBS_HTML,
     'grandma-letter': LETTER_MD,
+    'qq-netbar-note': QQ_NOTE,
   },
   sites: {
     'https://www.qingchun-bbs.com/': {
@@ -68,4 +71,70 @@ export const referenceContentPack: ContentPack = {
       contentRef: { asset: 'grandma-letter' },
     },
   },
+  qqArchives: [
+    {
+      id: 'reference-qq-history',
+      title: '本地消息记录',
+      conversations: [
+        {
+          id: 'crystal-history',
+          title: '水晶女孩',
+          kind: 'direct',
+          memberIds: ['crystal'],
+          messages: [
+            {
+              id: 'crystal-20060811-1',
+              senderId: 'crystal',
+              senderName: '水晶女孩',
+              sentAt: '2006-08-11T20:14:00+08:00',
+              text: '你还记得城东那家蓝光网吧吗？',
+            },
+            {
+              id: 'crystal-20060811-2',
+              senderId: '10001',
+              senderName: '往事随风',
+              sentAt: '2006-08-11T20:15:00+08:00',
+              text: '记得，17 号机旁边的窗户总是关不上。',
+            },
+            {
+              id: 'crystal-20060811-3',
+              senderId: 'crystal',
+              senderName: '水晶女孩',
+              sentAt: '2006-08-11T20:17:00+08:00',
+              text: '我翻到了那天的充值单，你看看时间。',
+              attachments: [
+                {
+                  id: 'netbar-note',
+                  name: '蓝光网吧充值单.txt',
+                  content: { asset: 'qq-netbar-note' },
+                },
+              ],
+            },
+            {
+              id: 'crystal-20060812-1',
+              senderId: '10001',
+              senderName: '往事随风',
+              sentAt: '2006-08-12T09:02:00+08:00',
+              text: '收到了，晚上老地方见。',
+            },
+          ],
+        },
+        {
+          id: 'friends-history',
+          title: '周末联机小队',
+          kind: 'group',
+          memberIds: ['crystal', 'ahui'],
+          messages: [
+            {
+              id: 'friends-20060812-1',
+              senderId: 'ahui',
+              senderName: '阿辉',
+              sentAt: '2006-08-12T17:41:00+08:00',
+              text: '今晚八点，还是 CS 1.6？',
+            },
+          ],
+        },
+      ],
+    },
+  ],
 };
