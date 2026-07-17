@@ -34,10 +34,18 @@ consumer codemod onto `props.theme` (below), not asset-level.
   is replaced by `registerSounds(theme.sounds)` at the composition root, so the
   scheme swaps with the theme. App-owned sounds (QQ) still self-register.
 - **Follow-up (incremental, zero-diff per step)**: components still read the
-  static `COLORS` / `FONTS` re-exports. Migrating each directory to
-  `props.theme.tokens` / `useOSTheme()` is the remaining B1 codemod — done a
-  directory at a time with a pixel-identical screenshot gate, until only the
-  theme layer imports the static tokens.
+  static `COLORS` / `FONTS` re-exports. Migrating each directory to theme
+  context is the remaining B1 codemod — done a directory at a time with a
+  pixel-identical screenshot gate, until only the theme layer imports the
+  static tokens. **Every theme read must go through `resolveOSTheme()`**
+  (`src/themes/useOSTheme.ts`): bare renders of the public `/apps` and
+  `/components` subpaths have no `ThemeProvider` above them, and an
+  unguarded `theme.tokens` read crashes there — a breaking change for
+  package consumers. The resolver falls back to the default `xpTheme` in
+  that case (mirroring AppProviders' own default) and is a pass-through
+  under a provider. Inside styled components the idiom is
+  `({ theme }) => resolveOSTheme(theme).tokens.X`; in plain TSX,
+  `useOSTheme()` already applies the same fallback.
 
 ## Why
 

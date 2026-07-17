@@ -1,12 +1,12 @@
 import styled from 'styled-components';
-import { COLORS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 
 /**
  * Windows XP Task Manager (taskmgr.exe) styled primitives.
  *
- * All colours come from the XP theme tokens (`COLORS`) — the component owns no
- * inline hex literals (platform-purity ratchet, #143). The green-on-black
- * Performance graphs use the dedicated `PERF_GRAPH_*` tokens.
+ * All colours come from the active OS theme's tokens (`theme.tokens`) — the
+ * component owns no inline hex literals (platform-purity ratchet, #143). The
+ * green-on-black Performance graphs use the dedicated `PERF_GRAPH_*` tokens.
  */
 
 export const Container = styled.div`
@@ -14,12 +14,12 @@ export const Container = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: ${COLORS.SURFACE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
   font:
     11px Tahoma,
     'Microsoft YaHei',
     sans-serif;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
 `;
 
 /* ---- Tabs ---- */
@@ -34,13 +34,14 @@ export const Tab = styled.button<{ $active?: boolean }>`
   position: relative;
   padding: 3px 11px 4px;
   margin-right: 2px;
-  border: 1px solid ${COLORS.BORDER_GREY};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
   border-bottom: none;
   border-radius: 3px 3px 0 0;
   font: inherit;
   cursor: default;
-  color: ${COLORS.BLACK};
-  background: ${({ $active }) => ($active ? COLORS.BUTTON_HIGHLIGHT : COLORS.SURFACE)};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
+  background: ${({ $active, theme }) =>
+    $active ? resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT : resolveOSTheme(theme).tokens.SURFACE};
   z-index: ${({ $active }) => ($active ? 2 : 1)};
   /* An active tab overlaps the panel border below it so it reads as connected. */
   margin-bottom: ${({ $active }) => ($active ? '-1px' : '0')};
@@ -52,8 +53,8 @@ export const Panel = styled.div`
   position: relative;
   z-index: 1;
   margin: 0 6px;
-  border: 1px solid ${COLORS.BORDER_GREY};
-  background: ${COLORS.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
   flex: 1;
   min-height: 0;
   display: flex;
@@ -67,11 +68,11 @@ export const Panel = styled.div`
 export const ListFrame = styled.div`
   flex: 1;
   min-height: 0;
-  border: 1px solid ${COLORS.BORDER_GREY};
-  background: ${COLORS.BUTTON_HIGHLIGHT};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT};
   overflow: auto;
   /* inset 3D well */
-  box-shadow: inset 1px 1px ${COLORS.BUTTON_SHADOW};
+  box-shadow: inset 1px 1px ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
 `;
 
 export const GroupLabel = styled.div`
@@ -86,12 +87,12 @@ export const AppHeaderRow = styled.div`
   top: 0;
   display: grid;
   grid-template-columns: 1fr 96px;
-  background: ${COLORS.SURFACE};
-  border-bottom: 1px solid ${COLORS.BORDER_GREY};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
 
   span {
     padding: 3px 6px;
-    border-right: 1px solid ${COLORS.DIVIDER_GREY};
+    border-right: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
   }
 `;
 
@@ -99,8 +100,10 @@ export const AppRow = styled.div<{ $selected?: boolean }>`
   display: grid;
   grid-template-columns: 1fr 96px;
   cursor: default;
-  color: ${({ $selected }) => ($selected ? COLORS.BUTTON_HIGHLIGHT : COLORS.BLACK)};
-  background: ${({ $selected }) => ($selected ? COLORS.MENU_HIGHLIGHT : 'transparent')};
+  color: ${({ $selected, theme }) =>
+    $selected ? resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT : resolveOSTheme(theme).tokens.BLACK};
+  background: ${({ $selected, theme }) =>
+    $selected ? resolveOSTheme(theme).tokens.MENU_HIGHLIGHT : 'transparent'};
 
   > span {
     min-height: 22px;
@@ -130,9 +133,9 @@ export const ProcHead = styled.thead`
     text-align: left;
     font-weight: normal;
     padding: 2px 6px;
-    background: ${COLORS.SURFACE};
-    border-right: 1px solid ${COLORS.DIVIDER_GREY};
-    border-bottom: 1px solid ${COLORS.BORDER_GREY};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+    border-right: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
+    border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -145,8 +148,10 @@ export const ProcHead = styled.thead`
 
 export const ProcRow = styled.tr<{ $selected?: boolean }>`
   cursor: default;
-  color: ${({ $selected }) => ($selected ? COLORS.BUTTON_HIGHLIGHT : COLORS.BLACK)};
-  background: ${({ $selected }) => ($selected ? COLORS.MENU_HIGHLIGHT : 'transparent')};
+  color: ${({ $selected, theme }) =>
+    $selected ? resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT : resolveOSTheme(theme).tokens.BLACK};
+  background: ${({ $selected, theme }) =>
+    $selected ? resolveOSTheme(theme).tokens.MENU_HIGHLIGHT : 'transparent'};
 
   td {
     padding: 1px 6px;
@@ -176,8 +181,8 @@ export const StatusBar = styled.div`
   align-items: center;
   height: 20px;
   flex-shrink: 0;
-  border-top: 1px solid ${COLORS.BUTTON_HIGHLIGHT};
-  background: ${COLORS.SURFACE};
+  border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
 `;
 
 export const StatusCell = styled.div`
@@ -185,8 +190,8 @@ export const StatusCell = styled.div`
   height: 100%;
   display: flex;
   align-items: center;
-  border-right: 1px solid ${COLORS.BORDER_GREY};
-  box-shadow: 1px 0 0 ${COLORS.BUTTON_HIGHLIGHT};
+  border-right: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
+  box-shadow: 1px 0 0 ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT};
   white-space: nowrap;
 
   &:last-child {
@@ -210,9 +215,9 @@ export const PerfGrid = styled.div`
 
 export const GraphBox = styled.fieldset`
   margin: 0;
-  border: 1px solid ${COLORS.BORDER_GREY};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
   padding: 8px;
-  background: ${COLORS.SURFACE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
 
   legend {
     padding: 0 3px;
@@ -235,12 +240,12 @@ export const WideGraph = styled.div`
 
 export const GraphCanvas = styled.canvas`
   display: block;
-  background: ${COLORS.BLACK};
-  border: 1px solid ${COLORS.BORDER_GREY};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
 `;
 
 export const Readout = styled.div`
-  color: ${COLORS.PERF_GRAPH_LINE};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.PERF_GRAPH_LINE};
   font: inherit;
 `;
 
@@ -254,9 +259,9 @@ export const StatsRow = styled.div`
 
 export const StatsBox = styled.fieldset`
   margin: 0;
-  border: 1px solid ${COLORS.BORDER_GREY};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
   padding: 6px 8px;
-  background: ${COLORS.SURFACE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
 
   legend {
     padding: 0 3px;
@@ -286,8 +291,8 @@ export const AboutOverlay = styled.div`
 export const AboutBox = styled.div`
   min-width: 260px;
   max-width: 320px;
-  border: 1px solid ${COLORS.BORDER_GREY};
-  background: ${COLORS.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
   padding: 14px;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
   display: flex;

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 import { xpScrollbarStyles } from '../../theme';
-import { COLORS, FONTS } from '../../constants';
 
 // Explorer styled-components (#163/A).
 
@@ -9,7 +9,7 @@ export const Container = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 `;
 
 /* ── Details view (#120, EXP-02) ── */
@@ -17,16 +17,16 @@ export const DetailsTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   font-size: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   table-layout: fixed;
 `;
 
 export const DetailsHeadCell = styled.th`
   text-align: left;
   font-weight: normal;
-  background: ${COLORS.TASKPANE_GRADIENT};
-  border-right: 1px solid ${COLORS.TASKPANE_BORDER};
-  border-bottom: 1px solid ${COLORS.DIVIDER_GREY};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.TASKPANE_GRADIENT};
+  border-right: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.TASKPANE_BORDER};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
   padding: 2px 6px;
   height: 18px;
   cursor: pointer;
@@ -40,17 +40,21 @@ export const DetailsHeadCell = styled.th`
   z-index: 1;
 
   &:hover {
-    background: ${COLORS.TASKPANE_GRADIENT_BLUE};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.TASKPANE_GRADIENT_BLUE};
   }
 `;
 
 export const DetailsRow = styled.tr<{ $selected?: boolean }>`
-  background: ${p => (p.$selected ? COLORS.MENU_HIGHLIGHT : 'transparent')};
-  color: ${p => (p.$selected ? COLORS.WHITE : COLORS.BLACK)};
+  background: ${p => (p.$selected ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT : 'transparent')};
+  color: ${p =>
+    p.$selected ? resolveOSTheme(p.theme).tokens.WHITE : resolveOSTheme(p.theme).tokens.BLACK};
   cursor: default;
 
   &:hover {
-    background: ${p => (p.$selected ? COLORS.MENU_HIGHLIGHT : COLORS.EXPLORER_ROW_TINT)};
+    background: ${p =>
+      p.$selected
+        ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT
+        : resolveOSTheme(p.theme).tokens.EXPLORER_ROW_TINT};
   }
 `;
 
@@ -93,8 +97,8 @@ export const FileArea = styled.div<{ $flush?: boolean }>`
 export const GroupHeader = styled.div`
   font-weight: bold;
   font-size: 11px;
-  color: ${COLORS.SIDEBAR_TITLE_BLUE};
-  border-bottom: 1px solid ${COLORS.EXPLORER_HEADER_DIVIDER};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.SIDEBAR_TITLE_BLUE};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.EXPLORER_HEADER_DIVIDER};
   padding-bottom: 2px;
   margin-bottom: 5px;
   margin-top: 10px;
@@ -105,7 +109,7 @@ export const GroupHeader = styled.div`
 `;
 
 /* ── Thumbnails view (#211): ~96px preview boxes, name below.
-   Colors come from COLORS tokens / rgba() to keep the inline-hex ratchet flat. ── */
+   Colors come from theme tokens / rgba() to keep the inline-hex ratchet flat. ── */
 export const ThumbsGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -127,9 +131,9 @@ export const ThumbBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${COLORS.BUTTON_HIGHLIGHT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT};
   border: 1px solid rgba(0, 0, 0, 0.35);
-  box-shadow: inset 0 0 0 1px ${COLORS.BUTTON_HIGHLIGHT};
+  box-shadow: inset 0 0 0 1px ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT};
   overflow: hidden;
 
   img {
@@ -147,7 +151,9 @@ export const ThumbName = styled.span<{ $selected?: boolean }>`
   text-align: center;
   word-break: break-word;
   ${p =>
-    p.$selected ? `background:${COLORS.MENU_HIGHLIGHT};color:${COLORS.BUTTON_HIGHLIGHT};` : ''}
+    p.$selected
+      ? `background:${resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};color:${resolveOSTheme(p.theme).tokens.BUTTON_HIGHLIGHT};`
+      : ''}
 `;
 
 /* ── Icons view (#211): 32px icon on top, name centred below ── */
@@ -174,7 +180,9 @@ export const IconVName = styled.span<{ $selected?: boolean }>`
   text-align: center;
   word-break: break-word;
   ${p =>
-    p.$selected ? `background:${COLORS.MENU_HIGHLIGHT};color:${COLORS.BUTTON_HIGHLIGHT};` : ''}
+    p.$selected
+      ? `background:${resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};color:${resolveOSTheme(p.theme).tokens.BUTTON_HIGHLIGHT};`
+      : ''}
 `;
 
 /* ── List view (#211): 16px icon + name, column-major wrap ── */
@@ -202,7 +210,9 @@ export const ListItem = styled.div<{ $selected?: boolean }>`
     font-size: 11px;
     padding: 0 2px;
     ${p =>
-      p.$selected ? `background:${COLORS.MENU_HIGHLIGHT};color:${COLORS.BUTTON_HIGHLIGHT};` : ''}
+      p.$selected
+        ? `background:${resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};color:${resolveOSTheme(p.theme).tokens.BUTTON_HIGHLIGHT};`
+        : ''}
   }
 `;
 
@@ -224,16 +234,18 @@ export const TileItem = styled.div<{ $selected?: boolean }>`
   border: 1px solid transparent;
 
   &:hover {
-    background-color: ${p => (p.$selected ? COLORS.MENU_HIGHLIGHT : 'rgba(49, 106, 197, 0.12)')};
-    border-color: ${p => (p.$selected ? COLORS.MENU_HIGHLIGHT : 'rgba(49, 106, 197, 0.3)')};
+    background-color: ${p =>
+      p.$selected ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT : 'rgba(49, 106, 197, 0.12)'};
+    border-color: ${p =>
+      p.$selected ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT : 'rgba(49, 106, 197, 0.3)'};
   }
 
   ${p =>
     p.$selected &&
     `
-      background-color: ${COLORS.MENU_HIGHLIGHT};
-      color: ${COLORS.BUTTON_HIGHLIGHT};
-      border-color: ${COLORS.MENU_HIGHLIGHT};
+      background-color: ${resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};
+      color: ${resolveOSTheme(p.theme).tokens.BUTTON_HIGHLIGHT};
+      border-color: ${resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};
     `}
 `;
 
@@ -244,13 +256,13 @@ export const TileMeta = styled.span<{ $selected?: boolean }>`
 
 export const StatusBar = styled.div`
   height: 20px;
-  background: ${COLORS.SURFACE};
-  border-top: 1px solid ${COLORS.GREY_D0};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.GREY_D0};
   display: flex;
   align-items: center;
   padding: 0 5px;
   font-size: 11px;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
 `;
 
 export const EmptyRecycleBinMessage = styled.div`
@@ -259,9 +271,9 @@ export const EmptyRecycleBinMessage = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: ${COLORS.BUTTON_SHADOW};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   font-size: 12px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   gap: 10px;
   user-select: none;
 `;
