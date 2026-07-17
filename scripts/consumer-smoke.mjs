@@ -195,11 +195,21 @@ async function renderSmoke(consumerDir) {
   // Vite prints the bound URL (auto-picks a free port); parse it rather than
   // guessing, so a busy port never wedges the run. Give slow CI containers more
   // headroom than the original 20 s.
+  //
+  // Match on the ANSI-stripped *accumulated* output, not per chunk: CI forces
+  // color and vite bolds the port, so the URL arrives split as
+  // `http://localhost:\x1b[1m4173\x1b[22m/` (14 red main runs), and stdout
+  // chunking may straddle the URL too.
   const PREVIEW_TIMEOUT_MS = 60000;
   const base = await new Promise(resolve => {
+    // eslint-disable-next-line no-control-regex
+    const ANSI_RE = /\x1b\[[0-9;]*m/g;
+    const URL_RE = /https?:\/\/(?:localhost|127\.0\.0\.1):\d+\//;
+    let scanned = '';
     const onData = d => {
-      const m = String(d).match(/(http:\/\/localhost:\d+\/)/);
-      if (m) resolve(m[1]);
+      scanned += String(d).replace(ANSI_RE, '');
+      const m = scanned.match(URL_RE);
+      if (m) resolve(m[0]);
     };
     preview.stdout.on('data', onData);
     preview.stderr.on('data', onData);
