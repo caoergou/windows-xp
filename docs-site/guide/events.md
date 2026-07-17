@@ -116,6 +116,8 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `deduction:submit` | `formId`, `slots?` | The player submitted a deduction form (Mad-Libs slots / Obra-Dinn triples); `slots` maps slot id → chosen value. |
 | `deduction:verified` | `formId`, `groups?` | A submitted deduction verified as correct; `groups` names the slot-groups that matched (supports verify-in-batches). |
 | `deduction:failed` | `formId`, `groups?` | A submitted deduction was rejected; `groups` names the slot-groups that failed. |
+| `deduction:report-submit` | `reportId`, `submission` | A structured evidence report was submitted with confidence and evidence citations. |
+| `deduction:claim-result` | `reportId`, `claimId`, `result` | One report claim was judged without exposing slot-by-slot solution details. |
 | `lesson:start` | `lessonId` | A guided lesson started. |
 | `lesson:step-complete` | `lessonId`, `stepId` | A lesson step was completed (the learner performed the expected action). |
 | `lesson:hint-shown` | `lessonId`, `stepId`, `hintId?` | A hint was shown for the current step (hint-ladder escalation). |

@@ -57,7 +57,8 @@ const parseEvents = block => {
   const lines = block.split('\n');
   const events = [];
   let pendingDoc = null;
-  for (const line of lines) {
+  for (let index = 0; index < lines.length; index += 1) {
+    let line = lines[index];
     const docMatch = line.match(/\/\*\*\s*(.*?)\s*\*\//);
     if (docMatch && !line.includes('type:')) {
       pendingDoc = docMatch[1];
@@ -67,6 +68,11 @@ const parseEvents = block => {
     // JSDoc on the same line.
     // Tolerate a trailing `;` on the final union member (it terminates the
     // whole `type` declaration) so the last event is never dropped from the table.
+    if (/\|\s*\{/.test(line) && !/\}\s*;?\s*$/.test(line)) {
+      while (index + 1 < lines.length && !/\}\s*;?\s*$/.test(line)) {
+        line += ` ${lines[(index += 1)].trim()}`;
+      }
+    }
     const memberMatch = line.match(/\|\s*\{\s*type:\s*'([^']+)'\s*;?\s*(.*)\}\s*;?\s*$/);
     if (memberMatch) {
       const inlineDoc = line.match(/\/\*\*\s*(.*?)\s*\*\//);

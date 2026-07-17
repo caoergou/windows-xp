@@ -423,7 +423,7 @@ export type {
   ClockSnapshot,
   XPClockApi,
 } from '../context/ClockContext';
-export { usePowerTransition } from '../context/PowerTransitionContext';
+export { usePowerTransition, useOptionalPowerTransition } from '../context/PowerTransitionContext';
 export type {
   PowerMode,
   PowerSequence,

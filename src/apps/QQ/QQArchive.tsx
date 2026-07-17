@@ -35,6 +35,9 @@ const History = styled.div`
   padding: 8px;
   background: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
 `;
+const EmptyHistory = styled(History)`
+  grid-column: 1 / -1;
+`;
 const Message = styled.button`
   display: block;
   width: 100%;
@@ -83,7 +86,12 @@ const QQArchive: React.FC<{ archiveId?: string }> = ({ archiveId }) => {
   useEffect(() => {
     if (archive) bus.emit({ type: 'qq:archive-open', archiveId: archive.id });
   }, [archive, bus]);
-  if (!archive) return <History>{t('qq.archive.empty')}</History>;
+  if (!archive)
+    return (
+      <Root data-testid="qq-archive">
+        <EmptyHistory>{t('qq.archive.empty')}</EmptyHistory>
+      </Root>
+    );
   const updateQuery = (value: string) => {
     setQuery(value);
     storage.local.setItem(key, value);

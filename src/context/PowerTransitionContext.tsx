@@ -115,3 +115,7 @@ export const usePowerTransition = (): PowerTransitionApi => {
   if (!value) throw new Error('usePowerTransition must be used inside PowerTransitionProvider.');
   return value;
 };
+
+/** Optional variant for shell components rendered in isolation by embedders/tests. */
+export const useOptionalPowerTransition = (): PowerTransitionApi | undefined =>
+  useContext(PowerTransitionContext);

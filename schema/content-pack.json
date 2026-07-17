@@ -117,6 +117,56 @@
         }
       }
     },
+    "powerSequence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "blackoutAfterMs": { "type": "number", "minimum": 0 },
+        "reload": { "enum": ["immediate", "after-sequence", "manual"] },
+        "maxDurationMs": { "type": "number", "minimum": 0 },
+        "blackout": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind"],
+            "properties": {
+              "kind": { "enum": ["audio", "text"] },
+              "src": { "$ref": "#/definitions/contentRef" },
+              "text": { "type": "string" },
+              "textKey": { "type": "string" },
+              "captions": { "type": "string" },
+              "delayMs": { "type": "number", "minimum": 0 },
+              "durationMs": { "type": "number", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "qqArchives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "conversations"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "title": { "type": "string" },
+          "conversations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "title", "kind", "memberIds", "messages"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "title": { "type": "string" },
+                "kind": { "enum": ["direct", "group"] },
+                "memberIds": { "type": "array", "items": { "type": "string" } },
+                "messages": { "type": "array" }
+              }
+            }
+          }
+        }
+      }
+    },
     "scenario": {
       "type": "object",
       "description": "The scenario rulebook (#84/#207). See docs/SCENARIOS.md for its schema."
@@ -156,8 +206,8 @@
       "title": "SiteDef",
       "description": "An authorized IE site (#149/#241).",
       "type": "object",
-      "required": ["html"],
       "additionalProperties": false,
+      "anyOf": [{ "required": ["html"] }, { "required": ["page"] }],
       "properties": {
         "html": {
           "description": "The page body to render (inline HTML, a host url, or an asset key).",
@@ -170,7 +220,23 @@
         "favicon": {
           "description": "Optional favicon (icon id, data URI, or a ContentRef).",
           "$ref": "#/definitions/contentRef"
-        }
+        },
+        "page": { "$ref": "#/definitions/eraPage" }
+      }
+    },
+    "eraPage": {
+      "title": "EraPage",
+      "type": "object",
+      "required": ["template", "title", "sections"],
+      "additionalProperties": false,
+      "properties": {
+        "template": { "enum": ["portal", "news", "forum", "profile"] },
+        "title": { "type": "string" },
+        "masthead": { "type": "string" },
+        "nav": { "type": "array" },
+        "sections": { "type": "array", "minItems": 1 },
+        "sidebar": { "type": "array" },
+        "footer": { "type": "string" }
       }
     }
   }

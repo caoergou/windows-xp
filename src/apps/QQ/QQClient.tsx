@@ -76,34 +76,37 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   const bypassCloseRef = useRef(false);
 
   // --- Open a chat window with a buddy (deduplicate: focus if already open) ---------------------------
-  const openChat = useCallback((buddyId: string) => {
-    const buddy = qqStore.buddy(buddyId);
-    if (!buddy) return;
-    const existing = wmRef.current.windows.find(
-      w => w.appId === 'QQ' && (w.componentProps as { buddyId?: string })?.buddyId === buddyId
-    );
-    if (existing) {
-      wmRef.current.focusWindow(existing.id);
-      return;
-    }
-    const screenW = window.innerWidth || 1280;
-    const chatLeft = Math.max(0, Math.round((screenW - SIZE.chat.w) / 2 - SIZE.panel.w));
-    wmRef.current.openWindow(
-      'QQ',
-      t('qq.chatTitle', { nickname: buddy.nickname }),
-      <QQChat buddyId={buddyId} />,
-      'qq',
-      {
-        width: SIZE.chat.w,
-        height: SIZE.chat.h,
-        minWidth: SIZE.chat.w,
-        minHeight: SIZE.chat.h,
-        left: chatLeft,
-        resizable: false,
-        componentProps: { view: 'chat', buddyId },
+  const openChat = useCallback(
+    (buddyId: string) => {
+      const buddy = qqStore.buddy(buddyId);
+      if (!buddy) return;
+      const existing = wmRef.current.windows.find(
+        w => w.appId === 'QQ' && (w.componentProps as { buddyId?: string })?.buddyId === buddyId
+      );
+      if (existing) {
+        wmRef.current.focusWindow(existing.id);
+        return;
       }
-    );
-  }, []);
+      const screenW = window.innerWidth || 1280;
+      const chatLeft = Math.max(0, Math.round((screenW - SIZE.chat.w) / 2 - SIZE.panel.w));
+      wmRef.current.openWindow(
+        'QQ',
+        t('qq.chatTitle', { nickname: buddy.nickname }),
+        <QQChat buddyId={buddyId} />,
+        'qq',
+        {
+          width: SIZE.chat.w,
+          height: SIZE.chat.h,
+          minWidth: SIZE.chat.w,
+          minHeight: SIZE.chat.h,
+          left: chatLeft,
+          resizable: false,
+          componentProps: { view: 'chat', buddyId },
+        }
+      );
+    },
+    [t]
+  );
   const openChatRef = useRef(openChat);
   openChatRef.current = openChat;
 

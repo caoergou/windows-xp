@@ -17,7 +17,7 @@ import { canUseDOM } from '../utils/storage';
 import { decodeOpenWindows, encodeOpenWindows } from '../utils/windowPersistence';
 import { saveLanguage, getSavedLanguage } from '../utils/language';
 import { XP_SNAPSHOT_VERSION, assertLoadableSnapshot, type XPSnapshot } from '../snapshot';
-import { sounds, playSound } from '../utils/soundManager';
+import { playSound } from '../utils/soundManager';
 import { openExternalUrl } from '../utils/externalLink';
 import { serializeOpenPath } from '../utils/deepLink';
 import i18n from '../i18n';
@@ -601,6 +601,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
       clock,
       recentDocuments,
       print,
+      power,
     ]);
 
     void fs;
