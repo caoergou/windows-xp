@@ -6,12 +6,25 @@ import { useCulture } from '../context/CultureContext';
 import { APP_REGISTRY } from '../registry/apps';
 import { SYSTEM_PATHS } from '../data/systemPaths';
 
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  orange700: '#78350F',
+  orange7002: '#92400E',
+  orange600: '#B45309',
+  orange6002: '#D97706',
+  yellow200: '#FDE68A',
+  yellow100: '#FEF3C7',
+};
+/* brand-palette:end */
+
 const NoteContainer = styled.div`
   position: absolute;
   top: 80px;
   right: 20px;
   width: 210px;
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  background: linear-gradient(135deg, ${PALETTE.yellow100} 0%, ${PALETTE.yellow200} 100%);
   padding: 14px 14px 12px;
   box-shadow:
     2px 2px 10px rgba(0, 0, 0, 0.3),
@@ -48,9 +61,9 @@ const NoteContainer = styled.div`
 const NoteTitle = styled.div`
   font-size: 13px;
   font-weight: bold;
-  color: #92400e;
+  color: ${PALETTE.orange7002};
   margin-bottom: 8px;
-  border-bottom: 1px dashed #d97706;
+  border-bottom: 1px dashed ${PALETTE.orange6002};
   padding-bottom: 5px;
   display: flex;
   justify-content: space-between;
@@ -59,19 +72,19 @@ const NoteTitle = styled.div`
 
 const CloseBtn = styled.span`
   font-size: 12px;
-  color: #b45309;
+  color: ${PALETTE.orange600};
   cursor: pointer;
   line-height: 1;
   padding: 0 2px;
   &:hover {
-    color: #92400e;
+    color: ${PALETTE.orange7002};
   }
 `;
 
 const NoteContent = styled.div`
   font-size: 12px;
   line-height: 1.75;
-  color: #78350f;
+  color: ${PALETTE.orange700};
   white-space: pre-wrap;
 `;
 

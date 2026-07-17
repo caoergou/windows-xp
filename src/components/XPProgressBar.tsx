@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { COLORS } from '../constants';
 
 /**
  * Canonical XP progress bar (#99 / #78), value-for-value from xp.css's
@@ -12,18 +13,18 @@ import styled from 'styled-components';
  */
 
 const LUNA_FILL =
-  'repeating-linear-gradient(90deg, #fff 0, #fff 2px, transparent 0, transparent 10px), ' +
-  'linear-gradient(180deg, #acedad 0, #7be47d 14%, #4cda50 28%, #2ed330 42%, #42d845 57%, #76e275 71%, #8fe791 85%, #fff)';
+  `repeating-linear-gradient(90deg, ${COLORS.WHITE} 0, ${COLORS.WHITE} 2px, transparent 0, transparent 10px), ` +
+  `${COLORS.PROGRESS_FILL_GRADIENT}`;
 
 const Track = styled.div`
   box-sizing: border-box;
   height: 14px;
-  border: 1px solid #686868;
+  border: 1px solid ${COLORS.PROGRESS_BORDER};
   border-radius: 4px;
   padding: 1px 2px 1px 0;
   overflow: hidden;
-  background-color: #fff;
-  box-shadow: inset 0 0 1px 0 #686868;
+  background-color: ${COLORS.WHITE};
+  box-shadow: inset 0 0 1px 0 ${COLORS.PROGRESS_BORDER};
 `;
 
 const Fill = styled.div<{ $ratio: number }>`

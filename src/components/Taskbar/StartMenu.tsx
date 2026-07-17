@@ -8,6 +8,7 @@ import { sounds } from '../../utils/soundManager';
 import StartMenuFlyout from './StartMenuFlyout';
 import { StartMenuProfile } from '../../data/culture';
 import { SYSTEM_PATHS } from '../../data/systemPaths';
+import { COLORS } from '../../constants';
 
 const StartMenuContainer = styled.div`
   box-sizing: border-box;
@@ -15,7 +16,7 @@ const StartMenuContainer = styled.div`
   bottom: 30px;
   left: 0;
   width: 380px;
-  background-color: #4282d6;
+  background-color: ${COLORS.STARTMENU_BLUE};
   border-top-left-radius: 5px;
   border-top-right-radius: 8px;
   z-index: 20000;
@@ -32,28 +33,13 @@ const StartHeader = styled.div`
   align-self: flex-start;
   display: flex;
   align-items: center;
-  color: #fff;
+  color: ${COLORS.WHITE};
   height: 54px;
   padding: 6px 5px 5px;
   width: 100%;
   border-top-left-radius: 5px;
   border-top-right-radius: 8px;
-  background: linear-gradient(
-    to bottom,
-    #1868ce 0%,
-    #0e60cb 12%,
-    #0e60cb 20%,
-    #1164cf 32%,
-    #1667cf 33%,
-    #1b6cd3 47%,
-    #1e70d9 54%,
-    #2476dc 60%,
-    #297ae0 65%,
-    #3482e3 77%,
-    #3786e5 79%,
-    #428ee9 90%,
-    #4791eb 100%
-  );
+  background: ${COLORS.STARTMENU_HEADER_GRADIENT};
   overflow: hidden;
 
   &:before {
@@ -74,7 +60,7 @@ const StartHeader = styled.div`
       rgba(255, 255, 255, 0.2) 99%,
       transparent 100%
     );
-    box-shadow: inset 0 -1px 1px #0e60cb;
+    box-shadow: inset 0 -1px 1px ${COLORS.STARTMENU_HEADER_SHADOW};
   }
 
   .user-avatar {
@@ -83,14 +69,14 @@ const StartHeader = styled.div`
     margin-right: 5px;
     border-radius: 3px;
     border: 2px solid rgba(222, 222, 222, 0.8);
-    background: #99ccff;
+    background: ${COLORS.STARTMENU_TINT};
     display: flex;
     justify-content: center;
     align-items: center;
   }
 
   span {
-    color: #fff;
+    color: ${COLORS.WHITE};
     font-size: 14px;
     font-weight: 700;
     text-shadow: 1px 1px rgba(0, 0, 0, 0.7);
@@ -104,8 +90,8 @@ const StartBody = styled.div`
   max-height: calc(100vh - 84px);
   width: calc(100% - 4px);
   position: relative;
-  border-top: 1px solid #385de7;
-  box-shadow: 0 1px #385de7;
+  border-top: 1px solid ${COLORS.STARTMENU_RIGHT_BORDER};
+  box-shadow: 0 1px ${COLORS.STARTMENU_RIGHT_BORDER};
 `;
 
 const OrangeLine = styled.div`
@@ -114,14 +100,19 @@ const OrangeLine = styled.div`
   right: 0;
   top: 0;
   height: 2px;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #da884a 50%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0) 0%,
+    ${COLORS.STARTMENU_DIVIDER_ORANGE} 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
   z-index: 1;
 `;
 
 const StartLeft = styled.div`
   box-sizing: border-box;
   width: 50%;
-  background: #fff;
+  background: ${COLORS.WHITE};
   padding: 6px 5px 0;
   overflow-y: auto;
   ${xpScrollbarStyles}
@@ -130,7 +121,7 @@ const StartLeft = styled.div`
 const StartRight = styled.div`
   box-sizing: border-box;
   width: 50%;
-  background: #cbe3ff;
+  background: ${COLORS.STARTMENU_RIGHT_BG};
   border-left: solid rgba(58, 58, 255, 0.37) 1px;
   padding: 6px 5px 5px;
   overflow-y: auto;
@@ -143,10 +134,10 @@ const MenuItem = styled.div`
   padding: 5px;
   cursor: pointer;
   font-size: 11px;
-  color: #333;
+  color: ${COLORS.GREY_33};
 
   &:hover {
-    background: #2f71cd;
+    background: ${COLORS.STARTMENU_FOOTER_HOVER};
     color: white;
   }
 
@@ -156,11 +147,11 @@ const MenuItem = styled.div`
 `;
 
 const RightMenuItem = styled(MenuItem)`
-  color: #00136b;
+  color: ${COLORS.STARTMENU_RIGHT_TEXT};
 
   &:hover {
-    background: #2f71cd;
-    color: #fff;
+    background: ${COLORS.STARTMENU_FOOTER_HOVER};
+    color: ${COLORS.WHITE};
   }
 `;
 
@@ -180,7 +171,7 @@ const MenuSeparator = styled.div`
 const MenuArrow = styled.span`
   margin-left: auto;
   font-size: 10px;
-  color: #666;
+  color: ${COLORS.GREY_66};
 `;
 
 const RightMenuSeparator = styled(MenuSeparator)`
@@ -198,29 +189,12 @@ const StartFooter = styled.div`
   align-self: flex-end;
   align-items: center;
   justify-content: flex-end;
-  color: #fff;
+  color: ${COLORS.WHITE};
   height: 36px;
   width: 100%;
   padding: 0 10px;
   gap: 10px;
-  background: linear-gradient(
-    to bottom,
-    #4282d6 0%,
-    #3b85e0 3%,
-    #418ae3 5%,
-    #418ae3 17%,
-    #3c87e2 21%,
-    #3786e4 26%,
-    #3482e3 29%,
-    #2e7ee1 39%,
-    #2374df 49%,
-    #2072db 57%,
-    #196edb 62%,
-    #176bd8 72%,
-    #1468d5 75%,
-    #1165d2 83%,
-    #0f61cb 88%
-  );
+  background: ${COLORS.STARTMENU_FOOTER_GRADIENT};
 
   button {
     background: none;

@@ -13,6 +13,7 @@ import { XPStatusBar, XPStatusBarField } from '../components/XPStatusBar';
 import { XPTabs } from '../components/XPTabs';
 import { XPDialog } from '../components/XPDialog';
 import { xpTrackbarStyles } from '../theme';
+import { COLORS, FONTS } from '../constants';
 
 /**
  * Micro-component gallery (#99 / #78). Renders every shared XP primitive on one
@@ -23,17 +24,17 @@ import { xpTrackbarStyles } from '../theme';
 
 const Page = styled.div`
   min-height: 100vh;
-  background: #ece9d8;
+  background: ${COLORS.SURFACE};
   padding: 24px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
 `;
 
 const Section = styled.section`
   margin-bottom: 20px;
-  background: #fff;
-  border: 1px solid #aca899;
+  background: ${COLORS.WHITE};
+  border: 1px solid ${COLORS.DIVIDER_GREY};
   padding: 12px 14px;
   max-width: 620px;
 `;
@@ -42,7 +43,7 @@ const Title = styled.h2`
   margin: 0 0 10px;
   font-size: 13px;
   font-weight: bold;
-  color: #003c74;
+  color: ${COLORS.BUTTON_BORDER};
 `;
 
 const Row = styled.div`
@@ -56,8 +57,8 @@ const Row = styled.div`
 const TooltipSwatch = styled.div`
   display: inline-block;
   padding: 1px 4px 2px;
-  background: #ffffe1;
-  border: 1px solid #000;
+  background: ${COLORS.TOOLTIP_BG};
+  border: 1px solid ${COLORS.BLACK};
   font-size: 11px;
   box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.25);
 `;
@@ -77,7 +78,9 @@ const Gallery: React.FC = () => {
     // The `.windows-xp-root` class is what the scoped xp.css hangs off of.
     <div className="windows-xp-root">
       <Page data-testid="gallery">
-        <h1 style={{ fontSize: 18, color: '#003c74', marginTop: 0 }}>XP Micro-component Gallery</h1>
+        <h1 style={{ fontSize: 18, color: COLORS.BUTTON_BORDER, marginTop: 0 }}>
+          XP Micro-component Gallery
+        </h1>
 
         <Section data-testid="gallery-buttons">
           <Title>Buttons — XPButton</Title>
@@ -176,7 +179,7 @@ const Gallery: React.FC = () => {
         </Section>
 
         <Section data-testid="gallery-tooltip">
-          <Title>Tooltip — XPTooltip (#FFFFE1)</Title>
+          <Title>Tooltip — XPTooltip ({COLORS.TOOLTIP_BG})</Title>
           <Row>
             <TooltipSwatch>This is a Windows XP tooltip</TooltipSwatch>
             <XPTooltip text="Hover tooltip works too">

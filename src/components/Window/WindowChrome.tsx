@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { WindowState } from '../../types';
-import { WINDOW_DEFAULTS } from '../../constants';
+import { COLORS, WINDOW_DEFAULTS, FONTS } from '../../constants';
 import XPIcon from '../XPIcon';
 
 export const WindowContainer = styled.div<{
@@ -15,11 +15,9 @@ export const WindowContainer = styled.div<{
   flex-direction: column;
   min-height: ${({ $minHeight }) => $minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT}px;
   min-width: ${({ $minWidth }) => $minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH}px;
-  background-color: #ece9d8;
+  background-color: ${COLORS.SURFACE};
   box-shadow: ${({ $isFocus }) =>
-    $isFocus
-      ? 'inset -1px -1px #00138c, inset 1px 1px #0831d9, inset -2px -2px #001ea0, inset 2px 2px #166aee, inset -3px -3px #003bda, inset 3px 3px #0855dd'
-      : 'inset -1px -1px #4f648f, inset 1px 1px #7a96df, inset -2px -2px #5a74b9, inset 2px 2px #9aafe5'};
+    $isFocus ? COLORS.WINDOW_FRAME_SHADOW_ACTIVE : COLORS.WINDOW_FRAME_SHADOW_INACTIVE};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   padding: 0 0 3px;
@@ -35,12 +33,14 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
   min-height: 28px;
   max-height: 28px;
   background: ${({ $isFocus }) =>
-    $isFocus
-      ? 'linear-gradient(to bottom, #0997ff 0%, #0053ee 8%, #0050ee 40%, #0066ff 88%, #0066ff 93%, #005bff 95%, #003dd7 96%, #003dd7 100%)'
-      : 'linear-gradient(to bottom, #7697e7 0%,#7e9ee3 3%,#94afe8 6%,#97b4e9 8%,#82a5e4 14%,#7c9fe2 17%,#7996de 25%,#7b99e1 56%,#82a9e9 81%,#80a5e7 89%,#7b96e1 94%,#7a93df 97%,#abbae3 100%)'};
-  border-top: 1px solid ${({ $isFocus }) => ($isFocus ? '#0831d9' : '#6d86c7')};
-  border-left: 1px solid ${({ $isFocus }) => ($isFocus ? '#0831d9' : '#6d86c7')};
-  border-right: 1px solid ${({ $isFocus }) => ($isFocus ? '#001ea0' : '#536da8')};
+    $isFocus ? COLORS.TITLE_BAR_GRADIENT : COLORS.WINDOW_TITLE_INACTIVE};
+  border-top: 1px solid
+    ${({ $isFocus }) => ($isFocus ? COLORS.WINDOW_BORDER_ACTIVE : COLORS.WINDOW_BORDER_INACTIVE)};
+  border-left: 1px solid
+    ${({ $isFocus }) => ($isFocus ? COLORS.WINDOW_BORDER_ACTIVE : COLORS.WINDOW_BORDER_INACTIVE)};
+  border-right: 1px solid
+    ${({ $isFocus }) =>
+      $isFocus ? COLORS.WINDOW_BORDER_ACTIVE_DARK : COLORS.WINDOW_BORDER_INACTIVE_DARK};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   display: flex;
@@ -55,8 +55,8 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
   position: relative;
   font-weight: 700;
   font-size: 13px;
-  font-family: 'Trebuchet MS', 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
-  text-shadow: 1px 1px #000;
+  font-family: ${FONTS.TITLEBAR};
+  text-shadow: 1px 1px ${COLORS.BLACK};
   color: white;
   flex-shrink: 0;
 
@@ -66,7 +66,7 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
     position: absolute;
     left: 0;
     opacity: ${({ $isFocus }) => ($isFocus ? 1 : 0.3)};
-    background: linear-gradient(to right, #1638e6 0%, transparent 100%);
+    background: linear-gradient(to right, ${COLORS.TITLE_BAR_GLOW} 0%, transparent 100%);
     top: 0;
     bottom: 0;
     width: 15px;
@@ -80,7 +80,7 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
     display: block;
     position: absolute;
     right: 0;
-    background: linear-gradient(to left, #1638e6 0%, transparent 100%);
+    background: linear-gradient(to left, ${COLORS.TITLE_BAR_GLOW} 0%, transparent 100%);
     top: 0;
     bottom: 0;
     width: 15px;
@@ -93,7 +93,7 @@ const TitleText = styled.div`
   color: white;
   font-weight: bold;
   font-size: 13px;
-  font-family: 'Trebuchet MS', 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.TITLEBAR};
   text-shadow: 1px 1px 1px black;
   display: flex;
   align-items: center;
@@ -116,7 +116,7 @@ const TitleText = styled.div`
 
 export const WindowBody = styled.div`
   flex: 1;
-  background: #ece9d8;
+  background: ${COLORS.SURFACE};
   overflow: hidden;
   position: relative;
   display: flex;

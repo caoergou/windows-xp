@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import { COLORS, FONTS } from '../constants';
 
 const ClockContainer = styled.div`
   position: relative;
@@ -22,13 +23,13 @@ const CalendarPopup = styled.div`
   bottom: calc(100% + 4px);
   right: 0;
   width: 180px;
-  background: #ece9d8;
-  border: 1px solid #003c74;
-  box-shadow: 2px 2px 0 #808080;
+  background: ${COLORS.SURFACE};
+  border: 1px solid ${COLORS.BUTTON_BORDER};
+  box-shadow: 2px 2px 0 ${COLORS.BUTTON_SHADOW};
   padding: 6px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
   z-index: 30000;
 `;
 
@@ -37,7 +38,7 @@ const CalendarHeader = styled.div`
   font-weight: bold;
   margin-bottom: 6px;
   padding-bottom: 4px;
-  border-bottom: 1px solid #ece9d8;
+  border-bottom: 1px solid ${COLORS.SURFACE};
 `;
 
 const WeekdayRow = styled.div`
@@ -45,7 +46,7 @@ const WeekdayRow = styled.div`
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
   font-weight: bold;
-  color: #003c74;
+  color: ${COLORS.BUTTON_BORDER};
   margin-bottom: 2px;
 `;
 
@@ -61,9 +62,9 @@ const DayCell = styled.div<{ $today?: boolean }>`
   ${props =>
     props.$today &&
     `
-    background: #316ac5;
+    background: ${COLORS.MENU_HIGHLIGHT};
     color: white;
-    border: 1px solid #003c74;
+    border: 1px solid ${COLORS.BUTTON_BORDER};
   `}
 `;
 

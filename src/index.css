@@ -1,4 +1,5 @@
 @import './scoped.css';
+@import './themes/xp/xp-chrome.css';
 
 /* Demo-specific global rules: make the host page fill the viewport.
  * When embedding <WindowsXP /> into an existing app, import scoped.css

@@ -4,6 +4,7 @@ import GlassBox from './GlassBox';
 import { SiteI18nProvider } from './siteI18n';
 import 'xp.css/dist/XP.css';
 import '../scoped.css';
+import '../themes/xp/xp-chrome.css';
 
 /**
  * /lab/ — the glass box's home after the landing page went single-act (#250).

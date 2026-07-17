@@ -1,7 +1,13 @@
 import { isFileContentNode, isContainerNode, FileNode } from '../../types';
 import { parseCmdArgs, resolveCmdPath } from '../../utils/commandPath';
 import { triggerBsod } from '../../utils/easterEggs';
-import { DRIVE_ROOT, PROTECTED_FOLDERS } from './constants';
+import {
+  CMD_COLORS,
+  CMD_DEFAULT_TEXT,
+  CMD_MATRIX_GREEN,
+  DRIVE_ROOT,
+  PROTECTED_FOLDERS,
+} from './constants';
 import type { CmdContext } from './types';
 
 /**
@@ -482,27 +488,10 @@ VOL         显示磁盘卷标和序列号。`
 
     // ── Easter eggs (#85) ────────────────────────────────────────────────
     case 'color': {
-      const codes: Record<string, string> = {
-        '0': '#000000',
-        '1': '#000080',
-        '2': '#008000',
-        '3': '#008080',
-        '4': '#800000',
-        '5': '#800080',
-        '6': '#808000',
-        '7': '#c0c0c0',
-        '8': '#808080',
-        '9': '#0000ff',
-        a: '#00ff00',
-        b: '#00ffff',
-        c: '#ff0000',
-        d: '#ff00ff',
-        e: '#ffff00',
-        f: '#ffffff',
-      };
+      const codes = CMD_COLORS;
       const code = (args[0] || '').toLowerCase();
       if (!code) {
-        setTextColor('#c0c0c0');
+        setTextColor(CMD_DEFAULT_TEXT);
         return '';
       }
       // XP `color BF`: B = background, F = foreground. Single digit = foreground.
@@ -515,7 +504,7 @@ VOL         显示磁盘卷标和序列号。`
     }
 
     case 'matrix':
-      setTextColor('#00ff00');
+      setTextColor(CMD_MATRIX_GREEN);
       return (
         '\n01001101 01100001 01110100 01110010 01101001 01111000\n' +
         '  ｱ0ﾃ1ﾔｷ ﾘ01ﾈ ﾂ1ｦ0ﾏ ﾗ0ｻ1ﾃ 0ﾘ1ｦ ﾂﾔ01ﾉ\n' +

@@ -1,13 +1,13 @@
 import styled, { keyframes } from 'styled-components';
 import { xpScrollbarStyles, xpButtonStyles, xpTitleBarStyles } from '../../theme';
-import { COLORS } from '../../constants';
+import { COLORS, FONTS } from '../../constants';
 
 export const Container = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 export const MainArea = styled.div`
@@ -19,15 +19,15 @@ export const MainArea = styled.div`
 
 export const Sidebar = styled.div`
   width: 250px;
-  background: #fff;
-  border-right: 1px solid #999;
+  background: ${COLORS.WHITE};
+  border-right: 1px solid ${COLORS.GREY_99};
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
 `;
 
 export const SidebarHeader = styled.div`
-  background: linear-gradient(to right, #6ba3e5, #3f78bd);
+  background: ${COLORS.HEADER_GRADIENT_BLUE};
   color: white;
   padding: 5px;
   font-weight: bold;
@@ -51,21 +51,21 @@ export const HistoryItem = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid ${COLORS.GREY_EE};
   font-size: 12px;
   display: flex;
   flex-direction: column;
 
   &:hover {
-    background: #f0f0f0;
+    background: ${COLORS.GREY_F0};
   }
 
   .url {
-    color: #0066cc;
+    color: ${COLORS.LINK_BLUE};
   }
 
   .time {
-    color: #888;
+    color: ${COLORS.GREY_88};
     font-size: 10px;
     margin-top: 2px;
   }
@@ -77,23 +77,23 @@ export const FavoritesItem = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid ${COLORS.GREY_EE};
   font-size: 12px;
   display: flex;
   align-items: center;
   gap: 5px;
 
   &:hover {
-    background: #f0f0f0;
+    background: ${COLORS.GREY_F0};
   }
 
   .name {
-    color: #0066cc;
+    color: ${COLORS.LINK_BLUE};
     flex: 1;
   }
 
   .delete {
-    color: #ff0000;
+    color: ${COLORS.ERROR_RED};
     font-size: 10px;
     opacity: 0;
     cursor: pointer;
@@ -102,7 +102,7 @@ export const FavoritesItem = styled.div`
 
     &:hover {
       opacity: 1;
-      background: #ffdddd;
+      background: ${COLORS.ERROR_TINT};
     }
   }
 
@@ -113,8 +113,8 @@ export const FavoritesItem = styled.div`
 
 export const FavoritesToolbar = styled.div`
   padding: 5px;
-  background: #f0f0f0;
-  border-bottom: 1px solid #ddd;
+  background: ${COLORS.GREY_F0};
+  border-bottom: 1px solid ${COLORS.GREY_DD};
   display: flex;
   gap: 3px;
 `;
@@ -162,7 +162,7 @@ export const LoadingBar = styled.div<{ $visible: boolean }>`
   bottom: 0;
   left: 0;
   height: 2px;
-  background: #316ac5;
+  background: ${COLORS.MENU_HIGHLIGHT};
   display: ${p => (p.$visible ? 'block' : 'none')};
   animation: ${ieLoadingBar} 1.5s ease-in-out infinite;
 `;
@@ -174,7 +174,7 @@ export const FooterStatus = styled.div`
   align-items: center;
   padding: 0 4px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   gap: 4px;
   overflow: hidden;
   border-right: 1px solid rgba(0, 0, 0, 0.12);
@@ -201,7 +201,7 @@ export const StatusText = styled.span`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: #333;
+  color: ${COLORS.GREY_33};
 `;
 
 export const FooterBlock = styled.div`
@@ -222,7 +222,7 @@ export const FooterRight = styled.div`
   padding-left: 5px;
   position: relative;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   gap: 4px;
   flex-shrink: 0;
 
@@ -258,9 +258,9 @@ export const AddFavoriteModal = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   background: ${COLORS.SURFACE};
-  border: 2px solid #316ac5;
+  border: 2px solid ${COLORS.MENU_HIGHLIGHT};
   border-radius: 0;
-  box-shadow: 2px 2px 0 #808080;
+  box-shadow: 2px 2px 0 ${COLORS.BUTTON_SHADOW};
   z-index: 1000;
   min-width: 300px;
   overflow: hidden;
@@ -274,11 +274,11 @@ export const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 export const ModalTitle = styled.span`
-  color: #fff;
+  color: ${COLORS.WHITE};
 `;
 
 export const ModalBody = styled.div`
@@ -288,9 +288,9 @@ export const ModalBody = styled.div`
 export const ModalInput = styled.input`
   width: 100%;
   padding: 3px 4px;
-  border: 1px solid #7f9db9;
+  border: 1px solid ${COLORS.FIELD_BORDER};
   font-size: 12px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   box-sizing: border-box;
 `;
 

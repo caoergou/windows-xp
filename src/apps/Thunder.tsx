@@ -4,6 +4,56 @@ import { CultureAppShell } from './culture/shell';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
 
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  blue700: '#004488',
+  blue7002: '#0055AA',
+  blue600: '#0066CC',
+  blue500: '#0088FF',
+  grey800: '#333333',
+  blue7003: '#335577',
+  blue7004: '#445566',
+  blue400: '#4A9EFF',
+  green500: '#55AA55',
+  blue300: '#66BBFF',
+  green300: '#88CC88',
+  grey400: '#999999',
+  grey300: '#BBBBBB',
+  blue100: '#C7D8EB',
+  orange600: '#CC5500',
+  red400: '#CC5555',
+  orange6002: '#CC6600',
+  blue1002: '#CCE4FF',
+  grey200: '#D0D0D0',
+  blue1003: '#DCE6F2',
+  grey100: '#E0E0E0',
+  blue1004: '#E3EEF9',
+  orange500: '#E66B00',
+  grey1002: '#E8E8E8',
+  grey1003: '#EBEBEB',
+  blue1005: '#EEF2F5',
+  blue1006: '#EEF3F9',
+  white: '#F0F0F0',
+  blue1007: '#F0F5FA',
+  white2: '#F7F7F7',
+  blue1008: '#F7FBFF',
+  blue1009: '#F9FBFD',
+  orange5002: '#FF8800',
+  orange400: '#FF9933',
+  red200: '#FF9999',
+  orange4002: '#FFAA33',
+  orange300: '#FFB84D',
+  yellow500: '#FFCC00',
+  yellow300: '#FFCC66',
+  yellow3002: '#FFD67A',
+  orange100: '#FFE8CC',
+  orange1002: '#FFF3E0',
+  white3: '#FFFFFF',
+};
+/* brand-palette:end */
+
 interface DownloadItem {
   id: string;
   name: string;
@@ -14,24 +64,29 @@ interface DownloadItem {
 }
 
 const Wrap = styled(CultureAppShell)`
-  background: #f7f7f7;
-  color: #333;
+  background: ${PALETTE.white2};
+  color: ${PALETTE.grey800};
 `;
 
 const Header = styled.div`
-  background: linear-gradient(to bottom, #4a9eff 0%, #0066cc 50%, #0055aa 100%);
+  background: linear-gradient(
+    to bottom,
+    ${PALETTE.blue400} 0%,
+    ${PALETTE.blue600} 50%,
+    ${PALETTE.blue7002} 100%
+  );
   padding: 10px 12px;
   display: flex;
   align-items: center;
   gap: 10px;
-  border-bottom: 1px solid #004488;
+  border-bottom: 1px solid ${PALETTE.blue700};
   flex-shrink: 0;
 `;
 
 const LogoBox = styled.div`
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #ffcc00 0%, #ff8800 100%);
+  background: linear-gradient(135deg, ${PALETTE.yellow500} 0%, ${PALETTE.orange5002} 100%);
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -46,8 +101,8 @@ const LogoIcon = () => (
   <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
     <path
       d="M20 3L10 16h5l-3 9 10-12h-5l4-10z"
-      fill="#fff"
-      stroke="#cc5500"
+      fill={PALETTE.white3}
+      stroke={PALETTE.orange600}
       strokeWidth="1.2"
       strokeLinejoin="round"
     />
@@ -66,7 +121,7 @@ const HeaderText = styled.div`
 
   .version {
     font-size: 11px;
-    color: #cce4ff;
+    color: ${PALETTE.blue1002};
   }
 `;
 
@@ -75,8 +130,8 @@ const Toolbar = styled.div`
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  background: linear-gradient(to bottom, #ffffff 0%, #eef3f9 100%);
-  border-bottom: 1px solid #c7d8eb;
+  background: linear-gradient(to bottom, ${PALETTE.white3} 0%, ${PALETTE.blue1006} 100%);
+  border-bottom: 1px solid ${PALETTE.blue100};
   flex-shrink: 0;
 `;
 
@@ -95,29 +150,29 @@ const ToolbarBtn = styled.button<{ $primary?: boolean }>`
   ${p =>
     p.$primary
       ? `
-    background: linear-gradient(to bottom, #ffcc66 0%, #ffaa33 50%, #ff8800 100%);
-    color: #fff;
-    border-color: #cc6600;
+    background: linear-gradient(to bottom, ${PALETTE.yellow300} 0%, ${PALETTE.orange4002} 50%, ${PALETTE.orange5002} 100%);
+    color: ${PALETTE.white3};
+    border-color: ${PALETTE.orange6002};
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
 
     &:hover {
-      background: linear-gradient(to bottom, #ffd67a 0%, #ffb84d 50%, #ff9933 100%);
+      background: linear-gradient(to bottom, ${PALETTE.yellow3002} 0%, ${PALETTE.orange300} 50%, ${PALETTE.orange400} 100%);
     }
     &:active {
-      background: linear-gradient(to bottom, #ff8800 0%, #e66b00 100%);
+      background: linear-gradient(to bottom, ${PALETTE.orange5002} 0%, ${PALETTE.orange500} 100%);
       box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
     }
   `
       : `
-    background: linear-gradient(to bottom, #ffffff 0%, #f0f0f0 50%, #e0e0e0 100%);
-    color: #333;
-    border-color: #999;
+    background: linear-gradient(to bottom, ${PALETTE.white3} 0%, ${PALETTE.white} 50%, ${PALETTE.grey100} 100%);
+    color: ${PALETTE.grey800};
+    border-color: ${PALETTE.grey400};
 
     &:hover {
-      background: linear-gradient(to bottom, #ffffff 0%, #f7f7f7 50%, #ebebeb 100%);
+      background: linear-gradient(to bottom, ${PALETTE.white3} 0%, ${PALETTE.white2} 50%, ${PALETTE.grey1003} 100%);
     }
     &:active {
-      background: linear-gradient(to bottom, #e0e0e0 0%, #d0d0d0 100%);
+      background: linear-gradient(to bottom, ${PALETTE.grey100} 0%, ${PALETTE.grey200} 100%);
       box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
     }
   `}
@@ -132,7 +187,7 @@ const Main = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: ${PALETTE.white3};
   overflow: hidden;
 `;
 
@@ -140,9 +195,9 @@ const ListHeader = styled.div`
   display: flex;
   align-items: center;
   padding: 5px 10px;
-  background: linear-gradient(to bottom, #f7fbff 0%, #e3eef9 100%);
-  border-bottom: 1px solid #c7d8eb;
-  color: #335577;
+  background: linear-gradient(to bottom, ${PALETTE.blue1008} 0%, ${PALETTE.blue1004} 100%);
+  border-bottom: 1px solid ${PALETTE.blue100};
+  color: ${PALETTE.blue7003};
   font-weight: bold;
   flex-shrink: 0;
 `;
@@ -150,19 +205,19 @@ const ListHeader = styled.div`
 const ListBody = styled.div`
   flex: 1;
   overflow-y: auto;
-  background: #fff;
+  background: ${PALETTE.white3};
 `;
 
 const ListRow = styled.div<{ $selected?: boolean }>`
   display: flex;
   align-items: center;
   padding: 7px 10px;
-  border-bottom: 1px solid #eef2f5;
+  border-bottom: 1px solid ${PALETTE.blue1005};
   cursor: pointer;
-  background: ${p => (p.$selected ? '#fff3e0' : 'transparent')};
+  background: ${p => (p.$selected ? PALETTE.orange1002 : 'transparent')};
 
   &:hover {
-    background: ${p => (p.$selected ? '#ffe8cc' : '#f9fbfd')};
+    background: ${p => (p.$selected ? PALETTE.orange100 : PALETTE.blue1009)};
   }
 `;
 
@@ -179,8 +234,8 @@ const Cell = styled.div<{ $flex?: number; $width?: number; $align?: 'left' | 'ce
 const ProgressWrap = styled.div`
   width: 100%;
   height: 14px;
-  background: #e8e8e8;
-  border: 1px solid #bbb;
+  background: ${PALETTE.grey1002};
+  border: 1px solid ${PALETTE.grey300};
   border-radius: 2px;
   overflow: hidden;
   position: relative;
@@ -191,10 +246,10 @@ const ProgressFill = styled.div<{ $value: number; $status: DownloadItem['status'
   height: 100%;
   background: ${p =>
     p.$status === 'completed'
-      ? 'linear-gradient(to bottom, #88cc88 0%, #55aa55 100%)'
+      ? `linear-gradient(to bottom, ${PALETTE.green300} 0%, ${PALETTE.green500} 100%)`
       : p.$status === 'error'
-        ? 'linear-gradient(to bottom, #ff9999 0%, #cc5555 100%)'
-        : 'linear-gradient(to bottom, #66bbff 0%, #0088ff 100%)'};
+        ? `linear-gradient(to bottom, ${PALETTE.red200} 0%, ${PALETTE.red400} 100%)`
+        : `linear-gradient(to bottom, ${PALETTE.blue300} 0%, ${PALETTE.blue500} 100%)`};
   transition: width 0.2s linear;
 `;
 
@@ -208,14 +263,14 @@ const ProgressText = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 10px;
-  color: #333;
+  color: ${PALETTE.grey800};
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
 `;
 
 const EmptyState = styled.div`
   padding: 30px;
   text-align: center;
-  color: #999;
+  color: ${PALETTE.grey400};
 `;
 
 const StatusBar = styled.div`
@@ -223,15 +278,15 @@ const StatusBar = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 4px 10px;
-  background: linear-gradient(to bottom, #f0f5fa 0%, #dce6f2 100%);
-  border-top: 1px solid #c7d8eb;
+  background: linear-gradient(to bottom, ${PALETTE.blue1007} 0%, ${PALETTE.blue1003} 100%);
+  border-top: 1px solid ${PALETTE.blue100};
   font-size: 11px;
-  color: #445566;
+  color: ${PALETTE.blue7004};
   flex-shrink: 0;
 `;
 
 const StatusMetric = styled.span`
-  color: #0066cc;
+  color: ${PALETTE.blue600};
   font-weight: bold;
 `;
 
@@ -240,17 +295,17 @@ const StatusBadge = styled.span<{ $status: DownloadItem['status'] }>`
   padding: 1px 6px;
   border-radius: 2px;
   font-size: 11px;
-  color: #fff;
+  color: ${PALETTE.white3};
   background: ${p =>
     p.$status === 'completed'
-      ? '#55aa55'
+      ? PALETTE.green500
       : p.$status === 'downloading'
-        ? '#0088ff'
+        ? PALETTE.blue500
         : p.$status === 'paused'
-          ? '#ffaa33'
+          ? PALETTE.orange4002
           : p.$status === 'error'
-            ? '#cc5555'
-            : '#999'};
+            ? PALETTE.red400
+            : PALETTE.grey400};
 `;
 
 const defaultDownloads: DownloadItem[] = [

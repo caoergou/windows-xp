@@ -44,7 +44,7 @@ Platform-level vision (#143 RFC, `docs/OS-PLATFORM-VISION.md`): the engine gradu
 9. Sounds must go through the `soundManager` event mapping; `new Audio` is forbidden.
 10. PRs that change interaction/style must update the corresponding entry status in `FIDELITY.md`.
 11. **Mechanism and "the XP look" must be layered** (preparation for #143): engine directories (`context`/`hooks`/`utils`/`events.ts`/`snapshot.ts`) must not contain color literals, xp.css dependencies, or XP-specific chrome assumptions — `guard:purity` is enforced in CI.
-12. Inline hex color stock must only **decrease** (`guard:purity` ratchet count); new app menus pass structured data to `XPMenuBar`, never hand-roll menu DOM (paving the way for #128 `menus:` migration).
+12. Inline hex colors are **zero** outside the two sanctioned stores (`guard:purity`, `HEX_BASELINE = 0`): OS-chrome colors live in `src/themes/xp/tokens.ts` (`COLORS`/`FONTS`), app-identity colors live in declared `brand-palette` blocks (allow-listed files only — see `docs/THEMING.md`). New app menus pass structured data to `XPMenuBar`, never hand-roll menu DOM (paving the way for #128 `menus:` migration).
 
 ## Reference Resources
 

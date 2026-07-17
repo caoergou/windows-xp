@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { COLORS, FONTS } from '../constants';
 
 /**
  * Canonical Luna text input (#99 / #78), matching xp.css's
@@ -19,12 +20,12 @@ export const XPTextInput = styled.input`
   width: 100%;
   height: 23px;
   padding: 3px 4px;
-  border: 1px solid #7f9db9;
+  border: 1px solid ${COLORS.FIELD_BORDER};
   border-radius: 0;
-  background: #fff;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  background: ${COLORS.WHITE};
+  font-family: ${FONTS.UI};
   font-size: 12px;
-  color: #000;
+  color: ${COLORS.BLACK};
 
   &:focus {
     outline: none;

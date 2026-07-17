@@ -28,6 +28,19 @@ import {
   RANK_LABELS,
   SUIT_SYMBOLS,
 } from './solitaireLogic';
+import { COLORS, FONTS } from '../constants';
+
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  blue800: '#003366',
+  green700: '#008000',
+  green600: '#00CC00',
+  blue700: '#1A3C8A',
+  red500: '#FF0000',
+};
+/* brand-palette:end */
 
 const CARD_WIDTH = 71;
 const CARD_HEIGHT = 96;
@@ -36,15 +49,15 @@ const TABLEAU_OFFSET = 18;
 const Wrap = styled.div`
   width: 100%;
   height: 100%;
-  background: #008000;
+  background: ${PALETTE.green700};
   display: flex;
   flex-direction: column;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 12px;
   user-select: none;
-  color: #ffffff;
+  color: ${COLORS.WHITE};
   overflow: auto;
   position: relative;
 `;
@@ -81,7 +94,7 @@ const PileSlot = styled.div<{ $empty?: boolean }>`
   width: ${CARD_WIDTH}px;
   height: ${CARD_HEIGHT}px;
   background: ${p => (p.$empty ? 'rgba(0, 255, 0, 0.15)' : 'transparent')};
-  border: ${p => (p.$empty ? '2px solid #00cc00' : 'none')};
+  border: ${p => (p.$empty ? `2px solid ${PALETTE.green600}` : 'none')};
   border-radius: 4px;
   position: relative;
   box-sizing: border-box;
@@ -99,7 +112,7 @@ const TableauPile = styled.div`
 const cardBase = css`
   width: ${CARD_WIDTH}px;
   height: ${CARD_HEIGHT}px;
-  border: 1px solid #808080;
+  border: 1px solid ${COLORS.BUTTON_SHADOW};
   border-radius: 3px;
   display: flex;
   flex-direction: column;
@@ -109,13 +122,13 @@ const cardBase = css`
   position: absolute;
   top: 0;
   left: 0;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 const FaceUpCard = styled.div<{ $suit?: string }>`
   ${cardBase}
-  background: #ffffff;
-  color: ${p => (p.$suit === 'hearts' || p.$suit === 'diamonds' ? '#ff0000' : '#000000')};
+  background: ${COLORS.WHITE};
+  color: ${p => (p.$suit === 'hearts' || p.$suit === 'diamonds' ? PALETTE.red500 : COLORS.BLACK)};
 
   &:hover {
     filter: brightness(0.97);
@@ -124,7 +137,7 @@ const FaceUpCard = styled.div<{ $suit?: string }>`
 
 const FaceDownCard = styled.div`
   ${cardBase}
-  background: #1a3c8a;
+  background: ${PALETTE.blue700};
   background-image:
     repeating-linear-gradient(
       45deg,
@@ -140,7 +153,7 @@ const FaceDownCard = styled.div`
       rgba(0, 0, 0, 0.08) 6px,
       rgba(0, 0, 0, 0.08) 12px
     );
-  border: 1px solid #003366;
+  border: 1px solid ${PALETTE.blue800};
 `;
 
 const CardRank = styled.div`
@@ -168,11 +181,11 @@ const DragOverlay = styled.div<{ $x: number; $y: number; $bouncing: boolean }>`
 
 const DragStackCard = styled.div<{ $offset: number; $suit?: string }>`
   ${cardBase}
-  background: #ffffff;
+  background: ${COLORS.WHITE};
   position: absolute;
   top: ${p => p.$offset}px;
   left: 0;
-  color: ${p => (p.$suit === 'hearts' || p.$suit === 'diamonds' ? '#ff0000' : '#000000')};
+  color: ${p => (p.$suit === 'hearts' || p.$suit === 'diamonds' ? PALETTE.red500 : COLORS.BLACK)};
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.35);
 `;
 
@@ -181,10 +194,10 @@ const WinMessage = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #d4d0c8;
-  color: #000000;
+  background: ${COLORS.BORDER_GREY_HILIGHT};
+  color: ${COLORS.BLACK};
   border: 2px solid;
-  border-color: #ffffff #808080 #808080 #ffffff;
+  border-color: ${COLORS.WHITE} ${COLORS.BUTTON_SHADOW} ${COLORS.BUTTON_SHADOW} ${COLORS.WHITE};
   padding: 16px 24px;
   font-size: 16px;
   font-weight: bold;

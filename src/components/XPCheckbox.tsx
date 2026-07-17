@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { COLORS, FONTS } from '../constants';
 
 /**
  * Canonical XP checkbox / radio (#99 micro-component consistency).
@@ -34,10 +35,10 @@ const Root = styled.label<{ $disabled?: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   line-height: 13px;
-  color: ${({ $disabled }) => ($disabled ? '#808080' : 'inherit')};
+  color: ${({ $disabled }) => ($disabled ? COLORS.BUTTON_SHADOW : 'inherit')};
   cursor: ${({ $disabled }) => ($disabled ? 'default' : 'pointer')};
   user-select: none;
   white-space: nowrap;
@@ -52,7 +53,7 @@ const Root = styled.label<{ $disabled?: boolean }>`
   }
 
   input:focus-visible + span {
-    outline: 1px dotted #000;
+    outline: 1px dotted ${COLORS.BLACK};
     outline-offset: 1px;
   }
 `;
@@ -63,13 +64,13 @@ const CheckBox = styled.span<{ $checked?: boolean; $disabled?: boolean }>`
   position: relative;
   width: 13px;
   height: 13px;
-  background: ${({ $disabled }) => ($disabled ? '#ece9d8' : '#fff')};
+  background: ${({ $disabled }) => ($disabled ? COLORS.SURFACE : COLORS.WHITE)};
   /* xp.css --border-field: sunken 2px double bevel. */
   box-shadow:
-    inset -1px -1px #fff,
-    inset 1px 1px #808080,
-    inset -2px -2px #dfdfdf,
-    inset 2px 2px #0a0a0a;
+    inset -1px -1px ${COLORS.WHITE},
+    inset 1px 1px ${COLORS.BUTTON_SHADOW},
+    inset -2px -2px ${COLORS.BUTTON_FACE},
+    inset 2px 2px ${COLORS.WINDOW_FRAME};
 
   &::after {
     content: '';

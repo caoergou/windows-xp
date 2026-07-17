@@ -12,7 +12,7 @@ import {
   XPMenuMark as SharedMenuMark,
 } from '../components/XPMenuBar';
 import { xpTrackbarStyles } from '../theme';
-import { COLORS } from '../constants';
+import { COLORS, FONTS } from '../constants';
 import { getVolume, setVolume, getMuted, setMuted } from '../utils/soundManager';
 import { useWindowManagerActions } from '../context/WindowManagerContext';
 import { useModal } from '../context/ModalContext';
@@ -29,7 +29,7 @@ const Root = styled.div`
   flex-direction: column;
   height: 100%;
   background: ${COLORS.SURFACE};
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   color: ${COLORS.BLACK};
 `;

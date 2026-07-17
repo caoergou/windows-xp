@@ -3,6 +3,9 @@
 /** Default folder for File -> Save (我的文档/我的图片). */
 export const DEFAULT_SAVE_DIR = ['我的文档', '我的图片'];
 
+/* brand-palette:start — centrally declared app-content colours (#213 batch 4).
+   The 16-colour Paint palette (and its black/white canvas defaults) is drawing
+   CONTENT, not OS chrome — exempt from the guard:purity hex ratchet. */
 /** The classic 16-colour Paint palette. */
 export const PALETTE_COLORS = [
   '#000000',
@@ -22,6 +25,12 @@ export const PALETTE_COLORS = [
   '#800080',
   '#ff00ff',
 ];
+
+/** Default drawing colour (palette black). */
+export const DEFAULT_DRAW_COLOR = PALETTE_COLORS[0];
+/** Canvas paper colour (palette white). */
+export const CANVAS_WHITE = PALETTE_COLORS[3];
+/* brand-palette:end */
 
 /** Drawing tools (label is an i18n key suffix under `paint.tools`). */
 export const TOOLS: Array<{ id: string; label: string }> = [

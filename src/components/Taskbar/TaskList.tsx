@@ -6,6 +6,7 @@ import XPIcon from '../XPIcon';
 import ContextMenu from '../ContextMenu';
 import { APP_REGISTRY, getAppDisplayName } from '../../registry/apps';
 import { buildTaskbarEntries } from '../../utils/taskbarGrouping';
+import { COLORS } from '../../constants';
 
 const TaskItems = styled.div`
   flex: 1;
@@ -40,8 +41,8 @@ const GroupArrow = styled.span`
 `;
 
 const taskFlash = keyframes`
-  0%, 100% { background: #3c81f3; }
-  50%       { background: #ff8c00; }
+  0%, 100% { background: ${COLORS.TASK_BUTTON}; }
+  50%       { background: ${COLORS.TASK_BUTTON_FLASH}; }
 `;
 
 const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
@@ -49,12 +50,12 @@ const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
   min-width: 40px;
   max-width: 150px;
   height: 22px;
-  color: #fff;
+  color: ${COLORS.WHITE};
   border-radius: 2px;
   margin-top: 2px;
   padding: 0 8px;
   font-size: 11px;
-  background-color: ${props => (props.$active ? '#1e52b7' : '#3c81f3')};
+  background-color: ${props => (props.$active ? COLORS.TASK_BUTTON_ACTIVE : COLORS.TASK_BUTTON)};
   box-shadow: ${props =>
     props.$active
       ? 'inset 0 0 1px 1px rgba(0, 0, 0, 0.2), inset 1px 0 1px rgba(0, 0, 0, 0.7)'
@@ -72,7 +73,8 @@ const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
     `}
 
   &:hover {
-    background-color: ${props => (props.$active ? '#3576f3' : '#53a3ff')};
+    background-color: ${props =>
+      props.$active ? COLORS.TASK_BUTTON_ACTIVE_HOVER : COLORS.TASK_BUTTON_HOVER};
     box-shadow: ${props =>
       props.$active
         ? 'inset 0 0 1px 1px rgba(0, 0, 0, 0.2), inset 1px 0 1px rgba(0, 0, 0, 0.7)'
@@ -80,7 +82,7 @@ const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
   }
 
   &:active {
-    background-color: #1e52b7;
+    background-color: ${COLORS.TASK_BUTTON_ACTIVE};
     box-shadow:
       inset 0 0 1px 1px rgba(0, 0, 0, 0.3),
       inset 1px 0 1px rgba(0, 0, 0, 0.7);

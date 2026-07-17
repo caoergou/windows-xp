@@ -6,23 +6,36 @@ import { useXPEventBus } from '../context/EventBusContext';
 // Bundled no-copyright chime (synthesized tone) so the player works out of the
 // box — the old '/audio/sample.mp3' path never existed and ignored the base URL (#85).
 import sampleAudio from '../assets/audio/sample.wav';
+import { COLORS, FONTS } from '../constants';
+
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  blue500: '#0080FF',
+  cyan500: '#00FFFF',
+  blue800: '#0A2463',
+  grey900: '#1A1A1A',
+  grey700: '#444444',
+};
+/* brand-palette:end */
 
 const Wrap = styled.div`
   width: 100%;
   height: 100%;
-  background: #000000;
+  background: ${COLORS.BLACK};
   display: flex;
   flex-direction: column;
   padding: 6px;
   box-sizing: border-box;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 12px;
   user-select: none;
-  color: #ffffff;
+  color: ${COLORS.WHITE};
 `;
 
 const TitleBar = styled.div`
-  background: #0a2463;
+  background: ${PALETTE.blue800};
   padding: 4px 8px;
   margin-bottom: 6px;
   display: flex;
@@ -47,22 +60,22 @@ const ControlBtn = styled.button`
   font-size: 12px;
   font-family: inherit;
   border: 1px solid;
-  border-color: #ffffff #808080 #808080 #ffffff;
+  border-color: ${COLORS.WHITE} ${COLORS.BUTTON_SHADOW} ${COLORS.BUTTON_SHADOW} ${COLORS.WHITE};
   outline: none;
-  background: #ece9d8;
+  background: ${COLORS.SURFACE};
   display: flex;
   align-items: center;
   justify-content: center;
 
   &:active {
-    border-color: #808080 #ffffff #ffffff #808080;
+    border-color: ${COLORS.BUTTON_SHADOW} ${COLORS.WHITE} ${COLORS.WHITE} ${COLORS.BUTTON_SHADOW};
     padding-top: 1px;
     padding-left: 1px;
   }
 `;
 
 const PlaybackBar = styled.div`
-  background: #1a1a1a;
+  background: ${PALETTE.grey900};
   padding: 8px;
   margin-bottom: 6px;
   display: flex;
@@ -71,7 +84,7 @@ const PlaybackBar = styled.div`
 `;
 
 const TimeDisplay = styled.div`
-  font-family: 'Courier New', monospace;
+  font-family: ${FONTS.MONO};
   font-size: 11px;
 `;
 
@@ -79,7 +92,7 @@ const ProgressBar = styled.input`
   flex: 1;
   height: 6px;
   -webkit-appearance: none;
-  background: #333;
+  background: ${COLORS.GREY_33};
   outline: none;
   border-radius: 3px;
 
@@ -88,14 +101,14 @@ const ProgressBar = styled.input`
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: #00ffff;
+    background: ${PALETTE.cyan500};
     cursor: pointer;
   }
 `;
 
 const Visualization = styled.div`
   flex: 1;
-  background: #000000;
+  background: ${COLORS.BLACK};
   margin-bottom: 6px;
   display: flex;
   align-items: center;
@@ -115,7 +128,7 @@ const SpectrumBar = styled.div`
 
 const Bar = styled.div<{ $height: number; $delay: number; $isPlaying: boolean }>`
   width: 8px;
-  background: linear-gradient(to top, #00ffff, #0080ff);
+  background: linear-gradient(to top, ${PALETTE.cyan500}, ${PALETTE.blue500});
   height: ${p => p.$height}%;
   animation: ${p => (p.$isPlaying ? 'pulse 0.5s ease-in-out infinite' : 'none')};
   animation-delay: ${p => p.$delay}s;
@@ -132,7 +145,7 @@ const Bar = styled.div<{ $height: number; $delay: number; $isPlaying: boolean }>
 `;
 
 const TrackInfo = styled.div`
-  background: #1a1a1a;
+  background: ${PALETTE.grey900};
   padding: 8px;
   display: flex;
   gap: 12px;
@@ -142,8 +155,8 @@ const TrackInfo = styled.div`
 const AlbumArt = styled.div`
   width: 64px;
   height: 64px;
-  background: #333;
-  border: 1px solid #444;
+  background: ${COLORS.GREY_33};
+  border: 1px solid ${PALETTE.grey700};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -161,7 +174,7 @@ const TrackTitle = styled.div`
 
 const TrackArtist = styled.div`
   font-size: 11px;
-  color: #cccccc;
+  color: ${COLORS.GREY_CC};
 `;
 
 const DEFAULT_SRC = sampleAudio;

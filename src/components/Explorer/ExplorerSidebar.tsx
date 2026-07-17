@@ -3,11 +3,12 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../XPIcon';
 import { SYSTEM_PATHS, getSystemPathTitle } from '../../data/systemPaths';
+import { COLORS, FONTS } from '../../constants';
 
 const SidebarContainer = styled.div`
   width: 180px;
   min-width: 180px;
-  background: linear-gradient(to bottom, #748aff 0%, #4057d3 100%);
+  background: ${COLORS.SIDEBAR_GRADIENT};
   overflow: auto;
   padding: 10px;
 `;
@@ -38,16 +39,16 @@ const PanelHeader = styled.div`
   );
 
   &:hover .panel-title {
-    color: #1c68ff;
+    color: ${COLORS.SIDEBAR_LINK};
   }
 `;
 
 const PanelTitle = styled.div`
   font-weight: 700;
-  color: #0c327d;
+  color: ${COLORS.SIDEBAR_HEADER_TEXT};
   flex: 1;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 const CollapseBtn = styled.img`
@@ -75,12 +76,12 @@ const LinkItem = styled.div<{ $active?: boolean }>`
   cursor: pointer;
   font-size: 10px;
   line-height: 14px;
-  color: #0c327d;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  color: ${COLORS.SIDEBAR_HEADER_TEXT};
+  font-family: ${FONTS.UI};
 
   &:hover {
     cursor: pointer;
-    color: #2b72ff;
+    color: ${COLORS.SIDEBAR_LINK_HOVER};
     text-decoration: underline;
   }
 
@@ -96,21 +97,21 @@ const LinkItem = styled.div<{ $active?: boolean }>`
 const DetailText = styled.div`
   padding: 3px 10px 2px 12px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
-  color: #333;
+  font-family: ${FONTS.UI};
+  color: ${COLORS.GREY_33};
   line-height: 1.5;
 `;
 
 const DetailName = styled.div`
   font-weight: bold;
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
   margin-bottom: 1px;
 `;
 
 const DetailType = styled.div`
   font-size: 10px;
-  color: #666;
+  color: ${COLORS.GREY_66};
 `;
 
 interface ExplorerSidebarProps {

@@ -1,9 +1,13 @@
 # Theme layer (`src/themes/`)
 
-Status: **Phase ① — the seam exists; XP is the only theme.** Shipping a second
-theme (Win7 / macOS / custom) is a non-goal here (see #135); this document
-describes the architecture that keeps that door open without the engine paying
-for it up front.
+Status: **Phase ①+ — the seam exists AND the asset/style level is fully
+consolidated behind it (#213).** XP is the only theme, and shipping a second
+one (Win7 / macOS / custom) is still a non-goal; but every *asset-level*
+XP-specific element — colours, fonts, icons, cursors, sounds, the XP slice of
+the scoped stylesheet — now lives inside `src/themes/xp/` and reaches the rest
+of the code only through this layer's exports or runtime registration. The
+remaining XP coupling is *structural* (chrome slots, behavior profile,
+menus-as-data — #143 Phase B proper), not asset-level.
 
 ## Why
 
@@ -23,62 +27,100 @@ src/themes/
   index.ts           # barrel: contract types + xpTheme
   xp/
     index.ts         # xpTheme: OSTheme
-    tokens.ts        # COLORS (re-exported by src/constants.ts for back-compat)
+    tokens.ts        # COLORS + FONTS (re-exported by src/constants.ts for back-compat)
     styles.ts        # xpButtonStyles/… (re-exported by src/theme/index.ts)
+    icons.ts         # XP_ICONS: icon name → URL (consumed by XPIcon; #213)
+    sounds.ts        # XP_SOUNDS: sound name → URL (registered at the composition root; #213)
+    xp-chrome.css    # XP slice of the scoped stylesheet: Tahoma @font-face,
+                     #   .cur cursor set, XP focus affordances (#213)
     assets/
-      index.ts       # XP_ASSETS registry
+      index.ts       # XP_ASSETS registry (windowControls / startButton / icons)
       window-controls/*.png   # Luna min/max/restore/close button states
       start-button-sprite.png # the English Start button spritesheet
       start-flag.png          # the waving XP flag (for the localized button)
+      cursors/*.cur           # the authentic XP cursor set (#213)
+      fonts/Tahoma*.woff      # the Tahoma webfont (#213)
+      audio/*.wav             # the XP sound scheme samples (#213)
 ```
 
-A theme owns its assets: the XP chrome image files live **beside** the registry
-under `src/themes/xp/assets/`, not in the shared `src/assets/` tree, so the
-theme is a self-contained package. A second theme ships its own `assets/` folder
-of the same shape.
+A theme owns its assets: the XP chrome files — images, cursors, fonts, audio —
+live **beside** the registry under `src/themes/xp/assets/`, not in the shared
+`src/assets/` tree, so the theme is a self-contained package. A second theme
+ships its own `assets/` folder of the same shape.
 
-`OSTheme` = `{ id, name, tokens, assets, styles, chrome? }`:
+`OSTheme` = `{ id, name, tokens, fonts, assets, styles, sounds, chrome? }`:
 
 - **`tokens`** — colours, gradients and chrome dimensions (the XP set is
-  `COLORS`).
-- **`assets`** — the image registry. The two out-of-band importers the audit
-  named (Luna window-control buttons, the Start-button spritesheet) now resolve
-  through `XP_ASSETS`; `WindowControls.tsx` and `StartButton.tsx` read from it.
+  `COLORS`, ~130 entries). Groups: core chrome (surface/highlight/borders),
+  button chrome (gradients + hover/focus shadows), window frame (title
+  gradients, frame shadows, border blues), taskbar/tray/Start, Start menu,
+  login screen, Explorer/IE panes, PhotoViewer, panels/progress/misc, and a
+  clearly-marked **unverified neutral grey** section (`GREY_33`…`GREY_F8`,
+  FIDELITY §K.1 待核查 — value-preserving captures of the pre-#213 inline
+  stock; verify against a real XP reference before building on them).
+  `src/themes/xp/tokens.ts` is the canonical list — this doc names the groups
+  so the list can't drift.
+- **`fonts`** — the font stacks (STY-03): `UI`, `TITLEBAR`, `CLASSIC`, `MONO`,
+  `EDITOR`, `CONSOLE`, `BOOT`. Exported via `src/theme` and `src/constants`.
+- **`assets`** — the image registry: window controls, Start button, and the
+  full icon name→URL map (`XP_ICONS`) that `XPIcon` resolves against — so
+  `icon: 'folder'` never knows which OS look is installed.
 - **`styles`** — reusable styled-components fragments (`button`, `scrollbar`,
   `titleBar`, `trackbar`).
+- **`sounds`** — the sound scheme (`XP_SOUNDS`). The engine's `soundManager`
+  binds **no** audio: the composition root (`AppProviders`) calls
+  `registerSounds(xpTheme.sounds)` at startup; app-owned sounds (QQ) register
+  themselves from their own package (`src/apps/QQ/sounds.ts`).
 - **`chrome?`** — the *shape* of the window/taskbar/menu component slots. Left
   unpopulated: XP wires its chrome directly, and authoring real alternate chrome
   (Aero glass, macOS traffic lights, a dock) is the large tail that only pays off
   once a second theme exists.
 
 The contract and `xpTheme` are exported from the public `./theme` subpath
-alongside the existing `COLORS` / `xpButtonStyles`.
+alongside the existing `COLORS` / `FONTS` / `xpButtonStyles`.
 
-## The invariant (CI-enforced)
+## Brand palettes: what deliberately does NOT theme
 
-The engine must never import the theme layer — a theme is selected *above* the
-engine, not reached into from inside it. `npm run guard:purity` fails if any file
-under `src/context`, `src/hooks`, `src/utils`, `events.ts` or `snapshot.ts`
-imports from `src/themes/`. (`src/themes/` may of course use colour literals —
-that is the whole point of the layer.)
+Culture/era apps (QQ, 360, Thunder, Winamp, the fictional era-web pages …) and
+app content palettes (Paint's 16 colours, cmd.exe's VGA table, Solitaire's felt,
+Calculator's key colours) are **app identity, not OS chrome**: QQ 2006 must
+still look like QQ 2006 if the OS theme is swapped (#143). They therefore do
+NOT reference `COLORS`; each app centralizes its colours in one
+`brand-palette:start`…`brand-palette:end` block (guard-enforced: the block is
+ratchet-exempt only in files allow-listed in `scripts/guard-purity.mjs`, and
+inline hexes outside a block still count against the zero baseline).
 
-## De-hardcoding is opportunistic
+## The invariants (CI-enforced)
 
-~1,373 inline hex literals across the components still bypass `COLORS`. Routing
-them through tokens is the dominant cost of runtime theme-switching, and it is
-**not** a workstream of its own: migrate inline values to `COLORS` **whenever you
-touch a component**, which is exactly FIDELITY §K STY-03's existing plan. The
-`guard:purity` hex ratchet only ratchets down, so the debt can only shrink.
+- The engine must never import the theme layer — a theme is selected *above*
+  the engine, not reached into from inside it. `npm run guard:purity` fails if
+  any file under `src/context`, `src/hooks`, `src/utils`, `events.ts` or
+  `snapshot.ts` imports from `src/themes/`.
+- The engine must never import asset files (images/cursors/audio) either
+  (#213): look and sound reach the mechanism layer through the theme asset
+  registries and `registerSounds` runtime injection only.
+- Inline hexes are **zero** outside the two sanctioned stores (`HEX_BASELINE = 0`):
+  the theme token layer (`src/themes/`, ratchet-exempt — colour literals are
+  the *point* of this layer) and declared brand-palette blocks (above).
 
-## Known follow-ups (deferred from #135)
+## De-hardcoding: done (#213)
 
-- **Sounds**: `soundManager` lives in `src/utils` (engine) and so cannot import
-  `src/themes` under the invariant. Moving sound-file bindings behind the theme
-  needs runtime injection (register the theme's sound map into the facade at
-  startup) — a follow-up. The `sounds.*` API is already theme-neutral.
-- **`scoped.css` split**: separate the XP-specific slice (Tahoma `@font-face`,
-  `.cur` cursors, focus overrides) from the theme-agnostic scaffold. The CSS
-  scoping plugin's file matcher is already parameterised (`xpCssScopePlugin`) so a
-  second sheet can be scoped identically.
+The ~1,480 inline hex literals that bypassed `COLORS` were migrated in #213
+(fonts → `FONTS`, chrome colours/gradients → `COLORS`, app identity →
+brand-palette blocks) with pixel-identical screenshots as the acceptance bar.
+The dominant cost of a future theme swap at the *skin* level is paid; what a
+second theme still cannot change is layout/behavior (below).
+
+## Known follow-ups
+
 - **Chrome slots**: populate `OSTheme.chrome` and select chrome by theme — only
-  meaningful with a real second theme.
+  meaningful with a real second theme (#143 Phase B).
+- **BehaviorProfile / menus-as-data / app roles**: the structural
+  (layout/behavior) levels of an OS package — #143 Phase B + #128; out of the
+  theme layer's scope.
+- **Per-app icon contribution**: `XP_ICONS` still carries app/brand icons
+  alongside system icons; apps contributing their own icons through the
+  registry is a `defineApp` (#128) follow-up.
+- **Unverified neutrals**: the `GREY_*` token section is a value-preserving
+  capture of the old inline stock — verify each against a real XP reference
+  (FIDELITY §K.1) and re-map to semantic tokens where wrong.

@@ -12,7 +12,7 @@ import BsodScreen from './components/BsodScreen';
 import XPIcon from './components/XPIcon';
 import ContextMenu from './components/ContextMenu';
 import windowsIcon from './assets/icons/windows.svg';
-import { TIME, WINDOW_DEFAULTS } from './constants';
+import { TIME, WINDOW_DEFAULTS, FONTS } from './constants';
 import { canUseDOM, STORAGE_ERROR_EVENT, type Storage } from './utils/storage';
 import { useStorage } from './context/StorageContext';
 import { BSOD_EVENT } from './utils/easterEggs';
@@ -22,6 +22,7 @@ import { useModal, useModalInteraction } from './context/ModalContext';
 import { useXPEventBus } from './context/EventBusContext';
 import { getSavedLanguage } from './utils/language';
 import type { BootBranding, LoginBranding } from './branding';
+import { COLORS } from './constants';
 
 const Container = styled.div`
   width: 100%;
@@ -44,7 +45,7 @@ const fadeOut = keyframes`
 const ScreenSaverContainer = styled.div<{ $fading: boolean }>`
   width: 100%;
   height: 100%;
-  background: #000;
+  background: ${COLORS.BLACK};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -64,9 +65,9 @@ const FloatingLogo = styled.img`
 const ScreenSaverHint = styled.div`
   position: absolute;
   bottom: 40px;
-  color: #555;
+  color: ${COLORS.GREY_55};
   font-size: 13px;
-  font-family: 'Courier New', monospace;
+  font-family: ${FONTS.MONO};
 `;
 
 const AltTabOverlay = styled.div`
@@ -74,9 +75,9 @@ const AltTabOverlay = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #ece9d8;
-  border: 1px solid #003c74;
-  box-shadow: 2px 2px 0 #808080;
+  background: ${COLORS.SURFACE};
+  border: 1px solid ${COLORS.BUTTON_BORDER};
+  box-shadow: 2px 2px 0 ${COLORS.BUTTON_SHADOW};
   padding: 12px 16px;
   display: flex;
   flex-direction: column;
@@ -88,9 +89,9 @@ const AltTabOverlay = styled.div`
 `;
 
 const AltTabTitle = styled.div`
-  color: #000;
+  color: ${COLORS.BLACK};
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 const AltTabItems = styled.div`
@@ -106,15 +107,15 @@ const AltTabItem = styled.div<{ $active: boolean }>`
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  border: 2px solid ${props => (props.$active ? '#316AC5' : 'transparent')};
-  background: ${props => (props.$active ? '#e5e5e5' : 'transparent')};
+  border: 2px solid ${props => (props.$active ? COLORS.MENU_HIGHLIGHT : 'transparent')};
+  background: ${props => (props.$active ? COLORS.GREY_E5 : 'transparent')};
   cursor: pointer;
   min-width: 70px;
 
   span {
-    color: #000;
+    color: ${COLORS.BLACK};
     font-size: 11px;
-    font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+    font-family: ${FONTS.UI};
     text-align: center;
     max-width: 90px;
     overflow: hidden;

@@ -3,15 +3,30 @@ import styled from 'styled-components';
 import { CultureAppShell } from './culture/shell';
 import { useTranslation } from 'react-i18next';
 
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  black: '#000000',
+  highlight: '#316AC5',
+  grey800: '#333333',
+  fieldBorder: '#7F9DB9',
+  grey500: '#808080',
+  grey400: '#A0A0A0',
+  surface: '#ECE9D8',
+  white: '#FFFFFF',
+};
+/* brand-palette:end */
+
 const Wrap = styled(CultureAppShell)`
-  background: #ece9d8;
-  color: #000;
+  background: ${PALETTE.surface};
+  color: ${PALETTE.black};
 `;
 
 const MenuBar = styled.div`
   height: 20px;
-  background: linear-gradient(to bottom, #fff 0%, #ece9d8 100%);
-  border-bottom: 1px solid #a0a0a0;
+  background: linear-gradient(to bottom, ${PALETTE.white} 0%, ${PALETTE.surface} 100%);
+  border-bottom: 1px solid ${PALETTE.grey400};
   display: flex;
   align-items: center;
   padding: 0 2px;
@@ -23,15 +38,15 @@ const MenuItem = styled.div`
   cursor: pointer;
 
   &:hover {
-    background: #316ac5;
+    background: ${PALETTE.highlight};
     color: white;
   }
 `;
 
 const Toolbar = styled.div`
   height: 28px;
-  background: linear-gradient(to bottom, #fff 0%, #ece9d8 100%);
-  border-bottom: 1px solid #a0a0a0;
+  background: linear-gradient(to bottom, ${PALETTE.white} 0%, ${PALETTE.surface} 100%);
+  border-bottom: 1px solid ${PALETTE.grey400};
   display: flex;
   align-items: center;
   gap: 4px;
@@ -45,23 +60,23 @@ const ToolBtn = styled.button`
   font-size: 11px;
   font-family: inherit;
   cursor: pointer;
-  border: 1px solid #7f9db9;
+  border: 1px solid ${PALETTE.fieldBorder};
   border-radius: 2px;
-  background: linear-gradient(to bottom, #fff 0%, #ece9d8 100%);
+  background: linear-gradient(to bottom, ${PALETTE.white} 0%, ${PALETTE.surface} 100%);
 
   &:hover {
-    background: #fff;
+    background: ${PALETTE.white};
   }
 
   &:active {
-    background: #ece9d8;
+    background: ${PALETTE.surface};
   }
 `;
 
 const WorkArea = styled.div`
   flex: 1;
   display: flex;
-  background: #7f9db9;
+  background: ${PALETTE.fieldBorder};
   padding: 12px;
   overflow: auto;
 `;
@@ -71,14 +86,14 @@ const Page = styled.div`
   max-width: 720px;
   min-height: 100%;
   margin: 0 auto;
-  background: #fff;
-  border: 1px solid #808080;
+  background: ${PALETTE.white};
+  border: 1px solid ${PALETTE.grey500};
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   padding: 32px;
   font-family: 'Times New Roman', SimSun, serif;
   font-size: 14px;
   line-height: 1.6;
-  color: #000;
+  color: ${PALETTE.black};
 `;
 
 const Title = styled.h1`
@@ -90,14 +105,14 @@ const Title = styled.h1`
 
 const StatusBar = styled.div`
   height: 20px;
-  background: #ece9d8;
-  border-top: 1px solid #a0a0a0;
+  background: ${PALETTE.surface};
+  border-top: 1px solid ${PALETTE.grey400};
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 8px;
   font-size: 11px;
-  color: #333;
+  color: ${PALETTE.grey800};
   flex-shrink: 0;
 `;
 

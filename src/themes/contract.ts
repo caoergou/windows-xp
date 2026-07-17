@@ -1,6 +1,6 @@
 import type React from 'react';
 import { css } from 'styled-components';
-import type { ThemeTokens } from './xp/tokens';
+import type { ThemeTokens, ThemeFonts } from './xp/tokens';
 import type { ThemeAssets } from './xp/assets';
 
 /**
@@ -13,7 +13,7 @@ import type { ThemeAssets } from './xp/assets';
  * engine (`src/context`, guarded by `guard:purity`) never has to change.
  */
 
-export type { ThemeTokens } from './xp/tokens';
+export type { ThemeTokens, ThemeFonts } from './xp/tokens';
 export type {
   ThemeAssets,
   WindowControlAssets,
@@ -23,6 +23,13 @@ export type {
 
 /** A styled-components style fragment (what `css\`\`` returns). */
 export type StyleFragment = ReturnType<typeof css>;
+
+/**
+ * Sound scheme: soundManager facade name → audio URL (#213). Registered into
+ * the engine's soundManager at the composition root; the engine itself binds
+ * no audio assets.
+ */
+export type SoundScheme = Record<string, string>;
 
 /** Reusable styled-components fragments a theme exposes. */
 export interface ThemeStyles {
@@ -47,8 +54,12 @@ export interface OSTheme {
   /** Human-facing name, e.g. `'Windows XP (Luna)'`. */
   name: string;
   tokens: ThemeTokens;
+  /** Font stacks (UI / titlebar / console …) — STY-03's single outlet. */
+  fonts: ThemeFonts;
   assets: ThemeAssets;
   styles: ThemeStyles;
+  /** Named audio samples for the soundManager facade (#213 seam). */
+  sounds: SoundScheme;
   /** Optional chrome slot map — the deferred seam (see above). */
   chrome?: Partial<ChromeSlots>;
 }

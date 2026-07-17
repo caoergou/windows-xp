@@ -9,3 +9,7 @@ export {
   xpTitleBarStyles,
   xpTrackbarStyles,
 } from '../themes/xp/styles';
+
+// STY-03: the single outlet for XP font stacks (defined in the theme layer).
+export { FONTS } from '../themes/xp/tokens';
+export type { ThemeFonts } from '../themes/xp/tokens';

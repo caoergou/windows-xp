@@ -3,26 +3,27 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { XPCheckbox } from '../../components/XPCheckbox';
 import { xpTrackbarStyles } from '../../theme';
+import { COLORS, FONTS } from '../../constants';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
 `;
 
 const GroupBox = styled.div`
-  border: 1px solid #7f9db9;
+  border: 1px solid ${COLORS.FIELD_BORDER};
   padding: 12px;
-  background: #ffffff;
+  background: ${COLORS.WHITE};
 `;
 
 const GroupTitle = styled.div`
   font-weight: bold;
   margin-bottom: 8px;
-  color: #003c74;
+  color: ${COLORS.BUTTON_BORDER};
 `;
 
 const Row = styled.div`
@@ -43,11 +44,11 @@ const LabelRow = styled.div`
 `;
 
 const Label = styled.div`
-  color: #000;
+  color: ${COLORS.BLACK};
 `;
 
 const Value = styled.div`
-  color: #666666;
+  color: ${COLORS.GREY_66};
 `;
 
 const Slider = styled.input`
@@ -60,23 +61,19 @@ const ButtonRow = styled.div`
   justify-content: flex-end;
   gap: 8px;
   padding-top: 8px;
-  border-top: 1px solid #ece9d8;
+  border-top: 1px solid ${COLORS.SURFACE};
 `;
 
 const Button = styled.button`
   padding: 3px 14px;
   font-size: 11px;
-  border: 1px solid #003c74;
-  background: linear-gradient(180deg, #ffffff 0%, #ecebe5 86%, #d8d0c4 100%);
+  border: 1px solid ${COLORS.BUTTON_BORDER};
+  background: ${COLORS.BUTTON_GRADIENT};
   cursor: pointer;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 
   &:hover {
-    box-shadow:
-      inset -1px 1px #fff0cf,
-      inset 1px 2px #fdd889,
-      inset -2px 2px #fbc761,
-      inset 2px -2px #e5a01a;
+    box-shadow: ${COLORS.BUTTON_HOVER_SHADOW};
   }
 `;
 

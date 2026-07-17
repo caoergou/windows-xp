@@ -1,5 +1,34 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { FONTS } from '../constants';
+
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  blue700: '#1C3D73',
+  blue600: '#1C73A8',
+  green700: '#217A3C',
+  blue800: '#24324A',
+  blue6002: '#2B5AA8',
+  blue500: '#356FC0',
+  blue6003: '#4A5A72',
+  blue5002: '#4F7EC9',
+  blue400: '#5F8ED6',
+  blue5003: '#6A7A92',
+  blue300: '#6F9CE0',
+  blue200: '#B8C6DE',
+  orange600: '#C0491F',
+  blue100: '#CDD7E6',
+  blue1002: '#D3E2F7',
+  blue1003: '#DFE7F3',
+  blue1004: '#E6EDF6',
+  blue1005: '#E9F1FB',
+  blue1006: '#EEF2F8',
+  blue1007: '#F6F9FD',
+  white: '#FFFFFF',
+};
+/* brand-palette:end */
 
 /**
  * Microsoft Office — a 2000s-style suite launcher for the `en` culture package
@@ -11,18 +40,18 @@ const Wrap = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #eef2f8;
-  font-family: 'Tahoma', 'MS Sans Serif', sans-serif;
+  background: ${PALETTE.blue1006};
+  font-family: ${FONTS.CLASSIC};
   font-size: 12px;
-  color: #24324a;
+  color: ${PALETTE.blue800};
   user-select: none;
   overflow: hidden;
 `;
 const Header = styled.div`
-  background: linear-gradient(to bottom, #4f7ec9 0%, #2b5aa8 100%);
-  border-bottom: 1px solid #1c3d73;
+  background: linear-gradient(to bottom, ${PALETTE.blue5002} 0%, ${PALETTE.blue6002} 100%);
+  border-bottom: 1px solid ${PALETTE.blue700};
   padding: 10px 12px;
-  color: #fff;
+  color: ${PALETTE.white};
   flex-shrink: 0;
   .t {
     font-size: 16px;
@@ -31,7 +60,7 @@ const Header = styled.div`
   }
   .v {
     font-size: 11px;
-    color: #d3e2f7;
+    color: ${PALETTE.blue1002};
   }
 `;
 const Body = styled.div`
@@ -52,9 +81,9 @@ const Tile = styled.button<{ $c: string }>`
   align-items: center;
   gap: 10px;
   padding: 12px;
-  border: 1px solid #b8c6de;
+  border: 1px solid ${PALETTE.blue200};
   border-radius: 4px;
-  background: #fff;
+  background: ${PALETTE.white};
   cursor: pointer;
   text-align: left;
   font-family: inherit;
@@ -70,7 +99,7 @@ const Tile = styled.button<{ $c: string }>`
     height: 34px;
     border-radius: 4px;
     background: ${p => p.$c};
-    color: #fff;
+    color: ${PALETTE.white};
     font-weight: bold;
     font-size: 18px;
     font-family: Georgia, 'Times New Roman', serif;
@@ -84,29 +113,29 @@ const Tile = styled.button<{ $c: string }>`
   }
   .d {
     font-size: 11px;
-    color: #6a7a92;
+    color: ${PALETTE.blue5003};
   }
 `;
 const Recent = styled.div`
   width: 190px;
-  border-left: 1px solid #cdd7e6;
-  background: #f6f9fd;
+  border-left: 1px solid ${PALETTE.blue100};
+  background: ${PALETTE.blue1007};
   padding: 10px;
   flex-shrink: 0;
   overflow-y: auto;
   .h {
     font-weight: bold;
-    color: #2b5aa8;
+    color: ${PALETTE.blue6002};
     margin-bottom: 6px;
   }
   .doc {
     display: flex;
     gap: 6px;
     padding: 4px 2px;
-    border-bottom: 1px solid #e6edf6;
+    border-bottom: 1px solid ${PALETTE.blue1004};
     cursor: default;
     &:hover {
-      background: #e9f1fb;
+      background: ${PALETTE.blue1005};
     }
   }
 `;
@@ -122,7 +151,7 @@ const Splash = styled.div`
     width: 64px;
     height: 64px;
     border-radius: 8px;
-    color: #fff;
+    color: ${PALETTE.white};
     font-weight: bold;
     font-size: 34px;
     font-family: Georgia, serif;
@@ -139,30 +168,30 @@ const Splash = styled.div`
 const Btn = styled.button`
   height: 26px;
   padding: 0 16px;
-  border: 1px solid #1c3d73;
+  border: 1px solid ${PALETTE.blue700};
   border-radius: 3px;
   cursor: pointer;
-  color: #fff;
+  color: ${PALETTE.white};
   font-family: inherit;
-  background: linear-gradient(to bottom, #5f8ed6, #2b5aa8);
+  background: linear-gradient(to bottom, ${PALETTE.blue400}, ${PALETTE.blue6002});
   &:hover {
-    background: linear-gradient(to bottom, #6f9ce0, #356fc0);
+    background: linear-gradient(to bottom, ${PALETTE.blue300}, ${PALETTE.blue500});
   }
 `;
 const Footer = styled.div`
-  border-top: 1px solid #cdd7e6;
-  background: #dfe7f3;
+  border-top: 1px solid ${PALETTE.blue100};
+  background: ${PALETTE.blue1003};
   padding: 4px 10px;
   font-size: 11px;
-  color: #4a5a72;
+  color: ${PALETTE.blue6003};
   flex-shrink: 0;
 `;
 
 const APPS = [
-  { key: 'Word', glyph: 'W', color: '#2b5aa8', desc: 'Word Processor' },
-  { key: 'Excel', glyph: 'X', color: '#217a3c', desc: 'Spreadsheet' },
-  { key: 'PowerPoint', glyph: 'P', color: '#c0491f', desc: 'Presentations' },
-  { key: 'Outlook', glyph: 'O', color: '#1c73a8', desc: 'Mail & Calendar' },
+  { key: 'Word', glyph: 'W', color: PALETTE.blue6002, desc: 'Word Processor' },
+  { key: 'Excel', glyph: 'X', color: PALETTE.green700, desc: 'Spreadsheet' },
+  { key: 'PowerPoint', glyph: 'P', color: PALETTE.orange600, desc: 'Presentations' },
+  { key: 'Outlook', glyph: 'O', color: PALETTE.blue600, desc: 'Mail & Calendar' },
 ];
 
 const RECENT = [
@@ -189,7 +218,7 @@ const MicrosoftOffice: React.FC<{ windowId?: string }> = () => {
           </div>
           <div>
             <div className="big">{open.key} is starting…</div>
-            <div style={{ color: '#6a7a92' }}>Creating a new blank document.</div>
+            <div style={{ color: PALETTE.blue5003 }}>Creating a new blank document.</div>
           </div>
           <Btn data-testid="msoffice-back" onClick={() => setOpen(null)}>
             ← Back to Office

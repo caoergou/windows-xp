@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { xpScrollbarStyles } from '../../theme';
-import { COLORS } from '../../constants';
+import { COLORS, FONTS } from '../../constants';
 
 // Explorer styled-components (#163/A).
 
@@ -9,7 +9,7 @@ export const Container = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 /* ── Details view (#120, EXP-02) ── */
@@ -17,16 +17,16 @@ export const DetailsTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   table-layout: fixed;
 `;
 
 export const DetailsHeadCell = styled.th`
   text-align: left;
   font-weight: normal;
-  background: linear-gradient(to bottom, #ffffff 0%, #f2f1ea 45%, #e7e5d8 100%);
-  border-right: 1px solid #d5d2c6;
-  border-bottom: 1px solid #aca899;
+  background: ${COLORS.TASKPANE_GRADIENT};
+  border-right: 1px solid ${COLORS.TASKPANE_BORDER};
+  border-bottom: 1px solid ${COLORS.DIVIDER_GREY};
   padding: 2px 6px;
   height: 18px;
   cursor: pointer;
@@ -40,17 +40,17 @@ export const DetailsHeadCell = styled.th`
   z-index: 1;
 
   &:hover {
-    background: linear-gradient(to bottom, #ffffff 0%, #eef4fb 45%, #dce9f8 100%);
+    background: ${COLORS.TASKPANE_GRADIENT_BLUE};
   }
 `;
 
 export const DetailsRow = styled.tr<{ $selected?: boolean }>`
-  background: ${p => (p.$selected ? '#316AC5' : 'transparent')};
-  color: ${p => (p.$selected ? '#fff' : '#000')};
+  background: ${p => (p.$selected ? COLORS.MENU_HIGHLIGHT : 'transparent')};
+  color: ${p => (p.$selected ? COLORS.WHITE : COLORS.BLACK)};
   cursor: default;
 
   &:hover {
-    background: ${p => (p.$selected ? '#316AC5' : '#e6effc')};
+    background: ${p => (p.$selected ? COLORS.MENU_HIGHLIGHT : COLORS.EXPLORER_ROW_TINT)};
   }
 `;
 
@@ -93,8 +93,8 @@ export const FileArea = styled.div<{ $flush?: boolean }>`
 export const GroupHeader = styled.div`
   font-weight: bold;
   font-size: 11px;
-  color: #15428b;
-  border-bottom: 1px solid #c6d3f7;
+  color: ${COLORS.SIDEBAR_TITLE_BLUE};
+  border-bottom: 1px solid ${COLORS.EXPLORER_HEADER_DIVIDER};
   padding-bottom: 2px;
   margin-bottom: 5px;
   margin-top: 10px;
@@ -244,13 +244,13 @@ export const TileMeta = styled.span<{ $selected?: boolean }>`
 
 export const StatusBar = styled.div`
   height: 20px;
-  background: #ece9d8;
-  border-top: 1px solid #d0d0d0;
+  background: ${COLORS.SURFACE};
+  border-top: 1px solid ${COLORS.GREY_D0};
   display: flex;
   align-items: center;
   padding: 0 5px;
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
 `;
 
 export const EmptyRecycleBinMessage = styled.div`
@@ -259,9 +259,9 @@ export const EmptyRecycleBinMessage = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #808080;
+  color: ${COLORS.BUTTON_SHADOW};
   font-size: 12px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   gap: 10px;
   user-select: none;
 `;

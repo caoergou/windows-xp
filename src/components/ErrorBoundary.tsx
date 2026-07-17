@@ -2,6 +2,17 @@ import React, { Component, ReactNode } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
+import { COLORS, FONTS } from '../constants';
+
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  blue500: '#0000FF',
+  blue600: '#0066CC',
+  red600: '#CC0000',
+};
+/* brand-palette:end */
 
 const ErrorContainer = styled.div`
   width: 100%;
@@ -10,9 +21,9 @@ const ErrorContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f0f0f0;
+  background: ${COLORS.GREY_F0};
   padding: 20px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 `;
 
 const ErrorIcon = styled.div`
@@ -21,13 +32,13 @@ const ErrorIcon = styled.div`
 `;
 
 const ErrorTitle = styled.h2`
-  color: #c00;
+  color: ${PALETTE.red600};
   margin: 0 0 8px 0;
   font-size: 14px;
 `;
 
 const ErrorMessage = styled.p`
-  color: #333;
+  color: ${COLORS.GREY_33};
   margin: 4px 0;
   font-size: 11px;
   text-align: center;
@@ -40,13 +51,13 @@ const ErrorDetails = styled.details`
 
   summary {
     cursor: pointer;
-    color: #00f;
+    color: ${PALETTE.blue500};
     text-decoration: underline;
   }
 
   pre {
-    background: #fff;
-    border: 1px solid #ccc;
+    background: ${COLORS.WHITE};
+    border: 1px solid ${COLORS.GREY_CC};
     padding: 8px;
     margin-top: 8px;
     overflow: auto;
@@ -96,21 +107,21 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       console.group(
         '%c🚨 ErrorBoundary: Application crashed',
-        'color: #c00; font-size: 14px; font-weight: bold;'
+        `color: ${PALETTE.red600}; font-size: 14px; font-weight: bold;`
       );
 
       if (windowId) {
-        console.log(`%cWindow ID:`, 'color: #666; font-weight: bold;', windowId);
+        console.log(`%cWindow ID:`, `color: ${COLORS.GREY_66}; font-weight: bold;`, windowId);
       }
 
-      console.log('%cError object:', 'color: #0066cc; font-weight: bold;');
+      console.log('%cError object:', `color: ${PALETTE.blue600}; font-weight: bold;`);
       console.dir(error);
 
-      console.log('%cError stack:', 'color: #0066cc; font-weight: bold;');
+      console.log('%cError stack:', `color: ${PALETTE.blue600}; font-weight: bold;`);
       console.error(error);
 
       if (errorInfo?.componentStack) {
-        console.log('%cComponent stack:', 'color: #0066cc; font-weight: bold;');
+        console.log('%cComponent stack:', `color: ${PALETTE.blue600}; font-weight: bold;`);
         console.log(errorInfo.componentStack);
       }
 

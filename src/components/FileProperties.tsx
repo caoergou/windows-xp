@@ -8,6 +8,7 @@ import { useXPEventBus } from '../context/EventBusContext';
 import { useWindowId } from '../context/WindowIdContext';
 import XPIcon from './XPIcon';
 import { FileNode, ExifData } from '../types';
+import { COLORS, FONTS } from '../constants';
 
 export const FILE_PROPERTIES_WINDOW_PROPS = {
   width: 380,
@@ -24,10 +25,10 @@ const WindowContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #ece9d8;
+  background-color: ${COLORS.SURFACE};
   padding: 10px;
   box-sizing: border-box;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
 `;
 
@@ -39,9 +40,9 @@ const TabsContainer = styled.div`
 
 const Tab = styled.div<{ $active: boolean }>`
   padding: 3px 6px;
-  border: 1px solid #919b9c;
-  border-bottom: 1px solid ${props => (props.$active ? '#ECE9D8' : '#919B9C')};
-  background-color: ${props => (props.$active ? '#ECE9D8' : '#ECE9D8')};
+  border: 1px solid ${COLORS.BORDER_GREY};
+  border-bottom: 1px solid ${props => (props.$active ? COLORS.SURFACE : COLORS.BORDER_GREY)};
+  background-color: ${props => (props.$active ? COLORS.SURFACE : COLORS.SURFACE)};
   border-radius: 0;
   margin-right: 2px;
   cursor: pointer;
@@ -49,14 +50,14 @@ const Tab = styled.div<{ $active: boolean }>`
   z-index: ${props => (props.$active ? 1 : 0)};
 
   &:hover {
-    background-color: #fff;
+    background-color: ${COLORS.WHITE};
   }
 `;
 
 const TabContent = styled.div`
   flex: 1;
-  border: 1px solid #919b9c;
-  background-color: #fff;
+  border: 1px solid ${COLORS.BORDER_GREY};
+  background-color: ${COLORS.WHITE};
   padding: 15px;
   display: flex;
   flex-direction: column;
@@ -71,7 +72,7 @@ const PropertyRow = styled.div`
 
 const Label = styled.span`
   width: 100px;
-  color: #666;
+  color: ${COLORS.GREY_66};
 `;
 
 const Value = styled.span`
@@ -84,8 +85,8 @@ const SectionHeader = styled.div`
   margin-bottom: 5px;
   margin-top: 10px;
   padding-bottom: 2px;
-  border-bottom: 1px solid #eee;
-  color: #15428b;
+  border-bottom: 1px solid ${COLORS.GREY_EE};
+  color: ${COLORS.SIDEBAR_TITLE_BLUE};
 `;
 
 const ButtonRow = styled.div`
@@ -98,7 +99,7 @@ const ButtonRow = styled.div`
 const Button = styled.button`
   min-width: 75px;
   padding: 2px 10px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
 `;
 
@@ -214,12 +215,12 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
               </div>
               <span style={{ fontWeight: 'bold' }}>{properties.name}</span>
             </div>
-            <div style={{ borderTop: '1px solid #ccc', margin: '5px 0' }}></div>
+            <div style={{ borderTop: `1px solid ${COLORS.GREY_CC}`, margin: '5px 0' }}></div>
             <PropertyRow>
               <Label>{t('fileProperties.fileType')}:</Label>
               <Value>{typeLabel}</Value>
             </PropertyRow>
-            <div style={{ borderTop: '1px solid #ccc', margin: '5px 0' }}></div>
+            <div style={{ borderTop: `1px solid ${COLORS.GREY_CC}`, margin: '5px 0' }}></div>
             <PropertyRow>
               <Label>{t('fileProperties.location')}:</Label>
               <Value>
@@ -232,7 +233,7 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
               <Label>{t('fileProperties.size')}:</Label>
               <Value>{sizeDisplay}</Value>
             </PropertyRow>
-            <div style={{ borderTop: '1px solid #ccc', margin: '5px 0' }}></div>
+            <div style={{ borderTop: `1px solid ${COLORS.GREY_CC}`, margin: '5px 0' }}></div>
             <PropertyRow>
               <Label>{t('fileProperties.created')}:</Label>
               <Value>{formatDate(properties.created)}</Value>
@@ -303,7 +304,7 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
                 </PropertyRow>
               </>
             ) : (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+              <div style={{ padding: '20px', textAlign: 'center', color: COLORS.GREY_99 }}>
                 {t('fileProperties.noSummary')}
               </div>
             )}

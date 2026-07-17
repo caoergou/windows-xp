@@ -4,18 +4,19 @@ import { useApp } from '../hooks/useApp';
 import { APP_REGISTRY } from '../registry/apps';
 import { useTranslation } from 'react-i18next';
 import { FileNode } from '../types';
+import { COLORS, FONTS } from '../constants';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #eef3fa;
+  background-color: ${COLORS.PHOTO_BG};
 `;
 
 const Toolbar = styled.div`
   height: 36px;
-  background: linear-gradient(to bottom, #f9fcfd 0%, #ddecfd 100%);
-  border-bottom: 1px solid #a0b2c8;
+  background: ${COLORS.PHOTO_TOOLBAR_GRADIENT};
+  border-bottom: 1px solid ${COLORS.PHOTO_BORDER};
   display: flex;
   align-items: center;
   padding: 0 10px;
@@ -40,13 +41,13 @@ const StyledImage = styled.img`
 
 const InfoBar = styled.div`
   height: 24px;
-  background-color: #eef3fa;
-  border-top: 1px solid #a0b2c8;
+  background-color: ${COLORS.PHOTO_BG};
+  border-top: 1px solid ${COLORS.PHOTO_BORDER};
   display: flex;
   align-items: center;
   padding: 0 10px;
   font-size: 11px;
-  color: #333;
+  color: ${COLORS.GREY_33};
 `;
 
 const ToolbarButton = styled.button`
@@ -58,10 +59,10 @@ const ToolbarButton = styled.button`
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 
   &:hover {
-    border: 1px solid #a0b2c8;
+    border: 1px solid ${COLORS.PHOTO_BORDER};
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 2px;
   }
@@ -110,7 +111,14 @@ const PhotoViewer = ({ src, fileItem, windowId }: PhotoViewerProps) => {
   return (
     <Container>
       <Toolbar>
-        <span style={{ fontSize: '11px', marginRight: 'auto', fontWeight: 'bold', color: '#333' }}>
+        <span
+          style={{
+            fontSize: '11px',
+            marginRight: 'auto',
+            fontWeight: 'bold',
+            color: COLORS.GREY_33,
+          }}
+        >
           {t('photoViewer.title')}
         </span>
         {fileItem && (

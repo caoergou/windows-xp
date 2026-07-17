@@ -58,15 +58,20 @@
   原样成为引擎）还是"XP 的样子"（Luna 色、chrome、XP 文案、xp.css 类名）。机制
   层文件（`src/context`、`src/hooks`、`src/utils`、`src/events.ts`、
   `src/snapshot.ts`）出现后者即违规，`guard:purity` 会挡下
-- **主题层与引擎的边界**（#135，详见 `docs/THEMING.md`）：一切"XP 的样子"——
-  token（`COLORS`）、样式片段（`xpButtonStyles` 等）、图片资产（窗口控制按钮、
-  开始按钮贴图）——收敛在 `src/themes/xp/` 之下，契约 `OSTheme` 定义在
-  `src/themes/contract.ts`。**机制层禁止 import `src/themes/`**（`guard:purity`
-  第 4 项强制）：主题在引擎之上选定，不能被引擎反向依赖。去硬编码（1373 处内联
-  hex）是**顺手迁移**，不是独立工作量，跟随 STY-03/色值棘轮推进
-- **色值棘轮**：src/ 存量内联 hex（基线见 `scripts/guard-purity.mjs`）只减不增；
-  新代码引用 `COLORS`（`src/constants.ts`）/ FIDELITY §K.1 token。还债进度即
-  #135 Phase A / STY-03 的进度，降到基线以下就下调基线锁住战果
+- **主题层与引擎的边界**（#135/#213，详见 `docs/THEMING.md`）：一切"XP 的样子"——
+  token（`COLORS`/`FONTS`）、样式片段（`xpButtonStyles` 等）、图片/光标/字体/
+  音频资产（窗口控制按钮、开始按钮贴图、图标注册表 `XP_ICONS`、`.cur` 光标集、
+  Tahoma webfont、声音方案 `XP_SOUNDS`）、XP 专属样式表（`xp-chrome.css`）——
+  收敛在 `src/themes/xp/` 之下，契约 `OSTheme` 定义在 `src/themes/contract.ts`。
+  **机制层禁止 import `src/themes/`，也禁止直接 import 任何资产文件**
+  （`guard:purity` 强制）：主题在引擎之上选定（声音经 `registerSounds` 运行时
+  注入，图标经主题注册表按名解析），不能被引擎反向依赖
+- **色值棘轮（#213 终态：0）**：`src/` 中除两个受认可的存放点外**不允许任何内联
+  hex**——① 主题 token 层 `src/themes/xp/tokens.ts`（OS chrome 色的唯一来源，
+  经 `src/constants.ts` 出口）；② 白名单文件里 `brand-palette:start/end` 标记块
+  内的集中声明（文化/时代应用与应用内容调色板——换 OS 主题时它们保持原样，
+  见 THEMING.md）。新增 chrome 色进 tokens.ts，新增应用身份色进对应调色板块，
+  没有第三个去处；基线 `HEX_BASELINE = 0` 由 `guard:purity` 强制
 - **xp.css 只在入口挂载**（`src/main.tsx`、`src/lib/index.tsx`），组件不直接
   import 皮肤表
 - **菜单只声明**：新应用把菜单以结构化数据传给 `XPMenuBar`，不手写菜单 DOM；

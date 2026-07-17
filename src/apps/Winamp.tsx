@@ -3,6 +3,43 @@ import styled, { css, keyframes } from 'styled-components';
 // Reuse the engine's bundled sample clip (an existing, licence-clear asset) —
 // the classic "reuse the WMP audio plumbing" from #123.
 import sampleAudio from '../assets/audio/sample.wav';
+import { FONTS } from '../constants';
+
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  black: '#000000',
+  green900: '#05170B',
+  black2: '#0B0B0B',
+  blue900: '#0C2540',
+  black3: '#111111',
+  grey900: '#161616',
+  green9002: '#16240F',
+  blue800: '#163A5C',
+  grey9002: '#1C1C1C',
+  green9003: '#1C2E13',
+  green700: '#1F7A3A',
+  grey9003: '#202020',
+  grey9004: '#232323',
+  grey800: '#2A2A2A',
+  blue700: '#2B5A86',
+  green600: '#2F9A4C',
+  grey8002: '#333333',
+  green400: '#35FF6A',
+  grey8003: '#3B3B3B',
+  grey700: '#4A4A4A',
+  grey7002: '#565656',
+  grey600: '#6A6A6A',
+  green500: '#6A9A76',
+  green300: '#7BD68F',
+  grey400: '#9A9A9A',
+  blue200: '#BCD6EF',
+  grey200: '#C7C7C7',
+  grey2002: '#D6D6D6',
+  grey100: '#E0E0E0',
+};
+/* brand-palette:end */
 
 /**
  * Winamp — a 2000s-style MP3 player for the `en` culture package (#123).
@@ -34,26 +71,26 @@ const Wrap = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #232323;
-  font-family: 'Tahoma', 'MS Sans Serif', sans-serif;
+  background: ${PALETTE.grey9004};
+  font-family: ${FONTS.CLASSIC};
   font-size: 11px;
-  color: #d6d6d6;
+  color: ${PALETTE.grey2002};
   user-select: none;
   overflow: hidden;
 `;
 
 const Player = styled.div`
-  background: linear-gradient(to bottom, #3b3b3b 0%, #202020 100%);
-  border-bottom: 1px solid #000;
+  background: linear-gradient(to bottom, ${PALETTE.grey8003} 0%, ${PALETTE.grey9003} 100%);
+  border-bottom: 1px solid ${PALETTE.black};
   padding: 8px;
   flex-shrink: 0;
 `;
 
 const TitleBar = styled.div`
   height: 14px;
-  background: linear-gradient(to bottom, #2b5a86 0%, #163a5c 100%);
-  border: 1px solid #0c2540;
-  color: #bcd6ef;
+  background: linear-gradient(to bottom, ${PALETTE.blue700} 0%, ${PALETTE.blue800} 100%);
+  border: 1px solid ${PALETTE.blue900};
+  color: ${PALETTE.blue200};
   font-size: 9px;
   font-weight: bold;
   letter-spacing: 1px;
@@ -65,15 +102,15 @@ const TitleBar = styled.div`
 
 const Lcd = styled.div`
   margin-top: 6px;
-  background: #05170b;
-  border: 1px solid #000;
+  background: ${PALETTE.green900};
+  border: 1px solid ${PALETTE.black};
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.8);
   padding: 6px 8px;
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #35ff6a;
-  font-family: 'Courier New', monospace;
+  color: ${PALETTE.green400};
+  font-family: ${FONTS.MONO};
 `;
 
 const Time = styled.div`
@@ -124,7 +161,7 @@ const Bar = styled.div<{ $active?: boolean; $delay: number }>`
   flex: 1;
   height: 100%;
   transform-origin: bottom;
-  background: linear-gradient(to top, #1f7a3a 0%, #35ff6a 100%);
+  background: linear-gradient(to top, ${PALETTE.green700} 0%, ${PALETTE.green400} 100%);
   opacity: ${p => (p.$active ? 1 : 0.25)};
   animation: ${p =>
     p.$active
@@ -148,16 +185,16 @@ const Btn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #000;
+  border: 1px solid ${PALETTE.black};
   border-radius: 2px;
   cursor: pointer;
-  color: #e0e0e0;
-  background: linear-gradient(to bottom, #4a4a4a 0%, #2a2a2a 100%);
+  color: ${PALETTE.grey100};
+  background: linear-gradient(to bottom, ${PALETTE.grey700} 0%, ${PALETTE.grey800} 100%);
   &:hover {
-    background: linear-gradient(to bottom, #565656 0%, #333 100%);
+    background: linear-gradient(to bottom, ${PALETTE.grey7002} 0%, ${PALETTE.grey8002} 100%);
   }
   &:active {
-    background: #1c1c1c;
+    background: ${PALETTE.grey9002};
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
   }
 `;
@@ -167,16 +204,16 @@ const Slider = styled.input`
   appearance: none;
   height: 6px;
   border-radius: 3px;
-  background: #111;
-  border: 1px solid #000;
+  background: ${PALETTE.black3};
+  border: 1px solid ${PALETTE.black};
   cursor: pointer;
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 10px;
     height: 14px;
     border-radius: 2px;
-    background: linear-gradient(to bottom, #7bd68f, #2f9a4c);
-    border: 1px solid #000;
+    background: linear-gradient(to bottom, ${PALETTE.green300}, ${PALETTE.green600});
+    border: 1px solid ${PALETTE.black};
   }
 `;
 
@@ -191,41 +228,41 @@ const KnobRow = styled.div`
   gap: 8px;
   margin-top: 4px;
   font-size: 9px;
-  color: #9a9a9a;
+  color: ${PALETTE.grey400};
 `;
 
 const PlaylistHead = styled.div`
-  background: linear-gradient(to bottom, #2b5a86 0%, #163a5c 100%);
-  color: #bcd6ef;
+  background: linear-gradient(to bottom, ${PALETTE.blue700} 0%, ${PALETTE.blue800} 100%);
+  color: ${PALETTE.blue200};
   font-size: 9px;
   font-weight: bold;
   letter-spacing: 1px;
   text-transform: uppercase;
   padding: 3px 8px;
-  border-top: 1px solid #000;
+  border-top: 1px solid ${PALETTE.black};
   flex-shrink: 0;
 `;
 
 const Playlist = styled.div`
   flex: 1;
   overflow-y: auto;
-  background: #0b0b0b;
+  background: ${PALETTE.black2};
 `;
 
 const Row = styled.div<{ $current?: boolean }>`
   display: flex;
   padding: 3px 8px;
   cursor: pointer;
-  color: ${p => (p.$current ? '#35ff6a' : '#c7c7c7')};
-  background: ${p => (p.$current ? '#16240f' : 'transparent')};
-  font-family: 'Courier New', monospace;
+  color: ${p => (p.$current ? PALETTE.green400 : PALETTE.grey200)};
+  background: ${p => (p.$current ? PALETTE.green9002 : 'transparent')};
+  font-family: ${FONTS.MONO};
   font-size: 11px;
   &:hover {
-    background: ${p => (p.$current ? '#1c2e13' : '#161616')};
+    background: ${p => (p.$current ? PALETTE.green9003 : PALETTE.grey900)};
   }
   .num {
     width: 20px;
-    color: #6a6a6a;
+    color: ${PALETTE.grey600};
   }
   .name {
     flex: 1;
@@ -234,7 +271,7 @@ const Row = styled.div<{ $current?: boolean }>`
     white-space: nowrap;
   }
   .dur {
-    color: #6a9a76;
+    color: ${PALETTE.green500};
   }
 `;
 

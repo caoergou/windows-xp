@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { COLORS, FONTS } from '../constants';
 
 const BsodContainer = styled.div`
   position: fixed;
@@ -7,9 +8,9 @@ const BsodContainer = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #0033a0;
+  background-color: ${COLORS.BSOD_BLUE};
   color: white;
-  font-family: 'Perfect DOS VGA 437 Win', 'Lucida Console', 'Courier New', monospace;
+  font-family: ${FONTS.CONSOLE};
   font-size: 14px;
   padding: 40px 60px;
   z-index: 2147483647;

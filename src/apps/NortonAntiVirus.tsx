@@ -1,6 +1,35 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import XPIcon from '../components/XPIcon';
+import { FONTS } from '../constants';
+
+/* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
+   Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
+   app keeps its own period look even if the OS theme is swapped (#143). */
+const PALETTE = {
+  green700: '#1C6A34',
+  grey800: '#333333',
+  green600: '#3AA757',
+  orange900: '#4A2C00',
+  orange800: '#6B4300',
+  orange700: '#8A5A00',
+  orange7002: '#A85F00',
+  yellow500: '#C9A24A',
+  yellow300: '#D8CBA0',
+  orange600: '#D98A00',
+  green100: '#EAFAEF',
+  yellow100: '#EFE8D2',
+  orange500: '#F2A11B',
+  yellow3002: '#F2D38A',
+  yellow1002: '#F6F3E8',
+  orange400: '#F7AD33',
+  yellow400: '#FFD24A',
+  yellow200: '#FFE38A',
+  yellow2002: '#FFF0B0',
+  yellow1003: '#FFF8E6',
+  white: '#FFFFFF',
+};
+/* brand-palette:end */
 
 /**
  * Norton AntiVirus — a 2000s-style security shell for the `en` culture package
@@ -13,16 +42,21 @@ const Wrap = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #f6f3e8;
-  font-family: 'Tahoma', 'MS Sans Serif', sans-serif;
+  background: ${PALETTE.yellow1002};
+  font-family: ${FONTS.CLASSIC};
   font-size: 12px;
-  color: #333;
+  color: ${PALETTE.grey800};
   user-select: none;
   overflow: hidden;
 `;
 const Header = styled.div`
-  background: linear-gradient(to bottom, #ffd24a 0%, #f2a11b 55%, #d98a00 100%);
-  border-bottom: 1px solid #a85f00;
+  background: linear-gradient(
+    to bottom,
+    ${PALETTE.yellow400} 0%,
+    ${PALETTE.orange500} 55%,
+    ${PALETTE.orange600} 100%
+  );
+  border-bottom: 1px solid ${PALETTE.orange7002};
   padding: 10px 12px;
   display: flex;
   align-items: center;
@@ -31,12 +65,12 @@ const Header = styled.div`
   .t {
     font-size: 16px;
     font-weight: bold;
-    color: #4a2c00;
+    color: ${PALETTE.orange900};
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
   }
   .v {
     font-size: 11px;
-    color: #6b4300;
+    color: ${PALETTE.orange800};
   }
 `;
 const Body = styled.div`
@@ -52,9 +86,9 @@ const Body = styled.div`
 const StatusCard = styled.div<{ $safe?: boolean }>`
   width: 100%;
   max-width: 360px;
-  border: 1px solid ${p => (p.$safe ? '#3aa757' : '#d98a00')};
+  border: 1px solid ${p => (p.$safe ? PALETTE.green600 : PALETTE.orange600)};
   border-radius: 4px;
-  background: ${p => (p.$safe ? '#eafaef' : '#fff8e6')};
+  background: ${p => (p.$safe ? PALETTE.green100 : PALETTE.yellow1003)};
   padding: 14px;
   display: flex;
   align-items: center;
@@ -65,7 +99,7 @@ const StatusCard = styled.div<{ $safe?: boolean }>`
     .big {
       font-size: 14px;
       font-weight: bold;
-      color: ${p => (p.$safe ? '#1c6a34' : '#8a5a00')};
+      color: ${p => (p.$safe ? PALETTE.green700 : PALETTE.orange700)};
     }
   }
 `;
@@ -73,8 +107,8 @@ const spin = keyframes`to{transform:rotate(360deg)}`;
 const Spinner = styled.div`
   width: 26px;
   height: 26px;
-  border: 3px solid #f2d38a;
-  border-top-color: #d98a00;
+  border: 3px solid ${PALETTE.yellow3002};
+  border-top-color: ${PALETTE.orange600};
   border-radius: 50%;
   animation: ${spin} 0.8s linear infinite;
   flex-shrink: 0;
@@ -83,20 +117,20 @@ const Bar = styled.div`
   width: 100%;
   max-width: 360px;
   height: 16px;
-  border: 1px solid #c9a24a;
+  border: 1px solid ${PALETTE.yellow500};
   border-radius: 2px;
-  background: #fff;
+  background: ${PALETTE.white};
   overflow: hidden;
 `;
 const Fill = styled.div<{ $v: number }>`
   height: 100%;
   width: ${p => p.$v}%;
-  background: linear-gradient(to bottom, #ffd24a, #f2a11b);
+  background: linear-gradient(to bottom, ${PALETTE.yellow400}, ${PALETTE.orange500});
   transition: width 0.15s linear;
 `;
 const ScanLine = styled.div`
   font-size: 11px;
-  color: #6b4300;
+  color: ${PALETTE.orange800};
   height: 14px;
   overflow: hidden;
   white-space: nowrap;
@@ -108,13 +142,13 @@ const Btn = styled.button`
   font-size: 12px;
   font-family: inherit;
   cursor: pointer;
-  border: 1px solid #a85f00;
+  border: 1px solid ${PALETTE.orange7002};
   border-radius: 3px;
-  color: #4a2c00;
+  color: ${PALETTE.orange900};
   font-weight: bold;
-  background: linear-gradient(to bottom, #ffe38a 0%, #f2a11b 100%);
+  background: linear-gradient(to bottom, ${PALETTE.yellow200} 0%, ${PALETTE.orange500} 100%);
   &:hover {
-    background: linear-gradient(to bottom, #fff0b0 0%, #f7ad33 100%);
+    background: linear-gradient(to bottom, ${PALETTE.yellow2002} 0%, ${PALETTE.orange400} 100%);
   }
   &:active {
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -125,11 +159,11 @@ const Btn = styled.button`
   }
 `;
 const Footer = styled.div`
-  border-top: 1px solid #d8cba0;
-  background: #efe8d2;
+  border-top: 1px solid ${PALETTE.yellow300};
+  background: ${PALETTE.yellow100};
   padding: 4px 10px;
   font-size: 11px;
-  color: #6b4300;
+  color: ${PALETTE.orange800};
   display: flex;
   justify-content: space-between;
   flex-shrink: 0;

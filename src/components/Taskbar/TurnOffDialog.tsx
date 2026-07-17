@@ -5,6 +5,7 @@ import restartIcon from '../../assets/icons/xp/restart.png';
 import windowsFlag from '../../assets/windowsIcons/windows-off.png';
 import { COLORS } from '../../themes/xp/tokens';
 import { XPButton } from '../XPButton';
+import { FONTS } from '../../constants';
 
 const TurnOffOverlay = styled.div`
   position: fixed;
@@ -40,7 +41,7 @@ const Header = styled.div`
   background: ${COLORS.SHUTDOWN_PANEL_DARK};
   box-shadow: inset 0 -2px ${COLORS.SHUTDOWN_PANEL_EDGE};
   color: white;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
 
   h2 {
     margin: 0;
@@ -87,7 +88,7 @@ const ActionButton = styled.button`
   justify-content: flex-start;
   gap: 5px;
   color: white;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0;

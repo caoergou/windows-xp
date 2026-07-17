@@ -6,6 +6,7 @@ import primaryLogo from '../assets/images/bios__primary_logo.png';
 import loadingBar from '../assets/images/bios__loading_bar.gif';
 import copyright from '../assets/images/bios__copyright.png';
 import secondaryLogo from '../assets/images/bios__secondary_logo.png';
+import { COLORS, FONTS } from '../constants';
 
 interface BootScreenProps {
   onComplete: () => void;
@@ -18,7 +19,7 @@ const Container = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #000000;
+  background: ${COLORS.BLACK};
   display: flex;
   flex-direction: column;
   z-index: 99999;
@@ -74,7 +75,7 @@ const SecondaryLogo = styled.img`
 
 const BootText = styled.div`
   color: white;
-  font-family: 'Franklin Gothic Medium', 'Trebuchet MS', 'Tahoma', sans-serif;
+  font-family: ${FONTS.BOOT};
   font-size: 28px;
   letter-spacing: 0.5px;
   text-align: center;

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { COLORS, FONTS } from '../constants';
 
 /**
  * XP group box (#78): the grooved-border `<fieldset>` with an inset legend,
@@ -12,12 +13,12 @@ const Fieldset = styled.fieldset`
   padding: 10px;
   padding-block-start: 8px;
   margin: 0;
-  font-family: 'Tahoma', 'SimSun', 'Microsoft YaHei', sans-serif;
+  font-family: ${FONTS.UI};
   font-size: 11px;
-  color: #000;
+  color: ${COLORS.BLACK};
 
   legend {
-    background: #ece9d8;
+    background: ${COLORS.SURFACE};
     padding: 0 3px;
   }
 `;

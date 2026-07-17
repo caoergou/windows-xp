@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { CELL_SIZE } from './constants';
+import { COLORS, FONTS } from '../../constants';
 
 // Minesweeper styled-components (#163/A).
 
@@ -7,9 +8,9 @@ export const Wrap = styled.div`
   position: relative;
   width: fit-content;
   align-self: flex-start;
-  background: #ece9d8;
-  color: #000;
-  font-family: Tahoma, 'SimSun', 'Microsoft YaHei', sans-serif;
+  background: ${COLORS.SURFACE};
+  color: ${COLORS.BLACK};
+  font-family: ${FONTS.UI};
   font-size: 11px;
   line-height: 1;
   user-select: none;
@@ -34,9 +35,9 @@ export const MenuCheck = styled.img`
 
 export const GamePanel = styled.section`
   padding: 5px;
-  border-top: 3px solid #f5f5f5;
-  border-left: 3px solid #f5f5f5;
-  background: #c0c0c0;
+  border-top: 3px solid ${COLORS.GREY_F5};
+  border-left: 3px solid ${COLORS.GREY_F5};
+  background: ${COLORS.GREY_C0};
   box-sizing: border-box;
 `;
 
@@ -48,7 +49,7 @@ export const ScoreBar = styled.div`
   margin-bottom: 5px;
   padding: 3px 7px 3px 4px;
   border: 2px solid;
-  border-color: #808080 #f5f5f5 #f5f5f5 #808080;
+  border-color: ${COLORS.BUTTON_SHADOW} ${COLORS.GREY_F5} ${COLORS.GREY_F5} ${COLORS.BUTTON_SHADOW};
 `;
 
 export const Counter = styled.div`
@@ -58,7 +59,7 @@ export const Counter = styled.div`
   overflow: hidden;
   border-width: 0 1px 1px 0;
   border-style: solid;
-  border-color: #fff;
+  border-color: ${COLORS.WHITE};
 `;
 
 export const Digit = styled.img`
@@ -72,8 +73,8 @@ export const Digit = styled.img`
 export const FaceOuter = styled.div`
   width: 24px;
   height: 24px;
-  border-top: 1px solid #808080;
-  border-left: 1px solid #808080;
+  border-top: 1px solid ${COLORS.BUTTON_SHADOW};
+  border-left: 1px solid ${COLORS.BUTTON_SHADOW};
   transform: translateX(1px);
 `;
 
@@ -89,14 +90,14 @@ export const FaceButton = styled.button`
   justify-content: center;
   padding: 0;
   border: 2px solid;
-  border-color: #f5f5f5 #808080 #808080 #f5f5f5;
+  border-color: ${COLORS.GREY_F5} ${COLORS.BUTTON_SHADOW} ${COLORS.BUTTON_SHADOW} ${COLORS.GREY_F5};
   outline: none;
-  background: #c0c0c0;
+  background: ${COLORS.GREY_C0};
   cursor: default;
 
   &:active {
     border-width: 1px;
-    border-color: #808080;
+    border-color: ${COLORS.BUTTON_SHADOW};
   }
 
   &:active img {
@@ -115,8 +116,8 @@ export const Board = styled.div<{ $cols: number; $rows: number }>`
   grid-template-columns: repeat(${props => props.$cols}, ${CELL_SIZE}px);
   grid-template-rows: repeat(${props => props.$rows}, ${CELL_SIZE}px);
   border: 3px solid;
-  border-color: #808080 #f5f5f5 #f5f5f5 #808080;
-  background: #808080;
+  border-color: ${COLORS.BUTTON_SHADOW} ${COLORS.GREY_F5} ${COLORS.GREY_F5} ${COLORS.BUTTON_SHADOW};
+  background: ${COLORS.BUTTON_SHADOW};
   line-height: 0;
   overflow: hidden;
 `;
@@ -134,7 +135,7 @@ export const Cell = styled.button<{ $covered: boolean }>`
   padding: 0;
   border: 0;
   outline: 0;
-  background: #c0c0c0;
+  background: ${COLORS.GREY_C0};
   appearance: none;
   -webkit-appearance: none;
   cursor: default;
@@ -147,9 +148,9 @@ export const CoveredBackground = styled.span`
   display: block;
   width: ${CELL_SIZE}px;
   height: ${CELL_SIZE}px;
-  background: #c0c0c0;
+  background: ${COLORS.GREY_C0};
   border: 2px solid;
-  border-color: #f5f5f5 #808080 #808080 #f5f5f5;
+  border-color: ${COLORS.GREY_F5} ${COLORS.BUTTON_SHADOW} ${COLORS.BUTTON_SHADOW} ${COLORS.GREY_F5};
 `;
 
 export const RevealedBackground = styled.span`
@@ -158,9 +159,9 @@ export const RevealedBackground = styled.span`
   display: block;
   width: ${CELL_SIZE}px;
   height: ${CELL_SIZE}px;
-  background: #c0c0c0;
-  border-top: 1px solid #808080;
-  border-left: 1px solid #808080;
+  background: ${COLORS.GREY_C0};
+  border-top: 1px solid ${COLORS.BUTTON_SHADOW};
+  border-left: 1px solid ${COLORS.BUTTON_SHADOW};
 `;
 
 export const CellIcon = styled.img`
@@ -181,15 +182,15 @@ export const AboutDialog = styled.div`
   width: 220px;
   transform: translateX(-50%);
   border: 2px solid;
-  border-color: #fff #404040 #404040 #fff;
-  background: #d4d0c8;
-  box-shadow: 2px 2px 1px #646464;
+  border-color: ${COLORS.WHITE} ${COLORS.GREY_40} ${COLORS.GREY_40} ${COLORS.WHITE};
+  background: ${COLORS.BORDER_GREY_HILIGHT};
+  box-shadow: 2px 2px 1px ${COLORS.GREY_64};
 `;
 
 export const AboutTitle = styled.div`
   padding: 4px 6px;
-  color: #fff;
-  background: linear-gradient(to right, #0997ff, #0053ee);
+  color: ${COLORS.WHITE};
+  background: ${COLORS.TITLE_BAR_GRADIENT_COMPACT};
   font-weight: bold;
 `;
 
@@ -209,11 +210,11 @@ export const DialogButton = styled.button`
   min-width: 72px;
   height: 23px;
   border: 2px solid;
-  border-color: #fff #404040 #404040 #fff;
-  background: #d4d0c8;
+  border-color: ${COLORS.WHITE} ${COLORS.GREY_40} ${COLORS.GREY_40} ${COLORS.WHITE};
+  background: ${COLORS.BORDER_GREY_HILIGHT};
   font: inherit;
 
   &:active {
-    border-color: #404040 #fff #fff #404040;
+    border-color: ${COLORS.GREY_40} ${COLORS.WHITE} ${COLORS.WHITE} ${COLORS.GREY_40};
   }
 `;
