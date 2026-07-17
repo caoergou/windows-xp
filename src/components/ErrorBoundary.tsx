@@ -1,8 +1,8 @@
 import React, { Component, ReactNode } from 'react';
-import styled from 'styled-components';
+import styled, { ThemeContext } from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
    Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
@@ -21,9 +21,9 @@ const ErrorContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: ${COLORS.GREY_F0};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
   padding: 20px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 `;
 
 const ErrorIcon = styled.div`
@@ -38,7 +38,7 @@ const ErrorTitle = styled.h2`
 `;
 
 const ErrorMessage = styled.p`
-  color: ${COLORS.GREY_33};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_33};
   margin: 4px 0;
   font-size: 11px;
   text-align: center;
@@ -56,8 +56,8 @@ const ErrorDetails = styled.details`
   }
 
   pre {
-    background: ${COLORS.WHITE};
-    border: 1px solid ${COLORS.GREY_CC};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+    border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.GREY_CC};
     padding: 8px;
     margin-top: 8px;
     overflow: auto;
@@ -84,6 +84,11 @@ interface ErrorBoundaryState {
  * Catches errors in child components to prevent the whole desktop from crashing.
  */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  // Class components can't call useOSTheme; read the same ThemeContext the hook
+  // reads so the dev diagnostics below follow the active OS theme (#213 B1).
+  static contextType = ThemeContext;
+  declare context: React.ContextType<typeof ThemeContext>;
+
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = {
@@ -111,7 +116,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       );
 
       if (windowId) {
-        console.log(`%cWindow ID:`, `color: ${COLORS.GREY_66}; font-weight: bold;`, windowId);
+        console.log(
+          `%cWindow ID:`,
+          `color: ${resolveOSTheme(this.context).tokens.GREY_66}; font-weight: bold;`,
+          windowId
+        );
       }
 
       console.log('%cError object:', `color: ${PALETTE.blue600}; font-weight: bold;`);

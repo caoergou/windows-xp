@@ -2,12 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import XPIcon from '../XPIcon';
 import { useTranslation } from 'react-i18next';
-import { COLORS, FONTS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  background: ${COLORS.TOOLBAR_GRADIENT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.TOOLBAR_GRADIENT};
 `;
 
 const MenuBar = styled.div`
@@ -27,11 +27,11 @@ const MenuItemWrapper = styled.div`
 const MenuItem = styled.div<{ $active?: boolean }>`
   padding: 2px 8px;
   cursor: pointer;
-  background: ${p => (p.$active ? COLORS.MENU_HIGHLIGHT : 'transparent')};
+  background: ${p => (p.$active ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT : 'transparent')};
   color: ${p => (p.$active ? 'white' : 'inherit')};
 
   &:hover {
-    background: ${COLORS.MENU_HIGHLIGHT};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
     color: white;
   }
 `;
@@ -42,13 +42,13 @@ const DropdownMenu = styled.div`
   top: 100%;
   left: 0;
   min-width: 180px;
-  background: ${COLORS.GREY_F0};
-  border: 1px solid ${COLORS.BLACK};
-  box-shadow: 2px 2px 0px ${COLORS.BUTTON_SHADOW};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
+  box-shadow: 2px 2px 0px ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   padding: 2px 0;
   z-index: 9999;
   font-size: 12px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 `;
 
 const DropdownItem = styled.div<{ $disabled?: boolean }>`
@@ -57,13 +57,15 @@ const DropdownItem = styled.div<{ $disabled?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: ${p => (p.$disabled ? COLORS.GREY_A0 : COLORS.BLACK)};
+  color: ${p =>
+    p.$disabled ? resolveOSTheme(p.theme).tokens.GREY_A0 : resolveOSTheme(p.theme).tokens.BLACK};
   position: relative;
   white-space: nowrap;
 
   &:hover {
-    background: ${p => (p.$disabled ? 'transparent' : COLORS.MENU_HIGHLIGHT)};
-    color: ${p => (p.$disabled ? COLORS.GREY_A0 : 'white')};
+    background: ${p =>
+      p.$disabled ? 'transparent' : resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};
+    color: ${p => (p.$disabled ? resolveOSTheme(p.theme).tokens.GREY_A0 : 'white')};
   }
 
   .shortcut {
@@ -76,7 +78,7 @@ const DropdownItem = styled.div<{ $disabled?: boolean }>`
 
 const DropdownSeparator = styled.div`
   height: 1px;
-  background: ${COLORS.BUTTON_SHADOW};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   margin: 3px 2px;
 `;
 
@@ -111,7 +113,8 @@ const NavButton = styled.button<{ $disabled?: boolean }>`
 
   &:active {
     border: ${p => (p.$disabled ? '1px solid rgba(0, 0, 0, 0)' : '1px solid rgb(185, 185, 185)')};
-    background-color: ${p => (p.$disabled ? 'transparent' : COLORS.GREY_DE)};
+    background-color: ${p =>
+      p.$disabled ? 'transparent' : resolveOSTheme(p.theme).tokens.GREY_DE};
     box-shadow: ${p => (p.$disabled ? 'none' : 'inset 0 -1px 1px rgba(255, 255, 255, 0.7)')};
 
     & > * {
@@ -127,7 +130,7 @@ const ToolbarButton = styled.button`
   height: 100%;
   padding: 0 6px;
   font-size: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   background: transparent;
   border: 1px solid rgba(0, 0, 0, 0);
   border-radius: 3px;
@@ -140,7 +143,7 @@ const ToolbarButton = styled.button`
 
   &:active {
     border: 1px solid rgb(185, 185, 185);
-    background-color: ${COLORS.GREY_DE};
+    background-color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_DE};
     box-shadow: inset 0 -1px 1px rgba(255, 255, 255, 0.7);
 
     & > * {

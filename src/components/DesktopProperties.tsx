@@ -4,35 +4,38 @@ import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { XPSelect } from './XPSelect';
 import { useUserSession } from '../context/UserSessionContext';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 const Container = styled.div`
   width: 360px;
-  background: ${COLORS.SURFACE};
-  font-family: ${FONTS.UI};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
   display: flex;
   flex-direction: column;
 `;
 
 const Tabs = styled.div`
   display: flex;
-  border-bottom: 1px solid ${COLORS.SURFACE};
-  background: ${COLORS.GREY_F0};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
 `;
 
 const Tab = styled.button<{ $active?: boolean }>`
   padding: 4px 12px;
-  border: 1px solid ${COLORS.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
   border-bottom: none;
-  background: ${props => (props.$active ? COLORS.SURFACE : COLORS.GREY_F8)};
+  background: ${props =>
+    props.$active
+      ? resolveOSTheme(props.theme).tokens.SURFACE
+      : resolveOSTheme(props.theme).tokens.GREY_F8};
   cursor: pointer;
   font-size: 11px;
   margin-right: 2px;
 
   &:hover {
-    background: ${COLORS.SURFACE};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
   }
 `;
 
@@ -47,7 +50,7 @@ const Preview = styled.div<{ $bgUrl: string }>`
   background-image: url(${props => props.$bgUrl});
   background-size: cover;
   background-position: center;
-  border: 1px solid ${COLORS.FIELD_BORDER};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.FIELD_BORDER};
   margin-bottom: 12px;
 `;
 
@@ -60,7 +63,7 @@ const Row = styled.div`
 
 const Label = styled.div`
   width: 70px;
-  color: ${COLORS.GREY_33};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_33};
 `;
 
 const Select = styled(XPSelect)`
@@ -72,19 +75,19 @@ const ButtonRow = styled.div`
   justify-content: flex-end;
   gap: 8px;
   padding: 10px 12px;
-  border-top: 1px solid ${COLORS.SURFACE};
-  background: ${COLORS.GREY_F0};
+  border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
 `;
 
 const Button = styled.button`
   padding: 3px 14px;
   font-size: 11px;
-  border: 1px solid ${COLORS.BUTTON_BORDER};
-  background: ${COLORS.BUTTON_GRADIENT};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_GRADIENT};
   cursor: pointer;
 
   &:hover {
-    box-shadow: ${COLORS.BUTTON_HOVER_SHADOW};
+    box-shadow: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HOVER_SHADOW};
   }
 `;
 

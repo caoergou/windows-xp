@@ -6,7 +6,7 @@ import { WindowIdProvider } from '../../context/WindowIdContext';
 import { sounds } from '../../utils/soundManager';
 import { WindowState } from '../../types';
 import { TIME, WINDOW_DEFAULTS } from '../../constants';
-import { COLORS } from '../../themes/xp/tokens';
+import { resolveOSTheme, useOSTheme } from '../../themes/useOSTheme';
 import ErrorBoundary from '../ErrorBoundary';
 import WindowChrome from './WindowChrome';
 import WindowControls from './WindowControls';
@@ -57,7 +57,7 @@ const CaptionAnimation = styled.div`
   box-sizing: border-box;
   pointer-events: none;
   overflow: hidden;
-  border: 2px solid ${COLORS.BUTTON_BORDER};
+  border: 2px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
   background: transparent;
   box-shadow: inset 0 0 0 1px white;
   will-change: left, top, width, height;
@@ -67,8 +67,11 @@ const CaptionAnimation = styled.div`
     content: '';
     position: absolute;
     inset: 1px 1px auto;
-    height: min(${COLORS.TITLE_BAR_HEIGHT}px, calc(100% - 2px));
-    background: ${COLORS.TITLE_BAR_GRADIENT};
+    height: min(
+      ${({ theme }) => resolveOSTheme(theme).tokens.TITLE_BAR_HEIGHT}px,
+      calc(100% - 2px)
+    );
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.TITLE_BAR_GRADIENT};
   }
 `;
 
@@ -87,6 +90,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
     useWindowManagerActions();
   const activeWindowId = useActiveWindowId();
   const { blockedWindowId, signalBlockedInteraction } = useModalInteraction();
+  const osTheme = useOSTheme();
 
   const {
     id,
@@ -162,7 +166,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
       left: 0,
       top: 0,
       width: host.clientWidth,
-      height: host.clientHeight - COLORS.TASKBAR_HEIGHT,
+      height: host.clientHeight - osTheme.tokens.TASKBAR_HEIGHT,
     };
     let from: CaptionRect;
     let to: CaptionRect;
@@ -178,7 +182,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
     }
 
     setCaptionTransition({ host, from, to });
-  }, [currentHeight, currentWidth, isMaximized, left, top, transition, transitionTarget]);
+  }, [currentHeight, currentWidth, isMaximized, left, top, osTheme, transition, transitionTarget]);
 
   const captionAnimation = React.useMemo(() => {
     if (!transition || !captionTransition) return null;

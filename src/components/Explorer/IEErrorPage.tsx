@@ -1,16 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { COLORS, FONTS } from '../../constants';
+import { resolveOSTheme, useOSTheme } from '../../themes/useOSTheme';
 
 const Container = styled.div`
   width: 100%;
   height: 100%;
   background: white;
   padding: 40px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 12px;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
   overflow-y: auto;
 `;
 
@@ -25,7 +25,7 @@ const InfoIcon = styled.div`
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: ${COLORS.MENU_HIGHLIGHT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
   color: white;
   font-weight: bold;
   font-size: 16px;
@@ -39,7 +39,7 @@ const Title = styled.h1`
   font-size: 16px;
   margin: 0;
   font-weight: bold;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
 `;
 
 const Description = styled.p`
@@ -72,16 +72,24 @@ const ActionButton = styled.button`
   padding: 3px 12px;
   font-size: 12px;
   cursor: pointer;
-  border: 1px solid ${COLORS.FIELD_BORDER};
-  background: linear-gradient(to bottom, ${COLORS.WHITE}, ${COLORS.SURFACE});
-  font-family: ${FONTS.UI};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.FIELD_BORDER};
+  background: linear-gradient(
+    to bottom,
+    ${({ theme }) => resolveOSTheme(theme).tokens.WHITE},
+    ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE}
+  );
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 
   &:hover {
-    background: ${COLORS.IE_BUTTON_GRADIENT};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.IE_BUTTON_GRADIENT};
   }
 
   &:active {
-    background: linear-gradient(to bottom, ${COLORS.SURFACE}, ${COLORS.WHITE});
+    background: linear-gradient(
+      to bottom,
+      ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE},
+      ${({ theme }) => resolveOSTheme(theme).tokens.WHITE}
+    );
   }
 `;
 
@@ -93,6 +101,7 @@ interface IEErrorPageProps {
 
 const IEErrorPage: React.FC<IEErrorPageProps> = ({ url, onRefresh, onDiagnose }) => {
   const { t } = useTranslation();
+  const osTheme = useOSTheme();
 
   return (
     <Container>
@@ -114,7 +123,7 @@ const IEErrorPage: React.FC<IEErrorPageProps> = ({ url, onRefresh, onDiagnose })
 
       <Section>
         <SectionTitle>HTTP {t('internetExplorer.errorPage.notFound')}</SectionTitle>
-        <div style={{ color: COLORS.GREY_66 }}>{url}</div>
+        <div style={{ color: osTheme.tokens.GREY_66 }}>{url}</div>
       </Section>
 
       <ActionRow>

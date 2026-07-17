@@ -3,14 +3,13 @@ import styled from 'styled-components';
 import shutdownIcon from '../../assets/icons/xp/shutdown_action.png';
 import restartIcon from '../../assets/icons/xp/restart.png';
 import windowsFlag from '../../assets/windowsIcons/windows-off.png';
-import { COLORS } from '../../themes/xp/tokens';
 import { XPButton } from '../XPButton';
-import { FONTS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 
 const TurnOffOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: ${COLORS.SHUTDOWN_OVERLAY};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SHUTDOWN_OVERLAY};
   backdrop-filter: grayscale(100%) brightness(68%);
   z-index: 20000;
   display: flex;
@@ -26,7 +25,7 @@ const TurnOffPanel = styled.div`
   display: flex;
   flex-direction: column;
   border: 1px solid black;
-  background: ${COLORS.SHUTDOWN_PANEL_DARK};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SHUTDOWN_PANEL_DARK};
   transform: translateY(-66px);
 `;
 
@@ -38,10 +37,10 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: ${COLORS.SHUTDOWN_PANEL_DARK};
-  box-shadow: inset 0 -2px ${COLORS.SHUTDOWN_PANEL_EDGE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SHUTDOWN_PANEL_DARK};
+  box-shadow: inset 0 -2px ${({ theme }) => resolveOSTheme(theme).tokens.SHUTDOWN_PANEL_EDGE};
   color: white;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 
   h2 {
     margin: 0;
@@ -68,7 +67,7 @@ const Actions = styled.div`
   align-items: center;
   width: 100%;
   padding-top: 3px;
-  background: ${COLORS.SHUTDOWN_PANEL_BODY};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SHUTDOWN_PANEL_BODY};
 `;
 
 const ActionButton = styled.button`
@@ -88,11 +87,11 @@ const ActionButton = styled.button`
   justify-content: flex-start;
   gap: 5px;
   color: white;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0;
-  text-shadow: 1px 1px ${COLORS.SHUTDOWN_PANEL_DARK};
+  text-shadow: 1px 1px ${({ theme }) => resolveOSTheme(theme).tokens.SHUTDOWN_PANEL_DARK};
   cursor: pointer;
 
   &:hover:not(:disabled) [data-testid='turn-off-action-icon'] {
@@ -134,16 +133,16 @@ const StandbyIcon = styled.span`
   display: block;
   width: 32px;
   height: 32px;
-  border: 1px solid ${COLORS.SHUTDOWN_STANDBY_BORDER};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.SHUTDOWN_STANDBY_BORDER};
   border-radius: 4px;
   background: linear-gradient(
     180deg,
-    ${COLORS.SHUTDOWN_STANDBY_TOP} 0%,
-    ${COLORS.SHUTDOWN_STANDBY_BOTTOM} 100%
+    ${({ theme }) => resolveOSTheme(theme).tokens.SHUTDOWN_STANDBY_TOP} 0%,
+    ${({ theme }) => resolveOSTheme(theme).tokens.SHUTDOWN_STANDBY_BOTTOM} 100%
   );
   box-shadow:
     inset 1px 1px white,
-    inset -1px -1px ${COLORS.SHUTDOWN_STANDBY_BORDER};
+    inset -1px -1px ${({ theme }) => resolveOSTheme(theme).tokens.SHUTDOWN_STANDBY_BORDER};
 
   &::before {
     content: '';
@@ -164,7 +163,7 @@ const StandbyIcon = styled.span`
     top: 5px;
     width: 3px;
     height: 11px;
-    border: 2px solid ${COLORS.SHUTDOWN_STANDBY_TOP};
+    border: 2px solid ${({ theme }) => resolveOSTheme(theme).tokens.SHUTDOWN_STANDBY_TOP};
     border-width: 0 2px;
     background: white;
   }
@@ -178,7 +177,7 @@ const Footer = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  background: ${COLORS.SHUTDOWN_PANEL_DARK};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SHUTDOWN_PANEL_DARK};
 `;
 
 const CancelButton = styled(XPButton)`

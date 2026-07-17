@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import XPIcon from './XPIcon';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /**
  * BalloonTip — the classic Windows XP tray notification bubble (#118).
@@ -42,12 +42,12 @@ const Bubble = styled.div<{ $tailOffset: number; $showTail: boolean; $clickable:
   width: 242px;
   min-height: 50px;
   box-sizing: border-box;
-  background: ${COLORS.TOOLTIP_BG};
-  border: 1px solid ${COLORS.FIELD_BORDER};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.TOOLTIP_BG};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.FIELD_BORDER};
   border-radius: 2px;
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
   padding: 7px 24px 7px 8px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
   display: flex;
   align-items: center;
@@ -64,9 +64,9 @@ const Bubble = styled.div<{ $tailOffset: number; $showTail: boolean; $clickable:
     bottom: -8px;
     width: 12px;
     height: 12px;
-    background: ${COLORS.TOOLTIP_BG};
-    border-right: 1px solid ${COLORS.FIELD_BORDER};
-    border-bottom: 1px solid ${COLORS.FIELD_BORDER};
+    background: ${resolveOSTheme(props.theme).tokens.TOOLTIP_BG};
+    border-right: 1px solid ${resolveOSTheme(props.theme).tokens.FIELD_BORDER};
+    border-bottom: 1px solid ${resolveOSTheme(props.theme).tokens.FIELD_BORDER};
     transform: rotate(45deg);
   }
   `}
@@ -90,12 +90,12 @@ const Message = styled.div`
 const TitleLine = styled.div`
   font-weight: bold;
   margin-bottom: 2px;
-  color: ${COLORS.XP_DEEP_BLUE};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.XP_DEEP_BLUE};
 `;
 
 const BodyLine = styled.div`
   font-size: 11px;
-  color: ${COLORS.GREY_33};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_33};
 `;
 
 const CloseBox = styled.button`
@@ -121,11 +121,11 @@ const CloseBox = styled.button`
   line-height: 12px;
   text-align: center;
   cursor: pointer;
-  color: ${COLORS.GREY_40};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40};
 
   &:hover {
-    background: ${COLORS.HOVER_BEIGE};
-    border-color: ${COLORS.DIVIDER_GREY};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.HOVER_BEIGE};
+    border-color: ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
   }
 
   &:active {

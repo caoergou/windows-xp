@@ -5,13 +5,13 @@ import XPIcon from './XPIcon';
 import { sounds } from '../utils/soundManager';
 import { useXPEventBus } from '../context/EventBusContext';
 import { MenuItem } from '../types';
-import { COLORS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 const ContextMenuContainer = styled.div<{ $x: number; $y: number }>`
   position: fixed;
-  background: ${COLORS.GREY_F0};
-  border: 1px solid ${COLORS.BLACK};
-  box-shadow: 2px 2px 0px ${COLORS.BUTTON_SHADOW};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
+  box-shadow: 2px 2px 0px ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   padding: 1px;
   z-index: 2147483647;
   min-width: 150px;
@@ -25,15 +25,21 @@ const MenuItemComponent = styled.div<{ $disabled?: boolean }>`
   cursor: default;
   display: flex;
   align-items: center;
-  color: ${props => (props.$disabled ? COLORS.GREY_77 : COLORS.BLACK)};
+  color: ${props =>
+    props.$disabled
+      ? resolveOSTheme(props.theme).tokens.GREY_77
+      : resolveOSTheme(props.theme).tokens.BLACK};
   position: relative;
   border: 1px solid transparent;
-  background-color: ${COLORS.GREY_F0};
+  background-color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
 
   &:hover {
-    background-color: ${props => (props.$disabled ? COLORS.GREY_F0 : COLORS.MENU_HIGHLIGHT)};
-    color: ${props => (props.$disabled ? COLORS.GREY_77 : 'white')};
-    border: 1px solid ${COLORS.MENU_HIGHLIGHT_BORDER};
+    background-color: ${props =>
+      props.$disabled
+        ? resolveOSTheme(props.theme).tokens.GREY_F0
+        : resolveOSTheme(props.theme).tokens.MENU_HIGHLIGHT};
+    color: ${props => (props.$disabled ? resolveOSTheme(props.theme).tokens.GREY_77 : 'white')};
+    border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT_BORDER};
   }
 
   .icon-wrapper {
@@ -62,7 +68,7 @@ const MenuItemComponent = styled.div<{ $disabled?: boolean }>`
 
 const MenuSeparator = styled.div`
   height: 1px;
-  background: ${COLORS.BUTTON_SHADOW};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   margin: 4px 2px;
 `;
 
@@ -70,7 +76,7 @@ const SubMenuIndicator = styled.span`
   position: absolute;
   right: 8px;
   font-size: 10px;
-  color: ${COLORS.GREY_66};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_66};
 `;
 
 const SubMenuContainer = styled.div`
@@ -78,9 +84,9 @@ const SubMenuContainer = styled.div`
   position: absolute;
   left: calc(100% - 1px);
   top: -2px;
-  background: ${COLORS.GREY_F0};
-  border: 1px solid ${COLORS.BLACK};
-  box-shadow: 2px 2px 0px ${COLORS.BUTTON_SHADOW};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
+  box-shadow: 2px 2px 0px ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   padding: 1px;
   min-width: 140px;
   z-index: 2147483648;

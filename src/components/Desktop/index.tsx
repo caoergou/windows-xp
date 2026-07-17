@@ -27,7 +27,7 @@ import { useBoxSelection } from './hooks/useBoxSelection';
 import { useTapGestures } from '../../hooks/useTapGestures';
 import { useMultiSelect } from '../../hooks/useMultiSelect';
 import { useShortcut } from '../../context/KeymapContext';
-import { COLORS } from '../../constants';
+import { useOSTheme } from '../../themes/useOSTheme';
 
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
@@ -49,6 +49,7 @@ const Desktop: React.FC = () => {
   const { windows, openWindow } = useWindowManager();
   const bus = useXPEventBus();
   const { showModal, showConfirm, showInput } = useModal();
+  const osTheme = useOSTheme();
 
   const [contextMenu, setContextMenu] = useState<{
     visible: boolean;
@@ -643,7 +644,7 @@ const Desktop: React.FC = () => {
                 dragOver === key && item.type === 'folder'
                   ? {
                       background: 'rgba(193, 210, 238, 0.5)',
-                      border: `1px dashed ${COLORS.MENU_HIGHLIGHT}`,
+                      border: `1px dashed ${osTheme.tokens.MENU_HIGHLIGHT}`,
                     }
                   : undefined
               }

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /**
  * Canonical XP combobox (#99 micro-component consistency).
@@ -17,11 +17,11 @@ const ARROW =
 export const XPSelect = styled.select`
   box-sizing: border-box;
   height: 21px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
-  color: ${COLORS.BLACK};
-  border: 1px solid ${COLORS.FIELD_BORDER};
-  background-color: ${COLORS.WHITE};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.FIELD_BORDER};
+  background-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   background-image: ${ARROW};
   background-position: top 1px right 1px;
   background-repeat: no-repeat;
@@ -37,15 +37,15 @@ export const XPSelect = styled.select`
   }
 
   &:disabled {
-    color: ${COLORS.DIVIDER_GREY};
-    background-color: ${COLORS.SURFACE};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
+    background-color: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
     cursor: default;
   }
 
   option {
-    font-family: ${FONTS.UI};
+    font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
     font-size: 11px;
-    color: ${COLORS.BLACK};
-    background-color: ${COLORS.WHITE};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
+    background-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   }
 `;

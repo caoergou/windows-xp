@@ -17,7 +17,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 import { useStorage } from '../context/StorageContext';
 import type { Scenario } from '../scenario/types';
 import type { ConditionTrace } from '../scenario/trace';
@@ -40,8 +40,8 @@ const Panel = styled.div<{ $collapsed: boolean }>`
   display: flex;
   flex-direction: column;
   z-index: 2147482000;
-  background: ${COLORS.SURFACE};
-  border: 1px solid ${COLORS.WINDOW_FRAME};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.WINDOW_FRAME};
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.45);
   font-family: Tahoma, sans-serif;
   font-size: 11px;
@@ -53,7 +53,7 @@ const TitleBar = styled.div`
   align-items: center;
   height: 24px;
   padding: 0 4px 0 7px;
-  background: ${COLORS.TITLE_BAR_GRADIENT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.TITLE_BAR_GRADIENT};
   color: white;
   font-weight: bold;
   font-size: 12px;
@@ -75,8 +75,8 @@ const TitleBtn = styled.button`
   font-family: Tahoma, sans-serif;
   font-size: 12px;
   line-height: 1;
-  border: 1px solid ${COLORS.BUTTON_BORDER};
-  background: ${COLORS.BUTTON_FACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_FACE};
   cursor: pointer;
 `;
 
@@ -84,7 +84,7 @@ const Tabs = styled.div`
   display: flex;
   gap: 2px;
   padding: 4px 4px 0;
-  border-bottom: 1px solid ${COLORS.BUTTON_SHADOW};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
 `;
 
 // min-width reset (xp.css) so the tabs hug their labels instead of each being
@@ -95,11 +95,12 @@ const TabBtn = styled.button<{ $active: boolean }>`
   padding: 3px 12px;
   font-family: Tahoma, sans-serif;
   font-size: 11px;
-  border: 1px solid ${COLORS.BUTTON_SHADOW};
-  border-bottom: ${p => (p.$active ? '1px solid white' : `1px solid ${COLORS.BUTTON_SHADOW}`)};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+  border-bottom: ${p =>
+    p.$active ? '1px solid white' : `1px solid ${resolveOSTheme(p.theme).tokens.BUTTON_SHADOW}`};
   border-radius: 3px 3px 0 0;
   cursor: pointer;
-  background: ${p => (p.$active ? 'white' : COLORS.SURFACE)};
+  background: ${p => (p.$active ? 'white' : resolveOSTheme(p.theme).tokens.SURFACE)};
   font-weight: ${p => (p.$active ? 'bold' : 'normal')};
 `;
 
@@ -125,7 +126,7 @@ const Table = styled.table`
   border-collapse: collapse;
   td {
     padding: 2px 4px;
-    border-bottom: 1px solid ${COLORS.SURFACE};
+    border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
     vertical-align: top;
   }
   td.k {
@@ -135,7 +136,7 @@ const Table = styled.table`
 `;
 
 const TrigCard = styled.div`
-  border: 1px solid ${COLORS.BUTTON_SHADOW};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   border-radius: 3px;
   margin-bottom: 5px;
   padding: 4px 6px;
@@ -163,7 +164,7 @@ const skipLabel: Record<SkipReason, string> = {
 };
 
 const TraceLine = styled.div<{ $held: boolean }>`
-  font-family: ${FONTS.MONO};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.MONO};
   color: ${p => (p.$held ? 'green' : 'crimson')};
   white-space: pre;
 `;
@@ -195,10 +196,13 @@ const SeekBtn = styled.button<{ $active?: boolean }>`
   margin: 0 3px 3px 0;
   font-family: Tahoma, sans-serif;
   font-size: 11px;
-  border: 1px solid ${COLORS.BUTTON_SHADOW};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   border-radius: 3px;
   cursor: pointer;
-  background: ${p => (p.$active ? COLORS.MENU_HIGHLIGHT : COLORS.BUTTON_FACE)};
+  background: ${p =>
+    p.$active
+      ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT
+      : resolveOSTheme(p.theme).tokens.BUTTON_FACE};
   color: ${p => (p.$active ? 'white' : 'black')};
   font-weight: ${p => (p.$active ? 'bold' : 'normal')};
   &:disabled {

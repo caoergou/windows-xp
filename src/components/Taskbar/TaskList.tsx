@@ -1,12 +1,12 @@
 import React from 'react';
-import styled, { keyframes, css } from 'styled-components';
+import styled, { keyframes, css, type DefaultTheme } from 'styled-components';
 import { TFunction } from 'i18next';
 import { WindowState } from '../../types';
 import XPIcon from '../XPIcon';
 import ContextMenu from '../ContextMenu';
 import { APP_REGISTRY, getAppDisplayName } from '../../registry/apps';
 import { buildTaskbarEntries } from '../../utils/taskbarGrouping';
-import { COLORS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 
 const TaskItems = styled.div`
   flex: 1;
@@ -40,9 +40,9 @@ const GroupArrow = styled.span`
   flex: none;
 `;
 
-const taskFlash = keyframes`
-  0%, 100% { background: ${COLORS.TASK_BUTTON}; }
-  50%       { background: ${COLORS.TASK_BUTTON_FLASH}; }
+const taskFlash = ({ theme }: { theme: DefaultTheme }) => keyframes`
+  0%, 100% { background: ${resolveOSTheme(theme).tokens.TASK_BUTTON}; }
+  50%       { background: ${resolveOSTheme(theme).tokens.TASK_BUTTON_FLASH}; }
 `;
 
 const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
@@ -50,12 +50,15 @@ const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
   min-width: 40px;
   max-width: 150px;
   height: 22px;
-  color: ${COLORS.WHITE};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   border-radius: 2px;
   margin-top: 2px;
   padding: 0 8px;
   font-size: 11px;
-  background-color: ${props => (props.$active ? COLORS.TASK_BUTTON_ACTIVE : COLORS.TASK_BUTTON)};
+  background-color: ${props =>
+    props.$active
+      ? resolveOSTheme(props.theme).tokens.TASK_BUTTON_ACTIVE
+      : resolveOSTheme(props.theme).tokens.TASK_BUTTON};
   box-shadow: ${props =>
     props.$active
       ? 'inset 0 0 1px 1px rgba(0, 0, 0, 0.2), inset 1px 0 1px rgba(0, 0, 0, 0.7)'
@@ -74,7 +77,9 @@ const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
 
   &:hover {
     background-color: ${props =>
-      props.$active ? COLORS.TASK_BUTTON_ACTIVE_HOVER : COLORS.TASK_BUTTON_HOVER};
+      props.$active
+        ? resolveOSTheme(props.theme).tokens.TASK_BUTTON_ACTIVE_HOVER
+        : resolveOSTheme(props.theme).tokens.TASK_BUTTON_HOVER};
     box-shadow: ${props =>
       props.$active
         ? 'inset 0 0 1px 1px rgba(0, 0, 0, 0.2), inset 1px 0 1px rgba(0, 0, 0, 0.7)'
@@ -82,7 +87,7 @@ const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
   }
 
   &:active {
-    background-color: ${COLORS.TASK_BUTTON_ACTIVE};
+    background-color: ${({ theme }) => resolveOSTheme(theme).tokens.TASK_BUTTON_ACTIVE};
     box-shadow:
       inset 0 0 1px 1px rgba(0, 0, 0, 0.3),
       inset 1px 0 1px rgba(0, 0, 0, 0.7);

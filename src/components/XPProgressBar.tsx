@@ -1,5 +1,5 @@
-import styled from 'styled-components';
-import { COLORS } from '../constants';
+import styled, { type DefaultTheme } from 'styled-components';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /**
  * Canonical XP progress bar (#99 / #78), value-for-value from xp.css's
@@ -12,19 +12,19 @@ import { COLORS } from '../constants';
  * XP-faithful bar.
  */
 
-const LUNA_FILL =
-  `repeating-linear-gradient(90deg, ${COLORS.WHITE} 0, ${COLORS.WHITE} 2px, transparent 0, transparent 10px), ` +
-  `${COLORS.PROGRESS_FILL_GRADIENT}`;
+const LUNA_FILL = ({ theme }: { theme: DefaultTheme }) =>
+  `repeating-linear-gradient(90deg, ${resolveOSTheme(theme).tokens.WHITE} 0, ${resolveOSTheme(theme).tokens.WHITE} 2px, transparent 0, transparent 10px), ` +
+  resolveOSTheme(theme).tokens.PROGRESS_FILL_GRADIENT;
 
 const Track = styled.div`
   box-sizing: border-box;
   height: 14px;
-  border: 1px solid ${COLORS.PROGRESS_BORDER};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.PROGRESS_BORDER};
   border-radius: 4px;
   padding: 1px 2px 1px 0;
   overflow: hidden;
-  background-color: ${COLORS.WHITE};
-  box-shadow: inset 0 0 1px 0 ${COLORS.PROGRESS_BORDER};
+  background-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  box-shadow: inset 0 0 1px 0 ${({ theme }) => resolveOSTheme(theme).tokens.PROGRESS_BORDER};
 `;
 
 const Fill = styled.div<{ $ratio: number }>`

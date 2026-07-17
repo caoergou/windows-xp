@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { TitleBar, WindowContainer } from './Window/WindowChrome';
 import { CloseBtn } from './Window/WindowControls';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /**
  * Shared dialog chrome (#99): XPAlert, XPConfirm, PasswordDialog and XPInput
@@ -57,7 +57,7 @@ export const XPDialogTitleText = styled.div`
   color: white;
   font-weight: bold;
   font-size: 13px;
-  font-family: ${FONTS.TITLEBAR};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.TITLEBAR};
   text-shadow: 1px 1px 1px black;
   overflow: hidden;
   white-space: nowrap;
@@ -68,7 +68,7 @@ export const XPDialogTitleText = styled.div`
 export const XPDialogContent = styled.div`
   padding: 14px 16px;
   font-size: 11px;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
 `;
 
 export const XPDialogButtonRow = styled.div`

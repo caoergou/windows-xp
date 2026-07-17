@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { WindowState } from '../../types';
-import { COLORS, WINDOW_DEFAULTS, FONTS } from '../../constants';
+import { WINDOW_DEFAULTS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 import XPIcon from '../XPIcon';
 
 export const WindowContainer = styled.div<{
@@ -15,9 +16,11 @@ export const WindowContainer = styled.div<{
   flex-direction: column;
   min-height: ${({ $minHeight }) => $minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT}px;
   min-width: ${({ $minWidth }) => $minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH}px;
-  background-color: ${COLORS.SURFACE};
-  box-shadow: ${({ $isFocus }) =>
-    $isFocus ? COLORS.WINDOW_FRAME_SHADOW_ACTIVE : COLORS.WINDOW_FRAME_SHADOW_INACTIVE};
+  background-color: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  box-shadow: ${({ $isFocus, theme }) =>
+    $isFocus
+      ? resolveOSTheme(theme).tokens.WINDOW_FRAME_SHADOW_ACTIVE
+      : resolveOSTheme(theme).tokens.WINDOW_FRAME_SHADOW_INACTIVE};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   padding: 0 0 3px;
@@ -32,15 +35,25 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
   height: 28px;
   min-height: 28px;
   max-height: 28px;
-  background: ${({ $isFocus }) =>
-    $isFocus ? COLORS.TITLE_BAR_GRADIENT : COLORS.WINDOW_TITLE_INACTIVE};
+  background: ${({ $isFocus, theme }) =>
+    $isFocus
+      ? resolveOSTheme(theme).tokens.TITLE_BAR_GRADIENT
+      : resolveOSTheme(theme).tokens.WINDOW_TITLE_INACTIVE};
   border-top: 1px solid
-    ${({ $isFocus }) => ($isFocus ? COLORS.WINDOW_BORDER_ACTIVE : COLORS.WINDOW_BORDER_INACTIVE)};
+    ${({ $isFocus, theme }) =>
+      $isFocus
+        ? resolveOSTheme(theme).tokens.WINDOW_BORDER_ACTIVE
+        : resolveOSTheme(theme).tokens.WINDOW_BORDER_INACTIVE};
   border-left: 1px solid
-    ${({ $isFocus }) => ($isFocus ? COLORS.WINDOW_BORDER_ACTIVE : COLORS.WINDOW_BORDER_INACTIVE)};
+    ${({ $isFocus, theme }) =>
+      $isFocus
+        ? resolveOSTheme(theme).tokens.WINDOW_BORDER_ACTIVE
+        : resolveOSTheme(theme).tokens.WINDOW_BORDER_INACTIVE};
   border-right: 1px solid
-    ${({ $isFocus }) =>
-      $isFocus ? COLORS.WINDOW_BORDER_ACTIVE_DARK : COLORS.WINDOW_BORDER_INACTIVE_DARK};
+    ${({ $isFocus, theme }) =>
+      $isFocus
+        ? resolveOSTheme(theme).tokens.WINDOW_BORDER_ACTIVE_DARK
+        : resolveOSTheme(theme).tokens.WINDOW_BORDER_INACTIVE_DARK};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   display: flex;
@@ -55,8 +68,8 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
   position: relative;
   font-weight: 700;
   font-size: 13px;
-  font-family: ${FONTS.TITLEBAR};
-  text-shadow: 1px 1px ${COLORS.BLACK};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.TITLEBAR};
+  text-shadow: 1px 1px ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
   color: white;
   flex-shrink: 0;
 
@@ -66,7 +79,11 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
     position: absolute;
     left: 0;
     opacity: ${({ $isFocus }) => ($isFocus ? 1 : 0.3)};
-    background: linear-gradient(to right, ${COLORS.TITLE_BAR_GLOW} 0%, transparent 100%);
+    background: linear-gradient(
+      to right,
+      ${({ theme }) => resolveOSTheme(theme).tokens.TITLE_BAR_GLOW} 0%,
+      transparent 100%
+    );
     top: 0;
     bottom: 0;
     width: 15px;
@@ -80,7 +97,11 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
     display: block;
     position: absolute;
     right: 0;
-    background: linear-gradient(to left, ${COLORS.TITLE_BAR_GLOW} 0%, transparent 100%);
+    background: linear-gradient(
+      to left,
+      ${({ theme }) => resolveOSTheme(theme).tokens.TITLE_BAR_GLOW} 0%,
+      transparent 100%
+    );
     top: 0;
     bottom: 0;
     width: 15px;
@@ -93,7 +114,7 @@ const TitleText = styled.div`
   color: white;
   font-weight: bold;
   font-size: 13px;
-  font-family: ${FONTS.TITLEBAR};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.TITLEBAR};
   text-shadow: 1px 1px 1px black;
   display: flex;
   align-items: center;
@@ -116,7 +137,7 @@ const TitleText = styled.div`
 
 export const WindowBody = styled.div`
   flex: 1;
-  background: ${COLORS.SURFACE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
   overflow: hidden;
   position: relative;
   display: flex;

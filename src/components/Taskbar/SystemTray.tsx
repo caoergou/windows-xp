@@ -10,7 +10,7 @@ import ContextMenu from '../ContextMenu';
 import NetworkConnections from '../../apps/NetworkConnections';
 import VolumeControl from '../../apps/VolumeControl';
 import type { MenuItem } from '../../types';
-import { COLORS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 
 const SystemTrayContainer = styled.div`
   height: 30px;
@@ -22,9 +22,9 @@ const SystemTrayContainer = styled.div`
   color: white;
   font-size: 11px;
   white-space: nowrap;
-  background: ${COLORS.TRAY_GRADIENT};
-  border-left: 1px solid ${COLORS.TRAY_BORDER};
-  box-shadow: inset 1px 0 1px ${COLORS.TRAY_HILIGHT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.TRAY_GRADIENT};
+  border-left: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.TRAY_BORDER};
+  box-shadow: inset 1px 0 1px ${({ theme }) => resolveOSTheme(theme).tokens.TRAY_HILIGHT};
 `;
 
 const TrayIconWrapper = styled.div<{ $clickable?: boolean }>`

@@ -16,15 +16,19 @@
  */
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import styled, { css, keyframes } from 'styled-components';
+import styled, { css, keyframes, type DefaultTheme } from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useFloating, offset, flip, shift, autoUpdate } from '@floating-ui/react';
-import { COLORS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 import { useLesson } from '../context/LessonContext';
 import { CloseBtn } from './Window/WindowControls';
 import { findDesktopRoot, resolveAnchorEl } from '../lesson/anchor';
 
-const TASKBAR_CLEARANCE = COLORS.TASKBAR_HEIGHT + 8;
+// Panel bottom clearance = taskbar height + 8px, read from the active OS theme
+// (#213 B1). An interpolation function so `${TASKBAR_CLEARANCE}` in the Panel
+// template keeps working unchanged.
+const TASKBAR_CLEARANCE = ({ theme }: { theme: DefaultTheme }) =>
+  resolveOSTheme(theme).tokens.TASKBAR_HEIGHT + 8;
 // Above windows (base z 10000, climbing), below the taskbar (max int).
 const OVERLAY_Z = 2147480000;
 
@@ -55,7 +59,7 @@ const ringShake = keyframes`
 
 const Ring = styled.div<{ $shake: number }>`
   position: absolute;
-  border: 2px solid ${COLORS.DIALOG_BLUE};
+  border: 2px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIALOG_BLUE};
   border-radius: 2px;
   box-shadow: 0 0 6px rgba(10, 80, 200, 0.7);
   transition:
@@ -98,7 +102,7 @@ const ClickPulse = styled.div`
   width: 34px;
   height: 34px;
   margin: -17px 0 0 -17px;
-  border: 2px solid ${COLORS.DIALOG_BLUE};
+  border: 2px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIALOG_BLUE};
   border-radius: 50%;
   pointer-events: none;
   animation: ${clickPulse} 500ms ease-out;
@@ -108,23 +112,23 @@ const WatchButton = styled.button`
   margin-top: 8px;
   width: 100%;
   padding: 3px 6px;
-  background: ${COLORS.BUTTON_GRADIENT};
-  border: 1px solid ${COLORS.BUTTON_BORDER};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_GRADIENT};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
   border-radius: 3px;
   font-family: Tahoma, sans-serif;
   font-size: 11px;
   color: black;
   cursor: pointer;
   &:hover {
-    box-shadow: ${COLORS.BUTTON_HOVER_SHADOW};
+    box-shadow: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HOVER_SHADOW};
   }
 `;
 
 const Balloon = styled.div`
   width: max-content;
   max-width: 260px;
-  background: ${COLORS.SURFACE};
-  border: 1px solid ${COLORS.BUTTON_BORDER};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
   padding: 8px 10px;
   font-family: Tahoma, sans-serif;
@@ -154,8 +158,8 @@ const Panel = styled.div`
   right: 12px;
   bottom: ${TASKBAR_CLEARANCE}px;
   width: 220px;
-  background: ${COLORS.SURFACE};
-  border: 1px solid ${COLORS.BUTTON_BORDER};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
   font-family: Tahoma, sans-serif;
   font-size: 11px;
@@ -166,7 +170,7 @@ const Panel = styled.div`
 const PanelHeader = styled.div`
   display: flex;
   align-items: center;
-  background: ${COLORS.TITLE_BAR_GRADIENT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.TITLE_BAR_GRADIENT};
   color: white;
   font-weight: bold;
   padding: 2px 3px 2px 8px;
@@ -185,7 +189,7 @@ const PanelBody = styled.div`
 `;
 
 const Progress = styled.div`
-  color: ${COLORS.BUTTON_SHADOW};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   margin-bottom: 6px;
 `;
 
@@ -196,7 +200,7 @@ const StepList = styled.ol`
 
 const StepItem = styled.li<{ $state: 'done' | 'current' | 'todo' }>`
   margin: 2px 0;
-  color: ${p => (p.$state === 'todo' ? COLORS.BUTTON_SHADOW : 'black')};
+  color: ${p => (p.$state === 'todo' ? resolveOSTheme(p.theme).tokens.BUTTON_SHADOW : 'black')};
   font-weight: ${p => (p.$state === 'current' ? 'bold' : 'normal')};
   list-style-type: ${p => (p.$state === 'done' ? "'✓ '" : 'decimal')};
 `;

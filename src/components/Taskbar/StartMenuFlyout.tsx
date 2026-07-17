@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../XPIcon';
 import { xpScrollbarStyles } from '../../theme';
-import { COLORS } from '../../themes/xp/tokens';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 import { AppRegistryEntry } from '../../types';
 
 const FlyoutContainer = styled.div`
@@ -12,10 +12,10 @@ const FlyoutContainer = styled.div`
   bottom: 1px;
   min-width: 180px;
   max-width: 260px;
-  max-height: calc(100vh - ${COLORS.TASKBAR_HEIGHT + 2}px);
-  background: ${COLORS.WHITE};
-  border: 1px solid ${COLORS.BUTTON_BORDER};
-  box-shadow: 2px 2px 0 ${COLORS.BUTTON_SHADOW};
+  max-height: calc(100vh - ${({ theme }) => resolveOSTheme(theme).tokens.TASKBAR_HEIGHT + 2}px);
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
+  box-shadow: 2px 2px 0 ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   z-index: 20001;
   display: flex;
   flex-direction: column;
@@ -29,11 +29,11 @@ const FlyoutItem = styled.div`
   padding: 4px 8px;
   cursor: pointer;
   font-size: 11px;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
 
   &:hover {
-    background: ${COLORS.MENU_HIGHLIGHT};
-    color: ${COLORS.WHITE};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   }
 
   .flyout-icon {
