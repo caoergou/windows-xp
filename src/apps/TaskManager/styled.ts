@@ -40,7 +40,8 @@ export const Tab = styled.button<{ $active?: boolean }>`
   font: inherit;
   cursor: default;
   color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
-  background: ${({ $active, theme }) => ($active ? resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT : resolveOSTheme(theme).tokens.SURFACE)};
+  background: ${({ $active, theme }) =>
+    $active ? resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT : resolveOSTheme(theme).tokens.SURFACE};
   z-index: ${({ $active }) => ($active ? 2 : 1)};
   /* An active tab overlaps the panel border below it so it reads as connected. */
   margin-bottom: ${({ $active }) => ($active ? '-1px' : '0')};
@@ -99,8 +100,10 @@ export const AppRow = styled.div<{ $selected?: boolean }>`
   display: grid;
   grid-template-columns: 1fr 96px;
   cursor: default;
-  color: ${({ $selected, theme }) => ($selected ? resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT : resolveOSTheme(theme).tokens.BLACK)};
-  background: ${({ $selected, theme }) => ($selected ? resolveOSTheme(theme).tokens.MENU_HIGHLIGHT : 'transparent')};
+  color: ${({ $selected, theme }) =>
+    $selected ? resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT : resolveOSTheme(theme).tokens.BLACK};
+  background: ${({ $selected, theme }) =>
+    $selected ? resolveOSTheme(theme).tokens.MENU_HIGHLIGHT : 'transparent'};
 
   > span {
     min-height: 22px;
@@ -145,8 +148,10 @@ export const ProcHead = styled.thead`
 
 export const ProcRow = styled.tr<{ $selected?: boolean }>`
   cursor: default;
-  color: ${({ $selected, theme }) => ($selected ? resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT : resolveOSTheme(theme).tokens.BLACK)};
-  background: ${({ $selected, theme }) => ($selected ? resolveOSTheme(theme).tokens.MENU_HIGHLIGHT : 'transparent')};
+  color: ${({ $selected, theme }) =>
+    $selected ? resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT : resolveOSTheme(theme).tokens.BLACK};
+  background: ${({ $selected, theme }) =>
+    $selected ? resolveOSTheme(theme).tokens.MENU_HIGHLIGHT : 'transparent'};
 
   td {
     padding: 1px 6px;

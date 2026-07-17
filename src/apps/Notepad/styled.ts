@@ -58,12 +58,14 @@ export const DropdownItem = styled.div<{ $disabled?: boolean; $checked?: boolean
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: ${p => (p.$disabled ? resolveOSTheme(p.theme).tokens.GREY_A0 : resolveOSTheme(p.theme).tokens.BLACK)};
+  color: ${p =>
+    p.$disabled ? resolveOSTheme(p.theme).tokens.GREY_A0 : resolveOSTheme(p.theme).tokens.BLACK};
   position: relative;
   white-space: nowrap;
 
   &:hover {
-    background: ${p => (p.$disabled ? 'transparent' : resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT)};
+    background: ${p =>
+      p.$disabled ? 'transparent' : resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};
     color: ${p => (p.$disabled ? resolveOSTheme(p.theme).tokens.GREY_A0 : 'white')};
   }
 

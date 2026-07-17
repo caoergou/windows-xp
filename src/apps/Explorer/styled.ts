@@ -46,11 +46,15 @@ export const DetailsHeadCell = styled.th`
 
 export const DetailsRow = styled.tr<{ $selected?: boolean }>`
   background: ${p => (p.$selected ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT : 'transparent')};
-  color: ${p => (p.$selected ? resolveOSTheme(p.theme).tokens.WHITE : resolveOSTheme(p.theme).tokens.BLACK)};
+  color: ${p =>
+    p.$selected ? resolveOSTheme(p.theme).tokens.WHITE : resolveOSTheme(p.theme).tokens.BLACK};
   cursor: default;
 
   &:hover {
-    background: ${p => (p.$selected ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT : resolveOSTheme(p.theme).tokens.EXPLORER_ROW_TINT)};
+    background: ${p =>
+      p.$selected
+        ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT
+        : resolveOSTheme(p.theme).tokens.EXPLORER_ROW_TINT};
   }
 `;
 
@@ -147,7 +151,9 @@ export const ThumbName = styled.span<{ $selected?: boolean }>`
   text-align: center;
   word-break: break-word;
   ${p =>
-    p.$selected ? `background:${resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};color:${resolveOSTheme(p.theme).tokens.BUTTON_HIGHLIGHT};` : ''}
+    p.$selected
+      ? `background:${resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};color:${resolveOSTheme(p.theme).tokens.BUTTON_HIGHLIGHT};`
+      : ''}
 `;
 
 /* ── Icons view (#211): 32px icon on top, name centred below ── */
@@ -174,7 +180,9 @@ export const IconVName = styled.span<{ $selected?: boolean }>`
   text-align: center;
   word-break: break-word;
   ${p =>
-    p.$selected ? `background:${resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};color:${resolveOSTheme(p.theme).tokens.BUTTON_HIGHLIGHT};` : ''}
+    p.$selected
+      ? `background:${resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};color:${resolveOSTheme(p.theme).tokens.BUTTON_HIGHLIGHT};`
+      : ''}
 `;
 
 /* ── List view (#211): 16px icon + name, column-major wrap ── */
@@ -202,7 +210,9 @@ export const ListItem = styled.div<{ $selected?: boolean }>`
     font-size: 11px;
     padding: 0 2px;
     ${p =>
-      p.$selected ? `background:${resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};color:${resolveOSTheme(p.theme).tokens.BUTTON_HIGHLIGHT};` : ''}
+      p.$selected
+        ? `background:${resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};color:${resolveOSTheme(p.theme).tokens.BUTTON_HIGHLIGHT};`
+        : ''}
   }
 `;
 
@@ -224,8 +234,10 @@ export const TileItem = styled.div<{ $selected?: boolean }>`
   border: 1px solid transparent;
 
   &:hover {
-    background-color: ${p => (p.$selected ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT : 'rgba(49, 106, 197, 0.12)')};
-    border-color: ${p => (p.$selected ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT : 'rgba(49, 106, 197, 0.3)')};
+    background-color: ${p =>
+      p.$selected ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT : 'rgba(49, 106, 197, 0.12)'};
+    border-color: ${p =>
+      p.$selected ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT : 'rgba(49, 106, 197, 0.3)'};
   }
 
   ${p =>

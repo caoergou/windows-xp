@@ -49,7 +49,10 @@ export const ScoreBar = styled.div`
   margin-bottom: 5px;
   padding: 3px 7px 3px 4px;
   border: 2px solid;
-  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5} ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW}
+    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5}
+    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
 `;
 
 export const Counter = styled.div`
@@ -90,7 +93,10 @@ export const FaceButton = styled.button`
   justify-content: center;
   padding: 0;
   border: 2px solid;
-  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5} ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW} ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW}
+    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5};
   outline: none;
   background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_C0};
   cursor: default;
@@ -116,7 +122,10 @@ export const Board = styled.div<{ $cols: number; $rows: number }>`
   grid-template-columns: repeat(${props => props.$cols}, ${CELL_SIZE}px);
   grid-template-rows: repeat(${props => props.$rows}, ${CELL_SIZE}px);
   border: 3px solid;
-  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5} ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW}
+    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5}
+    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   line-height: 0;
   overflow: hidden;
@@ -150,7 +159,10 @@ export const CoveredBackground = styled.span`
   height: ${CELL_SIZE}px;
   background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_C0};
   border: 2px solid;
-  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5} ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW} ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW}
+    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5};
 `;
 
 export const RevealedBackground = styled.span`
@@ -182,7 +194,10 @@ export const AboutDialog = styled.div`
   width: 220px;
   transform: translateX(-50%);
   border: 2px solid;
-  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40} ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE}
+    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40}
+    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40}
+    ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   background: ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY_HILIGHT};
   box-shadow: 2px 2px 1px ${({ theme }) => resolveOSTheme(theme).tokens.GREY_64};
 `;
@@ -210,11 +225,17 @@ export const DialogButton = styled.button`
   min-width: 72px;
   height: 23px;
   border: 2px solid;
-  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40} ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE}
+    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40}
+    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40}
+    ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   background: ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY_HILIGHT};
   font: inherit;
 
   &:active {
-    border-color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40} ${({ theme }) => resolveOSTheme(theme).tokens.WHITE} ${({ theme }) => resolveOSTheme(theme).tokens.WHITE} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40};
+    border-color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40}
+      ${({ theme }) => resolveOSTheme(theme).tokens.WHITE}
+      ${({ theme }) => resolveOSTheme(theme).tokens.WHITE}
+      ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40};
   }
 `;
