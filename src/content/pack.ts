@@ -98,6 +98,7 @@ export interface MountedContent {
   playlists: NonNullable<ContentPack['playlists']>;
   reports: NonNullable<ContentPack['reports']>;
   powerSequence?: ContentPack['powerSequence'];
+  qqArchives: NonNullable<ContentPack['qqArchives']>;
   /** Merged per-culture string tables. */
   strings: PackStrings;
 }
@@ -136,6 +137,7 @@ export function mergeContentPacks(
     playlists: [],
     reports: [],
     strings: {},
+    qqArchives: [],
   };
   for (const pack of packs) {
     result.ids.push(pack.id);
@@ -148,6 +150,7 @@ export function mergeContentPacks(
     result.playlists.push(...(pack.playlists ?? []));
     result.reports.push(...(pack.reports ?? []));
     if (pack.powerSequence) result.powerSequence = pack.powerSequence;
+    result.qqArchives.push(...(pack.qqArchives ?? []));
     result.strings = mergeStrings(result.strings, pack.strings ?? {});
     const registry = buildSiteRegistry(pack.sites, onSiteConflict);
     Object.assign(result.sites, registry);

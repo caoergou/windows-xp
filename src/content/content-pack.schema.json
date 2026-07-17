@@ -142,6 +142,31 @@
         }
       }
     },
+    "qqArchives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "conversations"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "title": { "type": "string" },
+          "conversations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "title", "kind", "memberIds", "messages"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "title": { "type": "string" },
+                "kind": { "enum": ["direct", "group"] },
+                "memberIds": { "type": "array", "items": { "type": "string" } },
+                "messages": { "type": "array" }
+              }
+            }
+          }
+        }
+      }
+    },
     "scenario": {
       "type": "object",
       "description": "The scenario rulebook (#84/#207). See docs/SCENARIOS.md for its schema."

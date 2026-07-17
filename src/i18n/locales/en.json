@@ -814,6 +814,13 @@
     }
   },
   "qq": {
+    "archive": {
+      "title": "Message History Manager",
+      "search": "Search message history",
+      "empty": "No message archive is mounted.",
+      "groupPrefix": "Group: ",
+      "attachment": "Attachment: {{name}}"
+    },
     "title": "QQ",
     "login": {
       "accountLabel": "QQ Number:",

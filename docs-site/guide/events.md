@@ -95,6 +95,10 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `qq:offline` | `buddyId` | A buddy went offline. |
 | `qq:status` | `buddyId`, `status?`, `signature?` | A buddy's status or signature changed — a world reaction (e.g. a mood line the player is meant to notice). |
 | `qq:choice` | `buddyId`, `choiceId` | The player picked a scripted reply option (a branching choice, distinct from the free-text `qq:reply`). |
+| `qq:archive-open` | `archiveId`, `conversationId?` | A read-only QQ archive or conversation was opened. |
+| `qq:archive-search` | `archiveId`, `query`, `resultCount` | A QQ archive search was performed. |
+| `qq:archive-message-open` | `archiveId`, `conversationId`, `messageId` | An individual archived QQ message was inspected. |
+| `qq:archive-attachment-open` | `archiveId`, `conversationId`, `messageId`, `attachmentId` | An attachment in an archived QQ message was selected. |
 | `game:start` | `appId`, `difficulty?` | A game started a new round; `appId` names the game and `difficulty` is present when it applies. |
 | `game:win` | `appId`, `difficulty?`, `timeMs?` | A game was won; `timeMs` is the completion time when the game tracks one. |
 | `game:lose` | `appId`, `difficulty?` | A game was lost. |

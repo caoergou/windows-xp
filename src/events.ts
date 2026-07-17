@@ -142,6 +142,25 @@ export type XPEventBody =
   | { type: 'qq:status'; buddyId: string; status?: string; signature?: string }
   /** The player picked a scripted reply option (a branching choice, distinct from the free-text `qq:reply`). */
   | { type: 'qq:choice'; buddyId: string; choiceId: string }
+  /** A read-only QQ archive or conversation was opened. */
+  | { type: 'qq:archive-open'; archiveId: string; conversationId?: string }
+  /** A QQ archive search was performed. */
+  | { type: 'qq:archive-search'; archiveId: string; query: string; resultCount: number }
+  /** An individual archived QQ message was inspected. */
+  | {
+      type: 'qq:archive-message-open';
+      archiveId: string;
+      conversationId: string;
+      messageId: string;
+    }
+  /** An attachment in an archived QQ message was selected. */
+  | {
+      type: 'qq:archive-attachment-open';
+      archiveId: string;
+      conversationId: string;
+      messageId: string;
+      attachmentId: string;
+    }
   // ── game: bundled games (#134) ──────────────────────────────────────────────
   /** A game started a new round; `appId` names the game and `difficulty` is present when it applies. */
   | { type: 'game:start'; appId: string; difficulty?: string }

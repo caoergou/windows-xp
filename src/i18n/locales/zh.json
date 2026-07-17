@@ -808,6 +808,13 @@
     }
   },
   "qq": {
+    "archive": {
+      "title": "消息记录管理器",
+      "search": "搜索消息记录",
+      "empty": "未挂载消息记录档案。",
+      "groupPrefix": "群：",
+      "attachment": "附件：{{name}}"
+    },
     "title": "QQ",
     "login": {
       "accountLabel": "QQ号：",

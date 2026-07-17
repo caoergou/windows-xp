@@ -17,6 +17,7 @@ import QQChat from './QQChat';
 import QQCloseDialog, { QQCloseChoice } from './QQCloseDialog';
 import type { MenuItem } from '../../types';
 import type { QQStatus } from '../../data/qq/types';
+import QQArchive from './QQArchive';
 
 type Phase = 'login' | 'loading' | 'panel';
 
@@ -105,6 +106,20 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   }, []);
   const openChatRef = useRef(openChat);
   openChatRef.current = openChat;
+
+  const openArchive = useCallback(() => {
+    const existing = wmRef.current.windows.find(
+      w => w.appId === 'QQ' && (w.componentProps as { view?: string })?.view === 'archive'
+    );
+    if (existing) return wmRef.current.focusWindow(existing.id);
+    wmRef.current.openWindow('QQ', t('qq.archive.title'), <QQArchive />, 'qq', {
+      width: 650,
+      height: 480,
+      minWidth: 500,
+      minHeight: 360,
+      componentProps: { view: 'archive' },
+    });
+  }, [t]);
 
   // --- Quit QQ: close all chat windows, reset runtime, and allow the main window to close (bypass close guard) ------
   const exitQQ = useCallback(() => {
@@ -284,7 +299,7 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   }
   return (
     <>
-      <QQBuddyList onOpenChat={openChat} onExit={exitQQ} />
+      <QQBuddyList onOpenChat={openChat} onOpenArchive={openArchive} onExit={exitQQ} />
       {closeAsk && <QQCloseDialog onConfirm={onCloseChoice} onCancel={() => setCloseAsk(false)} />}
     </>
   );

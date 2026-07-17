@@ -17,6 +17,7 @@ import type { ContentPack, ContentRef, PackStrings, SiteDef } from '../content/t
 import type { FileNode } from '../types';
 import type { MediaPlaylist } from '../apps/WindowsMediaPlayer';
 import type { EvidenceReportProps } from '../apps/EvidenceReport';
+import type { QQArchive } from '../data/qq/types';
 import { mergeContentPacks } from '../content/pack';
 import {
   createContentResolver,
@@ -40,6 +41,7 @@ export interface ContentPackContextValue {
   playlists: MediaPlaylist[];
   /** Data-driven structured report definitions. */
   reports: EvidenceReportProps[];
+  qqArchives: QQArchive[];
   /** Merged per-culture string tables. */
   strings: PackStrings;
   /** Resolver bound to the merged assets + this instance's storage cache. */
@@ -53,6 +55,7 @@ const EMPTY: ContentPackContextValue = {
   files: {},
   playlists: [],
   reports: [],
+  qqArchives: [],
   strings: {},
   resolver: createContentResolver({ cache: memoryContentCache() }),
 };

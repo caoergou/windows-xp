@@ -507,6 +507,13 @@ export { demoDeduction } from '../data/scenarios/deductionDemo';
 export type { EvidenceBoardProps, EvidenceItem } from '../apps/EvidenceBoard';
 export { demoEvidence } from '../data/scenarios/evidenceDemo';
 export type { EvidenceReportProps } from '../apps/EvidenceReport';
+export { searchQQArchive } from '../apps/QQ/QQArchive';
+export type {
+  QQArchive,
+  QQArchiveAttachment,
+  QQArchiveConversation,
+  QQArchiveMessage,
+} from '../data/qq/types';
 export type {
   Confidence,
   ClaimResult,
