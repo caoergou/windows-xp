@@ -54,6 +54,36 @@
         }
       }
     },
+    "printers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "location": { "type": "string" },
+          "isDefault": { "type": "boolean" }
+        }
+      }
+    },
+    "printJobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "documentName", "submittedAt", "printerId", "status"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "documentName": { "type": "string", "minLength": 1 },
+          "submittedAt": { "type": "string", "format": "date-time" },
+          "printerId": { "type": "string", "minLength": 1 },
+          "status": {
+            "enum": ["queued", "printing", "paused", "error", "completed", "deleted", "orphaned"]
+          }
+        }
+      }
+    },
     "scenario": {
       "type": "object",
       "description": "The scenario rulebook (#84/#207). See docs/SCENARIOS.md for its schema."

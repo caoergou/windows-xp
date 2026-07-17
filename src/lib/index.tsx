@@ -328,6 +328,7 @@ export { useTray } from '../context/TrayContext';
 export { useScheduler } from '../context/SchedulerContext';
 export { useClock } from '../context/ClockContext';
 export { useRecentDocuments } from '../context/RecentDocumentsContext';
+export { usePrintSpooler } from '../context/PrintSpoolerContext';
 export { useApp } from '../hooks/useApp';
 // #213 B1 — OS theme seam: the XP theme, its contract, and the runtime accessor.
 export { xpTheme } from '../themes/xp';
@@ -400,6 +401,12 @@ export type { FileSystemMode } from '../context/FileSystemContext';
 export type { PersistenceMode } from '../utils/storage';
 export type { RecycleBinItem } from '../utils/storage';
 export type { RecentDocumentEntry } from '../context/RecentDocumentsContext';
+export type {
+  PrintJob,
+  PrintJobStatus,
+  PrinterDefinition,
+  PrintSpoolerApi,
+} from '../context/PrintSpoolerContext';
 export type { BootBranding, LoginBranding } from '../branding';
 export type { ModalContextType } from '../context/ModalContext';
 export type { TrayItem, TrayContextType, NotifyOptions } from '../context/TrayContext';

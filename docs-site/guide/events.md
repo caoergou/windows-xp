@@ -61,6 +61,10 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `file:properties` | `path`, `name` | A file's Properties dialog was opened — metadata (size, dates) inspected; a clue channel for scenarios (M1). |
 | `folder:delete` | `path`, `name` | A folder was deleted (files emit `file:delete`; folders emit this). |
 | `recyclebin:empty` | — | The Recycle Bin was emptied. |
+| `print:queue-open` | `printerId` | A printer queue was opened. |
+| `print:job-open` | `jobId`, `printerId` | A print job or its retained source metadata was inspected. |
+| `print:job-update` | `jobId`, `printerId`, `status` | A print job was added or changed. |
+| `print:job-cancel` | `jobId`, `printerId`, `status` | A mutable print job was cancelled or removed. |
 | `password:fail` | `path`, `name`, `attempt` | A wrong password was entered for a locked node; `attempt` counts consecutive failures. |
 | `session:login` | — | The user logged in successfully. |
 | `session:login-fail` | — | A login attempt failed (wrong password). |

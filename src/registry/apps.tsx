@@ -25,6 +25,7 @@ const DeductionSheet = React.lazy(() => import('../apps/DeductionSheet'));
 const EvidenceBoard = React.lazy(() => import('../apps/EvidenceBoard'));
 const WindowsMediaPlayer = React.lazy(() => import('../apps/WindowsMediaPlayer'));
 const RecentDocuments = React.lazy(() => import('../apps/RecentDocuments'));
+const PrintersAndFaxes = React.lazy(() => import('../apps/PrintersAndFaxes'));
 const Thunder = React.lazy(() => import('../apps/Thunder'));
 const BaofengPlayer = React.lazy(() => import('../apps/BaofengPlayer'));
 const KugouMusic = React.lazy(() => import('../apps/KugouMusic'));
@@ -353,6 +354,16 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     showInStartMenu: false,
     window: { width: 560, height: 360 },
     restore: restoreApp(RecentDocuments),
+  },
+
+  PrintersAndFaxes: {
+    id: 'PrintersAndFaxes',
+    name: 'Printers and Faxes',
+    nameKey: 'startMenu.printersAndFaxes',
+    icon: 'printer',
+    showInStartMenu: false,
+    window: { width: 720, height: 440 },
+    restore: restoreApp(PrintersAndFaxes),
   },
 
   MicrosoftPaint: {

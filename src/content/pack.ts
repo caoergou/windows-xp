@@ -93,6 +93,8 @@ export interface MountedContent {
   files: Record<string, FileNode>;
   recycleBin: NonNullable<ContentPack['recycleBin']>;
   recentDocuments: NonNullable<ContentPack['recentDocuments']>;
+  printers: NonNullable<ContentPack['printers']>;
+  printJobs: NonNullable<ContentPack['printJobs']>;
   /** Merged per-culture string tables. */
   strings: PackStrings;
 }
@@ -126,6 +128,8 @@ export function mergeContentPacks(
     files: {},
     recycleBin: {},
     recentDocuments: [],
+    printers: [],
+    printJobs: [],
     strings: {},
   };
   for (const pack of packs) {
@@ -134,6 +138,8 @@ export function mergeContentPacks(
     result.files = mergeFsFragments(result.files, pack.files ?? {});
     Object.assign(result.recycleBin, pack.recycleBin ?? {});
     result.recentDocuments.push(...(pack.recentDocuments ?? []));
+    result.printers.push(...(pack.printers ?? []));
+    result.printJobs.push(...(pack.printJobs ?? []));
     result.strings = mergeStrings(result.strings, pack.strings ?? {});
     const registry = buildSiteRegistry(pack.sites, onSiteConflict);
     Object.assign(result.sites, registry);

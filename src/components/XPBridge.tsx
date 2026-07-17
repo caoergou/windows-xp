@@ -9,6 +9,7 @@ import { useStorage } from '../context/StorageContext';
 import { useScheduler, type ScheduleOptions } from '../context/SchedulerContext';
 import { useClock, type XPClockApi } from '../context/ClockContext';
 import { useRecentDocuments } from '../context/RecentDocumentsContext';
+import { usePrintSpooler, type PrintJob } from '../context/PrintSpoolerContext';
 import { APP_REGISTRY, resolveFileOpen } from '../registry/apps';
 import { useAppRegistry } from '../context/AppRegistryContext';
 import { isContainerNode, isFileContentNode, type FileNode } from '../types';
@@ -172,6 +173,12 @@ export interface XPHandle {
   qq: XPQQApi;
   /** Instance-local virtual system clock (#275). */
   clock: Pick<XPClockApi, 'now' | 'set' | 'advance' | 'reset'>;
+  /** Data-driven virtual print spooler (#276). */
+  print: {
+    addJob: (job: Omit<PrintJob, 'submittedAt'> & { submittedAt?: string }) => void;
+    updateJob: (id: string, updates: Partial<PrintJob>) => void;
+    removeJob: (id: string) => void;
+  };
   /** Play a named XP system sound. */
   sound: { play: (name: string) => void };
   /** Pop an XP tray balloon notification (#118). Returns the notification id. */
@@ -249,6 +256,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
     const { schedule, cancelSchedule } = useScheduler();
     const clock = useClock();
     const { entries: recentDocuments } = useRecentDocuments();
+    const print = usePrintSpooler();
     const { start: startLesson, stop: stopLesson } = useLesson();
     const { culture } = useCulture();
 
@@ -448,6 +456,11 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
           advance: clock.advance,
           reset: clock.reset,
         },
+        print: {
+          addJob: print.addJob,
+          updateJob: print.updateJob,
+          removeJob: print.removeJob,
+        },
 
         startLesson: (lessonId, lessonMode) => startLesson(lessonId, lessonMode),
         stopLesson,
@@ -499,6 +512,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             flags,
             clock: clock.getSnapshot(),
             recentDocuments,
+            printJobs: print.jobs,
           };
         },
 
@@ -522,6 +536,9 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
               storage.key('recent_documents'),
               JSON.stringify(snapshot.recentDocuments)
             );
+          }
+          if (snapshot.printJobs) {
+            storage.local.setItem(storage.key('print_jobs'), JSON.stringify(snapshot.printJobs));
           }
           if (canUseDOM) window.location.reload();
         },
@@ -558,6 +575,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
       culture,
       clock,
       recentDocuments,
+      print,
     ]);
 
     void fs;

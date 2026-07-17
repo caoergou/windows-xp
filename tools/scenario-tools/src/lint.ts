@@ -373,6 +373,55 @@ export const lintContentPack = async (
       );
     }
   });
+  const printerIds = new Set<string>();
+  (pack.printers ?? []).forEach((printer, index) => {
+    if (printerIds.has(printer.id)) {
+      diagnostics.push(
+        diagnostic(
+          'error',
+          'duplicate-printer',
+          `duplicate printer id "${printer.id}"`,
+          `$.printers[${index}]`
+        )
+      );
+    }
+    printerIds.add(printer.id);
+  });
+  const printJobIds = new Set<string>();
+  (pack.printJobs ?? []).forEach((job, index) => {
+    const path = `$.printJobs[${index}]`;
+    if (printJobIds.has(job.id)) {
+      diagnostics.push(
+        diagnostic('error', 'duplicate-print-job', `duplicate print job id "${job.id}"`, path)
+      );
+    }
+    printJobIds.add(job.id);
+    if (!printerIds.has(job.printerId)) {
+      diagnostics.push(
+        diagnostic(
+          'error',
+          'unknown-printer',
+          `unknown printer "${job.printerId}"`,
+          `${path}.printerId`
+        )
+      );
+    }
+    if (!job.documentName.trim()) {
+      diagnostics.push(
+        diagnostic('error', 'print-job-name', 'documentName is required', `${path}.documentName`)
+      );
+    }
+    if (!Number.isFinite(Date.parse(job.submittedAt))) {
+      diagnostics.push(
+        diagnostic(
+          'error',
+          'invalid-iso-time',
+          'submittedAt must be a valid ISO time',
+          `${path}.submittedAt`
+        )
+      );
+    }
+  });
 
   const usedAssets = new Set<string>();
   const pending: Promise<void>[] = [];

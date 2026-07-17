@@ -23,6 +23,7 @@ import type { FileNode } from '../types';
 import type { Scenario } from '../scenario/types';
 import type { RecycleBinItem } from '../utils/storage';
 import type { RecentDocumentEntry } from '../context/RecentDocumentsContext';
+import type { PrinterDefinition, PrintJob } from '../context/PrintSpoolerContext';
 
 /**
  * A reference to a piece of content. Three sources, one shape — so a `content:`
@@ -108,6 +109,9 @@ export interface ContentPack {
   recycleBin?: Record<string, RecycleBinItem>;
   /** Authored historical MRU entries merged with runtime opens (#282). */
   recentDocuments?: RecentDocumentEntry[];
+  /** Data-driven printers and initial spool history (#276). */
+  printers?: PrinterDefinition[];
+  printJobs?: PrintJob[];
   /** The scenario rulebook (#84/#207). */
   scenario?: Scenario;
   /** Per-culture string tables (#207 copy extraction carrier). */

@@ -63,6 +63,15 @@ export type XPEventBody =
   | { type: 'folder:delete'; path: string[]; name: string }
   /** The Recycle Bin was emptied. */
   | { type: 'recyclebin:empty' }
+  // ── print: Printers and Faxes / spooler (#276) ─────────────────────────────
+  /** A printer queue was opened. */
+  | { type: 'print:queue-open'; printerId: string }
+  /** A print job or its retained source metadata was inspected. */
+  | { type: 'print:job-open'; jobId: string; printerId: string }
+  /** A print job was added or changed. */
+  | { type: 'print:job-update'; jobId: string; printerId: string; status: string }
+  /** A mutable print job was cancelled or removed. */
+  | { type: 'print:job-cancel'; jobId: string; printerId: string; status: string }
   // ── password: access control ────────────────────────────────────────────────
   /** A wrong password was entered for a locked node; `attempt` counts consecutive failures. */
   | { type: 'password:fail'; path: string[]; name: string; attempt: number }

@@ -26,6 +26,7 @@ import type { ContentPack } from '../content/types';
 import { SchedulerProvider } from '../context/SchedulerContext';
 import { ClockProvider, type ClockConfig } from '../context/ClockContext';
 import { RecentDocumentsProvider } from '../context/RecentDocumentsContext';
+import { PrintSpoolerProvider } from '../context/PrintSpoolerContext';
 import { XPEventBridge, XPImperativeApi, type XPHandle } from './XPBridge';
 import { ScenarioRunner } from './ScenarioRunner';
 // Dev-only overlay (#209): lazy so a production build that never sets `devtools`
@@ -177,6 +178,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
     () => mergeContentPacks(contentPacks ?? []).recentDocuments,
     [contentPacks]
   );
+  const mountedPackContent = useMemo(() => mergeContentPacks(contentPacks ?? []), [contentPacks]);
   const mergedCustomFileSystem = useMemo(
     () =>
       Object.keys(packFiles).length
@@ -250,67 +252,75 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
           <XPEventBridge onEvent={onEvent} />
           <ClockProvider config={clock}>
             <RecentDocumentsProvider seeded={packRecentDocuments}>
-              <SchedulerProvider
-                hourlyChime={hourlyChime ?? culture.hourlyChime}
-                idleThresholdMs={idleThresholdMs}
+              <PrintSpoolerProvider
+                printers={mountedPackContent.printers}
+                jobs={mountedPackContent.printJobs}
               >
-                <UserSessionProvider
-                  username={username}
-                  password={password}
-                  autoLogin={autoLogin}
-                  avatar={avatar}
-                  wallpapers={wallpapers}
-                  defaultWallpaper={defaultWallpaper ?? culture.wallpaper}
+                <SchedulerProvider
+                  hourlyChime={hourlyChime ?? culture.hourlyChime}
+                  idleThresholdMs={idleThresholdMs}
                 >
-                  <FileSystemProvider
-                    customFileSystem={mergedCustomFileSystem}
-                    cultureFileSystem={culturalShortcuts}
-                    cultureKey={cultureKey}
-                    fileSystemMode={fileSystemMode}
-                    seededRecycleBin={packRecycleBin}
+                  <UserSessionProvider
+                    username={username}
+                    password={password}
+                    autoLogin={autoLogin}
+                    avatar={avatar}
+                    wallpapers={wallpapers}
+                    defaultWallpaper={defaultWallpaper ?? culture.wallpaper}
                   >
-                    <WindowManagerProvider registry={registry}>
-                      <MarkdownProvider options={markdown}>
-                        <KeymapProvider
-                          keymap={keymap}
-                          disableGlobalShortcuts={disableGlobalShortcuts}
-                        >
-                          <TrayProvider>
-                            <ModalProvider>
-                              <NotesProvider>
-                                <LessonProvider lessons={lessons}>
-                                  <XPImperativeApi ref={handleRef} storagePrefix={storagePrefix} />
-                                  <ScenarioRunner scenario={scenario} />
-                                  {devtools && (
-                                    <React.Suspense fallback={null}>
-                                      <DevToolsPanel scenario={scenario} />
-                                    </React.Suspense>
-                                  )}
-                                  <DeepLinkLoader
-                                    open={openOnLoad}
-                                    routes={routes}
-                                    location={location}
-                                    historyIntegration={historyIntegration}
-                                  />
-                                  <App
-                                    initialLanguage={language}
-                                    skipBoot={skipBoot}
-                                    disableContextMenuBlock={disableContextMenuBlock}
-                                    disableDevToolsBlock={disableDevToolsBlock}
-                                    disableScreenSaver={disableScreenSaver}
-                                    boot={boot}
-                                    login={login}
-                                  />
-                                </LessonProvider>
-                              </NotesProvider>
-                            </ModalProvider>
-                          </TrayProvider>
-                        </KeymapProvider>
-                      </MarkdownProvider>
-                    </WindowManagerProvider>
-                  </FileSystemProvider>
-                </UserSessionProvider>
-              </SchedulerProvider>
+                    <FileSystemProvider
+                      customFileSystem={mergedCustomFileSystem}
+                      cultureFileSystem={culturalShortcuts}
+                      cultureKey={cultureKey}
+                      fileSystemMode={fileSystemMode}
+                      seededRecycleBin={packRecycleBin}
+                    >
+                      <WindowManagerProvider registry={registry}>
+                        <MarkdownProvider options={markdown}>
+                          <KeymapProvider
+                            keymap={keymap}
+                            disableGlobalShortcuts={disableGlobalShortcuts}
+                          >
+                            <TrayProvider>
+                              <ModalProvider>
+                                <NotesProvider>
+                                  <LessonProvider lessons={lessons}>
+                                    <XPImperativeApi
+                                      ref={handleRef}
+                                      storagePrefix={storagePrefix}
+                                    />
+                                    <ScenarioRunner scenario={scenario} />
+                                    {devtools && (
+                                      <React.Suspense fallback={null}>
+                                        <DevToolsPanel scenario={scenario} />
+                                      </React.Suspense>
+                                    )}
+                                    <DeepLinkLoader
+                                      open={openOnLoad}
+                                      routes={routes}
+                                      location={location}
+                                      historyIntegration={historyIntegration}
+                                    />
+                                    <App
+                                      initialLanguage={language}
+                                      skipBoot={skipBoot}
+                                      disableContextMenuBlock={disableContextMenuBlock}
+                                      disableDevToolsBlock={disableDevToolsBlock}
+                                      disableScreenSaver={disableScreenSaver}
+                                      boot={boot}
+                                      login={login}
+                                    />
+                                  </LessonProvider>
+                                </NotesProvider>
+                              </ModalProvider>
+                            </TrayProvider>
+                          </KeymapProvider>
+                        </MarkdownProvider>
+                      </WindowManagerProvider>
+                    </FileSystemProvider>
+                  </UserSessionProvider>
+                </SchedulerProvider>
+              </PrintSpoolerProvider>
             </RecentDocumentsProvider>
           </ClockProvider>
         </EventBusProvider>

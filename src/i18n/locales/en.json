@@ -571,6 +571,28 @@
     "folder": "Folder",
     "file": "File"
   },
+  "print": {
+    "document": "Document Name",
+    "status": "Status",
+    "owner": "Owner",
+    "pages": "Pages",
+    "size": "Size",
+    "submitted": "Submitted",
+    "pause": "Pause",
+    "resume": "Resume",
+    "cancel": "Cancel",
+    "noSource": "Original source is unavailable",
+    "noSpoolFile": "No spool file name",
+    "statuses": {
+      "queued": "Queued",
+      "printing": "Printing",
+      "paused": "Paused",
+      "error": "Error",
+      "completed": "Completed",
+      "deleted": "Deleted",
+      "orphaned": "Orphaned"
+    }
+  },
   "recentDocuments": {
     "seeded": "History",
     "runtime": "Current session"

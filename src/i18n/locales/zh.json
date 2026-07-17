@@ -565,6 +565,28 @@
     "folder": "文件夹",
     "file": "文件"
   },
+  "print": {
+    "document": "文档名",
+    "status": "状态",
+    "owner": "所有者",
+    "pages": "页数",
+    "size": "大小",
+    "submitted": "提交时间",
+    "pause": "暂停",
+    "resume": "继续",
+    "cancel": "取消",
+    "noSource": "原始来源不可用",
+    "noSpoolFile": "没有后台打印文件名",
+    "statuses": {
+      "queued": "排队中",
+      "printing": "正在打印",
+      "paused": "已暂停",
+      "error": "错误",
+      "completed": "已完成",
+      "deleted": "已删除",
+      "orphaned": "孤立记录"
+    }
+  },
   "recentDocuments": {
     "seeded": "历史记录",
     "runtime": "本次会话"

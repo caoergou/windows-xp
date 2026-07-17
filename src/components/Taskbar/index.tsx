@@ -341,8 +341,6 @@ const Taskbar = () => {
         );
       } else if (appName === 'Search') {
         showModal(t('startMenu.search'), t('apps.comingSoon'), 'info');
-      } else if (appName === 'PrintersAndFaxes') {
-        showModal(t('startMenu.printersAndFaxes'), t('apps.comingSoon'), 'info');
       } else if (appName === 'AllPrograms') {
         showModal(t('startMenu.allPrograms'), t('apps.comingSoon'), 'info');
       } else if (appName in APP_REGISTRY) {
