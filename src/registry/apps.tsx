@@ -46,7 +46,7 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import XPIcon from '../components/XPIcon';
 import { restoreApp } from './defineApp';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 // Placeholder app - used for apps not yet implemented
 const DummyAppContainer = styled.div`
@@ -57,7 +57,7 @@ const DummyAppContainer = styled.div`
   align-items: center;
   justify-content: center;
   background: white;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   text-align: center;
   padding: 20px;
 `;
@@ -69,13 +69,13 @@ const IconWrapper = styled.div`
 `;
 
 const Title = styled.h2`
-  color: ${COLORS.GREY_33};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_33};
   margin-bottom: 10px;
   font-size: 18px;
 `;
 
 const Message = styled.p`
-  color: ${COLORS.GREY_66};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_66};
   font-size: 12px;
   line-height: 1.6;
 `;

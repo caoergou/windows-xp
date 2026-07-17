@@ -13,7 +13,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { COLORS } from '../../../constants';
+import { resolveOSTheme } from '../../../themes/useOSTheme';
 import { useXPEventBus } from '../../../context/EventBusContext';
 import { searchResultsUrl } from '../constants';
 import type { SearchResultPage } from '../types';
@@ -48,7 +48,7 @@ const ResultsHead = styled.div`
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  border-bottom: 1px solid ${COLORS.BUTTON_SHADOW};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
 `;
 
 const Wordmark = styled.div<{ $big?: boolean }>`
@@ -65,7 +65,7 @@ const Query = styled.input`
   padding: 0 6px;
   font-family: Tahoma, sans-serif;
   font-size: 13px;
-  border: 1px solid ${COLORS.INPUT_BORDER};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.INPUT_BORDER};
 `;
 
 const HomeQuery = styled(Query)`
@@ -88,7 +88,7 @@ const Results = styled.div`
 `;
 
 const Stat = styled.div`
-  color: ${COLORS.BUTTON_SHADOW};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   margin-bottom: 12px;
 `;
 
@@ -114,7 +114,7 @@ const Snippet = styled.div`
 `;
 
 const Empty = styled.div`
-  color: ${COLORS.BUTTON_SHADOW};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   font-style: italic;
 `;
 

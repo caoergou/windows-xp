@@ -28,7 +28,7 @@ import {
   RANK_LABELS,
   SUIT_SYMBOLS,
 } from './solitaireLogic';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
    Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
@@ -54,10 +54,10 @@ const Wrap = styled.div`
   flex-direction: column;
   padding: 0;
   box-sizing: border-box;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 12px;
   user-select: none;
-  color: ${COLORS.WHITE};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   overflow: auto;
   position: relative;
 `;
@@ -112,7 +112,7 @@ const TableauPile = styled.div`
 const cardBase = css`
   width: ${CARD_WIDTH}px;
   height: ${CARD_HEIGHT}px;
-  border: 1px solid ${COLORS.BUTTON_SHADOW};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   border-radius: 3px;
   display: flex;
   flex-direction: column;
@@ -122,13 +122,16 @@ const cardBase = css`
   position: absolute;
   top: 0;
   left: 0;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 `;
 
 const FaceUpCard = styled.div<{ $suit?: string }>`
   ${cardBase}
-  background: ${COLORS.WHITE};
-  color: ${p => (p.$suit === 'hearts' || p.$suit === 'diamonds' ? PALETTE.red500 : COLORS.BLACK)};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  color: ${p =>
+    p.$suit === 'hearts' || p.$suit === 'diamonds'
+      ? PALETTE.red500
+      : resolveOSTheme(p.theme).tokens.BLACK};
 
   &:hover {
     filter: brightness(0.97);
@@ -181,11 +184,14 @@ const DragOverlay = styled.div<{ $x: number; $y: number; $bouncing: boolean }>`
 
 const DragStackCard = styled.div<{ $offset: number; $suit?: string }>`
   ${cardBase}
-  background: ${COLORS.WHITE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   position: absolute;
   top: ${p => p.$offset}px;
   left: 0;
-  color: ${p => (p.$suit === 'hearts' || p.$suit === 'diamonds' ? PALETTE.red500 : COLORS.BLACK)};
+  color: ${p =>
+    p.$suit === 'hearts' || p.$suit === 'diamonds'
+      ? PALETTE.red500
+      : resolveOSTheme(p.theme).tokens.BLACK};
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.35);
 `;
 
@@ -194,10 +200,13 @@ const WinMessage = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: ${COLORS.BORDER_GREY_HILIGHT};
-  color: ${COLORS.BLACK};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY_HILIGHT};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
   border: 2px solid;
-  border-color: ${COLORS.WHITE} ${COLORS.BUTTON_SHADOW} ${COLORS.BUTTON_SHADOW} ${COLORS.WHITE};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW}
+    ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   padding: 16px 24px;
   font-size: 16px;
   font-weight: bold;

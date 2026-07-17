@@ -11,7 +11,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { COLORS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 import { useXPEventBus } from '../../context/EventBusContext';
 
 export interface EvidenceItem {
@@ -44,13 +44,13 @@ const Wrap = styled.div`
   font-family: Tahoma, sans-serif;
   font-size: 12px;
   color: black;
-  background: ${COLORS.SURFACE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
 `;
 
 const Tray = styled.div`
   width: 150px;
   flex-shrink: 0;
-  border-right: 1px solid ${COLORS.BUTTON_SHADOW};
+  border-right: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   padding: 8px;
   overflow-y: auto;
 `;
@@ -68,9 +68,9 @@ const TrayItem = styled.button<{ $done?: boolean }>`
   padding: 4px 6px;
   font-family: Tahoma, sans-serif;
   font-size: 12px;
-  background: ${p => (p.$done ? COLORS.SURFACE : 'white')};
-  color: ${p => (p.$done ? COLORS.BUTTON_SHADOW : 'black')};
-  border: 1px solid ${COLORS.BUTTON_BORDER};
+  background: ${p => (p.$done ? resolveOSTheme(p.theme).tokens.SURFACE : 'white')};
+  color: ${p => (p.$done ? resolveOSTheme(p.theme).tokens.BUTTON_SHADOW : 'black')};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
   border-radius: 3px;
   cursor: ${p => (p.$done ? 'default' : 'pointer')};
 `;
@@ -97,8 +97,9 @@ const Card = styled.div<{ $selected?: boolean }>`
   min-height: ${CARD_H}px;
   box-sizing: border-box;
   background: lightyellow;
-  border: 1px solid ${COLORS.BUTTON_SHADOW};
-  outline: ${p => (p.$selected ? `2px solid ${COLORS.DIALOG_BLUE}` : 'none')};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+  outline: ${p =>
+    p.$selected ? `2px solid ${resolveOSTheme(p.theme).tokens.DIALOG_BLUE}` : 'none'};
   box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.4);
   padding: 8px 6px 4px;
   cursor: pointer;
@@ -132,7 +133,7 @@ const Unpin = styled.span`
   justify-content: center;
   line-height: 1;
   font-size: 11px;
-  color: ${COLORS.BUTTON_SHADOW};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   cursor: pointer;
 `;
 

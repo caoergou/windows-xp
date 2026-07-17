@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components';
 import { qqUrl } from './assets';
-import { COLORS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 
 /* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
    Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
@@ -984,7 +984,7 @@ export const ChatRoot = styled.div`
     align-items: center;
     justify-content: space-between;
     padding: 3px 6px;
-    color: ${COLORS.BLACK};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
     background: linear-gradient(to bottom, ${C.white}, ${C.infoBlue});
     border-bottom: 1px solid ${C.infoBorder};
     font-weight: bold;
@@ -1013,7 +1013,7 @@ export const ChatRoot = styled.div`
     padding-left: 8px;
   }
   .qq-im-history-list .body {
-    color: ${COLORS.BLACK};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
     word-break: break-all;
   }
   .qq-im-history-empty {
@@ -1032,7 +1032,7 @@ export const ChatRoot = styled.div`
     max-height: 200px;
     overflow-y: auto;
     background: ${C.white};
-    border: 1px solid ${COLORS.INPUT_BORDER};
+    border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.INPUT_BORDER};
     box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
     padding: 4px;
     display: grid;
@@ -1049,7 +1049,7 @@ export const ChatRoot = styled.div`
     background: transparent;
     filter: saturate(1.4);
     &:hover {
-      border-color: ${COLORS.MENU_HIGHLIGHT};
+      border-color: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
       background: ${C.hover};
     }
   }
@@ -1075,8 +1075,8 @@ export const QQModalLayer = styled.div`
   }
 
   .qq-dlg {
-    background: ${COLORS.SURFACE};
-    border: 1px solid ${COLORS.BUTTON_BORDER};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+    border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
     display: flex;
     flex-direction: column;
@@ -1087,7 +1087,7 @@ export const QQModalLayer = styled.div`
     align-items: center;
     gap: 5px;
     padding: 0 4px 0 6px;
-    background: ${COLORS.WINDOW_TITLE_ACTIVE};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.WINDOW_TITLE_ACTIVE};
     color: ${C.white};
     font-weight: bold;
     border-radius: 4px 4px 0 0;
@@ -1140,7 +1140,7 @@ export const QQModalLayer = styled.div`
   .qq-find-input {
     flex: 1;
     height: 20px;
-    border: 1px solid ${COLORS.INPUT_BORDER};
+    border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.INPUT_BORDER};
     padding: 0 4px;
     font-size: 12px;
     font-family: SimSun, serif;
@@ -1148,7 +1148,7 @@ export const QQModalLayer = styled.div`
   .qq-find-results {
     height: 168px;
     overflow-y: auto;
-    border: 1px solid ${COLORS.BORDER_GREY};
+    border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
     background: ${C.white};
     margin: 0;
     padding: 0;
@@ -1163,7 +1163,7 @@ export const QQModalLayer = styled.div`
   }
   .qq-find-results li:hover,
   .qq-find-results li.sel {
-    background: ${COLORS.MENU_HIGHLIGHT};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
     color: ${C.white};
   }
   .qq-find-results li img {
@@ -1194,7 +1194,7 @@ export const BuddyTooltip = styled.div`
   z-index: 2147483200;
   width: 210px;
   background: ${C.white};
-  border: 1px solid ${COLORS.DIALOG_BLUE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIALOG_BLUE};
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
   font-family: SimSun, serif;
   font-size: 12px;

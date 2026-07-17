@@ -12,7 +12,7 @@ import {
   XPMenuMark as SharedMenuMark,
 } from '../components/XPMenuBar';
 import { xpTrackbarStyles } from '../theme';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 import { getVolume, setVolume, getMuted, setMuted } from '../utils/soundManager';
 import { useWindowManagerActions } from '../context/WindowManagerContext';
 import { useModal } from '../context/ModalContext';
@@ -28,18 +28,18 @@ const Root = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: ${COLORS.SURFACE};
-  font-family: ${FONTS.UI};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
 `;
 
 // Etched groove separating the menu bar from the mixer body (as in sndvol32).
 const MenuGroove = styled.div`
   height: 2px;
   flex-shrink: 0;
-  border-top: 1px solid ${COLORS.BUTTON_SHADOW};
-  border-bottom: 1px solid ${COLORS.BUTTON_HIGHLIGHT};
+  border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT};
 `;
 
 const Columns = styled.div`
@@ -61,8 +61,8 @@ const Column = styled.div`
 const Rule = styled.div`
   width: 2px;
   align-self: stretch;
-  border-left: 1px solid ${COLORS.BUTTON_SHADOW};
-  border-right: 1px solid ${COLORS.BUTTON_HIGHLIGHT};
+  border-left: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+  border-right: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT};
 `;
 
 const ColumnTitle = styled.div`
@@ -87,7 +87,7 @@ const BalanceRow = styled.div`
 const Speaker = styled.span`
   font-size: 10px;
   line-height: 1;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
 `;
 
 const BalanceSlider = styled.input`

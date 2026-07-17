@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import XPIcon from '../components/XPIcon';
-import { FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /* brand-palette:start — centrally declared app-identity colours (#213 batch 4).
    Exempt from the guard:purity hex ratchet; NOT COLORS tokens on purpose: this
@@ -93,7 +93,7 @@ const PageWrap = styled.div`
   height: 100%;
   overflow-y: auto;
   background: ${PALETTE.white};
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 12px;
   color: ${PALETTE.grey800};
 `;

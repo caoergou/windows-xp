@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { FONTS } from '../../constants';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 import { CMD_BACKGROUND, CMD_DEFAULT_TEXT } from './constants';
 
 // CommandPrompt styled-components (#163/A — split out of the single-file app).
@@ -9,7 +9,7 @@ import { CMD_BACKGROUND, CMD_DEFAULT_TEXT } from './constants';
 // (near the top when little has printed) exactly like real cmd.exe — not pinned
 // to the window's bottom edge.
 export const Container = styled.div<{ $color?: string }>`
-  font-family: ${FONTS.CONSOLE};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.CONSOLE};
   font-size: 12px;
   line-height: 1.2;
   background: ${CMD_BACKGROUND};

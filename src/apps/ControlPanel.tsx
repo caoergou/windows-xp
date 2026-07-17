@@ -22,14 +22,14 @@ import { canUseDOM } from '../utils/storage';
 import { useStorage } from '../context/StorageContext';
 import { getSavedLanguage, saveLanguage, SupportedLanguage } from '../utils/language';
 import { sounds } from '../utils/soundManager';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 const Container = styled.div`
   padding: 16px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 12px;
   height: 100%;
-  background: ${COLORS.SURFACE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
   display: flex;
   flex-direction: column;
 `;
@@ -38,7 +38,7 @@ const Title = styled.h3`
   margin: 0 0 16px 0;
   font-size: 14px;
   font-weight: bold;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
 `;
 
 const CategoryGrid = styled.div`
@@ -53,24 +53,24 @@ const CategoryItem = styled.div<{ $selected?: boolean }>`
   gap: 8px;
   width: 220px;
   padding: 4px;
-  background: ${COLORS.SURFACE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
   border: 1px solid transparent;
   cursor: pointer;
 
   &:hover {
-    background-color: ${COLORS.PANEL_TINT_BLUE};
-    border: 1px solid ${COLORS.PANEL_TINT_BORDER};
+    background-color: ${({ theme }) => resolveOSTheme(theme).tokens.PANEL_TINT_BLUE};
+    border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.PANEL_TINT_BORDER};
   }
 
   ${props =>
     props.$selected &&
     `
-    background-color: ${COLORS.MENU_HIGHLIGHT};
+    background-color: ${resolveOSTheme(props.theme).tokens.MENU_HIGHLIGHT};
     color: white;
-    border: 1px dotted ${COLORS.WHITE};
+    border: 1px dotted ${resolveOSTheme(props.theme).tokens.WHITE};
 
     &:hover {
-      background-color: ${COLORS.MENU_HIGHLIGHT};
+      background-color: ${resolveOSTheme(props.theme).tokens.MENU_HIGHLIGHT};
       color: white;
     }
   `}
@@ -86,7 +86,10 @@ const CategoryIcon = styled.img`
 
 const CategoryName = styled.div<{ $selected?: boolean }>`
   font-size: 11px;
-  color: ${props => (props.$selected ? COLORS.WHITE : COLORS.BLACK)};
+  color: ${props =>
+    props.$selected
+      ? resolveOSTheme(props.theme).tokens.WHITE
+      : resolveOSTheme(props.theme).tokens.BLACK};
 `;
 
 const BackButton = styled.button`
@@ -94,26 +97,26 @@ const BackButton = styled.button`
   margin-bottom: 12px;
   padding: 3px 14px;
   font-size: 11px;
-  border: 1px solid ${COLORS.BUTTON_BORDER};
-  background: ${COLORS.BUTTON_GRADIENT};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_GRADIENT};
   cursor: pointer;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 
   &:hover {
-    box-shadow: ${COLORS.BUTTON_HOVER_SHADOW};
+    box-shadow: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HOVER_SHADOW};
   }
 `;
 
 const SystemSettings = styled.div`
   width: 100%;
   max-width: 460px;
-  border: 1px solid ${COLORS.BORDER_GREY};
-  background: ${COLORS.WHITE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   padding: 14px;
 
   h4 {
     margin: 0 0 12px;
-    color: ${COLORS.XP_DEEP_BLUE};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.XP_DEEP_BLUE};
     font-size: 13px;
   }
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { COLORS } from '../../constants';
+import { useOSTheme } from '../../themes/useOSTheme';
+import type { OSTheme } from '../../themes/contract';
 import type { SystemStats } from './useSystemStats';
 import {
   PerfGrid,
@@ -20,10 +21,16 @@ interface PerformanceProps {
 }
 
 /** Draw the classic green grid onto a black panel. */
-const drawGrid = (ctx: CanvasRenderingContext2D, w: number, h: number, offset = 0) => {
-  ctx.fillStyle = COLORS.BLACK;
+const drawGrid = (
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  theme: OSTheme,
+  offset = 0
+) => {
+  ctx.fillStyle = theme.tokens.BLACK;
   ctx.fillRect(0, 0, w, h);
-  ctx.strokeStyle = COLORS.PERF_GRAPH_GRID;
+  ctx.strokeStyle = theme.tokens.PERF_GRAPH_GRID;
   ctx.lineWidth = 1;
   const step = 12;
   ctx.beginPath();
@@ -44,9 +51,10 @@ const drawHistory = (
   w: number,
   h: number,
   history: number[],
-  scrollOffset: number
+  scrollOffset: number,
+  theme: OSTheme
 ) => {
-  drawGrid(ctx, w, h, scrollOffset);
+  drawGrid(ctx, w, h, theme, scrollOffset);
 
   const n = history.length;
   if (n < 2) return;
@@ -74,19 +82,25 @@ const drawHistory = (
     if (i === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   });
-  ctx.strokeStyle = COLORS.PERF_GRAPH_LINE;
+  ctx.strokeStyle = theme.tokens.PERF_GRAPH_LINE;
   ctx.lineWidth = 1;
   ctx.stroke();
 };
 
 /** A tall vertical bar meter (CPU Usage / PF Usage columns). */
-const drawMeter = (ctx: CanvasRenderingContext2D, w: number, h: number, value: number) => {
-  drawGrid(ctx, w, h);
+const drawMeter = (
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  value: number,
+  theme: OSTheme
+) => {
+  drawGrid(ctx, w, h, theme);
   const filled = (value / 100) * h;
   ctx.fillStyle = 'rgba(0, 255, 0, 0.35)';
   ctx.fillRect(0, h - filled, w, filled);
   // Bright cap line at the top of the fill.
-  ctx.strokeStyle = COLORS.PERF_GRAPH_LINE;
+  ctx.strokeStyle = theme.tokens.PERF_GRAPH_LINE;
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(0, h - filled + 0.5);
@@ -96,19 +110,21 @@ const drawMeter = (ctx: CanvasRenderingContext2D, w: number, h: number, value: n
 
 const useMeterCanvas = (value: number) => {
   const ref = useRef<HTMLCanvasElement>(null);
+  const osTheme = useOSTheme();
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    drawMeter(ctx, canvas.width, canvas.height, value);
-  }, [value]);
+    drawMeter(ctx, canvas.width, canvas.height, value, osTheme);
+  }, [value, osTheme]);
   return ref;
 };
 
 const useHistoryCanvas = (history: number[]) => {
   const ref = useRef<HTMLCanvasElement>(null);
   const scrollRef = useRef(0);
+  const osTheme = useOSTheme();
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
@@ -116,8 +132,8 @@ const useHistoryCanvas = (history: number[]) => {
     if (!ctx) return;
     // Advance the grid phase a little each update so it visibly scrolls.
     scrollRef.current = (scrollRef.current + 4) % 12;
-    drawHistory(ctx, canvas.width, canvas.height, history, scrollRef.current);
-  }, [history]);
+    drawHistory(ctx, canvas.width, canvas.height, history, scrollRef.current, osTheme);
+  }, [history, osTheme]);
   return ref;
 };
 

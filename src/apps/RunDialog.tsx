@@ -9,14 +9,14 @@ import { triggerBsod } from '../utils/easterEggs';
 import { XPTextInput } from '../components/XPTextInput';
 import { XPButton } from '../components/XPButton';
 import XPIcon from '../components/XPIcon';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 const Container = styled.div`
   padding: 11px 9px 9px;
   display: flex;
   flex-direction: column;
   gap: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
 `;
 
@@ -30,7 +30,7 @@ const Prompt = styled.div`
 const PromptText = styled.div`
   font-size: 11px;
   line-height: 1.35;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
   padding-top: 2px;
 `;
 

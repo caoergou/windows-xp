@@ -12,7 +12,7 @@ import BsodScreen from './components/BsodScreen';
 import XPIcon from './components/XPIcon';
 import ContextMenu from './components/ContextMenu';
 import windowsIcon from './assets/icons/windows.svg';
-import { TIME, WINDOW_DEFAULTS, FONTS } from './constants';
+import { TIME, WINDOW_DEFAULTS } from './constants';
 import { canUseDOM, STORAGE_ERROR_EVENT, type Storage } from './utils/storage';
 import { useStorage } from './context/StorageContext';
 import { BSOD_EVENT } from './utils/easterEggs';
@@ -22,7 +22,7 @@ import { useModal, useModalInteraction } from './context/ModalContext';
 import { useXPEventBus } from './context/EventBusContext';
 import { getSavedLanguage } from './utils/language';
 import type { BootBranding, LoginBranding } from './branding';
-import { COLORS } from './constants';
+import { resolveOSTheme } from './themes/useOSTheme';
 
 const Container = styled.div`
   width: 100%;
@@ -45,7 +45,7 @@ const fadeOut = keyframes`
 const ScreenSaverContainer = styled.div<{ $fading: boolean }>`
   width: 100%;
   height: 100%;
-  background: ${COLORS.BLACK};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -65,9 +65,9 @@ const FloatingLogo = styled.img`
 const ScreenSaverHint = styled.div`
   position: absolute;
   bottom: 40px;
-  color: ${COLORS.GREY_55};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_55};
   font-size: 13px;
-  font-family: ${FONTS.MONO};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.MONO};
 `;
 
 const AltTabOverlay = styled.div`
@@ -75,9 +75,9 @@ const AltTabOverlay = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: ${COLORS.SURFACE};
-  border: 1px solid ${COLORS.BUTTON_BORDER};
-  box-shadow: 2px 2px 0 ${COLORS.BUTTON_SHADOW};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
+  box-shadow: 2px 2px 0 ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   padding: 12px 16px;
   display: flex;
   flex-direction: column;
@@ -89,9 +89,9 @@ const AltTabOverlay = styled.div`
 `;
 
 const AltTabTitle = styled.div`
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
   font-size: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
 `;
 
 const AltTabItems = styled.div`
@@ -107,15 +107,17 @@ const AltTabItem = styled.div<{ $active: boolean }>`
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  border: 2px solid ${props => (props.$active ? COLORS.MENU_HIGHLIGHT : 'transparent')};
-  background: ${props => (props.$active ? COLORS.GREY_E5 : 'transparent')};
+  border: 2px solid
+    ${props => (props.$active ? resolveOSTheme(props.theme).tokens.MENU_HIGHLIGHT : 'transparent')};
+  background: ${props =>
+    props.$active ? resolveOSTheme(props.theme).tokens.GREY_E5 : 'transparent'};
   cursor: pointer;
   min-width: 70px;
 
   span {
-    color: ${COLORS.BLACK};
+    color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
     font-size: 11px;
-    font-family: ${FONTS.UI};
+    font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
     text-align: center;
     max-width: 90px;
     overflow: hidden;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { useWindowManager } from '../context/WindowManagerContext';
-import { COLORS, FONTS } from '../constants';
+import { resolveOSTheme } from '../themes/useOSTheme';
 
 /* brand-palette:start — centrally declared app-content colours (#213 batch 4).
    calc.exe's red operator keys and navy function keys are the app's own key
@@ -21,23 +21,25 @@ const Wrap = styled.div`
   min-width: 0;
   height: auto;
   align-self: flex-start;
-  background: ${COLORS.SURFACE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
   display: flex;
   flex-direction: column;
   padding: 4px;
   box-sizing: border-box;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
   user-select: none;
   overflow: hidden;
 `;
 
 const Display = styled.div`
-  background: ${COLORS.WHITE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
   border: 1px solid;
-  border-color: ${COLORS.BUTTON_SHADOW} ${COLORS.BUTTON_FACE} ${COLORS.BUTTON_FACE}
-    ${COLORS.BUTTON_SHADOW};
-  box-shadow: inset 1px 1px 0 ${COLORS.GREY_40};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_FACE}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_FACE}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+  box-shadow: inset 1px 1px 0 ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40};
   height: 24px;
   margin-bottom: ${GAP}px;
   display: flex;
@@ -46,7 +48,7 @@ const Display = styled.div`
   padding: 1px 4px 0;
   font-size: 14px;
   overflow: hidden;
-  color: ${COLORS.BLACK};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
   letter-spacing: 0.5px;
   line-height: 1;
   flex-shrink: 0;
@@ -67,10 +69,12 @@ const Row = styled.div<{ $cols?: number }>`
 const MemIndicator = styled.div`
   height: ${BTN_H}px;
   border: 1px solid;
-  border-color: ${COLORS.BUTTON_SHADOW} ${COLORS.BUTTON_FACE} ${COLORS.BUTTON_FACE}
-    ${COLORS.BUTTON_SHADOW};
-  box-shadow: inset 1px 1px 0 ${COLORS.GREY_40};
-  background: ${COLORS.SURFACE};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_FACE}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_FACE}
+    ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+  box-shadow: inset 1px 1px 0 ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
 `;
 
 const Key = styled.button<{
@@ -85,7 +89,7 @@ const Key = styled.button<{
   margin: 0;
   cursor: ${p => (p.$disabled ? 'default' : 'pointer')};
   font-size: 11px;
-  font-family: ${FONTS.UI};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   line-height: 1;
   outline: none;
   grid-column: ${p => (p.$span ? `span ${p.$span}` : 'auto')};
@@ -93,30 +97,30 @@ const Key = styled.button<{
   /* Luna themed button, matching xp.css exactly (#99): the previous
      #d4d0c8 + two-tone 1px border was the Windows 2000 look. */
   box-sizing: border-box;
-  border: 1px solid ${COLORS.BUTTON_BORDER};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
   border-radius: 3px;
-  background: ${COLORS.BUTTON_GRADIENT};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_GRADIENT};
   box-shadow: none;
 
   color: ${p => {
-    if (p.$disabled) return COLORS.DIVIDER_GREY;
+    if (p.$disabled) return resolveOSTheme(p.theme).tokens.DIVIDER_GREY;
     if (p.$variant === 'clear' || p.$variant === 'mem' || p.$variant === 'op') return KEY_RED;
     if (p.$variant === 'fn') return KEY_NAVY;
-    return COLORS.BLACK;
+    return resolveOSTheme(p.theme).tokens.BLACK;
   }};
 
   &:hover:not(:disabled) {
-    box-shadow: ${COLORS.BUTTON_HOVER_SHADOW};
+    box-shadow: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HOVER_SHADOW};
   }
 
   &:active:not(:disabled) {
     box-shadow: none;
-    background: ${COLORS.BUTTON_ACTIVE_GRADIENT};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_ACTIVE_GRADIENT};
   }
 
   &:disabled {
-    background: ${COLORS.BUTTON_GRADIENT};
-    border-color: ${COLORS.BUTTON_BORDER_DISABLED};
+    background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_GRADIENT};
+    border-color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER_DISABLED};
     text-shadow: none;
   }
 `;
