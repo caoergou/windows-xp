@@ -4,8 +4,9 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { WindowsXP } from '../src/lib';
-import { useOSTheme } from '../src/themes/useOSTheme';
+import { useOSTheme, resolveOSTheme } from '../src/themes/useOSTheme';
 import { xpTheme } from '../src/themes/xp';
+import { Wrap as MinesweeperGrid } from '../src/apps/Minesweeper/styled';
 import type { OSTheme } from '../src/themes/contract';
 import type { AppRegistryEntry } from '../src/types';
 import type { XPHandle } from '../src/components/XPBridge';
@@ -89,5 +90,41 @@ describe('OS theme seam (#213 B1)', () => {
     const active = seen[seen.length - 1];
     expect(active.id).toBe('fake-os');
     expect(active.sounds.startup).toBe('data:audio/wav;base64,ZmFrZQ==');
+  });
+});
+
+describe('theme fallback without a provider (#213 B1)', () => {
+  // Bare usage of the public /apps and /components subpaths has no
+  // ThemeProvider above it; theme reads must degrade to the default xpTheme
+  // instead of crashing (public-API compatibility).
+  const hexToRgb = (hex: string) => {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgb(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255})`;
+  };
+
+  it('resolveOSTheme falls back to xpTheme when the theme is missing', () => {
+    expect(resolveOSTheme(undefined).id).toBe('xp');
+    expect(resolveOSTheme({} as OSTheme).id).toBe('xp');
+    expect(resolveOSTheme(fakeTheme).id).toBe('fake-os');
+  });
+
+  it('a migrated styled component renders with xpTheme tokens and no provider', () => {
+    render(<MinesweeperGrid data-testid="grid" />);
+    expect(getComputedStyle(screen.getByTestId('grid')).backgroundColor).toBe(
+      hexToRgb(xpTheme.tokens.SURFACE)
+    );
+  });
+
+  it('an enclosing provider still wins over the fallback', () => {
+    const custom: OSTheme = {
+      ...fakeTheme,
+      tokens: { ...fakeTheme.tokens, SURFACE: '#123456' },
+    };
+    render(
+      <ThemeProvider theme={custom}>
+        <MinesweeperGrid data-testid="grid" />
+      </ThemeProvider>
+    );
+    expect(getComputedStyle(screen.getByTestId('grid')).backgroundColor).toBe(hexToRgb('#123456'));
   });
 });

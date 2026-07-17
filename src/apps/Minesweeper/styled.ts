@@ -1,6 +1,6 @@
 import styled from 'styled-components';
+import { resolveOSTheme } from '../../themes/useOSTheme';
 import { CELL_SIZE } from './constants';
-import { COLORS, FONTS } from '../../constants';
 
 // Minesweeper styled-components (#163/A).
 
@@ -8,9 +8,9 @@ export const Wrap = styled.div`
   position: relative;
   width: fit-content;
   align-self: flex-start;
-  background: ${COLORS.SURFACE};
-  color: ${COLORS.BLACK};
-  font-family: ${FONTS.UI};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
   font-size: 11px;
   line-height: 1;
   user-select: none;
@@ -35,9 +35,9 @@ export const MenuCheck = styled.img`
 
 export const GamePanel = styled.section`
   padding: 5px;
-  border-top: 3px solid ${COLORS.GREY_F5};
-  border-left: 3px solid ${COLORS.GREY_F5};
-  background: ${COLORS.GREY_C0};
+  border-top: 3px solid ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5};
+  border-left: 3px solid ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_C0};
   box-sizing: border-box;
 `;
 
@@ -49,7 +49,7 @@ export const ScoreBar = styled.div`
   margin-bottom: 5px;
   padding: 3px 7px 3px 4px;
   border: 2px solid;
-  border-color: ${COLORS.BUTTON_SHADOW} ${COLORS.GREY_F5} ${COLORS.GREY_F5} ${COLORS.BUTTON_SHADOW};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5} ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
 `;
 
 export const Counter = styled.div`
@@ -59,7 +59,7 @@ export const Counter = styled.div`
   overflow: hidden;
   border-width: 0 1px 1px 0;
   border-style: solid;
-  border-color: ${COLORS.WHITE};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
 `;
 
 export const Digit = styled.img`
@@ -73,8 +73,8 @@ export const Digit = styled.img`
 export const FaceOuter = styled.div`
   width: 24px;
   height: 24px;
-  border-top: 1px solid ${COLORS.BUTTON_SHADOW};
-  border-left: 1px solid ${COLORS.BUTTON_SHADOW};
+  border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+  border-left: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   transform: translateX(1px);
 `;
 
@@ -90,14 +90,14 @@ export const FaceButton = styled.button`
   justify-content: center;
   padding: 0;
   border: 2px solid;
-  border-color: ${COLORS.GREY_F5} ${COLORS.BUTTON_SHADOW} ${COLORS.BUTTON_SHADOW} ${COLORS.GREY_F5};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5} ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW} ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5};
   outline: none;
-  background: ${COLORS.GREY_C0};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_C0};
   cursor: default;
 
   &:active {
     border-width: 1px;
-    border-color: ${COLORS.BUTTON_SHADOW};
+    border-color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   }
 
   &:active img {
@@ -116,8 +116,8 @@ export const Board = styled.div<{ $cols: number; $rows: number }>`
   grid-template-columns: repeat(${props => props.$cols}, ${CELL_SIZE}px);
   grid-template-rows: repeat(${props => props.$rows}, ${CELL_SIZE}px);
   border: 3px solid;
-  border-color: ${COLORS.BUTTON_SHADOW} ${COLORS.GREY_F5} ${COLORS.GREY_F5} ${COLORS.BUTTON_SHADOW};
-  background: ${COLORS.BUTTON_SHADOW};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5} ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
   line-height: 0;
   overflow: hidden;
 `;
@@ -135,7 +135,7 @@ export const Cell = styled.button<{ $covered: boolean }>`
   padding: 0;
   border: 0;
   outline: 0;
-  background: ${COLORS.GREY_C0};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_C0};
   appearance: none;
   -webkit-appearance: none;
   cursor: default;
@@ -148,9 +148,9 @@ export const CoveredBackground = styled.span`
   display: block;
   width: ${CELL_SIZE}px;
   height: ${CELL_SIZE}px;
-  background: ${COLORS.GREY_C0};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_C0};
   border: 2px solid;
-  border-color: ${COLORS.GREY_F5} ${COLORS.BUTTON_SHADOW} ${COLORS.BUTTON_SHADOW} ${COLORS.GREY_F5};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5} ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW} ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F5};
 `;
 
 export const RevealedBackground = styled.span`
@@ -159,9 +159,9 @@ export const RevealedBackground = styled.span`
   display: block;
   width: ${CELL_SIZE}px;
   height: ${CELL_SIZE}px;
-  background: ${COLORS.GREY_C0};
-  border-top: 1px solid ${COLORS.BUTTON_SHADOW};
-  border-left: 1px solid ${COLORS.BUTTON_SHADOW};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_C0};
+  border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
+  border-left: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
 `;
 
 export const CellIcon = styled.img`
@@ -182,15 +182,15 @@ export const AboutDialog = styled.div`
   width: 220px;
   transform: translateX(-50%);
   border: 2px solid;
-  border-color: ${COLORS.WHITE} ${COLORS.GREY_40} ${COLORS.GREY_40} ${COLORS.WHITE};
-  background: ${COLORS.BORDER_GREY_HILIGHT};
-  box-shadow: 2px 2px 1px ${COLORS.GREY_64};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40} ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY_HILIGHT};
+  box-shadow: 2px 2px 1px ${({ theme }) => resolveOSTheme(theme).tokens.GREY_64};
 `;
 
 export const AboutTitle = styled.div`
   padding: 4px 6px;
-  color: ${COLORS.WHITE};
-  background: ${COLORS.TITLE_BAR_GRADIENT_COMPACT};
+  color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.TITLE_BAR_GRADIENT_COMPACT};
   font-weight: bold;
 `;
 
@@ -210,11 +210,11 @@ export const DialogButton = styled.button`
   min-width: 72px;
   height: 23px;
   border: 2px solid;
-  border-color: ${COLORS.WHITE} ${COLORS.GREY_40} ${COLORS.GREY_40} ${COLORS.WHITE};
-  background: ${COLORS.BORDER_GREY_HILIGHT};
+  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40} ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY_HILIGHT};
   font: inherit;
 
   &:active {
-    border-color: ${COLORS.GREY_40} ${COLORS.WHITE} ${COLORS.WHITE} ${COLORS.GREY_40};
+    border-color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40} ${({ theme }) => resolveOSTheme(theme).tokens.WHITE} ${({ theme }) => resolveOSTheme(theme).tokens.WHITE} ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40};
   }
 `;
