@@ -12,6 +12,11 @@ import { defineScenario, searched, found, setFlag } from '../src/scenario/builde
 import { solveScenario } from '../src/scenario/solver';
 import SearchEnginePage from '../src/apps/InternetExplorer/components/SearchEnginePage';
 import {
+  normalizeSearchTerm,
+  searchCorpus,
+} from '../src/apps/InternetExplorer/components/SearchEnginePage';
+import { renderEraPage } from '../src/content/eraPage';
+import {
   isSearchEngineUrl,
   parseSearchQuery,
   searchResultsUrl,
@@ -62,6 +67,37 @@ describe('search engine URL helpers', () => {
   it('round-trips a query through the results URL', () => {
     expect(parseSearchQuery(searchResultsUrl('水晶女孩'))).toBe('水晶女孩');
     expect(parseSearchQuery('http://www.baidu.com')).toBe('');
+  });
+});
+
+describe('offline corpus v2 (#281)', () => {
+  it('normalizes width/case, honors aliases, typo tolerance, and stable rank', () => {
+    const corpus = [
+      { id: 'late', title: 'Late', url: 'http://late.test', match: ['crystal'], rank: 5 },
+      {
+        id: 'first',
+        title: 'First',
+        url: 'http://first.test',
+        match: ['水晶女孩'],
+        aliases: ['Crystal Girl'],
+        typoTolerance: 1,
+        rank: 1,
+      },
+    ];
+    expect(normalizeSearchTerm(' ＣＲＹＳＴＡＬ—Girl ')).toBe('crystal girl');
+    expect(searchCorpus(corpus, 'crystl girl').map(item => item.id)).toEqual(['first']);
+    expect(searchCorpus(corpus, 'crystal').map(item => item.id)).toEqual(['first', 'late']);
+  });
+
+  it('renders escaped structured era pages', () => {
+    const html = renderEraPage({
+      template: 'forum',
+      title: 'Town BBS',
+      sections: [{ heading: '<notice>', body: ['A & B'] }],
+    });
+    expect(html).toContain('&lt;notice&gt;');
+    expect(html).toContain('A &amp; B');
+    expect(html).toContain('class="forum"');
   });
 });
 

@@ -17,6 +17,7 @@ import type { ContentResolver } from '../../../content/resolver';
 import IEErrorPage from '../../../components/Explorer/IEErrorPage';
 import { Content } from '../styled';
 import { IFRAME_NAVIGATE_SCRIPT } from '../constants';
+import { renderEraPage } from '../../../content/eraPage';
 
 interface SitePageProps {
   /** The authorized site to render. */
@@ -48,6 +49,19 @@ const SitePage: React.FC<SitePageProps> = ({
   useEffect(() => {
     let cancelled = false;
     setState({ status: 'loading' });
+    if (site.page) {
+      setState({ status: 'ready', html: renderEraPage(site.page) });
+      return () => {
+        cancelled = true;
+      };
+    }
+    if (!site.html) {
+      setState({ status: 'error' });
+      onLoad();
+      return () => {
+        cancelled = true;
+      };
+    }
     resolver.resolveOrNull(site.html).then(html => {
       if (cancelled) return;
       // A failed resolve is a terminal state too: clear the shell's spinner.

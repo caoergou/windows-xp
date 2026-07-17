@@ -17,6 +17,7 @@ import { resolveOSTheme } from '../../../themes/useOSTheme';
 import { useXPEventBus } from '../../../context/EventBusContext';
 import { searchResultsUrl } from '../constants';
 import type { SearchResultPage } from '../types';
+import { renderEraPage } from '../../../content/eraPage';
 
 const Page = styled.div`
   width: 100%;
@@ -118,9 +119,47 @@ const Empty = styled.div`
   font-style: italic;
 `;
 
-const matches = (r: SearchResultPage, query: string): boolean => {
-  const q = query.toLowerCase();
-  return r.match.some(m => q.includes(m.toLowerCase()));
+export const normalizeSearchTerm = (value: string): string =>
+  value
+    .normalize('NFKC')
+    .toLocaleLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim();
+
+const editDistance = (a: string, b: string): number => {
+  const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i += 1) {
+    let previous = row[0];
+    row[0] = i;
+    for (let j = 1; j <= b.length; j += 1) {
+      const saved = row[j];
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, previous + (a[i - 1] === b[j - 1] ? 0 : 1));
+      previous = saved;
+    }
+  }
+  return row[b.length];
+};
+
+export const searchCorpus = (corpus: SearchResultPage[], query: string): SearchResultPage[] => {
+  const normalized = normalizeSearchTerm(query);
+  const queryTokens = normalized.split(' ').filter(Boolean);
+  return corpus
+    .map((result, index) => ({ result, index }))
+    .filter(({ result }) => {
+      const terms = [...result.match, ...(result.aliases ?? [])].map(normalizeSearchTerm);
+      if (terms.some(term => normalized.includes(term))) return true;
+      const tolerance = result.typoTolerance ?? 0;
+      return (
+        tolerance > 0 &&
+        queryTokens.some(token =>
+          terms.some(term =>
+            term.split(' ').some(candidate => editDistance(token, candidate) <= tolerance)
+          )
+        )
+      );
+    })
+    .sort((a, b) => (a.result.rank ?? 0) - (b.result.rank ?? 0) || a.index - b.index)
+    .map(item => item.result);
 };
 
 interface SearchEnginePageProps {
@@ -143,7 +182,7 @@ const SearchEnginePage: React.FC<SearchEnginePageProps> = ({
 
   useEffect(() => setText(query), [query]);
 
-  const hits = query ? corpus.filter(r => matches(r, query)) : [];
+  const hits = query ? searchCorpus(corpus, query) : [];
 
   // A results page is an in-world search: announce it so scenarios can react.
   useEffect(() => {
@@ -212,7 +251,7 @@ const SearchEnginePage: React.FC<SearchEnginePageProps> = ({
               href={r.url}
               onClick={e => {
                 e.preventDefault();
-                navigateTo(r.url, r.html);
+                navigateTo(r.url, r.html ?? (r.page ? renderEraPage(r.page) : undefined));
               }}
             >
               {r.title}

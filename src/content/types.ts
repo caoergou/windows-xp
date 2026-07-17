@@ -28,6 +28,7 @@ import type { MediaPlaylist } from '../apps/WindowsMediaPlayer';
 import type { EvidenceReportProps } from '../apps/EvidenceReport';
 import type { PowerSequence } from '../context/PowerTransitionContext';
 import type { QQArchive } from '../data/qq/types';
+import type { EraPage } from './eraPage';
 
 /**
  * A reference to a piece of content. Three sources, one shape — so a `content:`
@@ -76,7 +77,9 @@ export function isContentRef(value: unknown): value is ContentRef {
  */
 export interface SiteDef {
   /** The page body to render (inline HTML, a host URL, or an asset key). */
-  html: ContentRef;
+  html?: ContentRef;
+  /** Structured early-web page, rendered with the selected period template (#281). */
+  page?: EraPage;
   /** Browser/tab title; falls back to the site's URL key when omitted. */
   title?: string;
   /** Optional favicon (icon id, data URI, or a {@link ContentRef}). */

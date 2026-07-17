@@ -529,6 +529,12 @@ export type {
   MediaControlsPolicy,
 } from '../apps/WindowsMediaPlayer';
 export type { SearchResultPage } from '../apps/InternetExplorer/types';
+export {
+  normalizeSearchTerm,
+  searchCorpus,
+} from '../apps/InternetExplorer/components/SearchEnginePage';
+export { renderEraPage } from '../content/eraPage';
+export type { EraPage, EraPageLink, EraPageSection, EraPageTemplate } from '../content/eraPage';
 export { demoSearchCorpus } from '../data/scenarios/searchDemo';
 export type {
   Lesson,

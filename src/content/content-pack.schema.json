@@ -209,8 +209,8 @@
       "title": "SiteDef",
       "description": "An authorized IE site (#149/#241).",
       "type": "object",
-      "required": ["html"],
       "additionalProperties": false,
+      "anyOf": [{ "required": ["html"] }, { "required": ["page"] }],
       "properties": {
         "html": {
           "description": "The page body to render (inline HTML, a host url, or an asset key).",
@@ -223,7 +223,25 @@
         "favicon": {
           "description": "Optional favicon (icon id, data URI, or a ContentRef).",
           "$ref": "#/definitions/contentRef"
+        },
+        "page": {
+          "$ref": "#/definitions/eraPage"
         }
+      }
+    },
+    "eraPage": {
+      "title": "EraPage",
+      "type": "object",
+      "required": ["template", "title", "sections"],
+      "additionalProperties": false,
+      "properties": {
+        "template": { "enum": ["portal", "news", "forum", "profile"] },
+        "title": { "type": "string" },
+        "masthead": { "type": "string" },
+        "nav": { "type": "array" },
+        "sections": { "type": "array", "minItems": 1 },
+        "sidebar": { "type": "array" },
+        "footer": { "type": "string" }
       }
     }
   }
