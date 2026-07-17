@@ -71,7 +71,13 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "documentName", "submittedAt", "printerId", "status"],
+        "required": [
+          "id",
+          "documentName",
+          "submittedAt",
+          "printerId",
+          "status"
+        ],
         "additionalProperties": true,
         "properties": {
           "id": { "type": "string", "minLength": 1 },
@@ -79,7 +85,15 @@
           "submittedAt": { "type": "string", "format": "date-time" },
           "printerId": { "type": "string", "minLength": 1 },
           "status": {
-            "enum": ["queued", "printing", "paused", "error", "completed", "deleted", "orphaned"]
+            "enum": [
+              "queued",
+              "printing",
+              "paused",
+              "error",
+              "completed",
+              "deleted",
+              "orphaned"
+            ]
           }
         }
       }

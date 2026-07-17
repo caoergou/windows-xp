@@ -474,7 +474,12 @@
                 "reportId": { "type": "string" },
                 "claimId": { "type": "string" },
                 "result": {
-                  "enum": ["supported", "under-supported", "conflicted", "unknown"]
+                  "enum": [
+                    "supported",
+                    "under-supported",
+                    "conflicted",
+                    "unknown"
+                  ]
                 }
               },
               "additionalProperties": false
