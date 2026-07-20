@@ -57,6 +57,7 @@ export default defineConfig({
         hooks: path.resolve(__dirname, 'src/lib/hooks.tsx'),
         theme: path.resolve(__dirname, 'src/lib/theme.tsx'),
         registry: path.resolve(__dirname, 'src/lib/registry.tsx'),
+        os: path.resolve(__dirname, 'src/lib/os.tsx'),
       },
       formats: ['es', 'cjs'],
       fileName: (format, entryName) => `${entryName}.${format}.js`,

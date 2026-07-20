@@ -19,16 +19,24 @@ export interface AppRegistryContextType {
 
 const AppRegistryContext = createContext<AppRegistryContextType | undefined>(undefined);
 
-const defaultRegistryContext: AppRegistryContextType = {
-  registry: APP_REGISTRY,
-  registerApp: () => {
-    /* no-op: used when rendered outside AppRegistryProvider */
-  },
+let defaultRegistryContext: AppRegistryContextType | undefined;
+
+const getDefaultRegistryContext = (): AppRegistryContextType => {
+  // Resolve lazily: APP_REGISTRY contains app components that may themselves
+  // import this hook, so reading it during module initialization creates an ESM
+  // temporal-dead-zone cycle in the browser.
+  defaultRegistryContext ??= {
+    registry: APP_REGISTRY,
+    registerApp: () => {
+      /* no-op: used when rendered outside AppRegistryProvider */
+    },
+  };
+  return defaultRegistryContext;
 };
 
 export const useAppRegistry = (): AppRegistryContextType => {
   const context = useContext(AppRegistryContext);
-  return context ?? defaultRegistryContext;
+  return context ?? getDefaultRegistryContext();
 };
 
 const mergeRegistry = (userApps: AppRegistryEntry[]): Record<string, AppRegistryEntry> => {

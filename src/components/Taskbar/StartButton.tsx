@@ -14,7 +14,7 @@ const StartButtonContainer = styled.button<{ $isActive?: boolean; $localized?: b
   background-image: ${props =>
     props.$localized
       ? resolveOSTheme(props.theme).tokens.START_GRADIENT
-      : `url(${resolveOSTheme(props.theme).assets.startButton.sprite})`};
+      : `url(${resolveOSTheme(props.theme).assets.startButton?.sprite})`};
   background-repeat: no-repeat;
   background-size: 99px 90px;
   background-position: 0 0;
@@ -39,7 +39,7 @@ const StartButtonContainer = styled.button<{ $isActive?: boolean; $localized?: b
     background-image: ${props =>
       props.$localized
         ? resolveOSTheme(props.theme).tokens.START_GRADIENT_HOVER
-        : `url(${resolveOSTheme(props.theme).assets.startButton.sprite})`};
+        : `url(${resolveOSTheme(props.theme).assets.startButton?.sprite})`};
   }
 
   &&:active,
@@ -48,7 +48,7 @@ const StartButtonContainer = styled.button<{ $isActive?: boolean; $localized?: b
     background-image: ${props =>
       props.$localized
         ? resolveOSTheme(props.theme).tokens.START_GRADIENT_ACTIVE
-        : `url(${resolveOSTheme(props.theme).assets.startButton.sprite})`};
+        : `url(${resolveOSTheme(props.theme).assets.startButton?.sprite})`};
   }
 
   &:focus {
@@ -75,8 +75,9 @@ interface StartButtonProps {
 }
 
 const StartButton: React.FC<StartButtonProps> = ({ label, isActive, buttonRef, onClick }) => {
-  const localized = label !== 'Start';
-  const windowsLogo = useOSTheme().assets.startButton.logo;
+  const startButton = useOSTheme().assets.startButton;
+  const localized = label !== 'Start' || !startButton;
+  const windowsLogo = startButton?.logo;
 
   return (
     <StartButtonContainer
@@ -92,7 +93,7 @@ const StartButton: React.FC<StartButtonProps> = ({ label, isActive, buttonRef, o
     >
       {localized && (
         <>
-          <StartLogo src={windowsLogo} alt="" draggable={false} />
+          {windowsLogo && <StartLogo src={windowsLogo} alt="" draggable={false} />}
           <StartText>{label}</StartText>
         </>
       )}

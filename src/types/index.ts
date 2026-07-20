@@ -1,4 +1,5 @@
 import type { ContentRef } from '../content/types';
+import type { AppMenu, AppRole } from '../os/contract';
 
 // ============================================================
 // Common types
@@ -311,6 +312,12 @@ export interface AppRegistryEntry<TProps = unknown> {
   defaultWindowProps?: Record<string, unknown>;
   lifecycle?: AppLifecycle;
   associations?: AppAssociation[];
+  /** Semantic role used by an OS package to map content to an implementation. */
+  role?: AppRole;
+  /** Declarative commands; the active OS package chooses their menu surface. */
+  menus?: AppMenu[];
+  /** Runtime command sink for declarative menus; never persisted. */
+  onMenuCommand?: (commandId: string, windowId: string) => void;
   restore: (props: TProps) => React.ReactNode;
 }
 

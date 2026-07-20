@@ -22,7 +22,32 @@ working; each entry below maps to a page on the docs site.
 
 - [Embedding in a host app](https://eric.run.place/windows-xp/docs/guide/embedding) — `mode="embedded"`, storage isolation, persistence, campaign skinning.
 - [SSR / Next.js](https://eric.run.place/windows-xp/docs/guide/ssr) — the `ssr: false` dynamic import; verified consumption.
-- [Subpath imports & standalone primitives](https://eric.run.place/windows-xp/docs/guide/subpaths) — `@caoergou/windows-xp/components|apps|hooks|theme|registry`.
+- [Subpath imports & standalone primitives](https://eric.run.place/windows-xp/docs/guide/subpaths) — `@caoergou/windows-xp/components|apps|hooks|theme|registry|os`.
+
+## Select or author an OS package
+
+`theme` remains available for skin-only overrides. Use `os` when the machine's
+chrome and behavior must change together:
+
+```tsx
+import { WindowsXP } from '@caoergou/windows-xp';
+import { paperOS } from '@caoergou/windows-xp/os';
+
+export function Demo() {
+  return <WindowsXP os={paperOS} />;
+}
+```
+
+Create a package with `defineOS({ id, name, theme, chrome, behavior,
+conventions, appRoles })`. Chrome slots are required; behavior is a closed set
+of documented enum decisions rather than arbitrary engine callbacks. XP remains
+the default (`xpOS`), so existing consumers do not need to set either prop.
+
+Apps may declare `role` and `menus` through `defineApp`. Menu definitions are
+command data; `onMenuCommand` is the runtime command sink. The active OS decides
+whether that data renders in the window or a global menu bar. Content can refer
+to an implementation indirectly with `appRoleRef('editor')`.
+
 - [Styling](https://eric.run.place/windows-xp/docs/guide/styling) · [Performance](https://eric.run.place/windows-xp/docs/guide/performance) · [Troubleshooting](https://eric.run.place/windows-xp/docs/guide/troubleshooting)
 
 ## Reference

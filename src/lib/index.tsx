@@ -9,6 +9,7 @@ import type { WallpaperItem } from '../data/wallpapers';
 import type { XPEventListener } from '../events';
 import type { XPHandle } from '../components/XPBridge';
 import type { OSTheme } from '../themes/contract';
+import type { OSPackage } from '../os/contract';
 import type { Scenario } from '../scenario/types';
 import type { ContentPack } from '../content/types';
 import type { Lesson } from '../lesson/types';
@@ -191,6 +192,11 @@ export interface WindowsXPProps {
    * so existing usage is unchanged.
    */
   theme?: OSTheme;
+  /**
+   * Complete operating-system package (#213). Defaults to `xpOS`; changing it
+   * replaces the theme, chrome slots, behavior, conventions and app-role map.
+   */
+  os?: OSPackage;
 }
 
 /**
@@ -248,6 +254,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     devtools,
     onEvent,
     theme,
+    os,
   },
   ref
 ) {
@@ -285,6 +292,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       devtools={devtools}
       onEvent={onEvent}
       theme={theme}
+      os={os}
       handleRef={ref}
       disableContextMenuBlock={disableContextMenuBlock ?? embedded}
       disableDevToolsBlock={disableDevToolsBlock ?? embedded}
@@ -335,9 +343,24 @@ export { usePrintSpooler } from '../context/PrintSpoolerContext';
 export { useApp } from '../hooks/useApp';
 // #213 B1 — OS theme seam: the XP theme, its contract, and the runtime accessor.
 export { xpTheme } from '../themes/xp';
+export { xpOS } from '../themes/xp/os';
+export { paperOS, paperTheme } from '../themes/paper';
+export { defineOS } from '../os/defineOS';
+export { useOSPackage, useOptionalOSPackage, OSPackageProvider } from '../os/OSPackageContext';
+export { appRoleRef, resolveAppRole } from '../os/appRoles';
 export { useOSTheme } from '../themes/useOSTheme';
 export { mountThemeCss } from '../themes/mountThemeCss';
 export type { OSTheme } from '../themes/contract';
+export type {
+  OSPackage,
+  BehaviorProfile,
+  ChromeSlots,
+  OSConventions,
+  AppRole,
+  AppRoleMap,
+  AppMenu,
+  AppMenuItem,
+} from '../os/contract';
 
 // Re-export commonly used types.
 export type {

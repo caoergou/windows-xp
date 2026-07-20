@@ -9,16 +9,21 @@
 > (game derivation), `USE-CASES.md` (scenario derivation). Prerequisite issue:
 > #135 (theme seams). This document goes one level above #135.
 
+> **Implementation status (#213):** the runtime `OSPackage` contract, XP chrome
+> binding, closed behavior profile, data-menu authoring path, app roles,
+> `defineOS()` and the original `paperOS` dogfood package are implemented. XP
+> remains the default and the historical-fidelity baseline.
+
 ## 1. The central insight: an OS style is not a theme
 
-#135 correctly handles the *visual* layer (tokens, CSS sheets, asset
+#135 correctly handles the _visual_ layer (tokens, CSS sheets, asset
 registries). But a different OS is not a reskin — it differs on three levels:
 
-| Level | Example differences | What it demands |
-|---|---|---|
-| **Skin** (colors, textures, fonts, sounds, cursors) | Luna gradients vs Aero glass vs Aqua brushed metal | #135's token/asset indirection — solved there |
-| **Layout** (which shell surfaces exist and where) | Taskbar+Start vs Dock+global menu bar; window buttons right vs **left**; system tray vs menu extras | **Chrome slots**: pluggable components for window decoration, shell bars, launcher |
-| **Behavior** (how the system *acts*) | XP minimize→taskbar button vs macOS minimize→Dock genie; maximize vs macOS "zoom"; in-window menus vs **global menu bar**; Ctrl vs **Cmd**; modal dialogs vs macOS **sheets** | **Behavior profile**: engine hooks for focus/minimize/menu/dialog/keyboard semantics |
+| Level                                               | Example differences                                                                                                                                                           | What it demands                                                                      |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Skin** (colors, textures, fonts, sounds, cursors) | Luna gradients vs Aero glass vs Aqua brushed metal                                                                                                                            | #135's token/asset indirection — solved there                                        |
+| **Layout** (which shell surfaces exist and where)   | Taskbar+Start vs Dock+global menu bar; window buttons right vs **left**; system tray vs menu extras                                                                           | **Chrome slots**: pluggable components for window decoration, shell bars, launcher   |
+| **Behavior** (how the system _acts_)                | XP minimize→taskbar button vs macOS minimize→Dock genie; maximize vs macOS "zoom"; in-window menus vs **global menu bar**; Ctrl vs **Cmd**; modal dialogs vs macOS **sheets** | **Behavior profile**: engine hooks for focus/minimize/menu/dialog/keyboard semantics |
 
 The acid test is the **macOS global menu bar**: menus don't live in the window.
 Any architecture that can't move an app's menus out of its window frame is a
@@ -28,13 +33,13 @@ theme system, not an OS platform.
 
 The project has independently evolved four package-shaped extension points:
 
-- **Culture package** (#77/#129): *what content* is on the machine
-- **Scenario package** (#84): *what story* the machine tells
-- **Lesson package** (#141): *what the machine teaches*
-- **Theme** (#135): *what the machine looks like*
+- **Culture package** (#77/#129): _what content_ is on the machine
+- **Scenario package** (#84): _what story_ the machine tells
+- **Lesson package** (#141): _what the machine teaches_
+- **Theme** (#135): _what the machine looks like_
 
-The platform move is to complete the set with the **OS package** — *what
-machine it is* — and make the engine a pure runtime that consumes all five:
+The platform move is to complete the set with the **OS package** — _what
+machine it is_ — and make the engine a pure runtime that consumes all five:
 
 ```
 Engine (window manager, FS, events, storage, scenario/lesson runtimes, registries)
@@ -47,36 +52,40 @@ Engine (window manager, FS, events, storage, scenario/lesson runtimes, registrie
 
 ```ts
 interface OSPackage {
-  id: string;                    // 'xp' | 'win7' | 'aqua-like' | 'hypn-os' | …
-  theme: ThemeSpec;              // #135: tokens, scoped CSS sheet, asset registry, cursors, fonts
-  chrome: {                      // LAYOUT-level slots (React components)
-    WindowDecoration;            // title bar, buttons (side, order, semantics), borders
+  id: string; // 'xp' | 'win7' | 'aqua-like' | 'hypn-os' | …
+  theme: ThemeSpec; // #135: tokens, scoped CSS sheet, asset registry, cursors, fonts
+  chrome: {
+    // LAYOUT-level slots (React components)
+    WindowDecoration; // title bar, buttons (side, order, semantics), borders
     shellSurfaces: ShellSurface[]; // taskbar / dock / global menu bar / side panels — each with position + role
-    Launcher;                    // Start menu / Dock grid / app menu
-    SystemDialogs;               // alert/confirm chrome; sheets vs floating
-    BootScreen; LoginScreen;     // (subsumes #139's branding at the package level)
+    Launcher; // Start menu / Dock grid / app menu
+    SystemDialogs; // alert/confirm chrome; sheets vs floating
+    BootScreen;
+    LoginScreen; // (subsumes #139's branding at the package level)
   };
-  behavior: BehaviorProfile;     // BEHAVIOR-level hooks (data + strategy fns, not free React):
-                                 //  menuModel: 'in-window' | 'global-bar'
-                                 //  minimizeTarget: 'shell-button' | 'dock-icon'
-                                 //  maximizeSemantics: 'fill' | 'zoom'
-                                 //  primaryModifier: 'ctrl' | 'meta'   (feeds #132 keymap)
-                                 //  windowAnimations, focusRules, dialogModality
-  sounds: SoundScheme;           // event→audio map behind the existing soundManager names
-  conventions: {                 // world-shape rules
+  behavior: BehaviorProfile; // BEHAVIOR-level hooks (data + strategy fns, not free React):
+  //  menuModel: 'in-window' | 'global-bar'
+  //  minimizeTarget: 'shell-button' | 'dock-icon'
+  //  maximizeSemantics: 'fill' | 'zoom'
+  //  primaryModifier: 'ctrl' | 'meta'   (feeds #132 keymap)
+  //  windowAnimations, focusRules, dialogModality
+  sounds: SoundScheme; // event→audio map behind the existing soundManager names
+  conventions: {
+    // world-shape rules
     pathStyle: 'drive' | 'unix'; // C:\ vs /Users — FS stays one tree; this is presentation+CMD dialect
     terminalDialect?: 'cmd' | 'sh-like';
-    defaultWallpaper; iconSizes;
+    defaultWallpaper;
+    iconSizes;
   };
-  appRoles?: Partial<RoleMap>;   // role → implementation: files→Explorer|Finder-like, editor→Notepad|TextEdit-like…
-  fidelity?: string;             // pointer to this package's own FIDELITY-style baseline doc
+  appRoles?: Partial<RoleMap>; // role → implementation: files→Explorer|Finder-like, editor→Notepad|TextEdit-like…
+  fidelity?: string; // pointer to this package's own FIDELITY-style baseline doc
 }
 ```
 
 ### Two engine refactors this forces (worth doing regardless)
 
 1. **Menus become data.** Apps currently render `XPMenuBar` themselves. For a
-   global-menu-bar OS, apps must *declare* menus (`menus: MenuSpec` via
+   global-menu-bar OS, apps must _declare_ menus (`menus: MenuSpec` via
    `defineApp`, #128) and the OS package decides where/how to render them.
    Side benefits are large even for XP-only: menu items become lesson anchors
    (#141), scenario-inspectable (#84), keyboard-accessible (#124, KBD-05 Alt
@@ -85,13 +94,13 @@ interface OSPackage {
    `browser`, `terminal`, `media`) so cultures/scenarios/lessons reference
    roles, not concrete app ids, and an OS package maps roles to
    implementations. Apps built purely from primitives + tokens inherit the OS
-   look automatically; *signature* apps (Finder vs Explorer) are per-OS
+   look automatically; _signature_ apps (Finder vs Explorer) are per-OS
    implementations sharing the engine-side logic (FS hooks, window plumbing).
 
 ## 3. Honest hard problems
 
 - **Fidelity is the brand — and it doesn't scale for free.** The project's
-  soul is that XP feels *real* (FIDELITY.md). Every official OS package needs
+  soul is that XP feels _real_ (FIDELITY.md). Every official OS package needs
   its own fidelity baseline doc and visual-regression suite; that's the real
   cost of each official OS, far beyond the CSS. Rule: **official packages are
   few and deep; community packages set their own bar.**
@@ -120,7 +129,7 @@ differentiated one** — and every prior derivation in this repo points at it:
   strongest form of the "2007 county-town" concept.
 - **Marketing (S3)**: "BrandCorp OS" is a stronger campaign than a reskinned
   XP (#139 branding is the entry drug; an OS package is the full experience).
-- **Teaching (S5)**: lessons on a neutral fictional OS teach *concepts*
+- **Teaching (S5)**: lessons on a neutral fictional OS teach _concepts_
   (files, windows, installing) without brand baggage — relevant for digital
   literacy curricula.
 - **Community**: `defineOS()` completes the `defineApp`/`defineCulture`/
@@ -131,18 +140,18 @@ differentiated one** — and every prior derivation in this repo points at it:
 
 - **Phase A — seams (= #135, already filed).** `themes/xp/` consolidation,
   token indirection, asset registries, engine-purity CI. No behavior change.
-- **Phase B — the shell contract.** Define `OSPackage`/`BehaviorProfile`
+- **Phase B — the shell contract (done in #213).** Define `OSPackage`/`BehaviorProfile`
   types; carve chrome slots (WindowDecoration, shell surfaces, Launcher,
   SystemDialogs, Boot/Login); **menus-as-data**; app roles. XP becomes the
-  first OS package and the engine consumes it *exclusively through the
-  contract* (dogfood proof; visual suite must stay green pixel-for-pixel).
+  first OS package and the engine consumes it _exclusively through the
+  contract_ (dogfood proof; visual suite must stay green pixel-for-pixel).
 - **Phase C — second official package to validate the contract.** Recommend
   **Win98 or Win7** first (98.css/7.css exist in the same class-convention
   family; shell model is structurally close — validates skin+chrome cheaply),
   and only then an **Aqua-like** (validates the hard parts: global menu bar,
   dock, left-side buttons, sheets, Cmd). Each ships with its own fidelity doc
-  + visual baselines.
-- **Phase D — `defineOS()` and the fantasy path.** Authoring factory +
+  - visual baselines.
+- **Phase D — `defineOS()` and the fantasy path (contract dogfood done in #213).** Authoring factory +
   validation + docs + a small **original fictional OS** as the reference
   package (doubles as the official puzzle-game's OS). Community packages
   become possible; the marketplace story (packages referencing packages)

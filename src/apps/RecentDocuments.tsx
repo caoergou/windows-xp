@@ -6,6 +6,8 @@ import { useWindowManager } from '../context/WindowManagerContext';
 import { useFileSystem } from '../context/FileSystemContext';
 import { resolveFileOpen } from '../registry/apps';
 import { resolveOSTheme } from '../themes/useOSTheme';
+import { useOptionalOSPackage } from '../os/OSPackageContext';
+import { useAppRegistry } from '../context/AppRegistryContext';
 
 const Table = styled.div`
   height: 100%;
@@ -36,6 +38,8 @@ const RecentDocuments: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { getFile } = useFileSystem();
   const { openWindow } = useWindowManager();
+  const os = useOptionalOSPackage();
+  const { registry } = useAppRegistry();
   return (
     <Table role="list">
       {entries.map(entry => (
@@ -44,7 +48,12 @@ const RecentDocuments: React.FC = () => {
           onDoubleClick={() => {
             const node = getFile(entry.path);
             if (!node) return;
-            const resolved = resolveFileOpen(entry.path[entry.path.length - 1] ?? node.name, node);
+            const resolved = resolveFileOpen(
+              entry.path[entry.path.length - 1] ?? node.name,
+              node,
+              os?.appRoles,
+              registry
+            );
             if (!resolved) return;
             openWindow(resolved.appId, node.name, resolved.component, resolved.icon, {
               ...resolved.windowProps,

@@ -178,6 +178,8 @@ export interface DispatchContext {
 
 export interface KeymapOptions {
   isMac?: boolean;
+  /** Explicit OS-package modifier for `Mod`; takes precedence over host detection. */
+  primaryModifier?: 'ctrl' | 'meta';
   /** Per-id overrides: a new combo string, or `null` to disable that binding. */
   overrides?: Record<string, string | null>;
   /** Disable every `scope: 'global'` binding (sugar for the `disableGlobalShortcuts` prop). */
@@ -204,7 +206,9 @@ export class Keymap {
   private warn: boolean;
 
   constructor(opts: KeymapOptions = {}) {
-    this.isMac = opts.isMac ?? detectIsMac();
+    this.isMac = opts.primaryModifier
+      ? opts.primaryModifier === 'meta'
+      : (opts.isMac ?? detectIsMac());
     this.overrides = opts.overrides ?? {};
     this.disableGlobal = opts.disableGlobalShortcuts ?? false;
     this.warn = opts.warnOnConflict ?? import.meta.env?.DEV ?? false;

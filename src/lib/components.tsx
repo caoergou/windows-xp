@@ -11,6 +11,7 @@ export { default as WindowControls } from '../components/Window/WindowControls';
 export { default as ResizableWrapper } from '../components/Window/ResizableWrapper';
 export { default as Desktop } from '../components/Desktop';
 export { default as Taskbar } from '../components/Taskbar';
+export { default as OSMenuBar } from '../components/OSMenuBar';
 export { default as StartButton } from '../components/Taskbar/StartButton';
 export { default as StartMenu } from '../components/Taskbar/StartMenu';
 export { default as TaskList } from '../components/Taskbar/TaskList';

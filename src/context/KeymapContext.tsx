@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef } from 'react';
 import { useWindowManager } from './WindowManagerContext';
 import { Keymap, isTextEntryElement, isInsideWindow, type ShortcutSpec } from '../utils/keymap';
+import type { PrimaryModifier } from '../os/contract';
 
 /**
  * Keymap wiring (#132).
@@ -23,15 +24,24 @@ export const KeymapProvider: React.FC<{
   keymap?: Record<string, string | null>;
   /** Disable every `global`-scope binding. */
   disableGlobalShortcuts?: boolean;
+  /** OS-package primary modifier used by `Mod` bindings. */
+  primaryModifier?: PrimaryModifier;
   children: React.ReactNode;
-}> = ({ keymap, disableGlobalShortcuts, children }) => {
+}> = ({ keymap, disableGlobalShortcuts, primaryModifier, children }) => {
   const { windows, activeWindowId } = useWindowManager();
+  const initialKeymapRef = useRef(keymap);
+  const initialDisableGlobalShortcutsRef = useRef(disableGlobalShortcuts);
 
   const km = useMemo(
-    () => new Keymap({ overrides: keymap ?? {}, disableGlobalShortcuts: !!disableGlobalShortcuts }),
-    // The instance is created once; overrides/flags are pushed in via effects below.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    () =>
+      new Keymap({
+        overrides: initialKeymapRef.current ?? {},
+        disableGlobalShortcuts: !!initialDisableGlobalShortcutsRef.current,
+        primaryModifier,
+      }),
+    // Recreate only when the OS-level meaning of `Mod` changes. Overrides and
+    // host flags are pushed into the current instance via effects below.
+    [primaryModifier]
   );
 
   useEffect(() => {

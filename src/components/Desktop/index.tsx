@@ -5,8 +5,8 @@ import { useFileSystem } from '../../context/FileSystemContext';
 import { useXPEventBus } from '../../context/EventBusContext';
 import { useWindowManager } from '../../context/WindowManagerContext';
 import { useUserSession } from '../../context/UserSessionContext';
-import Taskbar from '../Taskbar';
 import Window from '../Window';
+import Taskbar from '../Taskbar';
 import ErrorBoundary from '../ErrorBoundary';
 import ContextMenu from '../ContextMenu';
 import LessonOverlay from '../LessonOverlay';
@@ -28,6 +28,9 @@ import { useTapGestures } from '../../hooks/useTapGestures';
 import { useMultiSelect } from '../../hooks/useMultiSelect';
 import { useShortcut } from '../../context/KeymapContext';
 import { useOSTheme } from '../../themes/useOSTheme';
+import { useOptionalOSPackage } from '../../os/OSPackageContext';
+import { useAppRegistry } from '../../context/AppRegistryContext';
+import OSMenuBar from '../OSMenuBar';
 
 const Desktop: React.FC = () => {
   const { t } = useTranslation();
@@ -46,10 +49,15 @@ const Desktop: React.FC = () => {
     clipboard,
   } = useFileSystem();
   const rootChildren = (fs.root as RootNode).children;
-  const { windows, openWindow } = useWindowManager();
+  const { windows, activeWindowId, openWindow } = useWindowManager();
   const bus = useXPEventBus();
   const { showModal, showConfirm, showInput } = useModal();
   const osTheme = useOSTheme();
+  const os = useOptionalOSPackage();
+  const { registry } = useAppRegistry();
+  const activeWindow = windows.find(window => window.id === activeWindowId);
+  const activeApp = activeWindow ? registry?.[activeWindow.appId] : undefined;
+  const Launcher = os?.chrome.Launcher;
 
   const [contextMenu, setContextMenu] = useState<{
     visible: boolean;
@@ -99,7 +107,7 @@ const Desktop: React.FC = () => {
       bus.emit({ type: 'link:external', url: item.href, newTab, source: key });
       return;
     }
-    const resolved = resolveFileOpen(key, item);
+    const resolved = resolveFileOpen(key, item, os?.appRoles, registry);
     bus.emit({
       type: 'file:open',
       path: [key],
@@ -582,6 +590,12 @@ const Desktop: React.FC = () => {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+      {os?.behavior.menuModel === 'global-bar' && activeWindow && activeApp?.menus && (
+        <OSMenuBar
+          menus={activeApp.menus}
+          onCommand={commandId => activeApp.onMenuCommand?.(commandId, activeWindow.id)}
+        />
+      )}
       <IconGrid key={refreshKey} style={{ opacity: isRefreshing ? 0 : 1 }}>
         {Object.entries(desktopItems || {}).map(([key, item]: [string, FileNode]) => {
           const iconName =
@@ -681,7 +695,14 @@ const Desktop: React.FC = () => {
 
       <LessonOverlay />
 
-      <Taskbar />
+      {os ? (
+        os.chrome.shellSurfaces.map((ShellSurface, index) => (
+          <ShellSurface key={`${os.id}-shell-${index}`} />
+        ))
+      ) : (
+        <Taskbar />
+      )}
+      {Launcher && <Launcher />}
 
       <ContextMenu
         visible={contextMenu.visible}

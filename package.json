@@ -52,6 +52,11 @@
       "import": "./dist/registry.es.js",
       "require": "./dist/registry.cjs.js"
     },
+    "./os": {
+      "types": "./dist/os.d.ts",
+      "import": "./dist/os.es.js",
+      "require": "./dist/os.cjs.js"
+    },
     "./schema/scenario.json": "./schema/scenario.json",
     "./schema/content-pack.json": "./schema/content-pack.json",
     "./package.json": "./package.json"

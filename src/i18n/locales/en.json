@@ -401,6 +401,9 @@
     "incorrectPassword": "Incorrect password",
     "forgotPasswordHint": "Forgot password? View README"
   },
+  "paperOS": {
+    "name": "Paper OS"
+  },
   "shutdown": {
     "title": "Turn off computer",
     "message": "What do you want the computer to do?",
