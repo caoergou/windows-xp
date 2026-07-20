@@ -327,6 +327,11 @@ describe('scenario-tools', () => {
     expect(source).toContain('class="preview-shield"');
     expect(source).toContain("type: 'studio-preview-exit'");
     expect(source).toContain('flagChanges');
+    expect(source).toContain('EVENT_FORMS');
+    expect(source).toContain('injectedHistory');
+    expect(source).toContain('personaTranscript');
+    expect(source).toContain('vscode://file');
+    expect(source).toContain('Shipping blocked');
     expect(source).not.toContain('import * as authoredModule');
   });
 });

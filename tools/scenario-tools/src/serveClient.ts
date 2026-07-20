@@ -51,6 +51,9 @@ let canvasMode = 'preview';
 let connectionState = 'connecting';
 let previewReturnTarget = null;
 let mapZoom = 1;
+const pendingAuthoring = new Map();
+const injectedHistory = [];
+const personaTranscript = [];
 const TASK_TOOLS = {
   build: [['problems', 'Problems'], ['map', 'Story map']],
   rehearse: [['timeline', 'Timeline'], ['events', 'Events'], ['personas', 'Personas']],
@@ -67,6 +70,7 @@ const escapeHtml = value => String(value ?? '')
 const command = value => {
   const id = 'ui-' + ++requestSequence;
   const message = { type: 'authoring-command', id, protocolVersion: 1, command: value };
+  pendingAuthoring.set(id, value);
   if (isPreviewFrame) send(message);
   else document.querySelector('#desktop-frame')?.contentWindow?.postMessage({ type: 'studio-command', message }, window.location.origin);
 };
@@ -126,7 +130,7 @@ const timelineContent = snapshot => {
     const position = index + 1;
     const state = rehearsal?.active ? (position < current ? 'complete' : position === current ? 'current' : 'upcoming') : 'idle';
     const changes = [
-      ...(step?.fired ?? []).map(value => '<span><b>Triggered</b> ' + escapeHtml(value) + '</span>'),
+      ...(step?.fired ?? []).map(value => '<span><b>Triggered</b> <button class="text-action" data-related-node="' + escapeHtml(value) + '">' + escapeHtml(value) + '</button></span>'),
       ...(step?.flagChanges ?? []).map(value => '<span><b>Flag</b> ' + escapeHtml(value.flag) + ': ' + escapeHtml(JSON.stringify(value.before)) + ' → ' + escapeHtml(JSON.stringify(value.after)) + '</span>'),
       ...(step?.actions ?? []).map(value => '<span><b>Action</b> ' + escapeHtml(actionSummary(value)) + '</span>'),
     ];
@@ -135,10 +139,48 @@ const timelineContent = snapshot => {
   const positionLabel = rehearsal?.active ? 'Rehearsing · ' + Math.max(0, current) + '/' + rehearsal.length : 'Not rehearsing';
   return '<div class="timeline-status"><strong>' + positionLabel + '</strong><span>Seek or step through the canonical tape</span></div><div class="toolbar"><button data-command="step-back">← Step</button><button data-command="step-forward">Step →</button><button data-command="exit">Exit rehearsal</button><button class="danger-action" data-command="reset">Reset desktop</button></div><ol class="timeline">' + rows + '</ol><p class="notice">Delayed actions collapse during rehearsal; non-filesystem UI state is not reconstructed pixel-exactly.</p>';
 };
+const diagnosticCard = item => {
+  const position = item.range?.start;
+  const location = item.source ? item.source + (position ? ':' + position.line + ':' + position.column : '') : '';
+  const editor = item.source && position ? 'vscode://file' + item.source + ':' + position.line + ':' + position.column : '';
+  return '<article class="diagnostic diagnostic--' + item.level + '"><strong>' + escapeHtml(item.code) + '</strong><span>' + escapeHtml(item.message) + '</span><code>' + escapeHtml(item.path ?? '') + '</code>' + (location ? '<small>' + escapeHtml(location) + '</small><div class="source-actions"><button data-copy-source="' + escapeHtml(location) + '">Copy location</button>' + (item.path ? '<button data-related-node="' + escapeHtml(item.path) + '">Show related</button>' : '') + (editor ? '<a href="' + escapeHtml(editor) + '">Open in VS Code</a>' : '<span>Exact source range unavailable for this export.</span>') + '</div>' : '') + (item.help ? '<small>' + escapeHtml(item.help) + '</small>' : '') + '</article>';
+};
+const EVENT_FORMS = {
+  'file:open': [['path', 'File path', 'path'], ['name', 'File name', 'text'], ['nodeType', 'Node type', 'text']],
+  'file:unlock': [['name', 'File name', 'text']],
+  'ie:navigate': [['url', 'URL', 'text']],
+  'notification:click': [['id', 'Notification id', 'text']],
+  'cmd:exec': [['command', 'Command', 'text']],
+  'qq:message': [['buddyId', 'Buddy', 'buddy'], ['direction', 'Direction', 'direction'], ['text', 'Message', 'text']],
+  'qq:reply': [['buddyId', 'Buddy', 'buddy'], ['text', 'Reply', 'text']],
+};
+const eventFields = (type, snapshot) => {
+  const fields = EVENT_FORMS[type] ?? [];
+  if (!fields.length) return '<p class="notice">This event has no guided fields. Inject it directly or use Advanced JSON when its payload requires additional data.</p>';
+  return fields.map(([name, label, kind]) => {
+    if (kind === 'buddy') return '<label>' + label + '<select data-event-field="' + name + '">' + snapshot.buddies.map(value => '<option value="' + escapeHtml(value.id) + '">' + escapeHtml(value.id) + '</option>').join('') + '</select></label>';
+    if (kind === 'direction') return '<label>' + label + '<select data-event-field="' + name + '"><option>incoming</option><option>outgoing</option></select></label>';
+    return '<label>' + label + '<input data-event-field="' + name + '" data-field-kind="' + kind + '" placeholder="' + (kind === 'path' ? 'folder/file.txt' : label) + '" required></label>';
+  }).join('');
+};
+const eventHistory = () => injectedHistory.length ? '<div class="event-history"><h3>Recent injections</h3>' + injectedHistory.slice(-5).reverse().map(item => '<button data-replay-event="' + encodeURIComponent(JSON.stringify(item)) + '"><code>' + escapeHtml(item.type) + '</code><span>' + escapeHtml(JSON.stringify(item).slice(0, 90)) + '</span></button>').join('') + '</div>' : '<p class="notice">Injected events will appear here for quick replay.</p>';
+const personaContent = snapshot => snapshot.buddies.length ? snapshot.buddies.map(item => {
+  const transcript = personaTranscript.filter(entry => entry.buddy === item.id).slice(-4);
+  return '<article class="buddy"><div class="buddy-heading"><strong>' + escapeHtml(item.id) + '</strong><span>Offline fallback ' + (item.hasFallback ? 'ready' : 'missing') + '</span></div><label>Message<textarea data-persona-message="' + escapeHtml(item.id) + '" rows="2" placeholder="Write a rehearsal message…"></textarea></label><div class="persona-modes"><button data-chat="mock" data-buddy="' + escapeHtml(item.id) + '">Mock</button><button data-chat="offline" data-buddy="' + escapeHtml(item.id) + '" ' + (item.hasFallback ? '' : 'disabled') + '>Offline</button><button data-chat="provider" data-buddy="' + escapeHtml(item.id) + '" ' + (item.hasProvider ? '' : 'disabled') + '>Provider</button></div>' + (transcript.length ? '<div class="transcript">' + transcript.map(entry => '<div><span class="provenance">' + escapeHtml(entry.mode) + '</span><p><b>You</b> ' + escapeHtml(entry.message) + '</p><p><b>' + escapeHtml(item.id) + '</b> ' + escapeHtml(entry.response ?? entry.error) + '</p></div>').join('') + '</div>' : '<p class="notice">Run a mode to compare authored responses.</p>') + '</article>';
+}).join('') : '<div class="empty-state"><strong>No authored personas.</strong><span>Add a buddy profile with a deterministic fallback to rehearse conversations here.</span></div>';
+const shippingContent = snapshot => {
+  const report = snapshot.pack.result;
+  if (!report) return '<div class="empty-state"><strong>No pack report available.</strong><span>Open a ContentPack input to inspect assets and shipping budgets.</span></div>';
+  const percent = Math.min(100, Math.round(report.scenarioBytes / report.scenarioLimitBytes * 100));
+  const displayPercent = percent === 0 && report.scenarioBytes > 0 ? '&lt;1' : String(percent);
+  const blockers = [['Lint', snapshot.lint], ['Solve', snapshot.solve], ['Pack', snapshot.pack]].filter(([, value]) => value.status === 'fail');
+  const assets = [...report.assets].sort((a, b) => (b.bytes ?? -1) - (a.bytes ?? -1));
+  return '<div class="ship-summary"><div><span>Scenario budget</span><strong>' + report.scenarioBytes + ' / ' + report.scenarioLimitBytes + ' B</strong></div><div class="budget"><i style="width:' + Math.max(1, percent) + '%"></i></div><small>' + displayPercent + '% used · packed total ' + report.totalBytes + ' B</small></div>' + (blockers.length ? '<div class="ship-blockers"><strong>Shipping blocked</strong>' + blockers.map(([name]) => '<span>' + name + ' gate failed</span>').join('') + '</div>' : '<div class="ship-ready"><strong>All shipping gates pass.</strong><span>Review the largest assets before publishing.</span></div>') + '<div class="asset-heading"><h3>Largest assets</h3><span>' + assets.length + ' declared</span></div>' + assets.map((item, index) => '<div class="asset"><b>' + (index + 1) + '</b><code>' + escapeHtml(item.key) + '</code><span>' + escapeHtml(item.source) + '</span><strong>' + escapeHtml(item.bytes ?? 'remote') + (item.bytes === null ? '' : ' B') + '</strong></div>').join('');
+};
 const toolContent = (name, snapshot) => {
   if (name === 'problems') {
     const items = snapshot.lint.result?.diagnostics ?? [];
-    return '<div class="gate-row">Lint ' + gate(snapshot.lint) + ' Solve ' + gate(snapshot.solve) + ' Pack ' + gate(snapshot.pack) + '</div>' + (items.length ? items.map(item => '<article class="diagnostic diagnostic--' + item.level + '"><strong>' + escapeHtml(item.code) + '</strong><span>' + escapeHtml(item.message) + '</span><code>' + escapeHtml(item.path ?? '') + '</code>' + (item.help ? '<small>' + escapeHtml(item.help) + '</small>' : '') + '</article>').join('') : '<div class="empty-state"><strong>The draft is structurally clean.</strong><span>Open Story map to inspect pacing and dependencies, or move to Rehearse to verify the player path.</span><button data-open-tool="map">Open Story map</button></div>');
+    return '<div class="gate-row">Lint ' + gate(snapshot.lint) + ' Solve ' + gate(snapshot.solve) + ' Pack ' + gate(snapshot.pack) + '</div>' + (items.length ? items.map(diagnosticCard).join('') : '<div class="empty-state"><strong>The draft is structurally clean.</strong><span>Open Story map to inspect pacing and dependencies, or move to Rehearse to verify the player path.</span><button data-open-tool="map">Open Story map</button></div>');
   }
   if (name === 'map') return '<div class="context-heading"><span>Selected node</span><strong>' + escapeHtml(selectedNodeId ?? 'None') + '</strong></div><section id="selection-detail" aria-live="polite"><p class="notice">Select a node in the map to inspect its dependencies and rehearsal link.</p></section>';
   if (name === 'timeline') return timelineContent(snapshot);
@@ -147,10 +189,9 @@ const toolContent = (name, snapshot) => {
     const triggers = key ? (snapshot.runtime?.triggers ?? []).filter(item => item.id === key || item.id?.includes(key)) : snapshot.runtime?.triggers;
     return (selectedNodeId ? '<p>Selected graph node: <code>' + escapeHtml(selectedNodeId) + '</code></p>' : '') + '<h3>Trigger conditions</h3><pre>' + escapeHtml(JSON.stringify(triggers ?? { waiting: 'desktop status' }, null, 2)) + '</pre><h3>Recent events</h3><pre>' + escapeHtml(JSON.stringify(snapshot.recentEvents, null, 2)) + '</pre>';
   }
-  if (name === 'events') return '<label>Event type<select id="event-type">' + ${JSON.stringify([...KNOWN_EVENT_TYPES])}.map(value => '<option>' + escapeHtml(value) + '</option>').join('') + '</select></label><label>Payload fields (JSON)<textarea id="event-payload" rows="7">{}</textarea></label><button data-command="emit">Inject event</button><hr><label>Flag<select id="flag-name">' + snapshot.flags.map(value => '<option>' + escapeHtml(value) + '</option>').join('') + '</select></label><label>Temporary value (JSON)<input id="flag-value" value="true"></label><button data-command="flag">Override flag</button>';
-  if (name === 'personas') return snapshot.buddies.length ? snapshot.buddies.map(item => '<article class="buddy"><strong>' + escapeHtml(item.id) + '</strong><span>fallback ' + (item.hasFallback ? 'available' : 'missing') + '</span><div><button data-chat="mock" data-buddy="' + escapeHtml(item.id) + '">Mock</button><button data-chat="offline" data-buddy="' + escapeHtml(item.id) + '" ' + (item.hasFallback ? '' : 'disabled') + '>Offline</button><button data-chat="provider" data-buddy="' + escapeHtml(item.id) + '" ' + (item.hasProvider ? '' : 'disabled') + '>Provider</button></div></article>').join('') : '<p>No authored buddies.</p>';
-  const report = snapshot.pack.result;
-  return report ? '<dl class="shipping"><dt>Logic</dt><dd>' + report.logicBytes + ' B</dd><dt>Scenario</dt><dd>' + report.scenarioBytes + ' / ' + report.scenarioLimitBytes + ' B</dd><dt>Assets</dt><dd>' + report.assetBytes + ' B</dd><dt>Packed total</dt><dd>' + report.totalBytes + ' B</dd></dl><h3>Assets</h3>' + report.assets.map(item => '<div class="asset"><code>' + escapeHtml(item.key) + '</code><span>' + escapeHtml(item.source) + '</span><span>' + escapeHtml(item.bytes ?? 'remote') + '</span></div>').join('') : '<p>Shipping report is only available for content packs.</p>';
+  if (name === 'events') { const initial = 'file:open'; return '<label>Event type<select id="event-type">' + ${JSON.stringify([...KNOWN_EVENT_TYPES])}.map(value => '<option ' + (value === initial ? 'selected' : '') + '>' + escapeHtml(value) + '</option>').join('') + '</select></label><div id="event-fields">' + eventFields(initial, snapshot) + '</div><details><summary>Advanced JSON</summary><label>Additional payload<textarea id="event-payload" rows="5">{}</textarea></label></details><button class="primary-action" data-command="emit">Inject event</button>' + eventHistory() + '<hr><label>Temporary flag<select id="flag-name">' + snapshot.flags.map(value => '<option>' + escapeHtml(value) + '</option>').join('') + '</select></label><label>Value (JSON)<input id="flag-value" value="true"></label><button data-command="flag">Override for rehearsal</button>'; }
+  if (name === 'personas') return personaContent(snapshot);
+  return shippingContent(snapshot);
 };
 const taskContent = snapshot => {
   const tools = TASK_TOOLS[activeTask];
@@ -202,6 +243,31 @@ const selectTool = tool => {
   canvasMode = tool === 'map' ? 'map' : 'preview';
   renderStudio();
 };
+const readGuidedEvent = () => {
+  const type = document.querySelector('#event-type').value;
+  const event = { type };
+  document.querySelectorAll('[data-event-field]').forEach(input => {
+    const value = input.value.trim();
+    if (input.required && !value) throw new Error(input.closest('label').firstChild.textContent + ' is required');
+    if (!value) return;
+    event[input.dataset.eventField] = input.dataset.fieldKind === 'path' ? value.split(/[\\/]/).filter(Boolean) : value;
+  });
+  const advanced = document.querySelector('#event-payload')?.value.trim();
+  if (advanced) Object.assign(event, JSON.parse(advanced));
+  if (type === 'file:open') {
+    event.name ||= event.path?.at(-1) ?? '';
+    event.nodeType ||= 'file';
+  }
+  return event;
+};
+const openRelatedNode = query => {
+  const raw = String(query);
+  const key = (raw.includes('.') ? raw.slice(raw.lastIndexOf('.') + 1) : raw).replaceAll('["', '').replaceAll('"]', '').toLowerCase();
+  const node = currentSnapshot.graph.nodes.find(item => item.id.toLowerCase().includes(key) || item.label.toLowerCase().includes(key));
+  if (!node) { showToast('No related graph node found', true); return; }
+  selectedNodeId = node.id;
+  selectTool('map');
+};
 const bindPanel = () => {
   document.querySelectorAll('[data-command]').forEach(button => button.addEventListener('click', () => {
     const action = button.dataset.command;
@@ -210,7 +276,7 @@ const bindPanel = () => {
     else if (action === 'exit') command({ type: 'exit-rehearsal' });
     else if (action === 'reset') command({ type: 'reset' });
     else if (action === 'emit') {
-      try { command({ type: 'emit', event: { type: document.querySelector('#event-type').value, ...JSON.parse(document.querySelector('#event-payload').value) } }); }
+      try { const event = readGuidedEvent(); injectedHistory.push(event); command({ type: 'emit', event }); }
       catch (error) { showToast(error.message, true); }
     } else if (action === 'flag') {
       try { command({ type: 'flag-set', flag: document.querySelector('#flag-name').value, value: JSON.parse(document.querySelector('#flag-value').value) }); }
@@ -220,7 +286,16 @@ const bindPanel = () => {
   document.querySelectorAll('[data-seek]').forEach(button => button.addEventListener('click', () => command({ type: 'seek', beat: button.dataset.seek })));
   document.querySelectorAll('[data-tool]').forEach(button => button.addEventListener('click', () => selectTool(button.dataset.tool)));
   document.querySelectorAll('[data-open-tool]').forEach(button => button.addEventListener('click', () => selectTool(button.dataset.openTool)));
-  document.querySelectorAll('[data-chat]').forEach(button => button.addEventListener('click', () => command({ type: 'chat-rehearse', buddy: button.dataset.buddy, message: 'Hello', mode: button.dataset.chat })));
+  document.querySelector('#event-type')?.addEventListener('change', event => { document.querySelector('#event-fields').innerHTML = eventFields(event.target.value, currentSnapshot); });
+  document.querySelectorAll('[data-replay-event]').forEach(button => button.addEventListener('click', () => { const event = JSON.parse(decodeURIComponent(button.dataset.replayEvent)); injectedHistory.push(event); command({ type: 'emit', event }); }));
+  document.querySelectorAll('[data-copy-source]').forEach(button => button.addEventListener('click', async () => { await navigator.clipboard.writeText(button.dataset.copySource); showToast('Location copied'); }));
+  document.querySelectorAll('[data-related-node]').forEach(button => button.addEventListener('click', () => openRelatedNode(button.dataset.relatedNode)));
+  document.querySelectorAll('[data-chat]').forEach(button => button.addEventListener('click', () => {
+    const input = document.querySelector('[data-persona-message="' + CSS.escape(button.dataset.buddy) + '"]');
+    const message = input.value.trim();
+    if (!message) { showToast('Write a rehearsal message first', true); input.focus(); return; }
+    command({ type: 'chat-rehearse', buddy: button.dataset.buddy, message, mode: button.dataset.chat });
+  }));
   document.querySelectorAll('[data-node]').forEach(node => {
     const select = () => selectGraphNode(node.dataset.node);
     node.addEventListener('click', select);
@@ -409,7 +484,16 @@ if (isPreviewFrame) {
   window.addEventListener('message', event => {
     if (event.origin !== window.location.origin) return;
     if (event.data?.type === 'studio-snapshot') renderWorkbench(event.data.snapshot);
-    else if (event.data?.type === 'studio-result') showToast(event.data.result.ok ? 'Command completed' : event.data.result.error, !event.data.result.ok);
+    else if (event.data?.type === 'studio-result') {
+      const result = event.data.result;
+      const authoredCommand = pendingAuthoring.get(result.id);
+      pendingAuthoring.delete(result.id);
+      if (authoredCommand?.type === 'chat-rehearse') {
+        personaTranscript.push({ buddy: authoredCommand.buddy, message: authoredCommand.message, mode: authoredCommand.mode, ...(result.ok ? { response: result.data?.text ?? '' } : { error: result.error }) });
+        if (activeTool === 'personas') renderStudio();
+      }
+      showToast(result.ok ? 'Command completed' : result.error, !result.ok);
+    }
     else if (event.data?.type === 'studio-connection') {
       connectionState = event.data.state;
       if (currentSnapshot) renderWorkbench(currentSnapshot);
