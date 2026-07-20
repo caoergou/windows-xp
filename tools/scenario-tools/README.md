@@ -15,9 +15,9 @@ npx xp-scenario serve ./scenario.ts
 
 `lint` and `pack` return a non-zero exit code for errors. Warnings remain visible but do not fail CI. `migrate` is diagnostic by default; it writes only when `--write` is explicit, and never guesses a rename. Use `--map-flag old=new` or `--map-trigger old=new` to describe intentional renames.
 
-`serve` starts a browser Scenario Workbench plus a token-protected, loopback-only
+`serve` starts the browser-based **Scenario Studio** plus a token-protected, loopback-only
 WebSocket control channel and preserves the interactive REPL for terminal-first
-authors. The Workbench shows independent lint/solve/pack gates, the existing
+authors. Scenario Studio shows independent lint/solve/pack gates, the existing
 dependency graph, rehearsal controls, runtime state, typed event injection,
 persona modes, and shipping sizes around the live desktop preview. It supports
 deterministic seek/step, event injection, flag/trigger inspection, file hot reload,

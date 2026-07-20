@@ -38,6 +38,7 @@ const scenario = authoredKind === 'graph' ? compilePuzzleGraph(authored) : autho
 if (!scenario) throw new Error('Content pack has no scenario');
 const contentPacks = authoredKind === 'pack' ? [authored] : undefined;
 const controlUrl = ${literal(options.controlUrl)};
+const isPreviewFrame = window.location.pathname === '/preview';
 
 let activeSocket = null;
 let suppressEventStream = 0;
@@ -53,7 +54,9 @@ const escapeHtml = value => String(value ?? '')
   .replaceAll('"', '&quot;').replaceAll("'", '&#039;');
 const command = value => {
   const id = 'ui-' + ++requestSequence;
-  send({ type: 'authoring-command', id, protocolVersion: 1, command: value });
+  const message = { type: 'authoring-command', id, protocolVersion: 1, command: value };
+  if (isPreviewFrame) send(message);
+  else document.querySelector('#desktop-frame')?.contentWindow?.postMessage({ type: 'studio-command', message }, window.location.origin);
 };
 const gate = value => '<span class="gate gate--' + value.status + '">' + value.status + '</span>';
 const renderGraph = graph => {
@@ -149,7 +152,7 @@ const showToast = (message, error = false) => {
   setTimeout(() => { toast.textContent = ''; }, 3500);
 };
 const setupWorkbench = () => {
-  document.querySelector('#root').innerHTML = '<div class="workbench"><header><strong id="input-name">Scenario Workbench</strong><span id="connection-state">Connecting…</span><span id="reload-state"></span><label>Panel width <input id="split-size" type="range" min="320" max="720" value="440"></label><button id="preview-lock">Enable preview interaction</button><button id="full-preview">Full preview</button></header><main><section class="preview"><div class="preview-meta"><label>Viewport <select id="viewport"><option value="100%">Responsive</option><option value="1024px">1024 × 768</option><option value="1280px">1280 × 720</option></select></label></div><div id="desktop-shell" inert><div id="desktop-root"></div></div></section><aside><nav role="tablist">' + ['problems','map','timeline','inspector','events','personas','shipping'].map((name, index) => '<button role="tab" data-panel="' + name + '" aria-selected="' + (index === 0) + '">' + name + '</button>').join('') + '</nav><div id="panel-content"></div></aside></main><div id="toast" class="toast" aria-live="polite"></div></div>';
+  document.querySelector('#root').innerHTML = '<div class="workbench"><header><strong>Scenario Studio</strong><span id="input-name">Untitled scenario</span><span id="connection-state">Connecting…</span><span id="reload-state"></span><label>Panel width <input id="split-size" type="range" min="320" max="720" value="440"></label><button id="preview-lock">Enable preview interaction</button><button id="full-preview">Full preview</button></header><main><section class="preview"><div class="preview-meta"><strong>Preview</strong><label>Viewport <select id="viewport"><option value="100%">Responsive</option><option value="1024px">1024 × 768</option><option value="1280px">1280 × 720</option></select></label></div><div id="desktop-shell" inert><iframe id="desktop-frame" src="/preview" title="Windows XP scenario preview"></iframe></div></section><aside><nav role="tablist">' + ['problems','map','timeline','inspector','events','personas','shipping'].map((name, index) => '<button role="tab" data-panel="' + name + '" aria-selected="' + (index === 0) + '">' + name + '</button>').join('') + '</nav><div id="panel-content"></div></aside></main><div id="toast" class="toast" aria-live="polite"></div></div>';
   if (${options.workbench === false ? 'true' : 'false'}) {
     document.querySelector('.workbench').classList.add('workbench--desktop-only');
     document.querySelector('#desktop-shell').removeAttribute('inert');
@@ -189,7 +192,7 @@ function AuthoringDesktop() {
       activeSocket = socket;
       socket.addEventListener('open', () => {
         retry = 0;
-        document.querySelector('#connection-state').textContent = 'Connected';
+        if (isPreviewFrame) window.parent.postMessage({ type: 'studio-connection', state: 'Connected' }, window.location.origin);
         const rehearsal = xp.current?.scenario.getState();
         send({
           type: 'ready',
@@ -202,8 +205,8 @@ function AuthoringDesktop() {
         let request;
         try {
           request = JSON.parse(String(event.data));
-          if (request?.type === 'snapshot') { renderWorkbench(request.snapshot); return; }
-          if (request?.type === 'authoring-result') { showToast(request.ok ? 'Command completed' : request.error, !request.ok); return; }
+          if (request?.type === 'snapshot') { window.parent.postMessage({ type: 'studio-snapshot', snapshot: request.snapshot }, window.location.origin); return; }
+          if (request?.type === 'authoring-result') { window.parent.postMessage({ type: 'studio-result', result: request }, window.location.origin); return; }
           if (request?.type !== 'command' || typeof request.id !== 'string') return;
           const handle = xp.current;
           if (!handle) throw new Error('desktop imperative API is not ready');
@@ -260,7 +263,7 @@ function AuthoringDesktop() {
         }
       });
       socket.addEventListener('close', () => {
-        document.querySelector('#connection-state').textContent = 'Disconnected · retrying';
+        if (isPreviewFrame) window.parent.postMessage({ type: 'studio-connection', state: 'Disconnected · retrying' }, window.location.origin);
         if (activeSocket === socket) activeSocket = null;
         if (!stopped) setTimeout(connect, Math.min(250 * 2 ** retry++, 3000));
       });
@@ -288,6 +291,19 @@ function AuthoringDesktop() {
   });
 }
 
-setupWorkbench();
-createRoot(document.getElementById('desktop-root')).render(React.createElement(AuthoringDesktop));
+if (isPreviewFrame) {
+  document.querySelector('#root').innerHTML = '<div id="desktop-root"></div>';
+  window.addEventListener('message', event => {
+    if (event.origin === window.location.origin && event.data?.type === 'studio-command') send(event.data.message);
+  });
+  createRoot(document.getElementById('desktop-root')).render(React.createElement(AuthoringDesktop));
+} else {
+  setupWorkbench();
+  window.addEventListener('message', event => {
+    if (event.origin !== window.location.origin) return;
+    if (event.data?.type === 'studio-snapshot') renderWorkbench(event.data.snapshot);
+    else if (event.data?.type === 'studio-result') showToast(event.data.result.ok ? 'Command completed' : event.data.result.error, !event.data.result.ok);
+    else if (event.data?.type === 'studio-connection') document.querySelector('#connection-state').textContent = event.data.state;
+  });
+}
 `;

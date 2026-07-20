@@ -215,7 +215,7 @@ describe('scenario-tools', () => {
     expect(() => parseReplCommand('emit made:up')).toThrow('unknown XP event type');
   });
 
-  it('uses one versioned structured command contract for the REPL and Workbench', () => {
+  it('uses one versioned structured command contract for the REPL and Scenario Studio', () => {
     const repl = parseReplCommand('seek finale');
     expect(repl && replToAuthoringCommand(repl)).toEqual({ type: 'seek', beat: 'finale' });
     expect(
@@ -244,7 +244,7 @@ describe('scenario-tools', () => {
     ).toBe(false);
   });
 
-  it('builds a JSON-serializable Workbench snapshot with independent gates', async () => {
+  it('builds a JSON-serializable Scenario Studio snapshot with independent gates', async () => {
     const input = await loadInput(path.resolve('examples/midsummer-pack'));
     const snapshot = await buildAuthoringSnapshot(input, 1, {
       status: 'current',
@@ -303,7 +303,7 @@ describe('scenario-tools', () => {
     expect(source).toContain('ws://localhost:5174?token=secret');
   });
 
-  it('builds the Workbench around a serialized last-valid authored value', () => {
+  it('builds Scenario Studio around a serialized last-valid authored value', () => {
     const source = buildBrowserClientSource({
       engineModule: '/@fs/engine.tsx',
       authoredValue: { id: 'draft', triggers: [] },
@@ -314,7 +314,9 @@ describe('scenario-tools', () => {
     });
     expect(source).toContain("type: 'authoring-command'");
     expect(source).toContain("request?.type === 'snapshot'");
-    expect(source).toContain('Scenario Workbench');
+    expect(source).toContain('Scenario Studio');
+    expect(source).toContain('iframe id="desktop-frame"');
+    expect(source).toContain("window.location.pathname === '/preview'");
     expect(source).not.toContain('import * as authoredModule');
   });
 });

@@ -27,7 +27,7 @@ Common options:
   --help                           Show command help
 
 Serve options:
-  --ui / --no-ui                   Open the Workbench (default) or desktop-only preview
+  --ui / --no-ui                   Open Scenario Studio (default) or desktop-only preview
   --no-open                        Do not launch a browser (safe for headless environments)
 `;
 
