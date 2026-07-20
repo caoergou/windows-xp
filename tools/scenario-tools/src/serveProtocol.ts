@@ -2,7 +2,13 @@ import type { XPEvent } from '../../../src/events';
 import type { FlagValue } from '../../../src/scenario/types';
 import type { ScenarioDebugState } from '../../../src/devtools/rehearsalChannel';
 import type { QQProfile } from '../../../src/data/qq/types';
+import type { ToolGraph } from './graph';
+import type { PackSizeReport } from './pack';
+import type { ScenarioSolveReport } from './solve';
+import type { AuthoringKind, Diagnostic, LintResult } from './types';
 import { KNOWN_EVENT_TYPES } from './eventTypes';
+
+export const AUTHORING_PROTOCOL_VERSION = 1 as const;
 
 export type ReplCommand =
   | { kind: 'help' }
@@ -36,6 +42,80 @@ export type BrowserCommand =
   | { type: 'reset' }
   | { type: 'chat'; buddy: string; text: string; profile?: QQProfile };
 
+export type AuthoringCommand =
+  | BrowserCommand
+  | { type: 'lint' }
+  | { type: 'graph'; format: 'mermaid' | 'dot' | 'json' }
+  | {
+      type: 'chat-rehearse';
+      buddy: string;
+      message: string;
+      mode: 'mock' | 'provider' | 'offline';
+    };
+
+export interface AuthoringInputSnapshot {
+  file: string;
+  kind: AuthoringKind;
+  id: string;
+}
+
+export interface ReloadSnapshot {
+  status: 'current' | 'reloading' | 'stale';
+  lastValidAt: string;
+  attemptedAt?: string;
+  error?: string;
+}
+
+export interface GateSnapshot<T> {
+  status: 'pass' | 'fail' | 'unavailable';
+  result?: T;
+  error?: string;
+}
+
+export interface RehearsalBeatSnapshot {
+  index: number;
+  beat?: string;
+  event: XPEvent;
+}
+
+export interface BuddySnapshot {
+  id: string;
+  hasFallback: boolean;
+  hasProvider: boolean;
+}
+
+export interface AuthoringSnapshot {
+  protocolVersion: typeof AUTHORING_PROTOCOL_VERSION;
+  revision: number;
+  input: AuthoringInputSnapshot;
+  reload: ReloadSnapshot;
+  lint: GateSnapshot<LintResult>;
+  solve: GateSnapshot<ScenarioSolveReport>;
+  pack: GateSnapshot<PackSizeReport>;
+  graph: ToolGraph;
+  beats: RehearsalBeatSnapshot[];
+  flags: string[];
+  buddies: BuddySnapshot[];
+  runtime?: ScenarioDebugState;
+  recentEvents: XPEvent[];
+}
+
+export interface AuthoringCommandRequest {
+  type: 'authoring-command';
+  id: string;
+  protocolVersion: typeof AUTHORING_PROTOCOL_VERSION;
+  command: AuthoringCommand;
+}
+
+export interface AuthoringCommandResult {
+  type: 'authoring-result';
+  id: string;
+  protocolVersion: typeof AUTHORING_PROTOCOL_VERSION;
+  ok: boolean;
+  data?: unknown;
+  error?: string;
+}
+
 export interface ControlRequest {
   type: 'command';
   id: string;
@@ -52,6 +132,63 @@ export type BrowserMessage =
   | { type: 'response'; id: string; ok: true; data?: unknown }
   | { type: 'response'; id: string; ok: false; error: string }
   | { type: 'event'; event: XPEvent };
+
+export type ServerMessage =
+  | ControlRequest
+  | { type: 'snapshot'; snapshot: AuthoringSnapshot }
+  | AuthoringCommandResult;
+
+export type ClientMessage = BrowserMessage | AuthoringCommandRequest;
+
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const AUTHORING_COMMAND_TYPES = new Set([
+  'seek',
+  'step',
+  'exit-rehearsal',
+  'flags',
+  'flag-set',
+  'status',
+  'emit',
+  'reset',
+  'lint',
+  'graph',
+  'chat-rehearse',
+]);
+
+export const isAuthoringCommandRequest = (value: unknown): value is AuthoringCommandRequest =>
+  isObject(value) &&
+  value.type === 'authoring-command' &&
+  typeof value.id === 'string' &&
+  value.protocolVersion === AUTHORING_PROTOCOL_VERSION &&
+  isObject(value.command) &&
+  typeof value.command.type === 'string' &&
+  AUTHORING_COMMAND_TYPES.has(value.command.type);
+
+export const replToAuthoringCommand = (command: ReplCommand): AuthoringCommand | null => {
+  if (command.kind === 'help' || command.kind === 'quit') return null;
+  if (command.kind === 'seek') return { type: 'seek', beat: command.beat };
+  if (command.kind === 'step') return { type: 'step', direction: command.direction };
+  if (command.kind === 'exit-rehearsal') return { type: 'exit-rehearsal' };
+  if (command.kind === 'flags') return { type: 'flags' };
+  if (command.kind === 'flag-set')
+    return { type: 'flag-set', flag: command.flag, value: command.value };
+  if (command.kind === 'status') return { type: 'status' };
+  if (command.kind === 'emit') return { type: 'emit', event: command.event };
+  if (command.kind === 'lint') return { type: 'lint' };
+  if (command.kind === 'graph') return { type: 'graph', format: command.format };
+  if (command.kind === 'reset') return { type: 'reset' };
+  return {
+    type: 'chat-rehearse',
+    buddy: command.buddy,
+    message: command.message,
+    mode: command.offline ? 'offline' : 'provider',
+  };
+};
+
+export const attachDiagnosticSource = (diagnostics: Diagnostic[], source: string): Diagnostic[] =>
+  diagnostics.map(item => ({ ...item, source: item.source ?? source }));
 
 export const SERVE_HELP = `Commands:
   seek <beat>                         Jump to a named rehearsal beat

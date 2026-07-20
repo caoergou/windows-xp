@@ -16,7 +16,13 @@ export default defineConfig({
   plugins: [
     dts({
       entryRoot: 'src',
-      include: ['src'],
+      include: [
+        'src',
+        '../../src/styled.d.ts',
+        '../../src/types/assets.d.ts',
+        '../../src/types/modules.d.ts',
+        '../../src/types/vite-env.d.ts',
+      ],
       rollupTypes: true,
       tsconfigPath: new URL('./tsconfig.json', import.meta.url).pathname,
     }),

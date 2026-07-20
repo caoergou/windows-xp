@@ -25,6 +25,10 @@ Commands:
 Common options:
   --json                           Emit machine-readable JSON
   --help                           Show command help
+
+Serve options:
+  --ui / --no-ui                   Open the Workbench (default) or desktop-only preview
+  --no-open                        Do not launch a browser (safe for headless environments)
 `;
 
 interface ParsedArgs {
@@ -35,7 +39,16 @@ interface ParsedArgs {
 const parseArgs = (args: string[]): ParsedArgs => {
   const positionals: string[] = [];
   const flags = new Map<string, string[]>();
-  const booleanFlags = new Set(['json', 'check', 'write', 'drop-orphans', 'no-open', 'help']);
+  const booleanFlags = new Set([
+    'json',
+    'check',
+    'write',
+    'drop-orphans',
+    'ui',
+    'no-ui',
+    'no-open',
+    'help',
+  ]);
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
     if (!arg.startsWith('--')) {
@@ -225,6 +238,8 @@ const commandServe = async (args: ParsedArgs): Promise<number> => {
   const inputPath = args.positionals[0];
   if (!inputPath) throw new Error('serve requires an input path');
   const { serveScenario } = await import('./serve');
+  if (enabled(args, 'ui') && enabled(args, 'no-ui'))
+    throw new Error('--ui and --no-ui cannot be used together');
   await serveScenario(inputPath, {
     host: flag(args, 'host'),
     port: portOption(args, 'port'),
@@ -232,6 +247,7 @@ const commandServe = async (args: ParsedArgs): Promise<number> => {
     open: !enabled(args, 'no-open'),
     providerUrl: flag(args, 'provider-url'),
     language: flag(args, 'language'),
+    ui: enabled(args, 'no-ui') ? false : true,
   });
   return 0;
 };

@@ -6,24 +6,25 @@ import { createInterface } from 'node:readline';
 import type { AddressInfo } from 'node:net';
 import { WebSocket, WebSocketServer, type VerifyClientCallbackSync } from 'ws';
 import { createServer, type ViteDevServer } from 'vite';
-import type { ContentPack } from '../../../src/content/types';
-import { compilePuzzleGraph } from '../../../src/scenario/puzzleGraph';
-import type { Scenario } from '../../../src/scenario/types';
 import type { ScenarioDebugState } from '../../../src/devtools/rehearsalChannel';
-import { buildAuthoringGraph, renderAuthoringGraph } from './graph';
-import { lintValue } from './lint';
+import { renderAuthoringGraph } from './graph';
 import { loadInput } from './loader';
-import { collectFlagUsage } from './walk';
 import type { LoadedInput } from './types';
+import { collectFlagUsage } from './walk';
 import { buildBrowserClientSource } from './serveClient';
+import { buildAuthoringSnapshot, scenarioFromLoadedInput } from './authoringSnapshot';
 import { buildRehearsalProfile, collectBuddies, isRecord, replyTexts } from './serveChat';
 import {
   completeRepl,
   formatDebugState,
+  isAuthoringCommandRequest,
   parseReplCommand,
+  replToAuthoringCommand,
   SERVE_HELP,
+  AUTHORING_PROTOCOL_VERSION,
+  type AuthoringCommand,
   type BrowserCommand,
-  type BrowserMessage,
+  type ClientMessage,
   type CompletionContext,
   type ReplCommand,
 } from './serveProtocol';
@@ -36,6 +37,7 @@ export interface ServeOptions {
   providerUrl?: string;
   language?: string;
   output?: NodeJS.WritableStream;
+  ui?: boolean;
 }
 
 export interface ScenarioAuthoringServer {
@@ -55,15 +57,6 @@ interface PendingRequest {
 const virtualClientId = 'virtual:xp-scenario-authoring-client';
 const resolvedClientId = `\0${virtualClientId}`;
 const fsModule = (file: string): string => `/@fs/${file.split(path.sep).join('/')}`;
-const scenarioFromInput = (input: LoadedInput): Scenario => {
-  if (input.kind === 'scenario') return input.value as Scenario;
-  if (input.kind === 'graph')
-    return compilePuzzleGraph(input.value as Parameters<typeof compilePuzzleGraph>[0]);
-  const scenario = (input.value as ContentPack).scenario;
-  if (!scenario) throw new Error('content pack does not declare a scenario');
-  return scenario;
-};
-
 const findProjectRoot = async (start: string): Promise<string> => {
   let current = start;
   while (true) {
@@ -105,7 +98,7 @@ const resolveEngine = async (projectRoot: string): Promise<{ module: string; roo
 };
 
 const completionFor = (input: LoadedInput): CompletionContext => {
-  const scenario = scenarioFromInput(input);
+  const scenario = scenarioFromLoadedInput(input);
   const usage = collectFlagUsage(scenario);
   Object.keys(scenario.initialFlags ?? {}).forEach(flag => usage.set.add(flag));
   return {
@@ -135,6 +128,12 @@ export const startScenarioServer = async (
   const token = randomBytes(24).toString('base64url');
   let currentInput = await loadInput(inputPath);
   let completion = completionFor(currentInput);
+  const startedAt = new Date().toISOString();
+  let revision = 1;
+  let snapshot = await buildAuthoringSnapshot(currentInput, revision, {
+    status: 'current',
+    lastValidAt: startedAt,
+  });
   const projectRoot = await findProjectRoot(currentInput.baseDir);
   const engine = await resolveEngine(projectRoot);
   const clients = new Set<WebSocket>();
@@ -142,6 +141,13 @@ export const startScenarioServer = async (
   let nextRequest = 0;
   let closed = false;
   let reloadTimer: ReturnType<typeof setTimeout> | undefined;
+
+  const broadcastSnapshot = () => {
+    const message = JSON.stringify({ type: 'snapshot', snapshot });
+    clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) client.send(message);
+    });
+  };
 
   const verifyClient: VerifyClientCallbackSync = ({ req }) => {
     const requestUrl = new URL(req.url ?? '/', `ws://${req.headers.host ?? 'localhost'}`);
@@ -168,11 +174,12 @@ export const startScenarioServer = async (
 
   controlServer.on('connection', socket => {
     clients.add(socket);
+    socket.send(JSON.stringify({ type: 'snapshot', snapshot }));
     socket.on('close', () => clients.delete(socket));
     socket.on('message', raw => {
-      let message: BrowserMessage;
+      let message: ClientMessage;
       try {
-        message = JSON.parse(raw.toString()) as BrowserMessage;
+        message = JSON.parse(raw.toString()) as ClientMessage;
       } catch {
         return;
       }
@@ -184,12 +191,72 @@ export const startScenarioServer = async (
         if (message.ok) item.resolve(message.data);
         else item.reject(new Error(message.error));
       } else if (message.type === 'event') {
+        snapshot = {
+          ...snapshot,
+          recentEvents: [...snapshot.recentEvents, message.event].slice(-100),
+        };
+        broadcastSnapshot();
         output.write(`\n[event] ${message.event.type} ${JSON.stringify(message.event)}\n`);
       } else if (message.type === 'ready') {
         completion.beats = message.beats;
         output.write(
           `\n[connected] ${message.scenarioId}: ${message.triggerCount} trigger(s), ${message.beats.length} beat(s)\n`
         );
+        void requestBrowser({ type: 'status' })
+          .then(runtime => {
+            snapshot = { ...snapshot, runtime: runtime as ScenarioDebugState };
+            broadcastSnapshot();
+          })
+          .catch(() => undefined);
+      } else if (message.type === 'authoring-command') {
+        if (message.protocolVersion !== AUTHORING_PROTOCOL_VERSION) {
+          socket.send(
+            JSON.stringify({
+              type: 'authoring-result',
+              id: message.id,
+              protocolVersion: AUTHORING_PROTOCOL_VERSION,
+              ok: false,
+              error: `unsupported authoring protocol version: ${message.protocolVersion}`,
+            })
+          );
+          return;
+        }
+        const candidate: unknown = message;
+        if (!isAuthoringCommandRequest(candidate)) {
+          socket.send(
+            JSON.stringify({
+              type: 'authoring-result',
+              id: message.id,
+              protocolVersion: AUTHORING_PROTOCOL_VERSION,
+              ok: false,
+              error: 'invalid authoring command payload',
+            })
+          );
+          return;
+        }
+        void executeAuthoringCommand(message.command)
+          .then(data =>
+            socket.send(
+              JSON.stringify({
+                type: 'authoring-result',
+                id: message.id,
+                protocolVersion: AUTHORING_PROTOCOL_VERSION,
+                ok: true,
+                data,
+              })
+            )
+          )
+          .catch(error =>
+            socket.send(
+              JSON.stringify({
+                type: 'authoring-result',
+                id: message.id,
+                protocolVersion: AUTHORING_PROTOCOL_VERSION,
+                ok: false,
+                error: error instanceof Error ? error.message : String(error),
+              })
+            )
+          );
       }
     });
   });
@@ -209,11 +276,13 @@ export const startScenarioServer = async (
   };
 
   const chatCursor = new Map<string, number>();
-  const rehearseChat = async (command: Extract<ReplCommand, { kind: 'chat' }>): Promise<string> => {
+  const rehearseChat = async (
+    command: Extract<AuthoringCommand, { type: 'chat-rehearse' }>
+  ): Promise<{ buddy: string; text: string; mode: string }> => {
     const buddy = collectBuddies(currentInput.value).find(item => item.id === command.buddy);
     const reply = (buddy?.value.reply ?? {}) as Record<string, unknown>;
     let text: string;
-    if (command.offline) {
+    if (command.mode === 'offline') {
       if (!buddy)
         throw new Error(`no provider/script buddy "${command.buddy}" in the authored input`);
       const candidates = replyTexts(
@@ -224,7 +293,7 @@ export const startScenarioServer = async (
       const index = chatCursor.get(command.buddy) ?? 0;
       text = candidates[index % candidates.length];
       chatCursor.set(command.buddy, index + 1);
-    } else if (options.providerUrl) {
+    } else if (command.mode === 'provider' && options.providerUrl) {
       const response = await fetch(options.providerUrl, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -257,54 +326,66 @@ export const startScenarioServer = async (
       text,
       ...(buddy ? { profile: buildRehearsalProfile(buddy) } : {}),
     });
-    return `${command.buddy}: ${text}`;
+    return { buddy: command.buddy, text, mode: command.mode };
+  };
+
+  const executeAuthoringCommand = async (command: AuthoringCommand): Promise<unknown> => {
+    if (command.type === 'lint') return snapshot.lint;
+    if (command.type === 'graph')
+      return {
+        graph: snapshot.graph,
+        rendered: renderAuthoringGraph(snapshot.graph, command.format).trimEnd(),
+      };
+    if (command.type === 'chat-rehearse') return rehearseChat(command);
+
+    const response = await requestBrowser(command);
+    if (command.type === 'status' || command.type === 'emit') {
+      snapshot = { ...snapshot, runtime: response as ScenarioDebugState };
+      broadcastSnapshot();
+    } else if (command.type !== 'reset') {
+      try {
+        const runtime = (await requestBrowser({ type: 'status' })) as ScenarioDebugState;
+        snapshot = { ...snapshot, runtime };
+        broadcastSnapshot();
+      } catch {
+        // The desktop may be resetting or reconnecting; the next ready message refreshes runtime.
+      }
+    }
+    return response;
   };
 
   const execute = async (command: ReplCommand): Promise<string> => {
     if (command.kind === 'help') return SERVE_HELP;
     if (command.kind === 'quit') return '';
+    const structured = replToAuthoringCommand(command);
+    if (!structured) return '';
+    const response = await executeAuthoringCommand(structured);
     if (command.kind === 'lint') {
-      const result = await lintValue(currentInput.kind, currentInput.value, {
-        baseDir: currentInput.baseDir,
-      });
-      if (result.diagnostics.length === 0) return 'OK: no diagnostics';
+      const result = snapshot.lint.result;
+      if (!result || result.diagnostics.length === 0) return 'OK: no diagnostics';
       return result.diagnostics
         .map(item => `${item.level.toUpperCase()} [${item.code}]: ${item.message}`)
         .join('\n');
     }
-    if (command.kind === 'graph') {
-      return renderAuthoringGraph(
-        buildAuthoringGraph(currentInput.kind, currentInput.value),
-        command.format
-      ).trimEnd();
+    if (command.kind === 'graph') return (response as { rendered: string }).rendered;
+    if (command.kind === 'chat') {
+      const result = response as { buddy: string; text: string };
+      return `${result.buddy}: ${result.text}`;
     }
-    if (command.kind === 'chat') return rehearseChat(command);
-    let browserCommand: BrowserCommand;
-    if (command.kind === 'seek') browserCommand = { type: 'seek', beat: command.beat };
-    else if (command.kind === 'step')
-      browserCommand = { type: 'step', direction: command.direction };
-    else if (command.kind === 'exit-rehearsal') browserCommand = { type: 'exit-rehearsal' };
-    else if (command.kind === 'flags') browserCommand = { type: 'flags' };
-    else if (command.kind === 'flag-set')
-      browserCommand = { type: 'flag-set', flag: command.flag, value: command.value };
-    else if (command.kind === 'status') browserCommand = { type: 'status' };
-    else if (command.kind === 'emit') browserCommand = { type: 'emit', event: command.event };
-    else browserCommand = { type: 'reset' };
-    const response = await requestBrowser(browserCommand);
     if (command.kind === 'status') return formatDebugState(response as ScenarioDebugState);
-    if (command.kind === 'emit') {
+    if (command.kind === 'emit')
       return `Emitted ${command.event.type}\n${formatDebugState(response as ScenarioDebugState)}`;
-    }
     return JSON.stringify(response, null, 2);
   };
 
   const browserSource = () =>
     buildBrowserClientSource({
       engineModule: engine.module,
-      scenarioModule: fsModule(currentInput.file),
+      authoredValue: currentInput.value,
       controlUrl,
       storagePrefix: `xp-scenario-serve:${path.resolve(currentInput.file)}:`,
       language: options.language ?? 'zh',
+      workbench: options.ui !== false,
     });
 
   let vite: ViteDevServer;
@@ -342,7 +423,10 @@ export const startScenarioServer = async (
               response.setHeader('content-type', 'text/html; charset=utf-8');
               response.end(`<!doctype html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XP Scenario Authoring</title>
-<style>html,body,#root{width:100%;height:100%;margin:0;overflow:hidden}body{background:#000}</style></head>
+<style>
+:root{--panel-width:440px;background:rgb(15 23 42)}
+html,body,#root{width:100%;height:100%;margin:0;overflow:hidden}header button,header input,.preview-meta select,aside button,aside input,aside select,aside textarea{font:inherit}header button,header input,.preview-meta select,aside button,aside input,aside select,aside textarea{color:rgb(226 232 240);background:rgb(30 41 59);border:1px solid rgb(71 85 105);border-radius:5px}header button,aside button{padding:6px 9px;cursor:pointer}header button:hover,aside button:hover{background:rgb(51 65 85)}header button:focus-visible,header input:focus-visible,.preview-meta select:focus-visible,aside button:focus-visible,aside input:focus-visible,aside select:focus-visible,aside textarea:focus-visible,aside [tabindex]:focus-visible{outline:3px solid rgb(56 189 248);outline-offset:2px}.workbench{display:grid;grid-template-rows:48px 1fr;width:100%;height:100%;background:rgb(15 23 42)}header{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:rgb(226 232 240);display:flex;align-items:center;gap:14px;padding:7px 12px;border-bottom:1px solid rgb(51 65 85);background:rgb(30 41 59)}header strong{margin-right:auto}header label{display:flex;align-items:center;gap:7px;font-size:12px}.stale{color:rgb(253 186 116);font-weight:700}main{display:grid;grid-template-columns:minmax(0,1fr) var(--panel-width);min-height:0}.preview{position:relative;min-width:0;overflow:auto;background:rgb(2 6 23)}.preview-meta{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:rgb(226 232 240);position:sticky;z-index:3;top:0;display:flex;justify-content:flex-end;padding:5px 10px;background:rgb(15 23 42 / 88%)}#desktop-shell{height:calc(100% - 33px);max-width:100%;margin:auto;background:rgb(0 0 0);box-shadow:0 0 0 1px rgb(71 85 105)}#desktop-root{width:100%;height:100%}aside{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:rgb(226 232 240);min-width:0;overflow:hidden;border-left:1px solid rgb(51 65 85);background:rgb(15 23 42)}nav[role=tablist]{display:flex;overflow-x:auto;border-bottom:1px solid rgb(51 65 85)}[role=tab]{border:0;border-radius:0;background:transparent;text-transform:capitalize}[role=tab][aria-selected=true]{background:rgb(30 41 59);box-shadow:inset 0 -3px rgb(56 189 248)}#panel-content{height:calc(100% - 38px);padding:14px;overflow:auto}.gate-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}.gate{padding:2px 7px;border-radius:999px;text-transform:uppercase;font-size:11px}.gate--pass{background:rgb(20 83 45);color:rgb(187 247 208)}.gate--fail{background:rgb(127 29 29);color:rgb(254 202 202)}.gate--unavailable{background:rgb(71 85 105)}.diagnostic,.buddy{display:grid;gap:5px;margin:8px 0;padding:10px;border-left:4px solid rgb(100 116 139);background:rgb(30 41 59)}.diagnostic--error{border-color:rgb(248 113 113)}.diagnostic--warning{border-color:rgb(251 191 36)}aside code,aside pre{font-family:ui-monospace,SFMono-Regular,monospace}aside pre{overflow:auto;padding:10px;background:rgb(2 6 23);white-space:pre-wrap}.story-map{width:100%;min-height:240px}.story-map text{fill:rgb(226 232 240);font-size:12px}.graph-node rect{fill:rgb(30 41 59);stroke:rgb(125 211 252)}.graph-edge{fill:none;stroke:rgb(100 116 139);stroke-width:2}.graph-edge--dependency{stroke:rgb(56 189 248)}.graph-edge--flag{stroke:rgb(192 132 252)}.graph-edge--content-ref{stroke:rgb(52 211 153)}.toolbar{display:flex;flex-wrap:wrap;gap:6px}.timeline{padding-left:24px}.timeline button{display:flex;justify-content:space-between;gap:12px;width:100%;margin:5px 0}.notice{font-size:12px;color:rgb(148 163 184)}aside label{display:grid;gap:5px;margin:9px 0}aside textarea,aside input,aside select{padding:7px}.buddy div{display:flex;gap:5px}.buddy>span{font-size:12px;color:rgb(148 163 184)}.shipping{display:grid;grid-template-columns:1fr auto;gap:8px}.shipping dt,.shipping dd{margin:0}.asset{display:grid;grid-template-columns:1fr 2fr auto;gap:8px;padding:6px 0;border-bottom:1px solid rgb(51 65 85);font-size:12px}.toast{position:fixed;z-index:10;right:16px;bottom:16px;max-width:420px;padding:9px 13px;border-radius:6px;background:rgb(22 101 52)}.toast:empty{display:none}.toast--error{background:rgb(153 27 27)}.workbench--full main{grid-template-columns:1fr}.workbench--full aside,.workbench--full header label,.workbench--full #preview-lock{display:none}.workbench--desktop-only{grid-template-rows:1fr}.workbench--desktop-only header,.workbench--desktop-only aside,.workbench--desktop-only .preview-meta{display:none}.workbench--desktop-only main{display:block}.workbench--desktop-only #desktop-shell{width:100%;height:100%;max-width:none;box-shadow:none}.workbench--desktop-only #desktop-shell[inert]{pointer-events:auto}.workbench--desktop-only .preview{width:100%;height:100%}@media(max-width:800px){header label{display:none}main{grid-template-columns:1fr;grid-template-rows:minmax(300px,55%) 1fr}aside{border-left:0;border-top:1px solid rgb(51 65 85)}}
+</style></head>
 <body><div id="root"></div><script type="module" src="/@id/${virtualClientId}"></script></body></html>`);
             });
           },
@@ -355,21 +439,66 @@ export const startScenarioServer = async (
   }
 
   const reloadInput = async () => {
+    const attemptedAt = new Date().toISOString();
+    snapshot = {
+      ...snapshot,
+      reload: { ...snapshot.reload, status: 'reloading', attemptedAt },
+    };
+    broadcastSnapshot();
     try {
-      currentInput = await loadInput(currentInput.file);
-      completion = completionFor(currentInput);
-      const result = await lintValue(currentInput.kind, currentInput.value, {
-        baseDir: currentInput.baseDir,
+      const candidate = await loadInput(currentInput.file);
+      const candidateSnapshot = await buildAuthoringSnapshot(candidate, ++revision, {
+        status: 'current',
+        lastValidAt: attemptedAt,
+        attemptedAt,
       });
+      const result = candidateSnapshot.lint.result;
       output.write(
-        `\n[reload] ${path.basename(currentInput.file)}: ${result.ok ? 'valid' : 'invalid'} (${result.diagnostics.length} diagnostic(s))\n`
+        `\n[reload] ${path.basename(currentInput.file)}: ${result?.ok ? 'valid' : 'invalid'} (${result?.diagnostics.length ?? 0} diagnostic(s))\n`
       );
-      result.diagnostics.forEach(item =>
+      result?.diagnostics.forEach(item =>
         output.write(`  ${item.level.toUpperCase()} [${item.code}]: ${item.message}\n`)
       );
+      if (!result?.ok) {
+        snapshot = {
+          ...candidateSnapshot,
+          runtime: snapshot.runtime,
+          recentEvents: snapshot.recentEvents,
+          reload: {
+            status: 'stale',
+            lastValidAt: snapshot.reload.lastValidAt,
+            attemptedAt,
+            error: 'The changed draft failed lint; previewing the last valid draft.',
+          },
+        };
+        broadcastSnapshot();
+        return;
+      }
+      currentInput = candidate;
+      completion = completionFor(currentInput);
+      snapshot = {
+        ...candidateSnapshot,
+        runtime: snapshot.runtime,
+        recentEvents: snapshot.recentEvents,
+      };
+      const browserModule = vite.moduleGraph.getModuleById(resolvedClientId);
+      if (browserModule) vite.moduleGraph.invalidateModule(browserModule);
+      broadcastSnapshot();
       vite.ws.send({ type: 'full-reload' });
     } catch (error) {
-      output.write(`\n[reload] ${error instanceof Error ? error.message : String(error)}\n`);
+      const message = error instanceof Error ? error.message : String(error);
+      snapshot = {
+        ...snapshot,
+        revision: ++revision,
+        reload: {
+          status: 'stale',
+          lastValidAt: snapshot.reload.lastValidAt,
+          attemptedAt,
+          error: message,
+        },
+      };
+      broadcastSnapshot();
+      output.write(`\n[reload] ${message}\n`);
     }
   };
   const onChange = (file: string) => {

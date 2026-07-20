@@ -15,14 +15,36 @@ npx xp-scenario serve ./scenario.ts
 
 `lint` and `pack` return a non-zero exit code for errors. Warnings remain visible but do not fail CI. `migrate` is diagnostic by default; it writes only when `--write` is explicit, and never guesses a rename. Use `--map-flag old=new` or `--map-trigger old=new` to describe intentional renames.
 
-`serve` starts a Vite desktop plus a token-protected WebSocket control channel and
-an interactive REPL. It supports deterministic seek/step, event injection,
-flag/trigger inspection, live lint/graph snapshots, file hot reload, and provider
-persona rehearsal. `chat --offline <buddy>` requires an authored fallback or
+`serve` starts a browser Scenario Workbench plus a token-protected, loopback-only
+WebSocket control channel and preserves the interactive REPL for terminal-first
+authors. The Workbench shows independent lint/solve/pack gates, the existing
+dependency graph, rehearsal controls, runtime state, typed event injection,
+persona modes, and shipping sizes around the live desktop preview. It supports
+deterministic seek/step, event injection, flag/trigger inspection, file hot reload,
+and provider persona rehearsal. A failed reload leaves the last valid desktop
+usable and marks the preview stale. `chat --offline <buddy>` requires an authored fallback or
 script; use `--provider-url <url>` to POST live chat requests to an author-owned
-endpoint. Add `--no-open` for headless environments.
+endpoint. Use `--no-ui` for the legacy desktop-only browser surface, or `--no-open`
+to prevent browser launch in headless environments. The default is `--ui`.
 The live desktop defaults to the `zh` culture required by QQ; pass
 `--language en` (or another registered culture id) when authoring another skin.
+
+## Writer loop: `midsummer-pack`
+
+1. Run `xp-scenario serve examples/midsummer-pack` and keep the source directory
+   open in your editor.
+2. Use **Problems** to keep lint, solve, and pack gates independently green.
+3. Select a node in **Map**, inspect its dependencies, and use **Seek here** when
+   the node maps to a named rehearsal beat.
+4. Step through **Timeline**, inject a schema-listed event in **Events**, and
+   inspect exact trigger conditions and recent events in **Inspector**.
+5. Open **Personas**, choose `xiaoyu`, and run **Offline** to verify the authored
+   fallback without sending provider credentials to the browser.
+6. Edit and save the pack. A valid draft reloads automatically; an invalid draft
+   appears in **Problems** while the preview remains on the visibly stale last
+   valid version.
+7. Check declared assets and byte budgets in **Shipping** before running
+   `npm run scenario:ci`.
 
 The main package exports the pure command implementations and protocol parser.
 Import `startScenarioServer()` from `@caoergou/xp-scenario-tools/serve` only when

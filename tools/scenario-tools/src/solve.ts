@@ -32,6 +32,15 @@ export interface ScenarioSolveReport {
   expectedFlags: Record<string, FlagValue>;
   missing: string[];
   providerFallbacks: number;
+  coverage: SolveCoverage;
+}
+
+export interface SolveCoverage {
+  firedTriggers: string[];
+  unfiredTriggers: string[];
+  exercisedBeats: string[];
+  unexercisedBeats: string[];
+  reachedGoals: string[];
 }
 
 export interface ToolSolveOptions {
@@ -180,5 +189,18 @@ export const solveAuthoredValue = async (
     expectedFlags: Object.fromEntries(expected),
     missing,
     providerFallbacks: countProviderFallbacks(value),
+    coverage: {
+      firedTriggers: Object.keys(result.fired).filter(trigger => (result.fired[trigger] ?? 0) > 0),
+      unfiredTriggers: scenario.triggers
+        .map((trigger, index) => trigger.id ?? `trigger:${index}`)
+        .filter(trigger => (result.fired[trigger] ?? 0) === 0),
+      exercisedBeats: steps.flatMap(step => (step.beat ? [step.beat] : [])),
+      unexercisedBeats: (scenario.rehearsal?.walkthrough ?? [])
+        .slice(steps.length)
+        .flatMap(step => (step.beat ? [step.beat] : [])),
+      reachedGoals: [...expected].flatMap(([flag, value]) =>
+        result.flags[flag] === value ? [flag] : []
+      ),
+    },
   };
 };
