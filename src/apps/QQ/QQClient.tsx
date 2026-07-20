@@ -17,6 +17,10 @@ import QQChat from './QQChat';
 import QQCloseDialog, { QQCloseChoice } from './QQCloseDialog';
 import type { MenuItem } from '../../types';
 import type { QQStatus } from '../../data/qq/types';
+import { useProviders } from '../../providers/ProviderContext';
+import { useFileSystem } from '../../context/FileSystemContext';
+import { useStorage } from '../../context/StorageContext';
+import { SCENARIO_FLAGS_KEY } from '../../components/ScenarioRunner';
 import QQArchive from './QQArchive';
 
 type Phase = 'login' | 'loading' | 'panel';
@@ -63,6 +67,9 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   trayRef.current = tray;
   const bus = useXPEventBus();
   const { culture } = useCulture();
+  const providers = useProviders();
+  const { getFile } = useFileSystem();
+  const storage = useStorage();
   const profile = culture.qq ?? defaultQQProfile;
 
   const [phase, setPhase] = useState<Phase>('login');
@@ -198,6 +205,16 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
     };
   }, [phase, api]);
 
+  // Recent events ring buffer for context assembly (#148).
+  const recentEventsRef = useRef<Array<{ type: string; [k: string]: unknown }>>([]);
+  useEffect(() => {
+    return bus.subscribe(event => {
+      const buf = recentEventsRef.current;
+      buf.push({ ...event });
+      if (buf.length > 50) buf.splice(0, buf.length - 50);
+    });
+  }, [bus]);
+
   // --- Enter main panel: start session + register tray + wire side-effect driver -----------------
   useEffect(() => {
     if (phase !== 'panel') return;
@@ -233,6 +250,22 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
         if (win) wmRef.current.flashWindow(win.id);
       },
       emit: event => bus.emit(event),
+      chatProvider: providers.chat,
+      moderationProvider: providers.moderation,
+      getFlags: () => {
+        try {
+          const raw = storage.local.getItem(storage.key(SCENARIO_FLAGS_KEY));
+          return raw ? JSON.parse(raw) : {};
+        } catch {
+          return {};
+        }
+      },
+      getFileSummary: path => {
+        const node = getFile(path);
+        if (!node) return null;
+        return { exists: true, locked: !!(node as { locked?: boolean }).locked, name: node.name };
+      },
+      getRecentEvents: () => recentEventsRef.current,
     };
     const clearDriver = qqStore.setDriver(driver);
 
@@ -240,7 +273,17 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
       clearDriver();
       trayRef.current.unregister('qq');
     };
-  }, [phase, profile, api, bus, buildTrayMenu]);
+  }, [
+    phase,
+    profile,
+    api,
+    bus,
+    buildTrayMenu,
+    providers.chat,
+    providers.moderation,
+    getFile,
+    storage,
+  ]);
 
   // Refresh the tray right-click menu checkmark when "my" status changes.
   useEffect(() => {

@@ -11,6 +11,14 @@
  * through XPHandle.qq and script timers share the same side-effect channel.
  */
 import { QQProfile, QQBuddy, QQGroup, QQMe, QQStatus, QQScriptStep } from '../../data/qq/types';
+import type {
+  ChatProvider,
+  ModerationProvider,
+  ChatContext,
+  ChatTurn,
+  WorldContextItem,
+  ContextSelector,
+} from '../../providers/types';
 // Side-effect import: registers the QQ2006 notification sounds into the
 // soundManager as soon as the QQ module graph loads (#213).
 import './sounds';
@@ -50,6 +58,16 @@ export interface QQDriver {
   onIncoming?: (buddy: RuntimeBuddy, message: QQMessage) => void;
   /** Dispatch events to the engine event bus. */
   emit?: (event: import('../../events').XPEvent) => void;
+  /** Host-supplied chat provider (#148). */
+  chatProvider?: ChatProvider;
+  /** Host-supplied moderation provider (#148). */
+  moderationProvider?: ModerationProvider;
+  /** Read current scenario flags for context assembly (#148). */
+  getFlags?: () => Record<string, string | number | boolean | null>;
+  /** Check a filesystem node's existence/locked state for context assembly (#148). */
+  getFileSummary?: (path: string[]) => { exists: boolean; locked?: boolean; name: string } | null;
+  /** Read recent events from the ring buffer for context assembly (#148). */
+  getRecentEvents?: () => Array<{ type: string; [k: string]: unknown }>;
 }
 
 const EMPTY: QQState = {
@@ -70,6 +88,8 @@ let driver: QQDriver = {};
 const timers = new Set<ReturnType<typeof setTimeout>>();
 /** Per-buddy loop cursor for reply scripts. */
 const replyCursor = new Map<string, number>();
+/** Active provider AbortControllers so in-flight requests can be cancelled. */
+const activeAborts = new Map<string, AbortController>();
 let msgSeq = 0;
 
 const emit = () => listeners.forEach(l => l());
@@ -94,6 +114,52 @@ const schedule = (fn: () => void, ms: number) => {
 };
 
 const isOnline = (s: QQStatus) => s !== 'offline';
+
+function assembleWorldContext(
+  selectors: ContextSelector | undefined,
+  drv: QQDriver
+): WorldContextItem[] {
+  if (!selectors) return [];
+  const items: WorldContextItem[] = [];
+
+  if (selectors.flags && drv.getFlags) {
+    const flags = drv.getFlags();
+    for (const name of selectors.flags) {
+      if (name in flags) {
+        items.push({ kind: 'flag', key: name, value: flags[name], author: 'system' });
+      }
+    }
+  }
+
+  if (selectors.recentEvents && drv.getRecentEvents) {
+    const events = drv.getRecentEvents();
+    for (const prefix of selectors.recentEvents) {
+      for (const evt of events) {
+        if (evt.type.startsWith(prefix)) {
+          items.push({ kind: 'event', key: evt.type, value: null, author: 'system' });
+        }
+      }
+    }
+  }
+
+  if (selectors.fileSummary && drv.getFileSummary) {
+    for (const path of selectors.fileSummary) {
+      const info = drv.getFileSummary(path);
+      if (info) {
+        items.push({
+          kind: 'file',
+          key: path.join('/'),
+          value: info.locked ? 'locked' : 'accessible',
+          author: 'system',
+        });
+      } else {
+        items.push({ kind: 'file', key: path.join('/'), value: null, author: 'system' });
+      }
+    }
+  }
+
+  return items;
+}
 
 // --- Subscription interface --------------------------------------------------
 export const qqStore = {
@@ -244,14 +310,156 @@ export const qqStore = {
     driver.emit?.({ type: 'qq:message', buddyId, direction: 'outgoing', text });
     driver.emit?.({ type: 'qq:reply', buddyId, text });
 
-    // Scripted replies: cycle through entries one by one.
-    if (buddy.reply?.kind === 'script' && buddy.reply.steps.length) {
+    if (buddy.reply?.kind === 'provider' && buddy.reply.provider === 'chat') {
+      this.handleProviderReply(buddyId, buddy);
+    } else if (buddy.reply?.kind === 'script' && buddy.reply.steps.length) {
       const steps = buddy.reply.steps;
       const idx = replyCursor.get(buddyId) ?? 0;
       const step = steps[idx % steps.length];
       replyCursor.set(buddyId, idx + 1);
       this.playScript(buddyId, [step]);
     }
+  },
+
+  /** Request a reply from the ChatProvider; fall back to scripted lines on failure. */
+  handleProviderReply(buddyId: string, buddy: RuntimeBuddy): void {
+    const chatProvider = driver.chatProvider;
+    const reply = buddy.reply;
+    if (!reply || reply.kind !== 'provider') return;
+
+    if (!chatProvider) {
+      this.playProviderFallback(buddyId, reply.fallbackLines);
+      return;
+    }
+
+    const maxHistory = reply.maxHistory ?? 20;
+    const thread = state.threads[buddyId] ?? [];
+    const history: ChatTurn[] = thread.slice(-maxHistory).map(m => ({
+      role: m.from === 'me' ? ('user' as const) : ('buddy' as const),
+      text: m.text,
+    }));
+
+    const worldContext = assembleWorldContext(reply.contextSelectors, driver);
+
+    const ctx: ChatContext = {
+      buddyId,
+      nickname: buddy.nickname,
+      persona: reply.persona,
+      history,
+      ...(worldContext.length > 0 ? { worldContext } : {}),
+    };
+
+    driver.emit?.({ type: 'chat:request', buddyId });
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const abortKey = `chat-${buddyId}`;
+    activeAborts.set(abortKey, controller);
+
+    this.setTyping(buddyId, true);
+
+    const handleResult = async () => {
+      try {
+        const result = chatProvider.reply(ctx, controller.signal);
+        const isStream =
+          typeof (result as AsyncIterable<string>)[Symbol.asyncIterator] === 'function';
+
+        let replyText: string;
+        let streamMsgId: string | null = null;
+
+        if (isStream) {
+          // Streaming: show progressive text as chunks arrive.
+          this.setTyping(buddyId, false);
+          streamMsgId = `qm-${++msgSeq}`;
+          let accumulated = '';
+          const streamMsg: QQMessage = {
+            id: streamMsgId,
+            buddyId,
+            from: 'buddy',
+            text: '',
+            time: nowTime(),
+          };
+          setState({
+            threads: {
+              ...state.threads,
+              [buddyId]: [...(state.threads[buddyId] ?? []), streamMsg],
+            },
+          });
+
+          for await (const chunk of result as AsyncIterable<string>) {
+            accumulated += chunk;
+            const thread = state.threads[buddyId] ?? [];
+            const updated = thread.map(m =>
+              m.id === streamMsgId ? { ...m, text: accumulated } : m
+            );
+            setState({ threads: { ...state.threads, [buddyId]: updated } });
+          }
+
+          replyText = accumulated;
+        } else {
+          replyText = await (result as Promise<string>);
+        }
+
+        clearTimeout(timeoutId);
+        activeAborts.delete(abortKey);
+
+        if (!replyText) {
+          this.setTyping(buddyId, false);
+          if (streamMsgId) {
+            const thread = (state.threads[buddyId] ?? []).filter(m => m.id !== streamMsgId);
+            setState({ threads: { ...state.threads, [buddyId]: thread } });
+          }
+          this.playProviderFallback(buddyId, reply.fallbackLines);
+          return;
+        }
+
+        if (driver.moderationProvider) {
+          const modResult = await driver.moderationProvider.check(replyText, controller.signal);
+          if (!modResult.allowed) {
+            this.setTyping(buddyId, false);
+            driver.emit?.({ type: 'chat:moderated', buddyId, reason: modResult.reason });
+            if (streamMsgId) {
+              const thread = (state.threads[buddyId] ?? []).filter(m => m.id !== streamMsgId);
+              setState({ threads: { ...state.threads, [buddyId]: thread } });
+            }
+            this.playProviderFallback(buddyId, reply.fallbackLines);
+            return;
+          }
+        }
+
+        if (isStream) {
+          // Streaming: message already in the thread; emit events.
+          driver.emit?.({ type: 'qq:message', buddyId, direction: 'incoming', text: replyText });
+        } else {
+          // Promise: deliver the complete message.
+          this.setTyping(buddyId, false);
+          this.receiveMessage(buddyId, replyText);
+        }
+        driver.emit?.({ type: 'chat:reply', buddyId, text: replyText });
+      } catch {
+        clearTimeout(timeoutId);
+        activeAborts.delete(abortKey);
+        this.setTyping(buddyId, false);
+        this.playProviderFallback(buddyId, reply.fallbackLines);
+      }
+    };
+
+    void handleResult();
+  },
+
+  /** Play a fallback line when the provider is absent or fails. */
+  playProviderFallback(buddyId: string, fallbackLines?: string[]): void {
+    if (!fallbackLines || fallbackLines.length === 0) return;
+    const idx = replyCursor.get(buddyId) ?? 0;
+    const text = fallbackLines[idx % fallbackLines.length];
+    replyCursor.set(buddyId, idx + 1);
+    const typingMs = Math.min(2200, 400 + text.length * 90);
+    this.setTyping(buddyId, true);
+    schedule(() => {
+      this.setTyping(buddyId, false);
+      this.receiveMessage(buddyId, text);
+      driver.emit?.({ type: 'chat:fallback', buddyId, text });
+    }, typingMs);
   },
 
   /** Mark a chat as focused (clear unread count). */

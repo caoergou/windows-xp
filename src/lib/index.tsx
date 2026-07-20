@@ -16,6 +16,7 @@ import type { Lesson } from '../lesson/types';
 import type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 import type { ClockConfig } from '../context/ClockContext';
 import type { PowerSequence } from '../context/PowerTransitionContext';
+import type { XPProviders } from '../providers/types';
 import '../i18n';
 import '../scoped.css';
 
@@ -181,6 +182,13 @@ export interface WindowsXPProps {
    * leave off in production. See `docs/SCENARIOS.md`.
    */
   devtools?: boolean;
+  /**
+   * Host-supplied backend providers (#148/#149). Wire a BFF's chat endpoint,
+   * a moderation check, or a web-page generator without shipping any network
+   * code or API keys in the engine bundle. Every field is optional — the
+   * engine works identically without any provider.
+   */
+  providers?: XPProviders;
   /** Subscribe to desktop events (app launches, file opens, session, cmd...). */
   onEvent?: XPEventListener;
   /**
@@ -251,6 +259,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
     scenario,
     contentPacks,
     lessons,
+    providers,
     devtools,
     onEvent,
     theme,
@@ -290,6 +299,7 @@ export const WindowsXP = React.forwardRef<XPHandle, WindowsXPProps>(function Win
       contentPacks={contentPacks}
       lessons={lessons}
       devtools={devtools}
+      providers={providers}
       onEvent={onEvent}
       theme={theme}
       os={os}
@@ -401,6 +411,28 @@ export type {
 export type { WallpaperItem } from '../data/wallpapers';
 export type { DeepLinkRoute, DeepLinkRoutes } from '../utils/deepLink';
 export type { BlogPost, ContentManifest, SiteMeta, Frontmatter } from '../content/blog';
+// Provider ports (#148/#149).
+export type {
+  XPProviders,
+  ChatProvider,
+  ChatContext,
+  ChatTurn,
+  ModerationProvider,
+  ModerationResult,
+  WebContentProvider,
+  WebContentContext,
+  GeneratedPage,
+  ContextSelector,
+  ProviderReplyConfig,
+  WorldContextItem,
+} from '../providers/types';
+export { ProviderProvider, useProviders } from '../providers/ProviderContext';
+// HTML sanitizer (#149).
+export { sanitizeHtml } from '../content/sanitizer';
+export type { SanitizeTier, SanitizeOptions } from '../content/sanitizer';
+// Generated page cache (#149).
+export { createGeneratedPageCache, normalizeCacheUrl } from '../content/generatedPageCache';
+export type { GeneratedPageCache, GeneratedPageCacheOptions } from '../content/generatedPageCache';
 // Content reference & content-pack model (#241).
 export type { ContentRef, ContentPack, SiteDef, PackStrings } from '../content/types';
 export { isInlineRef, isUrlRef, isAssetRef, isContentRef } from '../content/types';

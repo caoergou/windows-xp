@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useWindowManagerActions } from '../../context/WindowManagerContext';
 import { useCulture } from '../../context/CultureContext';
 import { useContentPacks } from '../../context/ContentPackContext';
 import { useXPEventBus } from '../../context/EventBusContext';
+import { useStorage } from '../../context/StorageContext';
+import { useProviders } from '../../providers/ProviderContext';
+import { createGeneratedPageCache } from '../../content/generatedPageCache';
 import { useTranslation } from 'react-i18next';
 import IEToolbar from '../../components/Explorer/IEToolbar';
 import IEAddressBar from '../../components/Explorer/IEAddressBar';
@@ -29,10 +32,17 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
 }) => {
   const { openWindow } = useWindowManagerActions();
   const { t } = useTranslation();
-  const { culture } = useCulture();
+  const { culture, cultureKey } = useCulture();
   const { sites, resolver } = useContentPacks();
   const bus = useXPEventBus();
+  const storage = useStorage();
+  const providers = useProviders();
   const homepage = culture.browser?.homepage ?? 'about:blank';
+
+  const generatedPageCache = useMemo(
+    () => (providers.webContent ? createGeneratedPageCache(storage) : undefined),
+    [providers.webContent, storage]
+  );
 
   const openNewIE = useCallback(
     (newUrl: string) => {
@@ -185,6 +195,13 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
     setStatusText(t('internetExplorer.status.done'));
   }, [t]);
 
+  const handleGenerated = useCallback(
+    (url: string) => {
+      bus.emit({ type: 'ie:navigate', url, generated: true });
+    },
+    [bus]
+  );
+
   const handleContentError = useCallback(() => {
     setIsLoading(false);
     setStatusText(t('internetExplorer.status.cannotDisplay'));
@@ -241,6 +258,12 @@ const InternetExplorer: React.FC<InternetExplorerProps> = ({
           onOpenHelp={handleHelp}
           sites={sites}
           resolver={resolver}
+          webContentProvider={providers.webContent}
+          moderationProvider={providers.moderation}
+          generatedPageCache={generatedPageCache}
+          culture={cultureKey}
+          eraPrompt={culture.browser?.eraPrompt}
+          onGenerated={handleGenerated}
         />
       </BrowserChrome>
       {showAddFavorite && (
