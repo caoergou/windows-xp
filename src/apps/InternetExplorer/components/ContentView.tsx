@@ -243,6 +243,7 @@ const ContentView: React.FC<ContentViewProps> = ({
     moderationProvider,
     generatedPageCache,
     culture,
+    eraPrompt,
     onLoad,
     onGenerated,
   ]);

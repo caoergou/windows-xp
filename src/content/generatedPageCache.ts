@@ -38,7 +38,7 @@ export function normalizeCacheUrl(url: string): string {
     const parsed = new URL(url.startsWith('//') ? `http:${url}` : url, 'http://localhost');
     let host = parsed.hostname.toLowerCase();
     if (host.startsWith('www.')) host = host.slice(4);
-    let path = parsed.pathname.replace(/\/+$/, '') || '/';
+    const path = parsed.pathname.replace(/\/+$/, '') || '/';
     const search = parsed.search;
     return `${host}${path}${search}`;
   } catch {
