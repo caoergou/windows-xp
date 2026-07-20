@@ -47,6 +47,8 @@ export interface StartMenuProfile {
 
 export interface BrowserCultureProfile {
   homepage: string;
+  /** Era-appropriate prompt template for the WebContentProvider (#149). */
+  eraPrompt?: string;
 }
 
 /**

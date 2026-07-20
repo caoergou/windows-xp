@@ -76,6 +76,10 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `session:shutdown-complete` | `mode` | The power transition completed and is ready for host navigation or reload. |
 | `flag:change` | `flag`, `value` | A scenario flag's value changed (set/inc). Lets a trigger fire on progress itself, not only on a UI event. Emitted by the scenario runtime, not the core engine. |
 | `cmd:exec` | `command` | A command was executed in the Command Prompt. |
+| `chat:request` | `buddyId` | A chat reply was requested from the host's ChatProvider. |
+| `chat:reply` | `buddyId`, `text` | A chat reply was received from the provider and rendered. |
+| `chat:fallback` | `buddyId`, `text` | The provider failed or is absent; a scripted fallback line was used instead. |
+| `chat:moderated` | `buddyId`, `reason?` | Inbound LLM text was blocked by the ModerationProvider. |
 | `ie:navigate` | `url`, `generated?` | Internet Explorer navigated to a URL; `generated` is true when the page came from a host content provider rather than a bundled/authored page. |
 | `wallpaper:change` | `wallpaper` | The desktop wallpaper was changed (`wallpaper` is the id or URL). |
 | `screensaver:start` | — | The screensaver started. |

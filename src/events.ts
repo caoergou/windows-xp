@@ -98,6 +98,15 @@ export type XPEventBody =
   // ── cmd: command prompt ─────────────────────────────────────────────────────
   /** A command was executed in the Command Prompt. */
   | { type: 'cmd:exec'; command: string }
+  // ── chat: provider-backed buddy conversation (#148) ─────────────────────────
+  /** A chat reply was requested from the host's ChatProvider. */
+  | { type: 'chat:request'; buddyId: string }
+  /** A chat reply was received from the provider and rendered. */
+  | { type: 'chat:reply'; buddyId: string; text: string }
+  /** The provider failed or is absent; a scripted fallback line was used instead. */
+  | { type: 'chat:fallback'; buddyId: string; text: string }
+  /** Inbound LLM text was blocked by the ModerationProvider. */
+  | { type: 'chat:moderated'; buddyId: string; reason?: string }
   // ── ie: Internet Explorer ───────────────────────────────────────────────────
   /** Internet Explorer navigated to a URL; `generated` is true when the page came from a host content provider rather than a bundled/authored page. */
   | { type: 'ie:navigate'; url: string; generated?: boolean }

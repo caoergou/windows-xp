@@ -15,3 +15,4 @@ export { useTray } from '../context/TrayContext';
 export { useScheduler } from '../context/SchedulerContext';
 export { useClock } from '../context/ClockContext';
 export { useApp } from '../hooks/useApp';
+export { useProviders } from '../providers/ProviderContext';

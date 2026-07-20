@@ -27,7 +27,10 @@ export interface QQScriptStep {
  */
 export type QQReply =
   | { kind: 'script'; steps: QQScriptStep[] }
-  | { kind: 'provider'; provider: 'chat' };
+  | ({
+      kind: 'provider';
+      provider: 'chat';
+    } & import('../../providers/types').ProviderReplyConfig);
 
 export interface QQBuddy {
   /** Unique identifier. */
