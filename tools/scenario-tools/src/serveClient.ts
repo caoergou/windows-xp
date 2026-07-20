@@ -54,6 +54,7 @@ let mapZoom = 1;
 const pendingAuthoring = new Map();
 const injectedHistory = [];
 const personaTranscript = [];
+let assetFilter = 'all';
 const TASK_TOOLS = {
   build: [['problems', 'Problems'], ['map', 'Story map']],
   rehearse: [['timeline', 'Timeline'], ['events', 'Events'], ['personas', 'Personas']],
@@ -174,8 +175,10 @@ const shippingContent = snapshot => {
   const percent = Math.min(100, Math.round(report.scenarioBytes / report.scenarioLimitBytes * 100));
   const displayPercent = percent === 0 && report.scenarioBytes > 0 ? '&lt;1' : String(percent);
   const blockers = [['Lint', snapshot.lint], ['Solve', snapshot.solve], ['Pack', snapshot.pack]].filter(([, value]) => value.status === 'fail');
-  const assets = [...report.assets].sort((a, b) => (b.bytes ?? -1) - (a.bytes ?? -1));
-  return '<div class="ship-summary"><div><span>Scenario budget</span><strong>' + report.scenarioBytes + ' / ' + report.scenarioLimitBytes + ' B</strong></div><div class="budget"><i style="width:' + Math.max(1, percent) + '%"></i></div><small>' + displayPercent + '% used · packed total ' + report.totalBytes + ' B</small></div>' + (blockers.length ? '<div class="ship-blockers"><strong>Shipping blocked</strong>' + blockers.map(([name]) => '<span>' + name + ' gate failed</span>').join('') + '</div>' : '<div class="ship-ready"><strong>All shipping gates pass.</strong><span>Review the largest assets before publishing.</span></div>') + '<div class="asset-heading"><h3>Largest assets</h3><span>' + assets.length + ' declared</span></div>' + assets.map((item, index) => '<div class="asset"><b>' + (index + 1) + '</b><code>' + escapeHtml(item.key) + '</code><span>' + escapeHtml(item.source) + '</span><strong>' + escapeHtml(item.bytes ?? 'remote') + (item.bytes === null ? '' : ' B') + '</strong></div>').join('');
+  const assetProblem = item => (snapshot.lint.result?.diagnostics ?? []).find(diagnostic => (diagnostic.path ?? '').includes(item.key) && ['broken-asset', 'missing-file', 'orphan-asset', 'duplicate-file'].includes(diagnostic.code));
+  const allAssets = [...report.assets].sort((a, b) => (b.bytes ?? -1) - (a.bytes ?? -1));
+  const assets = allAssets.filter(item => assetFilter === 'all' || (assetFilter === 'issues' ? assetProblem(item) : assetFilter === 'remote' ? item.bytes === null : item.bytes !== null));
+  return '<div class="ship-summary"><div><span>Scenario budget</span><strong>' + report.scenarioBytes + ' / ' + report.scenarioLimitBytes + ' B</strong></div><div class="budget"><i style="width:' + Math.max(1, percent) + '%"></i></div><small>' + displayPercent + '% used · packed total ' + report.totalBytes + ' B</small></div>' + (blockers.length ? '<div class="ship-blockers"><strong>Shipping blocked</strong>' + blockers.map(([name]) => '<span>' + name + ' gate failed</span>').join('') + '</div>' : '<div class="ship-ready"><strong>All shipping gates pass.</strong><span>Review the largest assets before publishing.</span></div>') + '<div class="asset-heading"><h3>Largest assets</h3><span>' + allAssets.length + ' declared</span></div><div class="asset-filters">' + [['all','All'],['local','Local'],['remote','Remote'],['issues','Issues']].map(([id,label]) => '<button data-asset-filter="' + id + '" aria-pressed="' + (assetFilter === id) + '">' + label + '</button>').join('') + '</div>' + (assets.length ? assets.map((item, index) => { const problem = assetProblem(item); return '<div class="asset"><b>' + (index + 1) + '</b><code>' + escapeHtml(item.key) + '</code><span>' + escapeHtml(item.source) + (problem ? '<small>' + escapeHtml(problem.code) + '</small>' : '') + '</span><strong>' + escapeHtml(item.bytes ?? 'remote') + (item.bytes === null ? '' : ' B') + '</strong></div>'; }).join('') : '<p class="notice">No assets match this filter.</p>');
 };
 const toolContent = (name, snapshot) => {
   if (name === 'problems') {
@@ -290,6 +293,7 @@ const bindPanel = () => {
   document.querySelectorAll('[data-replay-event]').forEach(button => button.addEventListener('click', () => { const event = JSON.parse(decodeURIComponent(button.dataset.replayEvent)); injectedHistory.push(event); command({ type: 'emit', event }); }));
   document.querySelectorAll('[data-copy-source]').forEach(button => button.addEventListener('click', async () => { await navigator.clipboard.writeText(button.dataset.copySource); showToast('Location copied'); }));
   document.querySelectorAll('[data-related-node]').forEach(button => button.addEventListener('click', () => openRelatedNode(button.dataset.relatedNode)));
+  document.querySelectorAll('[data-asset-filter]').forEach(button => button.addEventListener('click', () => { assetFilter = button.dataset.assetFilter; renderStudio(); }));
   document.querySelectorAll('[data-chat]').forEach(button => button.addEventListener('click', () => {
     const input = document.querySelector('[data-persona-message="' + CSS.escape(button.dataset.buddy) + '"]');
     const message = input.value.trim();
