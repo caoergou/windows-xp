@@ -611,3 +611,28 @@ export {
   assertLoadableSnapshot,
   SNAPSHOT_MAX_BYTES,
 } from '../snapshot';
+
+// ── Agent bridge (#150) ──────────────────────────────────────────────────────
+export { createScopedHandle, AgentDeniedError, AgentRateLimitError } from '../agent';
+export type {
+  ScopedXPHandle,
+  ScopedHandleConfig,
+  ScopedDescription,
+  Capability,
+  DeniedPolicy,
+} from '../agent';
+export { expandCaps, DANGEROUS_CAPS, CAP_GROUPS } from '../agent';
+
+// ── Teaching content kit (#142) ──────────────────────────────────────────────
+export { useAppSettings, readAppSetting } from '../hooks/useAppSettings';
+export type { SettingsDescriptor, SettingValue, AppSettingsApi } from '../hooks/useAppSettings';
+export type {
+  SetupWizardSpec,
+  SetupWizardProduct,
+  SetupWizardPageType,
+  SetupWizardPage,
+  SetupWizardInstalls,
+  SetupWizardOption,
+} from '../apps/SetupWizard';
+export type { InstalledProduct } from '../context/InstalledAppsContext';
+export { useInstalledApps } from '../context/InstalledAppsContext';

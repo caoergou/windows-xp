@@ -63,6 +63,7 @@ import {
   type RehearsalState,
 } from '../devtools/rehearsalChannel';
 import type { Action, FlagValue, Scenario } from '../scenario/types';
+import { readAppSetting } from '../hooks/useAppSettings';
 
 /** In-memory + persisted progress for one running scenario. */
 interface ScenarioState {
@@ -397,6 +398,9 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
         event,
         journal: state.journal,
         fs: fsPredicates,
+        appSettings: {
+          get: (appId, key) => readAppSetting(storage.local, storage.key, appId, key),
+        },
       };
       let whenTrace: ConditionTrace | undefined;
       if (!skip) {
@@ -557,6 +561,9 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
         event: lastEvent,
         journal: st.journal,
         fs: getEvalFs(),
+        appSettings: {
+          get: (appId, key) => readAppSetting(storage.local, storage.key, appId, key),
+        },
       };
       return {
         scenarioId: scenario.id,

@@ -131,6 +131,9 @@ conventions live in [`docs/EVENTS.md`](https://github.com/caoergou/windows-xp/bl
 | `install:complete` | `appId` | A software install completed. |
 | `install:cancelled` | `appId` | A software install was cancelled before completing. |
 | `ui:action` | `appId`, `control`, `value?` | A semantic app control changed (checkbox toggled, option selected); `control` names it and `value` is the new value. Emitted by data-driven apps (defineApp), gated by `settingEquals`. |
+| `agent:call` | `cap`, `method`, `args?`, `latencyMs?` | A scoped-handle method was invoked successfully; `cap` names the capability, `method` the handle method, `args` a sanitized summary. |
+| `agent:denied` | `cap`, `method`, `args?` | A scoped-handle call was denied (capability not in the allowlist); `cap` names the missing capability. |
+| `agent:approved` | `cap`, `method`, `args?` | A scoped-handle call required and received approval from the human gate before executing. |
 | `link:external` | `url`, `newTab`, `source?` | The visitor followed a link out of the fiction to an external URL — the conversion signal campaigns measure. `newTab` is whether it opened in a new tab; `source` is the originating window id or file path, when known. |
 
 _Generated from `src/events.ts` by `npm run docs:events` — do not edit by hand._

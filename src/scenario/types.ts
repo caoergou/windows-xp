@@ -75,7 +75,9 @@ export type Condition =
         claimId: string;
         result?: import('../apps/EvidenceReport/logic').ClaimResult;
       };
-    };
+    }
+  /** App-settings predicate (#142): the app's persisted setting `key` equals `value`. */
+  | { settingEquals: { appId: string; key: string; value: string | number | boolean } };
 
 /**
  * An action executed when a trigger fires and its condition holds. Each maps to

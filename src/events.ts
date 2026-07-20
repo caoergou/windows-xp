@@ -243,6 +243,19 @@ export type XPEventBody =
   // ── ui: semantic in-app control changes (#142) ───────────────────────────────
   /** A semantic app control changed (checkbox toggled, option selected); `control` names it and `value` is the new value. Emitted by data-driven apps (defineApp), gated by `settingEquals`. */
   | { type: 'ui:action'; appId: string; control: string; value?: string | number | boolean }
+  // ── agent: scoped-handle audit trail (#150) ──────────────────────────────────
+  /** A scoped-handle method was invoked successfully; `cap` names the capability, `method` the handle method, `args` a sanitized summary. */
+  | {
+      type: 'agent:call';
+      cap: string;
+      method: string;
+      args?: Record<string, unknown>;
+      latencyMs?: number;
+    }
+  /** A scoped-handle call was denied (capability not in the allowlist); `cap` names the missing capability. */
+  | { type: 'agent:denied'; cap: string; method: string; args?: Record<string, unknown> }
+  /** A scoped-handle call required and received approval from the human gate before executing. */
+  | { type: 'agent:approved'; cap: string; method: string; args?: Record<string, unknown> }
   // ── link: outbound navigation (#136) ────────────────────────────────────────
   /** The visitor followed a link out of the fiction to an external URL — the conversion signal campaigns measure. `newTab` is whether it opened in a new tab; `source` is the originating window id or file path, when known. */
   | { type: 'link:external'; url: string; newTab: boolean; source?: string };

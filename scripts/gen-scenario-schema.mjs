@@ -79,6 +79,17 @@ const condition = {
         false
       ),
     }),
+    objectCase(['settingEquals'], {
+      settingEquals: objectCase(
+        ['appId', 'key', 'value'],
+        {
+          appId: { type: 'string' },
+          key: { type: 'string' },
+          value: flagValue,
+        },
+        false
+      ),
+    }),
   ],
 };
 

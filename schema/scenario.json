@@ -128,6 +128,8 @@
                       "install:complete",
                       "install:cancelled",
                       "ui:action",
+                      "agent:denied",
+                      "agent:approved",
                       "link:external"
                     ]
                   }
@@ -289,6 +291,8 @@
                     "install:complete",
                     "install:cancelled",
                     "ui:action",
+                    "agent:denied",
+                    "agent:approved",
                     "link:external"
                   ]
                 },
@@ -396,6 +400,8 @@
                     "install:complete",
                     "install:cancelled",
                     "ui:action",
+                    "agent:denied",
+                    "agent:approved",
                     "link:external"
                   ]
                 },
@@ -488,6 +494,23 @@
                 "result": {
                   "enum": ["supported", "under-supported", "conflicted", "unknown"]
                 }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["settingEquals"],
+          "properties": {
+            "settingEquals": {
+              "type": "object",
+              "required": ["appId", "key", "value"],
+              "properties": {
+                "appId": { "type": "string" },
+                "key": { "type": "string" },
+                "value": { "type": ["string", "number", "boolean"] }
               },
               "additionalProperties": false
             }
@@ -734,6 +757,8 @@
                     "install:complete",
                     "install:cancelled",
                     "ui:action",
+                    "agent:denied",
+                    "agent:approved",
                     "link:external"
                   ]
                 }
@@ -906,6 +931,8 @@
                 "install:complete",
                 "install:cancelled",
                 "ui:action",
+                "agent:denied",
+                "agent:approved",
                 "link:external"
               ]
             },
@@ -1001,6 +1028,8 @@
                   "install:complete",
                   "install:cancelled",
                   "ui:action",
+                  "agent:denied",
+                  "agent:approved",
                   "link:external"
                 ]
               }

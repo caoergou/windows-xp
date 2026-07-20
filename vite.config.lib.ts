@@ -58,6 +58,7 @@ export default defineConfig({
         theme: path.resolve(__dirname, 'src/lib/theme.tsx'),
         registry: path.resolve(__dirname, 'src/lib/registry.tsx'),
         os: path.resolve(__dirname, 'src/lib/os.tsx'),
+        'content-pack-loader': path.resolve(__dirname, 'src/lib/content-pack-loader.ts'),
       },
       formats: ['es', 'cjs'],
       fileName: (format, entryName) => `${entryName}.${format}.js`,

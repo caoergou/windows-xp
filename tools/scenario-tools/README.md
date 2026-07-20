@@ -9,11 +9,34 @@ npx xp-scenario lint ./scenario.ts
 npx xp-scenario solve ./scenario.ts
 npx xp-scenario graph ./scenario.ts --format mermaid
 npx xp-scenario pack ./content-pack --check
+npx xp-scenario pack ./content-pack --format xpspack --compress brotli --out dist/story.xpspack
+npx xp-scenario pack ./content-pack --format xpspack --compress brotli \
+  --sign-key-env XP_SCENARIO_SIGNING_KEY --sign-key-id publisher-2026 \
+  --out dist/story-signed.xpspack
 npx xp-scenario migrate ./scenario.ts ./save.json --map-flag old=new --write
 npx xp-scenario serve ./scenario.ts
 ```
 
 `lint` and `pack` return a non-zero exit code for errors. Warnings remain visible but do not fail CI. `migrate` is diagnostic by default; it writes only when `--write` is explicit, and never guesses a rename. Use `--map-flag old=new` or `--map-trigger old=new` to describe intentional renames.
+
+The versioned `.xpspack` distribution contract is specified in
+[`docs/XPSPACK-FORMAT.md`](../../docs/XPSPACK-FORMAT.md). `pack` keeps JSON as
+its default and can also emit deterministic ZIP-compatible archives with
+`--format xpspack` and `--compress none|gzip|brotli`. `--check` validates and
+measures either format without writing. The programmatic `readXpspack()` loader
+verifies the restricted ZIP profile, CRCs, manifest invariants, chunk and asset
+hashes, size limits, decompression, and the reconstructed ContentPack before
+returning it. Local files declared in `ContentPack.assets` are stored as separate
+binary-safe entries and restored as media-typed `data:` URLs. Ed25519 signing
+reads a PEM private key only from the named environment
+variable; the key is never added to the manifest or result. `readXpspack()`
+accepts host-controlled `trustedSigningKeys` by key ID and can enforce
+`requireSignature`. Signature failures throw `XpspackError` with stable codes
+for localization. The programmatic builder accepts additional chunk definitions;
+AES-256-GCM chunks always receive fresh random nonces and `readXpspack()` asks
+the host-owned asynchronous `keyProvider` only when `loadChunk(id)` is called.
+Raw chapter keys are never returned or serialized. CLI-authored chunk boundaries
+and hosted per-file fetching remain follow-up work.
 
 `serve` starts the browser-based **Scenario Studio** plus a token-protected, loopback-only
 WebSocket control channel and preserves the interactive REPL for terminal-first

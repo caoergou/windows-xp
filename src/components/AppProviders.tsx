@@ -35,6 +35,7 @@ import { ScenarioRunner } from './ScenarioRunner';
 const DevToolsPanel = React.lazy(() => import('../devtools/DevToolsPanel'));
 import { LessonProvider } from '../context/LessonContext';
 import { NotesProvider } from '../context/NotesContext';
+import { InstalledAppsProvider } from '../context/InstalledAppsContext';
 import type { Scenario } from '../scenario/types';
 import type { Lesson } from '../lesson/types';
 import { DeepLinkLoader } from './DeepLinkLoader';
@@ -304,33 +305,35 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
                                 <TrayProvider>
                                   <SystemDialogs modality={os.behavior.dialogModality}>
                                     <NotesProvider>
-                                      <LessonProvider lessons={lessons}>
-                                        <XPImperativeApi
-                                          ref={handleRef}
-                                          storagePrefix={storagePrefix}
-                                        />
-                                        <ScenarioRunner scenario={scenario} />
-                                        {devtools && (
-                                          <React.Suspense fallback={null}>
-                                            <DevToolsPanel scenario={scenario} />
-                                          </React.Suspense>
-                                        )}
-                                        <DeepLinkLoader
-                                          open={openOnLoad}
-                                          routes={routes}
-                                          location={location}
-                                          historyIntegration={historyIntegration}
-                                        />
-                                        <App
-                                          initialLanguage={language}
-                                          skipBoot={skipBoot}
-                                          disableContextMenuBlock={disableContextMenuBlock}
-                                          disableDevToolsBlock={disableDevToolsBlock}
-                                          disableScreenSaver={disableScreenSaver}
-                                          boot={boot}
-                                          login={login}
-                                        />
-                                      </LessonProvider>
+                                      <InstalledAppsProvider>
+                                        <LessonProvider lessons={lessons}>
+                                          <XPImperativeApi
+                                            ref={handleRef}
+                                            storagePrefix={storagePrefix}
+                                          />
+                                          <ScenarioRunner scenario={scenario} />
+                                          {devtools && (
+                                            <React.Suspense fallback={null}>
+                                              <DevToolsPanel scenario={scenario} />
+                                            </React.Suspense>
+                                          )}
+                                          <DeepLinkLoader
+                                            open={openOnLoad}
+                                            routes={routes}
+                                            location={location}
+                                            historyIntegration={historyIntegration}
+                                          />
+                                          <App
+                                            initialLanguage={language}
+                                            skipBoot={skipBoot}
+                                            disableContextMenuBlock={disableContextMenuBlock}
+                                            disableDevToolsBlock={disableDevToolsBlock}
+                                            disableScreenSaver={disableScreenSaver}
+                                            boot={boot}
+                                            login={login}
+                                          />
+                                        </LessonProvider>
+                                      </InstalledAppsProvider>
                                     </NotesProvider>
                                   </SystemDialogs>
                                 </TrayProvider>
