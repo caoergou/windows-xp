@@ -25,8 +25,12 @@ const COUNT_ATTR = 'data-os-theme-css-count';
 export const mountThemeCss = (theme: OSTheme): (() => void) => {
   if (!theme.css || typeof document === 'undefined') return () => {};
 
-  const selector = `style[${ATTR}="${theme.id}"]`;
-  let el = document.head.querySelector<HTMLStyleElement>(selector);
+  // Compare the attribute value directly instead of interpolating an authored
+  // theme id into a CSS selector (quotes/brackets are valid ids and must not
+  // turn into selector syntax).
+  let el = Array.from(document.head.querySelectorAll<HTMLStyleElement>(`style[${ATTR}]`)).find(
+    candidate => candidate.getAttribute(ATTR) === theme.id
+  );
   if (el) {
     el.setAttribute(COUNT_ATTR, String(Number(el.getAttribute(COUNT_ATTR) ?? '1') + 1));
   } else {
@@ -36,10 +40,11 @@ export const mountThemeCss = (theme: OSTheme): (() => void) => {
     el.textContent = theme.css;
     document.head.insertBefore(el, document.head.firstChild);
   }
+  const mountedElement = el;
 
   return () => {
-    const remaining = Number(el!.getAttribute(COUNT_ATTR) ?? '1') - 1;
-    if (remaining <= 0) el!.remove();
-    else el!.setAttribute(COUNT_ATTR, String(remaining));
+    const remaining = Number(mountedElement.getAttribute(COUNT_ATTR) ?? '1') - 1;
+    if (remaining <= 0) mountedElement.remove();
+    else mountedElement.setAttribute(COUNT_ATTR, String(remaining));
   };
 };

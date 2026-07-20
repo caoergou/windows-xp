@@ -1,31 +1,24 @@
 # Theme layer (`src/themes/`)
 
-Status: **Phase ①+ / B1 done — the asset/style level is fully consolidated
-behind the contract (#213), the theme is selectable at runtime, and the skin
-itself is theme-carried.** XP is the only theme, and shipping a second one
-(Win7 / macOS / custom) is still a non-goal; but every _asset-level_
-XP-specific element — colours, fonts, icons, cursors, sounds, and the whole
-skin sheet (xp.css + chrome sheet) — now lives inside `src/themes/xp/` and
-reaches the rest of the code only through this layer's exports or runtime
-registration. On top of that, **B1 (#213)** wires the runtime selection seam:
-a `theme?: OSTheme` prop (default `xpTheme`) is injected through a
-styled-components `ThemeProvider`, the active theme's sound scheme and skin
-sheet are mounted from it, and `useOSTheme()` / `props.theme` expose it to
-consumers — every former static `COLORS`/`FONTS` consumer now reads the theme
-this way (codemod finished; the `src/constants.ts` re-export is gone). The
-remaining XP coupling is _structural_ (chrome slots, behavior profile,
-menus-as-data — #143 Phase B proper), not asset-level.
+Status: **#213 B1–B5 implemented.** `OSTheme` remains the asset/style contract;
+the higher-level `OSPackage` now owns that theme plus chrome slots, a closed
+`BehaviorProfile`, conventions, and app-role mappings. XP is the default
+package (`xpOS`). The original `paperOS` reference package replaces the skin,
+window decoration, shell surface, boot/login screens, menu renderer, modifier,
+window animation and maximize behavior without changing engine code.
 
 ## The runtime seam (B1, #213)
 
 ```
-<WindowsXP theme={xpTheme}>  →  AppProviders  →  <ThemeProvider theme={theme}>
-                                                      │  props.theme  = OSTheme
-                                                      └  useOSTheme() = OSTheme
+<WindowsXP os={xpOS}> → OSPackageProvider → chrome / behavior / conventions
+                              └────────────→ ThemeProvider(os.theme)
 ```
 
 - **`theme?: OSTheme`** on `WindowsXP` / `AppProviders`, defaulting to `xpTheme`
-  — passing nothing is byte-identical to before, so existing usage is unchanged.
+  remains a backwards-compatible skin-only override.
+- **`os?: OSPackage`** defaults to `xpOS`. This is the complete replacement seam;
+  `useOSPackage()` reads it and `defineOS()` validates authored packages. Public
+  exports live at the package root and the `./os` subpath.
 - The composition root wraps the desktop in a styled-components `ThemeProvider`
   carrying the selected theme; `DefaultTheme` is augmented to `OSTheme`
   (`src/styled.d.ts`) so `props.theme` is fully typed inside styled components.
@@ -93,7 +86,7 @@ live **beside** the registry under `src/themes/xp/assets/`, not in the shared
 `src/assets/` tree, so the theme is a self-contained package. A second theme
 ships its own `assets/` folder of the same shape.
 
-`OSTheme` = `{ id, name, tokens, fonts, assets, styles, sounds, css?, chrome? }`:
+`OSTheme` = `{ id, name, tokens, fonts, assets, styles, sounds, css? }`:
 
 - **`tokens`** — colours, gradients and chrome dimensions (the XP set is
   `COLORS`, ~130 entries). Groups: core chrome (surface/highlight/borders),
@@ -126,13 +119,23 @@ ships its own `assets/` folder of the same shape.
   scaffold (`scoped.css`); consumers importing it are unaffected, and bare
   `/apps` renders that previously relied on `style.css` for the skin should
   call `mountThemeCss(xpTheme)` from their entry.
-- **`chrome?`** — the _shape_ of the window/taskbar/menu component slots. Left
-  unpopulated: XP wires its chrome directly, and authoring real alternate chrome
-  (Aero glass, macOS traffic lights, a dock) is the large tail that only pays off
-  once a second theme exists.
 
-The contract and `xpTheme` are exported from the public `./theme` subpath
-alongside the existing `COLORS` / `FONTS` / `xpButtonStyles`.
+`OSPackage` adds:
+
+- **`chrome`** — required `WindowDecoration`, `shellSurfaces`, `BootScreen`,
+  `LoginScreen`, `MenuBar`, and `SystemDialogs` slots, plus an optional
+  `Launcher`. Engine surfaces select these slots; XP components are bound
+  only by `xpOS`.
+- **`behavior`** — closed decisions for menu placement, minimize target,
+  maximize semantics, primary modifier, animation, focus, and dialog modality.
+  These are enums, not arbitrary callbacks into the window manager.
+- **`conventions`** — path style, terminal dialect, icon sizes and wallpaper.
+- **`appRoles`** — semantic `files/editor/browser/terminal/media` mappings.
+  Content can use `role:<name>` and resolve through the active package.
+
+The theme contract and `xpTheme` are exported from `./theme`; `OSPackage`,
+`defineOS`, `xpOS`, `paperOS`, role helpers and the runtime accessor are exported
+from `./os`.
 
 ## Brand palettes: what deliberately does NOT theme
 
@@ -170,16 +173,14 @@ inline hexes outside a block still count against the zero baseline).
 The ~1,480 inline hex literals that bypassed `COLORS` were migrated in #213
 (fonts → `FONTS`, chrome colours/gradients → `COLORS`, app identity →
 brand-palette blocks) with pixel-identical screenshots as the acceptance bar.
-The dominant cost of a future theme swap at the _skin_ level is paid; what a
-second theme still cannot change is layout/behavior (below).
+The dominant cost of a future theme swap at the skin level is paid. The OS
+package layer now also selects layout and the supported behavior decisions.
 
 ## Known follow-ups
 
-- **Chrome slots**: populate `OSTheme.chrome` and select chrome by theme — only
-  meaningful with a real second theme (#143 Phase B).
-- **BehaviorProfile / menus-as-data / app roles**: the structural
-  (layout/behavior) levels of an OS package — #143 Phase B + #128; out of the
-  theme layer's scope.
+- **Official fidelity depth**: `paperOS` is intentionally a small authoring and
+  contract reference, not a claim of fidelity to a historical OS. A future
+  official real-OS-like package needs its own evidence table and visual suite.
 - **Per-app icon contribution**: `XP_ICONS` still carries app/brand icons
   alongside system icons; apps contributing their own icons through the
   registry is a `defineApp` (#128) follow-up.

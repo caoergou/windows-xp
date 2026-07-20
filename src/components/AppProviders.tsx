@@ -13,7 +13,6 @@ import { WindowManagerProvider } from '../context/WindowManagerContext';
 import { KeymapProvider } from '../context/KeymapContext';
 import { UserSessionProvider } from '../context/UserSessionContext';
 import { TrayProvider } from '../context/TrayContext';
-import { ModalProvider } from '../context/ModalContext';
 import { AppRegistryProvider, useAppRegistry } from '../context/AppRegistryContext';
 import { CultureProvider, useCulture } from '../context/CultureContext';
 import { FileNode, AppRegistryEntry } from '../types';
@@ -44,9 +43,11 @@ import type { MarkdownOptions } from '../apps/MarkdownViewer/config';
 import type { DeepLinkRoutes } from '../utils/deepLink';
 import { XPEventBus } from '../events';
 import { registerSounds } from '../utils/soundManager';
-import { xpTheme } from '../themes/xp';
 import { mountThemeCss } from '../themes/mountThemeCss';
 import type { OSTheme } from '../themes/contract';
+import { xpOS } from '../themes/xp/os';
+import { OSPackageProvider, useOSPackage } from '../os/OSPackageContext';
+import type { OSPackage } from '../os/contract';
 import type { XPEventListener } from '../events';
 import { setStoragePrefix, type PersistenceMode } from '../utils/storage';
 import { getSavedLanguage } from '../utils/language';
@@ -131,6 +132,8 @@ export interface AppProvidersProps {
    * future non-XP package plugs into.
    */
   theme?: OSTheme;
+  /** Complete OS package: theme, chrome slots, behavior, conventions and app roles (#213). */
+  os?: OSPackage;
 }
 
 const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
@@ -169,6 +172,8 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
   devtools,
   contentPacks,
 }) => {
+  const os = useOSPackage();
+  const SystemDialogs = os.chrome.SystemDialogs;
   // Configure storage namespace synchronously before any context reads/writes storage.
   setStoragePrefix(storagePrefix || 'xp_');
 
@@ -288,9 +293,10 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
                             <KeymapProvider
                               keymap={keymap}
                               disableGlobalShortcuts={disableGlobalShortcuts}
+                              primaryModifier={os.behavior.primaryModifier}
                             >
                               <TrayProvider>
-                                <ModalProvider>
+                                <SystemDialogs modality={os.behavior.dialogModality}>
                                   <NotesProvider>
                                     <LessonProvider lessons={lessons}>
                                       <XPImperativeApi
@@ -320,7 +326,7 @@ const CultureAwareProviders: React.FC<Omit<AppProvidersProps, 'cultures'>> = ({
                                       />
                                     </LessonProvider>
                                   </NotesProvider>
-                                </ModalProvider>
+                                </SystemDialogs>
                               </TrayProvider>
                             </KeymapProvider>
                           </MarkdownProvider>
@@ -419,9 +425,15 @@ export const AppProviders: React.FC<AppProvidersProps> = ({
   apps,
   language,
   viewportPolicy,
-  theme = xpTheme,
+  theme,
+  os = xpOS,
   ...rest
 }) => {
+  const activeOS = useMemo<OSPackage>(
+    () => (theme ? { ...os, id: theme.id, name: theme.name, theme } : os),
+    [os, theme]
+  );
+  const activeTheme = activeOS.theme;
   const activeLang = getSavedLanguage(language || 'en');
   const letterboxRef = useRef<HTMLDivElement>(null);
   const viewport = useViewportScale(viewportPolicy ?? 'auto', letterboxRef);
@@ -431,13 +443,13 @@ export const AppProviders: React.FC<AppProvidersProps> = ({
   // selected theme; `useMemo` runs synchronously during render, before any child
   // (boot chime included) can play. The engine's soundManager still binds no
   // audio itself; app sounds (QQ) self-register from their own package.
-  useMemo(() => registerSounds(theme.sounds), [theme]);
+  useMemo(() => registerSounds(activeTheme.sounds), [activeTheme]);
 
   // Mount the active theme's skin sheet (`OSTheme.css`, #213 B1) — the skin
   // follows the selected theme instead of being statically imported by the
   // entries. Layout effect so the sheet is in place before first paint;
   // `mountThemeCss` refcounts shared tags and removes the last one on unmount.
-  useLayoutEffect(() => mountThemeCss(theme), [theme]);
+  useLayoutEffect(() => mountThemeCss(activeTheme), [activeTheme]);
 
   const rootStyle: React.CSSProperties = viewport.active
     ? {
@@ -450,22 +462,24 @@ export const AppProviders: React.FC<AppProvidersProps> = ({
     : { width: '100%', height: '100%' };
 
   return (
-    <ThemeProvider theme={theme}>
-      <Letterbox ref={letterboxRef} $active={viewport.active}>
-        <I18nextProvider i18n={xpI18n}>
-          <ViewportScaleProvider scale={viewport.scale}>
-            <ViewportChrome showRotateHint={viewport.showRotateHint} />
-            <div className="windows-xp-root" style={rootStyle}>
-              <AppRegistryProvider apps={apps}>
-                <CultureProvider cultures={cultures} defaultLanguage={activeLang}>
-                  <CultureAwareProviders language={language} {...rest} />
-                </CultureProvider>
-              </AppRegistryProvider>
-            </div>
-          </ViewportScaleProvider>
-        </I18nextProvider>
-      </Letterbox>
-    </ThemeProvider>
+    <OSPackageProvider value={activeOS}>
+      <ThemeProvider theme={activeTheme}>
+        <Letterbox ref={letterboxRef} $active={viewport.active}>
+          <I18nextProvider i18n={xpI18n}>
+            <ViewportScaleProvider scale={viewport.scale}>
+              <ViewportChrome showRotateHint={viewport.showRotateHint} />
+              <div className="windows-xp-root" style={rootStyle}>
+                <AppRegistryProvider apps={apps}>
+                  <CultureProvider cultures={cultures} defaultLanguage={activeLang}>
+                    <CultureAwareProviders language={language} {...rest} />
+                  </CultureProvider>
+                </AppRegistryProvider>
+              </div>
+            </ViewportScaleProvider>
+          </I18nextProvider>
+        </Letterbox>
+      </ThemeProvider>
+    </OSPackageProvider>
   );
 };
 

@@ -18,6 +18,8 @@ import { useOptionalFileSystem } from '../../context/FileSystemContext';
 import { useOptionalWindowManager } from '../../context/WindowManagerContext';
 import { APP_REGISTRY, resolveFileOpen } from '../../registry/apps';
 import { useContentPacks } from '../../context/ContentPackContext';
+import { useOptionalOSPackage } from '../../os/OSPackageContext';
+import { useAppRegistry } from '../../context/AppRegistryContext';
 
 export interface EvidenceReportProps {
   reportId?: string;
@@ -93,6 +95,8 @@ const EvidenceReport: React.FC<EvidenceReportProps> = ({
   const storage = useStorage();
   const fs = useOptionalFileSystem();
   const windowManager = useOptionalWindowManager();
+  const os = useOptionalOSPackage();
+  const { registry } = useAppRegistry();
   const key = storage.key('evidence_reports');
   const initial = useMemo<PersistedReport>(() => {
     try {
@@ -171,7 +175,12 @@ const EvidenceReport: React.FC<EvidenceReportProps> = ({
     if (item.sourcePath) {
       const node = fs?.getFile(item.sourcePath);
       const resolved = node
-        ? resolveFileOpen(item.sourcePath[item.sourcePath.length - 1] ?? node.name, node)
+        ? resolveFileOpen(
+            item.sourcePath[item.sourcePath.length - 1] ?? node.name,
+            node,
+            os?.appRoles,
+            registry
+          )
         : null;
       if (resolved) {
         windowManager?.openWindow(

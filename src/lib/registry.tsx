@@ -9,3 +9,4 @@ export { defineApp, restoreApp } from '../registry/defineApp';
 export type { DefineAppConfig, AppWindowConfig, SerializableProps } from '../registry/defineApp';
 export { APP_REGISTRY, getAppDisplayName, resolveFileOpen } from '../registry/apps';
 export type { AppRegistryEntry, AppAssociation, AppLifecycle } from '../types';
+export type { AppMenu, AppMenuItem, AppRole } from '../os/contract';

@@ -1,5 +1,6 @@
 import React from 'react';
 import type { AppRegistryEntry, AppAssociation, AppLifecycle, JsonValue } from '../types';
+import type { AppMenu, AppRole } from '../os/contract';
 
 /**
  * App authoring factory (#128).
@@ -49,6 +50,12 @@ export interface DefineAppConfig<TProps extends SerializableProps> {
   lifecycle?: AppLifecycle;
   /** Make the app openable from a filesystem node whose `.app` equals `appField`. */
   associations?: AppAssociation[];
+  /** Semantic implementation role selected indirectly by OS packages. */
+  role?: AppRole;
+  /** Menu command data rendered by the active OS package. */
+  menus?: AppMenu[];
+  /** Runtime command sink for `menus`; receives the active window id. */
+  onMenuCommand?: (commandId: string, windowId: string) => void;
   /**
    * The app component. It may also receive an injected `windowId`. Its own
    * props (`TProps`) must be JSON-serializable (see {@link SerializableProps}).
@@ -123,6 +130,9 @@ export function defineApp<TProps extends SerializableProps = Record<string, neve
     window: { ...DEFAULT_WINDOW, ...config.window },
     lifecycle: config.lifecycle,
     associations: config.associations,
+    role: config.role,
+    menus: config.menus,
+    onMenuCommand: config.onMenuCommand,
     restore: restoreApp(Component as React.ComponentType<Record<string, unknown>>),
   };
 }

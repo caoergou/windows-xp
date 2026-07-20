@@ -40,6 +40,7 @@ import {
 import { useContentPacks } from '../context/ContentPackContext';
 import { validateScenario } from '../scenario/validate';
 import { pickText } from '../scenario/strings';
+import { useOSPackage } from '../os/OSPackageContext';
 import {
   buildTape,
   beatIndex,
@@ -115,6 +116,7 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
   const { registry } = useAppRegistry();
   const storage = useStorage();
   const { resolver } = useContentPacks();
+  const os = useOSPackage();
 
   // Resolved bodies of `contentRef` files a scenario reads via `contentContains`
   // (#241). Populated eagerly below so the condition evaluator can stay
@@ -323,7 +325,7 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
         const node = getFile(action.openFile);
         if (!node) return;
         const key = action.openFile[action.openFile.length - 1] ?? node.name;
-        const resolved = resolveFileOpen(key, node);
+        const resolved = resolveFileOpen(key, node, os.appRoles, registry);
         if (!resolved) return;
         openWindow(resolved.appId, node.name, resolved.component, resolved.icon, {
           ...resolved.windowProps,

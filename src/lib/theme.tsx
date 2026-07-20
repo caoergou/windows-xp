@@ -21,9 +21,9 @@ export type {
   ThemeTokens,
   ThemeAssets,
   ThemeStyles,
-  ChromeSlots,
   StyleFragment,
   WindowControlAssets,
   StartButtonAssets,
   ButtonStateImages,
 } from '../themes/contract';
+export type { ChromeSlots } from '../os/contract';

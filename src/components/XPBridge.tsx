@@ -36,6 +36,7 @@ import {
 import type { FlagValue } from '../scenario/types';
 import { useCulture } from '../context/CultureContext';
 import { usePowerTransition } from '../context/PowerTransitionContext';
+import { useOSPackage } from '../os/OSPackageContext';
 
 /** Filesystem actuation from outside the desktop (#115). Paths are absolute. */
 export interface XPFsApi {
@@ -263,6 +264,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
     const { start: startLesson, stop: stopLesson } = useLesson();
     const { culture } = useCulture();
     const power = usePowerTransition();
+    const os = useOSPackage();
 
     useImperativeHandle(ref, (): XPHandle => {
       return {
@@ -284,7 +286,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             return null;
           }
           const key = path[path.length - 1] ?? node.name;
-          const resolved = resolveFileOpen(key, node);
+          const resolved = resolveFileOpen(key, node, os.appRoles, registry);
           if (!resolved) return null;
           return openWindow(resolved.appId, node.name, resolved.component, resolved.icon, {
             ...resolved.windowProps,
@@ -602,6 +604,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
       recentDocuments,
       print,
       power,
+      os.appRoles,
     ]);
 
     void fs;

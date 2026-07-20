@@ -34,37 +34,14 @@ import closeButtonActive from './window-controls/close-active.png';
 import startButtonSprite from './start-button-sprite.png';
 import windowsLogo from './start-flag.png';
 import { XP_ICONS } from '../icons';
+import type { ThemeAssets } from '../../contract';
 
-/** The three background images a window-control button swaps between. */
-export interface ButtonStateImages {
-  normal: string;
-  hover: string;
-  active: string;
-}
-
-/** Image assets a theme's window chrome needs. */
-export interface WindowControlAssets {
-  minimize: ButtonStateImages;
-  maximize: ButtonStateImages;
-  restore: ButtonStateImages;
-  close: ButtonStateImages;
-}
-
-/** Image assets a theme's taskbar Start button needs. */
-export interface StartButtonAssets {
-  /** Spritesheet: 99×90, three 30px-tall frames (normal / hover / active). */
-  sprite: string;
-  /** The waving flag shown beside a localized "Start" label. */
-  logo: string;
-}
-
-/** The asset registry contract a theme must fill. */
-export interface ThemeAssets {
-  windowControls: WindowControlAssets;
-  startButton: StartButtonAssets;
-  /** Icon name → URL map consumed by XPIcon and the app registry (#213). */
-  icons: Record<string, string>;
-}
+export type {
+  ThemeAssets,
+  WindowControlAssets,
+  StartButtonAssets,
+  ButtonStateImages,
+} from '../../contract';
 
 export const XP_ASSETS: ThemeAssets = {
   windowControls: {

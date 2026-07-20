@@ -16,6 +16,7 @@ import * as appExports from '../src/lib/apps';
 import * as hookExports from '../src/lib/hooks';
 import * as themeExports from '../src/lib/theme';
 import * as registryExports from '../src/lib/registry';
+import * as osExports from '../src/lib/os';
 
 const MODULES: Record<string, Record<string, unknown>> = {
   '': rootExports,
@@ -24,6 +25,7 @@ const MODULES: Record<string, Record<string, unknown>> = {
   '/hooks': hookExports,
   '/theme': themeExports,
   '/registry': registryExports,
+  '/os': osExports,
 };
 
 // The READMEs, the thin USAGE index, and every page of the docs site (#214) —

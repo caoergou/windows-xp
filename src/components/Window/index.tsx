@@ -12,6 +12,9 @@ import WindowChrome from './WindowChrome';
 import WindowControls from './WindowControls';
 import ResizableWrapper from './ResizableWrapper';
 import { useModalInteraction } from '../../context/ModalContext';
+import { useOptionalOSPackage } from '../../os/OSPackageContext';
+import { useAppRegistry } from '../../context/AppRegistryContext';
+import OSMenuBar from '../OSMenuBar';
 
 interface WindowProps {
   windowState: WindowState;
@@ -91,6 +94,16 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
   const activeWindowId = useActiveWindowId();
   const { blockedWindowId, signalBlockedInteraction } = useModalInteraction();
   const osTheme = useOSTheme();
+  const os = useOptionalOSPackage();
+  const behavior = os?.behavior ?? {
+    menuModel: 'in-window',
+    maximizeSemantics: 'fill',
+    windowAnimations: 'caption',
+    focusRules: 'click-to-focus',
+  };
+  const WindowDecoration = os?.chrome.WindowDecoration;
+  const { registry } = useAppRegistry();
+  const appDefinition = registry?.[windowState.appId];
 
   const {
     id,
@@ -130,7 +143,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
       }
       maximizeWindow(id);
     },
-    [maximizeWindow, id, isMaximized]
+    [id, isMaximized, maximizeWindow]
   );
   const handleClose = React.useCallback(
     (e: React.MouseEvent) => {
@@ -149,7 +162,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
   const isFocused = id === activeWindowId && !isModalBlocked;
 
   React.useLayoutEffect(() => {
-    if (!transition || !surfaceRef.current) {
+    if (!transition || behavior.windowAnimations === 'none' || !surfaceRef.current) {
       setCaptionTransition(null);
       return;
     }
@@ -162,12 +175,20 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
       width: currentWidth,
       height: currentHeight,
     };
-    const maximizedRect: CaptionRect = {
-      left: 0,
-      top: 0,
-      width: host.clientWidth,
-      height: host.clientHeight - osTheme.tokens.TASKBAR_HEIGHT,
-    };
+    const maximizedRect: CaptionRect =
+      behavior.maximizeSemantics === 'zoom'
+        ? {
+            left: host.clientWidth * 0.1,
+            top: host.clientHeight * 0.05,
+            width: host.clientWidth * 0.8,
+            height: host.clientHeight * 0.8,
+          }
+        : {
+            left: 0,
+            top: 0,
+            width: host.clientWidth,
+            height: host.clientHeight - osTheme.tokens.TASKBAR_HEIGHT,
+          };
     let from: CaptionRect;
     let to: CaptionRect;
 
@@ -182,7 +203,18 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
     }
 
     setCaptionTransition({ host, from, to });
-  }, [currentHeight, currentWidth, isMaximized, left, top, osTheme, transition, transitionTarget]);
+  }, [
+    currentHeight,
+    currentWidth,
+    isMaximized,
+    left,
+    behavior.windowAnimations,
+    behavior.maximizeSemantics,
+    osTheme,
+    top,
+    transition,
+    transitionTarget,
+  ]);
 
   const captionAnimation = React.useMemo(() => {
     if (!transition || !captionTransition) return null;
@@ -236,31 +268,56 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
       $transitioning={Boolean(transition && captionTransition)}
       style={transitionStyle}
       data-testid={`window-surface-${id}`}
+      onMouseEnter={behavior.focusRules === 'focus-follows-pointer' ? handleFocus : undefined}
     >
-      <WindowChrome
-        windowState={windowState}
-        isFocused={isFocused}
-        isResizable={isResizable}
-        onFocus={handleFocus}
-        onMaximize={handleMaximize}
-        controls={
-          <WindowControls
-            isFocused={isFocused}
-            isResizable={isResizable}
-            isMaximized={!!isMaximized}
-            onMinimize={handleMinimize}
-            onMaximize={handleMaximize}
-            onClose={handleClose}
-          />
-        }
-        style={{ width: '100%', height: '100%' }}
-      >
-        <ErrorBoundary windowId={id}>
-          <Suspense fallback={<div style={{ padding: 20 }}>Loading...</div>}>
-            <WindowIdProvider windowId={id}>{component}</WindowIdProvider>
-          </Suspense>
-        </ErrorBoundary>
-      </WindowChrome>
+      {WindowDecoration ? (
+        <WindowDecoration
+          windowState={windowState}
+          isFocused={isFocused}
+          isResizable={isResizable}
+          onFocus={handleFocus}
+          onMinimize={handleMinimize}
+          onMaximize={handleMaximize}
+          onClose={handleClose}
+        >
+          {behavior.menuModel === 'in-window' && appDefinition?.menus && (
+            <OSMenuBar
+              menus={appDefinition.menus}
+              onCommand={commandId => appDefinition.onMenuCommand?.(commandId, id)}
+            />
+          )}
+          <ErrorBoundary windowId={id}>
+            <Suspense fallback={<div style={{ padding: 20 }}>Loading...</div>}>
+              <WindowIdProvider windowId={id}>{component}</WindowIdProvider>
+            </Suspense>
+          </ErrorBoundary>
+        </WindowDecoration>
+      ) : (
+        <WindowChrome
+          windowState={windowState}
+          isFocused={isFocused}
+          isResizable={isResizable}
+          onFocus={handleFocus}
+          onMaximize={handleMaximize}
+          controls={
+            <WindowControls
+              isFocused={isFocused}
+              isResizable={isResizable}
+              isMaximized={!!isMaximized}
+              onMinimize={handleMinimize}
+              onMaximize={handleMaximize}
+              onClose={handleClose}
+            />
+          }
+          style={{ width: '100%', height: '100%' }}
+        >
+          <ErrorBoundary windowId={id}>
+            <Suspense fallback={<div style={{ padding: 20 }}>Loading...</div>}>
+              <WindowIdProvider windowId={id}>{component}</WindowIdProvider>
+            </Suspense>
+          </ErrorBoundary>
+        </WindowChrome>
+      )}
       {isModalBlocked && (
         <ModalBlocker
           data-testid={`modal-blocker-${id}`}
@@ -275,6 +332,20 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
   );
 
   if (isMaximized && !isHidden) {
+    const maximizedStyle: React.CSSProperties =
+      behavior.maximizeSemantics === 'zoom'
+        ? {
+            top: '5%',
+            left: '10%',
+            width: '80%',
+            height: '80%',
+          }
+        : {
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: 'calc(100% - 30px)',
+          };
     return (
       <>
         <div
@@ -283,10 +354,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
           style={{
             zIndex,
             position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: 'calc(100% - 30px)',
+            ...maximizedStyle,
           }}
           onMouseDown={e => e.stopPropagation()}
         >

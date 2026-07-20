@@ -9,7 +9,7 @@ import { useStorage } from '../context/StorageContext';
 import type { LoginBranding } from '../branding';
 import { resolveOSTheme } from '../themes/useOSTheme';
 
-interface LoginScreenProps {
+export interface LoginScreenProps {
   branding?: LoginBranding;
 }
 

@@ -395,6 +395,9 @@
     "incorrectPassword": "密码不正确",
     "forgotPasswordHint": "忘记密码？查看 README"
   },
+  "paperOS": {
+    "name": "纸页系统"
+  },
   "shutdown": {
     "title": "关闭计算机",
     "message": "您希望计算机做什么？",

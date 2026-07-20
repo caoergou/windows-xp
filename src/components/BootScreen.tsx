@@ -8,7 +8,7 @@ import copyright from '../assets/images/bios__copyright.png';
 import secondaryLogo from '../assets/images/bios__secondary_logo.png';
 import { resolveOSTheme } from '../themes/useOSTheme';
 
-interface BootScreenProps {
+export interface BootScreenProps {
   onComplete: () => void;
   branding?: BootBranding;
 }

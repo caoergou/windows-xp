@@ -5,11 +5,12 @@ import { resolveOSTheme } from '../../themes/useOSTheme';
 import type { ButtonStateImages } from '../../themes/contract';
 
 const controlImages = (theme: DefaultTheme, key: 'minimize' | 'maximize' | 'restore' | 'close') =>
-  resolveOSTheme(theme).assets.windowControls[key];
+  resolveOSTheme(theme).assets.windowControls?.[key];
 
 const controlAttrs =
   (key: 'minimize' | 'maximize' | 'restore' | 'close') => (props: { theme: DefaultTheme }) => {
-    const images: ButtonStateImages = controlImages(props.theme, key);
+    const images: ButtonStateImages | undefined = controlImages(props.theme, key);
+    if (!images) return {};
     return { $normal: images.normal, $hover: images.hover, $active: images.active };
   };
 

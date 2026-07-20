@@ -50,6 +50,8 @@ import type { TFunction } from 'i18next';
 import XPIcon from '../components/XPIcon';
 import { restoreApp } from './defineApp';
 import { resolveOSTheme } from '../themes/useOSTheme';
+import { resolveAppRole } from '../os/appRoles';
+import type { AppRoleMap } from '../os/contract';
 
 // Placeholder app - used for apps not yet implemented
 const DummyAppContainer = styled.div`
@@ -595,17 +597,6 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
   },
 };
 
-// --- Build a fast lookup table by appField (avoid iteration) -------------------------------
-const _assocByField = Object.values(APP_REGISTRY).reduce(
-  (acc, def) => {
-    for (const assoc of def.associations || []) {
-      if (assoc.appField) acc[assoc.appField] = { def, assoc };
-    }
-    return acc;
-  },
-  {} as Record<string, { def: AppRegistryEntry; assoc: AppAssociation }>
-);
-
 /**
  * resolveFileOpen - resolve a filesystem node into a parameter object that can be passed directly to openWindow().
  *
@@ -614,13 +605,20 @@ const _assocByField = Object.values(APP_REGISTRY).reduce(
  * @returns {{ appId, component, icon, windowProps } | null}
  *   Returns null when the node cannot be opened (DummyApp or unregistered); the caller is responsible for showing a hint.
  */
-export const resolveFileOpen = (key: string, item: FileNode) => {
+export const resolveFileOpen = (
+  key: string,
+  item: FileNode,
+  appRoles?: Partial<AppRoleMap>,
+  registry: Record<string, AppRegistryEntry> = APP_REGISTRY
+) => {
   // Folder / root / drive -> open with Explorer
   if (item.type === 'folder' || item.type === 'root' || item.type === 'drive') {
-    const def = APP_REGISTRY.Explorer;
+    const appId = appRoles?.files ?? 'Explorer';
+    const def = registry[appId];
+    if (!def) return null;
     const componentProps = { initialPath: [key] };
     return {
-      appId: 'Explorer',
+      appId,
       component: def.restore(componentProps),
       icon: item.icon || def.icon,
       windowProps: {
@@ -639,8 +637,16 @@ export const resolveFileOpen = (key: string, item: FileNode) => {
     appField = 'MarkdownViewer';
   }
   if (!appField) return null;
+  appField = resolveAppRole(appField, appRoles);
+  if (!appField) return null;
 
-  const entry = _assocByField[appField];
+  const entry = Object.values(registry).reduce<
+    { def: AppRegistryEntry; assoc: AppAssociation } | undefined
+  >((found, def) => {
+    if (found) return found;
+    const assoc = def.associations?.find(candidate => candidate.appField === appField);
+    return assoc ? { def, assoc } : undefined;
+  }, undefined);
   if (!entry) return null;
 
   const { def, assoc } = entry;

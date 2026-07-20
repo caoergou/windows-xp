@@ -9,6 +9,7 @@ import { isContainerNode, isExternalLinkNode } from '../types';
 import { canUseDOM } from '../utils/storage';
 import { openExternalUrl } from '../utils/externalLink';
 import { parseOpenPath, resolveRoutes, toOpenList, type DeepLinkRoutes } from '../utils/deepLink';
+import { useOSPackage } from '../os/OSPackageContext';
 
 export interface DeepLinkLoaderProps {
   /** Key path(s) (`?open=` values) to open once the desktop is interactive (#136). */
@@ -41,6 +42,7 @@ export const DeepLinkLoader: React.FC<DeepLinkLoaderProps> = ({
   const { isLoggedIn } = useUserSession();
   const { registry } = useAppRegistry();
   const bus = useXPEventBus();
+  const os = useOSPackage();
 
   const openPath = useCallback(
     (path: string[]): string | null => {
@@ -68,14 +70,14 @@ export const DeepLinkLoader: React.FC<DeepLinkLoaderProps> = ({
       }
 
       const key = path[path.length - 1];
-      const resolved = resolveFileOpen(key, node);
+      const resolved = resolveFileOpen(key, node, os.appRoles, registry);
       if (!resolved) return null;
       return openWindow(resolved.appId, node.name, resolved.component, resolved.icon, {
         ...resolved.windowProps,
         sourcePath: path,
       });
     },
-    [getFile, registry, openWindow, bus]
+    [getFile, registry, openWindow, bus, os.appRoles]
   );
 
   // Apply deep links once, after login resolves.

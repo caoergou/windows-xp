@@ -219,8 +219,7 @@ export const COLORS = {
   GREY_F8: '#F8F8F8',
 };
 
-/** The shape of the XP token set — the contract a theme's `tokens` must satisfy. */
-export type ThemeTokens = typeof COLORS;
+export type { ThemeTokens, ThemeFonts } from '../contract';
 
 /**
  * Windows XP font stacks (STY-02/STY-03) — the single outlet for every
@@ -246,6 +245,3 @@ export const FONTS = {
   /** XP boot screen ("Franklin Gothic Medium" progress text). */
   BOOT: "'Franklin Gothic Medium', 'Trebuchet MS', 'Tahoma', sans-serif",
 };
-
-/** The shape of the XP font set — the contract a theme's `fonts` must satisfy. */
-export type ThemeFonts = typeof FONTS;

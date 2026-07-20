@@ -1,7 +1,4 @@
-import type React from 'react';
 import { css } from 'styled-components';
-import type { ThemeTokens, ThemeFonts } from './xp/tokens';
-import type { ThemeAssets } from './xp/assets';
 
 /**
  * The theme contract (#135).
@@ -13,13 +10,55 @@ import type { ThemeAssets } from './xp/assets';
  * engine (`src/context`, guarded by `guard:purity`) never has to change.
  */
 
-export type { ThemeTokens, ThemeFonts } from './xp/tokens';
-export type {
-  ThemeAssets,
-  WindowControlAssets,
-  StartButtonAssets,
-  ButtonStateImages,
-} from './xp/assets';
+/** Semantic theme-token dictionary. Numeric geometry tokens stay strongly typed. */
+export interface ThemeTokens {
+  readonly [token: string]: string | number;
+  readonly TASKBAR_HEIGHT: number;
+  readonly TITLE_BAR_HEIGHT: number;
+  readonly MENU_ITEM_HEIGHT: number;
+  readonly BLACK: string;
+  readonly BUTTON_BORDER: string;
+  readonly GREY_33: string;
+  readonly GREY_66: string;
+  readonly GREY_88: string;
+  readonly GREY_99: string;
+  readonly PERF_GRAPH_GRID: string;
+  readonly PERF_GRAPH_LINE: string;
+}
+
+export interface ThemeFonts {
+  UI: string;
+  TITLEBAR: string;
+  CLASSIC: string;
+  MONO: string;
+  EDITOR: string;
+  CONSOLE: string;
+  BOOT: string;
+}
+
+export interface ButtonStateImages {
+  normal: string;
+  hover: string;
+  active: string;
+}
+
+export interface WindowControlAssets {
+  minimize: ButtonStateImages;
+  maximize: ButtonStateImages;
+  restore: ButtonStateImages;
+  close: ButtonStateImages;
+}
+
+export interface StartButtonAssets {
+  sprite: string;
+  logo: string;
+}
+
+export interface ThemeAssets {
+  windowControls?: WindowControlAssets;
+  startButton?: StartButtonAssets;
+  icons: Record<string, string>;
+}
 
 /** A styled-components style fragment (what `css\`\`` returns). */
 export type StyleFragment = ReturnType<typeof css>;
@@ -38,14 +77,6 @@ export interface ThemeStyles {
   titleBar: StyleFragment;
   trackbar: StyleFragment;
 }
-
-/**
- * Chrome component slots — the SHAPE a theme's window/taskbar/menu chrome fills
- * (#135 seam 4). Declared as the documented seam; XP wires its chrome directly
- * today, so populating this map is deferred until a second theme exists (a real
- * new theme is an explicit non-goal of #135).
- */
-export type ChromeSlots = Record<string, React.ComponentType<Record<string, unknown>>>;
 
 /** A complete OS theme: the contract a new theme (Win7 / macOS / custom) fills. */
 export interface OSTheme {
@@ -69,6 +100,4 @@ export interface OSTheme {
    * own) simply omits it.
    */
   css?: string;
-  /** Optional chrome slot map — the deferred seam (see above). */
-  chrome?: Partial<ChromeSlots>;
 }

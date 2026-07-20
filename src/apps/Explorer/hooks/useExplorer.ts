@@ -19,6 +19,8 @@ import {
 import { makeDetailsHelpers } from '../helpers';
 import { makeExplorerKeyDown } from '../keyboard';
 import type { ExplorerProps, ExplorerViewMode } from '../types';
+import { useOptionalOSPackage } from '../../../os/OSPackageContext';
+import { useAppRegistry } from '../../../context/AppRegistryContext';
 
 export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   const { t, i18n } = useTranslation();
@@ -40,6 +42,8 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   const bus = useXPEventBus();
   const api = useApp(windowId);
   const storage = useStorage();
+  const os = useOptionalOSPackage();
+  const { registry } = useAppRegistry();
 
   // Persisted UI preferences (view mode, sort, Folders pane, show-hidden,
   // address-bar MRU) live in their own storage-backed hook (#163/A).
@@ -224,7 +228,7 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     } else if (target.type === 'file' || target.type === 'app_shortcut') {
       // Load associations on demand to avoid a static Explorer <-> app registry cycle.
       const { resolveFileOpen } = await import('../../../registry/apps');
-      const resolved = resolveFileOpen(name, target);
+      const resolved = resolveFileOpen(name, target, os?.appRoles, registry);
       const sourcePath = [...currentPath, name];
       bus.emit({
         type: 'file:open',

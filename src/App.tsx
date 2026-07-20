@@ -5,9 +5,7 @@ import i18n from './i18n';
 import { useUserSession } from './context/UserSessionContext';
 import { useWindowManager } from './context/WindowManagerContext';
 import { useShortcut, useShortcuts } from './context/KeymapContext';
-import LoginScreen from './components/LoginScreen';
 import Desktop from './components/Desktop';
-import BootScreen from './components/BootScreen';
 import BsodScreen from './components/BsodScreen';
 import XPIcon from './components/XPIcon';
 import ContextMenu from './components/ContextMenu';
@@ -23,6 +21,7 @@ import { useXPEventBus } from './context/EventBusContext';
 import { getSavedLanguage } from './utils/language';
 import type { BootBranding, LoginBranding } from './branding';
 import { resolveOSTheme } from './themes/useOSTheme';
+import { useOSPackage } from './os/OSPackageContext';
 
 const Container = styled.div`
   width: 100%;
@@ -184,6 +183,9 @@ function App({
   const { blockedWindowId, signalBlockedInteraction } = useModalInteraction();
   const bus = useXPEventBus();
   const storage = useStorage();
+  const os = useOSPackage();
+  const BootScreen = os.chrome.BootScreen;
+  const LoginScreen = os.chrome.LoginScreen;
 
   // Surface persistence problems as XP dialogs instead of silent console
   // errors (#81): localStorage quota exceeded, recycle-bin restore fallback.
