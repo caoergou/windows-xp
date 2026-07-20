@@ -32,7 +32,18 @@ import { COLORS, xpButtonStyles, xpScrollbarStyles } from '@caoergou/windows-xp/
 
 // 应用注册表辅助函数
 import { APP_REGISTRY, resolveFileOpen, getAppDisplayName } from '@caoergou/windows-xp/registry';
+
+// 可选的 .xpspack 验证与加载入口（不会进入默认 bundle）
+import { loadContentPackFromXpspack } from '@caoergou/windows-xp/content-pack-loader';
 ```
+
+ContentPack loader 会先验证受限 ZIP 容器、规范化 manifest、SHA-256 payload
+摘要、独立存储的二进制资产以及可选的宿主可信 Ed25519 签名，再返回
+`ContentPack`。验证后的资产会恢复为保留媒体类型的 `data:` URL。浏览器中原生
+支持未压缩和 gzip chunk；宿主没有通过 Compression Streams API 暴露 Brotli
+时，可通过 `decompress` 回调提供 Brotli 解压能力。
+加密章节通过 `loadChunk(id)` 懒加载，仅在此时通过宿主拥有的 `keyProvider`
+请求不可导出的 AES-GCM 密钥；loader 不会持久化该密钥。
 
 > `Window`、`Taskbar`、`Desktop` 和上面的 hooks 都连接着桌面的 context，必须渲染在根入口导出的 providers 内部（或 `AppProviders` 内）。下方的 `XP*` 基础组件什么都不需要。
 

@@ -32,7 +32,20 @@ import { COLORS, xpButtonStyles, xpScrollbarStyles } from '@caoergou/windows-xp/
 
 // App registry helpers
 import { APP_REGISTRY, resolveFileOpen, getAppDisplayName } from '@caoergou/windows-xp/registry';
+
+// Optional .xpspack verification and loading (kept out of the default bundle)
+import { loadContentPackFromXpspack } from '@caoergou/windows-xp/content-pack-loader';
 ```
+
+The content-pack loader verifies the restricted ZIP container, canonical
+manifest, SHA-256 payload hashes, independently stored binary assets, and an
+optional host-trusted Ed25519 signature before returning a `ContentPack`.
+Verified assets are exposed through media-typed `data:` URLs. The loader supports
+uncompressed and gzip chunks in the browser. Provide the `decompress` callback
+for Brotli on hosts that do not expose it through the Compression Streams API.
+Encrypted chapters are returned through `loadChunk(id)` and request a
+non-extractable AES-GCM key lazily through the host-owned `keyProvider`; the
+loader never persists that key.
 
 > `Window`, `Taskbar`, `Desktop`, and the hooks above are wired to the
 > desktop's contexts and must render inside the providers exported from the

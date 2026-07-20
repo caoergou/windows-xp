@@ -57,8 +57,14 @@
       "import": "./dist/os.es.js",
       "require": "./dist/os.cjs.js"
     },
+    "./content-pack-loader": {
+      "types": "./dist/content-pack-loader.d.ts",
+      "import": "./dist/content-pack-loader.es.js",
+      "require": "./dist/content-pack-loader.cjs.js"
+    },
     "./schema/scenario.json": "./schema/scenario.json",
     "./schema/content-pack.json": "./schema/content-pack.json",
+    "./schema/xpspack-manifest.json": "./schema/xpspack-manifest.json",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -133,6 +139,7 @@
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.20",
+    "ajv": "^8.20.0",
     "i18next": "^25.8.13",
     "immer": "^11.1.11",
     "react-draggable": "^4.4.6",

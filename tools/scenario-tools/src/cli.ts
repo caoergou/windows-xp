@@ -29,6 +29,14 @@ Common options:
 Serve options:
   --ui / --no-ui                   Open Scenario Studio (default) or desktop-only preview
   --no-open                        Do not launch a browser (safe for headless environments)
+
+Pack options:
+  --format json|xpspack            Output format (default: json)
+  --compress none|gzip|brotli      Payload compression (xpspack only; default: none)
+  --out <file>                     Output path
+  --check                          Validate and measure without writing
+  --sign-key-env <name>            Read an Ed25519 private key PEM from this environment variable
+  --sign-key-id <id>               Publisher key id recorded in the signed manifest
 `;
 
 interface ParsedArgs {
@@ -174,15 +182,40 @@ const commandGraph = async (args: ParsedArgs): Promise<number> => {
 const commandPack = async (args: ParsedArgs): Promise<number> => {
   const directory = args.positionals[0];
   if (!directory) throw new Error('pack requires a directory');
+  const format = flag(args, 'format') ?? 'json';
+  if (!['json', 'xpspack'].includes(format)) throw new Error(`unsupported pack format: ${format}`);
+  const compression = flag(args, 'compress') ?? 'none';
+  if (!['none', 'gzip', 'brotli'].includes(compression))
+    throw new Error(`unsupported compression: ${compression}`);
+  const signingKeyEnv = flag(args, 'sign-key-env');
+  const signingKeyId = flag(args, 'sign-key-id');
+  if ((signingKeyEnv || signingKeyId) && format !== 'xpspack')
+    throw new Error('signing is only supported with --format xpspack');
+  if (signingKeyEnv && !signingKeyId) throw new Error('--sign-key-env requires --sign-key-id');
+  if (signingKeyId && !signingKeyEnv) throw new Error('--sign-key-id requires --sign-key-env');
+  const signingKey = signingKeyEnv ? process.env[signingKeyEnv] : undefined;
+  if (signingKeyEnv && !signingKey)
+    throw new Error(`signing key environment variable is missing or empty: ${signingKeyEnv}`);
   const result = await packDirectory(directory, {
     check: enabled(args, 'check'),
     output: flag(args, 'out'),
+    format: format as 'json' | 'xpspack',
+    compression: compression as 'none' | 'gzip' | 'brotli',
+    ...(signingKey && signingKeyId
+      ? { signing: { keyId: signingKeyId, privateKey: signingKey } }
+      : {}),
   });
   if (enabled(args, 'json')) console.log(JSON.stringify(result, null, 2));
   else {
     printDiagnostics(result.diagnostics);
     console.log(
       `Size: logic ${result.report.logicBytes} B, scenario ${result.report.scenarioBytes} B, assets ${result.report.assetBytes} B, packed ${result.report.totalBytes} B`
+    );
+    console.log(`Transfer: ${result.report.transferredBytes} B (${result.format})`);
+    result.report.chunks.forEach(chunk =>
+      console.log(
+        `  chunk ${chunk.id}: ${chunk.rawBytes} B -> ${chunk.storedBytes} B (${chunk.compression})`
+      )
     );
     result.report.assets.forEach(asset =>
       console.log(

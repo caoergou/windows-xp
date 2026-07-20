@@ -22,7 +22,7 @@ working; each entry below maps to a page on the docs site.
 
 - [Embedding in a host app](https://eric.run.place/windows-xp/docs/guide/embedding) — `mode="embedded"`, storage isolation, persistence, campaign skinning.
 - [SSR / Next.js](https://eric.run.place/windows-xp/docs/guide/ssr) — the `ssr: false` dynamic import; verified consumption.
-- [Subpath imports & standalone primitives](https://eric.run.place/windows-xp/docs/guide/subpaths) — `@caoergou/windows-xp/components|apps|hooks|theme|registry|os`.
+- [Subpath imports & standalone primitives](https://eric.run.place/windows-xp/docs/guide/subpaths) — `@caoergou/windows-xp/components|apps|hooks|theme|registry|os|content-pack-loader`.
 
 ## Select or author an OS package
 
