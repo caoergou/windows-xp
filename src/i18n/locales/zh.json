@@ -1193,5 +1193,40 @@
       "step2": "输入一小段文字，然后保存到「我的文档」。",
       "hint2": "打开「文件」菜单选择「保存」，再确认保存位置。"
     }
+  },
+  "setup": {
+    "welcomeTitle": "欢迎使用 {{product}} 安装向导",
+    "welcomeMessage": "此向导将引导您完成 {{product}} 的安装。点击「下一步」继续。",
+    "licenseTitle": "许可协议",
+    "licenseAccept": "我接受许可协议中的条款",
+    "pathTitle": "选择安装位置",
+    "pathLabel": "安装到：",
+    "browse": "浏览...",
+    "progressTitle": "正在安装...",
+    "copying": "正在复制：{{file}}",
+    "finishTitle": "安装完成",
+    "finishMessage": "{{product}} 已成功安装。",
+    "back": "< 上一步",
+    "next": "下一步 >",
+    "cancel": "取消",
+    "finish": "完成"
+  },
+  "addRemovePrograms": {
+    "title": "添加或删除程序",
+    "currentlyInstalled": "当前已安装的程序",
+    "addNewPrograms": "添加新程序",
+    "windowsComponents": "添加/删除 Windows 组件",
+    "categories": {
+      "installed": "更改或删除程序",
+      "add": "添加新程序",
+      "components": "添加/删除 Windows 组件"
+    },
+    "changeRemove": "更改/删除",
+    "noPrograms": "当前没有已安装的程序。",
+    "size": "大小：",
+    "installedOn": "安装日期：",
+    "publisher": "发布者：",
+    "version": "版本：",
+    "confirmUninstall": "确定要卸载 {{product}} 吗？"
   }
 }

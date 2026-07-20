@@ -27,6 +27,7 @@ const WindowsMediaPlayer = React.lazy(() => import('../apps/WindowsMediaPlayer')
 const RecentDocuments = React.lazy(() => import('../apps/RecentDocuments'));
 const PrintersAndFaxes = React.lazy(() => import('../apps/PrintersAndFaxes'));
 const EvidenceReport = React.lazy(() => import('../apps/EvidenceReport'));
+const SetupWizard = React.lazy(() => import('../apps/SetupWizard'));
 const Thunder = React.lazy(() => import('../apps/Thunder'));
 const BaofengPlayer = React.lazy(() => import('../apps/BaofengPlayer'));
 const KugouMusic = React.lazy(() => import('../apps/KugouMusic'));
@@ -581,6 +582,37 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     lifecycle: {},
     associations: [{ appField: 'MicrosoftOffice', getProps: () => ({}) }],
     restore: restoreApp(MicrosoftOffice),
+  },
+
+  SetupWizard: {
+    id: 'SetupWizard',
+    name: 'Setup Wizard',
+    nameKey: 'setup.welcomeTitle',
+    icon: 'app_window',
+    showInStartMenu: false,
+    window: { width: 500, height: 380, resizable: false, singleton: false },
+    lifecycle: {},
+    associations: [
+      {
+        appField: 'SetupWizard',
+        getProps: (item: FileNode) => {
+          const fallback = {
+            product: { nameKey: item.name },
+            pages: ['welcome', 'finish'],
+            installs: {},
+          };
+          try {
+            if (!isFileContentNode(item) || !item.content) return { spec: fallback };
+            const parsed = JSON.parse(item.content);
+            if (!parsed || !Array.isArray(parsed.pages)) return { spec: fallback };
+            return { spec: parsed };
+          } catch {
+            return { spec: fallback };
+          }
+        },
+      },
+    ],
+    restore: restoreApp(SetupWizard),
   },
 
   DummyApp: {

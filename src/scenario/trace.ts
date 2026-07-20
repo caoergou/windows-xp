@@ -63,6 +63,14 @@ const leafLabel = (condition: Condition, ctx: EvalContext): string => {
   if ('linked' in condition) return `linked ${condition.linked.a} — ${condition.linked.b}`;
   if ('searched' in condition) return `searched "${condition.searched}"`;
   if ('found' in condition) return `found ${condition.found}`;
+  if ('reportClaim' in condition) {
+    const rc = condition.reportClaim;
+    return `reportClaim ${rc.reportId}/${rc.claimId}${rc.result ? ` == ${rc.result}` : ''}`;
+  }
+  if ('settingEquals' in condition) {
+    const se = condition.settingEquals;
+    return `settingEquals ${se.appId}.${se.key} == ${fmt(se.value)}`;
+  }
   return 'unknown predicate';
 };
 

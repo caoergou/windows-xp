@@ -17,6 +17,7 @@ import systemIcon from '../assets/icons/control-panel/system.png';
 import DisplaySettings from './ControlPanel/DisplaySettings';
 import SoundSettings from './ControlPanel/SoundSettings';
 import MouseSettings from './ControlPanel/MouseSettings';
+const AddRemovePrograms = React.lazy(() => import('./ControlPanel/AddRemovePrograms'));
 import { useApp } from '../hooks/useApp';
 import { canUseDOM } from '../utils/storage';
 import { useStorage } from '../context/StorageContext';
@@ -141,7 +142,7 @@ interface Category {
   id: string;
 }
 
-type SubPage = 'display' | 'sound' | 'mouse' | 'system' | null;
+type SubPage = 'display' | 'sound' | 'mouse' | 'system' | 'addRemovePrograms' | null;
 
 const ControlPanel = ({ windowId }: { windowId?: string }) => {
   const { t, i18n } = useTranslation();
@@ -167,7 +168,9 @@ const ControlPanel = ({ windowId }: { windowId?: string }) => {
 
   const handleCategoryClick = (category: Category) => {
     setSelectedCategory(category.id);
-    if (category.id === 'display') {
+    if (category.id === 'addRemovePrograms') {
+      setSubPage('addRemovePrograms');
+    } else if (category.id === 'display') {
       setSubPage('display');
     } else if (category.id === 'sound') {
       setSubPage('sound');
@@ -201,6 +204,12 @@ const ControlPanel = ({ windowId }: { windowId?: string }) => {
 
   const renderSubPage = () => {
     switch (subPage) {
+      case 'addRemovePrograms':
+        return (
+          <React.Suspense fallback={null}>
+            <AddRemovePrograms onBack={handleBack} />
+          </React.Suspense>
+        );
       case 'display':
         return <DisplaySettings onBack={handleBack} />;
       case 'sound':

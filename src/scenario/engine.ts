@@ -22,6 +22,10 @@ export interface EvalContext {
     unlocked: (path: string[]) => boolean;
     content: (path: string[]) => string | null;
   };
+  /** App-settings reader (#142). Returns undefined when no store exists. */
+  appSettings?: {
+    get: (appId: string, key: string) => string | number | boolean | undefined;
+  };
 }
 
 /** Deep-equal for the scalar / scalar[] values allowed in matchers. */
@@ -116,6 +120,12 @@ export const evaluateCondition = (condition: Condition | undefined, ctx: EvalCon
           event.claimId === expected.claimId &&
           (expected.result === undefined || event.result === expected.result)
       );
+  }
+
+  if ('settingEquals' in condition) {
+    const { appId, key, value } = condition.settingEquals;
+    const current = ctx.appSettings?.get(appId, key);
+    return current === value;
   }
 
   return false;

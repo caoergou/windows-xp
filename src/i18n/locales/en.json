@@ -1199,5 +1199,40 @@
       "step2": "Type a short note, then save it to My Documents.",
       "hint2": "Open the File menu and choose Save, then confirm the location."
     }
+  },
+  "setup": {
+    "welcomeTitle": "Welcome to the {{product}} Setup Wizard",
+    "welcomeMessage": "This wizard will guide you through the installation of {{product}}.",
+    "licenseTitle": "License Agreement",
+    "licenseAccept": "I accept the terms of the license agreement",
+    "pathTitle": "Choose Install Location",
+    "pathLabel": "Install to:",
+    "browse": "Browse...",
+    "progressTitle": "Installing...",
+    "copying": "Copying: {{file}}",
+    "finishTitle": "Setup Complete",
+    "finishMessage": "{{product}} has been successfully installed.",
+    "back": "< Back",
+    "next": "Next >",
+    "cancel": "Cancel",
+    "finish": "Finish"
+  },
+  "addRemovePrograms": {
+    "title": "Add or Remove Programs",
+    "currentlyInstalled": "Currently installed programs",
+    "addNewPrograms": "Add New Programs",
+    "windowsComponents": "Add/Remove Windows Components",
+    "categories": {
+      "installed": "Change or Remove Programs",
+      "add": "Add New Programs",
+      "components": "Add/Remove Windows Components"
+    },
+    "changeRemove": "Change/Remove",
+    "noPrograms": "No programs are currently installed.",
+    "size": "Size:",
+    "installedOn": "Installed on:",
+    "publisher": "Publisher:",
+    "version": "Version:",
+    "confirmUninstall": "Are you sure you want to uninstall {{product}}?"
   }
 }
