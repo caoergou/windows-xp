@@ -124,7 +124,6 @@
                       "install:complete",
                       "install:cancelled",
                       "ui:action",
-                      "agent:call",
                       "agent:denied",
                       "agent:approved",
                       "link:external"
@@ -284,7 +283,6 @@
                     "install:complete",
                     "install:cancelled",
                     "ui:action",
-                    "agent:call",
                     "agent:denied",
                     "agent:approved",
                     "link:external"
@@ -390,7 +388,6 @@
                     "install:complete",
                     "install:cancelled",
                     "ui:action",
-                    "agent:call",
                     "agent:denied",
                     "agent:approved",
                     "link:external"
@@ -744,7 +741,6 @@
                     "install:complete",
                     "install:cancelled",
                     "ui:action",
-                    "agent:call",
                     "agent:denied",
                     "agent:approved",
                     "link:external"
@@ -915,7 +911,6 @@
                 "install:complete",
                 "install:cancelled",
                 "ui:action",
-                "agent:call",
                 "agent:denied",
                 "agent:approved",
                 "link:external"
@@ -1009,7 +1004,6 @@
                   "install:complete",
                   "install:cancelled",
                   "ui:action",
-                  "agent:call",
                   "agent:denied",
                   "agent:approved",
                   "link:external"
