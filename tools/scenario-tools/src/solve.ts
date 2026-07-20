@@ -8,7 +8,7 @@ import {
 } from '../../../src/scenario/puzzleGraph';
 import { buildTape } from '../../../src/scenario/rehearsal';
 import { solveScenario, type SolveFsNode, type SolveResult } from '../../../src/scenario/solver';
-import type { FlagValue, Scenario } from '../../../src/scenario/types';
+import type { Action, FlagValue, Scenario } from '../../../src/scenario/types';
 import type { FileNode } from '../../../src/types';
 import type { AuthoringKind, AuthoringValue } from './types';
 
@@ -22,6 +22,8 @@ export interface SolveStep {
   event: string;
   beat?: string;
   fired: string[];
+  flagChanges: Array<{ flag: string; before?: FlagValue; after?: FlagValue }>;
+  actions: Action[];
 }
 
 export interface ScenarioSolveReport {
@@ -98,6 +100,14 @@ const packFsSeeds = async (pack: ContentPack, baseDir?: string): Promise<SolveFs
 const fireDelta = (before: Record<string, number>, after: Record<string, number>): string[] =>
   Object.keys(after).filter(key => (after[key] ?? 0) > (before[key] ?? 0));
 
+const flagDelta = (
+  before: Record<string, FlagValue>,
+  after: Record<string, FlagValue>
+): SolveStep['flagChanges'] =>
+  [...new Set([...Object.keys(before), ...Object.keys(after)])].flatMap(flag =>
+    before[flag] === after[flag] ? [] : [{ flag, before: before[flag], after: after[flag] }]
+  );
+
 const countProviderFallbacks = (value: unknown): number => {
   let count = 0;
   const visit = (item: unknown): void => {
@@ -159,6 +169,8 @@ export const solveAuthoredValue = async (
       event: events[index].type,
       ...(beat ? { beat } : {}),
       fired: fireDelta(previous.fired, current.fired),
+      flagChanges: flagDelta(previous.flags, current.flags),
+      actions: current.actions.slice(previous.actions.length),
     });
     previous = current;
   }

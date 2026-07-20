@@ -255,6 +255,12 @@ describe('scenario-tools', () => {
     expect(snapshot.solve.status).toBe('pass');
     expect(snapshot.pack.status).toBe('pass');
     expect(snapshot.graph.nodes.length).toBeGreaterThan(0);
+    expect(snapshot.solve.result?.steps[0]).toEqual(
+      expect.objectContaining({
+        flagChanges: expect.any(Array),
+        actions: expect.any(Array),
+      })
+    );
     expect(() => JSON.stringify(snapshot)).not.toThrow();
   });
 
@@ -317,6 +323,10 @@ describe('scenario-tools', () => {
     expect(source).toContain('Scenario Studio');
     expect(source).toContain('iframe id="desktop-frame"');
     expect(source).toContain("window.location.pathname === '/preview'");
+    expect(source).toContain("[['build','Build'],['rehearse','Rehearse']");
+    expect(source).toContain('class="preview-shield"');
+    expect(source).toContain("type: 'studio-preview-exit'");
+    expect(source).toContain('flagChanges');
     expect(source).not.toContain('import * as authoredModule');
   });
 });

@@ -45,6 +45,18 @@ let suppressEventStream = 0;
 let requestSequence = 0;
 let currentSnapshot = null;
 let selectedNodeId = null;
+let activeTask = 'build';
+let activeTool = 'problems';
+let canvasMode = 'preview';
+let connectionState = 'connecting';
+let previewReturnTarget = null;
+let mapZoom = 1;
+const TASK_TOOLS = {
+  build: [['problems', 'Problems'], ['map', 'Story map']],
+  rehearse: [['timeline', 'Timeline'], ['events', 'Events'], ['personas', 'Personas']],
+  inspect: [['inspector', 'Runtime']],
+  ship: [['shipping', 'Shipping']],
+};
 const send = message => {
   if (activeSocket?.readyState === WebSocket.OPEN) activeSocket.send(JSON.stringify(message));
 };
@@ -60,10 +72,12 @@ const command = value => {
 };
 const gate = value => '<span class="gate gate--' + value.status + '">' + value.status + '</span>';
 const renderGraph = graph => {
-  const width = 520;
-  const row = 74;
-  const height = Math.max(120, graph.nodes.length * row);
-  const positions = new Map(graph.nodes.map((node, index) => [node.id, { x: node.kind === 'asset' ? 340 : 28, y: 22 + index * row }]));
+  const columns = graph.nodes.length > 8 ? 3 : graph.nodes.length > 4 ? 2 : 1;
+  const columnWidth = 210;
+  const rowHeight = 92;
+  const width = Math.max(520, columns * columnWidth + 60);
+  const height = Math.max(240, Math.ceil(graph.nodes.length / columns) * rowHeight + 60);
+  const positions = new Map(graph.nodes.map((node, index) => [node.id, { x: 30 + (index % columns) * columnWidth, y: 30 + Math.floor(index / columns) * rowHeight }]));
   const edges = graph.edges.map(edge => {
     const from = positions.get(edge.from); const to = positions.get(edge.to);
     if (!from || !to) return '';
@@ -73,12 +87,13 @@ const renderGraph = graph => {
     const point = positions.get(node.id);
     return '<g class="graph-node" data-node="' + escapeHtml(node.id) + '" tabindex="0" role="button"><rect x="' + point.x + '" y="' + point.y + '" width="140" height="36" rx="5"/><text x="' + (point.x + 8) + '" y="' + (point.y + 22) + '">' + escapeHtml(node.label) + '</text></g>';
   }).join('');
-  return '<p>Bushiness: ' + escapeHtml(graph.bushiness?.join(' → ') ?? 'n/a') + ' · max parallel: ' + escapeHtml(graph.maxParallel ?? 'n/a') + '</p><svg class="story-map" viewBox="0 0 ' + width + ' ' + height + '" aria-label="Story dependency map">' + edges + nodes + '</svg><section id="node-detail" aria-live="polite"></section>';
+  const pacing = graph.bushiness ? 'Bushiness ' + escapeHtml(graph.bushiness.join(' → ')) + ' · max parallel ' + escapeHtml(graph.maxParallel ?? 'n/a') : graph.nodes.length + ' nodes · ' + graph.edges.length + ' connections';
+  return '<div class="map-toolbar"><label><span class="sr-only">Search story map</span><input id="map-search" type="search" placeholder="Find a node…"></label><span>' + pacing + '</span><div><button data-map-action="zoom-out" aria-label="Zoom out">−</button><button data-map-action="fit">Fit</button><button data-map-action="zoom-in" aria-label="Zoom in">+</button></div></div><div class="map-viewport"><svg class="story-map" viewBox="0 0 ' + width + ' ' + height + '" aria-label="Story dependency map">' + edges + nodes + '</svg></div>';
 };
 const selectGraphNode = id => {
   selectedNodeId = id;
   const node = currentSnapshot?.graph.nodes.find(item => item.id === id);
-  const detail = document.querySelector('#node-detail');
+  const detail = document.querySelector('#selection-detail');
   if (!node || !detail) return;
   const edges = currentSnapshot.graph.edges.filter(edge => edge.from === id || edge.to === id);
   const key = node.label.replace(/^.*:/, '');
@@ -93,13 +108,40 @@ const selectGraphNode = id => {
     tab?.click();
   });
 };
-const panelContent = (name, snapshot) => {
+const actionSummary = action => {
+  const key = Object.keys(action ?? {})[0];
+  if (!key) return 'side effect';
+  const value = action[key];
+  if (Array.isArray(value)) return key + ' ' + value.join('/');
+  if (isObject(value) && Array.isArray(value.path)) return key + ' ' + value.path.join('/');
+  if (typeof value === 'string') return key + ' ' + value;
+  return key;
+};
+const timelineContent = snapshot => {
+  const rehearsal = snapshot.runtime?.rehearsal;
+  const current = rehearsal?.active ? rehearsal.index + 1 : 0;
+  const solveSteps = snapshot.solve.result?.steps ?? [];
+  const rows = snapshot.beats.map((item, index) => {
+    const step = solveSteps[index];
+    const position = index + 1;
+    const state = rehearsal?.active ? (position < current ? 'complete' : position === current ? 'current' : 'upcoming') : 'idle';
+    const changes = [
+      ...(step?.fired ?? []).map(value => '<span><b>Triggered</b> ' + escapeHtml(value) + '</span>'),
+      ...(step?.flagChanges ?? []).map(value => '<span><b>Flag</b> ' + escapeHtml(value.flag) + ': ' + escapeHtml(JSON.stringify(value.before)) + ' → ' + escapeHtml(JSON.stringify(value.after)) + '</span>'),
+      ...(step?.actions ?? []).map(value => '<span><b>Action</b> ' + escapeHtml(actionSummary(value)) + '</span>'),
+    ];
+    return '<li class="timeline-step timeline-step--' + state + '"><button data-seek="' + escapeHtml(item.beat ?? '') + '" ' + (item.beat ? '' : 'disabled') + '><i aria-hidden="true"></i><span><strong>' + escapeHtml(item.beat ?? 'Unnamed step') + '</strong><code>' + escapeHtml(item.event.type) + '</code></span><em>' + position + '</em></button>' + (changes.length ? '<div class="step-changes">' + changes.join('') + '</div>' : '<p>No authored state change at this step.</p>') + '</li>';
+  }).join('');
+  const positionLabel = rehearsal?.active ? 'Rehearsing · ' + Math.max(0, current) + '/' + rehearsal.length : 'Not rehearsing';
+  return '<div class="timeline-status"><strong>' + positionLabel + '</strong><span>Seek or step through the canonical tape</span></div><div class="toolbar"><button data-command="step-back">← Step</button><button data-command="step-forward">Step →</button><button data-command="exit">Exit rehearsal</button><button class="danger-action" data-command="reset">Reset desktop</button></div><ol class="timeline">' + rows + '</ol><p class="notice">Delayed actions collapse during rehearsal; non-filesystem UI state is not reconstructed pixel-exactly.</p>';
+};
+const toolContent = (name, snapshot) => {
   if (name === 'problems') {
     const items = snapshot.lint.result?.diagnostics ?? [];
-    return '<div class="gate-row">Lint ' + gate(snapshot.lint) + ' Solve ' + gate(snapshot.solve) + ' Pack ' + gate(snapshot.pack) + '</div>' + (items.length ? items.map(item => '<article class="diagnostic diagnostic--' + item.level + '"><strong>' + escapeHtml(item.code) + '</strong><span>' + escapeHtml(item.message) + '</span><code>' + escapeHtml(item.path ?? '') + '</code>' + (item.help ? '<small>' + escapeHtml(item.help) + '</small>' : '') + '</article>').join('') : '<p>No lint diagnostics.</p>');
+    return '<div class="gate-row">Lint ' + gate(snapshot.lint) + ' Solve ' + gate(snapshot.solve) + ' Pack ' + gate(snapshot.pack) + '</div>' + (items.length ? items.map(item => '<article class="diagnostic diagnostic--' + item.level + '"><strong>' + escapeHtml(item.code) + '</strong><span>' + escapeHtml(item.message) + '</span><code>' + escapeHtml(item.path ?? '') + '</code>' + (item.help ? '<small>' + escapeHtml(item.help) + '</small>' : '') + '</article>').join('') : '<div class="empty-state"><strong>The draft is structurally clean.</strong><span>Open Story map to inspect pacing and dependencies, or move to Rehearse to verify the player path.</span><button data-open-tool="map">Open Story map</button></div>');
   }
-  if (name === 'map') return renderGraph(snapshot.graph);
-  if (name === 'timeline') return '<div class="toolbar"><button data-command="step-back">← Step</button><button data-command="step-forward">Step →</button><button data-command="exit">Exit rehearsal</button><button data-command="reset">Reset</button></div><ol class="timeline">' + snapshot.beats.map(item => '<li><button data-seek="' + escapeHtml(item.beat ?? '') + '" ' + (item.beat ? '' : 'disabled') + '><span>' + escapeHtml(item.beat ?? 'unnamed') + '</span><code>' + escapeHtml(item.event.type) + '</code></button></li>').join('') + '</ol><p class="notice">Rehearsal collapses delayed actions; non-filesystem UI state is not reconstructed pixel-exactly.</p>';
+  if (name === 'map') return '<div class="context-heading"><span>Selected node</span><strong>' + escapeHtml(selectedNodeId ?? 'None') + '</strong></div><section id="selection-detail" aria-live="polite"><p class="notice">Select a node in the map to inspect its dependencies and rehearsal link.</p></section>';
+  if (name === 'timeline') return timelineContent(snapshot);
   if (name === 'inspector') {
     const key = selectedNodeId?.replace(/^.*:/, '');
     const triggers = key ? (snapshot.runtime?.triggers ?? []).filter(item => item.id === key || item.id?.includes(key)) : snapshot.runtime?.triggers;
@@ -109,6 +151,56 @@ const panelContent = (name, snapshot) => {
   if (name === 'personas') return snapshot.buddies.length ? snapshot.buddies.map(item => '<article class="buddy"><strong>' + escapeHtml(item.id) + '</strong><span>fallback ' + (item.hasFallback ? 'available' : 'missing') + '</span><div><button data-chat="mock" data-buddy="' + escapeHtml(item.id) + '">Mock</button><button data-chat="offline" data-buddy="' + escapeHtml(item.id) + '" ' + (item.hasFallback ? '' : 'disabled') + '>Offline</button><button data-chat="provider" data-buddy="' + escapeHtml(item.id) + '" ' + (item.hasProvider ? '' : 'disabled') + '>Provider</button></div></article>').join('') : '<p>No authored buddies.</p>';
   const report = snapshot.pack.result;
   return report ? '<dl class="shipping"><dt>Logic</dt><dd>' + report.logicBytes + ' B</dd><dt>Scenario</dt><dd>' + report.scenarioBytes + ' / ' + report.scenarioLimitBytes + ' B</dd><dt>Assets</dt><dd>' + report.assetBytes + ' B</dd><dt>Packed total</dt><dd>' + report.totalBytes + ' B</dd></dl><h3>Assets</h3>' + report.assets.map(item => '<div class="asset"><code>' + escapeHtml(item.key) + '</code><span>' + escapeHtml(item.source) + '</span><span>' + escapeHtml(item.bytes ?? 'remote') + '</span></div>').join('') : '<p>Shipping report is only available for content packs.</p>';
+};
+const taskContent = snapshot => {
+  const tools = TASK_TOOLS[activeTask];
+  const navigation = tools.length > 1 ? '<nav class="subtools" aria-label="' + escapeHtml(activeTask) + ' tools">' + tools.map(([id, label]) => '<button data-tool="' + id + '" aria-pressed="' + (id === activeTool) + '">' + label + '</button>').join('') + '</nav>' : '';
+  return navigation + '<div class="tool-content">' + toolContent(activeTool, snapshot) + '</div>';
+};
+const applyMapZoom = () => {
+  const map = document.querySelector('.story-map');
+  if (map) map.style.transform = 'scale(' + mapZoom + ')';
+};
+const bindMap = () => {
+  applyMapZoom();
+  document.querySelectorAll('[data-map-action]').forEach(button => button.addEventListener('click', () => {
+    if (button.dataset.mapAction === 'fit') mapZoom = 1;
+    else mapZoom = Math.min(2.5, Math.max(.5, mapZoom + (button.dataset.mapAction === 'zoom-in' ? .2 : -.2)));
+    applyMapZoom();
+    if (button.dataset.mapAction === 'fit') { const viewport = document.querySelector('.map-viewport'); viewport.scrollLeft = 0; viewport.scrollTop = 0; }
+  }));
+  document.querySelector('#map-search')?.addEventListener('input', event => {
+    const query = event.target.value.trim().toLowerCase();
+    document.querySelectorAll('[data-node]').forEach(node => node.classList.toggle('graph-node--match', Boolean(query) && node.dataset.node.toLowerCase().includes(query)));
+  });
+  const viewport = document.querySelector('.map-viewport');
+  viewport?.addEventListener('pointerdown', event => {
+    if (event.target.closest('[data-node],button,input')) return;
+    const startX = event.clientX; const startY = event.clientY;
+    const left = viewport.scrollLeft; const top = viewport.scrollTop;
+    viewport.classList.add('is-panning'); viewport.setPointerCapture(event.pointerId);
+    const move = next => { viewport.scrollLeft = left - (next.clientX - startX); viewport.scrollTop = top - (next.clientY - startY); };
+    const stop = () => { viewport.classList.remove('is-panning'); viewport.removeEventListener('pointermove', move); viewport.removeEventListener('pointerup', stop); };
+    viewport.addEventListener('pointermove', move); viewport.addEventListener('pointerup', stop);
+  });
+};
+const renderStudio = () => {
+  if (!currentSnapshot) return;
+  document.querySelectorAll('[data-task]').forEach(item => item.setAttribute('aria-selected', String(item.dataset.task === activeTask)));
+  document.querySelectorAll('[data-canvas]').forEach(item => item.setAttribute('aria-pressed', String(item.dataset.canvas === canvasMode)));
+  document.querySelector('.workbench').classList.toggle('workbench--map', canvasMode === 'map');
+  document.querySelector('#canvas-title').textContent = canvasMode === 'map' ? 'Story map' : 'Preview';
+  document.querySelector('#panel-content').innerHTML = taskContent(currentSnapshot);
+  document.querySelector('#map-shell').innerHTML = renderGraph(currentSnapshot.graph);
+  bindPanel(); bindMap();
+  if (selectedNodeId && activeTool === 'map') selectGraphNode(selectedNodeId);
+};
+const selectTool = tool => {
+  const task = Object.entries(TASK_TOOLS).find(([, tools]) => tools.some(([id]) => id === tool));
+  if (!task) return;
+  activeTask = task[0]; activeTool = tool;
+  canvasMode = tool === 'map' ? 'map' : 'preview';
+  renderStudio();
 };
 const bindPanel = () => {
   document.querySelectorAll('[data-command]').forEach(button => button.addEventListener('click', () => {
@@ -126,6 +218,8 @@ const bindPanel = () => {
     }
   }));
   document.querySelectorAll('[data-seek]').forEach(button => button.addEventListener('click', () => command({ type: 'seek', beat: button.dataset.seek })));
+  document.querySelectorAll('[data-tool]').forEach(button => button.addEventListener('click', () => selectTool(button.dataset.tool)));
+  document.querySelectorAll('[data-open-tool]').forEach(button => button.addEventListener('click', () => selectTool(button.dataset.openTool)));
   document.querySelectorAll('[data-chat]').forEach(button => button.addEventListener('click', () => command({ type: 'chat-rehearse', buddy: button.dataset.buddy, message: 'Hello', mode: button.dataset.chat })));
   document.querySelectorAll('[data-node]').forEach(node => {
     const select = () => selectGraphNode(node.dataset.node);
@@ -140,11 +234,12 @@ const renderWorkbench = snapshot => {
   currentSnapshot = snapshot;
   const stale = snapshot.reload.status === 'stale';
   document.querySelector('#input-name').textContent = snapshot.input.id;
-  document.querySelector('#reload-state').textContent = stale ? 'Stale preview · last valid draft' : 'Draft current';
-  document.querySelector('#reload-state').className = stale ? 'stale' : '';
-  const active = document.querySelector('[role="tab"][aria-selected="true"]')?.dataset.panel ?? 'problems';
-  document.querySelector('#panel-content').innerHTML = panelContent(active, snapshot);
-  bindPanel();
+  const rehearsal = snapshot.runtime?.rehearsal;
+  const state = connectionState === 'disconnected' ? 'disconnected' : stale ? 'stale' : rehearsal?.active ? 'rehearsing' : 'live';
+  const label = state === 'rehearsing' ? 'Rehearsing · ' + (rehearsal.index + 1) + '/' + rehearsal.length : state === 'stale' ? 'Stale · last valid draft' : state === 'disconnected' ? 'Disconnected' : 'Live';
+  const indicator = document.querySelector('#studio-state');
+  indicator.textContent = label; indicator.dataset.state = state;
+  renderStudio();
 };
 const showToast = (message, error = false) => {
   const toast = document.querySelector('#toast'); toast.textContent = message;
@@ -152,23 +247,32 @@ const showToast = (message, error = false) => {
   setTimeout(() => { toast.textContent = ''; }, 3500);
 };
 const setupWorkbench = () => {
-  document.querySelector('#root').innerHTML = '<div class="workbench"><header><strong>Scenario Studio</strong><span id="input-name">Untitled scenario</span><span id="connection-state">Connecting…</span><span id="reload-state"></span><label>Panel width <input id="split-size" type="range" min="320" max="720" value="440"></label><button id="preview-lock">Enable preview interaction</button><button id="full-preview">Full preview</button></header><main><section class="preview"><div class="preview-meta"><strong>Preview</strong><label>Viewport <select id="viewport"><option value="100%">Responsive</option><option value="1024px">1024 × 768</option><option value="1280px">1280 × 720</option></select></label></div><div id="desktop-shell" inert><iframe id="desktop-frame" src="/preview" title="Windows XP scenario preview"></iframe></div></section><aside><nav role="tablist">' + ['problems','map','timeline','inspector','events','personas','shipping'].map((name, index) => '<button role="tab" data-panel="' + name + '" aria-selected="' + (index === 0) + '">' + name + '</button>').join('') + '</nav><div id="panel-content"></div></aside></main><div id="toast" class="toast" aria-live="polite"></div></div>';
+  document.querySelector('#root').innerHTML = '<div class="workbench"><header><strong>Scenario Studio</strong><span id="input-name">Untitled scenario</span><span id="studio-state" data-state="connecting">Connecting</span><div class="canvas-switch" aria-label="Primary canvas"><button data-canvas="preview" aria-pressed="true">Preview</button><button data-canvas="map" aria-pressed="false">Map</button></div><button id="full-preview">Full preview</button></header><main><section class="preview"><div class="preview-meta"><strong id="canvas-title">Preview</strong><label>Viewport <select id="viewport"><option value="100%">Responsive</option><option value="1024px">1024 × 768</option><option value="1280px">1280 × 720</option></select></label></div><div id="desktop-shell" class="preview-locked"><iframe id="desktop-frame" src="/preview" title="Windows XP scenario preview" tabindex="-1"></iframe><div class="preview-shield"><button id="enter-preview"><strong>Click to interact</strong><span>Studio keeps keyboard focus until you enter the XP preview.</span></button></div></div><div id="map-shell"></div></section><div id="splitter" role="separator" aria-label="Resize inspector" aria-orientation="vertical" tabindex="0"></div><aside><nav class="tasks" role="tablist" aria-label="Authoring tasks">' + [['build','Build'],['rehearse','Rehearse'],['inspect','Inspect'],['ship','Ship']].map(([id,label], index) => '<button role="tab" data-task="' + id + '" aria-selected="' + (index === 0) + '">' + label + '</button>').join('') + '</nav><div id="panel-content"></div></aside></main><div id="toast" class="toast" aria-live="polite"></div></div>';
   if (${options.workbench === false ? 'true' : 'false'}) {
     document.querySelector('.workbench').classList.add('workbench--desktop-only');
-    document.querySelector('#desktop-shell').removeAttribute('inert');
+    document.querySelector('#desktop-shell').classList.remove('preview-locked');
   }
-  document.querySelectorAll('[role="tab"]').forEach(tab => tab.addEventListener('click', () => {
-    document.querySelectorAll('[role="tab"]').forEach(item => item.setAttribute('aria-selected', String(item === tab)));
-    if (currentSnapshot) { document.querySelector('#panel-content').innerHTML = panelContent(tab.dataset.panel, currentSnapshot); bindPanel(); }
+  document.querySelectorAll('[data-task]').forEach(tab => tab.addEventListener('click', () => {
+    activeTask = tab.dataset.task; activeTool = TASK_TOOLS[activeTask][0][0]; canvasMode = 'preview'; renderStudio();
   }));
-  document.querySelector('#split-size').addEventListener('input', event => document.documentElement.style.setProperty('--panel-width', event.target.value + 'px'));
+  document.querySelectorAll('[data-canvas]').forEach(button => button.addEventListener('click', () => {
+    if (button.dataset.canvas === 'map') selectTool('map'); else { canvasMode = 'preview'; renderStudio(); }
+  }));
   document.querySelector('#viewport').addEventListener('change', event => { document.querySelector('#desktop-shell').style.width = event.target.value; });
-  document.querySelector('#preview-lock').addEventListener('click', event => {
-    const shell = document.querySelector('#desktop-shell'); const locked = shell.hasAttribute('inert');
-    if (locked) shell.removeAttribute('inert'); else shell.setAttribute('inert', '');
-    event.target.textContent = locked ? 'Lock preview focus' : 'Enable preview interaction';
+  document.querySelector('#enter-preview').addEventListener('click', event => {
+    previewReturnTarget = event.currentTarget;
+    const shell = document.querySelector('#desktop-shell'); shell.classList.remove('preview-locked'); shell.classList.add('preview-active');
+    const frame = document.querySelector('#desktop-frame'); frame.tabIndex = 0; frame.focus();
   });
   document.querySelector('#full-preview').addEventListener('click', () => document.querySelector('.workbench').classList.toggle('workbench--full'));
+  const splitter = document.querySelector('#splitter');
+  splitter.addEventListener('pointerdown', event => {
+    const start = event.clientX; const width = document.querySelector('aside').getBoundingClientRect().width;
+    splitter.setPointerCapture(event.pointerId);
+    const move = next => document.documentElement.style.setProperty('--panel-width', Math.min(720, Math.max(320, width - (next.clientX - start))) + 'px');
+    const stop = () => { splitter.removeEventListener('pointermove', move); splitter.removeEventListener('pointerup', stop); };
+    splitter.addEventListener('pointermove', move); splitter.addEventListener('pointerup', stop);
+  });
 };
 const withoutEventStream = callback => {
   suppressEventStream += 1;
@@ -192,7 +296,7 @@ function AuthoringDesktop() {
       activeSocket = socket;
       socket.addEventListener('open', () => {
         retry = 0;
-        if (isPreviewFrame) window.parent.postMessage({ type: 'studio-connection', state: 'Connected' }, window.location.origin);
+        if (isPreviewFrame) window.parent.postMessage({ type: 'studio-connection', state: 'connected' }, window.location.origin);
         const rehearsal = xp.current?.scenario.getState();
         send({
           type: 'ready',
@@ -263,7 +367,7 @@ function AuthoringDesktop() {
         }
       });
       socket.addEventListener('close', () => {
-        if (isPreviewFrame) window.parent.postMessage({ type: 'studio-connection', state: 'Disconnected · retrying' }, window.location.origin);
+        if (isPreviewFrame) window.parent.postMessage({ type: 'studio-connection', state: 'disconnected' }, window.location.origin);
         if (activeSocket === socket) activeSocket = null;
         if (!stopped) setTimeout(connect, Math.min(250 * 2 ** retry++, 3000));
       });
@@ -296,6 +400,9 @@ if (isPreviewFrame) {
   window.addEventListener('message', event => {
     if (event.origin === window.location.origin && event.data?.type === 'studio-command') send(event.data.message);
   });
+  window.addEventListener('keydown', event => {
+    if (event.key === 'Escape') window.parent.postMessage({ type: 'studio-preview-exit' }, window.location.origin);
+  }, true);
   createRoot(document.getElementById('desktop-root')).render(React.createElement(AuthoringDesktop));
 } else {
   setupWorkbench();
@@ -303,7 +410,14 @@ if (isPreviewFrame) {
     if (event.origin !== window.location.origin) return;
     if (event.data?.type === 'studio-snapshot') renderWorkbench(event.data.snapshot);
     else if (event.data?.type === 'studio-result') showToast(event.data.result.ok ? 'Command completed' : event.data.result.error, !event.data.result.ok);
-    else if (event.data?.type === 'studio-connection') document.querySelector('#connection-state').textContent = event.data.state;
+    else if (event.data?.type === 'studio-connection') {
+      connectionState = event.data.state;
+      if (currentSnapshot) renderWorkbench(currentSnapshot);
+    } else if (event.data?.type === 'studio-preview-exit') {
+      const shell = document.querySelector('#desktop-shell'); shell.classList.add('preview-locked'); shell.classList.remove('preview-active');
+      document.querySelector('#desktop-frame').tabIndex = -1;
+      (previewReturnTarget ?? document.querySelector('#enter-preview')).focus();
+    }
   });
 }
 `;
