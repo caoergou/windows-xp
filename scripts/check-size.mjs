@@ -10,13 +10,12 @@ import { join, extname } from 'node:path';
 
 const DIST = new URL('../dist', import.meta.url).pathname;
 const CHUNK_LIMIT = 1 * 1024 * 1024; // 1MB per JS chunk
-// Total dist ceiling. Raised 6 -> 7MB (#224): the library keeps gaining real
-// content (system-app fidelity, culture apps, scenario/lesson engines) and the
-// dist had already reached ~6.04MB, so 6MB no longer left headroom. The tarball
-// is ~3.9MB gzipped at this size — still an order of magnitude under the 17MB
-// package #72 set out to prevent. This is a soft ratchet: keep it just above the
-// real dist so a genuine regression (e.g. base64-inlined assets) still trips it.
-const TOTAL_LIMIT = 7 * 1024 * 1024; // 7MB dist total (npm pack ~3.9MB gzipped)
+// Total dist ceiling. Raised 7 -> 10MB (#213) to leave deliberate growth room
+// for complete OS packages and their public entries while remaining well below
+// the historical 17MB package that #72 set out to prevent. The stricter 1MB
+// per-chunk ceiling remains unchanged and still catches accidentally inlined
+// assets or other concentrated bundle regressions.
+const TOTAL_LIMIT = 10 * 1024 * 1024; // 10MB dist total
 
 function walk(dir) {
   const out = [];
@@ -37,7 +36,9 @@ for (const f of files) {
   if (!['.js', '.mjs', '.cjs'].includes(extname(f))) continue;
   const size = statSync(f).size;
   if (size > CHUNK_LIMIT) {
-    console.error(`FAIL: ${f.replace(DIST + '/', '')} is ${fmt(size)} (limit ${fmt(CHUNK_LIMIT)}) — assets are probably being inlined as base64 again`);
+    console.error(
+      `FAIL: ${f.replace(DIST + '/', '')} is ${fmt(size)} (limit ${fmt(CHUNK_LIMIT)}) — assets are probably being inlined as base64 again`
+    );
     failed = true;
   }
 }
@@ -47,4 +48,6 @@ if (total > TOTAL_LIMIT) {
 }
 
 if (failed) process.exit(1);
-console.log(`size check OK: dist ${fmt(total)}, ${files.length} files, largest JS chunk ${fmt(Math.max(...files.filter(f => ['.js', '.mjs', '.cjs'].includes(extname(f))).map(f => statSync(f).size)))}`);
+console.log(
+  `size check OK: dist ${fmt(total)}, ${files.length} files, largest JS chunk ${fmt(Math.max(...files.filter(f => ['.js', '.mjs', '.cjs'].includes(extname(f))).map(f => statSync(f).size)))}`
+);
