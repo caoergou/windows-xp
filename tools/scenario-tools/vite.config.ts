@@ -19,6 +19,7 @@ export default defineConfig({
       include: [
         'src',
         '../../src/styled.d.ts',
+        '../../src/content/xpspackManifest.ts',
         '../../src/types/assets.d.ts',
         '../../src/types/modules.d.ts',
         '../../src/types/vite-env.d.ts',

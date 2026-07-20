@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://caoergou.github.io/windows-xp/schema/xpspack-manifest.json",
+  "title": "XpspackManifestV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "packId", "rootChunk", "chunks", "assets", "signature"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "packId": { "type": "string", "minLength": 1 },
+    "rootChunk": { "type": "string", "minLength": 1 },
+    "chunks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/chunk" }
+    },
+    "assets": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/asset" }
+    },
+    "signature": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["algorithm", "keyId", "path"],
+          "properties": {
+            "algorithm": { "const": "Ed25519" },
+            "keyId": { "type": "string", "minLength": 1 },
+            "path": { "const": "manifest.sig" }
+          }
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "compression": {
+      "enum": ["none", "gzip", "brotli"]
+    },
+    "encryption": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["algorithm", "keyId", "nonce"],
+          "properties": {
+            "algorithm": { "const": "AES-256-GCM" },
+            "keyId": { "type": "string", "minLength": 1 },
+            "nonce": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{16}$",
+              "description": "A 12-byte nonce encoded as unpadded base64url."
+            }
+          }
+        }
+      ]
+    },
+    "chunk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path",
+        "sha256",
+        "storedBytes",
+        "uncompressedBytes",
+        "compression",
+        "encryption"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^chunks/[A-Za-z0-9._/-]+$"
+        },
+        "sha256": { "$ref": "#/definitions/sha256" },
+        "storedBytes": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "uncompressedBytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "compression": { "$ref": "#/definitions/compression" },
+        "encryption": { "$ref": "#/definitions/encryption" }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path",
+        "sha256",
+        "storedBytes",
+        "uncompressedBytes",
+        "compression",
+        "encryption",
+        "mediaType"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "pattern": "^assets/[A-Za-z0-9._/-]+$" },
+        "sha256": { "$ref": "#/definitions/sha256" },
+        "storedBytes": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "uncompressedBytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "compression": { "$ref": "#/definitions/compression" },
+        "encryption": { "$ref": "#/definitions/encryption" },
+        "mediaType": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

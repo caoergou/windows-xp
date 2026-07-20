@@ -1,0 +1,1 @@
+{"assets":[],"chunks":[{"compression":"none","encryption":null,"id":"public","path":"chunks/public.json","sha256":"46640b645a548bfc9bfb0bcd92f462f12aaf55cefea5f7da6212d5246b9f4f8a","storedBytes":40,"uncompressedBytes":40}],"formatVersion":1,"packId":"format-fixture","rootChunk":"public","signature":null}

@@ -5,7 +5,7 @@
  * 17MB package: every JS chunk must stay under CHUNK_LIMIT and the
  * total dist size under TOTAL_LIMIT. Run after `npm run build:lib`.
  */
-import { readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, extname } from 'node:path';
 
 const DIST = new URL('../dist', import.meta.url).pathname;
@@ -32,6 +32,13 @@ const total = files.reduce((sum, f) => sum + statSync(f).size, 0);
 const fmt = n => `${(n / 1024 / 1024).toFixed(2)}MB`;
 
 let failed = false;
+for (const entry of ['index.es.js', 'index.cjs.js']) {
+  const source = readFileSync(join(DIST, entry), 'utf8');
+  if (source.includes('manifest.sig') || source.includes('xpspack ZIP')) {
+    console.error(`FAIL: ${entry} contains the optional xpspack loader`);
+    failed = true;
+  }
+}
 for (const f of files) {
   if (!['.js', '.mjs', '.cjs'].includes(extname(f))) continue;
   const size = statSync(f).size;
