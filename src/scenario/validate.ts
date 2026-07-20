@@ -89,6 +89,8 @@ const CONDITION_KEYS = new Set([
   'linked',
   'searched',
   'found',
+  'reportClaim',
+  'settingEquals',
 ]);
 
 export interface ScenarioValidation {
