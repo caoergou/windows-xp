@@ -6,11 +6,33 @@ export type AuthoringValue = Scenario | PuzzleGraph | ContentPack;
 export type AuthoringKind = 'scenario' | 'graph' | 'pack';
 export type DiagnosticLevel = 'error' | 'warning' | 'info';
 
+export interface SourcePosition {
+  line: number;
+  column: number;
+}
+
+export interface SourceRange {
+  start: SourcePosition;
+  end: SourcePosition;
+}
+
+export interface RelatedDiagnostic {
+  message: string;
+  path?: string;
+  source?: string;
+  range?: SourceRange;
+}
+
 export interface Diagnostic {
   level: DiagnosticLevel;
   code: string;
   message: string;
   path?: string;
+  source?: string;
+  range?: SourceRange;
+  help?: string;
+  related?: RelatedDiagnostic[];
+  docsUrl?: string;
 }
 
 export interface LoadedInput {

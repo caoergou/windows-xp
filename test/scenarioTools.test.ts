@@ -8,9 +8,11 @@ import type { Scenario } from '../src/scenario/types';
 import { KNOWN_EVENT_TYPES } from '../tools/scenario-tools/src/eventTypes';
 import {
   buildAuthoringGraph,
+  buildAuthoringSnapshot,
   lintContentPack,
   lintGraph,
   lintScenario,
+  loadInput,
   migrateScenarioSave,
   packDirectory,
   renderAuthoringGraph,
@@ -22,7 +24,13 @@ import {
   collectBuddies,
   replyTexts,
 } from '../tools/scenario-tools/src/serveChat';
-import { completeRepl, parseReplCommand } from '../tools/scenario-tools/src/serveProtocol';
+import {
+  AUTHORING_PROTOCOL_VERSION,
+  completeRepl,
+  isAuthoringCommandRequest,
+  parseReplCommand,
+  replToAuthoringCommand,
+} from '../tools/scenario-tools/src/serveProtocol';
 
 const codes = (diagnostics: { code: string }[]): string[] => diagnostics.map(item => item.code);
 
@@ -207,6 +215,55 @@ describe('scenario-tools', () => {
     expect(() => parseReplCommand('emit made:up')).toThrow('unknown XP event type');
   });
 
+  it('uses one versioned structured command contract for the REPL and Scenario Studio', () => {
+    const repl = parseReplCommand('seek finale');
+    expect(repl && replToAuthoringCommand(repl)).toEqual({ type: 'seek', beat: 'finale' });
+    expect(
+      isAuthoringCommandRequest({
+        type: 'authoring-command',
+        id: 'ui-1',
+        protocolVersion: AUTHORING_PROTOCOL_VERSION,
+        command: { type: 'seek', beat: 'finale' },
+      })
+    ).toBe(true);
+    expect(
+      isAuthoringCommandRequest({
+        type: 'authoring-command',
+        id: 'ui-1',
+        protocolVersion: AUTHORING_PROTOCOL_VERSION + 1,
+        command: { type: 'seek', beat: 'finale' },
+      })
+    ).toBe(false);
+    expect(
+      isAuthoringCommandRequest({
+        type: 'authoring-command',
+        id: 'ui-2',
+        protocolVersion: AUTHORING_PROTOCOL_VERSION,
+        command: { type: 'unknown' },
+      })
+    ).toBe(false);
+  });
+
+  it('builds a JSON-serializable Scenario Studio snapshot with independent gates', async () => {
+    const input = await loadInput(path.resolve('examples/midsummer-pack'));
+    const snapshot = await buildAuthoringSnapshot(input, 1, {
+      status: 'current',
+      lastValidAt: '2026-07-20T00:00:00.000Z',
+    });
+    expect(snapshot.protocolVersion).toBe(AUTHORING_PROTOCOL_VERSION);
+    expect(snapshot.lint.status).toBe('pass');
+    expect(snapshot.solve.status).toBe('pass');
+    expect(snapshot.pack.status).toBe('pass');
+    expect(snapshot.graph.nodes.length).toBeGreaterThan(0);
+    expect(snapshot.solve.result?.steps[0]).toEqual(
+      expect.objectContaining({
+        flagChanges: expect.any(Array),
+        actions: expect.any(Array),
+      })
+    );
+    expect(() => JSON.stringify(snapshot)).not.toThrow();
+  });
+
   it('discovers provider buddies and their deterministic offline replies', () => {
     const authored = {
       qq: {
@@ -250,5 +307,31 @@ describe('scenario-tools', () => {
     expect(source).toContain('handle.qq.loadProfile(command.profile)');
     expect(source).toContain('handle.qq.sendMessage');
     expect(source).toContain('ws://localhost:5174?token=secret');
+  });
+
+  it('builds Scenario Studio around a serialized last-valid authored value', () => {
+    const source = buildBrowserClientSource({
+      engineModule: '/@fs/engine.tsx',
+      authoredValue: { id: 'draft', triggers: [] },
+      controlUrl: 'ws://localhost:5174?token=secret',
+      storagePrefix: 'authoring:',
+      language: 'zh',
+      workbench: true,
+    });
+    expect(source).toContain("type: 'authoring-command'");
+    expect(source).toContain("request?.type === 'snapshot'");
+    expect(source).toContain('Scenario Studio');
+    expect(source).toContain('iframe id="desktop-frame"');
+    expect(source).toContain("window.location.pathname === '/preview'");
+    expect(source).toContain("[['build','Build'],['rehearse','Rehearse']");
+    expect(source).toContain('class="preview-shield"');
+    expect(source).toContain("type: 'studio-preview-exit'");
+    expect(source).toContain('flagChanges');
+    expect(source).toContain('EVENT_FORMS');
+    expect(source).toContain('injectedHistory');
+    expect(source).toContain('personaTranscript');
+    expect(source).toContain('vscode://file');
+    expect(source).toContain('Shipping blocked');
+    expect(source).not.toContain('import * as authoredModule');
   });
 });

@@ -4,7 +4,14 @@
     "allowImportingTsExtensions": false,
     "baseUrl": "../..",
     "noEmit": true,
-    "types": ["node"]
+    "types": ["node", "vite/client"]
   },
-  "include": ["src", "vite.config.ts"]
+  "include": [
+    "src",
+    "vite.config.ts",
+    "../../src/styled.d.ts",
+    "../../src/types/assets.d.ts",
+    "../../src/types/modules.d.ts",
+    "../../src/types/vite-env.d.ts"
+  ]
 }

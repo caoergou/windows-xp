@@ -3,7 +3,13 @@ export { validateScenarioSchema, validateContentPackSchema } from './schema';
 export { lintValue, lintScenario, lintGraph, lintContentPack } from './lint';
 export type { LintOptions } from './lint';
 export { solveAuthoredValue } from './solve';
-export type { ScenarioSolveReport, SolveExpectation, SolveStep, ToolSolveOptions } from './solve';
+export type {
+  ScenarioSolveReport,
+  SolveCoverage,
+  SolveExpectation,
+  SolveStep,
+  ToolSolveOptions,
+} from './solve';
 export { buildAuthoringGraph, renderAuthoringGraph } from './graph';
 export type { GraphFormat, ToolGraph, ToolGraphEdge, ToolGraphNode } from './graph';
 export { normalizeContentPack, packDirectory } from './pack';
@@ -11,9 +17,20 @@ export type { PackBuildResult, PackOptions, PackSizeReport, PackedAssetSize } fr
 export { migrateSaveFile, migrateScenarioSave, parseFlagValue, parseScenarioSave } from './migrate';
 export type { MigrateOptions, MigrationMap, MigrationResult, ScenarioSave } from './migrate';
 export { buildRehearsalProfile, collectBuddies, replyTexts } from './serveChat';
+export { buildAuthoringSnapshot, scenarioFromLoadedInput } from './authoringSnapshot';
 export type { BuddyDefinition } from './serveChat';
-export { completeRepl, formatDebugState, parseReplCommand, SERVE_HELP } from './serveProtocol';
+export {
+  AUTHORING_PROTOCOL_VERSION,
+  completeRepl,
+  formatDebugState,
+  isAuthoringCommandRequest,
+  parseReplCommand,
+  replToAuthoringCommand,
+  SERVE_HELP,
+} from './serveProtocol';
 export type {
+  AuthoringCommand,
+  AuthoringSnapshot,
   BrowserCommand,
   BrowserMessage,
   CompletionContext,
@@ -25,6 +42,9 @@ export type {
   AuthoringValue,
   Diagnostic,
   DiagnosticLevel,
+  RelatedDiagnostic,
+  SourcePosition,
+  SourceRange,
   LintResult,
   LoadedInput,
 } from './types';
