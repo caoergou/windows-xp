@@ -29,3 +29,6 @@ export const qqUrl = (rel: string): string => {
 /** Get an avatar URL ('assets/img/avatar/<n>.png'), falling back to #1 when out of range. */
 export const qqAvatar = (n: number | string): string =>
   qqImg(`avatar/${n}.png`) || qqImg('avatar/1.png');
+
+/** Get a classic emoticon PNG URL ('assets/img/emoticons/<name>.png'). */
+export const qqEmoticon = (name: string): string => qqImg(`emoticons/${name}`) ?? '';
