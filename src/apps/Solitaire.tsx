@@ -5,6 +5,7 @@ import styled, { css } from 'styled-components';
 import { useWindowManagerActions } from '../context/WindowManagerContext';
 import { useXPEventBus } from '../context/EventBusContext';
 import { useShortcut } from '../context/KeymapContext';
+import { useApp } from '../hooks/useApp';
 import {
   XPMenuBar,
   XPMenuBarItem,
@@ -214,7 +215,10 @@ const DragOverlay = styled.div<{ $x: number; $y: number; $bouncing: boolean }>`
   left: ${p => p.$x}px;
   top: ${p => p.$y}px;
   pointer-events: none;
-  z-index: 10000;
+  /* Window z-indices start at 10000 and climb per focus, so a hardcoded 10000
+     puts the dragged cards UNDER the window - use the topmost-layer family
+     (below the taskbar's 2147483647) like ContextMenu does. */
+  z-index: 2147483000;
   transition: ${p => (p.$bouncing ? 'left 200ms ease-out, top 200ms ease-out' : 'none')};
 `;
 
@@ -253,62 +257,8 @@ const WinMessage = styled.div`
 const VictoryOverlay = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 10001;
-`;
-
-const AboutDialog = styled.div`
-  position: absolute;
-  z-index: 30;
-  top: 28px;
-  left: 50%;
-  width: 220px;
-  transform: translateX(-50%);
-  border: 2px solid;
-  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE}
-    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40}
-    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40}
-    ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY_HILIGHT};
-  box-shadow: 2px 2px 1px ${({ theme }) => resolveOSTheme(theme).tokens.GREY_64};
-  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
-`;
-
-const AboutTitle = styled.div`
-  padding: 4px 6px;
-  color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.TITLE_BAR_GRADIENT_COMPACT};
-  font-weight: bold;
-`;
-
-const AboutContent = styled.div`
-  padding: 16px 14px 12px;
-  white-space: pre-line;
-  line-height: 1.45;
-`;
-
-const AboutActions = styled.div`
-  display: flex;
-  justify-content: center;
-  padding: 0 0 12px;
-`;
-
-const DialogButton = styled.button`
-  min-width: 72px;
-  height: 23px;
-  border: 2px solid;
-  border-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE}
-    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40}
-    ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40}
-    ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY_HILIGHT};
-  font: inherit;
-
-  &:active {
-    border-color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40}
-      ${({ theme }) => resolveOSTheme(theme).tokens.WHITE}
-      ${({ theme }) => resolveOSTheme(theme).tokens.WHITE}
-      ${({ theme }) => resolveOSTheme(theme).tokens.GREY_40};
-  }
+  /* Same topmost-layer reasoning as DragOverlay (windows start at z 10000). */
+  z-index: 2147483000;
 `;
 
 const SolitaireCard: React.FC<{
@@ -386,7 +336,7 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
   const [redeals, setRedeals] = useState(0);
   const [undo, setUndo] = useState<GameSnapshot | null>(null);
   const [elapsed, setElapsed] = useState(0);
-  const [aboutOpen, setAboutOpen] = useState(false);
+  const api = useApp(windowId);
   // Track the win transition so game:win fires once, not on every re-render.
   const wonRef = useRef(false);
   const animRef = useRef<VictoryAnimation | null>(null);
@@ -953,8 +903,14 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
                 type="button"
                 role="menuitem"
                 onClick={() => {
-                  setAboutOpen(true);
                   setOpenMenu(null);
+                  // Shared engine modal (XPAlert) - a real XP-style dialog that
+                  // floats above the window instead of a clipped in-window overlay.
+                  void api.dialog.alert({
+                    title: t('solitaire.about.title'),
+                    message: t('solitaire.about.message'),
+                    type: 'info',
+                  });
                 }}
               >
                 <XPMenuMark />
@@ -1037,18 +993,6 @@ const Solitaire = ({ windowId }: { windowId?: string }) => {
       </XPStatusBar>
 
       {winPhase === 'done' && <WinMessage>{t('solitaire.won')}</WinMessage>}
-
-      {aboutOpen && (
-        <AboutDialog role="dialog" aria-modal="true" aria-label={t('solitaire.about.title')}>
-          <AboutTitle>{t('solitaire.about.title')}</AboutTitle>
-          <AboutContent>{t('solitaire.about.message')}</AboutContent>
-          <AboutActions>
-            <DialogButton type="button" autoFocus onClick={() => setAboutOpen(false)}>
-              {t('solitaire.about.ok')}
-            </DialogButton>
-          </AboutActions>
-        </AboutDialog>
-      )}
 
       {drag &&
         createPortal(

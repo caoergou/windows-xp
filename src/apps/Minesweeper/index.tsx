@@ -10,8 +10,10 @@ import {
 } from '../../components/XPMenuBar';
 import { useTranslation } from 'react-i18next';
 import { useWindowManagerActions } from '../../context/WindowManagerContext';
+import { useWindowId } from '../../context/WindowIdContext';
 import { useShortcut } from '../../context/KeymapContext';
 import { useXPEventBus } from '../../context/EventBusContext';
+import { useApp } from '../../hooks/useApp';
 import {
   numberSprites,
   digitSprites,
@@ -55,17 +57,17 @@ import {
   CoveredBackground,
   RevealedBackground,
   CellIcon,
-  AboutDialog,
-  AboutTitle,
-  AboutContent,
-  AboutActions,
-  DialogButton,
 } from './styled';
 import type { Difficulty, GameStatus, OpenMenu, CellData } from './types';
 
 const Minesweeper = ({ windowId }: { windowId?: string }) => {
   const { t, i18n } = useTranslation();
   const { closeWindow, resizeWindow, setWindowTitle } = useWindowManagerActions();
+  // The registry does not inject a windowId prop - fall back to the window
+  // context so the fit-to-board resize actually runs (#292).
+  const contextWindowId = useWindowId();
+  const wid = windowId ?? contextWindowId;
+  const api = useApp(wid);
   const bus = useXPEventBus();
   const [difficulty, setDifficulty] = useState<Difficulty>('beginner');
   const [board, setBoard] = useState<CellData[][]>([]);
@@ -75,7 +77,6 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
   const [firstClick, setFirstClick] = useState(true);
   const [face, setFace] = useState<'smile' | 'ohh' | 'dead' | 'win'>('smile');
   const [openMenu, setOpenMenu] = useState<OpenMenu>(null);
-  const [aboutOpen, setAboutOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const pendingChordRef = useRef<string | null>(null);
@@ -123,8 +124,8 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
   }, [initBoard]);
 
   useEffect(() => {
-    if (windowId) setWindowTitle(windowId, t('apps.minesweeper'));
-  }, [i18n.language, setWindowTitle, t, windowId]);
+    if (wid) setWindowTitle(wid, t('apps.minesweeper'));
+  }, [i18n.language, setWindowTitle, t, wid]);
 
   useEffect(() => {
     if (status !== 'playing' || time >= 999) return undefined;
@@ -148,16 +149,12 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
   }, []);
 
   useLayoutEffect(() => {
-    if (!windowId || !contentRef.current || board.length === 0) return;
+    if (!wid || !contentRef.current || board.length === 0) return;
 
     // Window chrome (see WindowChrome.tsx): WindowBody has 3px side margins,
     // the title bar is 28px tall, and the container has 3px bottom padding.
-    resizeWindow(
-      windowId,
-      contentRef.current.offsetWidth + 6,
-      contentRef.current.offsetHeight + 31
-    );
-  }, [board.length, difficulty, resizeWindow, windowId]);
+    resizeWindow(wid, contentRef.current.offsetWidth + 6, contentRef.current.offsetHeight + 31);
+  }, [board.length, difficulty, resizeWindow, wid]);
 
   const endWithLoss = useCallback(
     (nextBoard: CellData[][], row: number, col: number) => {
@@ -322,8 +319,8 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
 
   const exitGame = useCallback(() => {
     setOpenMenu(null);
-    if (windowId) closeWindow(windowId);
-  }, [closeWindow, windowId]);
+    if (wid) closeWindow(wid);
+  }, [closeWindow, wid]);
 
   // App-scoped shortcuts via the keymap (#132) — fire only when Minesweeper is
   // the focused window (was a global listener that ran even when unfocused).
@@ -341,7 +338,6 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
     { id: 'minesweeper.dismiss', combo: 'Escape', ...mineApp, preventDefault: false },
     () => {
       setOpenMenu(null);
-      setAboutOpen(false);
     }
   );
 
@@ -416,8 +412,14 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
                 type="button"
                 role="menuitem"
                 onClick={() => {
-                  setAboutOpen(true);
                   setOpenMenu(null);
+                  // Shared engine modal (XPAlert) - floats above the window like
+                  // real XP's About box instead of a clipped in-window overlay.
+                  void api.dialog.alert({
+                    title: t('minesweeper.about.title'),
+                    message: t('minesweeper.about.message'),
+                    type: 'info',
+                  });
                 }}
               >
                 <SharedMenuMark />
@@ -493,18 +495,6 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
           )}
         </Board>
       </GamePanel>
-
-      {aboutOpen && (
-        <AboutDialog role="dialog" aria-modal="true" aria-label={t('minesweeper.about.title')}>
-          <AboutTitle>{t('minesweeper.about.title')}</AboutTitle>
-          <AboutContent>{t('minesweeper.about.message')}</AboutContent>
-          <AboutActions>
-            <DialogButton type="button" autoFocus onClick={() => setAboutOpen(false)}>
-              {t('minesweeper.about.ok')}
-            </DialogButton>
-          </AboutActions>
-        </AboutDialog>
-      )}
     </Wrap>
   );
 };
