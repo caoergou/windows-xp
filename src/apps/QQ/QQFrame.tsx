@@ -34,6 +34,17 @@ const QQFrame: React.FC<QQFrameProps> = ({
   onClose,
   children,
 }) => {
+  // The engine's WindowContainer focuses the window on ANY click bubbling up
+  // from the content; a frame button click must not bubble past its own action
+  // (a minimize click would otherwise hide the window and immediately re-focus
+  // it back visible, #292).
+  const btn =
+    (fn?: () => void) =>
+    (e: React.MouseEvent): void => {
+      e.stopPropagation();
+      fn?.();
+    };
+
   return (
     <QQFrameRoot $variant={variant} data-testid={`qq-frame-${variant}`}>
       <div className="qqf-title title-bar">
@@ -48,14 +59,24 @@ const QQFrame: React.FC<QQFrameProps> = ({
         )}
         <div className="qqf-title-btns">
           {onMinimize && (
-            <button className="qqf-min" title="最小化" aria-label="最小化" onClick={onMinimize} />
+            <button
+              className="qqf-min"
+              title="最小化"
+              aria-label="最小化"
+              onClick={btn(onMinimize)}
+            />
           )}
           {variant === 'panel' && <button className="qqf-color" title="更换皮肤" />}
           {variant === 'chat' && onMaximize && (
-            <button className="qqf-max" title="最大化" aria-label="最大化" onClick={onMaximize} />
+            <button
+              className="qqf-max"
+              title="最大化"
+              aria-label="最大化"
+              onClick={btn(onMaximize)}
+            />
           )}
           {onClose && (
-            <button className="qqf-close" title="关闭" aria-label="关闭" onClick={onClose} />
+            <button className="qqf-close" title="关闭" aria-label="关闭" onClick={btn(onClose)} />
           )}
         </div>
       </div>

@@ -135,6 +135,17 @@ export const QQFrameRoot = styled.div<{ $variant: 'panel' | 'chat' }>`
     flex-shrink: 0;
     /* Let react-draggable own touch-drags (same as the engine's XP TitleBar). */
     touch-action: none;
+    /* The .title-bar class hooks the engine's Draggable, but xp.css styles the
+       same class globally (padding/border/gradient/font) - neutralize the leak
+       so the title bar keeps the skin's own metrics (#292 button clipping). */
+    box-sizing: border-box;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    font-family: inherit;
+    font-size: inherit;
+    text-shadow: none;
   }
   .qqf-title-left {
     width: ${({ $variant }) => ($variant === 'chat' ? 25 : 64)}px;
@@ -791,6 +802,15 @@ export const LoadingRoot = styled.div`
     position: relative;
     flex-shrink: 0;
     touch-action: none;
+    /* Same xp.css .title-bar leak neutralization as QQFrame (see there). */
+    box-sizing: border-box;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    font-family: inherit;
+    font-size: inherit;
+    text-shadow: none;
   }
   .qq-logging-title-left {
     background-image: ${qqUrl('logging/BITMAP1741_1.png')};
