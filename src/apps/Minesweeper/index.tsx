@@ -85,6 +85,24 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
 
   const config = configs[difficulty];
 
+  // Render-time state adjustment (React docs pattern): a difficulty switch
+  // rebuilds the board for the new config in the same render pass, so the
+  // layout effect below always measures a board that matches the grid. Doing
+  // it post-commit instead measured the stale board against the new config —
+  // and for intermediate↔expert (both 16 rows) board.length never changed, so
+  // no re-measure happened at all and the window kept the wrong size.
+  const [lastDifficulty, setLastDifficulty] = useState(difficulty);
+  if (lastDifficulty !== difficulty) {
+    setLastDifficulty(difficulty);
+    setBoard(createBoard(config));
+    setFlags(0);
+    setTime(0);
+    setStatus('new');
+    setFirstClick(true);
+    setFace('smile');
+    pendingChordRef.current = null;
+  }
+
   useEffect(() => {
     timeRef.current = time;
   }, [time]);
@@ -132,7 +150,8 @@ const Minesweeper = ({ windowId }: { windowId?: string }) => {
   useLayoutEffect(() => {
     if (!windowId || !contentRef.current || board.length === 0) return;
 
-    // Window chrome: 3px on each side, a 25px title bar, and 3px at the bottom.
+    // Window chrome (see WindowChrome.tsx): WindowBody has 3px side margins,
+    // the title bar is 28px tall, and the container has 3px bottom padding.
     resizeWindow(
       windowId,
       contentRef.current.offsetWidth + 6,

@@ -33,6 +33,12 @@ const START_MENU_BY_LOCALE: Record<string, StartMenuProfile> = {
         icon: '360safe',
       },
       { id: 'kugou', action: 'KugouMusic', nameKey: 'startMenu.apps.kugou', icon: 'kugou' },
+      {
+        id: 'ttplayer',
+        action: 'TTPlayer',
+        nameKey: 'startMenu.apps.ttplayer',
+        icon: 'ttplayer',
+      },
     ],
   },
   en: {

@@ -8,6 +8,7 @@ import { useActiveWindowId } from '../../context/WindowManagerContext';
 import { useWindowId } from '../../context/WindowIdContext';
 import { useXPEventBus } from '../../context/EventBusContext';
 import { renderMessageNodes, QQ_EMOJI_LIST } from '../../utils/emojiRenderer';
+import QQFrame from './QQFrame';
 
 interface QQChatProps {
   buddyId: string;
@@ -19,6 +20,8 @@ interface QQChatProps {
  * two-line message flow (partner blue nickname line / self green nickname line, no bubbles),
  * emoji mini-toolbar, input box, right-side QQ Show + personal-space bar.
  * Message bodies are rendered by emojiRenderer for classic emoticons.
+ * The window is frameless (QQ-CLASSIC-UI §2): QQFrame draws the self-skinned
+ * 26px title bar and bottom border in place of the XP chrome.
  */
 const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
   const api = useApp(windowId);
@@ -90,157 +93,173 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
   };
 
   if (!buddy || !me) {
-    return <ChatRoot data-testid="qq-chat" />;
+    return (
+      <QQFrame
+        variant="chat"
+        onMinimize={() => api.window.minimize()}
+        onClose={() => api.window.close()}
+      >
+        <ChatRoot data-testid="qq-chat" />
+      </QQFrame>
+    );
   }
 
   return (
-    <ChatRoot data-testid="qq-chat">
-      {/* Large toolbar */}
-      <div className="qq-im-big-toolbar">
-        <button className="im-big-msg" onClick={() => api.sound.play('qqSystem')}>
-          短信
-        </button>
-        <button className="im-big-video">视频</button>
-        <button className="im-big-audio">语音</button>
-        <button className="im-big-file">传文件</button>
-        <button className="im-big-3d">3D秀</button>
-        <button className="im-big-invite">邀请</button>
-      </div>
+    <QQFrame
+      variant="chat"
+      title={`与 ${buddy.nickname} 聊天中`}
+      onMinimize={() => api.window.minimize()}
+      onMaximize={() => api.window.maximize()}
+      onClose={() => api.window.close()}
+    >
+      <ChatRoot data-testid="qq-chat">
+        {/* Large toolbar */}
+        <div className="qq-im-big-toolbar">
+          <button className="im-big-msg" onClick={() => api.sound.play('qqSystem')}>
+            短信
+          </button>
+          <button className="im-big-video">视频</button>
+          <button className="im-big-audio">语音</button>
+          <button className="im-big-file">传文件</button>
+          <button className="im-big-3d">3D秀</button>
+          <button className="im-big-invite">邀请</button>
+        </div>
 
-      <div className="qq-im-contant">
-        <div className="qq-im-main">
-          <div className="qq-im-chat">
-            <div className="qq-im-chat-msg">
-              <div className="qq-im-friend-info" title="查看资料">
-                <img src={qqAvatar(buddy.avatar)} alt="" />
-                {buddy.nickname}({buddy.number})：{buddy.signature || ''}
-              </div>
-              <ul className="qq-im-chat-msg-list" data-testid="qq-chat-messages" ref={listRef}>
-                {thread.map(m => {
-                  const nick = m.from === 'me' ? me.nickname : buddy.nickname;
-                  return (
-                    <li key={m.id} className={m.from === 'me' ? 'my' : ''}>
-                      <p>
-                        {nick}
-                        <span>{m.time}</span>
-                      </p>
-                      <p>{renderMessageNodes(m.text)}</p>
-                    </li>
-                  );
-                })}
-                {typing && (
-                  <li className="qq-im-typing" data-testid="qq-chat-typing">
-                    对方正在输入…
-                  </li>
-                )}
-              </ul>
-            </div>
-
-            {/* Chat history viewer: current conversation history (sender/receiver, timestamps) overlays the message area. */}
-            {showHistory && (
-              <div className="qq-im-history" data-testid="qq-chat-history">
-                <div className="qq-im-history-head">
-                  <span>消息记录 — {buddy.nickname}</span>
-                  <button onClick={() => setShowHistory(false)}>关闭</button>
+        <div className="qq-im-contant">
+          <div className="qq-im-main">
+            <div className="qq-im-chat">
+              <div className="qq-im-chat-msg">
+                <div className="qq-im-friend-info" title="查看资料">
+                  <img src={qqAvatar(buddy.avatar)} alt="" />
+                  {buddy.nickname}({buddy.number})：{buddy.signature || ''}
                 </div>
-                <div className="qq-im-history-list">
-                  {thread.length === 0 && <div className="qq-im-history-empty">暂无聊天记录</div>}
-                  {thread.map(m => (
-                    <div key={m.id} className={`row${m.from === 'me' ? ' my' : ''}`}>
-                      <div className="meta">
-                        {m.from === 'me' ? me.nickname : buddy.nickname}
-                        <span>{m.time}</span>
+                <ul className="qq-im-chat-msg-list" data-testid="qq-chat-messages" ref={listRef}>
+                  {thread.map(m => {
+                    const nick = m.from === 'me' ? me.nickname : buddy.nickname;
+                    return (
+                      <li key={m.id} className={m.from === 'me' ? 'my' : ''}>
+                        <p>
+                          {nick}
+                          <span>{m.time}</span>
+                        </p>
+                        <p>{renderMessageNodes(m.text)}</p>
+                      </li>
+                    );
+                  })}
+                  {typing && (
+                    <li className="qq-im-typing" data-testid="qq-chat-typing">
+                      对方正在输入…
+                    </li>
+                  )}
+                </ul>
+              </div>
+
+              {/* Chat history viewer: current conversation history (sender/receiver, timestamps) overlays the message area. */}
+              {showHistory && (
+                <div className="qq-im-history" data-testid="qq-chat-history">
+                  <div className="qq-im-history-head">
+                    <span>消息记录 — {buddy.nickname}</span>
+                    <button onClick={() => setShowHistory(false)}>关闭</button>
+                  </div>
+                  <div className="qq-im-history-list">
+                    {thread.length === 0 && <div className="qq-im-history-empty">暂无聊天记录</div>}
+                    {thread.map(m => (
+                      <div key={m.id} className={`row${m.from === 'me' ? ' my' : ''}`}>
+                        <div className="meta">
+                          {m.from === 'me' ? me.nickname : buddy.nickname}
+                          <span>{m.time}</span>
+                        </div>
+                        <div className="body">{renderMessageNodes(m.text)}</div>
                       </div>
-                      <div className="body">{renderMessageNodes(m.text)}</div>
-                    </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Emoji picker panel: classic yellow-face grid; clicking inserts the "[微笑]" code into the input box. */}
+              {showEmoji && (
+                <div className="qq-emoji-picker" data-testid="qq-emoji-picker">
+                  {QQ_EMOJI_LIST.map(({ code, emoji }) => (
+                    <button key={code} type="button" title={code} onClick={() => insertEmoji(code)}>
+                      {emoji}
+                    </button>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Emoji picker panel: classic yellow-face grid; clicking inserts the "[微笑]" code into the input box. */}
-            {showEmoji && (
-              <div className="qq-emoji-picker" data-testid="qq-emoji-picker">
-                {QQ_EMOJI_LIST.map(({ code, emoji }) => (
-                  <button key={code} type="button" title={code} onClick={() => insertEmoji(code)}>
-                    {emoji}
-                  </button>
-                ))}
+              {/* Mini toolbar */}
+              <div className="qq-im-chat-toolbar">
+                <button className="im-toolbar-font" title="字体" />
+                <button
+                  className="im-toolbar-face"
+                  title="表情"
+                  data-testid="qq-chat-face"
+                  onClick={() => setShowEmoji(v => !v)}
+                />
+                <button className="im-toolbar-other" title="魔法表情" />
+                <span className="sep" />
+                <button className="im-toolbar-picture" title="发送图片" />
+                <button className="im-toolbar-catch" title="屏幕捕捉" />
+                <button className="im-toolbar-scene" title="聊天场景" />
+                <button className="im-toolbar-bag" title="超级礼物" />
+                <button className="im-toolbar-ptt" title="语音消息" />
               </div>
-            )}
 
-            {/* Mini toolbar */}
-            <div className="qq-im-chat-toolbar">
-              <button className="im-toolbar-font" title="字体" />
-              <button
-                className="im-toolbar-face"
-                title="表情"
-                data-testid="qq-chat-face"
-                onClick={() => setShowEmoji(v => !v)}
+              <textarea
+                className="qq-im-chat-send"
+                data-testid="qq-chat-input"
+                ref={inputRef}
+                onKeyDown={onKeyDown}
+                placeholder=""
               />
-              <button className="im-toolbar-other" title="魔法表情" />
-              <span className="sep" />
-              <button className="im-toolbar-picture" title="发送图片" />
-              <button className="im-toolbar-catch" title="屏幕捕捉" />
-              <button className="im-toolbar-scene" title="聊天场景" />
-              <button className="im-toolbar-bag" title="超级礼物" />
-              <button className="im-toolbar-ptt" title="语音消息" />
             </div>
 
-            <textarea
-              className="qq-im-chat-send"
-              data-testid="qq-chat-input"
-              ref={inputRef}
-              onKeyDown={onKeyDown}
-              placeholder=""
-            />
+            <div className="qq-im-btns">
+              <button
+                className="qq-btn"
+                data-testid="qq-chat-history-btn"
+                onClick={() => setShowHistory(v => !v)}
+              >
+                聊天记录(H)
+              </button>
+              <button className="qq-btn">消息模式(T)</button>
+              <span />
+              <button className="qq-btn" onClick={() => api.window.close()}>
+                关闭(C)
+              </button>
+              <button className="qq-btn" data-testid="qq-chat-send" onClick={send}>
+                发送(S)
+              </button>
+            </div>
           </div>
 
-          <div className="qq-im-btns">
-            <button
-              className="qq-btn"
-              data-testid="qq-chat-history-btn"
-              onClick={() => setShowHistory(v => !v)}
-            >
-              聊天记录(H)
-            </button>
-            <button className="qq-btn">消息模式(T)</button>
-            <span />
-            <button className="qq-btn" onClick={() => api.window.close()}>
-              关闭(C)
-            </button>
-            <button className="qq-btn" data-testid="qq-chat-send" onClick={send}>
-              发送(S)
-            </button>
+          {/* Right sidebar: QQ Show + personal space */}
+          <div className="qq-im-side">
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <button className="qq-im-side-btn">对方形象</button>
+              <div className="qq-im-show qq-im-show-1" />
+            </div>
+            <div className="qq-im-zone">
+              <button className="qq-im-side-btn">个人空间</button>
+              <div>摘要：{buddy.signature || '若无法为你撑起晴空，那我便陪你共沐风雨'}</div>
+              <div>
+                日记：<span>48</span>条/<span>169</span>评论
+              </div>
+              <div>
+                相册：<span>12</span>张/<span>23</span>评论
+              </div>
+              <div>
+                收藏：<span>62</span>个
+              </div>
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <button className="qq-im-side-btn">我的形象</button>
+              <div className="qq-im-show qq-im-show-3" />
+            </div>
           </div>
         </div>
-
-        {/* Right sidebar: QQ Show + personal space */}
-        <div className="qq-im-side">
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <button className="qq-im-side-btn">对方形象</button>
-            <div className="qq-im-show qq-im-show-1" />
-          </div>
-          <div className="qq-im-zone">
-            <button className="qq-im-side-btn">个人空间</button>
-            <div>摘要：{buddy.signature || '若无法为你撑起晴空，那我便陪你共沐风雨'}</div>
-            <div>
-              日记：<span>48</span>条/<span>169</span>评论
-            </div>
-            <div>
-              相册：<span>12</span>张/<span>23</span>评论
-            </div>
-            <div>
-              收藏：<span>62</span>个
-            </div>
-          </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <button className="qq-im-side-btn">我的形象</button>
-            <div className="qq-im-show qq-im-show-3" />
-          </div>
-        </div>
-      </div>
-    </ChatRoot>
+      </ChatRoot>
+    </QQFrame>
   );
 };
 

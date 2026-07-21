@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../components/XPIcon';
 import { XPButton } from '../components/XPButton';
+import { XPTabs } from '../components/XPTabs';
 import { resolveOSTheme } from '../themes/useOSTheme';
 
 const Container = styled.div`
@@ -81,38 +82,22 @@ const Dialog = styled.div`
   min-height: 0;
 `;
 
-const Tabs = styled.div`
-  display: flex;
-  padding: 0 0 0 2px;
-`;
-
-const Tab = styled.div<{ $active?: boolean }>`
-  padding: 3px 12px;
-  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
-  border-bottom-color: ${({ $active, theme }) =>
-    $active ? resolveOSTheme(theme).tokens.SURFACE : resolveOSTheme(theme).tokens.BORDER_GREY};
-  background: ${({ $active, theme }) =>
-    $active
-      ? resolveOSTheme(theme).tokens.SURFACE
-      : resolveOSTheme(theme).tokens.BORDER_GREY_HILIGHT};
-  border-radius: 3px 3px 0 0;
-  position: relative;
-  z-index: ${({ $active }) => ($active ? 2 : 1)};
-  margin-right: 2px;
-  cursor: default;
-`;
-
-const TabPane = styled.div`
-  margin-top: -1px;
-  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+/* Status dialog tabs: shared XPTabs owns the tab strip/panel look; this wrapper
+   only carries the dialog's flex layout so the pane fills the window body. */
+const StatusTabs = styled(XPTabs)`
   flex: 1;
   min-height: 0;
-  overflow: auto;
-  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+
+  > [role='tabpanel'] {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
 `;
 
 const GroupBox = styled.fieldset`
@@ -302,114 +287,120 @@ const NetworkConnections = () => {
     return (
       <Container data-testid="netconn-status-dialog">
         <Dialog>
-          <Tabs>
-            <Tab
-              data-testid="netconn-tab-general"
-              $active={activeTab === 'general'}
-              onClick={() => setActiveTab('general')}
-            >
-              {t('networkConnections.generalTab')}
-            </Tab>
-            <Tab
-              data-testid="netconn-tab-support"
-              $active={activeTab === 'support'}
-              onClick={() => setActiveTab('support')}
-            >
-              {t('networkConnections.supportTab')}
-            </Tab>
-          </Tabs>
+          <StatusTabs
+            activeId={activeTab}
+            onChange={id => setActiveTab(id as StatusTab)}
+            tabs={[
+              {
+                id: 'general',
+                label: t('networkConnections.generalTab'),
+                testId: 'netconn-tab-general',
+                content: (
+                  <>
+                    <GroupBox>
+                      <legend>{t('networkConnections.connectionGroup')}</legend>
+                      <FieldRow>
+                        <span>{t('networkConnections.status')}:</span>
+                        <FieldValue>{t(detailConnection.statusKey)}</FieldValue>
+                      </FieldRow>
+                      <FieldRow>
+                        <span>{t('networkConnections.duration')}:</span>
+                        <FieldValue data-testid="netconn-duration">
+                          {formatDuration(duration)}
+                        </FieldValue>
+                      </FieldRow>
+                      <FieldRow>
+                        <span>{t('networkConnections.speed')}:</span>
+                        <FieldValue>{t('networkConnections.speedValue')}</FieldValue>
+                      </FieldRow>
+                    </GroupBox>
 
-          {activeTab === 'general' ? (
-            <TabPane>
-              <GroupBox>
-                <legend>{t('networkConnections.connectionGroup')}</legend>
-                <FieldRow>
-                  <span>{t('networkConnections.status')}:</span>
-                  <FieldValue>{t(detailConnection.statusKey)}</FieldValue>
-                </FieldRow>
-                <FieldRow>
-                  <span>{t('networkConnections.duration')}:</span>
-                  <FieldValue data-testid="netconn-duration">{formatDuration(duration)}</FieldValue>
-                </FieldRow>
-                <FieldRow>
-                  <span>{t('networkConnections.speed')}:</span>
-                  <FieldValue>{t('networkConnections.speedValue')}</FieldValue>
-                </FieldRow>
-              </GroupBox>
+                    <GroupBox>
+                      <legend>{t('networkConnections.activityGroup')}</legend>
+                      <ActivityTop>
+                        <ActivityLabel>{t('networkConnections.sent')}</ActivityLabel>
+                        <ActivityIcons>
+                          <XPIcon name="computer" size={22} />
+                          <span>&raquo;&laquo;</span>
+                          <XPIcon name="computer" size={22} />
+                        </ActivityIcons>
+                        <ActivityLabel>{t('networkConnections.received')}</ActivityLabel>
+                      </ActivityTop>
+                      <Etched />
+                      <DataRow>
+                        <span>{t('networkConnections.packets')}:</span>
+                        <span data-testid="netconn-sent">{formatNumber(sentPackets)}</span>
+                        <span data-testid="netconn-received">{formatNumber(receivedPackets)}</span>
+                      </DataRow>
+                      <DataRow>
+                        <span>{t('networkConnections.bytesLabel')}:</span>
+                        <span>{formatNumber(sentBytes)}</span>
+                        <span>{formatNumber(receivedBytes)}</span>
+                      </DataRow>
+                    </GroupBox>
 
-              <GroupBox>
-                <legend>{t('networkConnections.activityGroup')}</legend>
-                <ActivityTop>
-                  <ActivityLabel>{t('networkConnections.sent')}</ActivityLabel>
-                  <ActivityIcons>
-                    <XPIcon name="computer" size={22} />
-                    <span>&raquo;&laquo;</span>
-                    <XPIcon name="computer" size={22} />
-                  </ActivityIcons>
-                  <ActivityLabel>{t('networkConnections.received')}</ActivityLabel>
-                </ActivityTop>
-                <Etched />
-                <DataRow>
-                  <span>{t('networkConnections.packets')}:</span>
-                  <span data-testid="netconn-sent">{formatNumber(sentPackets)}</span>
-                  <span data-testid="netconn-received">{formatNumber(receivedPackets)}</span>
-                </DataRow>
-                <DataRow>
-                  <span>{t('networkConnections.bytesLabel')}:</span>
-                  <span>{formatNumber(sentBytes)}</span>
-                  <span>{formatNumber(receivedBytes)}</span>
-                </DataRow>
-              </GroupBox>
+                    <ButtonRow>
+                      <XPButton disabled>{t('networkConnections.properties')}</XPButton>
+                      <XPButton disabled>{t('networkConnections.disable')}</XPButton>
+                      <XPButton onClick={handleCloseDetail}>
+                        {t('networkConnections.close')}
+                      </XPButton>
+                    </ButtonRow>
+                  </>
+                ),
+              },
+              {
+                id: 'support',
+                label: t('networkConnections.supportTab'),
+                testId: 'netconn-tab-support',
+                content: (
+                  <>
+                    <GroupBox>
+                      <legend>{t('networkConnections.connectionStatusGroup')}</legend>
+                      <FieldRow>
+                        <span>{t('networkConnections.addressType')}:</span>
+                        <FieldValue>{t('networkConnections.assignedByDhcp')}</FieldValue>
+                      </FieldRow>
+                      <FieldRow>
+                        <span>{t('networkConnections.ipAddress')}:</span>
+                        <FieldValue>192.168.1.101</FieldValue>
+                      </FieldRow>
+                      <FieldRow>
+                        <span>{t('networkConnections.subnetMask')}:</span>
+                        <FieldValue>255.255.255.0</FieldValue>
+                      </FieldRow>
+                      <FieldRow>
+                        <span>{t('networkConnections.defaultGateway')}:</span>
+                        <FieldValue>192.168.1.1</FieldValue>
+                      </FieldRow>
+                    </GroupBox>
 
-              <ButtonRow>
-                <XPButton disabled>{t('networkConnections.properties')}</XPButton>
-                <XPButton disabled>{t('networkConnections.disable')}</XPButton>
-                <XPButton onClick={handleCloseDetail}>{t('networkConnections.close')}</XPButton>
-              </ButtonRow>
-            </TabPane>
-          ) : (
-            <TabPane>
-              <GroupBox>
-                <legend>{t('networkConnections.connectionStatusGroup')}</legend>
-                <FieldRow>
-                  <span>{t('networkConnections.addressType')}:</span>
-                  <FieldValue>{t('networkConnections.assignedByDhcp')}</FieldValue>
-                </FieldRow>
-                <FieldRow>
-                  <span>{t('networkConnections.ipAddress')}:</span>
-                  <FieldValue>192.168.1.101</FieldValue>
-                </FieldRow>
-                <FieldRow>
-                  <span>{t('networkConnections.subnetMask')}:</span>
-                  <FieldValue>255.255.255.0</FieldValue>
-                </FieldRow>
-                <FieldRow>
-                  <span>{t('networkConnections.defaultGateway')}:</span>
-                  <FieldValue>192.168.1.1</FieldValue>
-                </FieldRow>
-              </GroupBox>
+                    <ButtonRow>
+                      <XPButton disabled>{t('networkConnections.details')}</XPButton>
+                      <XPButton
+                        data-testid="netconn-repair"
+                        disabled={repairState === 'repairing'}
+                        onClick={handleRepair}
+                      >
+                        {repairState === 'repairing'
+                          ? t('networkConnections.repairing')
+                          : t('networkConnections.repair')}
+                      </XPButton>
+                    </ButtonRow>
+                    {repairState === 'done' && (
+                      <RepairResult>{t('networkConnections.repairSuccess')}</RepairResult>
+                    )}
 
-              <ButtonRow>
-                <XPButton disabled>{t('networkConnections.details')}</XPButton>
-                <XPButton
-                  data-testid="netconn-repair"
-                  disabled={repairState === 'repairing'}
-                  onClick={handleRepair}
-                >
-                  {repairState === 'repairing'
-                    ? t('networkConnections.repairing')
-                    : t('networkConnections.repair')}
-                </XPButton>
-              </ButtonRow>
-              {repairState === 'done' && (
-                <RepairResult>{t('networkConnections.repairSuccess')}</RepairResult>
-              )}
-
-              <ButtonRow>
-                <XPButton onClick={handleCloseDetail}>{t('networkConnections.close')}</XPButton>
-              </ButtonRow>
-            </TabPane>
-          )}
+                    <ButtonRow>
+                      <XPButton onClick={handleCloseDetail}>
+                        {t('networkConnections.close')}
+                      </XPButton>
+                    </ButtonRow>
+                  </>
+                ),
+              },
+            ]}
+          />
         </Dialog>
       </Container>
     );

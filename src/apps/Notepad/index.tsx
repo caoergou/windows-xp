@@ -1,18 +1,15 @@
 import { createPortal } from 'react-dom';
 import ContextMenu from '../../components/ContextMenu';
 import {
-  Container,
-  MenuBar,
-  MenuItemWrapper,
-  MenuItem,
-  DropdownMenu,
-  DropdownItem,
-  DropdownSeparator,
-  EditorArea,
-  TextArea,
-  StatusBar,
-  StatusBarSection,
-} from './styled';
+  XPMenuBar as MenuBar,
+  XPMenuSlot as MenuItemWrapper,
+  XPMenuBarItem as MenuItem,
+  XPMenuDropdown as DropdownMenu,
+  XPMenuDropdownItem as DropdownItem,
+  XPMenuSeparator as DropdownSeparator,
+  XPMenuMark,
+} from '../../components/XPMenuBar';
+import { Container, EditorArea, TextArea, StatusBar, StatusBarSection } from './styled';
 import FindReplaceDialog from './components/FindReplaceDialog';
 import { useNotepad } from './hooks/useNotepad';
 import { useResolvedContent } from '../../hooks/useResolvedContent';
@@ -31,15 +28,17 @@ const NotepadEditor = (props: NotepadProps) => {
     const items = menus[key] || [];
 
     return (
-      <DropdownMenu>
+      <DropdownMenu role="menu">
         {items.map((item, i) =>
           item.type === 'separator' ? (
             <DropdownSeparator key={i} />
           ) : (
             <DropdownItem
+              type="button"
+              role="menuitem"
               key={i}
               $disabled={item.disabled}
-              $checked={item.checked}
+              aria-disabled={item.disabled}
               onClick={() => {
                 if (!item.disabled && item.action) {
                   item.action();
@@ -47,8 +46,9 @@ const NotepadEditor = (props: NotepadProps) => {
                 np.setOpenMenu(null);
               }}
             >
-              <span>{item.label}</span>
-              {item.shortcut && <span className="shortcut">{item.shortcut}</span>}
+              <XPMenuMark>{item.checked ? '✓' : ''}</XPMenuMark>
+              {item.label}
+              {item.shortcut && <span>{item.shortcut}</span>}
             </DropdownItem>
           )
         )}
@@ -66,6 +66,7 @@ const NotepadEditor = (props: NotepadProps) => {
       <MenuBar>
         <MenuItemWrapper>
           <MenuItem
+            type="button"
             $active={np.openMenu === 'file'}
             data-xp-anchor="notepad.menu.file"
             onClick={() => np.toggleMenu('file')}
@@ -75,25 +76,41 @@ const NotepadEditor = (props: NotepadProps) => {
           {renderDropdown('file')}
         </MenuItemWrapper>
         <MenuItemWrapper>
-          <MenuItem $active={np.openMenu === 'edit'} onClick={() => np.toggleMenu('edit')}>
+          <MenuItem
+            type="button"
+            $active={np.openMenu === 'edit'}
+            onClick={() => np.toggleMenu('edit')}
+          >
             {t('notepad.menu.edit')}
           </MenuItem>
           {renderDropdown('edit')}
         </MenuItemWrapper>
         <MenuItemWrapper>
-          <MenuItem $active={np.openMenu === 'format'} onClick={() => np.toggleMenu('format')}>
+          <MenuItem
+            type="button"
+            $active={np.openMenu === 'format'}
+            onClick={() => np.toggleMenu('format')}
+          >
             {t('notepad.menu.format')}
           </MenuItem>
           {renderDropdown('format')}
         </MenuItemWrapper>
         <MenuItemWrapper>
-          <MenuItem $active={np.openMenu === 'view'} onClick={() => np.toggleMenu('view')}>
+          <MenuItem
+            type="button"
+            $active={np.openMenu === 'view'}
+            onClick={() => np.toggleMenu('view')}
+          >
             {t('notepad.menu.view')}
           </MenuItem>
           {renderDropdown('view')}
         </MenuItemWrapper>
         <MenuItemWrapper>
-          <MenuItem $active={np.openMenu === 'help'} onClick={() => np.toggleMenu('help')}>
+          <MenuItem
+            type="button"
+            $active={np.openMenu === 'help'}
+            onClick={() => np.toggleMenu('help')}
+          >
             {t('notepad.menu.help')}
           </MenuItem>
           {renderDropdown('help')}

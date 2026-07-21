@@ -54,6 +54,7 @@ const BRAND_PALETTE_FILES = new Set([
   'src/apps/SafeGuard360.tsx',
   'src/apps/Thunder.tsx',
   'src/apps/KugouMusic.tsx',
+  'src/apps/TTPlayer/index.tsx',
   'src/apps/BaofengPlayer.tsx',
   'src/apps/WPSOffice.tsx',
   'src/apps/Winamp.tsx',

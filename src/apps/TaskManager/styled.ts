@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { XPTabs } from '../../components/XPTabs';
 import { resolveOSTheme } from '../../themes/useOSTheme';
 
 /**
@@ -24,43 +25,23 @@ export const Container = styled.div`
 
 /* ---- Tabs ---- */
 
-export const Tabs = styled.div`
-  display: flex;
-  padding: 6px 6px 0;
-  flex-shrink: 0;
-`;
-
-export const Tab = styled.button<{ $active?: boolean }>`
-  position: relative;
-  padding: 3px 11px 4px;
-  margin-right: 2px;
-  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
-  border-bottom: none;
-  border-radius: 3px 3px 0 0;
-  font: inherit;
-  cursor: default;
-  color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
-  background: ${({ $active, theme }) =>
-    $active ? resolveOSTheme(theme).tokens.BUTTON_HIGHLIGHT : resolveOSTheme(theme).tokens.SURFACE};
-  z-index: ${({ $active }) => ($active ? 2 : 1)};
-  /* An active tab overlaps the panel border below it so it reads as connected. */
-  margin-bottom: ${({ $active }) => ($active ? '-1px' : '0')};
-  padding-bottom: ${({ $active }) => ($active ? '5px' : '4px')};
-`;
-
-/* The bordered content panel the active tab connects to. */
-export const Panel = styled.div`
-  position: relative;
-  z-index: 1;
-  margin: 0 6px;
-  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+/* Shared XPTabs owns the tab strip/panel look; this wrapper only carries
+   taskmgr's flex layout so the active pane fills the window body. */
+export const Tabs = styled(XPTabs)`
   flex: 1;
   min-height: 0;
+  margin: 6px 6px 0;
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  gap: 8px;
+
+  > [role='tabpanel'] {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 8px;
+  }
 `;
 
 /* ---- Generic list surface (Applications + Processes) ---- */

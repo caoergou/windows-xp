@@ -20,6 +20,22 @@ export interface GameState {
   tableaus: Card[][];
 }
 
+/** How many cards a stock click turns over — XP sol.exe's Draw One / Draw Three. */
+export type DrawMode = 1 | 3;
+
+/** XP standard scoring (sol.exe help): deltas per move type. */
+export const SCORING = {
+  wasteToTableau: 5,
+  wasteToFoundation: 10,
+  tableauToFoundation: 10,
+  flipTableau: 5,
+  foundationToTableau: -15,
+  /** Draw One: every pass through the stock after the first costs 100. */
+  draw1Redeal: -100,
+  /** Draw Three: every pass through the stock after the third costs 20. */
+  draw3Redeal: -20,
+} as const;
+
 export const SUITS: Suit[] = ['hearts', 'diamonds', 'clubs', 'spades'];
 
 export const RANK_LABELS: Record<number, string> = {
@@ -213,7 +229,7 @@ export const applyMove = (
   return next;
 };
 
-export const dealFromStock = (state: GameState): GameState => {
+export const dealFromStock = (state: GameState, drawCount: DrawMode = 1): GameState => {
   const next = {
     stock: [...state.stock],
     waste: [...state.waste],
@@ -225,11 +241,75 @@ export const dealFromStock = (state: GameState): GameState => {
     next.stock = next.waste.reverse().map(card => ({ ...card, faceUp: false }));
     next.waste = [];
   } else {
-    const card = next.stock.pop();
-    if (card) {
-      next.waste.push({ ...card, faceUp: true });
+    for (let i = 0; i < drawCount && next.stock.length > 0; i++) {
+      const card = next.stock.pop();
+      if (card) {
+        next.waste.push({ ...card, faceUp: true });
+      }
     }
   }
 
   return next;
 };
+
+/**
+ * Score delta for a move, per XP standard scoring. `state` is the pre-move
+ * state — moving off a tableau pile whose newly exposed top card is face down
+ * earns the +5 flip bonus (sol.exe awards it when the card turns over).
+ */
+export const scoreForMove = (
+  state: GameState,
+  cards: Card[],
+  source: PileLocation,
+  target: PileLocation
+): number => {
+  let delta = 0;
+  if (source.type === 'waste' && target.type === 'tableau') delta += SCORING.wasteToTableau;
+  if (source.type === 'waste' && target.type === 'foundation') delta += SCORING.wasteToFoundation;
+  if (source.type === 'tableau' && target.type === 'foundation')
+    delta += SCORING.tableauToFoundation;
+  if (source.type === 'foundation' && target.type === 'tableau')
+    delta += SCORING.foundationToTableau;
+
+  if (source.type === 'tableau') {
+    const pile = state.tableaus[source.index];
+    const below = pile[pile.length - cards.length - 1];
+    if (below && !below.faceUp) delta += SCORING.flipTableau;
+  }
+
+  return delta;
+};
+
+/** The score never drops below zero in XP. */
+export const applyScore = (score: number, delta: number): number => Math.max(0, score + delta);
+
+/**
+ * Penalty for recycling the waste back into the stock. `redealCount` is
+ * 1-based (1 = first recycle). Draw One: the first pass through the stock is
+ * free, every redeal costs 100. Draw Three: passes two and three are free,
+ * every redeal from the third on costs 20.
+ */
+export const redealPenalty = (drawMode: DrawMode, redealCount: number): number => {
+  if (drawMode === 1) return redealCount >= 1 ? SCORING.draw1Redeal : 0;
+  return redealCount >= 3 ? SCORING.draw3Redeal : 0;
+};
+
+export const cloneGameState = (state: GameState): GameState => ({
+  stock: [...state.stock],
+  waste: [...state.waste],
+  foundations: state.foundations.map(f => [...f]),
+  tableaus: state.tableaus.map(t => [...t]),
+});
+
+/** One-step undo snapshot: board plus the scoring counters. */
+export interface GameSnapshot {
+  state: GameState;
+  score: number;
+  redeals: number;
+}
+
+export const takeSnapshot = (state: GameState, score: number, redeals: number): GameSnapshot => ({
+  state: cloneGameState(state),
+  score,
+  redeals,
+});

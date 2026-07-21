@@ -56,10 +56,10 @@ const avatarShake = keyframes`
 
 /**
  * QQ2006 skin styles, ported line-by-line from the original CSS of mengkunsoft/QQ2006
- * (see assets/NOTICE.md). One adaptation only: the main panel and chat window are rendered
- * inside the **engine's XP window chrome**, so the reproduction's own rounded title bar is
- * removed (drag/minimize/close are provided by the engine frame); the rest of the skin
- * images, buttons, layout, and colors are preserved pixel-for-pixel.
+ * (see assets/NOTICE.md). The windows render **frameless** (WindowProps.frameless):
+ * the self-drawn title bars (panel 24px / chat 26px / logging 190px) are restored
+ * pixel-for-pixel via QQFrame, with the engine only providing dragging (the
+ * `.title-bar` handle) and focus - matching the original self-skinned QQ windows.
  */
 
 /**
@@ -102,6 +102,168 @@ const QQ_BTN = `
   &:focus { box-shadow: inset 0 0 0 1px ${PALETTE.yellow300}, inset 0 0 0 2px ${PALETTE.orange400}; }
   &:hover { background: linear-gradient(to bottom, ${C.white}, ${PALETTE.blue100}); }
   &:active { background: linear-gradient(to bottom, ${PALETTE.blue200}, ${PALETTE.cyan100}); }
+`;
+
+// --- Self-drawn window frame (frameless QQ windows: panel / chat) --------------------------
+/**
+ * The QQ2006 self-skinned window frame, restored from the reproduction's title-bar
+ * CSS (it was dropped while the app ran inside the XP chrome). The root clips the
+ * skin to the signature 8px rounded corners; the title bar carries the
+ * `.title-bar` class so the engine's Draggable treats it as the drag handle,
+ * and its buttons are the window's real minimize/maximize/close controls.
+ */
+export const QQFrameRoot = styled.div<{ $variant: 'panel' | 'chat' }>`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: SimSun, serif;
+  font-size: 12px;
+  user-select: none;
+  background: ${({ $variant }) => ($variant === 'chat' ? PALETTE.blue300 : 'transparent')};
+
+  ${BTN_RESET}
+
+  .qqf-title {
+    width: 100%;
+    height: ${({ $variant }) => ($variant === 'chat' ? 26 : 24)}px;
+    display: flex;
+    position: relative;
+    flex-shrink: 0;
+    /* Let react-draggable own touch-drags (same as the engine's XP TitleBar). */
+    touch-action: none;
+  }
+  .qqf-title-left {
+    width: ${({ $variant }) => ($variant === 'chat' ? 25 : 64)}px;
+    background-image: ${({ $variant }) =>
+      qqUrl($variant === 'chat' ? 'im/IMBorderTop.png' : 'BackgroundTitleLeft.png')};
+    background-repeat: no-repeat;
+  }
+  .qqf-title-center {
+    flex: 1;
+    background-image: ${({ $variant }) =>
+      qqUrl($variant === 'chat' ? 'im/IMBorderTop.png' : 'BackgroundTitleCenter.png')};
+    ${({ $variant }) =>
+      $variant === 'chat' ? 'background-size: 10000px 26px; background-position: center top;' : ''}
+  }
+  .qqf-title-right {
+    width: ${({ $variant }) => ($variant === 'chat' ? 25 : 14)}px;
+    background-image: ${({ $variant }) =>
+      qqUrl($variant === 'chat' ? 'im/IMBorderTop.png' : 'BackgroundTitleRight.png')};
+    background-repeat: no-repeat;
+    ${({ $variant }) => ($variant === 'chat' ? 'background-position: right;' : '')}
+  }
+  .qqf-title-icon {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 5px;
+    top: 5px;
+    background-image: ${qqUrl('im/icon.png')};
+  }
+  .qqf-title-text {
+    position: absolute;
+    left: 22px;
+    top: 6px;
+    color: ${C.white};
+    font-weight: bold;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    right: 60px;
+    pointer-events: none;
+  }
+  .qqf-title-btns {
+    display: flex;
+    gap: ${({ $variant }) => ($variant === 'chat' ? 0 : 1)}px;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
+  .qqf-title-btns > button {
+    width: ${({ $variant }) => ($variant === 'chat' ? 17 : 16)}px;
+    height: 16px;
+    border: 0;
+    cursor: pointer;
+  }
+  .qqf-min {
+    background-image: ${({ $variant }) =>
+      qqUrl($variant === 'chat' ? 'im/IMMinButton_Normal.png' : 'MinButton_Normal.png')};
+    &:hover {
+      background-image: ${({ $variant }) =>
+        qqUrl($variant === 'chat' ? 'im/IMMinButton_Hover.png' : 'MinButton_Hover.png')};
+    }
+    &:active {
+      background-image: ${({ $variant }) =>
+        qqUrl($variant === 'chat' ? 'im/IMMinButton_Down.png' : 'MinButton_Down.png')};
+    }
+  }
+  .qqf-color {
+    background-image: ${qqUrl('ColorButton_Normal.png')};
+    &:hover {
+      background-image: ${qqUrl('ColorButton_Hover.png')};
+    }
+    &:active {
+      background-image: ${qqUrl('ColorButton_Down.png')};
+    }
+  }
+  .qqf-max {
+    background-image: ${qqUrl('im/IMMaxButton_Normal.png')};
+    &:hover {
+      background-image: ${qqUrl('im/IMMaxButton_Hover.png')};
+    }
+    &:active {
+      background-image: ${qqUrl('im/IMMaxButton_Down.png')};
+    }
+  }
+  .qqf-close {
+    background-image: ${({ $variant }) =>
+      qqUrl($variant === 'chat' ? 'im/IMCloseButton_Normal.png' : 'CloseButton_Normal.png')};
+    &:hover {
+      background-image: ${({ $variant }) =>
+        qqUrl($variant === 'chat' ? 'im/IMCloseButton_Hover.png' : 'CloseButton_Hover.png')};
+    }
+    &:active {
+      background-image: ${({ $variant }) =>
+        qqUrl($variant === 'chat' ? 'im/IMCloseButton_Down.png' : 'CloseButton_Down.png')};
+    }
+  }
+
+  .qqf-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* Chat window bottom border strip (8px) */
+  .qqf-bottom {
+    width: 100%;
+    height: 8px;
+    display: flex;
+    flex-shrink: 0;
+  }
+  .qqf-bottom-left {
+    width: 10px;
+    background-image: ${qqUrl('im/IMBorderBottom.png')};
+    background-repeat: no-repeat;
+  }
+  .qqf-bottom-center {
+    flex: 1;
+    background-image: ${qqUrl('im/IMBorderBottom.png')};
+    background-size: 10000px 8px;
+    background-position: center top;
+  }
+  .qqf-bottom-right {
+    width: 10px;
+    background-image: ${qqUrl('im/IMBorderBottom.png')};
+    background-repeat: no-repeat;
+    background-position: right;
+  }
 `;
 
 // --- Main panel (buddy list) ------------------------------------------------
@@ -615,29 +777,107 @@ export const LoadingRoot = styled.div`
   user-select: none;
   position: relative;
   overflow: hidden;
+  border-radius: 8px;
 
   ${BTN_RESET}
   .qq-flex-bg {
-    position: absolute;
-    width: 100%;
-    height: 100%;
     display: flex;
-    top: 0;
-    left: 0;
+    width: 100%;
+  }
+  /* The logging window's "title bar" is the 190px-tall header artwork; it still
+     acts as the drag handle and carries the 16px min/close buttons (top-right). */
+  .qq-logging-title {
+    height: 190px;
+    position: relative;
+    flex-shrink: 0;
+    touch-action: none;
+  }
+  .qq-logging-title-left {
+    background-image: ${qqUrl('logging/BITMAP1741_1.png')};
+    background-repeat: no-repeat;
+    width: 64px;
+    height: 100%;
+  }
+  .qq-logging-title-center {
+    background-image: ${qqUrl('logging/BITMAP1734_1.png')};
+    background-repeat: repeat-x;
+    flex: 1;
+    height: 100%;
+  }
+  .qq-logging-title-right {
+    background-image: ${qqUrl('logging/BITMAP1735_1.png')};
+    background-repeat: no-repeat;
+    width: 12px;
+    height: 100%;
+  }
+  .qq-logging-title-btns {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    display: flex;
+    gap: 0;
+  }
+  .qq-logging-title-btns > button {
+    width: 16px;
+    height: 16px;
+    border: 0;
+    cursor: pointer;
+  }
+  .qq-logging-min {
+    background-image: ${qqUrl('MinButton_Normal.png')};
+    &:hover {
+      background-image: ${qqUrl('MinButton_Hover.png')};
+    }
+    &:active {
+      background-image: ${qqUrl('MinButton_Down.png')};
+    }
+  }
+  .qq-logging-close {
+    background-image: ${qqUrl('CloseButton_Normal.png')};
+    &:hover {
+      background-image: ${qqUrl('CloseButton_Hover.png')};
+    }
+    &:active {
+      background-image: ${qqUrl('CloseButton_Down.png')};
+    }
   }
   .qq-logging-body {
     flex: 1;
+    min-height: 0;
   }
   .qq-body-left {
     background-image: ${qqUrl('logging/BITMAP1736_1.png')};
+    background-repeat: repeat-y;
     width: 15px;
   }
   .qq-body-center {
     background-image: ${qqUrl('logging/BITMAP1737_1.png')};
+    background-repeat: repeat;
     flex: 1;
   }
   .qq-body-right {
     background-image: ${qqUrl('logging/BITMAP1738_1.png')};
+    background-repeat: repeat-y;
+    width: 15px;
+  }
+  .qq-logging-bottom {
+    height: 184px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .qq-bottom-left {
+    background-image: ${qqUrl('logging/BITMAP1739_1.png')};
+    background-repeat: no-repeat;
+    width: 15px;
+  }
+  .qq-bottom-center {
+    background-image: ${qqUrl('logging/BITMAP1740_1.png')};
+    background-repeat: repeat-x;
+    flex: 1;
+  }
+  .qq-bottom-right {
+    background-image: ${qqUrl('logging/BITMAP1733_1.png')};
+    background-repeat: no-repeat;
     width: 15px;
   }
   .qq-logging-main {

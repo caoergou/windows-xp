@@ -47,6 +47,12 @@ export const zhCulture: CulturePackage = {
         icon: '360safe',
       },
       { id: 'kugou', action: 'KugouMusic', nameKey: 'startMenu.apps.kugou', icon: 'kugou' },
+      {
+        id: 'ttplayer',
+        action: 'TTPlayer',
+        nameKey: 'startMenu.apps.ttplayer',
+        icon: 'ttplayer',
+      },
     ],
   },
   startupNotification: {

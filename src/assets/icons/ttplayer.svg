@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <!-- Original homage artwork for a classic 2000s Chinese music player (not the TTPlayer logo). -->
+  <defs>
+    <linearGradient id="tt-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#333d33"/>
+      <stop offset="1" stop-color="#121612"/>
+    </linearGradient>
+    <linearGradient id="tt-lcd" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a2c15"/>
+      <stop offset="1" stop-color="#031007"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="9" width="40" height="30" rx="4" fill="url(#tt-body)" stroke="#000" stroke-width="1"/>
+  <rect x="5" y="10" width="38" height="3" rx="1.5" fill="#556055" opacity="0.7"/>
+  <rect x="8" y="15" width="32" height="12" rx="1.5" fill="url(#tt-lcd)" stroke="#000" stroke-width="0.8"/>
+  <!-- music note (green LED glow) -->
+  <g fill="#35ff6a">
+    <path d="M20 16.8v6.4c-.5-.3-1.1-.5-1.8-.5-1.7 0-3 .9-3 2.1s1.3 2.2 3 2.2 3-1 3-2.2v-6.3l6-1.4v4.6c-.5-.3-1.1-.5-1.8-.5-1.7 0-3 .9-3 2.1s1.3 2.2 3 2.2 3-1 3-2.2V15.2l-8.4 1.6z"/>
+  </g>
+  <!-- tiny spectrum bars -->
+  <g fill="#35ff6a">
+    <rect x="31" y="22.4" width="1.6" height="3.6"/>
+    <rect x="33.4" y="20.4" width="1.6" height="5.6"/>
+    <rect x="35.8" y="21.6" width="1.6" height="4.4"/>
+    <rect x="38.2" y="19" width="1.6" height="7" transform="translate(-0.4 0)"/>
+  </g>
+  <!-- transport buttons -->
+  <g fill="#c9c9c9">
+    <path d="M11 32l4 2.4-4 2.4z"/>
+    <rect x="17" y="32" width="2.2" height="4.8"/>
+    <rect x="20" y="32" width="2.2" height="4.8"/>
+    <path d="M26 32l4 2.4-4 2.4z"/>
+    <path d="M31 32l4 2.4-4 2.4z"/>
+  </g>
+</svg>

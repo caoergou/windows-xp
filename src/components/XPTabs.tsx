@@ -46,6 +46,8 @@ export interface XPTab {
   id: string;
   label: React.ReactNode;
   content: React.ReactNode;
+  /** Optional data-testid for the tab button (e2e hooks). */
+  testId?: string;
 }
 
 export interface XPTabsProps {
@@ -83,6 +85,7 @@ export const XPTabs: React.FC<XPTabsProps> = ({
             role="tab"
             id={`${groupId}-tab-${tab.id}`}
             aria-selected={tab.id === active}
+            data-testid={tab.testId}
             $active={tab.id === active}
             onClick={() => select(tab.id)}
           >

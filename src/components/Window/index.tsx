@@ -84,6 +84,18 @@ const ModalBlocker = styled.div`
   z-index: 2000;
 `;
 
+/**
+ * Frameless window body (WindowProps.frameless): no OS chrome at all - the app
+ * draws its own skin (QQ2006 panel/chat). The app must supply its own drag
+ * handle (an element with class `title-bar`) and window buttons; focus and
+ * dragging stay with the engine's ResizableWrapper/Draggable machinery.
+ */
+const FramelessBody = styled.div`
+  width: 100%;
+  height: 100%;
+  position: relative;
+`;
+
 const Window: React.FC<WindowProps> = ({ windowState }) => {
   // Narrow subscriptions (#80): actions are referentially stable and the
   // active id changes only when focus moves, so with React.memo a drag or
@@ -270,7 +282,15 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
       data-testid={`window-surface-${id}`}
       onMouseEnter={behavior.focusRules === 'focus-follows-pointer' ? handleFocus : undefined}
     >
-      {WindowDecoration ? (
+      {windowProps?.frameless ? (
+        <FramelessBody data-testid={`window-frameless-${id}`}>
+          <ErrorBoundary windowId={id}>
+            <Suspense fallback={<div style={{ padding: 20 }}>Loading...</div>}>
+              <WindowIdProvider windowId={id}>{component}</WindowIdProvider>
+            </Suspense>
+          </ErrorBoundary>
+        </FramelessBody>
+      ) : WindowDecoration ? (
         <WindowDecoration
           windowState={windowState}
           isFocused={isFocused}

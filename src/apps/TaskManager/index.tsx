@@ -23,8 +23,6 @@ import Performance from './Performance';
 import {
   Container,
   Tabs,
-  Tab,
-  Panel,
   ListFrame,
   GroupLabel,
   AppHeaderRow,
@@ -264,105 +262,95 @@ const TaskManager: React.FC = () => {
         </XPMenuSlot>
       </XPMenuBar>
 
-      <Tabs>
-        <Tab
-          type="button"
-          $active={tab === 'applications'}
-          data-testid="taskmgr-tab-applications"
-          onClick={() => setTab('applications')}
-        >
-          {t('taskManager.applications')}
-        </Tab>
-        <Tab
-          type="button"
-          $active={tab === 'processes'}
-          data-testid="taskmgr-tab-processes"
-          onClick={() => setTab('processes')}
-        >
-          {t('taskManager.processes')}
-        </Tab>
-        <Tab
-          type="button"
-          $active={tab === 'performance'}
-          data-testid="taskmgr-tab-performance"
-          onClick={() => setTab('performance')}
-        >
-          {t('taskManager.performance')}
-        </Tab>
-      </Tabs>
-
-      <Panel>
-        {tab === 'applications' && (
-          <>
-            <GroupLabel>{t('taskManager.tasksLabel')}</GroupLabel>
-            <ListFrame data-testid="taskmgr-applications-list">
-              <AppHeaderRow>
-                <span>{t('taskManager.task')}</span>
-                <span>{t('taskManager.status')}</span>
-              </AppHeaderRow>
-              {windows.map(win => (
-                <AppRow
-                  key={win.id}
-                  $selected={selectedAppId === win.id}
-                  onClick={() => setSelectedAppId(win.id)}
-                  onDoubleClick={() => focusWindow(win.id)}
-                  data-testid={`taskmgr-app-${win.id}`}
-                >
-                  <span>
-                    <XPIcon name={win.icon || 'app_window'} size={16} />
-                    {win.title}
-                  </span>
-                  <span>{t('taskManager.running')}</span>
-                </AppRow>
-              ))}
-            </ListFrame>
-            <Actions>
-              <XPButton
-                type="button"
-                disabled={!selectedWindow}
-                onClick={() => selectedWindow && closeWindow(selectedWindow.id)}
-              >
-                {t('taskManager.endTask')}
-              </XPButton>
-              <XPButton
-                type="button"
-                disabled={!selectedWindow}
-                onClick={() => selectedWindow && focusWindow(selectedWindow.id)}
-              >
-                {t('taskManager.switchTo')}
-              </XPButton>
-              <XPButton type="button" data-testid="taskmgr-new-task" onClick={openRunDialog}>
-                {t('taskManager.newTask')}
-              </XPButton>
-            </Actions>
-          </>
-        )}
-
-        {tab === 'processes' && (
-          <>
-            <ListFrame>
-              <Processes
-                rows={processRows}
-                stats={stats}
-                selectedKey={selectedProcKey}
-                onSelect={setSelectedProcKey}
-              />
-            </ListFrame>
-            <Actions>
-              <XPButton
-                type="button"
-                data-testid="taskmgr-end-process"
-                disabled={!selectedProc}
-                onClick={endSelectedProcess}
-              >
-                {t('taskManager.endProcess')}
-              </XPButton>
-            </Actions>
-          </>
-        )}
-
-        {tab === 'performance' && <Performance stats={stats} processCount={processRows.length} />}
-      </Panel>
+      <Tabs
+        activeId={tab}
+        onChange={id => setTab(id as TabId)}
+        tabs={[
+          {
+            id: 'applications',
+            label: t('taskManager.applications'),
+            testId: 'taskmgr-tab-applications',
+            content: (
+              <>
+                <GroupLabel>{t('taskManager.tasksLabel')}</GroupLabel>
+                <ListFrame data-testid="taskmgr-applications-list">
+                  <AppHeaderRow>
+                    <span>{t('taskManager.task')}</span>
+                    <span>{t('taskManager.status')}</span>
+                  </AppHeaderRow>
+                  {windows.map(win => (
+                    <AppRow
+                      key={win.id}
+                      $selected={selectedAppId === win.id}
+                      onClick={() => setSelectedAppId(win.id)}
+                      onDoubleClick={() => focusWindow(win.id)}
+                      data-testid={`taskmgr-app-${win.id}`}
+                    >
+                      <span>
+                        <XPIcon name={win.icon || 'app_window'} size={16} />
+                        {win.title}
+                      </span>
+                      <span>{t('taskManager.running')}</span>
+                    </AppRow>
+                  ))}
+                </ListFrame>
+                <Actions>
+                  <XPButton
+                    type="button"
+                    disabled={!selectedWindow}
+                    onClick={() => selectedWindow && closeWindow(selectedWindow.id)}
+                  >
+                    {t('taskManager.endTask')}
+                  </XPButton>
+                  <XPButton
+                    type="button"
+                    disabled={!selectedWindow}
+                    onClick={() => selectedWindow && focusWindow(selectedWindow.id)}
+                  >
+                    {t('taskManager.switchTo')}
+                  </XPButton>
+                  <XPButton type="button" data-testid="taskmgr-new-task" onClick={openRunDialog}>
+                    {t('taskManager.newTask')}
+                  </XPButton>
+                </Actions>
+              </>
+            ),
+          },
+          {
+            id: 'processes',
+            label: t('taskManager.processes'),
+            testId: 'taskmgr-tab-processes',
+            content: (
+              <>
+                <ListFrame>
+                  <Processes
+                    rows={processRows}
+                    stats={stats}
+                    selectedKey={selectedProcKey}
+                    onSelect={setSelectedProcKey}
+                  />
+                </ListFrame>
+                <Actions>
+                  <XPButton
+                    type="button"
+                    data-testid="taskmgr-end-process"
+                    disabled={!selectedProc}
+                    onClick={endSelectedProcess}
+                  >
+                    {t('taskManager.endProcess')}
+                  </XPButton>
+                </Actions>
+              </>
+            ),
+          },
+          {
+            id: 'performance',
+            label: t('taskManager.performance'),
+            testId: 'taskmgr-tab-performance',
+            content: <Performance stats={stats} processCount={processRows.length} />,
+          },
+        ]}
+      />
 
       <StatusBar data-testid="taskmgr-statusbar">
         <StatusCell>

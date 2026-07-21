@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from '../../components/XPIcon';
 import { XPCheckbox } from '../../components/XPCheckbox';
+import { XPButton } from '../../components/XPButton';
 import { xpTrackbarStyles } from '../../theme';
 import { getVolume, setVolume, getMuted, setMuted, sounds } from '../../utils/soundManager';
 import { resolveOSTheme } from '../../themes/useOSTheme';
@@ -112,19 +113,6 @@ const ButtonRow = styled.div`
   border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
 `;
 
-const Button = styled.button`
-  padding: 3px 14px;
-  font-size: 11px;
-  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_GRADIENT};
-  cursor: pointer;
-  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
-
-  &:hover {
-    box-shadow: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HOVER_SHADOW};
-  }
-`;
-
 interface SoundSettingsProps {
   onBack: () => void;
 }
@@ -216,8 +204,8 @@ const SoundSettings: React.FC<SoundSettingsProps> = ({ onBack }) => {
         </EventList>
       </GroupBox>
       <ButtonRow>
-        <Button onClick={onBack}>{t('controlPanel.ok', 'OK')}</Button>
-        <Button onClick={onBack}>{t('controlPanel.cancel', 'Cancel')}</Button>
+        <XPButton onClick={onBack}>{t('controlPanel.ok', 'OK')}</XPButton>
+        <XPButton onClick={onBack}>{t('controlPanel.cancel', 'Cancel')}</XPButton>
       </ButtonRow>
     </Container>
   );

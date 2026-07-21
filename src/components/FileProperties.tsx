@@ -7,6 +7,8 @@ import { useFileSystem } from '../context/FileSystemContext';
 import { useXPEventBus } from '../context/EventBusContext';
 import { useWindowId } from '../context/WindowIdContext';
 import XPIcon from './XPIcon';
+import { XPTabs } from './XPTabs';
+import { XPButton } from './XPButton';
 import { FileNode, ExifData } from '../types';
 import { resolveOSTheme, useOSTheme } from '../themes/useOSTheme';
 
@@ -32,44 +34,23 @@ const WindowContainer = styled.div`
   font-size: 11px;
 `;
 
-const TabsContainer = styled.div`
-  display: flex;
-  margin-bottom: -1px;
-  padding-left: 2px;
-`;
-
-const Tab = styled.div<{ $active: boolean }>`
-  padding: 3px 6px;
-  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
-  border-bottom: 1px solid
-    ${props =>
-      props.$active
-        ? resolveOSTheme(props.theme).tokens.SURFACE
-        : resolveOSTheme(props.theme).tokens.BORDER_GREY};
-  background-color: ${props =>
-    props.$active
-      ? resolveOSTheme(props.theme).tokens.SURFACE
-      : resolveOSTheme(props.theme).tokens.SURFACE};
-  border-radius: 0;
-  margin-right: 2px;
-  cursor: pointer;
-  position: relative;
-  z-index: ${props => (props.$active ? 1 : 0)};
-
-  &:hover {
-    background-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
-  }
-`;
-
-const TabContent = styled.div`
+/* Properties tabs: shared XPTabs owns the tab strip/panel look (surface-colored
+   pane, as in the real XP Properties dialog); this wrapper only carries the
+   dialog's flex layout so the pane fills the window body. */
+const PropertiesTabs = styled(XPTabs)`
   flex: 1;
-  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BORDER_GREY};
-  background-color: ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
-  padding: 15px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  overflow-y: auto;
+
+  > [role='tabpanel'] {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
 `;
 
 const PropertyRow = styled.div`
@@ -101,13 +82,6 @@ const ButtonRow = styled.div`
   justify-content: flex-end;
   margin-top: 10px;
   gap: 10px;
-`;
-
-const Button = styled.button`
-  min-width: 75px;
-  padding: 2px 10px;
-  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
-  font-size: 11px;
 `;
 
 interface FilePropertiesProps {
@@ -202,135 +176,139 @@ const FileProperties: React.FC<FilePropertiesProps> = ({
 
   return (
     <WindowContainer>
-      <TabsContainer>
-        <Tab $active={activeTab === 'general'} onClick={() => setActiveTab('general')}>
-          {t('fileProperties.general')}
-        </Tab>
-        <Tab $active={activeTab === 'summary'} onClick={() => setActiveTab('summary')}>
-          {t('fileProperties.summary')}
-        </Tab>
-      </TabsContainer>
-
-      <TabContent>
-        {activeTab === 'general' && properties && (
-          <>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-              {/* Icon */}
-              <div style={{ marginRight: 10 }}>
-                <XPIcon
-                  name={properties.icon || (properties.type === 'folder' ? 'folder' : 'file')}
-                  size={32}
-                />
-              </div>
-              <span style={{ fontWeight: 'bold' }}>{properties.name}</span>
-            </div>
-            <div
-              style={{ borderTop: `1px solid ${osTheme.tokens.GREY_CC}`, margin: '5px 0' }}
-            ></div>
-            <PropertyRow>
-              <Label>{t('fileProperties.fileType')}:</Label>
-              <Value>{typeLabel}</Value>
-            </PropertyRow>
-            <div
-              style={{ borderTop: `1px solid ${osTheme.tokens.GREY_CC}`, margin: '5px 0' }}
-            ></div>
-            <PropertyRow>
-              <Label>{t('fileProperties.location')}:</Label>
-              <Value>
-                {parentPath?.length
-                  ? getSystemPathDisplay(parentPath, t)
-                  : t('fileProperties.desktop')}
-              </Value>
-            </PropertyRow>
-            <PropertyRow>
-              <Label>{t('fileProperties.size')}:</Label>
-              <Value>{sizeDisplay}</Value>
-            </PropertyRow>
-            <div
-              style={{ borderTop: `1px solid ${osTheme.tokens.GREY_CC}`, margin: '5px 0' }}
-            ></div>
-            <PropertyRow>
-              <Label>{t('fileProperties.created')}:</Label>
-              <Value>{formatDate(properties.created)}</Value>
-            </PropertyRow>
-            <PropertyRow>
-              <Label>{t('fileProperties.modified')}:</Label>
-              <Value>{formatDate(properties.modified)}</Value>
-            </PropertyRow>
-            <PropertyRow>
-              <Label>{t('fileProperties.accessed')}:</Label>
-              <Value>{formatDate(properties.accessed)}</Value>
-            </PropertyRow>
-            {properties.locked && (
-              <PropertyRow>
-                <Label>{t('fileProperties.status')}:</Label>
-                <Value>{t('fileProperties.encrypted')}</Value>
-              </PropertyRow>
-            )}
-            {properties.broken && (
-              <PropertyRow>
-                <Label>{t('fileProperties.status')}:</Label>
-                <Value>{t('fileProperties.damaged')}</Value>
-              </PropertyRow>
-            )}
-          </>
-        )}
-
-        {activeTab === 'summary' && (
-          <>
-            <SectionHeader>{t('fileProperties.image')}</SectionHeader>
-            {exifData ? (
+      <PropertiesTabs
+        activeId={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          {
+            id: 'general',
+            label: t('fileProperties.general'),
+            content: properties && (
               <>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+                  {/* Icon */}
+                  <div style={{ marginRight: 10 }}>
+                    <XPIcon
+                      name={properties.icon || (properties.type === 'folder' ? 'folder' : 'file')}
+                      size={32}
+                    />
+                  </div>
+                  <span style={{ fontWeight: 'bold' }}>{properties.name}</span>
+                </div>
+                <div
+                  style={{ borderTop: `1px solid ${osTheme.tokens.GREY_CC}`, margin: '5px 0' }}
+                ></div>
                 <PropertyRow>
-                  <Label>{t('fileProperties.cameraModel')}:</Label>
-                  <Value>{exifData.Model || 'Unknown'}</Value>
+                  <Label>{t('fileProperties.fileType')}:</Label>
+                  <Value>{typeLabel}</Value>
                 </PropertyRow>
+                <div
+                  style={{ borderTop: `1px solid ${osTheme.tokens.GREY_CC}`, margin: '5px 0' }}
+                ></div>
                 <PropertyRow>
-                  <Label>{t('fileProperties.manufacturer')}:</Label>
-                  <Value>{exifData.Make || 'Unknown'}</Value>
-                </PropertyRow>
-
-                <SectionHeader>{t('fileProperties.shootingParameters')}</SectionHeader>
-                <PropertyRow>
-                  <Label>{t('fileProperties.aperture')}:</Label>
-                  <Value>{exifData.FNumber ? `f/${exifData.FNumber}` : 'N/A'}</Value>
-                </PropertyRow>
-                <PropertyRow>
-                  <Label>{t('fileProperties.exposureTime')}:</Label>
+                  <Label>{t('fileProperties.location')}:</Label>
                   <Value>
-                    {exifData.ExposureTime
-                      ? t('fileProperties.seconds', { value: exifData.ExposureTime })
-                      : 'N/A'}
+                    {parentPath?.length
+                      ? getSystemPathDisplay(parentPath, t)
+                      : t('fileProperties.desktop')}
                   </Value>
                 </PropertyRow>
                 <PropertyRow>
-                  <Label>{t('fileProperties.isoSpeed')}:</Label>
-                  <Value>{exifData.ISOSpeedRatings || 'N/A'}</Value>
+                  <Label>{t('fileProperties.size')}:</Label>
+                  <Value>{sizeDisplay}</Value>
+                </PropertyRow>
+                <div
+                  style={{ borderTop: `1px solid ${osTheme.tokens.GREY_CC}`, margin: '5px 0' }}
+                ></div>
+                <PropertyRow>
+                  <Label>{t('fileProperties.created')}:</Label>
+                  <Value>{formatDate(properties.created)}</Value>
                 </PropertyRow>
                 <PropertyRow>
-                  <Label>{t('fileProperties.focalLength')}:</Label>
-                  <Value>{exifData.FocalLength ? `${exifData.FocalLength} mm` : 'N/A'}</Value>
+                  <Label>{t('fileProperties.modified')}:</Label>
+                  <Value>{formatDate(properties.modified)}</Value>
                 </PropertyRow>
-
-                <SectionHeader>{t('fileProperties.origin')}</SectionHeader>
                 <PropertyRow>
-                  <Label>{t('fileProperties.dateTaken')}:</Label>
-                  <Value>{exifData.DateTimeOriginal || 'Unknown'}</Value>
+                  <Label>{t('fileProperties.accessed')}:</Label>
+                  <Value>{formatDate(properties.accessed)}</Value>
                 </PropertyRow>
+                {properties.locked && (
+                  <PropertyRow>
+                    <Label>{t('fileProperties.status')}:</Label>
+                    <Value>{t('fileProperties.encrypted')}</Value>
+                  </PropertyRow>
+                )}
+                {properties.broken && (
+                  <PropertyRow>
+                    <Label>{t('fileProperties.status')}:</Label>
+                    <Value>{t('fileProperties.damaged')}</Value>
+                  </PropertyRow>
+                )}
               </>
-            ) : (
-              <div style={{ padding: '20px', textAlign: 'center', color: osTheme.tokens.GREY_99 }}>
-                {t('fileProperties.noSummary')}
-              </div>
-            )}
-          </>
-        )}
-      </TabContent>
+            ),
+          },
+          {
+            id: 'summary',
+            label: t('fileProperties.summary'),
+            content: (
+              <>
+                <SectionHeader>{t('fileProperties.image')}</SectionHeader>
+                {exifData ? (
+                  <>
+                    <PropertyRow>
+                      <Label>{t('fileProperties.cameraModel')}:</Label>
+                      <Value>{exifData.Model || 'Unknown'}</Value>
+                    </PropertyRow>
+                    <PropertyRow>
+                      <Label>{t('fileProperties.manufacturer')}:</Label>
+                      <Value>{exifData.Make || 'Unknown'}</Value>
+                    </PropertyRow>
+
+                    <SectionHeader>{t('fileProperties.shootingParameters')}</SectionHeader>
+                    <PropertyRow>
+                      <Label>{t('fileProperties.aperture')}:</Label>
+                      <Value>{exifData.FNumber ? `f/${exifData.FNumber}` : 'N/A'}</Value>
+                    </PropertyRow>
+                    <PropertyRow>
+                      <Label>{t('fileProperties.exposureTime')}:</Label>
+                      <Value>
+                        {exifData.ExposureTime
+                          ? t('fileProperties.seconds', { value: exifData.ExposureTime })
+                          : 'N/A'}
+                      </Value>
+                    </PropertyRow>
+                    <PropertyRow>
+                      <Label>{t('fileProperties.isoSpeed')}:</Label>
+                      <Value>{exifData.ISOSpeedRatings || 'N/A'}</Value>
+                    </PropertyRow>
+                    <PropertyRow>
+                      <Label>{t('fileProperties.focalLength')}:</Label>
+                      <Value>{exifData.FocalLength ? `${exifData.FocalLength} mm` : 'N/A'}</Value>
+                    </PropertyRow>
+
+                    <SectionHeader>{t('fileProperties.origin')}</SectionHeader>
+                    <PropertyRow>
+                      <Label>{t('fileProperties.dateTaken')}:</Label>
+                      <Value>{exifData.DateTimeOriginal || 'Unknown'}</Value>
+                    </PropertyRow>
+                  </>
+                ) : (
+                  <div
+                    style={{ padding: '20px', textAlign: 'center', color: osTheme.tokens.GREY_99 }}
+                  >
+                    {t('fileProperties.noSummary')}
+                  </div>
+                )}
+              </>
+            ),
+          },
+        ]}
+      />
 
       <ButtonRow>
-        <Button onClick={handleClose}>{t('common.ok')}</Button>
-        <Button onClick={handleClose}>{t('common.cancel')}</Button>
-        <Button disabled>{t('common.apply')}</Button>
+        <XPButton onClick={handleClose}>{t('common.ok')}</XPButton>
+        <XPButton onClick={handleClose}>{t('common.cancel')}</XPButton>
+        <XPButton disabled>{t('common.apply')}</XPButton>
       </ButtonRow>
     </WindowContainer>
   );

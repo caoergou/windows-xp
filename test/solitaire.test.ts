@@ -3,6 +3,7 @@ import {
   type Card,
   type GameState,
   applyMove,
+  applyScore,
   canPlaceOnFoundation,
   canPlaceOnTableau,
   checkWin,
@@ -12,6 +13,10 @@ import {
   getMovableCards,
   getTopCard,
   isRed,
+  redealPenalty,
+  scoreForMove,
+  takeSnapshot,
+  SCORING,
 } from '../src/apps/solitaireLogic';
 
 const card = (suit: Card['suit'], rank: number, faceUp = true): Card => ({
@@ -172,6 +177,206 @@ describe('stock dealing', () => {
     expect(next.stock).toHaveLength(2);
     expect(next.waste).toHaveLength(0);
     expect(next.stock.every(c => !c.faceUp)).toBe(true);
+  });
+
+  it('recycled stock preserves the original waste order on redeal', () => {
+    const state: GameState = {
+      stock: [],
+      waste: [card('spades', 1, true), card('hearts', 2, true), card('clubs', 3, true)],
+      foundations: [[], [], [], []],
+      tableaus: [[], []],
+    };
+
+    // Waste top is the last card; after recycling it must come out first again.
+    const recycled = dealFromStock(state);
+    const redealt = dealFromStock(dealFromStock(dealFromStock(recycled)));
+    expect(redealt.waste.map(c => c.id)).toEqual(['spades-1', 'hearts-2', 'clubs-3']);
+  });
+});
+
+describe('draw three', () => {
+  it('deals three cards per stock click, waste top is the last one', () => {
+    const state: GameState = {
+      stock: [
+        card('spades', 1, false),
+        card('hearts', 2, false),
+        card('clubs', 3, false),
+        card('diamonds', 4, false),
+      ],
+      waste: [],
+      foundations: [[], [], [], []],
+      tableaus: [[], []],
+    };
+
+    const next = dealFromStock(state, 3);
+    expect(next.stock).toHaveLength(1);
+    expect(next.waste.map(c => c.id)).toEqual(['diamonds-4', 'clubs-3', 'hearts-2']);
+    expect(next.waste.every(c => c.faceUp)).toBe(true);
+    expect(getTopCard(next.waste)?.id).toBe('hearts-2');
+  });
+
+  it('deals fewer than three when the stock runs short', () => {
+    const state: GameState = {
+      stock: [card('spades', 1, false), card('hearts', 2, false)],
+      waste: [card('clubs', 5, true)],
+      foundations: [[], [], [], []],
+      tableaus: [[], []],
+    };
+
+    const next = dealFromStock(state, 3);
+    expect(next.stock).toHaveLength(0);
+    expect(next.waste.map(c => c.id)).toEqual(['clubs-5', 'hearts-2', 'spades-1']);
+  });
+
+  it('draw mode does not affect waste recycling', () => {
+    const state: GameState = {
+      stock: [],
+      waste: [card('spades', 1, true), card('hearts', 2, true)],
+      foundations: [[], [], [], []],
+      tableaus: [[], []],
+    };
+
+    const next = dealFromStock(state, 3);
+    expect(next.stock).toHaveLength(2);
+    expect(next.waste).toHaveLength(0);
+    expect(next.stock.every(c => !c.faceUp)).toBe(true);
+  });
+});
+
+describe('standard scoring', () => {
+  const base: GameState = {
+    stock: [],
+    waste: [card('hearts', 5, true)],
+    foundations: [[card('hearts', 1, true)], [], [], []],
+    tableaus: [[card('spades', 6, false), card('clubs', 5, true)], [card('diamonds', 9, true)]],
+  };
+
+  it('waste to tableau scores 5', () => {
+    expect(
+      scoreForMove(
+        base,
+        [card('hearts', 5, true)],
+        { type: 'waste' },
+        { type: 'tableau', index: 1 }
+      )
+    ).toBe(SCORING.wasteToTableau);
+  });
+
+  it('waste to foundation scores 10', () => {
+    expect(
+      scoreForMove(
+        base,
+        [card('hearts', 5, true)],
+        { type: 'waste' },
+        { type: 'foundation', index: 0 }
+      )
+    ).toBe(SCORING.wasteToFoundation);
+  });
+
+  it('tableau to foundation scores 10 plus 5 when a face-down card flips', () => {
+    const moving = [card('clubs', 5, true)];
+    const delta = scoreForMove(
+      base,
+      moving,
+      { type: 'tableau', index: 0 },
+      { type: 'foundation', index: 0 }
+    );
+    expect(delta).toBe(SCORING.tableauToFoundation + SCORING.flipTableau);
+  });
+
+  it('tableau to tableau scores only the flip bonus', () => {
+    const delta = scoreForMove(
+      base,
+      [card('clubs', 5, true)],
+      { type: 'tableau', index: 0 },
+      { type: 'tableau', index: 1 }
+    );
+    expect(delta).toBe(SCORING.flipTableau);
+  });
+
+  it('tableau moves without a hidden card below score nothing', () => {
+    const state: GameState = {
+      ...base,
+      tableaus: [[card('clubs', 5, true)], [card('diamonds', 6, true)]],
+    };
+    expect(
+      scoreForMove(
+        state,
+        [card('clubs', 5, true)],
+        { type: 'tableau', index: 0 },
+        { type: 'tableau', index: 1 }
+      )
+    ).toBe(0);
+  });
+
+  it('foundation to tableau costs 15', () => {
+    expect(
+      scoreForMove(
+        base,
+        [card('hearts', 1, true)],
+        { type: 'foundation', index: 0 },
+        { type: 'tableau', index: 1 }
+      )
+    ).toBe(SCORING.foundationToTableau);
+  });
+
+  it('score never drops below zero', () => {
+    expect(applyScore(10, -15)).toBe(0);
+    expect(applyScore(20, -15)).toBe(5);
+    expect(applyScore(0, 10)).toBe(10);
+  });
+});
+
+describe('stock redeal penalty', () => {
+  it('draw one penalizes every redeal after the first pass', () => {
+    expect(redealPenalty(1, 1)).toBe(SCORING.draw1Redeal);
+    expect(redealPenalty(1, 2)).toBe(SCORING.draw1Redeal);
+  });
+
+  it('draw three allows two free redeals, then costs 20', () => {
+    expect(redealPenalty(3, 1)).toBe(0);
+    expect(redealPenalty(3, 2)).toBe(0);
+    expect(redealPenalty(3, 3)).toBe(SCORING.draw3Redeal);
+    expect(redealPenalty(3, 4)).toBe(SCORING.draw3Redeal);
+  });
+});
+
+describe('undo snapshot', () => {
+  it('captures state, score and redeals', () => {
+    const state: GameState = {
+      stock: [card('spades', 1, false)],
+      waste: [card('hearts', 2, true)],
+      foundations: [[], [], [], []],
+      tableaus: [[card('clubs', 3, true)]],
+    };
+
+    const snapshot = takeSnapshot(state, 45, 2);
+    expect(snapshot.score).toBe(45);
+    expect(snapshot.redeals).toBe(2);
+    expect(snapshot.state).toEqual(state);
+  });
+
+  it('is unaffected by later moves applied to the live state', () => {
+    const state: GameState = {
+      stock: [],
+      waste: [card('hearts', 1, true)],
+      foundations: [[], [], [], []],
+      tableaus: [[card('spades', 6, false), card('hearts', 5, true)], [card('clubs', 6, true)]],
+    };
+
+    const snapshot = takeSnapshot(state, 10, 0);
+    const moved = applyMove(
+      state,
+      [card('hearts', 5, true)],
+      { type: 'tableau', index: 0 },
+      { type: 'tableau', index: 1 }
+    );
+    const redealt = dealFromStock(moved);
+
+    // Snapshot still holds the pre-move board.
+    expect(snapshot.state.tableaus[0]).toEqual([card('spades', 6, false), card('hearts', 5, true)]);
+    expect(snapshot.state.waste).toEqual([card('hearts', 1, true)]);
+    expect(redealt).not.toEqual(snapshot.state);
   });
 });
 
