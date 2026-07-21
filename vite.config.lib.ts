@@ -26,7 +26,11 @@ export default defineConfig({
     // (assetsInlineLimit is ignored), which bloated the package to 17MB.
     // This plugin extracts referenced assets into dist/assets/ as real files.
     libAssetsPlugin({
-      limit: 1024 * 4, // inline only tiny assets (<4KB)
+      // Inline nothing: sub-4KB assets are extracted as real files too. The
+      // 117-file QQ2006 avatar set + skin sprites would otherwise be
+      // base64-inlined and blow the WindowManagerContext chunk past the 1MB
+      // guard (#292); file count in dist/assets is the cheaper trade-off.
+      limit: 0,
       outputPath: 'assets',
     }),
     dts({
