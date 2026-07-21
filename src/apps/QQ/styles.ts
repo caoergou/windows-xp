@@ -131,6 +131,10 @@ export const QQFrameRoot = styled.div<{ $variant: 'panel' | 'chat' }>`
     width: 100%;
     height: ${({ $variant }) => ($variant === 'chat' ? 26 : 24)}px;
     display: flex;
+    /* xp.css .title-bar sets align-items:center; the skin slices carry no
+       content, so they must stretch to the bar's height or they collapse to
+       0px and the title area turns transparent. */
+    align-items: stretch;
     position: relative;
     flex-shrink: 0;
     /* Let react-draggable own touch-drags (same as the engine's XP TitleBar). */
@@ -802,7 +806,9 @@ export const LoadingRoot = styled.div`
     position: relative;
     flex-shrink: 0;
     touch-action: none;
-    /* Same xp.css .title-bar leak neutralization as QQFrame (see there). */
+    /* Same xp.css .title-bar leak neutralization as QQFrame (see there);
+       align-items:stretch so the empty skin slices don't collapse to 0px. */
+    align-items: stretch;
     box-sizing: border-box;
     padding: 0;
     border: 0;

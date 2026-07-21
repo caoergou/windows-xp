@@ -59,25 +59,13 @@ const QQFrame: React.FC<QQFrameProps> = ({
         )}
         <div className="qqf-title-btns">
           {onMinimize && (
-            <button
-              className="qqf-min"
-              title="最小化"
-              aria-label="最小化"
-              onClick={btn(onMinimize)}
-            />
+            <button className="qqf-min" aria-label="最小化" onClick={btn(onMinimize)} />
           )}
-          {variant === 'panel' && <button className="qqf-color" title="更换皮肤" />}
+          {variant === 'panel' && <button className="qqf-color" aria-label="更换皮肤" />}
           {variant === 'chat' && onMaximize && (
-            <button
-              className="qqf-max"
-              title="最大化"
-              aria-label="最大化"
-              onClick={btn(onMaximize)}
-            />
+            <button className="qqf-max" aria-label="最大化" onClick={btn(onMaximize)} />
           )}
-          {onClose && (
-            <button className="qqf-close" title="关闭" aria-label="关闭" onClick={btn(onClose)} />
-          )}
+          {onClose && <button className="qqf-close" aria-label="关闭" onClick={btn(onClose)} />}
         </div>
       </div>
       <div className="qqf-body">{children}</div>

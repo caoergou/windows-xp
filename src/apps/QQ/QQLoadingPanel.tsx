@@ -34,18 +34,8 @@ const QQLoadingPanel: React.FC<QQLoadingPanelProps> = ({ onCancel, onMinimize, o
         <div className="qq-logging-title-center" />
         <div className="qq-logging-title-right" />
         <div className="qq-logging-title-btns">
-          <button
-            className="qq-logging-min"
-            title="最小化"
-            aria-label="最小化"
-            onClick={btn(onMinimize)}
-          />
-          <button
-            className="qq-logging-close"
-            title="关闭"
-            aria-label="关闭"
-            onClick={btn(onClose)}
-          />
+          <button className="qq-logging-min" aria-label="最小化" onClick={btn(onMinimize)} />
+          <button className="qq-logging-close" aria-label="关闭" onClick={btn(onClose)} />
         </div>
       </div>
       <div className="qq-logging-body qq-flex-bg">
