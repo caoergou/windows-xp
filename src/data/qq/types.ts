@@ -16,7 +16,7 @@ export interface QQScriptStep {
   delayMs?: number;
   /** Duration of the "typing..." state in milliseconds, creating a typing effect. Defaults to an estimate based on text length. */
   typingMs?: number;
-  /** Message body, supports "[微笑]" / "/wx" emoticon codes (see emojiRenderer). */
+  /** Message body, supports "[微笑]" / "/wx" emoticon codes (see src/apps/QQ/emojiRenderer). */
   text: string;
 }
 

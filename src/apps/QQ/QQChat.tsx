@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChatRoot } from './styles';
-import { qqAvatar } from './assets';
+import { qqAvatar, qqEmoticon } from './assets';
 import { qqStore } from './qqStore';
 import { useQQStore } from './useQQStore';
 import { useApp } from '../../hooks/useApp';
 import { useActiveWindowId } from '../../context/WindowManagerContext';
 import { useWindowId } from '../../context/WindowIdContext';
 import { useXPEventBus } from '../../context/EventBusContext';
-import { renderMessageNodes, QQ_EMOJI_LIST } from '../../utils/emojiRenderer';
+import { renderMessageNodes, QQ_EMOJI_LIST } from './emojiRenderer';
 import QQFrame from './QQFrame';
 
 interface QQChatProps {
@@ -176,14 +176,17 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
                 </div>
               )}
 
-              {/* Emoji picker panel: classic yellow-face grid; clicking inserts the "[微笑]" code into the input box. */}
+              {/* Emoji picker panel: classic QQ emoticon image grid; clicking inserts the "[微笑]" code into the input box. */}
               {showEmoji && (
                 <div className="qq-emoji-picker" data-testid="qq-emoji-picker">
-                  {QQ_EMOJI_LIST.map(({ code, emoji }) => (
-                    <button key={code} type="button" title={code} onClick={() => insertEmoji(code)}>
-                      {emoji}
-                    </button>
-                  ))}
+                  {QQ_EMOJI_LIST.map(({ code, file }) => {
+                    const src = qqEmoticon(file);
+                    return (
+                      <button key={code} type="button" title={code} onClick={() => insertEmoji(code)}>
+                        <img className="qq-emoji-picker-img" src={src} alt={code} />
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 

@@ -1288,7 +1288,7 @@ export const ChatRoot = styled.div`
     padding-top: 20px;
   }
 
-  /* Emoji picker: classic yellow-face grid popping up above the small toolbar. */
+  /* Emoji picker: classic QQ emoticon image grid popping up above the small toolbar. */
   .qq-emoji-picker {
     position: absolute;
     z-index: 4;
@@ -1307,17 +1307,31 @@ export const ChatRoot = styled.div`
     align-content: start;
   }
   .qq-emoji-picker button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     height: 24px;
-    font-size: 16px;
-    line-height: 24px;
+    width: 24px;
+    padding: 0;
     cursor: pointer;
     border: 1px solid transparent;
     background: transparent;
-    filter: saturate(1.4);
     &:hover {
       border-color: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
       background: ${C.hover};
     }
+  }
+  .qq-emoji-picker-img {
+    width: 16px;
+    height: 16px;
+    image-rendering: pixelated;
+  }
+  .qq-emoticon-img {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    vertical-align: text-bottom;
+    image-rendering: pixelated;
   }
 `;
 
