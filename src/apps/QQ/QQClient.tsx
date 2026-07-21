@@ -14,6 +14,7 @@ import QQLoginPanel from './QQLoginPanel';
 import QQLoadingPanel from './QQLoadingPanel';
 import QQBuddyList from './QQBuddyList';
 import QQChat from './QQChat';
+import QQFrame from './QQFrame';
 import QQCloseDialog, { QQCloseChoice } from './QQCloseDialog';
 import type { MenuItem } from '../../types';
 import type { QQStatus } from '../../data/qq/types';
@@ -25,10 +26,13 @@ import QQArchive from './QQArchive';
 
 type Phase = 'login' | 'loading' | 'panel';
 
+// Authentic QQ2006 sizes (docs/QQ-CLASSIC-UI.md §1/§2/§4): the login box is a
+// real XP window; the logging-in strip and the main panel share the 190×580
+// self-skinned shape; the chat window is the self-skinned 500×460.
 const SIZE = {
   login: { w: 352, h: 266 },
-  panel: { w: 202, h: 600 },
-  chat: { w: 540, h: 476 },
+  panel: { w: 190, h: 580 },
+  chat: { w: 500, h: 460 },
 };
 
 interface QQClientProps {
@@ -108,6 +112,8 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
           minHeight: SIZE.chat.h,
           left: chatLeft,
           resizable: false,
+          // Self-skinned QQ2006 chat window (QQ-CLASSIC-UI §2) - QQFrame draws the chrome.
+          frameless: true,
           componentProps: { view: 'chat', buddyId },
         }
       );
@@ -170,13 +176,17 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
     [clientWindowId]
   );
 
-  // --- Window size / position / title morph with the phase --------------------------------
+  // --- Window size / chrome / title morph with the phase --------------------------------
   useEffect(() => {
     if (phase === 'login') {
+      // The QQ2006 login box is a genuine XP system window (QQ-CLASSIC-UI §4),
+      // so the engine chrome stays on for this phase only.
+      api.window.setFrameless(false);
       api.window.resize(SIZE.login.w, SIZE.login.h);
       api.window.setTitle('QQ用户登录');
     } else {
-      // Main panel is tall and narrow (600px high); the window opens at a fixed top (see registry), so it stays on-screen.
+      // Logging-in / main panel: self-skinned 190×580 QQ window (frameless).
+      api.window.setFrameless(true);
       api.window.resize(SIZE.panel.w, SIZE.panel.h);
       api.window.setTitle('QQ2006');
     }
@@ -341,11 +351,23 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
     return <QQLoginPanel onLogin={handleLogin} />;
   }
   if (phase === 'loading') {
-    return <QQLoadingPanel onCancel={() => setPhase('login')} />;
+    return (
+      <QQLoadingPanel
+        onCancel={() => setPhase('login')}
+        onMinimize={() => api.window.minimize()}
+        onClose={() => api.window.close()}
+      />
+    );
   }
   return (
     <>
-      <QQBuddyList onOpenChat={openChat} onOpenArchive={openArchive} onExit={exitQQ} />
+      <QQFrame
+        variant="panel"
+        onMinimize={() => api.window.minimize()}
+        onClose={() => api.window.close()}
+      >
+        <QQBuddyList onOpenChat={openChat} onOpenArchive={openArchive} onExit={exitQQ} />
+      </QQFrame>
       {closeAsk && <QQCloseDialog onConfirm={onCloseChoice} onCancel={() => setCloseAsk(false)} />}
     </>
   );

@@ -33,4 +33,5 @@ export { default as WindowsMediaPlayer } from '../apps/WindowsMediaPlayer';
 export { default as Thunder } from '../apps/Thunder';
 export { default as BaofengPlayer } from '../apps/BaofengPlayer';
 export { default as KugouMusic } from '../apps/KugouMusic';
+export { default as TTPlayer } from '../apps/TTPlayer';
 export { default as WPSOffice } from '../apps/WPSOffice';

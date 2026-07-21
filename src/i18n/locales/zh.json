@@ -12,6 +12,8 @@
   "desktopProperties": {
     "themes": "主题",
     "desktop": "桌面",
+    "screenSaver": "屏幕保护程序",
+    "appearance": "外观",
     "settings": "设置",
     "background": "背景：",
     "position": "位置：",
@@ -104,7 +106,8 @@
       "baofeng": "暴风影音",
       "thunder": "迅雷",
       "safeGuard": "360 安全卫士",
-      "kugou": "酷狗音乐"
+      "kugou": "酷狗音乐",
+      "ttplayer": "千千静听"
     }
   },
   "taskbar": {
@@ -912,8 +915,20 @@
     },
     "menuItems": {
       "new": "开局(D)",
+      "undo": "撤销(U)",
+      "drawOne": "一次翻一张",
+      "drawThree": "一次翻三张",
       "exit": "退出(X)",
       "about": "关于纸牌"
+    },
+    "status": {
+      "score": "得分：{{score}}",
+      "time": "时间：{{time}}"
+    },
+    "about": {
+      "title": "关于纸牌",
+      "message": "Microsoft 纸牌\n版本 5.1",
+      "ok": "确定"
     }
   },
   "mediaPlayer": {
@@ -961,6 +976,28 @@
     "volume": "音量",
     "nowPlaying": "正在播放：{{title}} - {{artist}}",
     "stopped": "已停止",
+    "statusCount": "共 {{count}} 首",
+    "statusPlaying": "正在播放",
+    "statusReady": "准备就绪"
+  },
+  "ttplayer": {
+    "title": "千千静听",
+    "version": "5.0 经典版",
+    "playlist": "列表",
+    "lyrics": "歌词秀",
+    "about": "关于",
+    "close": "关闭",
+    "add": "添加",
+    "remove": "删除",
+    "previous": "上一首",
+    "next": "下一首",
+    "playPause": "播放/暂停",
+    "stop": "停止",
+    "volume": "音量",
+    "modeLoop": "列表循环",
+    "modeOne": "单曲循环",
+    "aboutRef": "布局参考开源复刻项目 haixiangyan/ttplayer（MIT License，作者 haixiangyan）。",
+    "aboutCredit": "界面与图标为自绘致敬；「千千静听」素材与商标版权归原作者所有，示例歌词为原创占位文本。",
     "statusCount": "共 {{count}} 首",
     "statusPlaying": "正在播放",
     "statusReady": "准备就绪"

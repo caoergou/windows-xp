@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { XPDialogFrame } from '../../../components/XPDialogChrome';
+import { XPButton } from '../../../components/XPButton';
 import {
   DialogOverlay,
   DialogContent,
@@ -9,7 +10,6 @@ import {
   DialogLabel,
   DialogInput,
   DialogButtonArea,
-  DialogButton,
 } from '../styled';
 import type { DialogMode } from '../types';
 
@@ -84,10 +84,10 @@ const FindReplaceDialog: React.FC<FindReplaceDialogProps> = ({
             </DialogRow>
           </DialogContent>
           <DialogButtonArea>
-            <DialogButton onClick={onFindNext} disabled={!findQuery}>
+            <XPButton onClick={onFindNext} disabled={!findQuery}>
               {t('notepad.find.findNext')}
-            </DialogButton>
-            <DialogButton onClick={onClose}>{t('common.cancel')}</DialogButton>
+            </XPButton>
+            <XPButton onClick={onClose}>{t('common.cancel')}</XPButton>
           </DialogButtonArea>
         </XPDialogFrame>
       </DialogOverlay>,
@@ -137,19 +137,19 @@ const FindReplaceDialog: React.FC<FindReplaceDialogProps> = ({
             </DialogRow>
           </DialogContent>
           <DialogButtonArea>
-            <DialogButton onClick={onReplaceFindNext} disabled={!replaceQuery}>
+            <XPButton onClick={onReplaceFindNext} disabled={!replaceQuery}>
               {t('notepad.find.findNext')}
-            </DialogButton>
-            <DialogButton onClick={onReplace} disabled={!replaceQuery}>
+            </XPButton>
+            <XPButton onClick={onReplace} disabled={!replaceQuery}>
               {t('notepad.replace.replace')}
-            </DialogButton>
-            <DialogButton
+            </XPButton>
+            <XPButton
               onClick={onReplaceAll}
               disabled={!replaceQuery || replaceQuery === replaceWith}
             >
               {t('notepad.replace.replaceAll')}
-            </DialogButton>
-            <DialogButton onClick={onClose}>{t('common.cancel')}</DialogButton>
+            </XPButton>
+            <XPButton onClick={onClose}>{t('common.cancel')}</XPButton>
           </DialogButtonArea>
         </XPDialogFrame>
       </DialogOverlay>,

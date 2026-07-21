@@ -9,6 +9,9 @@ export const WindowContainer = styled.div<{
   $isFocus?: boolean;
   $minWidth?: number;
   $minHeight?: number;
+  /** Frameless (WindowProps.frameless): chrome hidden via CSS only - the DOM tree
+      stays identical so the app content is NOT remounted when toggled at runtime. */
+  $frameless?: boolean;
 }>`
   box-sizing: border-box;
   position: absolute;
@@ -16,22 +19,27 @@ export const WindowContainer = styled.div<{
   flex-direction: column;
   min-height: ${({ $minHeight }) => $minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT}px;
   min-width: ${({ $minWidth }) => $minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH}px;
-  background-color: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
-  box-shadow: ${({ $isFocus, theme }) =>
-    $isFocus
-      ? resolveOSTheme(theme).tokens.WINDOW_FRAME_SHADOW_ACTIVE
-      : resolveOSTheme(theme).tokens.WINDOW_FRAME_SHADOW_INACTIVE};
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  padding: 0 0 3px;
+  background-color: ${({ theme, $frameless }) =>
+    $frameless ? 'transparent' : resolveOSTheme(theme).tokens.SURFACE};
+  box-shadow: ${({ $isFocus, theme, $frameless }) =>
+    $frameless
+      ? 'none'
+      : $isFocus
+        ? resolveOSTheme(theme).tokens.WINDOW_FRAME_SHADOW_ACTIVE
+        : resolveOSTheme(theme).tokens.WINDOW_FRAME_SHADOW_INACTIVE};
+  border-top-left-radius: ${({ $frameless }) => ($frameless ? 0 : 8)}px;
+  border-top-right-radius: ${({ $frameless }) => ($frameless ? 0 : 8)}px;
+  padding: ${({ $frameless }) => ($frameless ? 0 : '0 0 3px')};
 
   .react-resizable-handle {
     z-index: 1000;
   }
 `;
 
-export const TitleBar = styled.div<{ $isFocus?: boolean }>`
+export const TitleBar = styled.div<{ $isFocus?: boolean; $frameless?: boolean }>`
   box-sizing: border-box;
+  /* Frameless windows hide the OS title bar but keep it mounted (stable tree). */
+  display: ${({ $frameless }) => ($frameless ? 'none' : 'flex')};
   height: 28px;
   min-height: 28px;
   max-height: 28px;
@@ -56,7 +64,6 @@ export const TitleBar = styled.div<{ $isFocus?: boolean }>`
         : resolveOSTheme(theme).tokens.WINDOW_BORDER_INACTIVE_DARK};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 3px 5px 3px 3px;
@@ -135,14 +142,15 @@ const TitleText = styled.div`
   }
 `;
 
-export const WindowBody = styled.div`
+export const WindowBody = styled.div<{ $frameless?: boolean }>`
   flex: 1;
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  background: ${({ theme, $frameless }) =>
+    $frameless ? 'transparent' : resolveOSTheme(theme).tokens.SURFACE};
   overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
-  margin: 0 3px;
+  margin: ${({ $frameless }) => ($frameless ? 0 : '0 3px')};
 `;
 
 interface WindowChromeProps {
@@ -173,6 +181,11 @@ const WindowChrome: React.FC<WindowChromeProps> = ({
   // must not throw here and white-screen the whole desktop (#223).
   const minWidth = windowState.props?.minWidth ?? WINDOW_DEFAULTS.MIN_WIDTH;
   const minHeight = windowState.props?.minHeight ?? WINDOW_DEFAULTS.MIN_HEIGHT;
+  // Self-skinned apps (QQ2006): hide the OS chrome with CSS only. The DOM tree
+  // keeps its exact shape (TitleBar stays mounted, display:none) so toggling
+  // `frameless` at runtime never remounts the app content (QQ's login ->
+  // logging-in -> panel morph drives this live, #292).
+  const frameless = windowState.props?.frameless === true;
 
   return (
     <WindowContainer
@@ -180,12 +193,14 @@ const WindowChrome: React.FC<WindowChromeProps> = ({
       $isFocus={isFocused}
       $minWidth={minWidth}
       $minHeight={minHeight}
+      $frameless={frameless}
       className={className}
       style={style}
       onClick={onFocus}
     >
       <TitleBar
         $isFocus={isFocused}
+        $frameless={frameless}
         className="title-bar"
         onDoubleClick={() => isResizable && onMaximize()}
       >
@@ -195,7 +210,7 @@ const WindowChrome: React.FC<WindowChromeProps> = ({
         </TitleText>
         {controls}
       </TitleBar>
-      <WindowBody>{children}</WindowBody>
+      <WindowBody $frameless={frameless}>{children}</WindowBody>
     </WindowContainer>
   );
 };

@@ -2,87 +2,22 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import XPIcon from '../XPIcon';
+import {
+  XPMenuBar as MenuBar,
+  XPMenuSlot as MenuBarItemWrapper,
+  XPMenuBarItem as MenuBarItem,
+  XPMenuDropdown as DropdownMenu,
+  XPMenuDropdownItem as DropdownItem,
+  XPMenuSeparator as DropdownSeparator,
+  XPMenuMark,
+} from '../XPMenuBar';
 import type { ExplorerViewMode } from '../../apps/Explorer/types';
 import { EXPLORER_VIEW_MODES } from '../../apps/Explorer/types';
 import { resolveOSTheme } from '../../themes/useOSTheme';
 
-/* --- Menu bar --- */
-const MenuBar = styled.div`
-  height: 20px;
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
-  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
-  display: flex;
-  align-items: center;
-  padding: 0 2px;
-`;
-
-const MenuBarItemWrapper = styled.div`
-  position: relative;
-`;
-
-const MenuBarItem = styled.button<{ $active?: boolean }>`
-  padding: 1px 6px;
-  font-size: 11px;
-  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
-  cursor: default;
-  border: 1px solid transparent;
-  background: ${p => (p.$active ? resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT : 'transparent')};
-  color: ${p =>
-    p.$active ? resolveOSTheme(p.theme).tokens.WHITE : resolveOSTheme(p.theme).tokens.BLACK};
-  height: 18px;
-
-  &:hover {
-    background: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
-    color: white;
-    border-color: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT};
-  }
-`;
-
-const DropdownMenu = styled.div`
-  position: absolute;
-  top: 18px;
-  left: 0;
-  min-width: 176px;
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
-  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
-  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.35);
-  padding: 2px;
-  z-index: 3000;
-`;
-
-const DropdownItem = styled.button<{ $disabled?: boolean }>`
-  position: relative;
-  width: 100%;
-  height: 20px;
-  padding: 0 22px 0 22px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: ${p =>
-    p.$disabled
-      ? resolveOSTheme(p.theme).tokens.BUTTON_SHADOW
-      : resolveOSTheme(p.theme).tokens.BLACK};
-  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
-  font-size: 11px;
-  text-align: left;
-  white-space: nowrap;
-  cursor: ${p => (p.$disabled ? 'default' : 'default')};
-
-  &:hover {
-    background: ${p =>
-      p.$disabled ? 'transparent' : resolveOSTheme(p.theme).tokens.MENU_HIGHLIGHT};
-    color: ${p =>
-      p.$disabled
-        ? resolveOSTheme(p.theme).tokens.BUTTON_SHADOW
-        : resolveOSTheme(p.theme).tokens.WHITE};
-  }
-`;
-
-const DropdownSeparator = styled.div`
-  height: 1px;
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
-  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
-  margin: 3px 2px;
-`;
+/* --- Menu bar: shared XPMenuBar primitives (#99/#78). The previous local bar
+   added a hard bottom divider and surfaced (not white) dropdowns — neither
+   matches real XP Explorer under Luna. --- */
 
 /* --- Toolbar --- */
 const ToolbarContainer = styled.div`
@@ -385,7 +320,7 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
                         setOpenMenu(null);
                       }}
                     >
-                      {entry.checked && <span style={{ position: 'absolute', left: 8 }}>●</span>}
+                      <XPMenuMark>{entry.checked ? '●' : ''}</XPMenuMark>
                       {entry.label}
                     </DropdownItem>
                   );
@@ -469,7 +404,7 @@ const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
                       setViewsOpen(false);
                     }}
                   >
-                    {entry.checked && <span style={{ position: 'absolute', left: 8 }}>●</span>}
+                    <XPMenuMark>{entry.checked ? '●' : ''}</XPMenuMark>
                     {entry.label}
                   </DropdownItem>
                 )

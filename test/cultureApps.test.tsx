@@ -11,6 +11,7 @@ import { renderWithProviders } from './utils';
 import SafeGuard360 from '../src/apps/SafeGuard360';
 import Thunder from '../src/apps/Thunder';
 import KugouMusic from '../src/apps/KugouMusic';
+import TTPlayer from '../src/apps/TTPlayer';
 import BaofengPlayer from '../src/apps/BaofengPlayer';
 import WPSOffice from '../src/apps/WPSOffice';
 
@@ -18,6 +19,7 @@ const apps: Array<[string, React.FC<{ windowId?: string }>]> = [
   ['SafeGuard360', SafeGuard360],
   ['Thunder', Thunder],
   ['KugouMusic', KugouMusic],
+  ['TTPlayer', TTPlayer],
   ['BaofengPlayer', BaofengPlayer],
   ['WPSOffice', WPSOffice],
 ];

@@ -42,6 +42,7 @@ interface WindowManagerActions {
   focusWindow: (id: string) => void;
   hideWindow: (id: string) => void;
   setWindowTitle: (id: string, title: string) => void;
+  setWindowFrameless: (id: string, frameless: boolean) => void;
   setWindowBadge: (id: string, badge: string | number | null) => void;
   setWindowProgress: (id: string, progress: number | null) => void;
   flashWindow: (id: string) => void;
@@ -634,6 +635,19 @@ export const WindowManagerProvider: React.FC<{
     [commitWindows]
   );
 
+  // Self-skinned apps (QQ2006 panel/chat) swap the OS chrome for their own
+  // frame at runtime (QQ's login phase keeps the real XP chrome, per
+  // docs/QQ-CLASSIC-UI.md §4). Lives in `props` so it persists like any other
+  // serializable window prop.
+  const setWindowFrameless = useCallback(
+    (id: string, frameless: boolean) => {
+      commitWindows(prev =>
+        prev.map(w => (w.id === id ? { ...w, props: { ...w.props, frameless } } : w))
+      );
+    },
+    [commitWindows]
+  );
+
   const setWindowBadge = useCallback(
     (id: string, badge: string | number | null) => {
       commitWindows(prev => prev.map(w => (w.id === id ? { ...w, badge } : w)));
@@ -691,6 +705,7 @@ export const WindowManagerProvider: React.FC<{
       focusWindow,
       hideWindow,
       setWindowTitle,
+      setWindowFrameless,
       setWindowBadge,
       setWindowProgress,
       flashWindow,
@@ -717,6 +732,7 @@ export const WindowManagerProvider: React.FC<{
     focusWindow,
     hideWindow,
     setWindowTitle,
+    setWindowFrameless,
     setWindowBadge,
     setWindowProgress,
     flashWindow,

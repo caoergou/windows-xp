@@ -76,6 +76,7 @@ import baofengIcon from '../../assets/icons/baofeng.svg';
 import safe360Icon from '../../assets/icons/360safe.svg';
 import wpsIcon from '../../assets/icons/wps.svg';
 import winampIcon from '../../assets/icons/winamp.svg';
+import ttplayerIcon from '../../assets/icons/ttplayer.svg';
 import navIcon from '../../assets/icons/nav.svg';
 import utorrentIcon from '../../assets/icons/utorrent.svg';
 import itunesIcon from '../../assets/icons/itunes.svg';
@@ -185,6 +186,7 @@ export const XP_ICONS: Record<string, string> = {
   '360safe': safe360Icon,
   wps: wpsIcon,
   winamp: winampIcon,
+  ttplayer: ttplayerIcon,
   nav: navIcon,
   utorrent: utorrentIcon,
   itunes: itunesIcon,

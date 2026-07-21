@@ -245,6 +245,13 @@ export interface WindowProps {
   closeGuard?: ((forceClose: () => void) => void) | null;
   minimizeGuard?: ((defaultMinimize: () => void) => void) | null;
   /**
+   * Render without the OS window chrome (title bar / frame / background). The
+   * app draws its own skin; an element with class `title-bar` inside its
+   * content still acts as the drag handle. For self-skinned apps (QQ2006 main
+   * panel / chat window). Serializable so it survives refresh recovery.
+   */
+  frameless?: boolean;
+  /**
    * Absolute filesystem path this window was opened from (#136). Set when a
    * window is opened by path (deep link / openFile / a file double-click) so
    * `XPHandle.getShareUrl` can reproduce it; absent for component-only windows.

@@ -16,7 +16,8 @@ async function closeAllWindows(page: Page) {
   while ((await closeButtons.count()) > 0 && attempts < 10) {
     const firstClose = closeButtons.first();
     await firstClose.click();
-    await expect(firstClose).toBeDetached({ timeout: 5000 });
+    // toHaveCount(0) works across Playwright versions (toBeDetached is newer).
+    await expect(firstClose).toHaveCount(0, { timeout: 5000 });
     attempts += 1;
   }
 }

@@ -53,6 +53,9 @@ export function useApp(windowId?: string) {
         id: resolvedWindowId,
         setTitle: (title: string) =>
           windowManagerRef.current.setWindowTitle(resolvedWindowId, title),
+        // Swap the OS chrome for an app-drawn skin (or back) at runtime.
+        setFrameless: (frameless: boolean) =>
+          windowManagerRef.current.setWindowFrameless(resolvedWindowId, frameless),
         close: () => windowManagerRef.current.closeWindow(resolvedWindowId),
         minimize: () => windowManagerRef.current.minimizeWindow(resolvedWindowId),
         maximize: () => windowManagerRef.current.maximizeWindow(resolvedWindowId),

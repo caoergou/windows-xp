@@ -5,13 +5,16 @@ import { useFileSystem } from '../../context/FileSystemContext';
 import { useShortcut } from '../../context/KeymapContext';
 import { isContainerNode, isFileContentNode } from '../../types';
 import {
+  XPMenuSlot as MenuItemWrapper,
+  XPMenuBarItem as MenuItem,
+  XPMenuDropdown as DropdownMenu,
+  XPMenuDropdownItem as DropdownItem,
+  XPMenuSeparator as DropdownSeparator,
+  XPMenuMark,
+} from '../../components/XPMenuBar';
+import {
   Wrap,
   MenuBar,
-  MenuItemWrapper,
-  MenuItem,
-  DropdownMenu,
-  DropdownItem,
-  DropdownSeparator,
   Toolbar,
   ToolBtn,
   ColorPicker,
@@ -535,14 +538,17 @@ const MicrosoftPaint = ({
     const items = menuMap[key] || [];
 
     return (
-      <DropdownMenu>
+      <DropdownMenu role="menu">
         {items.map((item, i) =>
           item.type === 'separator' ? (
             <DropdownSeparator key={i} />
           ) : (
             <DropdownItem
+              type="button"
+              role="menuitem"
               key={i}
               $disabled={item.disabled}
+              aria-disabled={item.disabled}
               onClick={() => {
                 if (!item.disabled && item.action) {
                   item.action();
@@ -550,8 +556,9 @@ const MicrosoftPaint = ({
                 setOpenMenu(null);
               }}
             >
-              <span>{item.label}</span>
-              {item.shortcut && <span className="shortcut">{item.shortcut}</span>}
+              <XPMenuMark />
+              {item.label}
+              {item.shortcut && <span>{item.shortcut}</span>}
             </DropdownItem>
           )
         )}
@@ -560,28 +567,28 @@ const MicrosoftPaint = ({
   };
 
   return (
-    <Wrap ref={menuRef}>
-      <MenuBar>
+    <Wrap>
+      <MenuBar ref={menuRef}>
         <MenuItemWrapper>
-          <MenuItem $active={openMenu === 'file'} onClick={() => toggleMenu('file')}>
+          <MenuItem type="button" $active={openMenu === 'file'} onClick={() => toggleMenu('file')}>
             {t('paint.menu.file')}
           </MenuItem>
           {renderDropdown('file')}
         </MenuItemWrapper>
         <MenuItemWrapper>
-          <MenuItem $active={openMenu === 'edit'} onClick={() => toggleMenu('edit')}>
+          <MenuItem type="button" $active={openMenu === 'edit'} onClick={() => toggleMenu('edit')}>
             {t('paint.menu.edit')}
           </MenuItem>
           {renderDropdown('edit')}
         </MenuItemWrapper>
         <MenuItemWrapper>
-          <MenuItem $active={openMenu === 'view'} onClick={() => toggleMenu('view')}>
+          <MenuItem type="button" $active={openMenu === 'view'} onClick={() => toggleMenu('view')}>
             {t('paint.menu.view')}
           </MenuItem>
           {renderDropdown('view')}
         </MenuItemWrapper>
         <MenuItemWrapper>
-          <MenuItem $active={openMenu === 'help'} onClick={() => toggleMenu('help')}>
+          <MenuItem type="button" $active={openMenu === 'help'} onClick={() => toggleMenu('help')}>
             {t('paint.menu.help')}
           </MenuItem>
           {renderDropdown('help')}

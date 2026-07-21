@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import XPIcon from './XPIcon';
 import { XPSelect } from './XPSelect';
+import { XPTabs, XPTab } from './XPTabs';
+import { XPButton } from './XPButton';
 import { useUserSession } from '../context/UserSessionContext';
 import { resolveOSTheme } from '../themes/useOSTheme';
 
@@ -14,34 +16,6 @@ const Container = styled.div`
   color: ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
   display: flex;
   flex-direction: column;
-`;
-
-const Tabs = styled.div`
-  display: flex;
-  border-bottom: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
-`;
-
-const Tab = styled.button<{ $active?: boolean }>`
-  padding: 4px 12px;
-  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
-  border-bottom: none;
-  background: ${props =>
-    props.$active
-      ? resolveOSTheme(props.theme).tokens.SURFACE
-      : resolveOSTheme(props.theme).tokens.GREY_F8};
-  cursor: pointer;
-  font-size: 11px;
-  margin-right: 2px;
-
-  &:hover {
-    background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
-  }
-`;
-
-const TabContent = styled.div`
-  padding: 12px;
-  flex: 1;
 `;
 
 const Preview = styled.div<{ $bgUrl: string }>`
@@ -75,20 +49,6 @@ const ButtonRow = styled.div`
   justify-content: flex-end;
   gap: 8px;
   padding: 10px 12px;
-  border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
-`;
-
-const Button = styled.button`
-  padding: 3px 14px;
-  font-size: 11px;
-  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_GRADIENT};
-  cursor: pointer;
-
-  &:hover {
-    box-shadow: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HOVER_SHADOW};
-  }
 `;
 
 interface DesktopPropertiesProps {
@@ -98,7 +58,6 @@ interface DesktopPropertiesProps {
 const DesktopProperties: React.FC<DesktopPropertiesProps> = ({ onClose }) => {
   const { t } = useTranslation();
   const { wallpaper, setWallpaper, wallpapers, resolveWallpaperSrc } = useUserSession();
-  const [activeTab, setActiveTab] = useState('desktop');
   const [selected, setSelected] = useState(wallpaper);
   const previewBg = resolveWallpaperSrc(selected);
 
@@ -107,51 +66,61 @@ const DesktopProperties: React.FC<DesktopPropertiesProps> = ({ onClose }) => {
     onClose?.();
   };
 
+  const placeholder = (
+    <Row>
+      <XPIcon name="computer" size={32} />
+      <span>{t('desktopProperties.comingSoon', 'This tab is for display only.')}</span>
+    </Row>
+  );
+
+  const tabs: XPTab[] = [
+    { id: 'themes', label: t('desktopProperties.themes', 'Themes'), content: placeholder },
+    {
+      id: 'desktop',
+      label: t('desktopProperties.desktop', 'Desktop'),
+      content: (
+        <>
+          <Preview $bgUrl={previewBg} />
+          <Row>
+            <Label>{t('desktopProperties.background', 'Background:')}</Label>
+            <Select value={selected} onChange={e => setSelected(e.target.value)}>
+              {wallpapers.map(w => (
+                <option key={w.id} value={w.id}>
+                  {w.name}
+                </option>
+              ))}
+            </Select>
+          </Row>
+          <Row>
+            <Label>{t('desktopProperties.position', 'Position:')}</Label>
+            <Select defaultValue="stretch">
+              <option value="stretch">{t('desktopProperties.stretch', 'Stretch')}</option>
+            </Select>
+          </Row>
+        </>
+      ),
+    },
+    {
+      id: 'screenSaver',
+      label: t('desktopProperties.screenSaver', 'Screen Saver'),
+      content: placeholder,
+    },
+    {
+      id: 'appearance',
+      label: t('desktopProperties.appearance', 'Appearance'),
+      content: placeholder,
+    },
+    { id: 'settings', label: t('desktopProperties.settings', 'Settings'), content: placeholder },
+  ];
+
   return (
     <Container>
-      <Tabs>
-        <Tab $active={activeTab === 'themes'} onClick={() => setActiveTab('themes')}>
-          {t('desktopProperties.themes', 'Themes')}
-        </Tab>
-        <Tab $active={activeTab === 'desktop'} onClick={() => setActiveTab('desktop')}>
-          {t('desktopProperties.desktop', 'Desktop')}
-        </Tab>
-        <Tab $active={activeTab === 'settings'} onClick={() => setActiveTab('settings')}>
-          {t('desktopProperties.settings', 'Settings')}
-        </Tab>
-      </Tabs>
-      <TabContent>
-        {activeTab === 'desktop' && (
-          <>
-            <Preview $bgUrl={previewBg} />
-            <Row>
-              <Label>{t('desktopProperties.background', 'Background:')}</Label>
-              <Select value={selected} onChange={e => setSelected(e.target.value)}>
-                {wallpapers.map(w => (
-                  <option key={w.id} value={w.id}>
-                    {w.name}
-                  </option>
-                ))}
-              </Select>
-            </Row>
-            <Row>
-              <Label>{t('desktopProperties.position', 'Position:')}</Label>
-              <Select defaultValue="stretch">
-                <option value="stretch">{t('desktopProperties.stretch', 'Stretch')}</option>
-              </Select>
-            </Row>
-          </>
-        )}
-        {activeTab !== 'desktop' && (
-          <Row>
-            <XPIcon name="computer" size={32} />
-            <span>{t('desktopProperties.comingSoon', 'This tab is for display only.')}</span>
-          </Row>
-        )}
-      </TabContent>
+      <XPTabs defaultActiveId="desktop" tabs={tabs} />
       <ButtonRow>
-        <Button onClick={handleOk}>{t('common.ok')}</Button>
-        <Button onClick={onClose}>{t('common.cancel')}</Button>
+        <XPButton $default onClick={handleOk}>
+          {t('common.ok')}
+        </XPButton>
+        <XPButton onClick={onClose}>{t('common.cancel')}</XPButton>
       </ButtonRow>
     </Container>
   );

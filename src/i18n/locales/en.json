@@ -12,6 +12,8 @@
   "desktopProperties": {
     "themes": "Themes",
     "desktop": "Desktop",
+    "screenSaver": "Screen Saver",
+    "appearance": "Appearance",
     "settings": "Settings",
     "background": "Background:",
     "position": "Position:",
@@ -105,6 +107,7 @@
       "thunder": "Thunder",
       "safeGuard": "360 Safe Guard",
       "kugou": "Kugou Music",
+      "ttplayer": "TTPlayer",
       "msn": "MSN Messenger",
       "microsoftOffice": "Microsoft Office",
       "winamp": "Winamp",
@@ -918,8 +921,20 @@
     },
     "menuItems": {
       "new": "New Game",
+      "undo": "Undo",
+      "drawOne": "Draw One",
+      "drawThree": "Draw Three",
       "exit": "Exit",
       "about": "About Solitaire"
+    },
+    "status": {
+      "score": "Score: {{score}}",
+      "time": "Time: {{time}}"
+    },
+    "about": {
+      "title": "About Solitaire",
+      "message": "Microsoft Solitaire\nVersion 5.1",
+      "ok": "OK"
     }
   },
   "mediaPlayer": {
@@ -967,6 +982,28 @@
     "volume": "Volume",
     "nowPlaying": "Now playing: {{title}} - {{artist}}",
     "stopped": "Stopped",
+    "statusCount": "{{count}} song(s)",
+    "statusPlaying": "Playing",
+    "statusReady": "Ready"
+  },
+  "ttplayer": {
+    "title": "TTPlayer",
+    "version": "5.0 Classic",
+    "playlist": "Playlist",
+    "lyrics": "Lyrics",
+    "about": "About",
+    "close": "Close",
+    "add": "Add",
+    "remove": "Remove",
+    "previous": "Previous",
+    "next": "Next",
+    "playPause": "Play/Pause",
+    "stop": "Stop",
+    "volume": "Volume",
+    "modeLoop": "Repeat all",
+    "modeOne": "Repeat one",
+    "aboutRef": "Layout reference: the open-source remake haixiangyan/ttplayer (MIT License, by haixiangyan).",
+    "aboutCredit": "Self-drawn homage UI and icon; TTPlayer assets and trademarks belong to their original owners. Sample lyrics are original placeholder texts.",
     "statusCount": "{{count}} song(s)",
     "statusPlaying": "Playing",
     "statusReady": "Ready"

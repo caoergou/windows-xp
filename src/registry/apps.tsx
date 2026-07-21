@@ -31,6 +31,7 @@ const SetupWizard = React.lazy(() => import('../apps/SetupWizard'));
 const Thunder = React.lazy(() => import('../apps/Thunder'));
 const BaofengPlayer = React.lazy(() => import('../apps/BaofengPlayer'));
 const KugouMusic = React.lazy(() => import('../apps/KugouMusic'));
+const TTPlayer = React.lazy(() => import('../apps/TTPlayer'));
 const WPSOffice = React.lazy(() => import('../apps/WPSOffice'));
 // en culture apps (#123)
 const Winamp = React.lazy(() => import('../apps/Winamp'));
@@ -239,10 +240,11 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     nameKey: 'qq.title',
     icon: 'qq',
     locales: ['zh'],
-    // Opens at the login size; the app resizes itself to the 202×600 buddy-list
-    // panel on successful login (one window that morphs across phases, #119).
+    // Opens at the login size; the app resizes itself to the 190×580 buddy-list
+    // panel on successful login (one window that morphs across phases, #119) and
+    // swaps the OS chrome for the self-drawn QQ2006 frame (frameless).
     // Fixed top so the window fits on screen both as the short login box and
-    // after it morphs into the 600px-tall buddy-list panel (#119).
+    // after it morphs into the 580px-tall buddy-list panel (#119).
     window: {
       width: 352,
       height: 266,
@@ -496,6 +498,25 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     lifecycle: {},
     associations: [{ appField: 'KugouMusic', getProps: () => ({}) }],
     restore: restoreApp(KugouMusic),
+  },
+
+  TTPlayer: {
+    id: 'TTPlayer',
+    name: '千千静听',
+    nameKey: 'ttplayer.title',
+    icon: 'ttplayer',
+    locales: ['zh'],
+    window: {
+      width: 440,
+      height: 560,
+      minWidth: 360,
+      minHeight: 420,
+      resizable: true,
+      singleton: true,
+    },
+    lifecycle: {},
+    associations: [{ appField: 'TTPlayer', getProps: () => ({}) }],
+    restore: restoreApp(TTPlayer),
   },
 
   BaofengPlayer: {

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useUserSession } from '../../context/UserSessionContext';
 import { XPSelect } from '../../components/XPSelect';
+import { XPButton } from '../../components/XPButton';
 import { resolveOSTheme } from '../../themes/useOSTheme';
 
 const Container = styled.div`
@@ -63,19 +64,6 @@ const ButtonRow = styled.div`
   gap: 8px;
   padding-top: 8px;
   border-top: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
-`;
-
-const Button = styled.button`
-  padding: 3px 14px;
-  font-size: 11px;
-  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_BORDER};
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_GRADIENT};
-  cursor: pointer;
-  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
-
-  &:hover {
-    box-shadow: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_HOVER_SHADOW};
-  }
 `;
 
 interface DisplaySettingsProps {
@@ -158,9 +146,9 @@ const DisplaySettings: React.FC<DisplaySettingsProps> = ({ onBack }) => {
         </Row>
       </GroupBox>
       <ButtonRow>
-        <Button onClick={handleOk}>{t('controlPanel.ok', 'OK')}</Button>
-        <Button onClick={handleApply}>{t('controlPanel.apply', 'Apply')}</Button>
-        <Button onClick={onBack}>{t('controlPanel.cancel', 'Cancel')}</Button>
+        <XPButton onClick={handleOk}>{t('controlPanel.ok', 'OK')}</XPButton>
+        <XPButton onClick={handleApply}>{t('controlPanel.apply', 'Apply')}</XPButton>
+        <XPButton onClick={onBack}>{t('controlPanel.cancel', 'Cancel')}</XPButton>
       </ButtonRow>
     </Container>
   );
