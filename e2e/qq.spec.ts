@@ -44,7 +44,7 @@ test.describe('QQ Messenger (#119)', () => {
     });
     // emojiRenderer turns classic codes into inline emoticons.
     await expect(
-      page.locator('[data-testid="qq-chat-messages"] .qq-emoticon').first()
+      page.locator('[data-testid="qq-chat-messages"] .qq-emoticon-img').first()
     ).toBeVisible();
   });
 
@@ -60,7 +60,7 @@ test.describe('QQ Messenger (#119)', () => {
     await expect(page.locator('[data-testid="qq-chat-messages"]')).toContainText('往事随风');
     // /wx shorthand renders as an inline emoticon on the outgoing message.
     await expect(
-      page.locator('[data-testid="qq-chat-messages"] .qq-emoticon').first()
+      page.locator('[data-testid="qq-chat-messages"] .qq-emoticon-img').first()
     ).toBeVisible();
 
     // The buddy replies with a scripted line.
