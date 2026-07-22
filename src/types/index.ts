@@ -353,6 +353,8 @@ export interface MenuItem {
   type?: 'separator';
   action?: () => void;
   disabled?: boolean;
+  /** The command Windows invokes for the menu's default activation gesture. */
+  default?: boolean;
   icon?: string;
   shortcut?: string;
   submenu?: MenuItem[];

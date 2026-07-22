@@ -29,6 +29,15 @@ test.describe('Task Manager (#224)', () => {
 
     // Performance tab renders the oscilloscope panel.
     await page.locator('[data-testid="taskmgr-tab-performance"]').click();
-    await expect(page.locator('[data-testid="taskmgr-performance"]')).toBeVisible();
+    const performance = page.locator('[data-testid="taskmgr-performance"]');
+    await expect(performance).toBeVisible();
+
+    // The default window is tall enough to show the complete Performance page.
+    // A scrollbar may still appear after the user deliberately resizes it smaller.
+    const dimensions = await performance.evaluate(element => ({
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+    }));
+    expect(dimensions.scrollHeight).toBe(dimensions.clientHeight);
   });
 });

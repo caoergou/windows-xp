@@ -289,6 +289,10 @@ test.describe('Issue #87 behavior fidelity', () => {
       clientX: 500,
       clientY: 740,
     });
+    const taskbarBox = await page.locator('[data-testid="taskbar"]').boundingBox();
+    const menuBox = await page.locator('[data-testid="context-menu"]').boundingBox();
+    if (!taskbarBox || !menuBox) throw new Error('Taskbar menu geometry is required');
+    expect(menuBox.y + menuBox.height).toBeLessThanOrEqual(taskbarBox.y);
     await page.getByText('Tile Windows Vertically', { exact: true }).click();
 
     const boxes = await page.locator('.xp-window').evaluateAll(elements =>

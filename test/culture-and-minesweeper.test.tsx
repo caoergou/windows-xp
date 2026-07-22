@@ -88,4 +88,32 @@ describe('Minesweeper controls', () => {
     fireEvent.click(screen.getByText('Task Manager'));
     expect(await screen.findByText('Applications')).toBeInTheDocument();
   });
+
+  it('keeps minimized windows minimized while their XP task-button menu is open', async () => {
+    localStorage.clear();
+    await i18n.changeLanguage('en');
+    render(<WindowsXP language="en" skipBoot autoLogin disableScreenSaver />);
+
+    fireEvent.doubleClick(await screen.findByTestId('desktop-icon-Notepad'));
+    const editor = await screen.findByRole('textbox');
+    fireEvent.click(screen.getByRole('button', { name: 'Minimize' }));
+    await waitFor(() => expect(editor).not.toBeInTheDocument());
+
+    const taskButton = document.querySelector<HTMLElement>('[data-testid^="task-button-"]');
+    if (!taskButton) throw new Error('Expected a Notepad task button');
+    fireEvent.contextMenu(taskButton);
+
+    const restore = await screen.findByRole('menuitem', { name: 'Restore' });
+    expect(restore).not.toHaveAttribute('aria-disabled');
+    expect(screen.getByRole('menuitem', { name: 'Move' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('menuitem', { name: 'Size' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('menuitem', { name: 'Minimize' })).toHaveAttribute(
+      'aria-disabled',
+      'true'
+    );
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+
+    fireEvent.click(restore);
+    expect(await screen.findByRole('textbox')).toBeInTheDocument();
+  });
 });
