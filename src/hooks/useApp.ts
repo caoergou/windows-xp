@@ -22,7 +22,9 @@ import { FileNode, isContainerNode } from '../types';
  */
 export function useApp(windowId?: string) {
   const contextWindowId = useWindowId();
-  const resolvedWindowId = windowId ?? contextWindowId ?? '';
+  // Legacy built-ins often default `windowId` to an empty string. Treat that as
+  // "not supplied" so the owning WindowIdContext still scopes close/minimize.
+  const resolvedWindowId = windowId || contextWindowId || '';
 
   const windowManager = useWindowManagerActions();
   const windowManagerRef = useRef(windowManager);

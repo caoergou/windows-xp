@@ -175,10 +175,13 @@ export const APP_REGISTRY: Record<string, AppRegistryEntry> = {
     associations: [
       {
         appField: 'Notepad',
-        getProps: (item: FileNode) => ({
+        getProps: (item: FileNode, context) => ({
           content: isFileContentNode(item) ? (item.content ?? '') : '',
           contentRef: isFileContentNode(item) ? item.contentRef : undefined,
           readOnly: isFileContentNode(item) ? item.readOnly : false,
+          ...(isFileContentNode(item)
+            ? { fileName: item.name, filePath: context?.sourcePath?.slice(0, -1) }
+            : {}),
         }),
       },
     ],
@@ -662,7 +665,8 @@ export const resolveFileOpen = (
   key: string,
   item: FileNode,
   appRoles?: Partial<AppRoleMap>,
-  registry: Record<string, AppRegistryEntry> = APP_REGISTRY
+  registry: Record<string, AppRegistryEntry> = APP_REGISTRY,
+  sourcePath?: string[]
 ) => {
   // Folder / root / drive -> open with Explorer
   if (item.type === 'folder' || item.type === 'root' || item.type === 'drive') {
@@ -703,7 +707,7 @@ export const resolveFileOpen = (
   if (!entry) return null;
 
   const { def, assoc } = entry;
-  const componentProps = assoc.getProps(item);
+  const componentProps = assoc.getProps(item, { key, sourcePath });
 
   return {
     appId: def.id,

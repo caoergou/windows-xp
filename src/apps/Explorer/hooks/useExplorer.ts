@@ -169,6 +169,12 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     const target = getFile(parts);
     if (target) {
       handleNavigateToPath(parts);
+    } else {
+      void api.dialog.alert({
+        title: t('common.error'),
+        message: t('explorer.errors.pathNotFound'),
+        type: 'error',
+      });
     }
   };
 
@@ -228,8 +234,8 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
     } else if (target.type === 'file' || target.type === 'app_shortcut') {
       // Load associations on demand to avoid a static Explorer <-> app registry cycle.
       const { resolveFileOpen } = await import('../../../registry/apps');
-      const resolved = resolveFileOpen(name, target, os?.appRoles, registry);
       const sourcePath = [...currentPath, name];
+      const resolved = resolveFileOpen(name, target, os?.appRoles, registry, sourcePath);
       bus.emit({
         type: 'file:open',
         path: sourcePath,

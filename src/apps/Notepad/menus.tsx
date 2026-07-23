@@ -10,8 +10,8 @@ export interface NotepadMenuContext {
   t: TFunction;
   handleNew: () => void;
   handleOpen: () => void;
-  handleSave: () => Promise<void>;
-  handleSaveAs: () => Promise<void>;
+  handleSave: () => Promise<boolean>;
+  handleSaveAs: () => Promise<boolean>;
   handleDownload: () => void;
   handleExit: () => void;
   handleUndo: () => void;

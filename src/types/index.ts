@@ -277,7 +277,7 @@ export interface AppLifecycle {
  */
 export interface AppAssociation<TFileNode extends FileNode = FileNode, TProps = unknown> {
   appField: string;
-  getProps: (item: TFileNode) => TProps;
+  getProps: (item: TFileNode, context?: { key: string; sourcePath?: string[] }) => TProps;
 }
 
 /**

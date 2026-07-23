@@ -8,7 +8,7 @@ import { defineOS } from '../src/os/defineOS';
 import { resolveAppRole } from '../src/os/appRoles';
 import { paperOS } from '../src/themes/paper';
 import { Keymap } from '../src/utils/keymap';
-import { resolveFileOpen } from '../src/registry/apps';
+import { APP_REGISTRY, resolveFileOpen } from '../src/registry/apps';
 import { mountThemeCss } from '../src/themes/mountThemeCss';
 import XPDataMenuBar from '../src/themes/xp/chrome/MenuBar';
 import { xpTheme } from '../src/themes/xp';
@@ -83,6 +83,37 @@ describe('OS package contract (#213)', () => {
       }
     );
     expect(resolved?.appId).toBe(app.id);
+  });
+
+  it('preserves an Explorer file identity when resolving Notepad', () => {
+    const resolved = resolveFileOpen(
+      'readme.txt',
+      { type: 'file', name: 'readme.txt', app: 'Notepad', content: 'hello' },
+      undefined,
+      APP_REGISTRY,
+      ['我的电脑', '本地磁盘 (C:)', 'readme.txt']
+    );
+
+    expect(resolved?.appId).toBe('Notepad');
+    expect(resolved?.windowProps.componentProps).toMatchObject({
+      fileName: 'readme.txt',
+      filePath: ['我的电脑', '本地磁盘 (C:)'],
+      content: 'hello',
+    });
+  });
+
+  it('keeps a Notepad application shortcut untitled', () => {
+    const resolved = resolveFileOpen(
+      'Notepad',
+      { type: 'app_shortcut', name: 'Notepad', app: 'Notepad' },
+      undefined,
+      APP_REGISTRY,
+      ['Notepad']
+    );
+
+    expect(resolved?.windowProps.componentProps).toMatchObject({ content: '' });
+    expect(resolved?.windowProps.componentProps).not.toHaveProperty('fileName');
+    expect(resolved?.windowProps.componentProps).not.toHaveProperty('filePath');
   });
 
   it('lets the OS menu renderer choose a command instead of executing the first item', () => {

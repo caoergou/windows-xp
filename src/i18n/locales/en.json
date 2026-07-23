@@ -516,6 +516,8 @@
     },
     "dialogs": {
       "unsavedChanges": "The text in the file has changed. Do you want to save the changes?",
+      "saveChanges": "Save(S)",
+      "dontSave": "Don't Save(N)",
       "openTitle": "Open",
       "openPrompt": "Enter a file path, for example: My Documents\\readme.txt",
       "fileNotFound": "The file could not be found.",

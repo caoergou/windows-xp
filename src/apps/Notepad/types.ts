@@ -9,7 +9,7 @@ export type NotepadMenuItem =
   | {
       type?: undefined;
       label: string;
-      action: () => void | Promise<void>;
+      action: () => void | Promise<unknown>;
       shortcut?: string;
       disabled?: boolean;
       checked?: boolean;

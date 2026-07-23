@@ -367,17 +367,20 @@ export function useNotepad({
   const handleNew = () => {
     if (isModified) {
       api.dialog
-        .confirm({
+        .choice({
           title: t('apps.notepad'),
           message: t('notepad.dialogs.unsavedChanges'),
           type: 'question',
+          confirmLabel: t('notepad.dialogs.saveChanges'),
+          alternateLabel: t('notepad.dialogs.dontSave'),
+          cancelLabel: t('common.cancel'),
         })
-        .then(confirmed => {
-          if (confirmed) {
-            handleSave().then(() => {
-              resetEditor();
+        .then(choice => {
+          if (choice === 'confirm') {
+            handleSave().then(saved => {
+              if (saved) resetEditor();
             });
-          } else {
+          } else if (choice === 'alternate') {
             resetEditor();
           }
         });
@@ -400,17 +403,20 @@ export function useNotepad({
   const handleOpen = () => {
     if (isModified) {
       api.dialog
-        .confirm({
+        .choice({
           title: t('apps.notepad'),
           message: t('notepad.dialogs.unsavedChanges'),
           type: 'question',
+          confirmLabel: t('notepad.dialogs.saveChanges'),
+          alternateLabel: t('notepad.dialogs.dontSave'),
+          cancelLabel: t('common.cancel'),
         })
-        .then(confirmed => {
-          if (confirmed) {
-            handleSave().then(() => {
-              showOpenDialog();
+        .then(choice => {
+          if (choice === 'confirm') {
+            handleSave().then(saved => {
+              if (saved) showOpenDialog();
             });
-          } else {
+          } else if (choice === 'alternate') {
             showOpenDialog();
           }
         });
@@ -481,7 +487,7 @@ export function useNotepad({
       });
   };
 
-  const handleSave = async (): Promise<void> => {
+  const handleSave = async (): Promise<boolean> => {
     if (currentFilePath && currentFileName) {
       // Save to existing file
       const fullPath = [...currentFilePath, currentFileName];
@@ -494,29 +500,31 @@ export function useNotepad({
             message: t('notepad.dialogs.readOnly'),
             type: 'error',
           });
-          return;
+          return false;
         }
 
         updateFile(fullPath, { content });
         setIsModified(false);
+        return true;
       }
+      return false;
     } else {
       // Save As for new file
-      await handleSaveAs();
+      return handleSaveAs();
     }
   };
 
-  const handleSaveAs = async (): Promise<void> => {
+  const handleSaveAs = async (): Promise<boolean> => {
     const filePathStr = await api.dialog.prompt({
       title: t('notepad.dialogs.saveAsTitle'),
       message: t('notepad.dialogs.saveAsPrompt'),
       defaultValue: currentFileName || t('notepad.untitledFile'),
     });
 
-    if (!filePathStr) return;
+    if (!filePathStr) return false;
 
     const parts = filePathStr.split('\\').filter(Boolean);
-    if (parts.length === 0) return;
+    if (parts.length === 0) return false;
 
     const newFileName = parts[parts.length - 1];
     const parentPath = parts.slice(0, -1);
@@ -529,7 +537,7 @@ export function useNotepad({
         message: t('notepad.dialogs.pathNotFound'),
         type: 'error',
       });
-      return;
+      return false;
     }
 
     if (!isContainerNode(parent)) {
@@ -538,7 +546,7 @@ export function useNotepad({
         message: t('notepad.dialogs.invalidPath'),
         type: 'error',
       });
-      return;
+      return false;
     }
 
     // Check if file already exists
@@ -549,7 +557,7 @@ export function useNotepad({
         message: t('notepad.dialogs.fileExists', { name: newFileName }),
         type: 'warning',
       });
-      if (!overwrite) return;
+      if (!overwrite) return false;
 
       // Update existing file
       updateFile(parts, { content });
@@ -564,6 +572,7 @@ export function useNotepad({
     setCurrentFilePath(parentPath);
     setCurrentFileName(newFileName);
     setIsModified(false);
+    return true;
   };
 
   const handleDownload = () => {
@@ -578,27 +587,40 @@ export function useNotepad({
     URL.revokeObjectURL(url);
   };
 
-  const handleExit = () => {
-    if (isModified) {
+  const handleExit = () => api.window.close();
+
+  const closeGuardStateRef = useRef({ isModified, handleSave });
+  closeGuardStateRef.current = { isModified, handleSave };
+
+  useEffect(() => {
+    api.window.setCloseGuard(forceClose => {
+      const closeState = closeGuardStateRef.current;
+      if (!closeState.isModified) {
+        forceClose();
+        return;
+      }
       api.dialog
-        .confirm({
+        .choice({
           title: t('apps.notepad'),
           message: t('notepad.dialogs.unsavedChanges'),
           type: 'question',
+          confirmLabel: t('notepad.dialogs.saveChanges'),
+          alternateLabel: t('notepad.dialogs.dontSave'),
+          cancelLabel: t('common.cancel'),
         })
-        .then(confirmed => {
-          if (confirmed) {
-            handleSave().then(() => {
-              api.window.close();
-            });
-          } else {
-            api.window.close();
+        .then(choice => {
+          if (choice === 'alternate') {
+            forceClose();
+            return;
           }
+          if (choice === 'cancel') return;
+          closeState.handleSave().then(saved => {
+            if (saved) forceClose();
+          });
         });
-    } else {
-      api.window.close();
-    }
-  };
+    });
+    return () => api.window.setCloseGuard(null);
+  }, [api, t]);
 
   // Populate the ref after all handlers are initialized so we never read
   // them from the temporary dead zone (TDZ) during the initial render.
