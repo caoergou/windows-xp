@@ -1,4 +1,11 @@
-import React, { useEffect, useRef, useLayoutEffect, forwardRef, useCallback } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useLayoutEffect,
+  forwardRef,
+  useCallback,
+  useState,
+} from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import XPIcon from './XPIcon';
@@ -9,19 +16,23 @@ import { resolveOSTheme } from '../themes/useOSTheme';
 
 const ContextMenuContainer = styled.div<{ $x: number; $y: number }>`
   position: fixed;
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
-  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
-  box-shadow: 2px 2px 0px ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
-  padding: 1px;
+  box-sizing: border-box;
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5);
+  padding: 2px;
   z-index: 2147483647;
   min-width: 150px;
-  font-size: 12px;
+  font-family: ${({ theme }) => resolveOSTheme(theme).fonts.UI};
+  font-size: 11px;
   left: ${props => props.$x}px;
   top: ${props => props.$y}px;
 `;
 
-const MenuItemComponent = styled.div<{ $disabled?: boolean }>`
-  padding: 3px 20px 3px 20px;
+const MenuItemComponent = styled.div<{ $disabled?: boolean; $default?: boolean }>`
+  box-sizing: border-box;
+  min-height: ${({ theme }) => resolveOSTheme(theme).tokens.MENU_ITEM_HEIGHT}px;
+  padding: 3px 24px 3px 26px;
   cursor: default;
   display: flex;
   align-items: center;
@@ -30,17 +41,22 @@ const MenuItemComponent = styled.div<{ $disabled?: boolean }>`
       ? resolveOSTheme(props.theme).tokens.GREY_77
       : resolveOSTheme(props.theme).tokens.BLACK};
   position: relative;
-  border: 1px solid transparent;
-  background-color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
+  font-weight: ${({ $default }) => ($default ? 700 : 400)};
+  background-color: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
 
   &:hover {
     background-color: ${props =>
       props.$disabled
-        ? resolveOSTheme(props.theme).tokens.GREY_F0
+        ? resolveOSTheme(props.theme).tokens.SURFACE
         : resolveOSTheme(props.theme).tokens.MENU_HIGHLIGHT};
-    color: ${props => (props.$disabled ? resolveOSTheme(props.theme).tokens.GREY_77 : 'white')};
-    border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.MENU_HIGHLIGHT_BORDER};
+    color: ${props =>
+      props.$disabled
+        ? resolveOSTheme(props.theme).tokens.GREY_77
+        : resolveOSTheme(props.theme).tokens.WHITE};
   }
+
+  ${({ $disabled, theme }) =>
+    $disabled ? `text-shadow: 1px 1px ${resolveOSTheme(theme).tokens.WHITE};` : ''}
 
   .icon-wrapper {
     position: absolute;
@@ -60,16 +76,13 @@ const MenuItemComponent = styled.div<{ $disabled?: boolean }>`
     font-size: 11px;
     opacity: 0.7;
   }
-
-  &:hover > .submenu {
-    display: block;
-  }
 `;
 
 const MenuSeparator = styled.div`
   height: 1px;
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
-  margin: 4px 2px;
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
+  box-shadow: 0 1px ${({ theme }) => resolveOSTheme(theme).tokens.WHITE};
+  margin: 3px 2px 4px;
 `;
 
 const SubMenuIndicator = styled.span`
@@ -79,15 +92,15 @@ const SubMenuIndicator = styled.span`
   color: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_66};
 `;
 
-const SubMenuContainer = styled.div`
-  display: none;
+const SubMenuContainer = styled.div<{ $open: boolean }>`
+  display: ${({ $open }) => ($open ? 'block' : 'none')};
   position: absolute;
   left: calc(100% - 1px);
   top: -2px;
-  background: ${({ theme }) => resolveOSTheme(theme).tokens.GREY_F0};
-  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.BLACK};
-  box-shadow: 2px 2px 0px ${({ theme }) => resolveOSTheme(theme).tokens.BUTTON_SHADOW};
-  padding: 1px;
+  background: ${({ theme }) => resolveOSTheme(theme).tokens.SURFACE};
+  border: 1px solid ${({ theme }) => resolveOSTheme(theme).tokens.DIVIDER_GREY};
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5);
+  padding: 2px;
   min-width: 140px;
   z-index: 2147483648;
 `;
@@ -101,6 +114,16 @@ interface ContextMenuProps {
 }
 
 const MenuRow = ({ item, onClose }: { item: MenuItem; onClose: () => void }) => {
+  const [submenuOpen, setSubmenuOpen] = useState(false);
+  const submenuTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (submenuTimerRef.current) clearTimeout(submenuTimerRef.current);
+    },
+    []
+  );
+
   if (item.type === 'separator') {
     return <MenuSeparator role="separator" />;
   }
@@ -111,6 +134,15 @@ const MenuRow = ({ item, onClose }: { item: MenuItem; onClose: () => void }) => 
     <MenuItemComponent
       role="menuitem"
       aria-disabled={item.disabled || undefined}
+      onMouseEnter={() => {
+        if (!hasSubmenu) return;
+        submenuTimerRef.current = setTimeout(() => setSubmenuOpen(true), 400);
+      }}
+      onMouseLeave={() => {
+        if (submenuTimerRef.current) clearTimeout(submenuTimerRef.current);
+        submenuTimerRef.current = null;
+        setSubmenuOpen(false);
+      }}
       onClick={() => {
         if (!item.disabled && item.action && !hasSubmenu) {
           sounds.menuCommand();
@@ -119,6 +151,7 @@ const MenuRow = ({ item, onClose }: { item: MenuItem; onClose: () => void }) => 
         }
       }}
       $disabled={item.disabled}
+      $default={item.default}
     >
       {item.icon && (
         <div className="icon-wrapper">
@@ -135,7 +168,7 @@ const MenuRow = ({ item, onClose }: { item: MenuItem; onClose: () => void }) => 
         </SubMenuIndicator>
       )}
       {hasSubmenu && (
-        <SubMenuContainer className="submenu" role="menu">
+        <SubMenuContainer $open={submenuOpen} className="submenu" role="menu">
           {item.submenu?.map((subItem, subIndex) => (
             <MenuRow key={subIndex} item={subItem} onClose={onClose} />
           ))}

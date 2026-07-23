@@ -56,7 +56,7 @@ export const resolveCmdPath = (
     }
   } else if (normalized.startsWith('\\') || normalized.startsWith('/')) {
     rest = normalized.slice(1);
-    base = ['root'];
+    base = [...driveRoot];
   } else {
     rest = normalized;
     base = [...currentPath];

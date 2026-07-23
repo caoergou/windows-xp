@@ -15,13 +15,6 @@
             "icon": "drive",
             "protected": true,
             "children": {
-              "Windows": {
-                "type": "folder",
-                "name": "Windows",
-                "locked": true,
-                "password": "admin",
-                "children": {}
-              },
               "Program Files": {
                 "type": "folder",
                 "name": "Program Files",

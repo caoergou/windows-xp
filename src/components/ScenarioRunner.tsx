@@ -326,7 +326,7 @@ export const ScenarioRunner: React.FC<{ scenario?: Scenario }> = ({ scenario }) 
         const node = getFile(action.openFile);
         if (!node) return;
         const key = action.openFile[action.openFile.length - 1] ?? node.name;
-        const resolved = resolveFileOpen(key, node, os.appRoles, registry);
+        const resolved = resolveFileOpen(key, node, os.appRoles, registry, action.openFile);
         if (!resolved) return;
         openWindow(resolved.appId, node.name, resolved.component, resolved.icon, {
           ...resolved.windowProps,

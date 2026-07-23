@@ -510,6 +510,8 @@
     },
     "dialogs": {
       "unsavedChanges": "文件已修改，是否保存更改？",
+      "saveChanges": "保存(S)",
+      "dontSave": "不保存(N)",
       "openTitle": "打开",
       "openPrompt": "请输入文件路径，例如：我的文档\\readme.txt",
       "fileNotFound": "找不到文件。",

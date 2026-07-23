@@ -30,7 +30,7 @@ const tree: Record<string, FileNode> = {
 };
 
 const getFile = (path: string[]): FileNode | null => {
-  // path is absolute from ['root','我的电脑','本地磁盘 (C:)', ...]
+  // path is absolute from ['我的电脑','本地磁盘 (C:)', ...]
   if (path.length < DRIVE_ROOT.length) return null;
   let node: FileNode | undefined = tree['C:'];
   for (const seg of path.slice(DRIVE_ROOT.length)) {
@@ -68,6 +68,10 @@ beforeEach(() => {
 });
 
 describe('CommandPrompt interpreter (#163)', () => {
+  it('uses the same C: root shape as FileSystemContext', () => {
+    expect(DRIVE_ROOT).toEqual(['我的电脑', '本地磁盘 (C:)']);
+  });
+
   it('returns empty for blank input', () => {
     expect(executeCommand('   ', ctx)).toBe('');
   });
@@ -104,6 +108,12 @@ describe('CommandPrompt interpreter (#163)', () => {
     const out = executeCommand('dir Docs', ctx);
     expect(out).toMatch(/note\.txt/);
     expect(out).toMatch(/1 File\(s\)/);
+  });
+
+  it('dir at C:\\ lists the drive-root folders', () => {
+    const out = executeCommand('dir', ctx);
+    expect(out).toMatch(/Docs/);
+    expect(out).toMatch(/Windows/);
   });
 
   it('type prints a file body', () => {

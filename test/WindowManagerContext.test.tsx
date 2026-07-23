@@ -5,22 +5,25 @@ import { useWindowManager } from '../src/context/WindowManagerContext';
 import { renderWithProviders } from './utils';
 
 const WindowManagerTestHarness = () => {
-  const { windows, activeWindowId, openWindow, closeWindow, focusWindow } = useWindowManager();
+  const { windows, activeWindowId, openWindow, closeWindow, focusWindow, minimizeWindow } =
+    useWindowManager();
 
   return (
     <div>
       <div data-testid="window-count">{windows.length}</div>
       <div data-testid="active-window">{activeWindowId ?? 'none'}</div>
       {windows.map((win, idx) => (
-        <div key={win.id} data-testid={`zindex-${idx}`}>
-          {win.zIndex}
-        </div>
+        <React.Fragment key={win.id}>
+          <div data-testid={`zindex-${idx}`}>{win.zIndex}</div>
+          <div data-testid={`minimized-${idx}`}>{String(win.isMinimized)}</div>
+        </React.Fragment>
       ))}
       <button onClick={() => openWindow('app-1', 'App 1', <div>App 1</div>)}>Open first</button>
       <button onClick={() => openWindow('app-2', 'App 2', <div>App 2</div>)}>Open second</button>
       <button onClick={() => windows[0] && closeWindow(windows[0].id)}>Close first</button>
       <button onClick={() => windows[0] && focusWindow(windows[0].id)}>Focus first</button>
       <button onClick={() => windows[1] && focusWindow(windows[1].id)}>Focus second</button>
+      <button onClick={() => windows[0] && minimizeWindow(windows[0].id)}>Minimize first</button>
     </div>
   );
 };
@@ -68,6 +71,23 @@ describe('WindowManagerContext', () => {
     expect(screen.getByTestId('active-window').textContent).not.toBe(secondActiveId);
     expect(Number(screen.getByTestId('zindex-0').textContent)).toBeGreaterThan(
       Number(secondZIndexBefore)
+    );
+  });
+
+  it('restores a minimized window above the other windows', async () => {
+    renderWithProviders(<WindowManagerTestHarness />);
+
+    fireEvent.click(screen.getByText('Open first'));
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 2));
+    });
+    fireEvent.click(screen.getByText('Open second'));
+    fireEvent.click(screen.getByText('Minimize first'));
+    fireEvent.click(screen.getByText('Focus first'));
+
+    expect(screen.getByTestId('minimized-0').textContent).toBe('false');
+    expect(Number(screen.getByTestId('zindex-0').textContent)).toBeGreaterThan(
+      Number(screen.getByTestId('zindex-1').textContent)
     );
   });
 });

@@ -52,7 +52,8 @@ const RecentDocuments: React.FC = () => {
               entry.path[entry.path.length - 1] ?? node.name,
               node,
               os?.appRoles,
-              registry
+              registry,
+              entry.path
             );
             if (!resolved) return;
             openWindow(resolved.appId, node.name, resolved.component, resolved.icon, {

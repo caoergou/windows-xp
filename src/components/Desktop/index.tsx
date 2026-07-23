@@ -107,7 +107,7 @@ const Desktop: React.FC = () => {
       bus.emit({ type: 'link:external', url: item.href, newTab, source: key });
       return;
     }
-    const resolved = resolveFileOpen(key, item, os?.appRoles, registry);
+    const resolved = resolveFileOpen(key, item, os?.appRoles, registry, [key]);
     bus.emit({
       type: 'file:open',
       path: [key],

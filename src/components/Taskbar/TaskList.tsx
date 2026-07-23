@@ -69,6 +69,18 @@ const TaskItem = styled.div<{ $active?: boolean; $flashing?: boolean }>`
   overflow: hidden;
   cursor: pointer;
 
+  &::before {
+    display: ${({ $active }) => ($active ? 'none' : 'block')};
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: -2px;
+    width: 10px;
+    height: 1px;
+    border-bottom-right-radius: 50%;
+    box-shadow: 2px 2px 3px rgba(255, 255, 255, 0.5);
+  }
+
   ${props =>
     props.$flashing &&
     css`
@@ -254,14 +266,33 @@ const TaskList: React.FC<TaskListProps> = ({
                 ]
               : [
                   {
-                    label: selectedWindows[0]?.isMaximized
-                      ? t('window.restore')
-                      : t('window.maximize'),
+                    label: t('window.restore'),
+                    disabled: !selectedWindows[0]?.isMaximized && !selectedWindows[0]?.isMinimized,
+                    default: Boolean(
+                      selectedWindows[0]?.isMaximized || selectedWindows[0]?.isMinimized
+                    ),
+                    action: () => onTaskMenuAction('restore'),
+                  },
+                  { label: t('window.move'), disabled: true },
+                  { label: t('window.size'), disabled: true },
+                  {
+                    label: t('window.minimize'),
+                    disabled: selectedWindows[0]?.isMinimized,
+                    action: () => onTaskMenuAction('minimize'),
+                  },
+                  {
+                    label: t('window.maximize'),
+                    disabled:
+                      selectedWindows[0]?.isMaximized ||
+                      selectedWindows[0]?.props?.resizable === false,
                     action: () => onTaskMenuAction('maximize'),
                   },
-                  { label: t('window.minimize'), action: () => onTaskMenuAction('minimize') },
                   { type: 'separator' },
-                  { label: t('window.close'), action: () => onTaskMenuAction('close') },
+                  {
+                    label: t('window.close'),
+                    shortcut: 'Alt+F4',
+                    action: () => onTaskMenuAction('close'),
+                  },
                 ]
           }
         />

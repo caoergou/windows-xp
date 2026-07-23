@@ -179,7 +179,8 @@ const EvidenceReport: React.FC<EvidenceReportProps> = ({
             item.sourcePath[item.sourcePath.length - 1] ?? node.name,
             node,
             os?.appRoles,
-            registry
+            registry,
+            item.sourcePath
           )
         : null;
       if (resolved) {

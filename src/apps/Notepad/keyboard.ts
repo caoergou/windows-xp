@@ -9,8 +9,8 @@ import type { DialogMode } from './types';
 export interface NotepadShortcutHandlers {
   handleNew: () => void;
   handleOpen: () => void;
-  handleSave: () => Promise<void>;
-  handleSaveAs: () => Promise<void>;
+  handleSave: () => Promise<boolean>;
+  handleSaveAs: () => Promise<boolean>;
   handleUndo: () => void;
   handleRedo: () => void;
   handleCut: () => void;

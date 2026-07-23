@@ -45,8 +45,10 @@ interface XPConfirmProps {
   message: string;
   type?: 'question' | 'info' | 'warning' | 'error';
   confirmLabel?: string;
+  alternateLabel?: string;
   cancelLabel?: string;
   onConfirm: () => void;
+  onAlternate?: () => void;
   onCancel: () => void;
   attentionSequence?: number;
   placement?: XPDialogPlacement;
@@ -58,8 +60,10 @@ const XPConfirm = ({
   message,
   type = 'question',
   confirmLabel,
+  alternateLabel,
   cancelLabel,
   onConfirm,
+  onAlternate,
   onCancel,
   attentionSequence = 0,
   placement,
@@ -116,6 +120,9 @@ const XPConfirm = ({
             <XPButton ref={confirmRef} $default onClick={onConfirm}>
               {finalConfirmLabel}
             </XPButton>
+            {alternateLabel && onAlternate && (
+              <XPButton onClick={onAlternate}>{alternateLabel}</XPButton>
+            )}
             <XPButton onClick={onCancel}>{finalCancelLabel}</XPButton>
           </ButtonArea>
         </XPDialogWindow>

@@ -40,6 +40,31 @@ function SoundHarness() {
   );
 }
 
+function ChoiceHarness({
+  onResult,
+}: {
+  onResult: (value: 'confirm' | 'alternate' | 'cancel') => void;
+}) {
+  const { dialog } = useModal();
+  return (
+    <button
+      onClick={() =>
+        dialog
+          .choice({
+            title: 'Save changes',
+            message: 'Save before closing?',
+            confirmLabel: 'Save',
+            alternateLabel: "Don't Save",
+            cancelLabel: 'Cancel',
+          })
+          .then(onResult)
+      }
+    >
+      choice trigger
+    </button>
+  );
+}
+
 const renderHarness = (onResult?: (v: boolean) => void) =>
   render(
     <I18nextProvider i18n={i18n}>
@@ -101,6 +126,25 @@ describe('modal a11y (#124)', () => {
     fireEvent.keyDown(dialog, { key: 'Escape' });
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(document.activeElement).toBe(trigger);
+  });
+
+  it('distinguishes an alternate action from cancel in a three-button choice', async () => {
+    const onResult = vi.fn();
+    render(
+      <I18nextProvider i18n={i18n}>
+        <ModalProvider>
+          <ChoiceHarness onResult={onResult} />
+        </ModalProvider>
+      </I18nextProvider>
+    );
+
+    fireEvent.click(screen.getByText('choice trigger'));
+    fireEvent.click(await screen.findByText("Don't Save"));
+    await waitFor(() => expect(onResult).toHaveBeenCalledWith('alternate'));
+
+    fireEvent.click(screen.getByText('choice trigger'));
+    fireEvent.click(await screen.findByLabelText('Close'));
+    await waitFor(() => expect(onResult).toHaveBeenLastCalledWith('cancel'));
   });
 
   it('maps error, warning and information dialogs to XP system sounds', async () => {

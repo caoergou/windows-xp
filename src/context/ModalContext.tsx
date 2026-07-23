@@ -59,6 +59,14 @@ export interface ModalContextType {
       confirmLabel?: string;
       cancelLabel?: string;
     }) => Promise<boolean>;
+    choice: (opts: {
+      title: string;
+      message: string;
+      type?: 'question' | 'info' | 'warning' | 'error';
+      confirmLabel: string;
+      alternateLabel: string;
+      cancelLabel: string;
+    }) => Promise<'confirm' | 'alternate' | 'cancel'>;
     prompt: (opts: {
       title: string;
       message: string;
@@ -108,12 +116,14 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     message: string;
     type?: 'info' | 'warning' | 'error' | 'question';
     confirmLabel?: string;
+    alternateLabel?: string;
     cancelLabel?: string;
     defaultValue?: string;
     hint?: string;
     correctPassword?: string;
     onClose?: () => void;
     onConfirm?: () => void;
+    onAlternate?: () => void;
     onCancel?: () => void;
     onOk?: (value: string) => void;
     onSuccess?: () => void;
@@ -215,6 +225,41 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     [activeWindowId, playDialogSound]
   );
 
+  const showChoice = useCallback(
+    (opts: {
+      title: string;
+      message: string;
+      type?: 'question' | 'info' | 'warning' | 'error';
+      confirmLabel: string;
+      alternateLabel: string;
+      cancelLabel: string;
+    }): Promise<'confirm' | 'alternate' | 'cancel'> => {
+      return new Promise(resolve => {
+        playDialogSound(opts.type);
+        const parentWindowId = activeWindowId;
+        setModal({
+          mode: 'confirm',
+          ...opts,
+          parentWindowId,
+          placement: getOwnerPlacement(parentWindowId),
+          onConfirm: () => {
+            setModal(null);
+            resolve('confirm');
+          },
+          onAlternate: () => {
+            setModal(null);
+            resolve('alternate');
+          },
+          onCancel: () => {
+            setModal(null);
+            resolve('cancel');
+          },
+        });
+      });
+    },
+    [activeWindowId, playDialogSound]
+  );
+
   // Show input modal (Promise<string | null>)
   const showInput = useCallback(
     (title: string, message: string, defaultValue = ''): Promise<string | null> => {
@@ -283,6 +328,14 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         confirmLabel?: string;
         cancelLabel?: string;
       }) => showConfirm(opts.title, opts.message, opts.type, opts.confirmLabel, opts.cancelLabel),
+      choice: (opts: {
+        title: string;
+        message: string;
+        type?: 'question' | 'info' | 'warning' | 'error';
+        confirmLabel: string;
+        alternateLabel: string;
+        cancelLabel: string;
+      }) => showChoice(opts),
       prompt: (opts: { title: string; message: string; defaultValue?: string }) =>
         showInput(opts.title, opts.message, opts.defaultValue),
       password: (opts: {
@@ -293,7 +346,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         onFail?: () => void;
       }) => showPasswordDialog(opts),
     }),
-    [showModal, showConfirm, showInput, showPasswordDialog]
+    [showModal, showConfirm, showChoice, showInput, showPasswordDialog]
   );
 
   const contextValue: ModalContextType = {
@@ -329,11 +382,13 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             message={modal.message}
             type={modal.type as 'question' | 'info' | 'warning' | 'error' | undefined}
             confirmLabel={modal.confirmLabel}
+            alternateLabel={modal.alternateLabel}
             cancelLabel={modal.cancelLabel}
             attentionSequence={attentionSequence}
             placement={modal.placement}
             isActive={modalActive}
             onConfirm={modal.onConfirm || (() => setModal(null))}
+            onAlternate={modal.onAlternate}
             onCancel={modal.onCancel || (() => setModal(null))}
           />
         )}

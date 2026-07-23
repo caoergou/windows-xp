@@ -182,7 +182,12 @@ const QQChat: React.FC<QQChatProps> = ({ buddyId, windowId }) => {
                   {QQ_EMOJI_LIST.map(({ code, file }) => {
                     const src = qqEmoticon(file);
                     return (
-                      <button key={code} type="button" title={code} onClick={() => insertEmoji(code)}>
+                      <button
+                        key={code}
+                        type="button"
+                        title={code}
+                        onClick={() => insertEmoji(code)}
+                      >
                         <img className="qq-emoji-picker-img" src={src} alt={code} />
                       </button>
                     );

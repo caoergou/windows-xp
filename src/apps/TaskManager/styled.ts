@@ -255,6 +255,7 @@ export const StatsLine = styled.div`
   justify-content: space-between;
   gap: 10px;
   padding: 1px 0;
+  white-space: nowrap;
 `;
 
 /* ---- About dialog (Help → About) ---- */

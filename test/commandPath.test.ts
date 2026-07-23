@@ -1,7 +1,7 @@
 import { expect, test, describe } from 'vitest';
 import { parseCmdArgs, resolveCmdPath } from '../src/utils/commandPath';
 
-const DRIVE_ROOT = ['root', '我的电脑', '本地磁盘 (C:)'];
+const DRIVE_ROOT = ['我的电脑', '本地磁盘 (C:)'];
 
 describe('parseCmdArgs', () => {
   test('splits simple commands', () => {
@@ -47,6 +47,14 @@ describe('resolveCmdPath', () => {
 
   test('resolves root backslash', () => {
     expect(resolveCmdPath('\\', DRIVE_ROOT, DRIVE_ROOT)).toEqual(DRIVE_ROOT);
+  });
+
+  test('resolves a root-relative path from the drive root', () => {
+    const current = [...DRIVE_ROOT, 'WINDOWS', 'system32'];
+    expect(resolveCmdPath('\\Program Files', current, DRIVE_ROOT)).toEqual([
+      ...DRIVE_ROOT,
+      'Program Files',
+    ]);
   });
 
   test('resolves relative paths', () => {

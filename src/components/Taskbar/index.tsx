@@ -198,8 +198,16 @@ const Taskbar = () => {
         return;
       }
       setSelectedWindows(contextWindows);
-      setTaskContextMenu({ x: e.clientX, y: e.clientY });
-      if (contextWindows.length === 1) focusWindow(contextWindows[0].id);
+      // A task-button system menu grows upward from the taskbar's top edge.
+      // Using the pointer Y made the menu overlap the bar by however far down
+      // inside the button the user happened to right-click.
+      setTaskContextMenu({ x: e.clientX, y: e.currentTarget.getBoundingClientRect().top });
+      // XP keeps a minimized window minimized while its task-button system menu
+      // is open. Focusing it here used to restore the window before the user had
+      // chosen Restore, and also made the menu expose the wrong command state.
+      if (contextWindows.length === 1 && !contextWindows[0].isMinimized) {
+        focusWindow(contextWindows[0].id);
+      }
     },
     [blockedWindowId, focusWindow, signalBlockedInteraction]
   );
@@ -209,7 +217,10 @@ const Taskbar = () => {
     event.stopPropagation();
     setTaskContextMenu(null);
     setSelectedWindows([]);
-    setTaskbarContextMenu({ x: event.clientX, y: event.clientY });
+    setTaskbarContextMenu({
+      x: event.clientX,
+      y: taskbarRef.current?.getBoundingClientRect().top ?? event.clientY,
+    });
   }, []);
 
   const handleTaskMenuAction = useCallback(
@@ -239,12 +250,18 @@ const Taskbar = () => {
           minimizeWindow(selectedWindow.id);
           break;
         case 'maximize':
-        case 'restore':
           maximizeWindow(selectedWindow.id);
+          break;
+        case 'restore':
+          if (selectedWindow.isMinimized) {
+            focusWindow(selectedWindow.id);
+          } else if (selectedWindow.isMaximized) {
+            maximizeWindow(selectedWindow.id);
+          }
           break;
       }
     },
-    [selectedWindows, closeWindow, minimizeWindow, maximizeWindow]
+    [selectedWindows, closeWindow, minimizeWindow, maximizeWindow, focusWindow]
   );
 
   const toggleStart = useCallback(() => setStartOpen(prev => !prev), []);

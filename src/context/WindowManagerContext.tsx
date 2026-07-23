@@ -322,13 +322,18 @@ export const WindowManagerProvider: React.FC<{
       }
 
       if (win.isMinimized || win.isHidden || win.transition === 'minimize') {
+        const newZIndex =
+          Math.max(...current.map(w => w.zIndex), WINDOW_DEFAULTS.INITIAL_Z_INDEX) + 1;
+        zIndexRef.current = newZIndex;
         const transition = win.isMinimized || win.transition === 'minimize' ? 'restore' : undefined;
         const transitionTarget = transition ? (getTaskTargetRect(id) ?? undefined) : undefined;
+        setActiveWindowId(id);
         commitWindows(prev =>
           prev.map(w =>
             w.id === id
               ? {
                   ...w,
+                  zIndex: newZIndex,
                   isMinimized: false,
                   isHidden: false,
                   isFlashing: false,

@@ -70,7 +70,7 @@ export const DeepLinkLoader: React.FC<DeepLinkLoaderProps> = ({
       }
 
       const key = path[path.length - 1];
-      const resolved = resolveFileOpen(key, node, os.appRoles, registry);
+      const resolved = resolveFileOpen(key, node, os.appRoles, registry, path);
       if (!resolved) return null;
       return openWindow(resolved.appId, node.name, resolved.component, resolved.icon, {
         ...resolved.windowProps,
