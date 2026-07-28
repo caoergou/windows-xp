@@ -17,8 +17,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     env:
-      ENGINE_TARBALL: release-artifacts/caoergou-windows-xp-0.4.0.tgz
-      TOOLS_TARBALL: release-artifacts/caoergou-xp-scenario-tools-0.1.0.tgz
+      ENGINE_TARBALL: ./release-artifacts/caoergou-windows-xp-0.4.0.tgz
+      TOOLS_TARBALL: ./release-artifacts/caoergou-xp-scenario-tools-0.1.0.tgz
     steps:
       - uses: actions/checkout@v4
 
