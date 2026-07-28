@@ -1,7 +1,7 @@
 {
   "name": "@caoergou/xp-scenario-tools",
   "version": "0.1.0",
-  "description": "Authoring CLI and programmable checks for @caoergou/windows-xp scenarios",
+  "description": "Authoring CLI and programmable validation for @caoergou/windows-xp scenarios and content packs",
   "type": "module",
   "bin": {
     "xp-scenario": "./dist/cli.js"
@@ -41,7 +41,7 @@
     "vite-plugin-dts": "^4.5.3"
   },
   "peerDependencies": {
-    "@caoergou/windows-xp": "^0.3.0"
+    "@caoergou/windows-xp": "^0.4.0"
   },
   "peerDependenciesMeta": {
     "@caoergou/windows-xp": {
@@ -56,5 +56,17 @@
     "type": "git",
     "url": "https://github.com/caoergou/windows-xp.git",
     "directory": "tools/scenario-tools"
-  }
+  },
+  "homepage": "https://github.com/caoergou/windows-xp/tree/main/tools/scenario-tools",
+  "bugs": {
+    "url": "https://github.com/caoergou/windows-xp/issues"
+  },
+  "keywords": [
+    "windows-xp",
+    "scenario",
+    "content-pack",
+    "authoring",
+    "validation",
+    "cli"
+  ]
 }

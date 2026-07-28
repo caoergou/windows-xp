@@ -8,12 +8,13 @@
  * built *against the tarball* — `prepublishOnly` proves the artifacts exist, not
  * that they are usable. This does:
  *
- *   build:lib → npm pack → fresh Vite+React app → install the tarball →
- *   build the consumer → assert (render smoke, style.css, /components subpath,
+ *   supplied release tarball (or build:lib → npm pack locally) →
+ *   fresh Vite+React app → install the tarball →
+ *   build the consumer → assert (render smoke, style.css, /components + /os subpaths,
  *   tree-shaking / i18n side-effect survival, React 18 + 19 type-check).
  *
  * Self-proving: break `sideEffects` (or the i18n init) and the render + bundle
- * assertions fail. Run with `node scripts/consumer-smoke.mjs`.
+ * assertions fail. Run with `node scripts/consumer-smoke.mjs [package.tgz]`.
  */
 import { execSync, spawn } from 'node:child_process';
 import { chromium } from 'playwright';
@@ -82,8 +83,7 @@ const globToRe = g =>
  * side-effect free. `false`/`true` are valid explicit choices and skip the path
  * check (a real regression from them would trip the render/style assertions).
  */
-function checkSideEffects(distFiles) {
-  const pkg = JSON.parse(fs.readFileSync(path.join(REPO, 'package.json'), 'utf8'));
+function checkSideEffects(packagedFiles, pkg) {
   const se = pkg.sideEffects;
   if (se === false || se === true || se === undefined) {
     ok(`sideEffects is ${JSON.stringify(se)} (no path claims to verify)`);
@@ -93,24 +93,26 @@ function checkSideEffects(distFiles) {
     return bad(`sideEffects is neither boolean nor array: ${JSON.stringify(se)}`);
   for (const glob of se) {
     const re = globToRe(glob.replace(/^\.\//, ''));
-    const hit = distFiles.some(f => re.test(f) || re.test(`dist/${f}`));
+    const hit = packagedFiles.some(f => re.test(f));
     if (hit) ok(`sideEffects entry "${glob}" matches packaged files`);
     else bad(`sideEffects entry "${glob}" matches NO packaged file — a #113-class dead path`);
   }
 }
 
 async function main() {
-  // 1. Build the library and pack it exactly as `npm publish` would.
-  log('building the library (build:lib)…');
-  run('npm run build:lib', REPO);
-  log('packing the tarball (npm pack)…');
-  const packed = capture('npm pack --silent', REPO).trim().split('\n').pop().trim();
-  const tarball = path.join(REPO, packed);
-  if (!fs.existsSync(tarball)) throw new Error(`npm pack produced no tarball (${packed})`);
-  ok(`packed ${packed}`);
-
-  // sideEffects integrity — the deterministic #113 guard.
-  checkSideEffects(allFiles(path.join(REPO, 'dist')));
+  // 1. CI supplies the exact release tarball; local runs retain the convenient
+  // build-and-pack path.
+  const suppliedTarball = process.argv[2] ? path.resolve(process.argv[2]) : undefined;
+  let tarball = suppliedTarball;
+  if (!tarball) {
+    log('building the library (build:lib)…');
+    run('npm run build:lib', REPO);
+    log('packing the tarball (npm pack)…');
+    const packed = capture('npm pack --silent', REPO).trim().split('\n').pop().trim();
+    tarball = path.join(REPO, packed);
+  }
+  if (!fs.existsSync(tarball)) throw new Error(`Package tarball not found: ${tarball}`);
+  ok(`${suppliedTarball ? 'using release artifact' : 'packed'} ${path.basename(tarball)}`);
 
   // 2. Scaffold a clean consumer in a temp dir and install the tarball + peers.
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'xp-consumer-'));
@@ -120,6 +122,14 @@ async function main() {
     run(`npm install --no-audit --no-fund ${DEPS.join(' ')} ${DEV_DEPS.join(' ')}`, tmp);
     run(`npm install --no-audit --no-fund "${tarball}"`, tmp);
     ok('installed tarball into a clean consumer');
+
+    // sideEffects integrity — inspect the installed artifact, not the source
+    // tree, so an accidentally omitted package file cannot produce a false pass.
+    const installedPackage = path.join(tmp, 'node_modules', '@caoergou', 'windows-xp');
+    checkSideEffects(
+      allFiles(installedPackage),
+      JSON.parse(fs.readFileSync(path.join(installedPackage, 'package.json'), 'utf8'))
+    );
 
     // 3. Build the consumer — proves `.`, `./components`, and `./style.css` all
     //    resolve from the published `exports` map.
@@ -157,7 +167,7 @@ async function main() {
     typeCheck(tmp, '18');
     typeCheck(tmp, '19');
   } finally {
-    fs.rmSync(tarball, { force: true });
+    if (!suppliedTarball) fs.rmSync(tarball, { force: true });
     fs.rmSync(tmp, { recursive: true, force: true });
   }
 
@@ -246,6 +256,11 @@ async function renderSmoke(consumerDir) {
     if (kind && kind !== 'undefined')
       ok(`/components subpath usable at runtime (StartButton is ${kind})`);
     else bad('/components subpath import did not resolve to a value');
+
+    const osKind = await probe.getAttribute('data-os-kind');
+    if (osKind && osKind !== 'undefined')
+      ok(`/os subpath usable at runtime (defineOS is ${osKind})`);
+    else bad('/os subpath import did not resolve to a value');
 
     const body = await page.locator('body').innerText();
     if (/Recycle Bin|My Documents/.test(body))

@@ -40,6 +40,7 @@ const KNOWN_EVENT_DOMAINS = new Set([
   'media',
   'notification',
   'password',
+  'print',
   'qq',
   'recyclebin',
   'screensaver',

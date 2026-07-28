@@ -26,6 +26,7 @@ import { SYSTEM_ICON_KEYS, getEnglishTestId } from './constants';
 import { useBoxSelection } from './hooks/useBoxSelection';
 import { useTapGestures } from '../../hooks/useTapGestures';
 import { useMultiSelect } from '../../hooks/useMultiSelect';
+import { useLockedNodeAccess } from '../../hooks/useLockedNodeAccess';
 import { useShortcut } from '../../context/KeymapContext';
 import { useOSTheme } from '../../themes/useOSTheme';
 import { useOptionalOSPackage } from '../../os/OSPackageContext';
@@ -55,6 +56,7 @@ const Desktop: React.FC = () => {
   const osTheme = useOSTheme();
   const os = useOptionalOSPackage();
   const { registry } = useAppRegistry();
+  const requestNodeAccess = useLockedNodeAccess();
   const activeWindow = windows.find(window => window.id === activeWindowId);
   const activeApp = activeWindow ? registry?.[activeWindow.appId] : undefined;
   const Launcher = os?.chrome.Launcher;
@@ -99,7 +101,9 @@ const Desktop: React.FC = () => {
   const lastTouchAt = useRef(0);
   const isSyntheticAfterTouch = () => Date.now() - lastTouchAt.current < 700;
 
-  const handleIconDoubleClick = (key: string, item: FileNode) => {
+  const handleIconDoubleClick = async (key: string, item: FileNode) => {
+    if (!(await requestNodeAccess(item, [key]))) return;
+
     // External-link shortcut: leave the fiction instead of opening a window (#136).
     if (isExternalLinkNode(item)) {
       const newTab = item.newTab ?? true;

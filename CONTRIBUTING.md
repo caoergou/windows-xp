@@ -50,7 +50,7 @@ gate provided by `@caoergou/xp-scenario-tools`.
 For the marketing / 404-egg scenarios (`docs/USE-CASES.md` S3) the first paint
 *is* the product, so bundle size is gated, not just watched:
 
-- **`size:check`** (library build) — no JS chunk over 1 MB, dist under 6 MB
+- **`size:check`** (library build) — no JS chunk over 1 MB, dist under 10 MB
   (guards against the base64-inline regression that once made the package 17 MB).
 - **`size:check:app`** (site/demo build, run after `npm run build`) — **no JS
   chunk over 500 kB**. This is the line Vite only *warns* about, made a hard fail
@@ -79,12 +79,37 @@ chunk caches across visits). Keep bytes out of the first paint:
 
 ## Releases
 
-Tagging a commit `v*` triggers `.github/workflows/publish.yml`, which runs the
-quality gate and then `npm publish`. Authentication uses **npm OIDC trusted
-publishing** via the workflow's `id-token: write` permission — **no `NPM_TOKEN`
-or any other secret is required**, and provenance is attached automatically.
-(Trusted publishing must be enabled once for the package on npmjs.com, linked to
-this repository + workflow.)
+Tagging a commit with the engine version (for example `v0.4.0`) triggers
+`.github/workflows/publish.yml`. Before tagging:
+
+1. Set the engine version in the root `package.json` and the scenario-tools
+   version in `tools/scenario-tools/package.json`; keep the tool's engine peer
+   range and `package-lock.json` aligned.
+2. Move the accumulated changelog entries into a dated version section.
+3. Run `npm run release:preflight -- --tag=v<engine-version>`. The workflow
+   rejects mismatched tags, lockfile versions, peer ranges, or changelog entries.
+
+The workflow runs the full quality and scenario gates, builds both workspaces,
+and packs `@caoergou/windows-xp` and `@caoergou/xp-scenario-tools` exactly once.
+Those tarballs are then installed in clean consumer projects:
+
+- The engine smoke test builds and renders a Vite + React app, verifies package
+  subpaths, CSS and i18n side effects, and type-checks against React 18 and 19.
+- The scenario-tools smoke test installs both packages and runs `lint`, `solve`,
+  `graph`, and `pack --check` against a copied content pack.
+
+Only those tested artifacts are published. Each package is checked independently
+on npm first, so rerunning a partially successful release skips an existing
+version and resumes with the missing package. The tarballs are also retained as
+a workflow artifact for 30 days.
+
+Authentication uses **npm OIDC trusted publishing** via the workflow's
+`id-token: write` permission — **no `NPM_TOKEN` or other secret is required**,
+and provenance is attached automatically. The workflow pins Node 22.22 and npm
+11.11 because trusted publishing requires Node 22.14+ and npm 11.5.1+.
+Trusted publishing must be enabled once for both npm packages, linked to this
+repository and workflow. For the first scenario-tools publication, reserve the
+package name and configure its trusted publisher before creating `v0.4.0`.
 
 ## Design Principles
 

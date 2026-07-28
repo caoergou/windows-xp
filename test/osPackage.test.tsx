@@ -116,6 +116,21 @@ describe('OS package contract (#213)', () => {
     expect(resolved?.windowProps.componentProps).not.toHaveProperty('filePath');
   });
 
+  it.each(['PrintersAndFaxes', 'EvidenceReport'])(
+    'opens the %s built-in directly from an application shortcut',
+    appId => {
+      const resolved = resolveFileOpen(
+        `${appId}.lnk`,
+        { type: 'app_shortcut', name: `${appId}.lnk`, app: appId },
+        undefined,
+        APP_REGISTRY
+      );
+
+      expect(resolved?.appId).toBe(appId);
+      expect(resolved?.windowProps.componentProps).toEqual({});
+    }
+  );
+
   it('lets the OS menu renderer choose a command instead of executing the first item', () => {
     const onCommand = vi.fn();
     render(

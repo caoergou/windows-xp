@@ -5,6 +5,7 @@ import { useXPEventBus } from '../../../context/EventBusContext';
 import { useStorage } from '../../../context/StorageContext';
 import { useApp } from '../../../hooks/useApp';
 import { useMultiSelect } from '../../../hooks/useMultiSelect';
+import { useLockedNodeAccess } from '../../../hooks/useLockedNodeAccess';
 import { useExplorerPreferences } from './useExplorerPreferences';
 import { useExplorerTouch } from './useExplorerTouch';
 import FileProperties, { FILE_PROPERTIES_WINDOW_PROPS } from '../../../components/FileProperties';
@@ -44,6 +45,7 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
   const storage = useStorage();
   const os = useOptionalOSPackage();
   const { registry } = useAppRegistry();
+  const requestNodeAccess = useLockedNodeAccess();
 
   // Persisted UI preferences (view mode, sort, Folders pane, show-hidden,
   // address-bar MRU) live in their own storage-backed hook (#163/A).
@@ -200,20 +202,7 @@ export function useExplorer({ initialPath = [], windowId }: ExplorerProps) {
       return;
     }
 
-    if (target.locked) {
-      let attempt = 0;
-      const success = await api.dialog.password({
-        title: t('explorer.password.title'),
-        message: t('explorer.password.message'),
-        hint: target.hint || '',
-        correctPassword: target.password ?? '',
-        onFail: () => {
-          attempt += 1;
-          bus.emit({ type: 'password:fail', path: newPath, name: target.name, attempt });
-        },
-      });
-      if (!success) return;
-    }
+    if (!(await requestNodeAccess(target, newPath))) return;
 
     if (target.type === 'folder' || target.type === 'root') {
       const newHistory = history.slice(0, historyIndex + 1);
