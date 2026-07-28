@@ -41,31 +41,20 @@ describe('Image File Integration', () => {
     const myDocs = screen.getByText('My Documents');
     fireEvent.doubleClick(myDocs);
 
-    // 2. Open My Pictures
-    await waitFor(() => {
-      const myPictures = screen.getByText('My Pictures');
-      fireEvent.doubleClick(myPictures);
-    });
+    // Wait for each navigation to settle, then fire exactly one double-click.
+    // Triggering interactions inside waitFor can repeat them under CI load.
+    const myPictures = await screen.findByText('My Pictures');
+    fireEvent.doubleClick(myPictures);
 
-    // 3. Open Sample Pictures
-    await waitFor(() => {
-      const samplePictures = screen.getByText('Sample Pictures');
-      fireEvent.doubleClick(samplePictures);
-    });
+    const samplePictures = await screen.findByText('Sample Pictures');
+    fireEvent.doubleClick(samplePictures);
 
-    // 4. Check for Bliss.jpg
-    await waitFor(() => {
-      expect(screen.getByText('Bliss.jpg')).toBeDefined();
-    });
-
-    // 5. Double click Bliss.jpg
-    const blissFile = screen.getByText('Bliss.jpg');
+    const blissFile = await screen.findByText('Bliss.jpg');
     fireEvent.doubleClick(blissFile);
 
-    // 6. Check for PhotoViewer
     await waitFor(() => {
       expect(screen.getByTestId('photo-viewer')).toBeDefined();
       expect(screen.getByText('Viewing: /images/desktop_bg.jpg')).toBeDefined();
     });
-  });
+  }, 15_000);
 });
