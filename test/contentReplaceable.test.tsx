@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { WindowsXP } from '../src/lib';
 import type { FileNode } from '../src/lib';
@@ -37,5 +37,81 @@ describe('content replaceability (#77)', () => {
     await waitFor(() => expect(screen.getByTestId('desktop')).toBeInTheDocument());
     const desktop = screen.getByTestId('desktop');
     expect(desktop).toHaveStyle(`background-image: url(${url})`);
+  });
+
+  it('password-gates a locked folder opened from the desktop (#298)', async () => {
+    render(
+      <WindowsXP
+        skipBoot
+        autoLogin
+        fileSystemMode="replace"
+        customFileSystem={{
+          Secret: {
+            type: 'folder',
+            name: 'Secret',
+            locked: true,
+            password: 'correct-horse',
+            hint: 'A hint',
+            children: {
+              'private.txt': {
+                type: 'file',
+                name: 'private.txt',
+                app: 'Notepad',
+                content: 'private',
+              },
+            },
+          },
+        }}
+      />
+    );
+
+    fireEvent.doubleClick(await screen.findByTestId('desktop-icon-Secret'));
+    const password = await screen.findByPlaceholderText(/password|密码/i);
+    expect(screen.queryByTestId('file-item-private.txt')).not.toBeInTheDocument();
+
+    fireEvent.change(password, { target: { value: 'correct-horse' } });
+    fireEvent.keyDown(password, { key: 'Enter' });
+    await waitFor(() => expect(screen.getByTestId('file-item-private.txt')).toBeInTheDocument());
+  });
+
+  it('keeps the same password gate when navigating to a locked Explorer child (#298)', async () => {
+    render(
+      <WindowsXP
+        skipBoot
+        autoLogin
+        fileSystemMode="replace"
+        customFileSystem={{
+          Open: {
+            type: 'folder',
+            name: 'Open',
+            children: {
+              Secret: {
+                type: 'folder',
+                name: 'Secret',
+                locked: true,
+                password: 'correct-horse',
+                children: {
+                  'private.txt': {
+                    type: 'file',
+                    name: 'private.txt',
+                    app: 'Notepad',
+                    content: 'private',
+                  },
+                },
+              },
+            },
+          },
+        }}
+      />
+    );
+
+    fireEvent.doubleClick(await screen.findByTestId('desktop-icon-Open'));
+    fireEvent.doubleClick(await screen.findByTestId('file-item-Secret'));
+    const password = await screen.findByPlaceholderText(/password|密码/i);
+    expect(screen.queryByTestId('file-item-private.txt')).not.toBeInTheDocument();
+
+    fireEvent.change(password, { target: { value: 'correct-horse' } });
+    fireEvent.keyDown(password, { key: 'Enter' });
+    await waitFor(() => expect(screen.getByTestId('file-item-private.txt')).toBeInTheDocument());
   });
 });

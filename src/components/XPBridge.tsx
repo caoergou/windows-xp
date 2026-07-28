@@ -146,7 +146,11 @@ export interface XPScenarioApi {
 export interface XPHandle {
   /** Open a registered app by id, optionally passing component props. */
   openApp: (appId: string, props?: Record<string, unknown>) => string | null;
-  /** Open a filesystem node by absolute path (resolves the right app). */
+  /**
+   * Open a filesystem node by absolute path (resolves the right app).
+   * This is a privileged host operation and does not show user password gates;
+   * use the desktop or Explorer when emulating user navigation.
+   */
   openFile: (path: string[]) => string | null;
   /**
    * Follow a link out of the fiction to a real URL (#136). New tab by default;

@@ -94,7 +94,7 @@ const RunDialog = ({ windowId = '' }: RunDialogProps) => {
   const api = useApp(windowId);
   const [command, setCommand] = useState<string>('');
 
-  const handleRun = () => {
+  const handleRun = async () => {
     if (!api) return;
     const trimmed = command.trim();
     if (!trimmed) {
@@ -106,7 +106,7 @@ const RunDialog = ({ windowId = '' }: RunDialogProps) => {
 
     // Hidden classic commands (#85).
     if (lower === 'winver') {
-      api.dialog.alert({
+      await api.dialog.alert({
         title: t('runDialog.winverTitle', 'About Windows'),
         message: t('runDialog.winverMessage', {
           defaultValue:

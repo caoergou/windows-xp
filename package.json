@@ -1,7 +1,7 @@
 {
   "name": "@caoergou/windows-xp",
-  "version": "0.3.0",
-  "description": "A faithful recreation of Windows XP desktop in React - Relive the millennium era with authentic Y2K aesthetics",
+  "version": "0.4.0",
+  "description": "An embeddable, customizable, and scriptable Windows XP desktop engine for React",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
@@ -93,6 +93,8 @@
     "size:check": "node scripts/check-size.mjs",
     "size:check:app": "node scripts/check-app-bundle.mjs",
     "consumer:smoke": "node scripts/consumer-smoke.mjs",
+    "scenario:consumer-smoke": "node scripts/scenario-tools-consumer-smoke.mjs",
+    "release:preflight": "node scripts/release-preflight.mjs",
     "docs:events": "node scripts/gen-events-doc.mjs",
     "docs:events:check": "node scripts/gen-events-doc.mjs --check",
     "schema:generate": "node scripts/gen-scenario-schema.mjs",
@@ -122,7 +124,12 @@
     "ui-recreation",
     "xp-theme",
     "vintage",
-    "component"
+    "component",
+    "desktop-engine",
+    "embeddable",
+    "scriptable",
+    "content-pack",
+    "scenario-engine"
   ],
   "author": "caoergou",
   "license": "MIT",
@@ -130,7 +137,7 @@
     "type": "git",
     "url": "https://github.com/caoergou/windows-xp.git"
   },
-  "homepage": "http://eric.run.place/windows-xp/",
+  "homepage": "https://eric.run.place/windows-xp/",
   "bugs": {
     "url": "https://github.com/caoergou/windows-xp/issues"
   },

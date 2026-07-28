@@ -697,17 +697,18 @@ export const resolveFileOpen = (
   appField = resolveAppRole(appField, appRoles);
   if (!appField) return null;
 
-  const entry = Object.values(registry).reduce<
+  const associatedEntry = Object.values(registry).reduce<
     { def: AppRegistryEntry; assoc: AppAssociation } | undefined
   >((found, def) => {
     if (found) return found;
     const assoc = def.associations?.find(candidate => candidate.appField === appField);
     return assoc ? { def, assoc } : undefined;
   }, undefined);
-  if (!entry) return null;
+  const directEntry = item.type === 'app_shortcut' ? registry[appField] : undefined;
+  const def = associatedEntry?.def ?? directEntry;
+  if (!def) return null;
 
-  const { def, assoc } = entry;
-  const componentProps = assoc.getProps(item, { key, sourcePath });
+  const componentProps = associatedEntry?.assoc.getProps(item, { key, sourcePath }) ?? {};
 
   return {
     appId: def.id,

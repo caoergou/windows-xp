@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+concurrency:
+  group: npm-publish-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: read
   id-token: write
@@ -12,25 +16,70 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      ENGINE_TARBALL: release-artifacts/caoergou-windows-xp-0.4.0.tgz
+      TOOLS_TARBALL: release-artifacts/caoergou-xp-scenario-tools-0.1.0.tgz
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22.22.0
           registry-url: 'https://registry.npmjs.org'
           cache: npm
 
+      # npm trusted publishing requires npm >=11.5.1 and Node >=22.14.
+      - run: npm install --global npm@11.11.1
       - run: npm ci
 
+      - run: npm run release:preflight -- --tag=${{ github.ref_name }}
       - run: npm run lint
       - run: npm run typecheck
+      - run: npm run typecheck --workspace @caoergou/xp-scenario-tools
       - run: npm run guard:nocheck
+      - run: npm run guard:purity
       - run: npm run test -- --run
+      - run: npm run scenario:ci
+      - run: npm run schema:check
+      - run: npm run docs:events:check
 
       - run: npm run build:lib
+      - run: npm run scenario:build
+      - run: npm run size:check
+
+      # Pack once, test those exact bytes in clean consumer projects, then
+      # publish the same artifacts below.
+      - name: Pack release artifacts
+        run: |
+          mkdir -p release-artifacts
+          npm pack --ignore-scripts --pack-destination release-artifacts
+          npm pack --workspace @caoergou/xp-scenario-tools --ignore-scripts --pack-destination release-artifacts
+
+      - run: npm run consumer:smoke -- "$ENGINE_TARBALL"
+      - run: npm run scenario:consumer-smoke -- "$ENGINE_TARBALL" "$TOOLS_TARBALL"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-release-artifacts
+          path: release-artifacts/*.tgz
+          if-no-files-found: error
+          retention-days: 30
 
       # Authenticates via npm OIDC trusted publishing using the `id-token: write`
-      # permission above — no token or secret required. Provenance is attached
-      # automatically.
-      - run: npm publish --access public --provenance
+      # permission above. Each package is independently idempotent, so rerunning
+      # after a partial publish safely resumes at the missing package.
+      - name: Publish engine
+        run: |
+          if npm view "@caoergou/windows-xp@0.4.0" version >/dev/null 2>&1; then
+            echo "@caoergou/windows-xp@0.4.0 already exists; skipping"
+          else
+            npm publish "$ENGINE_TARBALL" --access public --provenance
+          fi
+
+      - name: Publish scenario tools
+        run: |
+          if npm view "@caoergou/xp-scenario-tools@0.1.0" version >/dev/null 2>&1; then
+            echo "@caoergou/xp-scenario-tools@0.1.0 already exists; skipping"
+          else
+            npm publish "$TOOLS_TARBALL" --access public --provenance
+          fi

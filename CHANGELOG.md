@@ -4,6 +4,84 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-28
+
+This release expands the component library into a configurable desktop
+platform and ships the first public scenario-authoring toolchain alongside it.
+It also closes the remaining release blockers with broader consumer, purity,
+and end-to-end coverage.
+
+### Highlights
+
+- **OS packages and theming** (#128, #135, #143, #213): consumers can define
+  operating-system packages, theme tokens, chrome roles, menus, and culture
+  data without coupling engine mechanisms to the XP presentation. The bundled
+  Paper OS demonstrates that the package is no longer limited to one skin.
+- **Scenario and content-pack authoring** (#84, #239, #288): declarative
+  triggers, puzzle graphs, rehearsals, provider fallbacks, packaged assets,
+  validation schemas, and the `.xpspack` format now form an end-to-end content
+  pipeline. `@caoergou/xp-scenario-tools@0.1.0` adds `lint`, `solve`, `graph`,
+  `pack`, migration, live preview, and Scenario Studio workflows.
+- **Embedding and orchestration APIs**: persistence modes, deep links,
+  declarative apps and cultures, provider ports, host bridges, print and media
+  primitives, evidence workflows, and teaching/content integrations make the
+  desktop usable as a host-controlled engine rather than a standalone demo.
+- **XP interaction depth**: Explorer tree/details views and keyboard
+  operations, taskbar grouping, modal ownership, notification balloons,
+  Task Manager, volume/network surfaces, touch support, and expanded bundled
+  applications and era content.
+- **Release confidence** (#113, #206): engine and authoring-tool tarballs are
+  now installed and exercised in clean consumer projects before those exact
+  artifacts are published. Release metadata, tag/version alignment, package
+  peers, generated docs/schemas, purity, size budgets, and scenario recipes are
+  enforced by CI.
+
+### Added
+
+- Host-facing authoring helpers for custom applications and culture packages,
+  branded boot/login screens, local/session/ephemeral persistence modes,
+  URL-driven deep links, remappable shortcuts, and a complete generated event
+  reference.
+- Scenario primitives for persisted scheduling, idle/time triggers,
+  `flag:change`, dynamic sticky notes, localized beat text, compiled hint
+  ladders, critical-path linting, deterministic rehearsal seek/time travel,
+  condition traces, and an in-desktop DevTools panel.
+- Content infrastructure for resolved/packaged assets, Markdown and blog
+  manifests, feeds and SEO helpers, generated or archived web pages, provider
+  fallbacks, and save/snapshot validation.
+- Search Oracle, Evidence Board, evidence report and deduction workflows;
+  print spooler, media playlist/metadata and QQ archive primitives; and richer
+  QQ chat including buddy search, tray behavior and image emoticons.
+- A multi-page landing site with three real desktop demos, event lab, gallery,
+  bilingual searchable VitePress documentation, and TypeDoc API references.
+- Western 2000s culture parity with localized apps and icons, alongside deeper
+  Chinese-era app content.
+
+### Changed
+
+- Desktop and Explorer now share multi-selection and touch gestures; Explorer
+  adds hidden/protected files, per-folder views, sortable details, navigation
+  tree/history, and expanded keyboard operations.
+- Task Manager, Network Connections, the tray volume popup and volume mixer
+  were rebuilt around their XP counterparts. Taskbar grouping, modal ownership,
+  small-screen scale-to-fit behavior, cursors, Start-button art, and power
+  dialogs received fidelity passes.
+- The XP presentation is isolated behind theme and OS-package contracts, with
+  structured app menus and runtime-mounted theme CSS preparing the engine for
+  custom OS packages.
+- First-paint code splitting, action-only window consumers, asset handling and
+  bundle budgets substantially reduce the demo and library hot paths.
+
+### Fixed
+
+- Accept `print:*` events in scenario validation (#296).
+- Open built-in utility app shortcuts even when they have no file association
+  (#297).
+- Enforce locked-node password gates consistently from desktop-root and
+  Explorer navigation while keeping `XPHandle` explicitly privileged (#298).
+- Keep the `winver` modal alive until it is dismissed before closing Run,
+  restoring the release E2E suite.
+
 ### Added (AI scenario co-authoring: pattern library + repo skill, #239)
 
 - **Scenario pattern library** — `docs/SCENARIO-PATTERNS.md` grew from the two

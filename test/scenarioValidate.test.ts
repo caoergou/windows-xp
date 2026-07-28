@@ -73,6 +73,21 @@ describe('validateScenario', () => {
     expect(r.warnings.join('\n')).toContain('unknown event domain');
   });
 
+  it('accepts print spooler events as a known event domain', () => {
+    const r = validateScenario({
+      id: 'print-test',
+      triggers: [
+        {
+          on: 'print:job-update',
+          when: { event: { jobId: 'queue-test', status: 'completed' } },
+          do: [{ setFlag: 'printed' }],
+        },
+      ],
+    });
+    expect(r.errors).toEqual([]);
+    expect(r.warnings).toEqual([]);
+  });
+
   it('warns on a flag read but never set', () => {
     const r = validateScenario({
       id: 's',
