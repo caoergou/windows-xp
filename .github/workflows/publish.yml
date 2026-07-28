@@ -55,6 +55,9 @@ jobs:
           npm pack --ignore-scripts --pack-destination release-artifacts
           npm pack --workspace @caoergou/xp-scenario-tools --ignore-scripts --pack-destination release-artifacts
 
+      - name: Install Chromium for consumer render smoke
+        run: npx playwright install --with-deps chromium
+
       - run: npm run consumer:smoke -- "$ENGINE_TARBALL"
       - run: npm run scenario:consumer-smoke -- "$ENGINE_TARBALL" "$TOOLS_TARBALL"
 
