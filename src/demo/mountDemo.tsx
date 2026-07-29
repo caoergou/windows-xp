@@ -4,6 +4,7 @@ import type { BootBranding, LoginBranding } from '../branding';
 import '../i18n';
 import '../index.css';
 import { referenceContentPack } from '../data/referencePack';
+import { prologueScenario } from '../data/scenarios/prologue';
 
 /**
  * Shared bootstrap for the live-desktop demo pages (#160). Each locale shell
@@ -15,8 +16,10 @@ import { referenceContentPack } from '../data/referencePack';
  *   ?open=<key> (repeatable)   opens windows on load (#136)
  *   ?history=1                 browser Back closes the last-opened window (#136)
  *   ?persistence=none|session|local   per-visit persistence mode (#138)
+ *   ?session=full              shows the default boot and login screens
  *   ?brand=demo                inline branded boot + login demo (#139)
  *   ?content=reference         mounts the reference content pack (#241)
+ *   ?scenario=prologue         mounts the declarative prologue story (#84)
  */
 export function mountDemo(defaultLang: 'en' | 'zh') {
   const params = new URLSearchParams(window.location.search);
@@ -25,6 +28,7 @@ export function mountDemo(defaultLang: 'en' | 'zh') {
   const openOnLoad = params.getAll('open');
   const historyIntegration = params.get('history') === '1';
   const contentPacks = params.get('content') === 'reference' ? [referenceContentPack] : undefined;
+  const scenario = params.get('scenario') === 'prologue' ? prologueScenario : undefined;
 
   const pParam = params.get('persistence');
   const persistence =
@@ -54,6 +58,7 @@ export function mountDemo(defaultLang: 'en' | 'zh') {
   // The branding demo wants to show the boot + login screens; otherwise land
   // straight on the desktop (a friendly demo door).
   const branded = params.get('brand') === 'demo';
+  const showFullSession = branded || params.get('session') === 'full';
 
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <AppProviders
@@ -62,10 +67,11 @@ export function mountDemo(defaultLang: 'en' | 'zh') {
       historyIntegration={historyIntegration}
       persistence={persistence}
       contentPacks={contentPacks}
+      scenario={scenario}
       boot={boot}
       login={login}
-      skipBoot={!branded}
-      autoLogin={!branded}
+      skipBoot={!showFullSession}
+      autoLogin={!showFullSession}
     />
   );
 }

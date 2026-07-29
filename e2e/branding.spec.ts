@@ -28,3 +28,29 @@ test.describe('Branded boot & login (#139)', () => {
     await expect(page.getByText('Microsoft Windows')).toHaveCount(0);
   });
 });
+
+test.describe('Demo session and story links (#216)', () => {
+  test('session=full keeps the default XP login screen without custom branding', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      localStorage.clear();
+      localStorage.setItem('xp_first_boot_done', 'true');
+      localStorage.setItem('xp_power_state', 'running');
+    });
+    await page.goto('demo/en/?session=full&persistence=none');
+
+    const loginScreen = page.locator('[data-testid="login-screen"]');
+    await expect(loginScreen).toBeVisible({ timeout: 40000 });
+    await expect(page.getByText('Microsoft Windows')).toBeVisible();
+    await expect(page.locator('[data-testid="login-title"]')).toHaveCount(0);
+  });
+
+  test('scenario=prologue mounts the declarative story', async ({ page }) => {
+    await page.addInitScript(() => localStorage.clear());
+    await page.goto('demo/zh/?scenario=prologue&persistence=none');
+
+    await expect(page.locator('[data-testid="taskbar"]')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByText('还记得吗？')).toBeVisible();
+  });
+});

@@ -5,9 +5,10 @@
 **可嵌入、可用代码驱动的 React 版 Windows XP 桌面——一个可以装入你自己的内容、监听用户操作事件、并用代码控制的怀旧世界。**
 
 [![npm version](https://img.shields.io/npm/v/@caoergou/windows-xp.svg)](https://www.npmjs.com/package/@caoergou/windows-xp)
+[![CI](https://github.com/caoergou/windows-xp/actions/workflows/ci.yml/badge.svg)](https://github.com/caoergou/windows-xp/actions/workflows/ci.yml)
+[![minzip 包体积](https://img.shields.io/bundlephobia/minzip/@caoergou/windows-xp?label=minzip)](https://bundlephobia.com/package/@caoergou/windows-xp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-18%20%7C%2019-blue.svg)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
 [在线演示](https://eric.run.place/windows-xp/) · [English desktop](https://eric.run.place/windows-xp/demo/en/) · [中文桌面](https://eric.run.place/windows-xp/demo/zh/) · [文档站](https://eric.run.place/windows-xp/docs/) · [路线图](https://github.com/caoergou/windows-xp/issues/86) · [报告问题](https://github.com/caoergou/windows-xp/issues)
 
@@ -18,6 +19,8 @@
 </div>
 
 ---
+
+![Windows XP 桌面演示：开机、登录、应用窗口与剧情事件](docs/assets/windows-xp-demo.gif)
 
 还记得 Luna 蓝的任务栏、开机音，和消磨在扫雷上的下午吗？这个项目把那个世界搬回浏览器——**但不是一个固定的演示页，而是一个属于你的 React 组件**：桌面上的每个文件都可以换成你的内容，你都能收到对应的事件通知，接下来发生什么由你的代码决定。
 
@@ -36,12 +39,22 @@ import { WindowsXP } from '@caoergou/windows-xp';
 import '@caoergou/windows-xp/style.css';
 
 function App() {
-  // autoLogin 和 skipBoot 开发时直接跳到桌面；去掉它们可看到开机和登录。
   return <WindowsXP autoLogin skipBoot language="zh" />;
 }
 ```
 
 `react`、`react-dom`、`styled-components` v6 是 peer dependencies；其余一切（包括 XP 主题 CSS）都已打包在内。
+
+### 在线直接运行
+
+无需克隆仓库或配置本地环境。两个示例都直接安装已发布的 npm 包，与真实消费项目一致：
+
+| 示例                   | StackBlitz                                                                                                                        | CodeSandbox                                                                                                  |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 最小 React 嵌入        | [在 StackBlitz 中打开](https://stackblitz.com/fork/github/caoergou/windows-xp/tree/main/examples/quick-start?file=src%2FApp.jsx)  | [在 CodeSandbox 中打开](https://codesandbox.io/s/github/caoergou/windows-xp/tree/main/examples/quick-start)  |
+| 自定义文件＋声明式剧情 | [在 StackBlitz 中打开](https://stackblitz.com/fork/github/caoergou/windows-xp/tree/main/examples/custom-story?file=src%2FApp.jsx) | [在 CodeSandbox 中打开](https://codesandbox.io/s/github/caoergou/windows-xp/tree/main/examples/custom-story) |
+
+只想体验功能、不打开编辑器？可以直接查看[通过深链打开的资源管理器窗口](https://eric.run.place/windows-xp/demo/zh/?lang=zh&open=%E6%88%91%E7%9A%84%E6%96%87%E6%A1%A3)，或体验[开机、登录与序章剧情](https://eric.run.place/windows-xp/demo/zh/?lang=zh&session=full&scenario=prologue&persistence=none)。
 
 ## 为什么选这个？
 
