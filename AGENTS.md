@@ -23,7 +23,7 @@ Platform-level vision (#143 RFC, `docs/OS-PLATFORM-VISION.md`): the engine gradu
 | What a visual/interaction looks like in real XP, how far it is now, authoritative **token values** for colors/fonts | `FIDELITY.md` (§K.1 token table, every value with source) |
 | How to write code: component conventions, quality red lines, i18n, Easter-egg policy, pre-commit checklist | `docs/DEVELOPMENT.md` |
 | Workflow: how to run checks, open PRs | `CONTRIBUTING.md` |
-| Roadmap and task breakdown | GitHub issue #86 (Roadmap) + #143 (platformization RFC) |
+| Roadmap, shipped baseline, and future issue policy | `docs/ROADMAP.md` + `docs/OS-PLATFORM-VISION.md` |
 | What each of the five usage scenarios needs (blog/marketing/game/nostalgia/teaching) | `docs/USE-CASES.md` |
 | Mechanism → event → orchestration derivation for the puzzle game | `docs/PUZZLE-DESIGN.md` |
 | Scenario/content-pack pattern library (lint-adjudicated recipes) + recorded drafting session | `docs/SCENARIO-PATTERNS.md`, `docs/SCENARIO-AUTHORING-WALKTHROUGH.md`, skill: `.claude/skills/scenario/` |

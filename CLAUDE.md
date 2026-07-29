@@ -6,7 +6,7 @@ This file provides guidance to Claude Code when working with this repository.
 
 An **embeddable, scriptable Windows XP desktop engine** for React + TypeScript, published as `@caoergou/windows-xp`. It faithfully recreates the XP experience (file system, apps, boot/login flow, window management, Luna visuals) while exposing it as a product: content is injectable (`customFileSystem`, culture packages, custom apps), every user action emits a typed event (`onEvent`), and the desktop is drivable via an imperative `ref` handle.
 
-Principles, red lines, and the doc map live in `AGENTS.md`; code-level rules in `docs/DEVELOPMENT.md`; the XP-authenticity baseline in `FIDELITY.md`; roadmap in issue #86; design/analysis docs in `docs/` (`USE-CASES.md`, `PUZZLE-DESIGN.md`, `OS-PLATFORM-VISION.md`).
+Principles, red lines, and the doc map live in `AGENTS.md`; code-level rules in `docs/DEVELOPMENT.md`; the XP-authenticity baseline in `FIDELITY.md`; the completed roadmap and future issue policy in `docs/ROADMAP.md`; design/analysis docs in `docs/` (`USE-CASES.md`, `PUZZLE-DESIGN.md`, `OS-PLATFORM-VISION.md`).
 
 ## Development Commands
 
