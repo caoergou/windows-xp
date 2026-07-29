@@ -10,6 +10,86 @@ export interface BrowserClientOptions {
   workbench?: boolean;
 }
 
+export interface StudioInputIdentity {
+  file: string;
+  kind: string;
+}
+
+export interface PersistedStudioState {
+  version: 1;
+  input: StudioInputIdentity;
+  layout: {
+    panelWidth: number;
+    canvasMode: 'preview' | 'map';
+    viewport: '100%' | '1024px' | '1280px';
+  };
+  context: {
+    activeTask: 'build' | 'rehearse' | 'inspect' | 'ship';
+    activeTool: 'problems' | 'map' | 'timeline' | 'events' | 'personas' | 'inspector' | 'shipping';
+    selectedNodeId: string | null;
+    selectedBeat: string | null;
+  };
+}
+
+/**
+ * Validate browser-persisted Scenario Studio preferences without trusting storage contents.
+ *
+ * This function is also embedded into the generated browser entry, so keep it self-contained.
+ */
+export const parsePersistedStudioState = (
+  raw: string | null,
+  input: StudioInputIdentity
+): PersistedStudioState | null => {
+  if (!raw) return null;
+  try {
+    const value = JSON.parse(raw) as Record<string, unknown>;
+    const savedInput = value.input as Record<string, unknown> | undefined;
+    if (value.version !== 1 || savedInput?.file !== input.file || savedInput?.kind !== input.kind) {
+      return null;
+    }
+
+    const layout = (value.layout ?? {}) as Record<string, unknown>;
+    const context = (value.context ?? {}) as Record<string, unknown>;
+    const taskTools = {
+      build: ['problems', 'map'],
+      rehearse: ['timeline', 'events', 'personas'],
+      inspect: ['inspector'],
+      ship: ['shipping'],
+    } as const;
+    const activeTask =
+      typeof context.activeTask === 'string' && context.activeTask in taskTools
+        ? (context.activeTask as keyof typeof taskTools)
+        : 'build';
+    const activeTool =
+      typeof context.activeTool === 'string' &&
+      (taskTools[activeTask] as readonly string[]).includes(context.activeTool)
+        ? (context.activeTool as PersistedStudioState['context']['activeTool'])
+        : taskTools[activeTask][0];
+    const panelWidth =
+      typeof layout.panelWidth === 'number' && Number.isFinite(layout.panelWidth)
+        ? Math.min(720, Math.max(320, layout.panelWidth))
+        : 440;
+    const canvasMode = layout.canvasMode === 'map' ? 'map' : 'preview';
+    const viewport = ['100%', '1024px', '1280px'].includes(String(layout.viewport))
+      ? (layout.viewport as PersistedStudioState['layout']['viewport'])
+      : '100%';
+
+    return {
+      version: 1,
+      input: { file: input.file, kind: input.kind },
+      layout: { panelWidth, canvasMode, viewport },
+      context: {
+        activeTask,
+        activeTool,
+        selectedNodeId: typeof context.selectedNodeId === 'string' ? context.selectedNodeId : null,
+        selectedBeat: typeof context.selectedBeat === 'string' ? context.selectedBeat : null,
+      },
+    };
+  } catch {
+    return null;
+  }
+};
+
 const literal = (value: string): string => JSON.stringify(value);
 
 /** Build the virtual Vite entry that mounts the authored scenario and its control bridge. */
@@ -45,12 +125,16 @@ let suppressEventStream = 0;
 let requestSequence = 0;
 let currentSnapshot = null;
 let selectedNodeId = null;
+let selectedBeat = null;
 let activeTask = 'build';
 let activeTool = 'problems';
 let canvasMode = 'preview';
+let panelWidth = 440;
+let viewportPreset = '100%';
 let connectionState = 'connecting';
 let previewReturnTarget = null;
 let mapZoom = 1;
+let restoredInputIdentity = null;
 const pendingAuthoring = new Map();
 const injectedHistory = [];
 const personaTranscript = [];
@@ -60,6 +144,72 @@ const TASK_TOOLS = {
   rehearse: [['timeline', 'Timeline'], ['events', 'Events'], ['personas', 'Personas']],
   inspect: [['inspector', 'Runtime']],
   ship: [['shipping', 'Shipping']],
+};
+const studioStorageKey = ${literal(`${options.storagePrefix}studio-state:v1`)};
+const parseStoredStudioState = ${parsePersistedStudioState.toString()};
+const studioStorage = {
+  get: () => {
+    try { return window.localStorage.getItem(studioStorageKey); }
+    catch { return null; }
+  },
+  set: value => {
+    try { window.localStorage.setItem(studioStorageKey, value); }
+    catch { /* Authoring remains usable when browser storage is unavailable. */ }
+  },
+};
+const resetStudioState = () => {
+  selectedNodeId = null;
+  selectedBeat = null;
+  activeTask = 'build';
+  activeTool = 'problems';
+  canvasMode = 'preview';
+  panelWidth = 440;
+  viewportPreset = '100%';
+};
+const persistStudioState = () => {
+  if (!currentSnapshot) return;
+  studioStorage.set(JSON.stringify({
+    version: 1,
+    input: { file: currentSnapshot.input.file, kind: currentSnapshot.input.kind },
+    layout: { panelWidth, canvasMode, viewport: viewportPreset },
+    context: { activeTask, activeTool, selectedNodeId, selectedBeat },
+  }));
+};
+const restoreStudioState = snapshot => {
+  const inputIdentity = snapshot.input.file + '\\u0000' + snapshot.input.kind;
+  if (restoredInputIdentity === inputIdentity) return;
+  restoredInputIdentity = inputIdentity;
+  resetStudioState();
+  const saved = parseStoredStudioState(studioStorage.get(), snapshot.input);
+  if (!saved) return;
+  panelWidth = saved.layout.panelWidth;
+  canvasMode = saved.layout.canvasMode;
+  viewportPreset = saved.layout.viewport;
+  activeTask = saved.context.activeTask;
+  activeTool = saved.context.activeTool;
+  selectedNodeId = saved.context.selectedNodeId;
+  selectedBeat = saved.context.selectedBeat;
+};
+const validateStudioContext = snapshot => {
+  if (selectedNodeId && !snapshot.graph.nodes.some(node => node.id === selectedNodeId)) {
+    selectedNodeId = null;
+  }
+  if (selectedBeat && !snapshot.beats.some(beat => beat.beat === selectedBeat)) {
+    selectedBeat = null;
+  }
+};
+const applyStudioLayout = () => {
+  document.documentElement.style.setProperty('--panel-width', panelWidth + 'px');
+  const viewport = document.querySelector('#viewport');
+  const shell = document.querySelector('#desktop-shell');
+  const splitter = document.querySelector('#splitter');
+  if (viewport) viewport.value = viewportPreset;
+  if (shell) shell.style.width = viewportPreset;
+  if (splitter) splitter.setAttribute('aria-valuenow', String(panelWidth));
+};
+const setPanelWidth = value => {
+  panelWidth = Math.min(720, Math.max(320, value));
+  applyStudioLayout();
 };
 const send = message => {
   if (activeSocket?.readyState === WebSocket.OPEN) activeSocket.send(JSON.stringify(message));
@@ -96,10 +246,11 @@ const renderGraph = graph => {
   return '<div class="map-toolbar"><label><span class="sr-only">Search story map</span><input id="map-search" type="search" placeholder="Find a node…"></label><span>' + pacing + '</span><div><button data-map-action="zoom-out" aria-label="Zoom out">−</button><button data-map-action="fit">Fit</button><button data-map-action="zoom-in" aria-label="Zoom in">+</button></div></div><div class="map-viewport"><svg class="story-map" viewBox="0 0 ' + width + ' ' + height + '" aria-label="Story dependency map">' + edges + nodes + '</svg></div>';
 };
 const selectGraphNode = id => {
-  selectedNodeId = id;
   const node = currentSnapshot?.graph.nodes.find(item => item.id === id);
   const detail = document.querySelector('#selection-detail');
   if (!node || !detail) return;
+  selectedNodeId = id;
+  persistStudioState();
   const edges = currentSnapshot.graph.edges.filter(edge => edge.from === id || edge.to === id);
   const key = node.label.replace(/^.*:/, '');
   const diagnostics = (currentSnapshot.lint.result?.diagnostics ?? []).filter(item =>
@@ -130,12 +281,13 @@ const timelineContent = snapshot => {
     const step = solveSteps[index];
     const position = index + 1;
     const state = rehearsal?.active ? (position < current ? 'complete' : position === current ? 'current' : 'upcoming') : 'idle';
+    const selected = item.beat && item.beat === selectedBeat ? ' timeline-step--selected' : '';
     const changes = [
       ...(step?.fired ?? []).map(value => '<span><b>Triggered</b> <button class="text-action" data-related-node="' + escapeHtml(value) + '">' + escapeHtml(value) + '</button></span>'),
       ...(step?.flagChanges ?? []).map(value => '<span><b>Flag</b> ' + escapeHtml(value.flag) + ': ' + escapeHtml(JSON.stringify(value.before)) + ' → ' + escapeHtml(JSON.stringify(value.after)) + '</span>'),
       ...(step?.actions ?? []).map(value => '<span><b>Action</b> ' + escapeHtml(actionSummary(value)) + '</span>'),
     ];
-    return '<li class="timeline-step timeline-step--' + state + '"><button data-seek="' + escapeHtml(item.beat ?? '') + '" ' + (item.beat ? '' : 'disabled') + '><i aria-hidden="true"></i><span><strong>' + escapeHtml(item.beat ?? 'Unnamed step') + '</strong><code>' + escapeHtml(item.event.type) + '</code></span><em>' + position + '</em></button>' + (changes.length ? '<div class="step-changes">' + changes.join('') + '</div>' : '<p>No authored state change at this step.</p>') + '</li>';
+    return '<li class="timeline-step timeline-step--' + state + selected + '"><button data-seek="' + escapeHtml(item.beat ?? '') + '" ' + (item.beat ? '' : 'disabled') + '><i aria-hidden="true"></i><span><strong>' + escapeHtml(item.beat ?? 'Unnamed step') + '</strong><code>' + escapeHtml(item.event.type) + '</code></span><em>' + position + '</em></button>' + (changes.length ? '<div class="step-changes">' + changes.join('') + '</div>' : '<p>No authored state change at this step.</p>') + '</li>';
   }).join('');
   const positionLabel = rehearsal?.active ? 'Rehearsing · ' + Math.max(0, current) + '/' + rehearsal.length : 'Not rehearsing';
   return '<div class="timeline-status"><strong>' + positionLabel + '</strong><span>Seek or step through the canonical tape</span></div><div class="toolbar"><button data-command="step-back">← Step</button><button data-command="step-forward">Step →</button><button data-command="exit">Exit rehearsal</button><button class="danger-action" data-command="reset">Reset desktop</button></div><ol class="timeline">' + rows + '</ol><p class="notice">Delayed actions collapse during rehearsal; non-filesystem UI state is not reconstructed pixel-exactly.</p>';
@@ -230,6 +382,7 @@ const bindMap = () => {
 };
 const renderStudio = () => {
   if (!currentSnapshot) return;
+  applyStudioLayout();
   document.querySelectorAll('[data-task]').forEach(item => item.setAttribute('aria-selected', String(item.dataset.task === activeTask)));
   document.querySelectorAll('[data-canvas]').forEach(item => item.setAttribute('aria-pressed', String(item.dataset.canvas === canvasMode)));
   document.querySelector('.workbench').classList.toggle('workbench--map', canvasMode === 'map');
@@ -244,6 +397,7 @@ const selectTool = tool => {
   if (!task) return;
   activeTask = task[0]; activeTool = tool;
   canvasMode = tool === 'map' ? 'map' : 'preview';
+  persistStudioState();
   renderStudio();
 };
 const readGuidedEvent = () => {
@@ -269,6 +423,7 @@ const openRelatedNode = query => {
   const node = currentSnapshot.graph.nodes.find(item => item.id.toLowerCase().includes(key) || item.label.toLowerCase().includes(key));
   if (!node) { showToast('No related graph node found', true); return; }
   selectedNodeId = node.id;
+  persistStudioState();
   selectTool('map');
 };
 const bindPanel = () => {
@@ -286,7 +441,12 @@ const bindPanel = () => {
       catch (error) { showToast(error.message, true); }
     }
   }));
-  document.querySelectorAll('[data-seek]').forEach(button => button.addEventListener('click', () => command({ type: 'seek', beat: button.dataset.seek })));
+  document.querySelectorAll('[data-seek]').forEach(button => button.addEventListener('click', () => {
+    selectedBeat = button.dataset.seek;
+    persistStudioState();
+    renderStudio();
+    command({ type: 'seek', beat: selectedBeat });
+  }));
   document.querySelectorAll('[data-tool]').forEach(button => button.addEventListener('click', () => selectTool(button.dataset.tool)));
   document.querySelectorAll('[data-open-tool]').forEach(button => button.addEventListener('click', () => selectTool(button.dataset.openTool)));
   document.querySelector('#event-type')?.addEventListener('change', event => { document.querySelector('#event-fields').innerHTML = eventFields(event.target.value, currentSnapshot); });
@@ -311,6 +471,8 @@ const bindPanel = () => {
 };
 const renderWorkbench = snapshot => {
   currentSnapshot = snapshot;
+  restoreStudioState(snapshot);
+  validateStudioContext(snapshot);
   const stale = snapshot.reload.status === 'stale';
   document.querySelector('#input-name').textContent = snapshot.input.id;
   const rehearsal = snapshot.runtime?.rehearsal;
@@ -318,6 +480,7 @@ const renderWorkbench = snapshot => {
   const label = state === 'rehearsing' ? 'Rehearsing · ' + (rehearsal.index + 1) + '/' + rehearsal.length : state === 'stale' ? 'Stale · last valid draft' : state === 'disconnected' ? 'Disconnected' : 'Live';
   const indicator = document.querySelector('#studio-state');
   indicator.textContent = label; indicator.dataset.state = state;
+  persistStudioState();
   renderStudio();
 };
 const showToast = (message, error = false) => {
@@ -326,18 +489,22 @@ const showToast = (message, error = false) => {
   setTimeout(() => { toast.textContent = ''; }, 3500);
 };
 const setupWorkbench = () => {
-  document.querySelector('#root').innerHTML = '<div class="workbench"><header><strong>Scenario Studio</strong><span id="input-name">Untitled scenario</span><span id="studio-state" data-state="connecting">Connecting</span><div class="canvas-switch" aria-label="Primary canvas"><button data-canvas="preview" aria-pressed="true">Preview</button><button data-canvas="map" aria-pressed="false">Map</button></div><button id="full-preview">Full preview</button></header><main><section class="preview"><div class="preview-meta"><strong id="canvas-title">Preview</strong><label>Viewport <select id="viewport"><option value="100%">Responsive</option><option value="1024px">1024 × 768</option><option value="1280px">1280 × 720</option></select></label></div><div id="desktop-shell" class="preview-locked"><iframe id="desktop-frame" src="/preview" title="Windows XP scenario preview" tabindex="-1"></iframe><div class="preview-shield"><button id="enter-preview"><strong>Click to interact</strong><span>Studio keeps keyboard focus until you enter the XP preview.</span></button></div></div><div id="map-shell"></div></section><div id="splitter" role="separator" aria-label="Resize inspector" aria-orientation="vertical" tabindex="0"></div><aside><nav class="tasks" role="tablist" aria-label="Authoring tasks">' + [['build','Build'],['rehearse','Rehearse'],['inspect','Inspect'],['ship','Ship']].map(([id,label], index) => '<button role="tab" data-task="' + id + '" aria-selected="' + (index === 0) + '">' + label + '</button>').join('') + '</nav><div id="panel-content"></div></aside></main><div id="toast" class="toast" aria-live="polite"></div></div>';
+  document.querySelector('#root').innerHTML = '<div class="workbench"><header><strong>Scenario Studio</strong><span id="input-name">Untitled scenario</span><span id="studio-state" data-state="connecting">Connecting</span><div class="canvas-switch" aria-label="Primary canvas"><button data-canvas="preview" aria-pressed="true">Preview</button><button data-canvas="map" aria-pressed="false">Map</button></div><button id="full-preview">Full preview</button></header><main><section class="preview"><div class="preview-meta"><strong id="canvas-title">Preview</strong><label>Viewport <select id="viewport"><option value="100%">Responsive</option><option value="1024px">1024 × 768</option><option value="1280px">1280 × 720</option></select></label></div><div id="desktop-shell" class="preview-locked"><iframe id="desktop-frame" src="/preview" title="Windows XP scenario preview" tabindex="-1"></iframe><div class="preview-shield"><button id="enter-preview"><strong>Click to interact</strong><span>Studio keeps keyboard focus until you enter the XP preview.</span></button></div></div><div id="map-shell"></div></section><div id="splitter" role="separator" aria-label="Resize inspector" aria-orientation="vertical" aria-valuemin="320" aria-valuemax="720" aria-valuenow="440" tabindex="0"></div><aside><nav class="tasks" role="tablist" aria-label="Authoring tasks">' + [['build','Build'],['rehearse','Rehearse'],['inspect','Inspect'],['ship','Ship']].map(([id,label], index) => '<button role="tab" data-task="' + id + '" aria-selected="' + (index === 0) + '">' + label + '</button>').join('') + '</nav><div id="panel-content"></div></aside></main><div id="toast" class="toast" aria-live="polite"></div></div>';
   if (${options.workbench === false ? 'true' : 'false'}) {
     document.querySelector('.workbench').classList.add('workbench--desktop-only');
     document.querySelector('#desktop-shell').classList.remove('preview-locked');
   }
   document.querySelectorAll('[data-task]').forEach(tab => tab.addEventListener('click', () => {
-    activeTask = tab.dataset.task; activeTool = TASK_TOOLS[activeTask][0][0]; canvasMode = 'preview'; renderStudio();
+    activeTask = tab.dataset.task; activeTool = TASK_TOOLS[activeTask][0][0]; canvasMode = 'preview'; persistStudioState(); renderStudio();
   }));
   document.querySelectorAll('[data-canvas]').forEach(button => button.addEventListener('click', () => {
-    if (button.dataset.canvas === 'map') selectTool('map'); else { canvasMode = 'preview'; renderStudio(); }
+    if (button.dataset.canvas === 'map') selectTool('map'); else { canvasMode = 'preview'; persistStudioState(); renderStudio(); }
   }));
-  document.querySelector('#viewport').addEventListener('change', event => { document.querySelector('#desktop-shell').style.width = event.target.value; });
+  document.querySelector('#viewport').addEventListener('change', event => {
+    viewportPreset = event.target.value;
+    applyStudioLayout();
+    persistStudioState();
+  });
   document.querySelector('#enter-preview').addEventListener('click', event => {
     previewReturnTarget = event.currentTarget;
     const shell = document.querySelector('#desktop-shell'); shell.classList.remove('preview-locked'); shell.classList.add('preview-active');
@@ -348,9 +515,19 @@ const setupWorkbench = () => {
   splitter.addEventListener('pointerdown', event => {
     const start = event.clientX; const width = document.querySelector('aside').getBoundingClientRect().width;
     splitter.setPointerCapture(event.pointerId);
-    const move = next => document.documentElement.style.setProperty('--panel-width', Math.min(720, Math.max(320, width - (next.clientX - start))) + 'px');
-    const stop = () => { splitter.removeEventListener('pointermove', move); splitter.removeEventListener('pointerup', stop); };
+    const move = next => setPanelWidth(width - (next.clientX - start));
+    const stop = () => { persistStudioState(); splitter.removeEventListener('pointermove', move); splitter.removeEventListener('pointerup', stop); };
     splitter.addEventListener('pointermove', move); splitter.addEventListener('pointerup', stop);
+  });
+  splitter.addEventListener('keydown', event => {
+    const amount = event.shiftKey ? 40 : 10;
+    if (event.key === 'ArrowLeft') setPanelWidth(panelWidth + amount);
+    else if (event.key === 'ArrowRight') setPanelWidth(panelWidth - amount);
+    else if (event.key === 'Home') setPanelWidth(320);
+    else if (event.key === 'End') setPanelWidth(720);
+    else return;
+    event.preventDefault();
+    persistStudioState();
   });
 };
 const withoutEventStream = callback => {
