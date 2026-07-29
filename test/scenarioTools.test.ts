@@ -26,7 +26,10 @@ import {
   validateXpspackManifest,
 } from '../tools/scenario-tools/src';
 import type { XpspackManifestV1 } from '../tools/scenario-tools/src';
-import { buildBrowserClientSource } from '../tools/scenario-tools/src/serveClient';
+import {
+  buildBrowserClientSource,
+  parsePersistedStudioState,
+} from '../tools/scenario-tools/src/serveClient';
 import {
   buildRehearsalProfile,
   collectBuddies,
@@ -580,6 +583,91 @@ describe('scenario-tools', () => {
     expect(source).toContain('personaTranscript');
     expect(source).toContain('vscode://file');
     expect(source).toContain('Shipping blocked');
+    expect(source).toContain('authoring:studio-state:v1');
+    expect(source).toContain('parseStoredStudioState');
+    expect(source).toContain("splitter.addEventListener('keydown'");
     expect(source).not.toContain('import * as authoredModule');
+  });
+
+  it('restores validated Scenario Studio layout and authoring context', () => {
+    const input = { file: '/story/pack.json', kind: 'pack' };
+    expect(
+      parsePersistedStudioState(
+        JSON.stringify({
+          version: 1,
+          input,
+          layout: { panelWidth: 612, canvasMode: 'map', viewport: '1280px' },
+          context: {
+            activeTask: 'rehearse',
+            activeTool: 'timeline',
+            selectedNodeId: 'puzzle:letter',
+            selectedBeat: 'letter-opened',
+          },
+        }),
+        input
+      )
+    ).toEqual({
+      version: 1,
+      input,
+      layout: { panelWidth: 612, canvasMode: 'map', viewport: '1280px' },
+      context: {
+        activeTask: 'rehearse',
+        activeTool: 'timeline',
+        selectedNodeId: 'puzzle:letter',
+        selectedBeat: 'letter-opened',
+      },
+    });
+  });
+
+  it('rejects corrupt or different-input Scenario Studio state', () => {
+    const input = { file: '/story/pack.json', kind: 'pack' };
+    expect(parsePersistedStudioState('{broken', input)).toBeNull();
+    expect(
+      parsePersistedStudioState(
+        JSON.stringify({
+          version: 1,
+          input: { file: '/another/pack.json', kind: 'pack' },
+          layout: {},
+          context: {},
+        }),
+        input
+      )
+    ).toBeNull();
+    expect(
+      parsePersistedStudioState(
+        JSON.stringify({ version: 2, input, layout: {}, context: {} }),
+        input
+      )
+    ).toBeNull();
+  });
+
+  it('sanitizes invalid Scenario Studio preferences before restoring them', () => {
+    const input = { file: '/story/pack.json', kind: 'pack' };
+    expect(
+      parsePersistedStudioState(
+        JSON.stringify({
+          version: 1,
+          input,
+          layout: { panelWidth: 9999, canvasMode: 'unknown', viewport: '640px' },
+          context: {
+            activeTask: 'rehearse',
+            activeTool: 'shipping',
+            selectedNodeId: 42,
+            selectedBeat: false,
+          },
+        }),
+        input
+      )
+    ).toEqual({
+      version: 1,
+      input,
+      layout: { panelWidth: 720, canvasMode: 'preview', viewport: '100%' },
+      context: {
+        activeTask: 'rehearse',
+        activeTool: 'timeline',
+        selectedNodeId: null,
+        selectedBeat: null,
+      },
+    });
   });
 });
