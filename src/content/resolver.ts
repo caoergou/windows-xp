@@ -75,6 +75,14 @@ export interface ContentResolver {
   resolveOrNull(ref: ContentRef): Promise<string | null>;
 }
 
+/** Built-in resolver extension that distinguishes user reads from background resolution. */
+export interface ReadAwareContentResolver extends ContentResolver {
+  /** Resolve content opened by a user-facing reader and remember it for snapshots. */
+  resolveForRead(ref: ContentRef): Promise<string | null>;
+  /** Return a successfully read body without performing asynchronous I/O. */
+  peekRead(ref: ContentRef): string | null;
+}
+
 /** Thrown by {@link ContentResolver.resolve} when a ref can't be resolved. */
 export class ContentResolveError extends Error {
   constructor(
@@ -107,9 +115,11 @@ const MAX_ASSET_DEPTH = 8;
  * (and resolved-asset) reads so repeated access is cheap, and namespaces cache
  * keys by `packId` when given.
  */
-export function createContentResolver(options: ResolverOptions = {}): ContentResolver {
+export function createContentResolver(options: ResolverOptions = {}): ReadAwareContentResolver {
   const { assets = {}, fetcher = defaultFetcher, cache = memoryContentCache(), packId } = options;
   const ns = packId ? `${packId}::` : '';
+  const readBodies = new Map<string, string>();
+  const refKey = (ref: ContentRef): string => JSON.stringify(ref);
 
   const resolveUrl = async (url: string, ref: ContentRef): Promise<string> => {
     const key = `${ns}url:${url}`;
@@ -152,5 +162,13 @@ export function createContentResolver(options: ResolverOptions = {}): ContentRes
     }
   };
 
-  return { resolve, resolveOrNull };
+  const resolveForRead = async (ref: ContentRef): Promise<string | null> => {
+    const text = await resolveOrNull(ref);
+    if (text !== null) readBodies.set(refKey(ref), text);
+    return text;
+  };
+
+  const peekRead = (ref: ContentRef): string | null => readBodies.get(refKey(ref)) ?? null;
+
+  return { resolve, resolveOrNull, resolveForRead, peekRead };
 }

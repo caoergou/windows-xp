@@ -51,7 +51,7 @@ export function useResolvedContent(
     }
     let cancelled = false;
     setState({ content: '', loading: true, failed: false });
-    resolver.resolveOrNull(contentRef).then(text => {
+    resolver.resolveForRead(contentRef).then(text => {
       if (cancelled) return;
       setState(
         text === null

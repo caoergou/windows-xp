@@ -20,10 +20,14 @@ import type { EvidenceReportProps } from '../apps/EvidenceReport';
 import type { QQArchive } from '../data/qq/types';
 import { mergeContentPacks } from '../content/pack';
 import {
+  buildContentPackSnapshotCatalog,
+  type ContentPackSnapshotCatalog,
+} from '../content/fingerprint';
+import {
   createContentResolver,
   storageContentCache,
   memoryContentCache,
-  type ContentResolver,
+  type ReadAwareContentResolver,
 } from '../content/resolver';
 import { useStorage } from './StorageContext';
 
@@ -45,7 +49,9 @@ export interface ContentPackContextValue {
   /** Merged per-culture string tables. */
   strings: PackStrings;
   /** Resolver bound to the merged assets + this instance's storage cache. */
-  resolver: ContentResolver;
+  resolver: ReadAwareContentResolver;
+  /** Per-pack provenance used to make unread snapshot refs verifiable. */
+  snapshotCatalog: ContentPackSnapshotCatalog;
 }
 
 const EMPTY: ContentPackContextValue = {
@@ -58,6 +64,7 @@ const EMPTY: ContentPackContextValue = {
   qqArchives: [],
   strings: {},
   resolver: createContentResolver({ cache: memoryContentCache() }),
+  snapshotCatalog: buildContentPackSnapshotCatalog([]),
 };
 
 const ContentPackContext = createContext<ContentPackContextValue | null>(null);
@@ -68,6 +75,7 @@ export const ContentPackProvider: React.FC<{
 }> = ({ packs, children }) => {
   const storage = useStorage();
   const merged = useMemo(() => mergeContentPacks(packs ?? []), [packs]);
+  const snapshotCatalog = useMemo(() => buildContentPackSnapshotCatalog(packs ?? []), [packs]);
   const resolver = useMemo(
     () =>
       createContentResolver({
@@ -78,8 +86,8 @@ export const ContentPackProvider: React.FC<{
     [merged, storage]
   );
   const value = useMemo<ContentPackContextValue>(
-    () => ({ ...merged, resolver }),
-    [merged, resolver]
+    () => ({ ...merged, resolver, snapshotCatalog }),
+    [merged, resolver, snapshotCatalog]
   );
   return <ContentPackContext.Provider value={value}>{children}</ContentPackContext.Provider>;
 };
