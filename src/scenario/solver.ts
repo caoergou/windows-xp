@@ -135,6 +135,22 @@ export const solveScenario = (
       throw new Error(`solveScenario exceeded ${cap} events — likely an emit cycle`);
     }
     const event = queue.shift() as XPEvent;
+    // Player-authored filesystem events happen before ScenarioRunner observes
+    // them in the live desktop. Mirror that ordering so FS predicates can gate
+    // the same trigger during headless rehearsal (#267).
+    if (event.type === 'file:update' && event.content !== undefined) {
+      setFs(event.path, cell => ({ ...cell, exists: true, content: event.content }));
+    } else if (event.type === 'file:unlock') {
+      // The public event predates path-aware events and only carries `name`.
+      // Update every seeded node with that basename; duplicate names are
+      // indistinguishable to the runtime event contract as well.
+      fs.forEach((cell, key) => {
+        const segments = key.split('/');
+        if (segments[segments.length - 1] === event.name) {
+          fs.set(key, { ...cell, exists: true, locked: false });
+        }
+      });
+    }
     journal = appendJournal(journal, event);
     scenario.triggers.forEach((trigger, index) => {
       if (!matchOn(trigger.on, event.type)) return;

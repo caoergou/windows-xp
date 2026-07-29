@@ -164,6 +164,48 @@ describe('compile → solve (end to end)', () => {
     expect(r.flags[solvedFlag('chat')]).toBe(true);
     expect(ranAction(r, 'unlock')).toBe(true);
   });
+
+  it('mirrors player file:update and file:unlock events into the solver FS (#267)', () => {
+    const fsScenario = {
+      id: 'event-fs-bridge',
+      triggers: [
+        {
+          id: 'typed-passphrase',
+          on: 'file:update' as const,
+          when: {
+            contentContains: { path: ['Desktop', 'answer.txt'], contains: 'BLUE MOON' },
+          },
+          do: [{ setFlag: 'typed' }],
+        },
+        {
+          id: 'opened-vault',
+          on: 'file:unlock' as const,
+          when: { unlocked: ['D', 'Vault'] },
+          do: [{ setFlag: 'unlocked' }],
+        },
+      ],
+    };
+    const result = solveScenario(
+      fsScenario,
+      [
+        {
+          type: 'file:update',
+          path: ['Desktop', 'answer.txt'],
+          name: 'answer.txt',
+          content: 'The phrase is BLUE MOON.',
+        },
+        { type: 'file:unlock', name: 'Vault' },
+      ],
+      {
+        fs: [
+          { path: ['Desktop', 'answer.txt'], content: '' },
+          { path: ['D', 'Vault'], locked: true },
+        ],
+      }
+    );
+
+    expect(result.flags).toMatchObject({ typed: true, unlocked: true });
+  });
 });
 
 describe('lintPuzzleGraph', () => {

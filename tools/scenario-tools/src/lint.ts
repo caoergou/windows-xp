@@ -1,7 +1,7 @@
 import { access } from 'node:fs/promises';
 import path from 'node:path';
 import { buildSiteRegistry, normalizeSiteUrl } from '../../../src/content/pack';
-import type { ContentPack, ContentRef } from '../../../src/content/types';
+import type { ContentPack, ContentRef, NarrativeRef } from '../../../src/content/types';
 import {
   compilePuzzleGraph,
   lintPuzzleGraph,
@@ -42,6 +42,51 @@ const actionEvents = (actions: Action[], out: string[] = []): string[] => {
   return out;
 };
 
+const VISIBLE_ACTION_KEYS = new Set([
+  'notify',
+  'note',
+  'qqMessage',
+  'qqOnline',
+  'openApp',
+  'openFile',
+  'playSound',
+  'alert',
+  'addFile',
+  'removeFile',
+  'writeFile',
+  'unlock',
+]);
+
+const hasVisibleAction = (actions: Action[]): boolean =>
+  actions.some(action => {
+    if ('after' in action) return hasVisibleAction(action.after.do);
+    return Object.keys(action).some(key => VISIBLE_ACTION_KEYS.has(key));
+  });
+
+const isPlayerActionEvent = (eventType: string): boolean =>
+  !eventType.startsWith('time:') &&
+  eventType !== 'flag:change' &&
+  eventType !== 'session:boot-complete' &&
+  eventType !== 'user:idle' &&
+  eventType !== 'notification:show' &&
+  eventType !== 'qq:online';
+
+const conditionHasPlayerEvent = (condition: Condition | undefined): boolean => {
+  if (!condition) return false;
+  if ('all' in condition) return condition.all.some(conditionHasPlayerEvent);
+  if ('any' in condition) return condition.any.some(conditionHasPlayerEvent);
+  if ('not' in condition) return conditionHasPlayerEvent(condition.not);
+  if ('happened' in condition) return isPlayerActionEvent(condition.happened.type);
+  if ('count' in condition) return isPlayerActionEvent(condition.count.type);
+  return false;
+};
+
+const actionCreatesClue = (actions: Action[]): boolean =>
+  actions.some(action => {
+    if ('after' in action) return actionCreatesClue(action.after.do);
+    return 'unlock' in action || 'addFile' in action || 'writeFile' in action;
+  });
+
 const knownPackPaths = (files: ContentPack['files']): Set<string> => {
   const out = new Set<string>();
   const visit = (nodes: Record<string, unknown>, prefix: string[]): void => {
@@ -53,6 +98,209 @@ const knownPackPaths = (files: ContentPack['files']): Set<string> => {
   };
   visit((files ?? {}) as Record<string, unknown>, []);
   return out;
+};
+
+const sameNarrativeRef = (left: NarrativeRef, right: NarrativeRef): boolean => {
+  if (left.kind !== right.kind) return false;
+  if (left.kind === 'asset' && right.kind === 'asset') return left.key === right.key;
+  if (left.kind === 'file' && right.kind === 'file')
+    return left.path.join('/') === right.path.join('/');
+  if (left.kind === 'site' && right.kind === 'site')
+    return normalizeSiteUrl(left.url) === normalizeSiteUrl(right.url);
+  return left.kind === 'contact' && right.kind === 'contact' && left.id === right.id;
+};
+
+const isNarrativeRef = (value: unknown): value is NarrativeRef => {
+  if (!isRecord(value)) return false;
+  if (value.kind === 'asset') return typeof value.key === 'string';
+  if (value.kind === 'file')
+    return Array.isArray(value.path) && value.path.every(segment => typeof segment === 'string');
+  if (value.kind === 'site') return typeof value.url === 'string';
+  return value.kind === 'contact' && typeof value.id === 'string';
+};
+
+const valueContainsPath = (value: unknown, expected: string[]): boolean => {
+  let found = false;
+  walkValue(value, ({ value: candidate }) => {
+    if (
+      Array.isArray(candidate) &&
+      candidate.length === expected.length &&
+      candidate.every((segment, index) => segment === expected[index])
+    ) {
+      found = true;
+    }
+  });
+  return found;
+};
+
+const valueContainsString = (value: unknown, expected: string): boolean => {
+  let found = false;
+  walkValue(value, ({ value: candidate }) => {
+    if (candidate === expected) found = true;
+  });
+  return found;
+};
+
+const narrativeRefExists = (
+  ref: NarrativeRef,
+  pack: ContentPack,
+  filePaths: Set<string>,
+  sites: Set<string>
+): boolean => {
+  if (ref.kind === 'asset') return Object.prototype.hasOwnProperty.call(pack.assets ?? {}, ref.key);
+  if (ref.kind === 'file') return filePaths.has(ref.path.join('/'));
+  if (ref.kind === 'site') return sites.has(normalizeSiteUrl(ref.url));
+  // Contact definitions currently live in scenario/QQ archive data rather than
+  // a single registry, so explicit occurrence is the truthful existence test.
+  return valueContainsString(pack.scenario, ref.id) || valueContainsString(pack.qqArchives, ref.id);
+};
+
+const assetCarrierRefs = (pack: ContentPack, asset: string): NarrativeRef[] => {
+  const refs: NarrativeRef[] = [];
+  const visitFiles = (nodes: Record<string, unknown>, prefix: string[]): void => {
+    Object.entries(nodes).forEach(([key, node]) => {
+      const path = [...prefix, key];
+      if (isRecord(node)) {
+        if (isRecord(node.contentRef) && node.contentRef.asset === asset) {
+          refs.push({ kind: 'file', path });
+        }
+        if (isRecord(node.children)) visitFiles(node.children, path);
+      }
+    });
+  };
+  visitFiles((pack.files ?? {}) as Record<string, unknown>, []);
+  Object.entries(pack.sites ?? {}).forEach(([url, site]) => {
+    let usesAsset = false;
+    walkValue(site, ({ value }) => {
+      if (isRecord(value) && value.asset === asset) usesAsset = true;
+    });
+    if (usesAsset) refs.push({ kind: 'site', url });
+  });
+  return refs;
+};
+
+const narrativeRefRecovered = (ref: NarrativeRef, pack: ContentPack): boolean => {
+  const scenario = pack.scenario;
+  if (!scenario) return false;
+  if (ref.kind === 'file') return valueContainsPath(scenario, ref.path);
+  if (ref.kind === 'site') {
+    const normalized = normalizeSiteUrl(ref.url);
+    let found = false;
+    walkValue(scenario, ({ value }) => {
+      if (typeof value === 'string' && /^https?:\/\//i.test(value)) {
+        if (normalizeSiteUrl(value) === normalized) found = true;
+      }
+    });
+    return found;
+  }
+  if (ref.kind === 'contact') return valueContainsString(scenario, ref.id);
+  if (valueContainsString(scenario, ref.key)) return true;
+  return assetCarrierRefs(pack, ref.key).some(carrier => narrativeRefRecovered(carrier, pack));
+};
+
+const lintNarrativeMetadata = (pack: ContentPack, diagnostics: Diagnostic[]): void => {
+  const metadata = pack.narrative;
+  if (!isRecord(metadata)) return;
+  const filePaths = knownPackPaths(pack.files);
+  const sites = new Set(Object.keys(buildSiteRegistry(pack.sites)));
+  const prominent = Array.isArray(metadata.prominent) ? metadata.prominent : [];
+  const redHerrings = Array.isArray(metadata.redHerrings) ? metadata.redHerrings : [];
+  const ids = new Set<string>();
+
+  prominent.forEach((item, index) => {
+    if (!isRecord(item) || typeof item.id !== 'string' || !isNarrativeRef(item.ref)) return;
+    const itemId = item.id;
+    const itemRef = item.ref;
+    const itemPath = `$.narrative.prominent[${index}]`;
+    if (ids.has(itemId)) {
+      diagnostics.push(
+        diagnostic(
+          'warning',
+          'duplicate-narrative-id',
+          `duplicate narrative id "${itemId}"`,
+          itemPath
+        )
+      );
+    }
+    ids.add(itemId);
+    if (!narrativeRefExists(itemRef, pack, filePaths, sites)) {
+      diagnostics.push(
+        diagnostic(
+          'warning',
+          'narrative-ref-missing',
+          `prominent item "${itemId}" points to a missing ${itemRef.kind}`,
+          `${itemPath}.ref`
+        )
+      );
+      return;
+    }
+    const registeredAsRedHerring = redHerrings.some(
+      red => isRecord(red) && isNarrativeRef(red.ref) && sameNarrativeRef(red.ref, itemRef)
+    );
+    if (!registeredAsRedHerring && !narrativeRefRecovered(itemRef, pack)) {
+      diagnostics.push(
+        diagnostic(
+          'warning',
+          'chekhov-unresolved',
+          `prominent item "${itemId}" is never recovered by a trigger, puzzle, or debrief`,
+          itemPath
+        )
+      );
+    }
+  });
+
+  redHerrings.forEach((red, index) => {
+    if (!isRecord(red) || typeof red.id !== 'string' || !isNarrativeRef(red.ref)) return;
+    const redId = red.id;
+    const redRef = red.ref;
+    const redPath = `$.narrative.redHerrings[${index}]`;
+    if (ids.has(redId)) {
+      diagnostics.push(
+        diagnostic(
+          'warning',
+          'duplicate-narrative-id',
+          `duplicate narrative id "${redId}"`,
+          redPath
+        )
+      );
+    }
+    ids.add(redId);
+    const missingFields = [
+      typeof red.misdirection !== 'string' || !red.misdirection.trim() ? 'misdirection' : undefined,
+      typeof red.explanation !== 'string' || !red.explanation.trim() ? 'explanation' : undefined,
+      !isNarrativeRef(red.payoff) ? 'payoff' : undefined,
+    ].filter((field): field is string => field !== undefined);
+    if (missingFields.length > 0) {
+      diagnostics.push(
+        diagnostic(
+          'warning',
+          'red-herring-incomplete',
+          `red herring "${redId}" is missing ${missingFields.join(', ')}`,
+          redPath
+        )
+      );
+    }
+    if (!narrativeRefExists(redRef, pack, filePaths, sites)) {
+      diagnostics.push(
+        diagnostic(
+          'warning',
+          'red-herring-ref-missing',
+          `red herring "${redId}" points to a missing ${redRef.kind}`,
+          `${redPath}.ref`
+        )
+      );
+    }
+    if (isNarrativeRef(red.payoff) && !narrativeRefExists(red.payoff, pack, filePaths, sites)) {
+      diagnostics.push(
+        diagnostic(
+          'warning',
+          'red-herring-payoff-missing',
+          `red herring "${redId}" payoff points to a missing ${red.payoff.kind}`,
+          `${redPath}.payoff`
+        )
+      );
+    }
+  });
 };
 
 const lintProviderContexts = (
@@ -202,6 +450,24 @@ export const lintScenario = (scenario: Scenario, options: LintOptions = {}): Lin
 export const lintGraph = (graph: PuzzleGraph): LintResult => {
   const diagnostics: Diagnostic[] = [];
   const ids = new Set<string>();
+  const usesClueLayers = graph.puzzles.some(puzzle => puzzle.tier !== undefined);
+  const byId = new Map(graph.puzzles.map(puzzle => [puzzle.id, puzzle]));
+  const playerDriven = (puzzleId: string, seen = new Set<string>()): boolean => {
+    if (seen.has(puzzleId)) return false;
+    seen.add(puzzleId);
+    const puzzle = byId.get(puzzleId);
+    if (!puzzle) return false;
+    const eventTypes = Array.isArray(puzzle.on)
+      ? puzzle.on
+      : puzzle.on
+        ? [puzzle.on]
+        : conditionEvents(puzzle.solvedWhen);
+    return (
+      eventTypes.some(isPlayerActionEvent) ||
+      conditionHasPlayerEvent(puzzle.solvedWhen) ||
+      (puzzle.requires ?? []).some(requiredId => playerDriven(requiredId, new Set(seen)))
+    );
+  };
   graph.puzzles.forEach((puzzle, index) => {
     if (ids.has(puzzle.id)) {
       diagnostics.push(
@@ -214,6 +480,61 @@ export const lintGraph = (graph: PuzzleGraph): LintResult => {
       );
     }
     ids.add(puzzle.id);
+    if (usesClueLayers && puzzle.tier === undefined) {
+      diagnostics.push(
+        diagnostic(
+          'warning',
+          'clue-tier-missing',
+          `puzzle "${puzzle.id}" must be marked required or optional once clue layers are enabled`,
+          `puzzles[${index}].tier`
+        )
+      );
+    }
+    if (puzzle.tier === 'required') {
+      (puzzle.requires ?? []).forEach(requiredId => {
+        const dependency = graph.puzzles.find(candidate => candidate.id === requiredId);
+        if (dependency?.tier === 'optional') {
+          diagnostics.push(
+            diagnostic(
+              'warning',
+              'required-depends-on-optional',
+              `required puzzle "${puzzle.id}" depends on optional puzzle "${requiredId}"`,
+              `puzzles[${index}].requires`
+            )
+          );
+        }
+      });
+      if (!hasVisibleAction(puzzle.grants ?? [])) {
+        diagnostics.push(
+          diagnostic(
+            'warning',
+            'progress-feedback',
+            `required puzzle "${puzzle.id}" sets progress without a player-visible grant`,
+            `puzzles[${index}].grants`
+          )
+        );
+      }
+      const eventTypes = Array.isArray(puzzle.on)
+        ? puzzle.on
+        : puzzle.on
+          ? [puzzle.on]
+          : conditionEvents(puzzle.solvedWhen);
+      const pureTimer =
+        eventTypes.length > 0 &&
+        eventTypes.every(eventType => eventType.startsWith('time:')) &&
+        !conditionHasPlayerEvent(puzzle.solvedWhen) &&
+        !(puzzle.requires ?? []).some(requiredId => playerDriven(requiredId));
+      if (pureTimer && actionCreatesClue(puzzle.grants ?? [])) {
+        diagnostics.push(
+          diagnostic(
+            'warning',
+            'coincidence-unlocks-required-clue',
+            `required puzzle "${puzzle.id}" reveals a clue from a pure timer without a player-action condition`,
+            `puzzles[${index}]`
+          )
+        );
+      }
+    }
   });
   lintPuzzleGraph(graph).issues.forEach(issue => {
     diagnostics.push(
@@ -502,6 +823,7 @@ export const lintContentPack = async (
         .diagnostics
     );
   }
+  lintNarrativeMetadata(pack, diagnostics);
   return { ok: !hasErrors(diagnostics), diagnostics };
 };
 

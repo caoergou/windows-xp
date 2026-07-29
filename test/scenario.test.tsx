@@ -17,6 +17,7 @@ import {
 } from '../src/scenario/engine';
 import type { Scenario } from '../src/scenario/types';
 import type { XPEvent } from '../src/events';
+import { solveScenario } from '../src/scenario/solver';
 
 const ctx = (over: Partial<EvalContext> = {}): EvalContext => ({
   flags: {},
@@ -131,7 +132,7 @@ describe('scenario runtime — <WindowsXP scenario/>', () => {
     return ref;
   };
 
-  it('gates a locked node on a matching event and records a flag', async () => {
+  it('gates FS state with matching live/headless event ordering', async () => {
     const scenario: Scenario = {
       id: 'test-gate',
       triggers: [
@@ -140,12 +141,23 @@ describe('scenario runtime — <WindowsXP scenario/>', () => {
           when: { event: { command: 'sesame' } },
           do: [{ unlock: ['vault'] }, { setFlag: 'opened' }],
         },
+        {
+          on: 'file:update',
+          when: { contentContains: { path: ['answer.txt'], contains: 'BLUE MOON' } },
+          do: [{ setFlag: 'typed' }],
+        },
+        {
+          on: 'file:unlock',
+          when: { unlocked: ['vault'] },
+          do: [{ setFlag: 'observedUnlock' }],
+        },
       ],
     };
     const ref = await mount(scenario);
 
     act(() => {
       ref.current!.fs.createFile(['vault'], { type: 'folder', locked: true, password: 'x' });
+      ref.current!.fs.createFile(['answer.txt'], { type: 'file', content: '' });
     });
     expect(ref.current!.fs.getNode(['vault'])?.locked).toBe(true);
 
@@ -157,6 +169,35 @@ describe('scenario runtime — <WindowsXP scenario/>', () => {
     act(() => ref.current!.emit({ type: 'cmd:exec', command: 'sesame' }));
     expect(ref.current!.fs.getNode(['vault'])?.locked).toBe(false);
     expect(ref.current!.getSnapshot().flags).toMatchObject({ opened: true });
+    const events: XPEvent[] = [
+      { type: 'cmd:exec', command: 'sesame' },
+      {
+        type: 'file:update',
+        path: ['answer.txt'],
+        name: 'answer.txt',
+        content: 'BLUE MOON',
+      },
+      { type: 'file:unlock', name: 'vault' },
+    ];
+    // Live UI operations commit the FS mutation before publishing their event.
+    await act(async () => {
+      ref.current!.fs.writeFile(['answer.txt'], 'BLUE MOON');
+      await Promise.resolve();
+    });
+    act(() => {
+      ref.current!.emit(events[1]);
+      ref.current!.emit(events[2]);
+    });
+
+    const headless = solveScenario(scenario, events, {
+      fs: [
+        { path: ['answer.txt'], content: '' },
+        { path: ['vault'], locked: true },
+      ],
+    });
+    const expected = { opened: true, typed: true, observedUnlock: true };
+    expect(ref.current!.getSnapshot().flags).toMatchObject(expected);
+    expect(headless.flags).toMatchObject(expected);
   });
 
   it('honors once/max and seeds initialFlags', async () => {
