@@ -5,8 +5,9 @@ chunk compression, separate binary assets, Ed25519 signing, and host-trusted
 Node verification are implemented. The programmatic builder and isolated
 browser/runtime loader support lazy AES-256-GCM chunks with host-provided keys,
 Web Crypto Ed25519, verified asset materialization, and a host Brotli adapter.
-CLI-authored chunk boundaries, hosted per-file fetching, asset compression, and
-Scenario Studio export remain later phases.
+Scenario Studio can estimate and export unsigned JSON or `.xpspack` artifacts
+through the same validated packer as the CLI. CLI-authored chunk boundaries,
+hosted per-file fetching, and asset compression remain later phases.
 
 ## Goals and security boundary
 
@@ -184,6 +185,14 @@ The CLI accepts private keys only through `--sign-key-env <name>` together with
 `--sign-key-id <id>`. CI should populate that environment variable from its
 secret manager. The value is parsed as an Ed25519 PEM private key and is never
 printed, returned from `packDirectory()`, or written into the archive.
+
+Scenario Studio exposes unsigned export only. Its **Shipping** workspace blocks
+export until the current draft's lint, solve, and pack gates pass, then offers
+JSON or `.xpspack` transfer estimates and writes the selected artifact to the
+pack's `dist/` directory. The receipt shows the transferred size, compression,
+chunk boundaries, unsigned status, and output path. The Studio protocol rejects
+unknown export fields and has no private-key or signing-key input; use the CLI in
+CI for signed release artifacts.
 
 Node hosts pass trusted public keys directly to `readXpspack()`:
 

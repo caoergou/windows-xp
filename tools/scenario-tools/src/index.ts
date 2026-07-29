@@ -42,6 +42,8 @@ export { migrateSaveFile, migrateScenarioSave, parseFlagValue, parseScenarioSave
 export type { MigrateOptions, MigrationMap, MigrationResult, ScenarioSave } from './migrate';
 export { buildRehearsalProfile, collectBuddies, replyTexts } from './serveChat';
 export { buildAuthoringSnapshot, scenarioFromLoadedInput } from './authoringSnapshot';
+export { runStudioPackCommand } from './studioExport';
+export type { StudioPackReceipt } from './studioExport';
 export type { BuddyDefinition } from './serveChat';
 export {
   AUTHORING_PROTOCOL_VERSION,
@@ -59,6 +61,7 @@ export type {
   BrowserMessage,
   CompletionContext,
   ControlRequest,
+  PackAuthoringCommand,
   ReplCommand,
 } from './serveProtocol';
 export type {

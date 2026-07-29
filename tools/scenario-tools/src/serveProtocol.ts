@@ -42,8 +42,17 @@ export type BrowserCommand =
   | { type: 'reset' }
   | { type: 'chat'; buddy: string; text: string; profile?: QQProfile };
 
+type PackAuthoringOptions = {
+  format: 'json' | 'xpspack';
+  compression: 'none' | 'gzip' | 'brotli';
+};
+
+export type PackAuthoringCommand = PackAuthoringOptions &
+  ({ type: 'pack-estimate' } | { type: 'pack-export' });
+
 export type AuthoringCommand =
   | BrowserCommand
+  | PackAuthoringCommand
   | { type: 'lint' }
   | { type: 'graph'; format: 'mermaid' | 'dot' | 'json' }
   | {
@@ -155,16 +164,34 @@ const AUTHORING_COMMAND_TYPES = new Set([
   'lint',
   'graph',
   'chat-rehearse',
+  'pack-estimate',
+  'pack-export',
 ]);
 
-export const isAuthoringCommandRequest = (value: unknown): value is AuthoringCommandRequest =>
-  isObject(value) &&
-  value.type === 'authoring-command' &&
-  typeof value.id === 'string' &&
-  value.protocolVersion === AUTHORING_PROTOCOL_VERSION &&
-  isObject(value.command) &&
-  typeof value.command.type === 'string' &&
-  AUTHORING_COMMAND_TYPES.has(value.command.type);
+export const isAuthoringCommandRequest = (value: unknown): value is AuthoringCommandRequest => {
+  if (
+    !isObject(value) ||
+    value.type !== 'authoring-command' ||
+    typeof value.id !== 'string' ||
+    value.protocolVersion !== AUTHORING_PROTOCOL_VERSION ||
+    !isObject(value.command) ||
+    typeof value.command.type !== 'string' ||
+    !AUTHORING_COMMAND_TYPES.has(value.command.type)
+  ) {
+    return false;
+  }
+  if (value.command.type !== 'pack-estimate' && value.command.type !== 'pack-export') return true;
+  if (!Object.keys(value.command).every(key => ['type', 'format', 'compression'].includes(key))) {
+    return false;
+  }
+  return (
+    (value.command.format === 'json' || value.command.format === 'xpspack') &&
+    (value.command.compression === 'none' ||
+      value.command.compression === 'gzip' ||
+      value.command.compression === 'brotli') &&
+    (value.command.format === 'xpspack' || value.command.compression === 'none')
+  );
+};
 
 export const replToAuthoringCommand = (command: ReplCommand): AuthoringCommand | null => {
   if (command.kind === 'help' || command.kind === 'quit') return null;

@@ -44,7 +44,11 @@ authors. Scenario Studio shows independent lint/solve/pack gates, the existing
 dependency graph, rehearsal controls, runtime state, typed event injection,
 persona modes, and shipping sizes around the live desktop preview. It supports
 deterministic seek/step, event injection, flag/trigger inspection, file hot reload,
-and provider persona rehearsal. A failed reload leaves the last valid desktop
+provider persona rehearsal, and unsigned JSON or `.xpspack` export from
+**Shipping** after all three gates pass. Studio estimates transfer and chunk
+sizes before writing to the pack's `dist/` directory. Signing keys are never
+accepted by the browser or Studio protocol; produce signed releases with the CLI
+and a CI-managed `--sign-key-env`. A failed reload leaves the last valid desktop
 usable and marks the preview stale. `chat --offline <buddy>` requires an authored fallback or
 script; use `--provider-url <url>` to POST live chat requests to an author-owned
 endpoint. Use `--no-ui` for the legacy desktop-only browser surface, or `--no-open`
@@ -66,8 +70,9 @@ The live desktop defaults to the `zh` culture required by QQ; pass
 6. Edit and save the pack. A valid draft reloads automatically; an invalid draft
    appears in **Problems** while the preview remains on the visibly stale last
    valid version.
-7. Check declared assets and byte budgets in **Shipping** before running
-   `npm run scenario:ci`.
+7. Check declared assets and byte budgets in **Shipping**, estimate the transfer,
+   and export an unsigned review artifact. Run `npm run scenario:ci`, then use
+   the CLI in CI when the release requires an Ed25519 signature.
 
 The main package exports the pure command implementations and protocol parser.
 Import `startScenarioServer()` from `@caoergou/xp-scenario-tools/serve` only when
