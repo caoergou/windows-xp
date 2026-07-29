@@ -107,9 +107,17 @@ Authentication uses **npm OIDC trusted publishing** via the workflow's
 `id-token: write` permission — **no `NPM_TOKEN` or other secret is required**,
 and provenance is attached automatically. The workflow pins Node 22.22 and npm
 11.11 because trusted publishing requires Node 22.14+ and npm 11.5.1+.
-Trusted publishing must be enabled once for both npm packages, linked to this
-repository and workflow. For the first scenario-tools publication, reserve the
-package name and configure its trusted publisher before creating `v0.4.0`.
+Trusted publishing is configured separately for every npm package. Link each
+package to the `caoergou/windows-xp` repository and the `publish.yml` workflow,
+with no GitHub environment unless the workflow adds one.
+
+npm only permits trusted-publisher configuration after a package exists. When a
+new workspace package is introduced, bootstrap its first version in a separately
+reviewed, one-time workflow using a short-lived token. Immediately configure the
+package's trusted publisher, remove the bootstrap workflow and token, and use
+`publish.yml` for every later release. The bootstrap version cannot gain
+provenance retroactively; subsequent OIDC-published versions include it
+automatically.
 
 ## Design Principles
 
