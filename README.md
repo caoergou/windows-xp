@@ -5,9 +5,10 @@
 **An embeddable Windows XP desktop for React — customize it with your own files and apps, listen to user actions via events, and control it from your own code.**
 
 [![npm version](https://img.shields.io/npm/v/@caoergou/windows-xp.svg)](https://www.npmjs.com/package/@caoergou/windows-xp)
+[![CI](https://github.com/caoergou/windows-xp/actions/workflows/ci.yml/badge.svg)](https://github.com/caoergou/windows-xp/actions/workflows/ci.yml)
+[![minzip bundle size](https://img.shields.io/bundlephobia/minzip/@caoergou/windows-xp?label=minzip)](https://bundlephobia.com/package/@caoergou/windows-xp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-18%20%7C%2019-blue.svg)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
 [Live Demo](https://eric.run.place/windows-xp/) · [English desktop](https://eric.run.place/windows-xp/demo/en/) · [中文桌面](https://eric.run.place/windows-xp/demo/zh/) · [Docs](https://eric.run.place/windows-xp/docs/) · [Roadmap](https://github.com/caoergou/windows-xp/issues/86) · [Report Bug](https://github.com/caoergou/windows-xp/issues)
 
@@ -18,6 +19,8 @@ English | [简体中文](README.zh-CN.md)
 </div>
 
 ---
+
+![Windows XP desktop demo: boot, login, apps, and a scripted story event](docs/assets/windows-xp-demo.gif)
 
 `<WindowsXP>` is a React component that renders a complete Windows XP desktop in the browser. You drop it in, pass your own files, apps, and wallpaper as props, and listen to user actions through `onEvent`.
 
@@ -36,13 +39,22 @@ import { WindowsXP } from '@caoergou/windows-xp';
 import '@caoergou/windows-xp/style.css';
 
 function App() {
-  // autoLogin and skipBoot jump straight to the desktop while you are developing.
-  // Remove them to see the boot screen and login.
   return <WindowsXP autoLogin skipBoot />;
 }
 ```
 
 `react`, `react-dom`, and `styled-components` v6 are peer dependencies; everything else, including the XP theme CSS, is bundled.
+
+### Run it online
+
+No clone or local setup is required. Both examples install the published npm package, exactly like a consumer project:
+
+| Example                          | StackBlitz                                                                                                                      | CodeSandbox                                                                                                |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Minimal React embed              | [Open in StackBlitz](https://stackblitz.com/fork/github/caoergou/windows-xp/tree/main/examples/quick-start?file=src%2FApp.jsx)  | [Open in CodeSandbox](https://codesandbox.io/s/github/caoergou/windows-xp/tree/main/examples/quick-start)  |
+| Custom files + declarative story | [Open in StackBlitz](https://stackblitz.com/fork/github/caoergou/windows-xp/tree/main/examples/custom-story?file=src%2FApp.jsx) | [Open in CodeSandbox](https://codesandbox.io/s/github/caoergou/windows-xp/tree/main/examples/custom-story) |
+
+Want to inspect features without opening an editor? Try a [deep-linked Explorer window](https://eric.run.place/windows-xp/demo/en/?lang=en&open=%E6%88%91%E7%9A%84%E6%96%87%E6%A1%A3) or the [boot, login, and prologue story](https://eric.run.place/windows-xp/demo/zh/?lang=zh&session=full&scenario=prologue&persistence=none).
 
 ## Why this one?
 
