@@ -85,6 +85,12 @@ export const ladderKeys = (
 export interface PuzzleNode {
   /** Stable id (referenced by other nodes' `requires`). */
   id: string;
+  /**
+   * Narrative clue layer (#267). `required` nodes belong to the minimum fair
+   * solution path; `optional` nodes may be missed without blocking the ending.
+   * Omitted keeps pre-#267 graphs backwards compatible.
+   */
+  tier?: 'required' | 'optional';
   /** Puzzle ids that must be solved before this one can be solved. */
   requires?: string[];
   /**

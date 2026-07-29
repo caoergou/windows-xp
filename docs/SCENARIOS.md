@@ -31,10 +31,13 @@ npx xp-scenario serve ./scenario.ts
 ```
 
 `lint` combines the published JSON Schema with semantic checks for puzzle graph
-reachability, event/flag references, authorized URLs, content references and
-provider fallbacks. `solve` replays `rehearsal.walkthrough` without browser or
-provider access. `migrate` is diagnostic unless `--write` is explicit; intentional
-renames use `--map-flag old=new` and `--map-trigger old=new`.
+reachability, event/flag references, authorized URLs, content references,
+provider fallbacks, and the opt-in fair-play metadata described below. `solve`
+replays `rehearsal.walkthrough` without browser or provider access. Player
+`file:update` events carrying `content` and `file:unlock` events update its
+virtual filesystem before trigger evaluation, matching the live desktop.
+`migrate` is diagnostic unless `--write` is explicit; intentional renames use
+`--map-flag old=new` and `--map-trigger old=new`.
 
 `serve` mounts the authored scenario in a live Windows XP desktop and opens an
 interactive control prompt. The prompt can `seek <beat>`, `step back|forward`,
@@ -452,6 +455,15 @@ const scenario = compilePuzzleGraph(graph); // → the Layer-1 Scenario; pass as
 flag/FS/`eventMatch`-only conditions, set `on` explicitly. Mark act bottlenecks
 with `gate: true`.
 
+**Required and optional clue layers (#267).** Add
+`tier: 'required' | 'optional'` to every node once a graph opts into fair-play
+layering. `xp-scenario solve` then expects every required node to be solved from
+the graph's `initialFlags` and walkthrough, while optional nodes may remain
+unseen. The warning-only first-release checks also report an unmarked node in a
+layered graph, a required node depending on an optional one, required progress
+with no visible `grants`, and a pure `time:*` trigger that creates/unlocks a
+required clue. Visible actions nested under `after` count as feedback.
+
 **Hint ladders (M12 anti-stuck contract).** A puzzle's `hints` are an escalating
 ladder, best built with `ladder()`: `ladder({ fails: 2, title: '提示' }, a, b)`
 shows `a` after 2 `password:fail`s and `b` after 4; `ladder({ idles: 1 }, …)`
@@ -480,6 +492,40 @@ shows the pattern: lint the graph, then `solveScenario(compilePuzzleGraph(graph)
 walkthrough)` and assert the ending is reached — and that out-of-order play does
 **not** sequence-break the gate. A story whose walkthrough breaks fails CI like
 any other regression.
+
+### Explicit narrative metadata (#267)
+
+Content packs may opt into Chekhov/red-herring checks without changing runtime
+behavior:
+
+```json
+{
+  "narrative": {
+    "prominent": [
+      {
+        "id": "station-ticket",
+        "tier": "required",
+        "ref": { "kind": "file", "path": ["车票.txt"] }
+      }
+    ],
+    "redHerrings": [
+      {
+        "id": "hidden-debt",
+        "ref": { "kind": "file", "path": ["典当票.txt"] },
+        "misdirection": "It looks like stolen goods.",
+        "explanation": "The owner hid an unrelated family debt.",
+        "payoff": { "kind": "file", "path": ["真相档案.txt"] }
+      }
+    ]
+  }
+}
+```
+
+Refs support `file` (`path`), `site` (`url`), `asset` (`key`), and `contact`
+(`id`). Lint verifies concrete locations, warns when an explicitly prominent
+item is never referenced by scenario logic or a debrief, and accepts a
+registered red herring as intentional recovery. It deliberately does not infer
+prominence from filenames, byte size, or prose tone.
 
 ## Rehearsal & deterministic seek (#207)
 

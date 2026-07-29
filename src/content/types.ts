@@ -93,6 +93,43 @@ export interface SiteDef {
  */
 export type PackStrings = Record<string, Record<string, string>>;
 
+/** An authored story object that the narrative linter can verify (#267). */
+export type NarrativeRef =
+  | { kind: 'asset'; key: string }
+  | { kind: 'file'; path: string[] }
+  | { kind: 'site'; url: string }
+  | { kind: 'contact'; id: string };
+
+/** A deliberately prominent clue or story object (never inferred heuristically). */
+export interface ProminentNarrativeItem {
+  /** Stable authoring id used in diagnostics and red-herring registration. */
+  id: string;
+  /** Whether the minimum fair solution requires this item. */
+  tier: 'required' | 'optional';
+  /** Concrete pack object or contact represented by this item. */
+  ref: NarrativeRef;
+}
+
+/** A fair-play red herring and the in-world location that pays it off. */
+export interface RedHerring {
+  /** Stable authoring id. */
+  id: string;
+  /** The prominent item that performs the misdirection. */
+  ref: NarrativeRef;
+  /** What false conclusion the player is invited to draw. */
+  misdirection: string;
+  /** The independent, non-culprit explanation for the suspicious evidence. */
+  explanation: string;
+  /** A real file/site/asset/contact where that explanation is recovered. */
+  payoff: NarrativeRef;
+}
+
+/** Optional author metadata used only by deterministic narrative checks. */
+export interface NarrativeMetadata {
+  prominent?: ProminentNarrativeItem[];
+  redHerrings?: RedHerring[];
+}
+
 /**
  * A content pack — the top-level unit of an official game's content repository
  * (#86/#241). Every field is optional; a pack may use only one of them (e.g. a
@@ -131,4 +168,9 @@ export interface ContentPack {
   scenario?: Scenario;
   /** Per-culture string tables (#207 copy extraction carrier). */
   strings?: PackStrings;
+  /**
+   * Explicit fair-play metadata for authoring lint (#267). It does not alter
+   * runtime behaviour and is ignored when a pack is mounted.
+   */
+  narrative?: NarrativeMetadata;
 }

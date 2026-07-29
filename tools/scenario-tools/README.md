@@ -19,6 +19,16 @@ npx xp-scenario serve ./scenario.ts
 
 `lint` and `pack` return a non-zero exit code for errors. Warnings remain visible but do not fail CI. `migrate` is diagnostic by default; it writes only when `--write` is explicit, and never guesses a rename. Use `--map-flag old=new` or `--map-trigger old=new` to describe intentional renames.
 
+Narrative fair-play checks are warning-only in their first release (#267).
+Puzzle graphs may mark every node with `tier: "required" | "optional"`; once
+layering is enabled, `solve` requires all and only the required nodes. Lint
+reports mixed/unmarked layers, a required node depending on an optional node,
+silent required progress, and pure-timer clue delivery. Content packs opt into
+Chekhov/red-herring checks through `narrative.prominent` and
+`narrative.redHerrings`; significance is never guessed from names or sizes.
+`file:update` events carrying `content` and `file:unlock` events mutate the
+headless virtual FS before trigger evaluation, matching live runtime ordering.
+
 The versioned `.xpspack` distribution contract is specified in
 [`docs/XPSPACK-FORMAT.md`](../../docs/XPSPACK-FORMAT.md). `pack` keeps JSON as
 its default and can also emit deterministic ZIP-compatible archives with

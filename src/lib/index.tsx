@@ -434,7 +434,16 @@ export type { SanitizeTier, SanitizeOptions } from '../content/sanitizer';
 export { createGeneratedPageCache, normalizeCacheUrl } from '../content/generatedPageCache';
 export type { GeneratedPageCache, GeneratedPageCacheOptions } from '../content/generatedPageCache';
 // Content reference & content-pack model (#241).
-export type { ContentRef, ContentPack, SiteDef, PackStrings } from '../content/types';
+export type {
+  ContentRef,
+  ContentPack,
+  SiteDef,
+  PackStrings,
+  NarrativeRef,
+  ProminentNarrativeItem,
+  RedHerring,
+  NarrativeMetadata,
+} from '../content/types';
 export { isInlineRef, isUrlRef, isAssetRef, isContentRef } from '../content/types';
 export {
   createContentResolver,

@@ -177,7 +177,14 @@ export const solveAuthoredValue = async (
 
   const result = previous;
   const expected = new Map<string, FlagValue>();
-  graph?.puzzles.forEach(puzzle => expected.set(solvedFlag(puzzle.id), true));
+  const explicitlyLayered = graph?.puzzles.some(puzzle => puzzle.tier !== undefined) ?? false;
+  graph?.puzzles.forEach(puzzle => {
+    // Once an author opts into clue layers, optional nodes are deliberately
+    // allowed to remain unsolved. Legacy graphs still expect every node.
+    if (!explicitlyLayered || puzzle.tier === 'required') {
+      expected.set(solvedFlag(puzzle.id), true);
+    }
+  });
   options.expect?.forEach(item => expected.set(item.flag, item.value ?? true));
   const missing: string[] = [];
   expected.forEach((expectedValue, flag) => {

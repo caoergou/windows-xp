@@ -93,6 +93,98 @@ describe('scenario-tools', () => {
     expect(result.diagnostics.some(item => item.message.includes('hint ladder'))).toBe(true);
   });
 
+  it('warns about incomplete clue layers, silent progress, and timer-delivered clues', () => {
+    const result = lintGraph({
+      id: 'narrative-checks',
+      puzzles: [
+        {
+          id: 'optional-lead',
+          tier: 'optional',
+          on: 'file:open',
+          solvedWhen: { event: { name: 'lead.txt' } },
+          hints: [{ text: 'hint' }],
+        },
+        {
+          id: 'timer-reveal',
+          tier: 'required',
+          requires: ['optional-lead'],
+          on: 'time:fire',
+          solvedWhen: { event: { id: 'reveal' } },
+          grants: [{ unlock: ['D', 'clue.txt'] }],
+          hints: [{ text: 'hint' }],
+        },
+        {
+          id: 'unmarked',
+          on: 'file:open',
+          solvedWhen: { event: { name: 'other.txt' } },
+          hints: [{ text: 'hint' }],
+        },
+        {
+          id: 'silent',
+          tier: 'required',
+          on: 'file:open',
+          solvedWhen: { event: { name: 'silent.txt' } },
+          hints: [{ text: 'hint' }],
+        },
+        {
+          id: 'delayed-feedback',
+          tier: 'required',
+          on: 'file:open',
+          solvedWhen: { event: { name: 'later.txt' } },
+          grants: [{ after: { ms: 100, do: [{ notify: { body: 'visible later' } }] } }],
+          hints: [{ text: 'hint' }],
+        },
+      ],
+    });
+
+    expect(codes(result.diagnostics)).toEqual(
+      expect.arrayContaining([
+        'clue-tier-missing',
+        'required-depends-on-optional',
+        'progress-feedback',
+      ])
+    );
+    // A timer gated by an already player-driven dependency is not "pure".
+    expect(
+      result.diagnostics.some(
+        item => item.code === 'coincidence-unlocks-required-clue' && item.path === 'puzzles[1]'
+      )
+    ).toBe(false);
+    expect(
+      result.diagnostics.some(
+        item => item.code === 'progress-feedback' && item.path === 'puzzles[4].grants'
+      )
+    ).toBe(false);
+
+    const pureTimer = lintGraph({
+      id: 'pure-timer',
+      puzzles: [
+        {
+          id: 'timer-root',
+          tier: 'required',
+          on: 'time:fire',
+          solvedWhen: { event: { id: 'first' } },
+          grants: [{ notify: { body: 'automatic beat' } }],
+          hints: [{ text: 'hint' }],
+        },
+        {
+          id: 'free-clue',
+          tier: 'required',
+          requires: ['timer-root'],
+          on: 'time:fire',
+          solvedWhen: { event: { id: 'free' } },
+          grants: [{ unlock: ['D', 'clue.txt'] }],
+          hints: [{ text: 'hint' }],
+        },
+      ],
+    });
+    expect(
+      pureTimer.diagnostics.some(
+        item => item.code === 'coincidence-unlocks-required-clue' && item.path === 'puzzles[1]'
+      )
+    ).toBe(true);
+  });
+
   it('reports broken, orphaned, conflicting, and mutually exclusive content', async () => {
     const pack = {
       id: 'broken-pack',
@@ -118,6 +210,93 @@ describe('scenario-tools', () => {
     expect(codes(result.diagnostics)).toEqual(
       expect.arrayContaining(['broken-asset', 'orphan-asset', 'site-conflict', 'content-exclusive'])
     );
+  });
+
+  it('checks only explicitly prominent story objects and validates red-herring payoffs', async () => {
+    const pack: ContentPack = {
+      id: 'fair-play',
+      files: {
+        'lead.txt': { type: 'file', name: 'lead.txt', content: 'suspicious' },
+        'truth.txt': { type: 'file', name: 'truth.txt', content: 'independent explanation' },
+      },
+      scenario: {
+        id: 'fair-play',
+        triggers: [
+          {
+            on: 'file:open',
+            when: { event: { path: ['lead.txt'] } },
+            do: [{ notify: { body: 'noticed' } }],
+          },
+        ],
+      },
+      narrative: {
+        prominent: [
+          { id: 'lead', tier: 'required', ref: { kind: 'file', path: ['lead.txt'] } },
+          { id: 'decoration', tier: 'optional', ref: { kind: 'file', path: ['truth.txt'] } },
+        ],
+        redHerrings: [
+          {
+            id: 'decoy',
+            ref: { kind: 'file', path: ['truth.txt'] },
+            misdirection: 'The owner looks guilty.',
+            explanation: 'The owner hid an unrelated debt.',
+            payoff: { kind: 'file', path: ['truth.txt'] },
+          },
+        ],
+      },
+    };
+    const clean = await lintContentPack(pack);
+    expect(codes(clean.diagnostics)).not.toContain('chekhov-unresolved');
+
+    const broken: ContentPack = {
+      ...pack,
+      narrative: {
+        prominent: [
+          { id: 'unused', tier: 'required', ref: { kind: 'file', path: ['missing.txt'] } },
+        ],
+        redHerrings: [
+          {
+            id: 'broken-payoff',
+            ref: { kind: 'file', path: ['lead.txt'] },
+            misdirection: 'Wrong suspect.',
+            explanation: 'Unrelated secret.',
+            payoff: { kind: 'file', path: ['missing.txt'] },
+          },
+        ],
+      },
+    };
+    const result = await lintContentPack(broken);
+    expect(codes(result.diagnostics)).toEqual(
+      expect.arrayContaining(['narrative-ref-missing', 'red-herring-payoff-missing'])
+    );
+
+    const unresolved = await lintContentPack({
+      ...pack,
+      narrative: {
+        prominent: [
+          {
+            id: 'unused-but-real',
+            tier: 'optional',
+            ref: { kind: 'file', path: ['truth.txt'] },
+          },
+        ],
+      },
+    });
+    expect(codes(unresolved.diagnostics)).toContain('chekhov-unresolved');
+
+    const incomplete = await lintContentPack({
+      ...pack,
+      narrative: {
+        redHerrings: [
+          {
+            id: 'unfinished',
+            ref: { kind: 'file', path: ['lead.txt'] },
+          },
+        ],
+      },
+    } as unknown as ContentPack);
+    expect(incomplete.ok).toBe(true);
+    expect(codes(incomplete.diagnostics)).toContain('red-herring-incomplete');
   });
 
   it('requires provider fallbacks and validates declared context', () => {
@@ -158,6 +337,49 @@ describe('scenario-tools', () => {
     expect(mermaid).toContain('graph TD');
     expect(mermaid).toContain('classDef gate');
     expect(mermaid).toContain('n2 --> n3');
+  });
+
+  it('proves only required graph nodes after clue layers are enabled', async () => {
+    const graph: PuzzleGraph = {
+      id: 'layered-proof',
+      initialFlags: { ready: true },
+      rehearsal: {
+        walkthrough: [
+          {
+            event: {
+              type: 'file:open',
+              path: ['required.txt'],
+              name: 'required.txt',
+              nodeType: 'file',
+            },
+          },
+        ],
+      },
+      puzzles: [
+        {
+          id: 'must-find',
+          tier: 'required',
+          on: 'file:open',
+          solvedWhen: {
+            all: [{ flag: 'ready' }, { event: { name: 'required.txt' } }],
+          },
+          grants: [{ notify: { body: 'progress' } }],
+          hints: [{ text: 'hint' }],
+        },
+        {
+          id: 'may-miss',
+          tier: 'optional',
+          on: 'file:open',
+          solvedWhen: { event: { name: 'optional.txt' } },
+          hints: [{ text: 'hint' }],
+        },
+      ],
+    };
+    const solved = await solveAuthoredValue('graph', graph);
+
+    expect(solved.ok).toBe(true);
+    expect(solved.expectedFlags).toEqual({ 'solved:must-find': true });
+    expect(solved.result.flags['solved:may-miss']).toBeUndefined();
   });
 
   it('validates and normalizes the directory reference pack with a split size report', async () => {
