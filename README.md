@@ -10,7 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-18%20%7C%2019-blue.svg)](https://reactjs.org/)
 
-[Live Demo](https://eric.run.place/windows-xp/) · [English desktop](https://eric.run.place/windows-xp/demo/en/) · [中文桌面](https://eric.run.place/windows-xp/demo/zh/) · [Docs](https://eric.run.place/windows-xp/docs/) · [Roadmap](https://github.com/caoergou/windows-xp/issues/86) · [Report Bug](https://github.com/caoergou/windows-xp/issues)
+[Live Demo](https://eric.run.place/windows-xp/) · [English desktop](https://eric.run.place/windows-xp/demo/en/) · [中文桌面](https://eric.run.place/windows-xp/demo/zh/) · [Docs](https://eric.run.place/windows-xp/docs/) · [Roadmap](docs/ROADMAP.md) · [Report Bug](https://github.com/caoergou/windows-xp/issues)
 
 > The live demo is a real, running desktop you can drag — no login needed (the demos use `autoLogin`). The two desktop links above drop you straight into the English or Chinese world.
 
@@ -189,7 +189,7 @@ Plus the system itself: boot screen → login → desktop, Start menu, taskbar &
 
 ## Project direction
 
-The roadmap lives in [issue #86](https://github.com/caoergou/windows-xp/issues/86): near-term — ship the engine APIs (events, imperative control, save/load) and the data-driven **scenario system** so puzzle stories are authored as JSON instead of React code; long-term — [OS packages](docs/OS-PLATFORM-VISION.md): the engine decoupled from "XP" so Win98, Win7, or macOS Aqua-style and even **user-defined fictional systems** become installable packages.
+The [original roadmap](docs/ROADMAP.md) is complete: the engine APIs, data-driven scenario stack, standalone authoring tools, and OS-package contract have shipped. The long-term direction remains [installable OS packages](docs/OS-PLATFORM-VISION.md), with XP as the first and default package. New work is tracked through bounded GitHub issues rather than a permanently open umbrella issue.
 
 ## Contributing & docs
 

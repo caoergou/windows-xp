@@ -10,7 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-18%20%7C%2019-blue.svg)](https://reactjs.org/)
 
-[在线演示](https://eric.run.place/windows-xp/) · [English desktop](https://eric.run.place/windows-xp/demo/en/) · [中文桌面](https://eric.run.place/windows-xp/demo/zh/) · [文档站](https://eric.run.place/windows-xp/docs/) · [路线图](https://github.com/caoergou/windows-xp/issues/86) · [报告问题](https://github.com/caoergou/windows-xp/issues)
+[在线演示](https://eric.run.place/windows-xp/) · [English desktop](https://eric.run.place/windows-xp/demo/en/) · [中文桌面](https://eric.run.place/windows-xp/demo/zh/) · [文档站](https://eric.run.place/windows-xp/docs/) · [路线图](docs/ROADMAP.md) · [报告问题](https://github.com/caoergou/windows-xp/issues)
 
 > 在线演示是一个真实运行、可以拖动的桌面——无需登录（演示页自动登录）。上面两个桌面链接可直接进入英文 / 中文世界。
 
@@ -188,7 +188,7 @@ export default function App() {
 
 ## 项目方向
 
-路线图见 [issue #86](https://github.com/caoergou/windows-xp/issues/86)：近期——补齐引擎 API（事件、ref 控制、存档读档）并落地数据驱动的**场景/剧情脚本系统**，让解谜故事用 JSON 编写而不是 React 代码；长期——[OS 包](docs/OS-PLATFORM-VISION.md)：引擎不再只针对 XP 设计，未来 Win98、Win7、类似 macOS Aqua 风格乃至**用户自定义的虚构系统**都可作为主题包安装。
+[原始路线图](docs/ROADMAP.md)已经完成：引擎 API、数据驱动的剧本系统、独立作者工具和 OS 包契约均已交付。长期方向仍是[可安装的 OS 包](docs/OS-PLATFORM-VISION.md)，XP 是第一套默认包。后续工作通过边界明确的 GitHub issue 跟踪，不再保留一个永久开放的总括 issue。
 
 ## 贡献与文档
 
