@@ -442,7 +442,12 @@ export {
   storageContentCache,
   ContentResolveError,
 } from '../content/resolver';
-export type { ContentResolver, ContentCache, ResolverOptions } from '../content/resolver';
+export type {
+  ContentResolver,
+  ReadAwareContentResolver,
+  ContentCache,
+  ResolverOptions,
+} from '../content/resolver';
 export {
   normalizeSiteUrl,
   buildSiteRegistry,
@@ -603,9 +608,10 @@ export type {
 export { defineLesson } from '../lesson/types';
 export { lintLesson, isLessonValid, type LintIssue } from '../lesson/lint';
 export { notepadBasicsLesson } from '../data/lessons/notepadBasics';
-export type { XPSnapshot } from '../snapshot';
+export type { SnapshotContentRefEntry, XPSnapshot, XPSnapshotContentErrorCode } from '../snapshot';
 export {
   XP_SNAPSHOT_VERSION,
+  XPSnapshotContentError,
   XPSnapshotError,
   XPSnapshotVersionError,
   assertLoadableSnapshot,

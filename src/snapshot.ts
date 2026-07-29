@@ -8,7 +8,10 @@
  * imported into another ("share a save"), or shipped by an author as a
  * checkpoint.
  */
-import type { FileNode } from './types';
+import { isContainerNode, isFileContentNode, type FileNode } from './types';
+import { isAssetRef, isContentRef, type ContentRef } from './content/types';
+import type { ReadAwareContentResolver } from './content/resolver';
+import { snapshotPathKey, type ContentPackSnapshotCatalog } from './content/fingerprint';
 import type { RecycleBinItem } from './utils/storage';
 import type { ClockSnapshot } from './context/ClockContext';
 import type { RecentDocumentEntry } from './context/RecentDocumentsContext';
@@ -42,6 +45,26 @@ export interface XPSnapshot {
   mediaSessions?: Record<string, { index: number; position: number }>;
   /** Evidence report drafts and review state (#278). */
   evidenceReports?: Record<string, unknown>;
+  /** ContentRef provenance and optional bodies for portable shared saves (#266). */
+  contentRefs?: SnapshotContentRefEntry[];
+}
+
+export interface SnapshotContentRefEntry {
+  /** Absolute filesystem path below the snapshot root. */
+  path: string[];
+  /** The authored reference retained by the filesystem node. */
+  ref: ContentRef;
+  /** Pack that supplied the file or referenced asset, when applicable. */
+  packId?: string;
+  /** Compatibility fingerprint of that pack's authored asset manifest. */
+  assetManifestFingerprint?: string;
+  /** Present only after a user-facing content reader successfully opened the ref. */
+  resolvedContent?: string;
+}
+
+export interface SnapshotContentSource extends ContentPackSnapshotCatalog {
+  assets: Record<string, ContentRef>;
+  resolver: Pick<ReadAwareContentResolver, 'peekRead'>;
 }
 
 /** Base class for any reason a snapshot cannot be loaded (#208). */
@@ -57,6 +80,26 @@ export class XPSnapshotVersionError extends XPSnapshotError {
   constructor(message: string) {
     super(message);
     this.name = 'XPSnapshotVersionError';
+  }
+}
+
+export type XPSnapshotContentErrorCode =
+  | 'snapshot-content-pack-missing'
+  | 'snapshot-content-pack-mismatch'
+  | 'snapshot-content-asset-missing'
+  | 'snapshot-content-entry-invalid';
+
+/** Structured failure for a snapshot whose external content cannot be restored. */
+export class XPSnapshotContentError extends XPSnapshotError {
+  constructor(
+    readonly code: XPSnapshotContentErrorCode,
+    message: string,
+    readonly path: string[],
+    readonly packId?: string,
+    readonly asset?: string
+  ) {
+    super(message);
+    this.name = 'XPSnapshotContentError';
   }
 }
 
@@ -94,6 +137,15 @@ const validateNode = (node: unknown, path: string): void => {
     for (const [key, child] of Object.entries(node.children)) {
       validateNode(child, `${path}.children[${JSON.stringify(key)}]`);
     }
+  } else if (node.type === 'file') {
+    if (node.content !== undefined && typeof node.content !== 'string') {
+      throw new XPSnapshotError(
+        `${path}.content: expected a string, got ${describe(node.content)}.`
+      );
+    }
+    if (node.contentRef !== undefined && !isContentRef(node.contentRef)) {
+      throw new XPSnapshotError(`${path}.contentRef: expected a valid ContentRef.`);
+    }
   }
 };
 
@@ -107,6 +159,138 @@ const describe = (v: unknown): string => {
 
 const isPrimitive = (v: unknown): boolean =>
   v === null || ['string', 'number', 'boolean'].includes(typeof v);
+
+const sameRef = (left: ContentRef, right: ContentRef): boolean =>
+  JSON.stringify(left) === JSON.stringify(right);
+
+const findNode = (tree: { root: FileNode }, path: string[]): FileNode | null => {
+  let node: FileNode = tree.root;
+  for (const segment of path) {
+    if (!isContainerNode(node)) return null;
+    const child = node.children[segment];
+    if (!child) return null;
+    node = child;
+  }
+  return node;
+};
+
+const walkContentRefs = (
+  node: FileNode,
+  path: string[],
+  visit: (node: FileNode, path: string[]) => void
+): void => {
+  visit(node, path);
+  if (!isContainerNode(node)) return;
+  for (const [key, child] of Object.entries(node.children)) {
+    walkContentRefs(child, [...path, key], visit);
+  }
+};
+
+/** Capture contentRef provenance without turning solver-only resolutions into reads. */
+export const captureSnapshotContentRefs = (
+  tree: { root: FileNode },
+  source: SnapshotContentSource
+): SnapshotContentRefEntry[] => {
+  const entries: SnapshotContentRefEntry[] = [];
+  walkContentRefs(tree.root, [], (node, path) => {
+    if (!isFileContentNode(node) || !node.contentRef) return;
+    const ref = node.contentRef;
+    const packId = isAssetRef(ref)
+      ? source.assetOrigins[ref.asset]
+      : source.fileOrigins[snapshotPathKey(path)];
+    const assetManifestFingerprint = packId ? source.packFingerprints[packId] : undefined;
+    const resolvedContent = source.resolver.peekRead(ref);
+    entries.push({
+      path,
+      ref,
+      ...(packId ? { packId } : {}),
+      ...(assetManifestFingerprint ? { assetManifestFingerprint } : {}),
+      ...(resolvedContent !== null ? { resolvedContent } : {}),
+    });
+  });
+  return entries;
+};
+
+/**
+ * Clone and prepare snapshot filesystem content before persistence.
+ *
+ * Read refs become self-contained inline files. Unread refs remain lazy, but
+ * their pack and manifest fingerprint must match the mounted content catalog.
+ */
+export const prepareSnapshotFilesystem = (
+  snapshot: XPSnapshot,
+  source: SnapshotContentSource
+): { root: FileNode } => {
+  const tree = JSON.parse(JSON.stringify(snapshot.fs)) as { root: FileNode };
+  for (const entry of snapshot.contentRefs ?? []) {
+    const node = findNode(tree, entry.path);
+    const asset = isAssetRef(entry.ref) ? entry.ref.asset : undefined;
+    if (
+      !node ||
+      !isFileContentNode(node) ||
+      !node.contentRef ||
+      !sameRef(node.contentRef, entry.ref)
+    ) {
+      throw new XPSnapshotContentError(
+        'snapshot-content-entry-invalid',
+        `Snapshot content entry at ${JSON.stringify(entry.path)} does not match its filesystem node.`,
+        entry.path,
+        entry.packId,
+        asset
+      );
+    }
+    if (entry.resolvedContent !== undefined) {
+      node.content = entry.resolvedContent;
+      delete node.contentRef;
+      continue;
+    }
+    if (!entry.packId || !entry.assetManifestFingerprint) {
+      if (asset) {
+        throw new XPSnapshotContentError(
+          'snapshot-content-pack-missing',
+          `Snapshot unread asset "${asset}" at ${JSON.stringify(entry.path)} does not name its originating content pack.`,
+          entry.path,
+          entry.packId,
+          asset
+        );
+      }
+      continue;
+    }
+    const mountedFingerprint = source.packFingerprints[entry.packId];
+    if (!mountedFingerprint) {
+      throw new XPSnapshotContentError(
+        'snapshot-content-pack-missing',
+        `Snapshot requires content pack "${entry.packId}" for unread${asset ? ` asset "${asset}"` : ' content'} at ${JSON.stringify(entry.path)}.`,
+        entry.path,
+        entry.packId,
+        asset
+      );
+    }
+    if (mountedFingerprint !== entry.assetManifestFingerprint) {
+      throw new XPSnapshotContentError(
+        'snapshot-content-pack-mismatch',
+        `Snapshot content pack "${entry.packId}" has a different asset manifest for unread${asset ? ` asset "${asset}"` : ' content'} at ${JSON.stringify(entry.path)}.`,
+        entry.path,
+        entry.packId,
+        asset
+      );
+    }
+    if (
+      asset &&
+      (!Object.prototype.hasOwnProperty.call(source.assets, asset) ||
+        source.assetOrigins[asset] !== entry.packId)
+    ) {
+      throw new XPSnapshotContentError(
+        'snapshot-content-asset-missing',
+        `Snapshot content pack "${entry.packId}" does not provide unread asset "${asset}" at ${JSON.stringify(entry.path)}.`,
+        entry.path,
+        entry.packId,
+        asset
+      );
+    }
+  }
+  return tree;
+};
 
 /**
  * Validate a value is a loadable snapshot for this build (#117, #208). Throws
@@ -203,5 +387,52 @@ export function assertLoadableSnapshot(value: unknown): asserts value is XPSnaps
   }
   if (snap.evidenceReports !== undefined && !isPlainObject(snap.evidenceReports)) {
     throw new XPSnapshotError('evidenceReports: expected an object.');
+  }
+  if (snap.contentRefs !== undefined) {
+    if (!Array.isArray(snap.contentRefs)) {
+      throw new XPSnapshotError('contentRefs: expected an array.');
+    }
+    const paths = new Set<string>();
+    for (const [index, entry] of snap.contentRefs.entries()) {
+      const entryPath = `contentRefs[${index}]`;
+      if (!isPlainObject(entry)) {
+        throw new XPSnapshotError(`${entryPath}: expected an object.`);
+      }
+      if (
+        !Array.isArray(entry.path) ||
+        entry.path.some(segment => typeof segment !== 'string' || segment.length === 0)
+      ) {
+        throw new XPSnapshotError(`${entryPath}.path: expected non-empty string segments.`);
+      }
+      const pathKey = snapshotPathKey(entry.path);
+      if (paths.has(pathKey)) {
+        throw new XPSnapshotError(`${entryPath}.path: duplicate snapshot content path.`);
+      }
+      paths.add(pathKey);
+      if (!isContentRef(entry.ref)) {
+        throw new XPSnapshotError(`${entryPath}.ref: expected a valid ContentRef.`);
+      }
+      if (entry.packId !== undefined && typeof entry.packId !== 'string') {
+        throw new XPSnapshotError(`${entryPath}.packId: expected a string.`);
+      }
+      if (
+        entry.assetManifestFingerprint !== undefined &&
+        typeof entry.assetManifestFingerprint !== 'string'
+      ) {
+        throw new XPSnapshotError(`${entryPath}.assetManifestFingerprint: expected a string.`);
+      }
+      if (entry.resolvedContent !== undefined && typeof entry.resolvedContent !== 'string') {
+        throw new XPSnapshotError(`${entryPath}.resolvedContent: expected a string.`);
+      }
+      const node = findNode(snap.fs as { root: FileNode }, entry.path);
+      if (
+        !node ||
+        !isFileContentNode(node) ||
+        !node.contentRef ||
+        !sameRef(node.contentRef, entry.ref)
+      ) {
+        throw new XPSnapshotError(`${entryPath}: does not match its filesystem contentRef.`);
+      }
+    }
   }
 }

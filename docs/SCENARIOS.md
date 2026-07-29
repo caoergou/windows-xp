@@ -659,3 +659,19 @@ malformed structure, each naming the path (e.g.
 `fs.root.children["C盘"].type: expected one of 'root'|'folder'|…, got undefined`).
 It also rejects a snapshot over 5 MB. Validation runs **before** any storage
 write, so a rejected snapshot leaves the desktop untouched.
+
+Files backed by a `contentRef` have portable save semantics:
+
+- Once a user opens a referenced document, its resolved body is embedded in the
+  snapshot. A recipient can therefore read exactly what the sender saw even
+  without the original content pack.
+- An unread reference stays lazy. Its snapshot entry records the originating
+  `pack.id` and a deterministic asset-manifest fingerprint; import requires the
+  matching pack and asset.
+- A missing pack, changed manifest, or missing asset rejects the whole import
+  atomically with `XPSnapshotContentError`. Its `code`, `packId`, `asset`, and
+  `path` fields are suitable for a host-facing error message.
+
+The manifest fingerprint detects accidental pack-version mismatches; it is not
+an authenticity or signature mechanism. Use the signed `.xpspack` workflow when
+the pack itself is untrusted.

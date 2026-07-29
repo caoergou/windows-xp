@@ -16,7 +16,13 @@ import { isContainerNode, isFileContentNode, type FileNode } from '../types';
 import { canUseDOM } from '../utils/storage';
 import { decodeOpenWindows, encodeOpenWindows } from '../utils/windowPersistence';
 import { saveLanguage, getSavedLanguage } from '../utils/language';
-import { XP_SNAPSHOT_VERSION, assertLoadableSnapshot, type XPSnapshot } from '../snapshot';
+import {
+  XP_SNAPSHOT_VERSION,
+  assertLoadableSnapshot,
+  captureSnapshotContentRefs,
+  prepareSnapshotFilesystem,
+  type XPSnapshot,
+} from '../snapshot';
 import { playSound } from '../utils/soundManager';
 import { openExternalUrl } from '../utils/externalLink';
 import { serializeOpenPath } from '../utils/deepLink';
@@ -37,6 +43,7 @@ import type { FlagValue } from '../scenario/types';
 import { useCulture } from '../context/CultureContext';
 import { usePowerTransition } from '../context/PowerTransitionContext';
 import { useOSPackage } from '../os/OSPackageContext';
+import { useContentPacks } from '../context/ContentPackContext';
 
 /** Filesystem actuation from outside the desktop (#115). Paths are absolute. */
 export interface XPFsApi {
@@ -269,6 +276,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
     const { culture } = useCulture();
     const power = usePowerTransition();
     const os = useOSPackage();
+    const content = useContentPacks();
 
     useImperativeHandle(ref, (): XPHandle => {
       return {
@@ -292,6 +300,9 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
           const key = path[path.length - 1] ?? node.name;
           const resolved = resolveFileOpen(key, node, os.appRoles, registry, path);
           if (!resolved) return null;
+          if (isFileContentNode(node) && node.contentRef) {
+            void content.resolver.resolveForRead(node.contentRef);
+          }
           return openWindow(resolved.appId, node.name, resolved.component, resolved.icon, {
             ...resolved.windowProps,
             sourcePath: path,
@@ -497,6 +508,12 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
 
         getSnapshot: (): XPSnapshot => {
           const openWindows = decodeOpenWindows(storage.local.getItem(storage.key('open_windows')));
+          const snapshotFs = getFsSnapshot();
+          const contentRefs = captureSnapshotContentRefs(snapshotFs, {
+            ...content.snapshotCatalog,
+            assets: content.assets,
+            resolver: content.resolver,
+          });
           // Scenario progress (#84) lives under the canonical flags key.
           let flags: Record<string, unknown> = {};
           let mediaSessions: Record<string, { index: number; position: number }> = {};
@@ -521,7 +538,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
           }
           return {
             version: XP_SNAPSHOT_VERSION,
-            fs: getFsSnapshot(),
+            fs: snapshotFs,
             recycleBin: getRecycleBinItems(),
             openWindows,
             wallpaper: wallpaper ?? null,
@@ -532,12 +549,18 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
             printJobs: print.jobs,
             mediaSessions,
             evidenceReports,
+            ...(contentRefs.length > 0 ? { contentRefs } : {}),
           };
         },
 
         loadSnapshot: async (snapshot: XPSnapshot) => {
           assertLoadableSnapshot(snapshot);
-          await loadFsSnapshot(snapshot.fs, snapshot.recycleBin ?? {});
+          const snapshotFs = prepareSnapshotFilesystem(snapshot, {
+            ...content.snapshotCatalog,
+            assets: content.assets,
+            resolver: content.resolver,
+          });
+          await loadFsSnapshot(snapshotFs, snapshot.recycleBin ?? {});
           storage.local.setItem(
             storage.key('open_windows'),
             encodeOpenWindows(snapshot.openWindows ?? [])
@@ -609,6 +632,7 @@ export const XPImperativeApi = React.forwardRef<XPHandle, { storagePrefix?: stri
       print,
       power,
       os.appRoles,
+      content,
     ]);
 
     void fs;
