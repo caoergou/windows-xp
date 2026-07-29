@@ -1,5 +1,6 @@
-import { readFile } from 'node:fs/promises';
+import { cp, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { createHash, generateKeyPairSync } from 'node:crypto';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import type { ContentPack } from '../src/content/types';
@@ -22,6 +23,7 @@ import {
   renderAuthoringGraph,
   readXpspack,
   readDeterministicZip,
+  runStudioPackCommand,
   solveAuthoredValue,
   validateXpspackManifest,
 } from '../tools/scenario-tools/src';
@@ -493,6 +495,43 @@ describe('scenario-tools', () => {
         command: { type: 'unknown' },
       })
     ).toBe(false);
+    expect(
+      isAuthoringCommandRequest({
+        type: 'authoring-command',
+        id: 'ui-3',
+        protocolVersion: AUTHORING_PROTOCOL_VERSION,
+        command: {
+          type: 'pack-estimate',
+          format: 'xpspack',
+          compression: 'brotli',
+        },
+      })
+    ).toBe(true);
+    expect(
+      isAuthoringCommandRequest({
+        type: 'authoring-command',
+        id: 'ui-4',
+        protocolVersion: AUTHORING_PROTOCOL_VERSION,
+        command: {
+          type: 'pack-export',
+          format: 'json',
+          compression: 'brotli',
+        },
+      })
+    ).toBe(false);
+    expect(
+      isAuthoringCommandRequest({
+        type: 'authoring-command',
+        id: 'ui-5',
+        protocolVersion: AUTHORING_PROTOCOL_VERSION,
+        command: {
+          type: 'pack-export',
+          format: 'xpspack',
+          compression: 'brotli',
+          privateKey: 'must-not-cross-the-studio-protocol',
+        },
+      })
+    ).toBe(false);
   });
 
   it('builds a JSON-serializable Scenario Studio snapshot with independent gates', async () => {
@@ -513,6 +552,65 @@ describe('scenario-tools', () => {
       })
     );
     expect(() => JSON.stringify(snapshot)).not.toThrow();
+  });
+
+  it('estimates and exports unsigned Studio artifacts through the CLI packer', async () => {
+    const temporaryRoot = await mkdtemp(path.join(tmpdir(), 'xp-studio-export-'));
+    const packDirectoryPath = path.join(temporaryRoot, 'reference-content-pack');
+    await cp(path.resolve('examples/reference-content-pack'), packDirectoryPath, {
+      recursive: true,
+    });
+
+    try {
+      const input = await loadInput(packDirectoryPath);
+      const snapshot = await buildAuthoringSnapshot(input, 1, {
+        status: 'current',
+        lastValidAt: '2026-07-29T00:00:00.000Z',
+      });
+      const estimate = await runStudioPackCommand(input, snapshot, {
+        type: 'pack-estimate',
+        format: 'xpspack',
+        compression: 'brotli',
+      });
+      expect(estimate).toMatchObject({
+        mode: 'estimate',
+        format: 'xpspack',
+        compression: 'brotli',
+        signed: false,
+      });
+      expect(estimate).not.toHaveProperty('output');
+      expect(estimate.report.transferredBytes).toBeGreaterThan(0);
+      expect(estimate.report.chunks).toEqual([
+        expect.objectContaining({ id: 'public', compression: 'brotli' }),
+      ]);
+
+      const exported = await runStudioPackCommand(input, snapshot, {
+        type: 'pack-export',
+        format: 'xpspack',
+        compression: 'brotli',
+      });
+      expect(exported).toMatchObject({
+        mode: 'export',
+        filename: 'reference-prologue-pack.xpspack',
+        signed: false,
+        output: path.join(packDirectoryPath, 'dist', 'reference-prologue-pack.xpspack'),
+      });
+      if (!exported.output) throw new Error('Studio export did not return an output path');
+      const artifact = await readFile(exported.output);
+      await expect(readXpspack(artifact)).resolves.toMatchObject({
+        pack: expect.objectContaining({ id: 'reference-prologue-pack' }),
+      });
+
+      await expect(
+        runStudioPackCommand(
+          input,
+          { ...snapshot, reload: { status: 'stale', error: 'draft changed' } },
+          { type: 'pack-export', format: 'json', compression: 'none' }
+        )
+      ).rejects.toThrow('current draft is stale');
+    } finally {
+      await rm(temporaryRoot, { recursive: true, force: true });
+    }
   });
 
   it('discovers provider buddies and their deterministic offline replies', () => {
@@ -583,6 +681,9 @@ describe('scenario-tools', () => {
     expect(source).toContain('personaTranscript');
     expect(source).toContain('vscode://file');
     expect(source).toContain('Shipping blocked');
+    expect(source).toContain('type: button.dataset.packCommand');
+    expect(source).toContain('Studio exports unsigned');
+    expect(source).toContain('Signing keys stay in the CLI or CI secret manager');
     expect(source).toContain('authoring:studio-state:v1');
     expect(source).toContain('parseStoredStudioState');
     expect(source).toContain("splitter.addEventListener('keydown'");

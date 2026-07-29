@@ -139,6 +139,11 @@ const pendingAuthoring = new Map();
 const injectedHistory = [];
 const personaTranscript = [];
 let assetFilter = 'all';
+let exportFormat = 'xpspack';
+let exportCompression = 'brotli';
+let exportReceipt = null;
+let exportError = '';
+let exportPending = false;
 const TASK_TOOLS = {
   build: [['problems', 'Problems'], ['map', 'Story map']],
   rehearse: [['timeline', 'Timeline'], ['events', 'Events'], ['personas', 'Personas']],
@@ -321,16 +326,29 @@ const personaContent = snapshot => snapshot.buddies.length ? snapshot.buddies.ma
   const transcript = personaTranscript.filter(entry => entry.buddy === item.id).slice(-4);
   return '<article class="buddy"><div class="buddy-heading"><strong>' + escapeHtml(item.id) + '</strong><span>Offline fallback ' + (item.hasFallback ? 'ready' : 'missing') + '</span></div><label>Message<textarea data-persona-message="' + escapeHtml(item.id) + '" rows="2" placeholder="Write a rehearsal message…"></textarea></label><div class="persona-modes"><button data-chat="mock" data-buddy="' + escapeHtml(item.id) + '">Mock</button><button data-chat="offline" data-buddy="' + escapeHtml(item.id) + '" ' + (item.hasFallback ? '' : 'disabled') + '>Offline</button><button data-chat="provider" data-buddy="' + escapeHtml(item.id) + '" ' + (item.hasProvider ? '' : 'disabled') + '>Provider</button></div>' + (transcript.length ? '<div class="transcript">' + transcript.map(entry => '<div><span class="provenance">' + escapeHtml(entry.mode) + '</span><p><b>You</b> ' + escapeHtml(entry.message) + '</p><p><b>' + escapeHtml(item.id) + '</b> ' + escapeHtml(entry.response ?? entry.error) + '</p></div>').join('') + '</div>' : '<p class="notice">Run a mode to compare authored responses.</p>') + '</article>';
 }).join('') : '<div class="empty-state"><strong>No authored personas.</strong><span>Add a buddy profile with a deterministic fallback to rehearse conversations here.</span></div>';
+const formatBytes = value => value < 1024 ? value + ' B' : value < 1024 * 1024 ? (value / 1024).toFixed(1) + ' KB' : (value / 1024 / 1024).toFixed(1) + ' MB';
+const exportReceiptContent = receipt => {
+  if (!receipt) return '<p class="notice">Estimate first to inspect transfer size and chunk boundaries.</p>';
+  const chunks = receipt.report.chunks.length
+    ? '<div class="export-chunks"><span>Chunk boundaries</span>' + receipt.report.chunks.map(chunk => '<div><code>' + escapeHtml(chunk.id) + '</code><span>' + escapeHtml(chunk.compression) + '</span><strong>' + formatBytes(chunk.rawBytes) + ' → ' + formatBytes(chunk.storedBytes) + '</strong></div>').join('') + '</div>'
+    : '<p class="notice">JSON export contains one uncompressed document.</p>';
+  return '<div class="export-receipt" aria-live="polite"><div class="receipt-heading"><span>' + (receipt.mode === 'export' ? 'Exported artifact' : 'Transfer estimate') + '</span><strong>' + escapeHtml(receipt.filename) + '</strong></div><dl><div><dt>Format</dt><dd>' + escapeHtml(receipt.format) + '</dd></div><div><dt>Raw content</dt><dd>' + formatBytes(receipt.report.totalBytes) + '</dd></div><div><dt>Transfer</dt><dd>' + formatBytes(receipt.report.transferredBytes) + '</dd></div><div><dt>Signature</dt><dd class="unsigned">Unsigned</dd></div></dl>' + chunks + (receipt.output ? '<div class="export-path"><span>Written to</span><code>' + escapeHtml(receipt.output) + '</code><button data-copy-output="' + escapeHtml(receipt.output) + '">Copy path</button></div>' : '') + '</div>';
+};
 const shippingContent = snapshot => {
   const report = snapshot.pack.result;
   if (!report) return '<div class="empty-state"><strong>No pack report available.</strong><span>Open a ContentPack input to inspect assets and shipping budgets.</span></div>';
   const percent = Math.min(100, Math.round(report.scenarioBytes / report.scenarioLimitBytes * 100));
   const displayPercent = percent === 0 && report.scenarioBytes > 0 ? '&lt;1' : String(percent);
-  const blockers = [['Lint', snapshot.lint], ['Solve', snapshot.solve], ['Pack', snapshot.pack]].filter(([, value]) => value.status === 'fail');
+  const blockers = [['Lint', snapshot.lint], ['Solve', snapshot.solve], ['Pack', snapshot.pack]].filter(([, value]) => value.status !== 'pass');
   const assetProblem = item => (snapshot.lint.result?.diagnostics ?? []).find(diagnostic => (diagnostic.path ?? '').includes(item.key) && ['broken-asset', 'missing-file', 'orphan-asset', 'duplicate-file'].includes(diagnostic.code));
   const allAssets = [...report.assets].sort((a, b) => (b.bytes ?? -1) - (a.bytes ?? -1));
   const assets = allAssets.filter(item => assetFilter === 'all' || (assetFilter === 'issues' ? assetProblem(item) : assetFilter === 'remote' ? item.bytes === null : item.bytes !== null));
-  return '<div class="ship-summary"><div><span>Scenario budget</span><strong>' + report.scenarioBytes + ' / ' + report.scenarioLimitBytes + ' B</strong></div><div class="budget"><i style="width:' + Math.max(1, percent) + '%"></i></div><small>' + displayPercent + '% used · packed total ' + report.totalBytes + ' B</small></div>' + (blockers.length ? '<div class="ship-blockers"><strong>Shipping blocked</strong>' + blockers.map(([name]) => '<span>' + name + ' gate failed</span>').join('') + '</div>' : '<div class="ship-ready"><strong>All shipping gates pass.</strong><span>Review the largest assets before publishing.</span></div>') + '<div class="asset-heading"><h3>Largest assets</h3><span>' + allAssets.length + ' declared</span></div><div class="asset-filters">' + [['all','All'],['local','Local'],['remote','Remote'],['issues','Issues']].map(([id,label]) => '<button data-asset-filter="' + id + '" aria-pressed="' + (assetFilter === id) + '">' + label + '</button>').join('') + '</div>' + (assets.length ? assets.map((item, index) => { const problem = assetProblem(item); return '<div class="asset"><b>' + (index + 1) + '</b><code>' + escapeHtml(item.key) + '</code><span>' + escapeHtml(item.source) + (problem ? '<small>' + escapeHtml(problem.code) + '</small>' : '') + '</span><strong>' + escapeHtml(item.bytes ?? 'remote') + (item.bytes === null ? '' : ' B') + '</strong></div>'; }).join('') : '<p class="notice">No assets match this filter.</p>');
+  const stale = snapshot.reload.status !== 'current';
+  const exportDisabled = blockers.length || stale || connectionState === 'disconnected' || exportPending;
+  const disabled = exportDisabled ? 'disabled' : '';
+  const compressionDisabled = exportFormat === 'json' ? 'disabled' : '';
+  const exportPanel = '<section class="export-card"><div class="export-title"><div><span>Distribution artifact</span><h3>Export this draft</h3></div><span class="signature-state">Studio exports unsigned</span></div><div class="export-controls"><label>Format<select id="export-format"><option value="xpspack" ' + (exportFormat === 'xpspack' ? 'selected' : '') + '>.xpspack</option><option value="json" ' + (exportFormat === 'json' ? 'selected' : '') + '>JSON</option></select></label><label>Compression<select id="export-compression" ' + compressionDisabled + '><option value="none" ' + (exportCompression === 'none' ? 'selected' : '') + '>None</option><option value="gzip" ' + (exportCompression === 'gzip' ? 'selected' : '') + '>gzip</option><option value="brotli" ' + (exportCompression === 'brotli' ? 'selected' : '') + '>Brotli</option></select></label></div><div class="export-actions"><button data-pack-command="pack-estimate" ' + disabled + '>' + (exportPending ? 'Working…' : 'Estimate') + '</button><button class="primary-action" data-pack-command="pack-export" ' + disabled + '>Export to dist</button></div>' + (exportError ? '<p class="export-error" role="alert">' + escapeHtml(exportError) + '</p>' : '') + exportReceiptContent(exportReceipt) + '<div class="security-boundary"><strong>Client-visible boundary</strong><span>The root pack, including authored answers or unreleased material, remains readable offline. Use encrypted lazy chunks only with keys withheld by an author-owned service.</span><span>Signing keys stay in the CLI or CI secret manager and are never accepted by Studio.</span></div><details class="deployment-guide"><summary>Choose a deployment profile</summary><p><b>Offline:</b> portable and optionally signed; no content secrecy.</p><p><b>Hosted:</b> release encrypted chapter keys after progression checks.</p><p><b>Server-authoritative:</b> validate important answers and progression on the author-owned server.</p></details></section>';
+  return '<div class="ship-summary"><div><span>Scenario budget</span><strong>' + report.scenarioBytes + ' / ' + report.scenarioLimitBytes + ' B</strong></div><div class="budget"><i style="width:' + Math.max(1, percent) + '%"></i></div><small>' + displayPercent + '% used · packed total ' + report.totalBytes + ' B</small></div>' + (blockers.length || stale ? '<div class="ship-blockers"><strong>Shipping blocked</strong>' + blockers.map(([name, value]) => '<span>' + name + ' gate is ' + value.status + '</span>').join('') + (stale ? '<span>Reload a valid current draft before exporting</span>' : '') + '</div>' : '<div class="ship-ready"><strong>All shipping gates pass.</strong><span>Review the largest assets, estimate transfer size, then export.</span></div>') + exportPanel + '<div class="asset-heading"><h3>Largest assets</h3><span>' + allAssets.length + ' declared</span></div><div class="asset-filters">' + [['all','All'],['local','Local'],['remote','Remote'],['issues','Issues']].map(([id,label]) => '<button data-asset-filter="' + id + '" aria-pressed="' + (assetFilter === id) + '">' + label + '</button>').join('') + '</div>' + (assets.length ? assets.map((item, index) => { const problem = assetProblem(item); return '<div class="asset"><b>' + (index + 1) + '</b><code>' + escapeHtml(item.key) + '</code><span>' + escapeHtml(item.source) + (problem ? '<small>' + escapeHtml(problem.code) + '</small>' : '') + '</span><strong>' + escapeHtml(item.bytes ?? 'remote') + (item.bytes === null ? '' : ' B') + '</strong></div>'; }).join('') : '<p class="notice">No assets match this filter.</p>');
 };
 const toolContent = (name, snapshot) => {
   if (name === 'problems') {
@@ -454,6 +472,22 @@ const bindPanel = () => {
   document.querySelectorAll('[data-copy-source]').forEach(button => button.addEventListener('click', async () => { await navigator.clipboard.writeText(button.dataset.copySource); showToast('Location copied'); }));
   document.querySelectorAll('[data-related-node]').forEach(button => button.addEventListener('click', () => openRelatedNode(button.dataset.relatedNode)));
   document.querySelectorAll('[data-asset-filter]').forEach(button => button.addEventListener('click', () => { assetFilter = button.dataset.assetFilter; renderStudio(); }));
+  document.querySelector('#export-format')?.addEventListener('change', event => {
+    exportFormat = event.target.value;
+    if (exportFormat === 'json') exportCompression = 'none';
+    exportReceipt = null; exportError = ''; renderStudio();
+  });
+  document.querySelector('#export-compression')?.addEventListener('change', event => {
+    exportCompression = event.target.value; exportReceipt = null; exportError = '';
+  });
+  document.querySelectorAll('[data-pack-command]').forEach(button => button.addEventListener('click', () => {
+    exportPending = true; exportError = ''; renderStudio();
+    command({ type: button.dataset.packCommand, format: exportFormat, compression: exportCompression });
+  }));
+  document.querySelector('[data-copy-output]')?.addEventListener('click', async event => {
+    await navigator.clipboard.writeText(event.currentTarget.dataset.copyOutput);
+    showToast('Export path copied');
+  });
   document.querySelectorAll('[data-chat]').forEach(button => button.addEventListener('click', () => {
     const input = document.querySelector('[data-persona-message="' + CSS.escape(button.dataset.buddy) + '"]');
     const message = input.value.trim();
@@ -470,6 +504,10 @@ const bindPanel = () => {
   if (selectedNodeId && document.querySelector('#node-detail')) selectGraphNode(selectedNodeId);
 };
 const renderWorkbench = snapshot => {
+  if (currentSnapshot && snapshot.revision !== currentSnapshot.revision) {
+    exportReceipt = null;
+    exportError = '';
+  }
   currentSnapshot = snapshot;
   restoreStudioState(snapshot);
   validateStudioContext(snapshot);
@@ -673,10 +711,19 @@ if (isPreviewFrame) {
         personaTranscript.push({ buddy: authoredCommand.buddy, message: authoredCommand.message, mode: authoredCommand.mode, ...(result.ok ? { response: result.data?.text ?? '' } : { error: result.error }) });
         if (activeTool === 'personas') renderStudio();
       }
-      showToast(result.ok ? 'Command completed' : result.error, !result.ok);
+      if (authoredCommand?.type === 'pack-estimate' || authoredCommand?.type === 'pack-export') {
+        exportPending = false;
+        if (result.ok) { exportReceipt = result.data; exportError = ''; }
+        else { exportReceipt = null; exportError = result.error; }
+        if (activeTool === 'shipping') renderStudio();
+        showToast(result.ok ? (authoredCommand.type === 'pack-export' ? 'Export completed' : 'Estimate ready') : result.error, !result.ok);
+      } else {
+        showToast(result.ok ? 'Command completed' : result.error, !result.ok);
+      }
     }
     else if (event.data?.type === 'studio-connection') {
       connectionState = event.data.state;
+      if (connectionState === 'disconnected') exportPending = false;
       if (currentSnapshot) renderWorkbench(currentSnapshot);
     } else if (event.data?.type === 'studio-preview-exit') {
       const shell = document.querySelector('#desktop-shell'); shell.classList.add('preview-locked'); shell.classList.remove('preview-active');
