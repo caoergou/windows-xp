@@ -83,11 +83,28 @@ export interface QQMe {
 }
 
 /**
+ * Credentials shown by the simulated QQ login panel.
+ *
+ * These values are presentation data for a fictional desktop, not an
+ * authentication boundary. Keeping them outside `QQMe` also prevents the
+ * password from entering the QQ runtime store after login.
+ */
+export interface QQLoginConfig {
+  /** Account shown in the login form. Falls back to `me.number`. */
+  number?: string;
+  /** Optional remembered password shown through a password input. */
+  password?: string;
+  /** Initial state of the "Remember password" checkbox. Defaults to whether a password is supplied. */
+  rememberPassword?: boolean;
+}
+
+/**
  * A QQ profile: buddy list + groups + my profile. Provided as the culture package field 'qq',
  * or injected at runtime by the host via 'XPHandle.qq'.
  */
 export interface QQProfile {
   me: QQMe;
+  login?: QQLoginConfig;
   groups: QQGroup[];
   buddies: QQBuddy[];
 }

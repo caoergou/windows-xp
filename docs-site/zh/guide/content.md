@@ -105,6 +105,31 @@ const jpRetroCulture = defineCulture({
 <WindowsXP language="ja" cultures={[jpRetroCulture]} />;
 ```
 
+内置 QQ 客户端会从文化包的 `qq` 档案读取身份与登录默认值。账号默认回退到
+`me.number`；如果虚构桌面需要展示已记住的凭据，可以声明可选的 `login`：
+
+```tsx
+import type { QQProfile } from '@caoergou/windows-xp';
+
+const qq: QQProfile = {
+  me: {
+    number: '123456',
+    nickname: '夜班列车',
+    avatar: 50,
+    status: 'online',
+  },
+  login: {
+    password: 'story-password',
+    rememberPassword: true,
+  },
+  groups: [],
+  buddies: [],
+};
+```
+
+这些凭据只控制模拟登录表单，并不构成真实的身份验证边界。账号和密码均非空时，
+登录按钮才可用。
+
 > **注意 `app` 与 `action` 的区别。** 在 `desktopShortcuts` 中使用 `app` 字段；在 `startMenu` 的 `pinned` / `recent` 中使用 `action` 字段。二者都应填入已注册的应用 id，只是内部类型命名不同。
 
 第三语言文化包注意事项：

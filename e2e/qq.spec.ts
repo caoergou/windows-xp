@@ -10,6 +10,8 @@ import { login } from './helpers/login';
 async function openQQPanel(page: Page) {
   await page.locator('[data-english-testid="desktop-icon-QQ"]').dblclick();
   await expect(page.locator('[data-testid="qq-login"]')).toBeVisible();
+  await expect(page.locator('[data-testid="qq-login-number"]')).toHaveValue('10001');
+  await page.locator('[data-testid="qq-login-password"]').fill('password');
   await page.locator('[data-testid="qq-login-button"]').click();
   await expect(page.locator('[data-testid="qq-panel"]')).toBeVisible({ timeout: 8000 });
 }

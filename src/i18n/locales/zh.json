@@ -884,6 +884,7 @@
       "rememberPassword": "记住密码",
       "autoLogin": "自动登录",
       "invisibleLogin": "隐身登录",
+      "advancedSettings": "高级设置",
       "loginButton": "登  录",
       "cancelButton": "取  消",
       "register": "注册新账号",
