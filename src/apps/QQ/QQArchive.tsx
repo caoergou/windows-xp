@@ -343,7 +343,10 @@ export const searchQQArchive = (archive: QQArchiveData, query: string): QQArchiv
 
 const dayKey = (iso: string): string => iso.slice(0, 10);
 
-const QQArchive: React.FC<{ archiveId?: string }> = ({ archiveId }) => {
+const QQArchive: React.FC<{ archiveId?: string; conversationId?: string }> = ({
+  archiveId,
+  conversationId: initialConversationId,
+}) => {
   const { t, i18n } = useTranslation();
   const content = useContentPacks();
   const { culture } = useCulture();
@@ -352,8 +355,13 @@ const QQArchive: React.FC<{ archiveId?: string }> = ({ archiveId }) => {
   const archive = content.qqArchives.find(item => item.id === archiveId) ?? content.qqArchives[0];
   const key = storage.key(`qq_archive_${archive?.id ?? 'empty'}_query`);
   const [query, setQuery] = useState(() => storage.local.getItem(key) ?? '');
-  const [kind, setKind] = useState<'direct' | 'group'>('direct');
-  const [conversationId, setConversationId] = useState(archive?.conversations[0]?.id ?? '');
+  const initialConversation = archive?.conversations.find(
+    item => item.id === initialConversationId
+  );
+  const [kind, setKind] = useState<'direct' | 'group'>(initialConversation?.kind ?? 'direct');
+  const [conversationId, setConversationId] = useState(
+    initialConversation?.id ?? archive?.conversations[0]?.id ?? ''
+  );
   const resultIds = useMemo(
     () => new Set(archive ? searchQQArchive(archive, query).map(item => item.id) : []),
     [archive, query]

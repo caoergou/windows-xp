@@ -210,6 +210,50 @@ Rules that matter:
   `@caoergou/windows-xp/registry` for the same `unknown → props` cast the
   built-ins use.
 
+### QQ group chat and message history
+
+Mount authored QQ conversations through a content pack. A conversation with
+`kind: 'group'` powers both the **群/校友录** group-chat window and the separate,
+read-only Message History Manager:
+
+```tsx
+import type { ContentPack } from '@caoergou/windows-xp';
+
+const storyPack: ContentPack = {
+  id: 'story-chat',
+  qqArchives: [
+    {
+      id: 'summer-2006',
+      conversations: [
+        {
+          id: 'classmates',
+          title: 'Weekend LAN Party',
+          kind: 'group',
+          memberIds: ['alice', 'bob'],
+          messages: [
+            {
+              id: 'classmates-1',
+              senderId: 'alice',
+              senderName: 'Alice',
+              sentAt: '2006-08-12T17:41:00+08:00',
+              text: 'Eight o’clock tonight?',
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+<WindowsXP contentPacks={[storyPack]} />;
+```
+
+Member ids resolve against the active culture's `qq.buddies`; sender names in
+the authored messages remain the fallback. Sending in the group window is
+session-local and does not mutate the authored archive. Selecting the panel
+entry also emits `ui:action` with `appId: 'QQ'`,
+`control: 'open-group-chat'`, and the selected conversation id as `value`.
+
 ## Build a blog on the desktop
 
 The desktop makes a natural portfolio/blog shell — posts as `.md` files opened

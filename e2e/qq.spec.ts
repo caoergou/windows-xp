@@ -129,6 +129,47 @@ test.describe('QQ refinements (#refine-qq)', () => {
     );
   });
 
+  test('group entry opens an authored group chat with members and a composer (#311)', async ({
+    page,
+  }) => {
+    await login(page, { lang: 'zh', query: 'content=reference&persistence=none' });
+    await openQQPanel(page);
+    await page.locator('[data-testid="qq-group-chat-entry"]').click();
+
+    await expect(page.locator('[data-testid="qq-group-chat"]')).toBeVisible();
+    await expect(page.locator('[data-testid="qq-group-identity"]')).toContainText('周末联机小队');
+    await expect(page.locator('[data-testid="qq-group-messages"]')).toContainText(
+      '今晚八点，还是 CS 1.6？'
+    );
+    await expect(page.locator('[data-testid="qq-group-members"]')).toContainText('水晶女孩');
+    await expect(page.locator('[data-testid="qq-group-members"]')).toContainText('阿辉');
+
+    await page.locator('[data-testid="qq-group-input"]').fill('八点见 /wx');
+    await page.locator('[data-testid="qq-group-send"]').click();
+    await expect(page.locator('[data-testid="qq-group-messages"]')).toContainText('八点见');
+    await expect(page.locator('[data-testid="qq-group-messages"]')).toContainText('往事随风');
+
+    await page.locator('[data-testid="qq-group-history"]').click();
+    await expect(page.locator('[data-testid="qq-archive"]')).toBeVisible();
+    await expect(page.locator('[data-testid="qq-archive-conversations"]')).toContainText(
+      '周末联机小队'
+    );
+    await expect(page.locator('[data-testid="qq-archive-history"]')).toContainText(
+      '今晚八点，还是 CS 1.6？'
+    );
+  });
+
+  test('main panel exposes message history without opening the menu (#311)', async ({ page }) => {
+    await login(page, { lang: 'zh', query: 'content=reference&persistence=none' });
+    await openQQPanel(page);
+    await page.locator('[data-testid="qq-message-manager-button"]').click();
+
+    await expect(page.locator('[data-testid="qq-archive"]')).toBeVisible();
+    await expect(page.locator('[data-testid="qq-archive-conversations"]')).toContainText(
+      '水晶女孩'
+    );
+  });
+
   test('tray icon has a right-click status menu', async ({ page }) => {
     await openQQPanel(page);
     await page.locator('[data-tray-id="qq"]').click({ button: 'right' });

@@ -858,6 +858,27 @@
       "groupPrefix": "Group: ",
       "attachment": "Attachment: {{name}}"
     },
+    "groupChat": {
+      "windowTitle": "{{title}} - Group Chat",
+      "noConversationTitle": "Group Chat",
+      "noConversationHint": "No group conversation is mounted.",
+      "noMessages": "No messages yet.",
+      "identity": "{{title}} ({{count}} members)",
+      "members": "Group members ({{count}})",
+      "groupInfo": "Group info",
+      "groupFiles": "Group files",
+      "groupAlbum": "Group album",
+      "invite": "Invite",
+      "font": "Font",
+      "emoji": "Emoticons",
+      "picture": "Send picture",
+      "screenshot": "Screen capture",
+      "composer": "Group message",
+      "history": "Message history(H)",
+      "messageMode": "Message mode(T)",
+      "close": "Close(C)",
+      "send": "Send(S)"
+    },
     "title": "QQ",
     "login": {
       "accountLabel": "QQ Number:",
