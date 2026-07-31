@@ -95,7 +95,8 @@ test.describe('Windows XP Nostalgia - Dogfood Tests', () => {
 
     // QQ2006-style login window (banner + account/password, no captcha).
     await expect(page.locator('[data-testid="qq-login"]')).toBeVisible();
-    await page.locator('[data-testid="qq-login-number"]').fill('10001');
+    await expect(page.locator('[data-testid="qq-login-number"]')).toHaveValue('10001');
+    await page.locator('[data-testid="qq-login-password"]').fill('password');
 
     // Log in → loading strip → buddy-list panel.
     await page.locator('[data-testid="qq-login-button"]').click();

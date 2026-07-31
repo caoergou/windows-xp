@@ -581,6 +581,8 @@ export type {
   QQArchiveAttachment,
   QQArchiveConversation,
   QQArchiveMessage,
+  QQLoginConfig,
+  QQProfile,
 } from '../data/qq/types';
 export type {
   Confidence,
