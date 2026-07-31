@@ -852,6 +852,27 @@
       "groupPrefix": "群：",
       "attachment": "附件：{{name}}"
     },
+    "groupChat": {
+      "windowTitle": "{{title}} - 群聊天",
+      "noConversationTitle": "群聊天",
+      "noConversationHint": "未挂载群会话。",
+      "noMessages": "暂无群消息。",
+      "identity": "{{title}}（{{count}} 人）",
+      "members": "群成员（{{count}}）",
+      "groupInfo": "群资料",
+      "groupFiles": "群共享",
+      "groupAlbum": "群相册",
+      "invite": "邀请",
+      "font": "字体",
+      "emoji": "表情",
+      "picture": "发送图片",
+      "screenshot": "屏幕捕捉",
+      "composer": "群消息",
+      "history": "消息记录(H)",
+      "messageMode": "消息模式(T)",
+      "close": "关闭(C)",
+      "send": "发送(S)"
+    },
     "title": "QQ",
     "login": {
       "accountLabel": "QQ号：",

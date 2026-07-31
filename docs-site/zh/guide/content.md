@@ -198,6 +198,48 @@ const NoteApp = defineApp<{ text: string }>({
 - 运行时回调应该挂在事件总线（`onEvent`）或 `lifecycle` 上，绝不能放进 props。在组件内部通过 `import { useApp } from '@caoergou/windows-xp'` 使用 `useApp()` 访问窗口/会话状态。
 - 需要手动构建 `AppRegistryEntry`？从 `@caoergou/windows-xp/registry` 导入 `restoreApp` 辅助函数，它提供与内置应用相同的 `unknown → props` 转换。
 
+### QQ 群聊与消息记录
+
+通过内容包挂载 QQ 会话。`kind: 'group'` 的会话会同时驱动主面板
+**群/校友录**入口打开的群聊窗口，以及职责独立、只读的消息记录管理器：
+
+```tsx
+import type { ContentPack } from '@caoergou/windows-xp';
+
+const storyPack: ContentPack = {
+  id: 'story-chat',
+  qqArchives: [
+    {
+      id: 'summer-2006',
+      conversations: [
+        {
+          id: 'classmates',
+          title: '周末联机小队',
+          kind: 'group',
+          memberIds: ['alice', 'bob'],
+          messages: [
+            {
+              id: 'classmates-1',
+              senderId: 'alice',
+              senderName: '小艾',
+              sentAt: '2006-08-12T17:41:00+08:00',
+              text: '今晚八点？',
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+<WindowsXP contentPacks={[storyPack]} />;
+```
+
+成员 id 会从当前文化包的 `qq.buddies` 解析，找不到时回退到历史消息中的发送者名称。
+群聊窗口中新发送的消息只在本次窗口会话中存在，不会修改作者声明的只读档案。
+点击主面板入口还会发出 `ui:action`：`appId: 'QQ'`、
+`control: 'open-group-chat'`，所选会话 id 位于 `value`。
+
 ## 在桌面上搭建博客
 
 这个桌面天然适合做作品集/博客外壳——文章作为 `.md` 文件在 Markdown 查看器中打开、永久链接、用 RSS + sitemap 做 SEO。它有独立的一页：**[在桌面上搭建博客](/zh/guide/blog)**。

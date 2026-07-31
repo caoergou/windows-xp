@@ -21,8 +21,10 @@ import type { QQStatus } from '../../data/qq/types';
 import { useProviders } from '../../providers/ProviderContext';
 import { useFileSystem } from '../../context/FileSystemContext';
 import { useStorage } from '../../context/StorageContext';
+import { useContentPacks } from '../../context/ContentPackContext';
 import { SCENARIO_FLAGS_KEY } from '../../components/ScenarioRunner';
 import QQArchive from './QQArchive';
+import QQGroupChat, { findQQGroupConversation } from './QQGroupChat';
 
 type Phase = 'login' | 'loading' | 'panel';
 
@@ -74,6 +76,7 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   const providers = useProviders();
   const { getFile } = useFileSystem();
   const storage = useStorage();
+  const content = useContentPacks();
   const profile = culture.qq ?? defaultQQProfile;
 
   const [phase, setPhase] = useState<Phase>('login');
@@ -136,6 +139,48 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
       componentProps: { view: 'archive' },
     });
   }, [t]);
+
+  const openGroupChat = useCallback(() => {
+    const match = findQQGroupConversation(content.qqArchives);
+    bus.emit({
+      type: 'ui:action',
+      appId: 'QQ',
+      control: 'open-group-chat',
+      value: match?.conversation.id,
+    });
+    const existing = wmRef.current.windows.find(window => {
+      const props = window.componentProps as { view?: string; conversationId?: string };
+      return (
+        window.appId === 'QQ' &&
+        props.view === 'group-chat' &&
+        props.conversationId === match?.conversation.id
+      );
+    });
+    if (existing) {
+      wmRef.current.focusWindow(existing.id);
+      return;
+    }
+    const title = match?.conversation.title ?? t('qq.groupChat.noConversationTitle');
+    wmRef.current.openWindow(
+      'QQ',
+      t('qq.groupChat.windowTitle', { title }),
+      <QQGroupChat archiveId={match?.archive.id} conversationId={match?.conversation.id} />,
+      'qq',
+      {
+        width: SIZE.chat.w,
+        height: SIZE.chat.h,
+        minWidth: SIZE.chat.w,
+        minHeight: SIZE.chat.h,
+        resizable: false,
+        frameless: true,
+        componentProps: {
+          view: 'group-chat',
+          archiveId: match?.archive.id,
+          conversationId: match?.conversation.id,
+        },
+      }
+    );
+  }, [bus, content.qqArchives, t]);
 
   // --- Quit QQ: close all chat windows, reset runtime, and allow the main window to close (bypass close guard) ------
   const exitQQ = useCallback(() => {
@@ -373,7 +418,12 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
         onMinimize={() => api.window.minimize()}
         onClose={() => api.window.close()}
       >
-        <QQBuddyList onOpenChat={openChat} onOpenArchive={openArchive} onExit={exitQQ} />
+        <QQBuddyList
+          onOpenChat={openChat}
+          onOpenGroupChat={openGroupChat}
+          onOpenArchive={openArchive}
+          onExit={exitQQ}
+        />
       </QQFrame>
       {closeAsk && <QQCloseDialog onConfirm={onCloseChoice} onCancel={() => setCloseAsk(false)} />}
     </>

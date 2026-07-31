@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { PanelRoot, BuddyTooltip } from './styles';
 import { qqImg, qqAvatar } from './assets';
@@ -94,6 +95,8 @@ interface QQBuddyListProps {
   onExit: () => void;
   /** Open the read-only message-history manager (#280). */
   onOpenArchive: () => void;
+  /** Open the first data-driven group conversation (#311). */
+  onOpenGroupChat: () => void;
 }
 
 interface HoverInfo {
@@ -102,7 +105,13 @@ interface HoverInfo {
   y: number;
 }
 
-const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onOpenArchive, onExit }) => {
+const QQBuddyList: React.FC<QQBuddyListProps> = ({
+  onOpenChat,
+  onOpenArchive,
+  onOpenGroupChat,
+  onExit,
+}) => {
+  const { t } = useTranslation();
   const state = useQQStore();
   const { me, groups, buddies, openGroups, unread } = state;
   const { openWindow } = useWindowManagerActions();
@@ -262,8 +271,17 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onOpenArchive, on
             })}
           </div>
           <button className="qq-btn">手机好友</button>
-          <button className="qq-btn">群/校友录</button>
-          <button className="qq-btn">最近联系人</button>
+          <button className="qq-btn" data-testid="qq-group-chat-entry" onClick={onOpenGroupChat}>
+            群/校友录
+          </button>
+          <button
+            className="qq-btn"
+            data-testid="qq-history-entry"
+            title={t('qq.archive.title')}
+            onClick={onOpenArchive}
+          >
+            最近联系人
+          </button>
         </div>
       </div>
 
@@ -293,8 +311,11 @@ const QQBuddyList: React.FC<QQBuddyListProps> = ({ onOpenChat, onOpenArchive, on
         <div className="qq-toolbar-btns qq-toolbar-2">
           <button
             className="qq-msgmgr-button"
-            title="信息管理器"
+            title={t('qq.archive.title')}
+            aria-label={t('qq.archive.title')}
+            data-testid="qq-message-manager-button"
             style={{ backgroundImage: `url(${qqImg('MsgManagerButton.png')})` }}
+            onClick={onOpenArchive}
           />
           <button
             className="qq-search-button"

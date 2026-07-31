@@ -1235,6 +1235,39 @@ export const ChatRoot = styled.div`
     color: red;
   }
 
+  /* QQ group-chat sidebar: the classic chat frame replaces QQ Show with the
+     authored member roster, keeping group identity and membership visible. */
+  .qq-group-member-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 3px;
+    background: ${C.white};
+  }
+  .qq-group-member {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    padding: 3px 2px;
+    color: ${PALETTE.blue8002};
+  }
+  .qq-group-member img {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .qq-group-member span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .qq-group-empty {
+    padding: 20px 8px;
+    color: ${C.grey};
+    text-align: center;
+  }
+
   /* Chat history viewer: a historical log panel overlaying the message area (data comes from the current conversation thread). */
   .qq-im-history {
     position: absolute;
