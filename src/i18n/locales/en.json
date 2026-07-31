@@ -869,6 +869,7 @@
       "rememberPassword": "Remember password",
       "autoLogin": "Auto-login",
       "invisibleLogin": "Invisible login",
+      "advancedSettings": "Advanced",
       "loginButton": "Login",
       "cancelButton": "Cancel",
       "register": "Register",

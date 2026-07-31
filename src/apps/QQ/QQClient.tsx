@@ -348,7 +348,14 @@ const QQClient: React.FC<QQClientProps> = ({ windowId, versionEgg = false }) => 
   );
 
   if (phase === 'login') {
-    return <QQLoginPanel onLogin={handleLogin} />;
+    return (
+      <QQLoginPanel
+        defaultNumber={profile.login?.number ?? profile.me.number}
+        defaultPassword={profile.login?.password}
+        defaultRememberPassword={profile.login?.rememberPassword}
+        onLogin={handleLogin}
+      />
+    );
   }
   if (phase === 'loading') {
     return (

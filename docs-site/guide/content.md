@@ -114,6 +114,33 @@ const jpRetroCulture = defineCulture({
 <WindowsXP language="ja" cultures={[jpRetroCulture]} />;
 ```
 
+The built-in QQ client reads its identity and login defaults from the culture
+package's `qq` profile. The account field falls back to `me.number`; use the
+optional `login` block when a fictional desktop should show remembered
+credentials:
+
+```tsx
+import type { QQProfile } from '@caoergou/windows-xp';
+
+const qq: QQProfile = {
+  me: {
+    number: '123456',
+    nickname: 'Night Train',
+    avatar: 50,
+    status: 'online',
+  },
+  login: {
+    password: 'story-password',
+    rememberPassword: true,
+  },
+  groups: [],
+  buddies: [],
+};
+```
+
+These credentials only drive the simulated login form; they are not an
+authentication boundary. Login stays disabled until both fields are non-empty.
+
 Notes for third-language packages:
 
 - **`locales` are base-aware.** An item's `locales: ['ja']` matches the
